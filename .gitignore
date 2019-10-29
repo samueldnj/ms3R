@@ -8,6 +8,7 @@
 
 # History plot folders
 ./history/fit_*/plots
+./history/fit_*/hierSCAL.o
 
 # Outputs of ms3R
 ./Outputs/sim*
