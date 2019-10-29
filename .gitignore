@@ -6,6 +6,8 @@
 *.DS_Store
 *.Rapp.history
 
+# History plot folders
+./history/fit_*/plots
 
 # Outputs of ms3R
 ./Outputs/sim*
