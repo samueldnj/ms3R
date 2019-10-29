@@ -1,0 +1,14 @@
+# ms3R .gitignore file
+# Add file names or regular expressions to 
+# ignore when updating git repo
+
+# ---- Temporary R and TMB files --- #
+*.DS_Store
+*.Rapp.history
+
+
+# Outputs of ms3R
+./Outputs/sim*
+
+
+
