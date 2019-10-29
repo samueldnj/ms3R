@@ -74,21 +74,25 @@ Type objective_function<Type>::operator() ()
   /*parameter section*/
   // Leading Parameters
   PARAMETER_ARRAY(lnBmsy_sp);           // Biomass at MSY
-  PARAMETER_ARRAY(lnUmsy_sp);           // Optimal exploitation rate            
-  PARAMETER_ARRAY(lnq_spf);             // Survey-species-stock catchability
+  PARAMETER(lnUmsy);                    // Optimal complex exploitation rate
+  PARAMETER_VECTOR(lnq_f);              // Survey catchability
   PARAMETER_VECTOR(lntau_spf);          // survey obs error var
   PARAMETER_ARRAY(lnBinit_sp);          // Non-equilibrium initial biomass
   // Priors
-  PARAMETER_ARRAY(lnqbar_sf);           // survey mean catchability
-  PARAMETER_ARRAY(lntauq_sf);           // survey catchability sd 
-  PARAMETER(mq);                        // hyperprior mean catchability
-  PARAMETER(sq);                        // hyperprior catchability sd
-  PARAMETER_VECTOR(lnUmsybar_s);        // shared prior mean Umsy
-  PARAMETER_VECTOR(lnsigUmsy_s);        // shared prior Umsy sd
-  PARAMETER(mUmsy);                     // hyperprior mean Umsy
-  PARAMETER(sUmsy);                     // hyperprior Umsy sd
-  PARAMETER_VECTOR(mBmsy);              // prior mean eqbm biomass
-  PARAMETER_VECTOR(sBmsy);              // prior eqbm biomass var
+  PARAMETER_ARRAY(deltalnq_sf);         // deviation for species catchability w/in a survey
+  PARAMETER_VECTOR(lntauq_f);           // survey catchability sd among species
+  PARAMETER_ARRAY(deltalnq_spf);        // deviation for stock catchability w/in a species/survey
+  PARAMETER_VECTOR(lntauq_s);           // survey catchability sd among stocks w/in a species
+  PARAMETER(mq);                        // hyperprior mean catchability across surveys (tuning par)
+  PARAMETER(sq);                        // hyperprior sd in mean catchability (tuning par)
+  PARAMETER_VECTOR(epsUmsy_s);          // deviation in Umsy from complex mean to species level
+  PARAMETER(lnsigUmsy);                 // complex level Umsy sd
+  PARAMETER_ARRAY(epsUmsy_sp);          // deviation in Umsy from species to stock
+  PARAMETER_VECTOR(lnsigUmsy_s);        // complex level Umsy sd
+  PARAMETER(mUmsy);                     // hyperprior mean Umsy (tuning par)
+  PARAMETER(sUmsy);                     // hyperprior Umsy sd (tuning par)
+  PARAMETER_ARRAY(mBmsy_sp);            // prior mean eqbm biomass (tuning par)
+  PARAMETER_ARRAY(sBmsy_sp);            // prior eqbm biomass var
   PARAMETER_VECTOR(tau2IGa);            // Inverse Gamma Prior parameters for tau2 prior
   PARAMETER_VECTOR(tau2IGb);            // Inverse Gamma Prior parameters for tau2 prior
   PARAMETER_VECTOR(tauq2Prior);         // Hyperparameters for tauq2 prior - (IGa,IGb) or (mean,var)
@@ -112,40 +116,86 @@ Type objective_function<Type>::operator() ()
   array<Type>       zeta_spt(nS,nP,nT);
   // Leading parameters
   array<Type>       Bmsy_sp(nS,nP);
-  array<Type>       Umsy_sp(nS,nP);
   array<Type>       Binit_sp(nS,nP);
   array<Type>       tau_spf(nS,nP,nF);  
   array<Type>       tau2_spf(nS,nP,nF); 
   array<Type>       lnqhat_spf(nS,nP,nF);
   array<Type>       tau2hat_pf(nP,nF);
+  vector<Type>      q_f(nF);
 
+  // Transform arrays
   Bmsy_sp = exp(lnBmsy_sp);
-  Umsy_sp = exp(lnUmsy_sp);
   Binit_sp = exp(lnBinit_sp);
   tau_spf = exp(lntau_spf);
   tau2_spf = exp(2.*lntau_spf);
+
+  // Leading scalars
+  Type Umsy = exp(lnUmsy);
   
   // Prior hyperpars
-  array<Type>       qbar_sf(nS,nF);
-  array<Type>       tauq_sf(nS,nF);
-  array<Type>       tauq2_sf(nS,nF);
-  Type              Umsybar_s   = exp(lnUmsybar_s);
-  Type              sigUmsy2    = exp(Type(2) * lnsigUmsy_s);
+  // Catchability
+  array<Type>       q_sf(nS,nF);
+  array<Type>       q_spf(nS,nP,nF);
+  array<Type>       lnq_sf(nS,nF);
+  array<Type>       lnq_spf(nS,nP,nF);
+  vector<Type>      tauq_f(nF);
+  vector<Type>      tauq_s(nS);
+  vector<Type>      tau2q_f(nF);
+  vector<Type>      tau2q_s(nS);
+
+  // Umsy
+  vector<Type>      Umsy_s(nS);
+  array<Type>       Umsy_sp(nS,nP);
+  vector<Type>      lnUmsy_s(nS);
+  array<Type>       lnUmsy_sp(nS,nP);
+  vector<Type>      sigUmsy_s(nS);
+  vector<Type>      sig2Umsy_s(nS);
+
+  // Now transform and build 
+  tauq_f    = exp(lntauq_f);
+  tauq_s    = exp(lntauq_s);
+  sigUmsy_s = exp(lnsigUmsy_s);
+
+  tau2q_f    = exp(2. * lntauq_f);
+  tau2q_s    = exp(2. * lntauq_s);
+  sig2Umsy_s = exp(2. * lnsigUmsy_s);
+
+  Type sigUmsy = exp(lnsigUmsy);
+  Type sig2Umsy = exp(2. * lnsigUmsy);
+  // species/stock pars
+  for( int s = 0; s < nS; s++ )
+  {
+    lnUmsy_s(s) = lnUmsy + sigUmsy * epsUmsy_s(s);
+    // Fleet specific
+    for( int f = 0; f < nF; f++ )
+    {
+      lnq_sf(s,f) = lnq_f(f) + tauq_f(f) * deltalnq_sf(s,f);
+    }
+    // Stock specific
+    for( int p = 0; p < nP; p++ )
+    {
+      lnq_spf(s,p,f)  = lnq_sf    + tauq_s(s) * deltalnq_spf(s,p,f);
+      lnUmsy_sp(s,p)  = lnUmsy_s  + sigUmsy_s(s) * epsUmsy_sp(s,p);
+    }
+  }
+  
+  // Exponentiate for later
+  q_sf = exp(lnq_sf);
+  q_spf = exp(lnq_spf);
+  Umsy_s = exp(lnUmsy_s);
+  Umsy_sp = exp(lnUmsy_sp);
   
   // Random Effects
   array<Type>       sigmaProc_sp(nS,nP);
   Type              gammaYr;
   
   gammaYr       = Type(1.96) / (Type(1.) + exp(Type(-2.)*logit_gammaYr) ) - Type(0.98);
-  qbar_sf       = exp(lnqbar_sf);
-  tauq_sf       = exp(lntauq_sf);
-  tauq2_sf      = exp(Type(2) * lntauq_sf);
   sigmaProc_sp  = exp(lnsigmaProc) * sigmaProcMult_sp;
 
 
   // Scalars
-  Type              nll     = 0.0;   // objective function (neg log likelihood)
-  Type              nllRE   = 0.0;   // process error likelihood
+  Type              ojbFun  = 0.0;   // objective function (neg log likelihood)
+  Type              nlpRE   = 0.0;   // process error likelihood
   Type              pospen  = 0.0;   // posfun penalty
   // Derived variables - not sure I need all this shit
   array<Type>       MSY_sp(nS,nP);
@@ -163,17 +213,8 @@ Type objective_function<Type>::operator() ()
   lnMSY_sp  = log(MSY_sp);
 
   // Procedure Section //
-  // First create the correlation matrix for the species effects
-  UNSTRUCTURED_CORR_t<Type> specEffCorr(SigmaOffDiag);
-  SigmaCorr = specEffCorr.cov();
-  // Standard deviation component
-  SigmaD.fill(0.0);
-  SigmaD.diagonal() = sqrt(SigmaDiag);
-  // Now combine
-  Sigma = (SigmaD * SigmaCorr);
-  Sigma *= SigmaD;
-
-  // Generate Population Dynamics
+  // Generate process errors
+  
   // initialise first year effect at 0, then loop to fill in
   zeta_spt.fill(0);
   int zetaVecIdx = 0;
@@ -183,7 +224,7 @@ Type objective_function<Type>::operator() ()
       int corrMatEntry = s * (nP) + p;
       for( int t = initT_sp(s,p) + 1; t < nT; t++ )
       {
-        zeta_spt(s,p,t) = gammaYr * zeta_spt(s,p,t) + (1 - gammaYr) * SigmaDiag(corrMatEntry) * zetaspt_vec(zetaVecIdx);
+        zeta_spt(s,p,t) = gammaYr * zeta_spt(s,p,t) + (1 - gammaYr) * sigmaProc_sp(s,p) * zetaspt_vec(zetaVecIdx);
         zetaVecIdx++;
       }
     }
@@ -219,11 +260,11 @@ Type objective_function<Type>::operator() ()
     }
 
   // Add (possibly correlated) process error devs
-  nllRE -= dnorm( zetaspt_vec, Type(0), Type(1), true).sum();
+  nlpRE -= dnorm( zetaspt_vec, Type(0), Type(1), true).sum();
   
   // add REs to joint nll
-  nllRE += posPenFactor*pospen;
-  nll += nllRE;
+  nlpRE += posPenFactor*pospen;
+  objFun += nlpRE;
 
   // Concentrate species specific obs error likelihood?
   // Initialise arrays for concentrating conditional MLE qhat
@@ -275,7 +316,7 @@ Type objective_function<Type>::operator() ()
 
           // Multi-stock model
           if( nP > 1 & lnqPriorCode == 1 ) 
-            lnqhat_spf(s,p,f) = ( zSum_spf(s,p,f) / tau2_spf(s,p,f) + lnqbar_sf(s,f)/tauq2_sf(s,f) ) / ( validObs_spf(s,p,f) / tau2_spf(s,p,f) + 1 / tauq2_sf(s,f) );  
+            lnqhat_spf(s,p,f) = ( zSum_spf(s,p,f) / tau2_spf(s,p,f) + lnq_sf(s,f)/tau2q_s(s) ) / ( validObs_spf(s,p,f) / tau2_spf(s,p,f) + 1 / tau2q_s(s) );  
         } else
           lnqhat_spf(s,p,f) = lnq_spf(s,p,f);
 
@@ -286,7 +327,7 @@ Type objective_function<Type>::operator() ()
         for( int t = initT_sp(s,p); t < nT; t++ )
           if( (I_spft(s,p,f,t) > 0.0) )
           {
-            z_spft(s,p,f,t) -= lnqhat_sf(o,s);
+            z_spft(s,p,f,t) -= lnqhat_spf(s,p,f);
             SS_spf(s,p,f)   += square(z_spft(s,p,f,t));
           }
 
@@ -303,9 +344,9 @@ Type objective_function<Type>::operator() ()
   nll += nllObs;
 
   // Add priors
-  Type nllBprior = 0.0;
-  Type nllqPrior = 0.0;
-  Type nllUprior = 0.0;
+  Type nlpB = 0.0;
+  Type nlpq = 0.0;
+  Type nlpU = 0.0;
 
   // eqbm biomass prior - used for tuning MPs
   for( int p = 0; p < nP; p++)
@@ -315,20 +356,38 @@ Type objective_function<Type>::operator() ()
       if(BPriorCode == 0)
       {
         // Bmsy
-        nllBprior -= dnorm(Bmsy_sp(s,p),mBmsy_sp(s,p), sBmsy_sp(s,p), 1); 
+        nlpB -= dnorm(Bmsy_sp(s,p),mBmsy_sp(s,p), sBmsy_sp(s,p), 1); 
 
         // Initial biomass
         if(initBioCode_sp(s,p) == 1) 
-          nllBprior -= dnorm( Binit_sp(s,p), mBmsy_sp(s,p)/2, sBmsy_sp(s,p)/2, 1);  
+          nlpB -= dnorm( Binit_sp(s,p), mBmsy_sp(s,p)/2, sBmsy_sp(s,p)/2, 1);  
 
       }
       // Jeffreys prior
       if( BPriorCode == 1 )
-        nllBprior += lnBmsy_sp(s,p) + lnBinit_sp(s,p);
+        nlpB += lnBmsy_sp(s,p) + lnBinit_sp(s,p);
       
     } // End biomass prior
 
-  // multispecies shared priors
+  // multispecies and multstock shared priors
+  // I think there's no "most efficient" way to do this,
+  // so, lots of conditionals!
+  // First, let's do catchability
+  for( int f = 0; f < nF; f++ )
+  {
+    if( lnqPriorCode == 1 & condMLEq == 0 )
+    {
+      // Add species effect if more than 1 species
+      if( nS > 1 )
+        nlpq -= dnorm( deltalnq_sf.col(f), Type(0), Type(1), true).sum();
+
+      if( nP > 1 )
+        for( int p = 0; p < nP; p++ )
+          nlpq -= dnorm( deltalnq_spf.col(f).col(p), Type(0), Type(1), true).sum();
+    }
+
+
+  }
   // If not using shared priors, use the hyperpriors for all
   // species specific parameters
   if( nS > 1 | nP > 1 )
@@ -336,34 +395,36 @@ Type objective_function<Type>::operator() ()
     // 1st level priors
     for( int s = 0; s < nS; s++ )
     {
-      // In here, loop over surveys
-      for( int o = 0; f < nF; o++ )
+      for( int p = 0; p < nP; p++ )
       {
-        // catchability
+        // In here, loop over surveys
+        for( int f = 0; f < nF; f++ )
+        {
+          // catchability
+          // Shared Prior
+          if( lnqPriorCode == 1 & condMLEq == 0 )
+            nlpq -= dnorm( deltalnq_spf(s,p,f), Type(0), Type(1), 1);
+
+          // No shared prior (uses the same prior as the SS model)
+          if( lnqPriorCode == 0 )
+            nlpq += 0.5 * pow((q_spf(s,p,f) - mq)/sq,2);
+
+        }
+        // productivity
         // Shared Prior
-        if( lnqPriorCode == 1 & condMLEq == 0 )
-          nllqPrior -= dnorm( lnqhat_sf(o,s), lnqbar_f(o), tauq_f(o), 1);
+        if( lnUPriorCode == 1 )
+          nllUprior -= dnorm( epsUmsy_sp(s,p), Type(0), Type(1), 1);
 
-        // No shared prior (uses the same prior as the SS model)
-        if( lnqPriorCode == 0 )
-          nllqPrior += 0.5 * pow((qhat_sf(0,s) - mq)/sq,2);
-
+        // No shared prior (uses SS model prior)
+        if( lnUPriorCode == 0 )
+          nllUprior += pow( (Umsy(s) - mUmsy)/ sUmsy, 2);
       }
-      // productivity
-      // Shared Prior
-      if( lnUPriorCode == 1 )
-        nllUprior -= dnorm( lnUmsy(s), lnUmsybar, sqrt(sigUmsy2), 1);
-
-      // No shared prior (uses SS model prior)
-      if( lnUPriorCode == 0 )
-        nllUprior += pow( (Umsy(s) - mUmsy)/ sUmsy, 2);
-
     }  
     // Hyperpriors
     // catchability
     if( lnqPriorCode == 1 )
       for( int o = 0; f < nF; o++ ) 
-        nllqPrior -= dnorm( qbar_f(o), mq, sq, 1); 
+        nlpq -= dnorm( qbar_f(o), mq, sq, 1); 
 
     // productivity
     if( lnUPriorCode == 1 )
@@ -376,13 +437,13 @@ Type objective_function<Type>::operator() ()
   { 
     // catchability
     for (int f = 0; o<nF; o++)
-      nllqPrior -= dnorm( qhat_sf(o,0), mq, sq, 1); 
+      nlpq -= dnorm( qhat_sf(o,0), mq, sq, 1); 
     
     // productivity
     nllUprior -= dnorm( Umsy(0), mUmsy, sUmsy, 1);
   }
   // Add all priors
-  nll += nllBprior +  nllqPrior + nllUprior;
+  nll += nllBprior +  nlpq + nllUprior;
   
   // Variance IG priors
   // Obs error var
@@ -499,15 +560,15 @@ Type objective_function<Type>::operator() ()
     REPORT(tauq2_f);
   }
   REPORT(gammaYr);
-  REPORT(nll);
-  REPORT(nllRE);
+  REPORT(objFun);
+  REPORT(nlpRE);
   REPORT(nllObs);
-  REPORT(nllqPrior);
-  REPORT(nllUprior);
-  REPORT(nllBprior);
+  REPORT(nlpq);
+  REPORT(nlpU);
+  REPORT(nlpB);
   REPORT(nllSigPrior);
   REPORT(nllVarPrior);
   REPORT(pospen);
   
-  return nll;
+  return objFun;
 }
