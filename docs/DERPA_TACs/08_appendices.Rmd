@@ -1,0 +1,15 @@
+# (APPENDIX) Appendices {-}
+
+# Appendix A: The operating model
+
+Our operating model was based on an age- and 
+sex-structured, multi-species and multi-stock population
+dynamics model. We simulated the species and stocks
+assuming no ecological interactions or movement
+between areas. This assumption may be unrealistic,
+but it is how the stocks are currenly managed
+so we decided that this was the best place to begin
+our management simulation.
+
+# Appendix B: Surplus production assessment model
+

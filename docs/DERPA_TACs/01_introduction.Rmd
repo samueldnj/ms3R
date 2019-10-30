@@ -1,0 +1,71 @@
+# Introduction
+
+Management decisions in multi-species fisheries are often 
+made on a species-by-species basis. This ignores the fact that
+fishing is inherently non-selective and in most fisheries,
+fishing effort intersects multiple interacting species.
+
+- Something about bycatch, lower commercial value species,
+less data so expensive procedures like MSE are often
+left out in the cold.
+
+
+Data limitations or low commercial value often preclude 
+extending the best management practices (closed loop sim, 
+aka Management Strategy Evaluation) to all species in a multi-species
+fishery. Data pooling is often used to extend assessments to 
+complexes of multiple stocks of similar, interacting species
+of fish, where similar may be defined in a biological
+sense, or in a sens more related to their management 
+[@gaichas2012assembly]. More recently, hierarchical stock 
+assessment models are being 
+applied to extend assessments in multi-species and multi-stock 
+complexes where better data exists for some subgroup of the complex, 
+and there are biological reasons to expect biological parameters
+to be similar among complex members [@thorson2015giants]. For example, 
+estimates of management parameters and stock status are improved in 
+scenarios where data is of low statistical power (i.e., short 
+time series or noisy observations) when hierarchical multi-stoc 
+surplus production models penalise survey catchability and intrinsic
+growth rate by shrinkage priors, compared to single-stock
+models fit to the same data [@johnson2018evaluating].
+
+Although hierarchical stock assessments perform better 
+on limited data under simulation self-tests than single 
+stock methods, it is unclear if hierarchical stock assessment
+methods lead to better management outcomes either single-stock
+or data-pooled methods. Previous research on managment procedure
+performance in multi-stock and multi-species fisheries
+has been focused on spatial scale mismatches between
+the management procedure and the true underlying stock
+dynamics [@benson2015evaluating], or on the comparative 
+performance when considering technical interactions 
+between target and non-target (bycatch) species 
+when setting catch limits [@ono2017management]. Similarly,
+research on hierarchical stock assessment procedures
+has been focused on assessment bias under different
+levels of model complexity [@punt2011among; @jiao2016integrating;
+@jiao2011poor; @jiao2009hierarchical].  
+
+In this paper, we use closed loop simulation to evaluate 
+procedures for setting catch limits in a spatially diverse 
+multi-species flatfish fishery. We condition our simulated
+fishery on the complex of Dover, English, and Rock 
+soles in British Columbia, Canada [add latin, Pleuronectiformes]. 
+These three species co-occur along the BC coast, are caught 
+together in directed trawl fisheries, and are surveyed by 
+the same multi-species trawl survey. (WHY ARE THEY DATA LIMITED...). 
+The commercial fishery is managed across three major areas
+by a strict output control individual transferrable qutoa (ITQ) 
+system, under which a harvester must obtain quota for all fish
+caught (not landed), and must stop fishing for the season 
+otherwise.
+
+- Disutility for catch/quota == 1
+- Different relative value of each species
+- Different composition in each area
+- Different preferences for fishing each area.
+
+
+
+

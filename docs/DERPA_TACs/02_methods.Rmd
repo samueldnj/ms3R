@@ -1,0 +1,309 @@
+# Methods
+
+## British Columbia's flatfish fishery
+
+
+## Simulation model framework
+
+Our simulation framework has an operating
+model component, and management procedure components. The
+stochastic operating model simulates the responses of a 
+spatially complex multispecies fish populations to
+trawl fishing effort. Fishing effort is allocated among
+areas according to a simplifed Ideal Free Distribution (IFD) 
+model in response to TACs set by the management procedure
+component, with the attractiveness of an area based on the relative 
+historical fishing effort, relative price of each species, 
+and catch rates from the previous fishing season. A key 
+feature of our effort allocation method
+is that a declining utility is assiged to the utilisation
+of the TAC, as if quota is completely filled then fishing for 
+all species must stop for the season.
+
+The operating model (OM) component is a multi-species,
+multi-stock age- and sex-structured population dynamics model 
+(Appendix A). We conditioned the OM by fitting it as 
+a stock assessment model to commercial and survey data
+for the DER complex, including commercial catch, CPUE,
+and catch-at-age/length and relative survey biomass,
+and survey catch-at-age/length. Given the low volume
+of biological data from recent time periods, we applied 
+a hierarchical multi-species and multi-stock
+formulation with shrinkage priors on natural mortality,
+stock-recruitment steepness, and trawl survey 
+catchability. We refer readers to Appendix A for 
+full details.
+
+Closed loop simulations apply the management procedure
+iteratively in the following N steps over the T years 
+of the projection:
+
+1. Use an assessment method to determine stock
+status of the complex, either using data pooling,
+hierarchical assessments, or single-stock assessments; 
+2. Apply a harvest control rule to determine
+total allowable catch, and then allocate TAC 
+among species if using a data-pooling method;
+3. Allocate effort to maximise profits
+according to effort allocation model;
+4. Generate realised catches from effort with
+updated catch rates;
+5. Update stochastic population dynamics and
+generate new observation data.
+
+Each set of $T$ projection years was repeated
+100 times to integrate over observation errors 
+and recruitment process errors.
+
+### Surplus production stock assessment models
+
+Management procedures determined stock
+status using a flexible process-error surplus 
+production model. The flexibility allowed the
+same model to be used for all assessment complex
+configurations, ranging from data-pooled single
+stock assessments with no shrinkage priors, to hierarchical
+multi-species and multi-stock assessments. We defined this
+model in Template Model Builder, extending
+a model from our previous research [@kristensen2015tmb;
+@johnson2018evaluating]. For hierarchical model formulations, 
+we applied shrinkage priors to survey catchability 
+and intrinsic growth rate (Appendix B).
+
+9 in total, spanning 3 dimensions
+
+dim1: pooled <-> hierarchical <-> separated
+dim2: single species <-> multi-species
+dim3: spatial <-> coastwide
+
+
+1. Coastwide (1 stock)
+    a. Pooled
+    b. Hierarchical multispecies
+    c. single-species
+2. Spatial (by stock area - 3 stocks)
+    a. Pooled w/in area      
+    b. Single species w/in area.
+    c. Hierarchical multi-species w/in area
+    d. Hierarchical multi-stock across areas, w/in species
+3. Fully spatial (nS * 3 stocks)
+    a. Hierarchical multi-species multi-stock
+    b. Single stock
+
+Data is pooled by simple summation of both
+catch and biomass indices across species within
+each area. This reflects that each species' survey 
+biomass index is an estimate of trawlable biomass, 
+so the pooled index is an estimate of trawlable
+complex biomass available to the survey. For coastwide
+assessments, each survey (pooled or separate) is
+considered as a separate index of the same population.
+
+Each time step $t$, the AM estimates production model 
+equilibria $B_{MSY}$ and $U_{MSY}$, and an expected 
+biomass estimate $\hat{B}_{t+1}$ for the following 
+time step.
+
+
+### Harvest control rule
+
+To set catch limits for a given stock, or data-pooled complex,
+we applied a simple ramped precuationary harvest control 
+rule, following Canadian federal policy [@DFO2006A-Harvest-Strat]:
+\begin{equation}
+U_{t+1} = \left\{ \begin{array}{ll}
+            0 & \hat{B}_{t+1} \leq .4\hat{B}_{MSY} \\
+            \frac{\hat{B}_{t+1} - .4\hat{B}_{MSY}}{(.6 - .4)\hat{B}_{MSY}} U_{MSY} & 
+                .4 < \hat{B}_{t+1}/\hat{B}_{MSY} \leq .6 \\
+            \hat{U}_{MSY} & \hat{B}_{t+1} \geq .6\hat{B}_{MSY}
+          \end{array} \right.
+\end{equation}
+Where $\hat{B}_{MSY}$, $\hat{U}_{MSY}$, and $\hat{B}_{t+1}$  
+were estimated by the assessment model either for 
+a individual species or stocks, or a data-pooled complex.
+
+Total allowable catch (TAC) was then set as the product
+of target harvest rate and projected biomass
+\begin{equation}
+TAC_{t+1} = U_{t+1} \cdot \hat{B}_{t+1}.
+\end{equation}
+In situations where the assessment model scale matched
+the operating model scale, then TACs were passed directly
+to the effort allocation model. In other cases when data were
+pooled or stock structure was ignored, we defined rules
+for allocating TAC among areas and species.
+
+For coastwide assessments all three stock
+area survey series were used, so TAC was apportioned 
+according to the relative survey catchability estimated
+by the assessment model, i.e.
+\begin{equation}
+TAC_{p,t+1} = \frac{\hat{q}_p}{ \sum_{p'} \hat{q}_{p'} } TAC_{t+1}. 
+\end{equation}
+This reflects the assumption that survey indices
+are relative, or minimum, trawlable biomass estimates,
+and catchability coefficients are then an indicator
+of the proportion of total coastwide biomass available 
+to the survey in each area. We normalise by the total
+catchability coefficient as we do not expect
+that they will sum to 1, indicating that some fish 
+remain invulnerable to the survey, either by being 
+higher in the water column, or in non-trawlable habitat.
+
+For splitting TAC within an area when data has been pooled,
+we split them according to the relative contribution of each
+species to the pooled data. For example, if the pooled biomass 
+index for stock area $p$ in time step $t$ was the sum of species
+specific indices in the same area, i.e,
+\begin{equation}
+I_{p,t} = \sum_s I_{s,p,t},
+\end{equation}
+then the TAC for species $s$ is simply
+\[
+TAC_{s,p,t+1} = \frac{I_{s,p,t}}{I_{p,t}} TAC_{p,t+1}.
+\]
+
+
+### Fishing effort allocation and fishing mortality
+
+We allocated fishing effort according to an
+ideal free distribution model, which allocated 
+effort to maximise expected revenue 
+from each area. The expected revenue for each
+area was computed as the sum of the expected catch 
+times the relative value of each species, modulated 
+by a utility function for species catch that became 
+negative as the catch of that species approached the 
+total allowable catch in that area.
+
+For species $s$ in stock area $p$ at time $t$, we 
+determined expected catch $\hat{C}_{s,p,t}$ as a 
+function of effort $E_{p,t}$ using a simplifed
+Baranov equation
+\begin{align}
+\hat{C}_{s,p,t} &= (1 - e^{E_{p,t} \cdot \hat{q}_{p,t-1}}) \cdot \hat{B}_{s,p,t}.
+\end{align}
+We then calculated the utility $U_{s,p,t}$ for the
+expected catch of species $s$ that resulted from
+effort $E_{p,t}$. Finally, we found the
+expected revenue $\bar{R}_{p,t}$ as the sum
+of the expected revenues for each species,
+when modified by the utility function.
+\begin{align}
+U_{s,p,t}(E_{p,t}) &= \frac{5 - \frac{\hat{C}_{s,p,t}}{TAC_{s,p,t}}}{4} \\
+\bar{R}_{p,t} & = \sum_{s} \hat{C}_{s,p,t} \cdot P_s \cdot U_{s,p,t}(E_{p,t}).
+\end{align}
+
+This form of expected revenue is meant to represent
+the response of quota trading to scarcity of species
+quota under the ITQ managment system. As catch approaches
+the available quota, quota becomes scarce and the cost of 
+obtaining more quota increases, as that quota's value
+reflects not only the landed value of the species, but
+the value of access to fishing grounds that it grants. This
+often exceeds the landed value of the fish, and therefore
+creates a negative utility in exhausting the available
+quota. 
+
+**SDNJ** Need to add little optimisation method to 
+allocate a fixed level of effort among the areas, 
+based on expected revenue and the relative costs
+of fishing in an area, probably based on the 
+historical effort allocation and GFE price.
+
+Effort was then supplied to the operating model to
+generate realised fishing mortality among
+species and stock areas. Given the lag
+in the catch rates used to generate the 
+effort allocation, there is a small chance
+that the effort applied in an area will
+exhaust the quota. In these cases, fishing
+was allowed to continue until the catch
+reached 130% of the TAC for that species/stock
+combination, after which all effort
+was terminated in that stock area. The
+overage in realised catch over
+the the TAC was then deducted from
+the following year's TAC. **ADD underfulfillment
+as well?**
+
+## Simulation experiments and performance
+
+We ran a total of $N$ simulations, made up of
+fully factorial combinations of $J$ OM scenarios
+and 9 management procedures. We ran each OM/MP 
+combination as 100 replicates, each initialised
+with a unique random seed, thereby integrating 
+over all stochastic processes. To eliminate the
+effect of random variation between simulations, 
+each simulation was initialised with the same set
+of 100 random seeds.
+
+### OM scenarios
+
+Based on effort allocation model? Not a source
+of management control, and really a source of
+uncertainty for the system as it's user defined.
+Not really the question here, tho. 
+
+Maybe just increased/decreased
+data availability - this is really
+
+Data scenarios:
+1. Surveys only
+2. Commercial CPUE and surveys for historical period - can't
+really pool commercial CPUE in the same way...
+
+Survey CV scenarios:
+1. current CV
+2. Half current CV
+3. Twice current CV
+
+Effort model scenarios - maybe a different paper on
+sustainable overfishing, as this would be a major
+source of uncertainty in the OM:
+1. White noise in catch rates
+2. Red noise in catch rates
+3. Correlations in catch rates among stocks/species
+
+### Managment procedures
+
+We tested nine MPs corresponding to the nine assessment 
+model configurations outlined above. We chose to restrict
+ourselves to the AM configuration only, as this would
+allow us to focus on the management performance
+of the range of models under different data quality 
+scenarios, rather than the interaction between the
+assessment model and other management procedure components.
+
+### Performance metrics
+
+Given that no set of formal management objectives exists
+for the BC flatfish fishery, we decided to generic
+conservation metrics to evaluate the
+conservation performance of our management procedures
+(metrics 1 - 3 below). In addition to the standard 
+average catch and annual average variation (metrics 4
+and 5), we also defined quota utilisation
+and average revenue metrics for evaluating the
+MPs from a commercial point of view.
+
+1. $P(B_{s,p,t} < .4B_{MSY,s,p})$: the probability of 
+biomass falling below the generally accepted limit 
+reference point of 40% of $B_{MSY}$;
+2. $P(B_{s,p,t} < .8B_{MSY,s,p})$: the probability that
+a stock is in an overfished state;
+3. $P(U_{s,p,t} > U_{MSY,s,p})$: the probability that
+overfishing occured;
+4. $\bar{C}_{s,p,t}$: average catch;
+5. $AAV_{s,p}$: the average annual variation in catch
+\begin{equation*}
+AAV_{s,p} = \frac{\sum_t |C_{s,p,t} - C_{s,p,t+1} | }{\sum_t C_{s,p,t}}.
+\end{equation*}
+6. $C_{s,p,t} / TAC_{s,p,t}$: quota utilisation ratios?
+7. $R_{s,p,t}$: average revenue?
+
+All metrics are calculated
+over the first $K$ years of the projection
+period.
+22
