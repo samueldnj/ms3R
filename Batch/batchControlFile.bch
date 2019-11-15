@@ -1,0 +1,140 @@
+# Batch File
+parameter value
+#
+## Scenarios
+#
+# Scenario 1 : BaseOM
+#
+scenario$scenario1$ctl$scenarioName 'BaseOM'
+scenario$scenario1$opMod$pT 15
+#
+#
+## Management Procedures
+#
+# MP 1 : cpueTVq_noEstBio
+#
+mp$mp1$ctl$mpName 'cpueTVq_noEstBio'
+mp$mp1$mp$assess$spFleets 1:4
+mp$mp1$mp$assess$spCondMLEqFleets NULL
+mp$mp1$mp$assess$spTVqFleets c(1,2)
+mp$mp1$mp$assess$spShrinkqFleets c(3,4)
+mp$mp1$mp$assess$spPhzTVq 1
+mp$mp1$mp$assess$spPhzUmsy -3
+mp$mp1$mp$assess$spPhzepslnUmsy_s -4
+mp$mp1$mp$assess$spPhzepslnUmsy_sp -5
+mp$mp1$mp$assess$spPhzdeltalnq_sf -4
+mp$mp1$mp$assess$spPhzdeltalnq_spf -5
+mp$mp1$mp$assess$spPhzBmsy -2
+mp$mp1$mp$assess$spPhzlnqSurv 1
+mp$mp1$mp$assess$spPhzlnqComm 1
+mp$mp1$mp$assess$spPhzProcErr -3
+mp$mp1$mp$assess$spPhzSigmaProc -9
+mp$mp1$mp$assess$spPhztauObs -1
+#
+# MP 2 : cpueTVq_estBmsyCV.1
+#
+mp$mp2$ctl$mpName 'cpueTVq_estBmsyCV.1'
+mp$mp2$mp$assess$spCondMLEqFleets NULL
+mp$mp2$mp$assess$spFleets 1:4
+mp$mp2$mp$assess$spTVqFleets c(1,2)
+mp$mp2$mp$assess$spShrinkqFleets c(3,4)
+mp$mp2$mp$assess$spPhzTVq 1
+mp$mp2$mp$assess$spPhzUmsy -3
+mp$mp2$mp$assess$spPhzepslnUmsy_s -4
+mp$mp2$mp$assess$spPhzepslnUmsy_sp -5
+mp$mp2$mp$assess$spPhzdeltalnq_sf -4
+mp$mp2$mp$assess$spPhzdeltalnq_spf -5
+mp$mp2$mp$assess$spPhzBmsy -2
+mp$mp2$mp$assess$spPhzlnqSurv 1
+mp$mp2$mp$assess$spPhzlnqComm 1
+mp$mp2$mp$assess$spPhzProcErr -3
+mp$mp2$mp$assess$spPhzSigmaProc -9
+mp$mp2$mp$assess$spPhztauObs -1
+mp$mp2$mp$assess$spCVBmsy .1
+#
+# MP 3 : survOnly_noEstBio
+#
+mp$mp3$ctl$mpName 'survOnly_noEstBio'
+mp$mp3$mp$assess$spCondMLEqFleets NULL
+mp$mp3$mp$assess$spFleets 3:4
+mp$mp3$mp$assess$spTVqFleets NULL
+mp$mp3$mp$assess$spShrinkqFleets c(3,4)
+mp$mp3$mp$assess$spPhzTVq 1
+mp$mp3$mp$assess$spPhzUmsy -3
+mp$mp3$mp$assess$spPhzepslnUmsy_s -4
+mp$mp3$mp$assess$spPhzepslnUmsy_sp -5
+mp$mp3$mp$assess$spPhzdeltalnq_sf -4
+mp$mp3$mp$assess$spPhzdeltalnq_spf -5
+mp$mp3$mp$assess$spPhzBmsy -2
+mp$mp3$mp$assess$spPhzTVq -1
+mp$mp3$mp$assess$spPhzProcErr -3
+mp$mp3$mp$assess$spPhzSigmaProc -9
+mp$mp3$mp$assess$spPhztauObs -1
+mp$mp3$mp$assess$spPhzlnqSurv 1
+mp$mp3$mp$assess$spPhzlnqComm -1
+#
+# MP 4 : survOnly_estBmsyCV.1
+#
+mp$mp4$ctl$mpName 'survOnly_estBmsyCV.1'
+mp$mp4$mp$assess$spCondMLEqFleets NULL
+mp$mp4$mp$assess$spFleets 3:4
+mp$mp4$mp$assess$spTVqFleets NULL
+mp$mp4$mp$assess$spShrinkqFleets c(3,4)
+mp$mp4$mp$assess$spPhzTVq -1
+mp$mp4$mp$assess$spPhzUmsy -3
+mp$mp4$mp$assess$spPhzepslnUmsy_s -4
+mp$mp4$mp$assess$spPhzepslnUmsy_sp -5
+mp$mp4$mp$assess$spPhzdeltalnq_sf -4
+mp$mp4$mp$assess$spPhzdeltalnq_spf -5
+mp$mp4$mp$assess$spPhzBmsy 2
+mp$mp4$mp$assess$spPhzlnq -1
+mp$mp4$mp$assess$spPhzTVq -1
+mp$mp4$mp$assess$spPhzProcErr -3
+mp$mp4$mp$assess$spPhzSigmaProc -9
+mp$mp4$mp$assess$spPhztauObs -1
+mp$mp4$mp$assess$spPhzlnqSurv 1
+mp$mp4$mp$assess$spPhzlnqComm -1
+mp$mp4$mp$assess$spCVBmsy .1
+#
+# MP 5 : cpueCondMLEq_noEstBio
+#
+mp$mp5$ctl$mpName 'cpueCondMLEq_noEstBio'
+mp$mp5$mp$assess$spFleets 1:4
+mp$mp5$mp$assess$spCondMLEqFleets c(1,2)
+mp$mp5$mp$assess$spTVqFleets NULL
+mp$mp5$mp$assess$spShrinkqFleets c(3,4)
+mp$mp5$mp$assess$spPhzTVq -1
+mp$mp5$mp$assess$spPhzUmsy -3
+mp$mp5$mp$assess$spPhzepslnUmsy_s -4
+mp$mp5$mp$assess$spPhzepslnUmsy_sp -5
+mp$mp5$mp$assess$spPhzdeltalnq_sf -4
+mp$mp5$mp$assess$spPhzdeltalnq_spf -5
+mp$mp5$mp$assess$spPhzBmsy -2
+mp$mp5$mp$assess$spPhzlnqSurv 1
+mp$mp5$mp$assess$spPhzlnqComm -1
+mp$mp5$mp$assess$spPhzProcErr -3
+mp$mp5$mp$assess$spPhzSigmaProc -9
+mp$mp5$mp$assess$spPhztauObs -1
+#
+# MP 6 : cpueCondMLEq_estBmsyCV.1
+#
+mp$mp6$ctl$mpName 'cpueCondMLEq_estBmsyCV.1'
+mp$mp6$mp$assess$spCondMLEqFleets c(1,2)
+mp$mp6$mp$assess$spFleets 1:4
+mp$mp6$mp$assess$spTVqFleets NULL
+mp$mp6$mp$assess$spShrinkqFleets c(3,4)
+mp$mp6$mp$assess$spPhzTVq -1
+mp$mp6$mp$assess$spPhzUmsy -3
+mp$mp6$mp$assess$spPhzepslnUmsy_s -4
+mp$mp6$mp$assess$spPhzepslnUmsy_sp -5
+mp$mp6$mp$assess$spPhzdeltalnq_sf -4
+mp$mp6$mp$assess$spPhzdeltalnq_spf -5
+mp$mp6$mp$assess$spPhzBmsy -2
+mp$mp6$mp$assess$spPhzlnqSurv 1
+mp$mp6$mp$assess$spPhzlnqComm -1
+mp$mp6$mp$assess$spPhzProcErr -3
+mp$mp6$mp$assess$spPhzSigmaProc -9
+mp$mp6$mp$assess$spPhztauObs -1
+mp$mp6$mp$assess$spCVBmsy .1
+#
+## <END FILE>
