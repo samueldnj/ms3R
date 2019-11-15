@@ -1,8 +1,0 @@
-# mseR batch design file,  Fri Nov 15 10:22:38 2019 
-"parFile","blobName","scenarioLabel","mpLabel","dataName","methodName","ruleName","scCol","scLty","scLwd","scSym","mpCol","mpLty","mpLwd","mpSym","join"
-"job1.txt","simjob1","'BaseOM'","'cpueTVq_noEstBio'","data","method","rule","black",1,1,1,"black",1,1,1,0
-"job2.txt","simjob2","'BaseOM'","'cpueTVq_estBmsyCV.1'","data","method","rule","black",1,1,1,"black",1,1,1,0
-"job3.txt","simjob3","'BaseOM'","'survOnly_noEstBio'","data","method","rule","black",1,1,1,"black",1,1,1,0
-"job4.txt","simjob4","'BaseOM'","'survOnly_estBmsyCV.1'","data","method","rule","black",1,1,1,"black",1,1,1,0
-"job5.txt","simjob5","'BaseOM'","'cpueCondMLEq_noEstBio'","data","method","rule","black",1,1,1,"black",1,1,1,0
-"job6.txt","simjob6","'BaseOM'","'cpueCondMLEq_estBmsyCV.1'","data","method","rule","black",1,1,1,"black",1,1,1,0
