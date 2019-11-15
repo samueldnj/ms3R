@@ -266,8 +266,8 @@ calcRefPts <- function( obj )
   ssbpr_asp  <- Surv_axsp[,nX,,] * wtAge_axsp[,nX,,] * matAge_axsp[,nX,,]
   ssbpr_sp   <- apply( X = ssbpr_asp, FUN = sum, MARGIN = c(2,3), na.rm = T )
 
-  expbpr_asp  <- Surv_axsp * selAge_axsp * wtAge_axsp
-  expbpr_sp   <- apply( X = expbpr_asp, FUN = sum, MARGIN = c(3,4), na.rm = T )  
+  expbpr_axsp <- Surv_axsp * selAge_axsp * wtAge_axsp
+  expbpr_sp   <- apply( X = expbpr_axsp, FUN = sum, MARGIN = c(3,4), na.rm = T )  
 
   # compile output list
   yprList <- list(  ssbpr_sp  = ssbpr_sp,

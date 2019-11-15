@@ -10,10 +10,13 @@
 #
 # <><><><><><><><><><><><><><><><><><><><><><><><><><><>
 
+source("loadPackages.R")
 source("refPts.R")
 source("tools.R")
 source("simSCAL.R")
 source("ms3Rplots.R")
+source("applyTMBphase.R")
+source("batchTools.R")
 
-
-# runMS3( "simCtlFile.txt" )
+TMB::compile("hierProd.cpp")
+dyn.load(dynlib("hierProd"))

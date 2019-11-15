@@ -10,6 +10,111 @@
 #
 # <><><><><><><><><><><><><><><><><><><><><><><><><><><>
 
+
+# plotConvStats()
+plotConvStats <- function( obj = blob )
+{
+
+  # Pull max gradient value and hessian indicator
+  maxGrad_itsp  <- blob$mp$assess$maxGrad_itsp
+  pdHess_itsp   <- blob$mp$assess$pdHess_itsp
+
+  nReps <- dim(maxGrad_itsp)[1]
+
+  # Now we want to get the mean and SD
+  # of these values over the replicates
+  quantsMaxGrad_qtsp <- apply( X = maxGrad_itsp, FUN = quantile,
+                              MARGIN = 2:4, probs = c(0.05, 0.5, 0.95) )
+
+  propPDHess_tsp  <- apply( X = pdHess_itsp, FUN = mean,
+                            MARGIN = 2:4 )
+
+  pT <- blob$ctlList$opMod$pT
+  nS <- blob$om$nS
+  nP <- blob$om$nP
+
+  speciesNames  <- blob$om$speciesNames
+  stockNames    <- blob$om$stockNames
+
+
+  xJitter     <- seq( from = -.3, to = .3, length.out = nP )
+  stockCols   <- RColorBrewer::brewer.pal( nP, "Dark2" )
+  stockPts    <- seq( from = 21, by = 1, length.out = nP )
+  rectWidth   <- .6 / nP
+
+  par( mfcol = c(nS,2), mar = c(0,2,0,1), oma = c(3,3,3,2) )
+
+  # First, plot the maxGrads, using 
+  # different colours for each species, and 
+  # pch for each stock... Jitter!
+  for( s in 1:nS )
+  {
+    plot( x = c(1,pT), 
+          y = range(quantsMaxGrad_qtsp, na.rm = T),
+          type = "n",
+          axes = FALSE )
+      mfg <- par("mfg")
+      if( mfg[1] == mfg[3])
+        axis( side = 1 )
+      if(mfg[1] == 1 )
+        mtext( side = 3, text = "Max Gradient Component")
+      
+      axis( side = 2, las = 1 )
+      box()
+      grid()
+
+      for( p in 1:nP )
+      {
+        points( x = 1:pT + xJitter[p], y = quantsMaxGrad_qtsp[2,,s,p],
+                col = stockCols[p], pch = stockPts[p], bg = stockCols[p] )
+        segments( x0 = 1:pT + xJitter[p], x1 = 1:pT + xJitter[p],
+                  y0 = quantsMaxGrad_qtsp[1,,s,p],
+                  y1 = quantsMaxGrad_qtsp[3,,s,p],
+                  col = stockCols[p], lty = 1 )
+      }
+      if( s == 1 )
+        legend( "topright", bty = "n",
+                legend = stockNames,
+                col = stockCols,
+                pch = stockPts,
+                pt.bg = stockCols )
+  }
+
+  # now do proportion of PD hessians
+  for( s in 1:nS )
+  {
+    plot( x = c(1,pT), y = c(0,1.3),
+          axes = FALSE, type = "n" )
+      # Axes
+      if( mfg[1] == mfg[3])
+        axis( side = 1 )
+      axis( side = 2, las = 1 )
+      mtext( side = 4, text = speciesNames[s], font = 2, line = 2)
+      if(mfg[1] == 1 )
+        mtext( side = 3, text = "Proportion of PD Hessians")
+
+      box()
+      abline( h = 1.0, lty = 2, lwd = 2, col = "grey40" )
+
+      # Plot rectangles of PD Hessians
+      for( p in 1:nP )
+      {
+        rect( xleft = 1:pT + xJitter[p] - rectWidth/2,
+              xright = 1:pT + xJitter[p] + rectWidth/2,
+              ybottom = 0,
+              ytop = propPDHess_tsp[,s,p],
+              col = stockCols[p] )
+      }
+      if( s == 1 )
+        legend( "topright", bty = "n",
+                legend = stockNames,
+                col = stockCols,
+                pch = 22, pt.bg = stockCols )
+
+  }
+
+}
+
 # plotEffort_p()
 # Effort over time gridded
 # by stock area
@@ -204,6 +309,8 @@ plotRetroSB <- function( obj = blob, iRep = 1 )
 {
   # Get biomass arrays
   SB_spt        <- obj$om$SB_ispt[iRep,,,]
+  VB_spt        <- obj$om$vB_ispft[iRep,,,2,]
+  totB_spt      <- obj$om$B_ispt[iRep,,,]
   retroSB_tspt  <- obj$mp$assess$retroSB_itspt[iRep,,,,]
 
 
@@ -226,7 +333,7 @@ plotRetroSB <- function( obj = blob, iRep = 1 )
     for( p in 1:nP )
     {
       plot( x = range(yrs),
-            y = c(0,max(SB_spt[s,p,],retroSB_tspt[,s,p,],na.rm = T) ),
+            y = c(0,max(totB_spt[s,p,],VB_spt[s,p,],SB_spt[s,p,],retroSB_tspt[,s,p,],na.rm = T) ),
             type = "n", axes = F )
 
       mfg <- par("mfg")
@@ -246,6 +353,8 @@ plotRetroSB <- function( obj = blob, iRep = 1 )
       box()
       grid()
       lines( x = yrs, y = SB_spt[s,p,], col = "red", lwd = 3 )
+      lines( x = yrs, y = VB_spt[s,p,], col = "grey40", lwd = 2, lty = 3 )
+      lines( x = yrs, y = totB_spt[s,p,], col = "black", lwd = 2 )
       for( tt in 1:pT )
         lines( x = yrs, y = retroSB_tspt[tt,s,p,], col = "grey60", lwd = 1 )
   

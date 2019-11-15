@@ -37,6 +37,32 @@ Type square(Type x)
   return pow(x,2);
 }
 
+// dinvgamma()
+// R-style inverse gamma probability distribution density
+// function.
+// inputs:    x = real number to calculate density of
+//            alpha = shape parameter
+//            beta = scale parameter
+//            logscale = int determining whether function returns log (1) or 
+//                        natural (0) scale density
+// outputs:   dens = density on natural or log scale
+// Usage:     usually for variance priors
+// Source:    Wikipedia,  by S. D. N. Johnson
+template<class Type>
+Type dinvgamma( Type x,
+                Type alpha,
+                Type beta,
+                int logscale )
+{
+
+  Type dens = -1 * ( (alpha + 1) * log(x) + beta / x );
+
+  if( logscale == 0 )
+    dens = exp( dens );
+
+  return(dens);
+}
+
 
 
 // objective function
@@ -46,7 +72,7 @@ Type objective_function<Type>::operator() ()
   // Call namespaces //
   using namespace density;
 
-  /*data section*/
+  /* ========== data section ========== */
   // Data Structures
   DATA_ARRAY(I_spft);           // Indices (CPUE/biomass)
   DATA_ARRAY(C_spt);            // Catch data
@@ -60,48 +86,53 @@ Type objective_function<Type>::operator() ()
 
   // Model switches
   DATA_INTEGER(SigmaPriorCode); // 0 => IG on diagonal element, 1 => IW on cov matrix
-  DATA_INTEGER(tauqPriorCode);  // 0 => IG on tauq2, 1 => normal
-  DATA_INTEGER(sigUPriorCode);  // 0 => IG on sigU2, 1 => normal
-  DATA_INTEGER(condMLEq);       // 0 => q leading par, 1 => q concentrated
+  // DATA_INTEGER(tauqPriorCode);  // 0 => IG on tauq2, 1 => normal
+  // DATA_INTEGER(sigUPriorCode);  // 0 => IG on sigU2, 1 => normal
+  DATA_IVECTOR(condMLEq_f);     // 0 => q estimated, 1 => q derived from obs model (mean resid)
+  DATA_IVECTOR(shrinkq_f);      // 0 => q a leading par, 1 => q shrank to complex mean
+  DATA_IVECTOR(tvq_f);          // 0 => q constant, 1 => q time-varying
   DATA_INTEGER(lnqPriorCode);   // 0 => hyperprior, 1 => multilevel
   DATA_INTEGER(lnUPriorCode);   // 0 => hyperprior, 1 => multilevel 
   DATA_INTEGER(BPriorCode);     // 0 => normal, 1 => Jeffreys 
   DATA_IARRAY(initT_sp);        // first year of assessment
+  DATA_IARRAY(initProcErr_sp);  // first year of process error devs
   DATA_IARRAY(initBioCode_sp);  // initial biomass at 0 => unfished, 1=> fished
+  DATA_IARRAY(calcIndex_spf);   // Indicator for calculating obs model variance for an index
+  DATA_IARRAY(stockq_spf);      // Indicator for calculating catchability for a stock/species/fleet combo
   DATA_SCALAR(posPenFactor);    // Positive-penalty multiplication factor
 
 
-  /*parameter section*/
+  /* ========== parameter section ==========*/
   // Leading Parameters
   PARAMETER_ARRAY(lnBmsy_sp);           // Biomass at MSY
   PARAMETER(lnUmsy);                    // Optimal complex exploitation rate
-  PARAMETER_VECTOR(lnq_f);              // Survey catchability
-  PARAMETER_VECTOR(lntau_spf);          // survey obs error var
+  PARAMETER_ARRAY(lnqComm_spf);         // Commercial CPUE catchability
+  PARAMETER_ARRAY(lnqSurv_sf);          // Survey catchability - species mean
+  PARAMETER_VECTOR(lntauspf_vec);       // survey obs error var
   PARAMETER_ARRAY(lnBinit_sp);          // Non-equilibrium initial biomass
   // Priors
-  PARAMETER_ARRAY(deltalnq_sf);         // deviation for species catchability w/in a survey
-  PARAMETER_VECTOR(lntauq_f);           // survey catchability sd among species
-  PARAMETER_ARRAY(deltalnq_spf);        // deviation for stock catchability w/in a species/survey
+  PARAMETER_VECTOR(deltalnqspf_vec);    // deviation for stock catchability w/in a species/survey
   PARAMETER_VECTOR(lntauq_s);           // survey catchability sd among stocks w/in a species
-  PARAMETER(mq);                        // hyperprior mean catchability across surveys (tuning par)
-  PARAMETER(sq);                        // hyperprior sd in mean catchability (tuning par)
-  PARAMETER_VECTOR(epsUmsy_s);          // deviation in Umsy from complex mean to species level
+  PARAMETER_VECTOR(tvlnqDevs_vec);      // Time-varying catchability devs
+  PARAMETER(lntautvqDev);               // TV q SD
+  PARAMETER(mlnq);                      // hyperprior mean catchability across surveys (tuning par)
+  PARAMETER(sdlnq);                     // hyperprior sd in mean catchability (tuning par)
+  PARAMETER_VECTOR(epslnUmsy_s);        // deviation in Umsy from complex mean to species level
   PARAMETER(lnsigUmsy);                 // complex level Umsy sd
-  PARAMETER_ARRAY(epsUmsy_sp);          // deviation in Umsy from species to stock
+  PARAMETER_ARRAY(epslnUmsy_sp);        // deviation in Umsy from species to stock
   PARAMETER_VECTOR(lnsigUmsy_s);        // complex level Umsy sd
-  PARAMETER(mUmsy);                     // hyperprior mean Umsy (tuning par)
-  PARAMETER(sUmsy);                     // hyperprior Umsy sd (tuning par)
+  PARAMETER(mlnUmsy);                   // hyperprior mean Umsy (tuning par)
+  PARAMETER(sdlnUmsy);                  // hyperprior Umsy sd (tuning par)
   PARAMETER_ARRAY(mBmsy_sp);            // prior mean eqbm biomass (tuning par)
-  PARAMETER_ARRAY(sBmsy_sp);            // prior eqbm biomass var
-  PARAMETER_VECTOR(tau2IGa);            // Inverse Gamma Prior parameters for tau2 prior
-  PARAMETER_VECTOR(tau2IGb);            // Inverse Gamma Prior parameters for tau2 prior
-  PARAMETER_VECTOR(tauq2Prior);         // Hyperparameters for tauq2 prior - (IGa,IGb) or (mean,var)
-  PARAMETER_VECTOR(sigU2Prior);         // Hyperparameters for sigU2 prior - (IGa,IGb) or (mean,var)
-  PARAMETER_VECTOR(kappa2IG);           // Inverse Gamma Prior parameters for kappa2 prior
-  PARAMETER_VECTOR(Sigma2IG);           // Inverse Gamma Prior parameters for Sigma2 prior
-  PARAMETER_MATRIX(wishScale);          // IW scale matrix for Sigma prior
-  PARAMETER(nu);                        // IW degrees of freedom for Sigma prior    
+  PARAMETER_ARRAY(sdBmsy_sp);           // prior eqbm biomass SD
+  PARAMETER_VECTOR(tau2IGa_f);          // Inverse Gamma Prior parameters for tau2 prior
+  PARAMETER_VECTOR(tau2IGb_f);          // Inverse Gamma Prior parameters for tau2 prior
+  PARAMETER_VECTOR(sigma2IG);           // Inverse Gamma Prior parameters for Sigma2 prior
+  // PARAMETER(nu);                        // IW degrees of freedom for Sigma prior    
   PARAMETER(deltat);                    // Fractional time step used in pop dynamics to reduce chaotic behaviour
+
+  int nComm = lnqComm_spf.dim(2);
+  int nSurv = lnqSurv_sf.dim(1);
   
   // Random Effects
   PARAMETER(lnsigmaProc);               // Species effect cov matrix diag
@@ -111,9 +142,9 @@ Type objective_function<Type>::operator() ()
   
 
   // State variables
-  array<Type>       B_spt(nS,nP,nT);
-  array<Type>       lnBt_spt(nS,nP,nT);
-  array<Type>       zeta_spt(nS,nP,nT);
+  array<Type>       B_spt(nS,nP,nT+1);
+  array<Type>       lnB_spt(nS,nP,nT+1);
+  array<Type>       zeta_spt(nS,nP,nT+1);
   // Leading parameters
   array<Type>       Bmsy_sp(nS,nP);
   array<Type>       Binit_sp(nS,nP);
@@ -121,27 +152,36 @@ Type objective_function<Type>::operator() ()
   array<Type>       tau2_spf(nS,nP,nF); 
   array<Type>       lnqhat_spf(nS,nP,nF);
   array<Type>       tau2hat_pf(nP,nF);
-  vector<Type>      q_f(nF);
+  array<Type>       qSurv_sf(nS,nSurv);
 
   // Transform arrays
   Bmsy_sp = exp(lnBmsy_sp);
   Binit_sp = exp(lnBinit_sp);
-  tau_spf = exp(lntau_spf);
-  tau2_spf = exp(2.*lntau_spf);
 
   // Leading scalars
   Type Umsy = exp(lnUmsy);
   
   // Prior hyperpars
   // Catchability
-  array<Type>       q_sf(nS,nF);
   array<Type>       q_spf(nS,nP,nF);
+  array<Type>       lnqdev_spft(nS,nP,nF,nT);
+  array<Type>       qhat_spf(nS,nP,nF);
+  array<Type>       qhat_spft(nS,nP,nF,nT);
+  array<Type>       deltalnq_spf(nS,nP,nF);
   array<Type>       lnq_sf(nS,nF);
   array<Type>       lnq_spf(nS,nP,nF);
-  vector<Type>      tauq_f(nF);
   vector<Type>      tauq_s(nS);
-  vector<Type>      tau2q_f(nF);
   vector<Type>      tau2q_s(nS);
+
+  q_spf.setZero();
+  lnqdev_spft.setZero();
+  qhat_spf.setZero();
+  qhat_spft.fill(1.0);
+  deltalnq_spf.setZero();
+  lnq_sf.setZero();
+  lnq_spf.setZero();
+  tauq_s.setZero();
+  tau2q_s.setZero();
 
   // Umsy
   vector<Type>      Umsy_s(nS);
@@ -149,41 +189,84 @@ Type objective_function<Type>::operator() ()
   vector<Type>      lnUmsy_s(nS);
   array<Type>       lnUmsy_sp(nS,nP);
   vector<Type>      sigUmsy_s(nS);
-  vector<Type>      sig2Umsy_s(nS);
+  // vector<Type>      sig2Umsy_s(nS);
 
   // Now transform and build 
-  tauq_f    = exp(lntauq_f);
   tauq_s    = exp(lntauq_s);
+  tau2q_s    = exp(2. * lntauq_s);
   sigUmsy_s = exp(lnsigUmsy_s);
 
-  tau2q_f    = exp(2. * lntauq_f);
-  tau2q_s    = exp(2. * lntauq_s);
-  sig2Umsy_s = exp(2. * lnsigUmsy_s);
 
   Type sigUmsy = exp(lnsigUmsy);
-  Type sig2Umsy = exp(2. * lnsigUmsy);
+  Type tautvqDev = exp(lntautvqDev);
+  
+  int tauVecIdx = 0;
+  int deltalnqVecIdx = 0;
+  int qDevVecIdx = 0;
+  tau_spf.fill(0);
   // species/stock pars
   for( int s = 0; s < nS; s++ )
   {
-    lnUmsy_s(s) = lnUmsy + sigUmsy * epsUmsy_s(s);
-    // Fleet specific
-    for( int f = 0; f < nF; f++ )
-    {
-      lnq_sf(s,f) = lnq_f(f) + tauq_f(f) * deltalnq_sf(s,f);
-    }
+    lnUmsy_s(s) = lnUmsy + sigUmsy * epslnUmsy_s(s);
+
     // Stock specific
     for( int p = 0; p < nP; p++ )
     {
-      lnq_spf(s,p,f)  = lnq_sf    + tauq_s(s) * deltalnq_spf(s,p,f);
-      lnUmsy_sp(s,p)  = lnUmsy_s  + sigUmsy_s(s) * epsUmsy_sp(s,p);
+      for( int f = 0; f < nF; f++)
+      {
+        int indicateFirstObs = 0;
+        if( calcIndex_spf(s,p,f) == 1 )
+        {
+          tau_spf(s,p,f) = exp(lntauspf_vec(tauVecIdx));
+          tauVecIdx++;
+        }
+        if( stockq_spf(s,p,f) == 1 )
+        {
+          deltalnq_spf(s,p,f) = deltalnqspf_vec(deltalnqVecIdx);
+          deltalnqVecIdx++;
+        }
+        if( shrinkq_f(f) == 1)
+        {
+          int fleetIdx = f - nComm;
+          lnq_spf(s,p,f)  = lnqSurv_sf(s,fleetIdx) + tauq_s(s) * deltalnq_spf(s,p,f);
+        }
+
+        if( shrinkq_f(f) == 0 )
+          lnq_spf(s,p,f)  = lnqComm_spf(s,p,f); 
+        
+        if( tvq_f(f) == 1 & calcIndex_spf(s,p,f) == 1 )
+          for( int t = 1; t < nT; t++ )
+          {
+            lnqdev_spft(s,p,f,t)  += lnqdev_spft(s,p,f,t-1);
+            // Add deviation if an observation is recorded
+
+            if(I_spft(s,p,f,t) > 0 )
+            {
+              if( indicateFirstObs == 1)
+              {
+                lnqdev_spft(s,p,f,t) += tautvqDev * tvlnqDevs_vec(qDevVecIdx);
+                qDevVecIdx++;
+              }
+
+              if( indicateFirstObs == 0 )
+                indicateFirstObs = 1;
+
+            }
+          }
+      }
+      
+      lnUmsy_sp(s,p)  = lnUmsy_s(s)  + sigUmsy_s(s) * epslnUmsy_sp(s,p);
     }
   }
   
   // Exponentiate for later
-  q_sf = exp(lnq_sf);
-  q_spf = exp(lnq_spf);
-  Umsy_s = exp(lnUmsy_s);
-  Umsy_sp = exp(lnUmsy_sp);
+  qSurv_sf  = exp(lnqSurv_sf);
+  q_spf     = exp(lnq_spf);
+  Umsy_s    = exp(lnUmsy_s);
+  Umsy_sp   = exp(lnUmsy_sp);
+
+  // Square obs error SD
+  tau2_spf = tau_spf * tau_spf;
   
   // Random Effects
   array<Type>       sigmaProc_sp(nS,nP);
@@ -194,7 +277,7 @@ Type objective_function<Type>::operator() ()
 
 
   // Scalars
-  Type              ojbFun  = 0.0;   // objective function (neg log likelihood)
+  Type              objFun  = 0.0;   // objective function (neg log likelihood)
   Type              nlpRE   = 0.0;   // process error likelihood
   Type              pospen  = 0.0;   // posfun penalty
   // Derived variables - not sure I need all this shit
@@ -205,14 +288,15 @@ Type objective_function<Type>::operator() ()
   array<Type>       lnDnT_sp(nS,nP);
   array<Type>       BnT_sp(nS,nP);
   array<Type>       lnBnT_sp(nS,nP);
-  array<Type>       U_Umsy_spt(nS,nP,nT);
-  array<Type>       lnU_Umsy_spt(nS,nP,nT);
+  array<Type>       U_Umsy_spt(nS,nP,nT+1);
+  array<Type>       lnU_Umsy_spt(nS,nP,nT+1);
+  array<Type>       lnU_UmsyT_sp(nS,nP);
 
   // Fill arrays
   MSY_sp    = Bmsy_sp * Umsy_sp;
   lnMSY_sp  = log(MSY_sp);
 
-  // Procedure Section //
+  // ========== Procedure Section ========== //
   // Generate process errors
   
   // initialise first year effect at 0, then loop to fill in
@@ -221,12 +305,14 @@ Type objective_function<Type>::operator() ()
   for( int s = 0; s < nS; s++ )
     for( int p = 0; p < nP; p++ )
     {
-      int corrMatEntry = s * (nP) + p;
-      for( int t = initT_sp(s,p) + 1; t < nT; t++ )
+      for( int t = initProcErr_sp(s,p); t < nT - 1; t++ )
       {
-        zeta_spt(s,p,t) = gammaYr * zeta_spt(s,p,t) + (1 - gammaYr) * sigmaProc_sp(s,p) * zetaspt_vec(zetaVecIdx);
+        Type invLogitZeta = -5 + 10 /( 1 + exp(-zetaspt_vec(zetaVecIdx)));
+
+        zeta_spt(s,p,t) = gammaYr * zeta_spt(s,p,t-1) + sqrt(1 - square(gammaYr)) * sigmaProc_sp(s,p) * invLogitZeta;
         zetaVecIdx++;
       }
+      zeta_spt(s,p,nT) = gammaYr * zeta_spt(s,p,nT-1) + 0;
     }
   
   // Initialise biomass and log-biomass
@@ -238,18 +324,18 @@ Type objective_function<Type>::operator() ()
     for( int p = 0; p < nP; p++ )
     {
       // initialise population, if initBioCode(s)==0 this will be eqbm
-      if( initBioCode_sp(s,p) == 0 ) Bt(s,p,initT_sp(s,p)) = Type(2) * Bmsy_sp(s,p);
-      if( initBioCode_sp(s,p) == 1 ) Bt(s,p,initT_sp(s,p)) = Binit_sp(s,p);
+      if( initBioCode_sp(s,p) == 0 ) B_spt(s,p,initT_sp(s,p)) = Type(2) * Bmsy_sp(s,p);
+      if( initBioCode_sp(s,p) == 1 ) B_spt(s,p,initT_sp(s,p)) = Binit_sp(s,p);
       lnB_spt(s,p,initT_sp(s,p)) = log(B_spt(s,p,initT_sp(s,p)));
-      for( int t = initT_sp(s,p)+1; t < nT; t++ )
+      for( int t = initT_sp(s,p) + 1; t < nT + 1; t++ )
       {
         Type tmpB_spt = B_spt(s,p,t-1);
         for( int dt = 0; dt < nSteps; dt ++ )
         {
           // Compute the deltat step of biomass (assuming catch is evenly distributed across the year)
           Type tmpBdt = 0;
-          tmpBdt =  tmpB_spt + deltat * Umsy_sp(s,p) * tmpB_spt * (Type(2.0) - tmpB_spt / Bmsy(s) ) - deltat*Ct(s,p,t-1);
-          tmpBdt *= exp( deltat *  zeta_spt(s,p,t-1) );
+          tmpBdt =  tmpB_spt + deltat * Umsy_sp(s,p) * tmpB_spt * (Type(2.0) - tmpB_spt / Bmsy_sp(s,p) ) - deltat*C_spt(s,p,t-1);
+          tmpBdt *= exp( deltat *  zeta_spt(s,p,t) );
           // Now update tmpB_spt
           tmpB_spt = posfun(tmpBdt, Type(1e-3), pospen);
         }
@@ -269,21 +355,19 @@ Type objective_function<Type>::operator() ()
   // Concentrate species specific obs error likelihood?
   // Initialise arrays for concentrating conditional MLE qhat
   array<Type>   validObs_spf(nS,nP,nF);
-  vector<Type>  totObs_pf(nP,nF);
-  array<Type>   qhat_sf(nS,nP,nF);
+  array<Type>   totObs_pf(nP,nF);
   array<Type>   z_spft(nS,nP,nF,nT);
   array<Type>   zSum_spf(nS,nP,nF);
   array<Type>   SS_spf(nS,nP,nF);
-  vector<Type>  totSS_pf(nP,nF);
+  array<Type>   totSS_pf(nP,nF);
   // Fill with 0s
   Type nllObs = 0.0;
   validObs_spf.fill(1e-6);
-  totObs_spf.fill(0);
+  totObs_pf.fill(0);
   zSum_spf.fill(0.0);
   z_spft.fill(0.0);
-  qhat_spf.fill(-1.0);
   SS_spf.fill(0.);
-  totSS_spf.fill(0.);
+  totSS_pf.fill(0.);
 
 
   // Compute observation likelihood
@@ -299,23 +383,23 @@ Type objective_function<Type>::operator() ()
         // time
         for( int t = initT_sp(s,p); t < nT; t++ )
         {
-          // only add a contribution if the data exists (Iost < 0 is missing)
-          if( ( I_spft(s,p,f,t) > 0. ) ) 
+          // only add a contribution if the data exists (I_spft < 0 is missing)
+          if( ( I_spft(s,p,f,t) > 0. ) & (calcIndex_spf(s,p,f) == 1) ) 
           {
             validObs_spf(s,p,f) += int(1);
             z_spft(s,p,f,t) = log( I_spft( s,p,f,t ) ) - log( B_spt( s,p,t ) );
             zSum_spf(s,p,f) += z_spft(s,p,f,t);
           }       
         }
-        if(condMLEq == 1)
+        if( (condMLEq_f(f) == 1) & (calcIndex_spf(s,p,f) == 1))
         {
           // compute conditional MLE q from observation
           // Single stock model
-          if( nP == 1 | lnqPriorCode == 0) 
+          if( shrinkq_f(f) == 0 ) 
             lnqhat_spf(s,p,f) = zSum_spf(s,p,f) / validObs_spf(s,p,f);
 
           // Multi-stock model
-          if( nP > 1 & lnqPriorCode == 1 ) 
+          if( nP > 1 & shrinkq_f(f) == 1 ) 
             lnqhat_spf(s,p,f) = ( zSum_spf(s,p,f) / tau2_spf(s,p,f) + lnq_sf(s,f)/tau2q_s(s) ) / ( validObs_spf(s,p,f) / tau2_spf(s,p,f) + 1 / tau2q_s(s) );  
         } else
           lnqhat_spf(s,p,f) = lnq_spf(s,p,f);
@@ -325,14 +409,18 @@ Type objective_function<Type>::operator() ()
 
         // Subtract lnq_sf from the resids
         for( int t = initT_sp(s,p); t < nT; t++ )
-          if( (I_spft(s,p,f,t) > 0.0) )
+        {
+          qhat_spft(s,p,f,t) = exp( lnqhat_spf(s,p,f) + lnqdev_spft(s,p,f,t));
+          if( (I_spft(s,p,f,t) > 0.0) & (calcIndex_spf(s,p,f) == 1) )
           {
-            z_spft(s,p,f,t) -= lnqhat_spf(s,p,f);
+            z_spft(s,p,f,t) -= lnqhat_spf(s,p,f) - lnqdev_spft(s,p,f,t);
             SS_spf(s,p,f)   += square(z_spft(s,p,f,t));
           }
+        }
 
         // Add to likelihood
-        nllObs += 0.5 * ( validObs_spf(s,p,f)*lntau2_spf(s,p,f) + SS_spf(s,p,f)/tau2_spf(s,p,f));
+        if( calcIndex_spf(s,p,f) == 1)
+          nllObs += 0.5 * ( validObs_spf(s,p,f)*log(tau2_spf(s,p,f)) + SS_spf(s,p,f)/tau2_spf(s,p,f));
 
         // Add valid Obs and SS to a total for each survey
         totObs_pf(p,f) += validObs_spf(s,p,f);
@@ -341,7 +429,7 @@ Type objective_function<Type>::operator() ()
       tau2hat_pf(p,f) = totSS_pf(p,f) / totObs_pf(p,f);
     }
   }
-  nll += nllObs;
+  objFun += nllObs;
 
   // Add priors
   Type nlpB = 0.0;
@@ -356,11 +444,11 @@ Type objective_function<Type>::operator() ()
       if(BPriorCode == 0)
       {
         // Bmsy
-        nlpB -= dnorm(Bmsy_sp(s,p),mBmsy_sp(s,p), sBmsy_sp(s,p), 1); 
+        nlpB -= dnorm(Bmsy_sp(s,p),mBmsy_sp(s,p), sdBmsy_sp(s,p), 1); 
 
         // Initial biomass
         if(initBioCode_sp(s,p) == 1) 
-          nlpB -= dnorm( Binit_sp(s,p), mBmsy_sp(s,p)/2, sBmsy_sp(s,p)/2, 1);  
+          nlpB -= dnorm( Binit_sp(s,p), mBmsy_sp(s,p)/2, sdBmsy_sp(s,p)/2, 1);  
 
       }
       // Jeffreys prior
@@ -373,202 +461,158 @@ Type objective_function<Type>::operator() ()
   // I think there's no "most efficient" way to do this,
   // so, lots of conditionals!
   // First, let's do catchability
-  for( int f = 0; f < nF; f++ )
+  if( lnqPriorCode == 1 )
   {
-    if( lnqPriorCode == 1 & condMLEq == 0 )
+    for( int f = 0; f < nF; f++ )  
     {
-      // Add species effect if more than 1 species
-      if( nS > 1 )
-        nlpq -= dnorm( deltalnq_sf.col(f), Type(0), Type(1), true).sum();
-
-      if( nP > 1 )
+      if( nP > 1 & condMLEq_f(f) == 0 )
         for( int p = 0; p < nP; p++ )
-          nlpq -= dnorm( deltalnq_spf.col(f).col(p), Type(0), Type(1), true).sum();
+        {
+          vector<Type> devVec = deltalnq_spf.col(f).col(p);
+          nlpq -= dnorm( devVec, Type(0), Type(1), true).sum();
+        }
     }
 
-
   }
-  // If not using shared priors, use the hyperpriors for all
-  // species specific parameters
-  if( nS > 1 | nP > 1 )
+
+  nlpq -= dnorm( tvlnqDevs_vec, Type(0), Type(1), true).sum();
+
+  // Then productivity
+  // If number of species is greater than 1,
+  // add species deviation
+  if( lnUPriorCode == 1 )
   {
-    // 1st level priors
-    for( int s = 0; s < nS; s++ )
-    {
+    if( nS > 1 )
+      nlpU -= dnorm( epslnUmsy_s, Type(0), Type(1), true ).sum();
+
+    // If number of stocks is > 1, add stock dev.
+    if( nP > 1 )
       for( int p = 0; p < nP; p++ )
       {
-        // In here, loop over surveys
-        for( int f = 0; f < nF; f++ )
-        {
-          // catchability
-          // Shared Prior
-          if( lnqPriorCode == 1 & condMLEq == 0 )
-            nlpq -= dnorm( deltalnq_spf(s,p,f), Type(0), Type(1), 1);
-
-          // No shared prior (uses the same prior as the SS model)
-          if( lnqPriorCode == 0 )
-            nlpq += 0.5 * pow((q_spf(s,p,f) - mq)/sq,2);
-
-        }
-        // productivity
-        // Shared Prior
-        if( lnUPriorCode == 1 )
-          nllUprior -= dnorm( epsUmsy_sp(s,p), Type(0), Type(1), 1);
-
-        // No shared prior (uses SS model prior)
-        if( lnUPriorCode == 0 )
-          nllUprior += pow( (Umsy(s) - mUmsy)/ sUmsy, 2);
+        vector<Type> devVec = epslnUmsy_sp.col(p);
+        nlpU -= dnorm( devVec, Type(0), Type(1), true ).sum();
       }
-    }  
-    // Hyperpriors
-    // catchability
-    if( lnqPriorCode == 1 )
-      for( int o = 0; f < nF; o++ ) 
-        nlpq -= dnorm( qbar_f(o), mq, sq, 1); 
-
-    // productivity
-    if( lnUPriorCode == 1 )
-      nllUprior -= dnorm(Umsybar, mUmsy, sUmsy, 1);
-    
-  } // End multispecies shared priors    
-  
-  // Now for single species model
-  if( nS == 1 ) 
-  { 
-    // catchability
-    for (int f = 0; o<nF; o++)
-      nlpq -= dnorm( qhat_sf(o,0), mq, sq, 1); 
-    
-    // productivity
-    nllUprior -= dnorm( Umsy(0), mUmsy, sUmsy, 1);
   }
+
+  // Hyperpriors
+  // Catchability
+  for( int f = 0; f < nSurv; f++ )
+  {
+    vector<Type> tmplnq = lnqSurv_sf.col(f);
+    nlpq -= dnorm( tmplnq, mlnq, sdlnq, true).sum();
+  }
+
+  // Productivity
+  nlpU -= dnorm( lnUmsy, mlnUmsy, sdlnUmsy, true);
+  
   // Add all priors
-  nll += nllBprior +  nlpq + nllUprior;
+  objFun += nlpB +  nlpq + nlpU;
   
   // Variance IG priors
   // Obs error var
-  Type nllVarPrior = 0.;
-  Type nllSigPrior = 0.;
-  for( int o = 0; f < nF; o++ )
-    nllVarPrior += (tau2IGa(o)+Type(1))*lntau2_f(o)+tau2IGb(o)/tau2_f(o);  
+  Type nllObsVarPrior = 0.;
+  Type nllProcVarPrior = 0.;
+  for( int f = 0; f < nF; f++ )
+    for( int s = 0; s < nS; s++ )
+      for( int p = 0; p < nP; p++)
+        if( calcIndex_spf(s,p,f) == 1)
+          nllObsVarPrior -= dinvgamma(tau2_spf(s,p,f),tau2IGa_f(f), tau2IGb_f(f), true);
 
-  // year effect deviations var
-  if( kappaPriorCode == 1 )  
-    nllVarPrior += (kappa2IG(0)+Type(1))*lnkappa2 + kappa2IG(1)/kappa2;
-
-  // Now multispecies priors
-  if (nS > 1)
-  {
-    // shared q prior variance
-    if( tauqPriorCode == 0 )
-    {
-      for( int o = 0; f < nF; o++)
-      {
-        nllVarPrior += (tauq2Prior(0)+Type(1))*Type(2)*lntauq_f(o)+tauq2Prior(1)/tauq2_f(o);
-      }
-    }
-    if( tauqPriorCode == 1 )
-    {
-      for( int o = 0; f < nF; o++)
-      {
-        nllVarPrior += Type(0.5) * pow( tauq2_f(o) - tauq2Prior(0), 2) / tauq2Prior(1);
-      }
-    }
-    // shared U prior variance
-    // IG
-    if( sigUPriorCode == 0 )
-    {
-      nllVarPrior += (sigU2Prior(0)+Type(1))*Type(2.)*lnsigUmsy+sigU2Prior(1)/sigUmsy2;
-    }
-    // Normal
-    if( sigUPriorCode == 1 )
-    {
-      nllVarPrior += Type(0.5) * pow( sigUmsy2 - sigU2Prior(0), 2) / sigU2Prior(1);
-    }
-    
-    if( SigmaPriorCode == 1 ) // Apply IW prior to Sigma matrix
-    {
-      matrix<Type> traceMat = wishScale * Sigma.inverse();
-      Type trace = 0.0;
-      for (int s=0;s<nS;s++) trace += traceMat(s,s);
-      nllSigPrior += Type(0.5) *( (nu + nS + 1) * atomic::logdet(Sigma) + trace);
-    }
-  }
 
   // Apply Sigma Prior
-  if( SigmaPriorCode == 0 ) // Apply IG to estimated SigmaDiag element
-    nllSigPrior += (Sigma2IG(0)+Type(1))*lnSigmaDiag+Sigma2IG(1)/exp(lnSigmaDiag);
+  if( SigmaPriorCode == 0 ) // Apply IG to estimated process error var element
+    for( int s = 0; s < nS; s++ )
+      for( int p = 0; p < nP; p++ )
+        nllProcVarPrior -= dnorm( square(sigmaProc_sp(s,p)), sigma2IG(0), sigma2IG(1), true); 
 
-  nll += nllVarPrior + nllSigPrior;
+  objFun += nllObsVarPrior + nllProcVarPrior;
 
   // Derive some output variables
-  Ut      = Ct / Bt;
-  DnT     = Bt.col(nT-1)/Bmsy/2;
-  lnDnT   = log(DnT);
-  lnBnT   = log(Bt.col(nT-1));
+  DnT_sp    = B_spt.col(nT-1)/Bmsy_sp/2;
+  lnDnT_sp  = log(DnT_sp);
+  lnBnT_sp  = lnB_spt.col(nT-1);
   for( int t = 0; t < nT; t ++ )
   {
-    U_Umsy.col(t) = Ut.col(t) / Umsy;
-    lnU_Umsy.col(t) = log(U_Umsy.col(t));
+    U_spt.col(t)      = C_spt.col(t) / B_spt.col(t);
+    U_Umsy_spt.col(t) = U_spt.col(t) / Umsy_sp;
+    lnU_Umsy_spt.col(t) = log(U_Umsy_spt.col(t));
   }
-  lnU_UmsyT = lnU_Umsy.col(nT-1);
-
-  // Reporting Section //
-  // Variables we want SEs for
-  ADREPORT(lnBt);
-  ADREPORT(lnqhat_sf);
-  ADREPORT(lnMSY);
-  ADREPORT(lnBinit);
-  ADREPORT(lntau2_f);
-  ADREPORT(lnkappa2);
-  ADREPORT(lnDnT);
-  ADREPORT(lnBnT);
-  ADREPORT(lnU_UmsyT);
-
+  lnU_UmsyT_sp = lnU_Umsy_spt.col(nT-1);
   
-  // Everything else //
-  REPORT(Bt);
-  REPORT(It);
-  REPORT(Ut);
-  REPORT(Ct);
-  REPORT(eps_t);
-  REPORT(omegat);
-  REPORT(Binit);
-  REPORT(DnT);
-  REPORT(U_Umsy);
-  REPORT(qhat_sf);
-  REPORT(MSY);
-  REPORT(Bmsy);
-  REPORT(Umsy);
-  REPORT(tau2_f);
-  REPORT(kappa2);
+
+  // =========================================================== //
+  // ==================== Reporting Section ==================== //
+  // =========================================================== //
+  
+  // Variables we want SEs for
+  ADREPORT(lnB_spt);
+  ADREPORT(lnqhat_spf);
+  ADREPORT(lnMSY_sp);
+  ADREPORT(lnBinit_sp);
+  ADREPORT(lnDnT_sp);
+  ADREPORT(lnBnT_sp);
+  ADREPORT(lnU_UmsyT_sp);
+
+  // Model dims
   REPORT(nT);
   REPORT(nF);
   REPORT(nS);
-  REPORT(zSum_sf);
-  REPORT(z_sft);
-  REPORT(validObs);
-  REPORT(zeta_st);
-  REPORT(Sigma);
-  REPORT(SigmaDiag);
-  if (nS > 1)
-  {
-    REPORT(SigmaCorr);
-    REPORT(Umsybar);
-    REPORT(sigUmsy2);
-    REPORT(qbar_f);
-    REPORT(tauq2_f);
-  }
+  REPORT(nP);
+
+  // Data
+  REPORT(I_spft);
+  REPORT(C_spt);
+
+  // Leading Pars
+  REPORT(Binit_sp);
+  REPORT(Umsy);
+  REPORT(Bmsy_sp);
+  REPORT(lnqSurv_sf);
+  REPORT(tau2_spf);
+  REPORT(tau_spf);
+  REPORT(tau2hat_pf);
+
+  // State variables
+  REPORT(B_spt);
+
+  // Random effects
+  REPORT(zeta_spt);
+  REPORT(deltalnq_spf);
+  REPORT(epslnUmsy_s);
+  REPORT(epslnUmsy_sp);
   REPORT(gammaYr);
-  REPORT(objFun);
+
+  // Derived variables
+  REPORT(U_spt);
+  REPORT(lnq_spf);
+  REPORT(lnq_sf);
+  REPORT(MSY_sp);
+  REPORT(qhat_spf);
+  REPORT(qhat_spft);
+  REPORT(qSurv_sf);
+  REPORT(q_spf);
+  REPORT(Umsy_sp);
+  REPORT(Umsy_s);
+  REPORT(DnT_sp);
+  REPORT(U_Umsy_spt);
+
+  // Optimisation quantities
+  REPORT(zSum_spf);
+  REPORT(z_spft);
+  REPORT(validObs_spf);
   REPORT(nlpRE);
   REPORT(nllObs);
   REPORT(nlpq);
   REPORT(nlpU);
   REPORT(nlpB);
-  REPORT(nllSigPrior);
-  REPORT(nllVarPrior);
+  REPORT(nllProcVarPrior);
+  REPORT(nllObsVarPrior);
   REPORT(pospen);
+
+  REPORT(objFun);
+
+  // Everything else //
   
+  // Return objective function value
   return objFun;
 }
