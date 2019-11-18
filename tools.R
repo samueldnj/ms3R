@@ -39,6 +39,25 @@
   # Create a quick to read info file for the sim folder
   .makeInfoFile(blob)
 
+
+  graphics.off()
+  # Save a convergence diagnostic image  
+  png( filename = file.path(path,"convDiagnostics.png"),
+        height = 11, width = 8.5, units = "in", res = 300)
+    plotConvStats(obj = blob)
+  dev.off()
+
+  # Save an example retroBiomass  
+  png( filename = file.path(path,"retroSB.png"),
+        height = 11, width = 8.5, units = "in", res = 300)
+    plotRetroSB(obj = blob, iRep = 1)
+  dev.off()
+
+
+  # Copy AM file
+  if(blob$ctlList$mp$assess$method == "hierProd" )
+    file.copy( "hierProd.cpp", file.path(path, "hierProd.cpp") )
+
   # Copy control file to sim folder for posterity
   cat(  "# simCtlFile.txt, written to ", folder, "on ", Sys.time(),"\n", sep = "", 
         file = file.path(path,"simCtlFile.txt"))

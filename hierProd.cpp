@@ -100,6 +100,7 @@ Type objective_function<Type>::operator() ()
   DATA_IARRAY(calcIndex_spf);   // Indicator for calculating obs model variance for an index
   DATA_IARRAY(stockq_spf);      // Indicator for calculating catchability for a stock/species/fleet combo
   DATA_SCALAR(posPenFactor);    // Positive-penalty multiplication factor
+  DATA_IARRAY(solveInitBio_sp); // Indicator for solving initial biomass from first data point and catchability. 0 => off, fIdx > 0 => fleet number
 
 
   /* ========== parameter section ==========*/
@@ -109,7 +110,7 @@ Type objective_function<Type>::operator() ()
   PARAMETER_ARRAY(lnqComm_spf);         // Commercial CPUE catchability
   PARAMETER_ARRAY(lnqSurv_sf);          // Survey catchability - species mean
   PARAMETER_VECTOR(lntauspf_vec);       // survey obs error var
-  PARAMETER_ARRAY(lnBinit_sp);          // Non-equilibrium initial biomass
+  PARAMETER_VECTOR(lnBinit_vec);        // Non-equilibrium initial biomass - vector so not all stocks need it
   // Priors
   PARAMETER_VECTOR(deltalnqspf_vec);    // deviation for stock catchability w/in a species/survey
   PARAMETER_VECTOR(lntauq_s);           // survey catchability sd among stocks w/in a species
@@ -125,6 +126,8 @@ Type objective_function<Type>::operator() ()
   PARAMETER(sdlnUmsy);                  // hyperprior Umsy sd (tuning par)
   PARAMETER_ARRAY(mBmsy_sp);            // prior mean eqbm biomass (tuning par)
   PARAMETER_ARRAY(sdBmsy_sp);           // prior eqbm biomass SD
+  PARAMETER_ARRAY(mBinit_sp);           // Prior mean init biomass
+  PARAMETER_ARRAY(sdBinit_sp);          // Prior SD for init biomass
   PARAMETER_VECTOR(tau2IGa_f);          // Inverse Gamma Prior parameters for tau2 prior
   PARAMETER_VECTOR(tau2IGb_f);          // Inverse Gamma Prior parameters for tau2 prior
   PARAMETER_VECTOR(sigma2IG);           // Inverse Gamma Prior parameters for Sigma2 prior
@@ -156,7 +159,6 @@ Type objective_function<Type>::operator() ()
 
   // Transform arrays
   Bmsy_sp = exp(lnBmsy_sp);
-  Binit_sp = exp(lnBinit_sp);
 
   // Leading scalars
   Type Umsy = exp(lnUmsy);
@@ -203,6 +205,7 @@ Type objective_function<Type>::operator() ()
   int tauVecIdx = 0;
   int deltalnqVecIdx = 0;
   int qDevVecIdx = 0;
+  int BinitvecIdx = 0;
   tau_spf.fill(0);
   // species/stock pars
   for( int s = 0; s < nS; s++ )
@@ -212,19 +215,31 @@ Type objective_function<Type>::operator() ()
     // Stock specific
     for( int p = 0; p < nP; p++ )
     {
+      // Fill Binit if estimated
+      if( initBioCode_sp(s,p) == 1 & solveInitBio_sp(s,p) == 0)
+      {
+        Binit_sp(s,p) = exp(lnBinit_vec(BinitvecIdx));
+        BinitvecIdx++;
+      }
+
+
+
       for( int f = 0; f < nF; f++)
       {
+        // Fill obs error variance
         int indicateFirstObs = 0;
         if( calcIndex_spf(s,p,f) == 1 )
         {
           tau_spf(s,p,f) = exp(lntauspf_vec(tauVecIdx));
           tauVecIdx++;
         }
+        // Fill stock specific q devs
         if( stockq_spf(s,p,f) == 1 )
         {
           deltalnq_spf(s,p,f) = deltalnqspf_vec(deltalnqVecIdx);
           deltalnqVecIdx++;
         }
+        // Make stock specific survey qs using devs
         if( shrinkq_f(f) == 1)
         {
           int fleetIdx = f - nComm;
@@ -254,7 +269,12 @@ Type objective_function<Type>::operator() ()
             }
           }
       }
+
+      // Fill Binit if solved from data
+      if( initBioCode_sp(s,p) == 1 & solveInitBio_sp(s,p) > 0)
+        Binit_sp(s,p) = I_spft(s,p,solveInitBio_sp(s,p)-1,initT_sp(s,p)) / exp(lnq_spf(s,p,solveInitBio_sp(s,p)-1));
       
+      // Umsy shrinkage decomp
       lnUmsy_sp(s,p)  = lnUmsy_s(s)  + sigUmsy_s(s) * epslnUmsy_sp(s,p);
     }
   }
@@ -336,10 +356,11 @@ Type objective_function<Type>::operator() ()
           Type tmpBdt = 0;
           tmpBdt =  tmpB_spt + deltat * Umsy_sp(s,p) * tmpB_spt * (Type(2.0) - tmpB_spt / Bmsy_sp(s,p) ) - deltat*C_spt(s,p,t-1);
           tmpBdt *= exp( deltat *  zeta_spt(s,p,t) );
-          // Now update tmpB_spt
-          tmpB_spt = posfun(tmpBdt, Type(1e-3), pospen);
+          // Update temp biomass
+          tmpB_spt = posfun(tmpBdt, Type(1e-1), pospen);
         }
         B_spt(s,p,t) = tmpB_spt;
+
         lnB_spt(s,p,t) = log(B_spt(s,p,t));
       }
 
@@ -419,7 +440,7 @@ Type objective_function<Type>::operator() ()
         }
 
         // Add to likelihood
-        if( calcIndex_spf(s,p,f) == 1)
+        if( calcIndex_spf(s,p,f) == 1 )
           nllObs += 0.5 * ( validObs_spf(s,p,f)*log(tau2_spf(s,p,f)) + SS_spf(s,p,f)/tau2_spf(s,p,f));
 
         // Add valid Obs and SS to a total for each survey
@@ -447,15 +468,19 @@ Type objective_function<Type>::operator() ()
         nlpB -= dnorm(Bmsy_sp(s,p),mBmsy_sp(s,p), sdBmsy_sp(s,p), 1); 
 
         // Initial biomass
-        if(initBioCode_sp(s,p) == 1) 
-          nlpB -= dnorm( Binit_sp(s,p), mBmsy_sp(s,p)/2, sdBmsy_sp(s,p)/2, 1);  
+        if(initBioCode_sp(s,p) == 1 & solveInitBio_sp(s,p) == 0) 
+          nlpB -= dnorm( Binit_sp(s,p), mBinit_sp(s,p), sdBinit_sp(s,p), 1);  
 
       }
-      // Jeffreys prior
-      if( BPriorCode == 1 )
-        nlpB += lnBmsy_sp(s,p) + lnBinit_sp(s,p);
+      
       
     } // End biomass prior
+
+  // Jeffreys prior
+  if( BPriorCode == 1 )
+  {
+    nlpB += lnBmsy_sp.sum() + lnBinit_vec.sum();
+  }
 
   // multispecies and multstock shared priors
   // I think there's no "most efficient" way to do this,
@@ -520,10 +545,10 @@ Type objective_function<Type>::operator() ()
 
 
   // Apply Sigma Prior
-  if( SigmaPriorCode == 0 ) // Apply IG to estimated process error var element
+  if( SigmaPriorCode == 1 ) // Apply IG to estimated process error var element
     for( int s = 0; s < nS; s++ )
       for( int p = 0; p < nP; p++ )
-        nllProcVarPrior -= dnorm( square(sigmaProc_sp(s,p)), sigma2IG(0), sigma2IG(1), true); 
+        nllProcVarPrior -= dinvgamma( square(sigmaProc_sp(s,p)), sigma2IG(0), sigma2IG(1), true); 
 
   objFun += nllObsVarPrior + nllProcVarPrior;
 
@@ -548,7 +573,7 @@ Type objective_function<Type>::operator() ()
   ADREPORT(lnB_spt);
   ADREPORT(lnqhat_spf);
   ADREPORT(lnMSY_sp);
-  ADREPORT(lnBinit_sp);
+  ADREPORT(lnBinit_vec);
   ADREPORT(lnDnT_sp);
   ADREPORT(lnBnT_sp);
   ADREPORT(lnU_UmsyT_sp);
@@ -571,9 +596,16 @@ Type objective_function<Type>::operator() ()
   REPORT(tau2_spf);
   REPORT(tau_spf);
   REPORT(tau2hat_pf);
+  REPORT(sigmaProc_sp);
 
   // State variables
   REPORT(B_spt);
+
+  // Priors
+  REPORT(mBmsy_sp);
+  REPORT(sdBmsy_sp);
+  REPORT(mlnUmsy);
+  REPORT(sdlnUmsy);
 
   // Random effects
   REPORT(zeta_spt);
@@ -581,6 +613,7 @@ Type objective_function<Type>::operator() ()
   REPORT(epslnUmsy_s);
   REPORT(epslnUmsy_sp);
   REPORT(gammaYr);
+  REPORT(lnqdev_spft);
 
   // Derived variables
   REPORT(U_spt);
@@ -599,6 +632,7 @@ Type objective_function<Type>::operator() ()
   // Optimisation quantities
   REPORT(zSum_spf);
   REPORT(z_spft);
+  REPORT(SS_spf);
   REPORT(validObs_spf);
   REPORT(nlpRE);
   REPORT(nllObs);

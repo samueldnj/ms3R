@@ -37,7 +37,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   blob <- .mgmtProc( simObj )
 
   # Save output
-  .saveBlob(blob, ctlTable, outFolder)
+  .saveBlob(blob = blob, ctlTable, outFolder)
 
   beepr::beep("complete")
 }
@@ -341,12 +341,14 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
         # Set some phases - 
         # if no phase is set then pars not
         # estimated
-        phases <- list( lnq_f         = ctlList$mp$assess$spPhzlnq,
-                        lntauspf_vec  = -1,
+        phases <- list( lnqSurv_sf    = ctlList$mp$assess$spPhzlnqSurv,
+                        lnqComm_spf   = ctlList$mp$assess$spPhzlnqComm,
+                        tvlnqDevs_vec = ctlList$mp$assess$spPhzTVq,
+                        lntauspf_vec  = ctlList$mp$assess$spPhztauObs,
                         lnBmsy_sp     = ctlList$mp$assess$spPhzBmsy,
                         lnUmsy        = ctlList$mp$assess$spPhzUmsy,
                         lnsigmaProc   = ctlList$mp$assess$spPhzSigmaProc,
-                        zetaspt_vec   = ctlList$mp$assess$spPhzProcErr )
+                        zetaspt_vec   = ctlList$mp$assess$spPhzProcErr,  )
 
         tmbLists$phases <- phases
         tmbLists$random <- ctlList$mp$assess$spRE
@@ -423,7 +425,8 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
                     lnBmsy_sp     = ctlList$mp$assess$spPhzBmsy,
                     lnUmsy        = ctlList$mp$assess$spPhzUmsy,
                     lnsigmaProc   = ctlList$mp$assess$spPhzSigmaProc,
-                    zetaspt_vec   = ctlList$mp$assess$spPhzProcErr )
+                    zetaspt_vec   = ctlList$mp$assess$spPhzProcErr,
+                    lnBinit_vec   = ctlList$mp$assess$spPhzlnBinit )
 
     if( nSS > 1 )
     {
@@ -441,6 +444,9 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
 
     if( is.null(ctlList$mp$assess$spShrinkqFleets) )
       phases$deltalnqspf_vec <- -1
+
+    if( ctlList$mp$assess$spSolveInitBio )
+      phases$spPhzlnBinit <- -1
 
     # Add checks for 
     #   - condMLEs of comm fleet qs
@@ -465,6 +471,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
                               maxIter = ctlList$ctl$maxIter )
 
 
+    # browser()
     # Save biomass
     obj$mp$assess$retroSB_tspt[pt,1:nSS,1:nPP,1:t]    <- amObj$repOpt$B_spt
     for( f in 1:nFF )
@@ -524,18 +531,59 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     lnUPriorCode <- 1
   }
 
-  # Initial time step of AM - change later?
+  # Now make init values for pars
+  sumCatch_sp <- apply( X = C_spt, FUN = sum, 
+                        MARGIN = c(1,2) )
+
+  # Initial time step of AM and PE devs
   initT_sp  <- array(0, dim = c(nSS,nPP) )
+  earliestObs_f <- rep(NA,nF)
+
+  # Switch on solveInitBio if necessary
+  solveInitBio_sp <- array(0, dim = c(nSS,nPP))
+
+  # Solve for the first time step
+  if( ctlList$mp$assess$spLateStart)
+    for( s in 1:nSS)
+      for( p in 1:nPP )
+      {
+        for( f in 1:nF )
+          earliestObs_f[f] <- min( which( I_spft[s,p,f,] > 0 ), na.rm = T)
+        
+        initT_sp[s,p]  <- min(earliestObs_f) - 1
+
+        if( initT_sp[s,p] > 0 & ctlList$mp$assess$spSolveInitBio )
+          solveInitBio_sp[s,p] <- which.min(earliestObs_f)
+      }
+
+
+
   initPE_sp <- array(ctlList$mp$assess$spInitPE, dim = c(nSS,nPP) )
+  for( s in 1:nSS )
+    for( p in 1:nPP)
+      if( initPE_sp[s,p] <= initT_sp[s,p] )
+        initPE_sp[s,p] <- initT_sp[s,p] + 1
+
+  initBioCode_sp <-  array(0,dim = c(nSS,nPP))
+  initBioCode_sp[initT_sp > 0] <- 1
+
+  lnBinit_vec <- numeric(length = 0)
+  if( !ctlList$mp$assess$spSolveInitBio)
+    for( s in 1:nSS )
+      for( p in 1:nPP )
+        if( initBioCode_sp[s,p] == 1)
+          lnBinit_vec <- c(lnBinit_vec,log(sum(C_spt[s,p,initT_sp[s,p]:nT])))
+
+
 
   # Now create some vectors to
   # indicate if q is shrunk or not, and if
   # q is conditionally derived or not
   condMLEq_f <- rep(0, nF)
-  condMLEq_f[ctlList$mp$assess$spCondMLEqFleets] <- 1
+  condMLEq_f[ctlList$mp$assess$spCondMLEqFleets - min(ctlList$mp$assess$spFleets) + 1] <- 1
   # Shrink q?
   shrinkq_f  <- rep(0, nF)
-  shrinkq_f[ctlList$mp$assess$spShrinkqFleets] <- 1
+  shrinkq_f[ctlList$mp$assess$spShrinkqFleets - min(ctlList$mp$assess$spFleets) + 1] <- 1
   # Time-varying q?
   tvq_f       <- rep(0,nF)
   tvq_f[ctlList$mp$assess$spTVqFleets] <- 1       
@@ -571,7 +619,6 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
 
 
 
-
   I_spft[is.na(I_spft)] <- -1
 
   # Start making data list
@@ -586,28 +633,25 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
                 BPriorCode      = 0,
                 initT_sp        = initT_sp,
                 initProcErr_sp  = initPE_sp,
-                initBioCode_sp  = array(0,dim = c(nSS,nPP)),
+                initBioCode_sp  = initBioCode_sp,
                 calcIndex_spf   = calcIndex_spf,
                 stockq_spf      = stockq_spf,
-                posPenFactor    = 1e2 )
+                posPenFactor    = ctlList$mp$assess$spPosPenFactor,
+                solveInitBio_sp = solveInitBio_sp )
+  
 
-
-  # Now make init values for pars
-  sumCatch_sp <- apply( X = C_spt, FUN = sum, 
-                        MARGIN = c(1,2) )
-
-  pars <- list( lnBmsy_sp         = mBmsy_sp,
+  pars <- list( lnBmsy_sp         = log(mBmsy_sp),
                 lnUmsy            = mlnUmsy,
                 lnqSurv_sf        = array(0, dim = c(nSS,nShrinkq)),
                 lnqComm_spf       = array(0, dim = c(nSS,nPP,nFreeq)),
-                lntauspf_vec      = rep(-1, sum(calcIndex_spf)),
-                lnBinit_sp        = log(sumCatch_sp),
-                deltalnqspf_vec   = rep(log(.2),sum(stockq_spf)),
+                lntauspf_vec      = rep(log(ctlList$mp$assess$sptauObs_spf), sum(calcIndex_spf)),
+                lnBinit_vec       = lnBinit_vec,
+                deltalnqspf_vec   = rep(0,sum(stockq_spf)),
                 lntauq_s          = rep(log(ctlList$mp$assess$sptauq),nSS),
                 tvlnqDevs_vec     = rep(0,nqDevs),
                 lntautvqDev       = log(ctlList$mp$assess$sptauqdev),
-                mlnq              = log(.5),
-                sdlnq             = 1,
+                mlnq              = log(ctlList$mp$assess$spmlnq),
+                sdlnq             = ctlList$mp$assess$spsdlnq,
                 epslnUmsy_s       = rep(0,nSS),
                 lnsigUmsy         = log(ctlList$mp$assess$spsigU),
                 epslnUmsy_sp      = array(0, dim = c(nSS,nPP)),
@@ -616,10 +660,12 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
                 sdlnUmsy          = ctlList$mp$assess$spsdUmsy,
                 mBmsy_sp          = mBmsy_sp,
                 sdBmsy_sp         = mBmsy_sp*ctlList$mp$assess$spCVBmsy,
+                mBinit_sp         = mBmsy_sp/2,
+                sdBinit_sp        = mBmsy_sp,
                 tau2IGa_f         = rep(9,nF),
                 tau2IGb_f         = rep(.4,nF),
-                sigma2IG          = c(9,.3125),
-                deltat            = .1,
+                sigma2IG          = c(1,.02),
+                deltat            = 1,
                 lnsigmaProc       = log(ctlList$mp$assess$spsigmaProc),
                 zetaspt_vec       = rep(0,sum(nT - initPE_sp) - nSS * nPP),
                 sigmaProcMult_sp  = array(1, dim = c(nSS,nPP)),

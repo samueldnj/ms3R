@@ -394,6 +394,7 @@ doBatchRun <- function( arg )
           val <- ctlPar[,2][ ctlPar[,1] == sharedNamesPar[k] ]
           # if ( is.character(val) )
           #   val <- dQuote( val )
+
           newPars[,2][ newPars[,1]==sharedNames[k] ] <- val
         }
 

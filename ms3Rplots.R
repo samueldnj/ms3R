@@ -16,8 +16,8 @@ plotConvStats <- function( obj = blob )
 {
 
   # Pull max gradient value and hessian indicator
-  maxGrad_itsp  <- blob$mp$assess$maxGrad_itsp
-  pdHess_itsp   <- blob$mp$assess$pdHess_itsp
+  maxGrad_itsp  <- obj$mp$assess$maxGrad_itsp
+  pdHess_itsp   <- obj$mp$assess$pdHess_itsp
 
   nReps <- dim(maxGrad_itsp)[1]
 
@@ -29,12 +29,12 @@ plotConvStats <- function( obj = blob )
   propPDHess_tsp  <- apply( X = pdHess_itsp, FUN = mean,
                             MARGIN = 2:4 )
 
-  pT <- blob$ctlList$opMod$pT
-  nS <- blob$om$nS
-  nP <- blob$om$nP
+  pT <- obj$ctlList$opMod$pT
+  nS <- obj$om$nS
+  nP <- obj$om$nP
 
-  speciesNames  <- blob$om$speciesNames
-  stockNames    <- blob$om$stockNames
+  speciesNames  <- obj$om$speciesNames
+  stockNames    <- obj$om$stockNames
 
 
   xJitter     <- seq( from = -.3, to = .3, length.out = nP )
@@ -83,7 +83,7 @@ plotConvStats <- function( obj = blob )
   # now do proportion of PD hessians
   for( s in 1:nS )
   {
-    plot( x = c(1,pT), y = c(0,1.3),
+    plot( x = c(0,pT+1), y = c(0,1.3),
           axes = FALSE, type = "n" )
       # Axes
       if( mfg[1] == mfg[3])
@@ -313,16 +313,18 @@ plotRetroSB <- function( obj = blob, iRep = 1 )
   totB_spt      <- obj$om$B_ispt[iRep,,,]
   retroSB_tspt  <- obj$mp$assess$retroSB_itspt[iRep,,,,]
 
+  retroSB_tspt[retroSB_tspt < 0] <- NA
+
 
   tMP     <- obj$om$tMP
   nS      <- obj$om$nS
   nP      <- obj$om$nP 
   nT      <- obj$om$nT
 
-  speciesNames  <- blob$ctlList$opMod$species
-  stockNames    <- blob$ctlList$opMod$stock
-  fYear         <- blob$ctlList$opMod$fYear
-  pT            <- blob$ctlList$opMod$pT
+  speciesNames  <- obj$ctlList$opMod$species
+  stockNames    <- obj$ctlList$opMod$stock
+  fYear         <- obj$ctlList$opMod$fYear
+  pT            <- obj$ctlList$opMod$pT
 
   yrs <- seq( from = fYear, by = 1, length.out = nT)
 
