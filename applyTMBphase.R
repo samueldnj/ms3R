@@ -30,7 +30,8 @@
                             base_map = list(),
                             maxEval = 1e3,
                             maxIter = 1e3,
-                            savePhases = TRUE )
+                            savePhases = TRUE,
+                            phaseMsg = TRUE )
 {
   # Pull all th lists
   data    <- tmbLists$data
@@ -117,7 +118,10 @@
 
     }
 
-    # Fit the model
+    # if(phase_cur == maxPhase)
+    #   browser()
+
+    # Fit the model using fixed effects only
     obj <- TMB::MakeADFun(  data = data,
                             parameters = params_use,
                             random = NULL,
@@ -133,7 +137,9 @@
 
     startPar <- obj$par
 
-    cat("\nStarting optimisation for phase ", phase_cur, "\n\n")
+    if(phaseMsg)
+      cat("\nStarting optimisation for phase ", phase_cur, "\n\n")
+
     # Try the optimisation
     opt <- try( nlminb (  start     = obj$par,
                           objective = obj$fn,
@@ -145,7 +151,8 @@
     if( class(opt) == "try-error" )
     {
 
-      cat("\nOptimisation halted due to error\n")
+      if(phaseMsg)
+        cat("\nOptimisation halted due to error\n")
 
       outList$success                   <- FALSE
       outList$maxPhaseComplete          <- phase_cur - 1
@@ -155,6 +162,8 @@
         phaseReports[[phase_cur]]$opt     <- opt
         phaseReports[[phase_cur]]$success <- FALSE
       }
+
+      browser()
 
       break
     }
@@ -167,7 +176,7 @@
         lastPar <- opt$par
         if( grepl("false", opt$message) )
         {
-          lastPar <- startPar + rnorm(length(startPar), mean = 0, sd = 0.1)
+          lastPar <- lastPar + rnorm(length(lastPar), mean = 0, sd = 0.2)
         }
 
 
@@ -184,7 +193,8 @@
 
     if(phase_cur == maxPhase & !is.null(random) )
     {
-      message("Running optimisation with random effects.\n")
+      if(phaseMsg)
+        message("Running optimisation with random effects.\n")
       # Run fit process with random effects
       # First, remove the random effects from
       # the map if they are in there
@@ -199,41 +209,61 @@
 
       # Then make the ADFun object with new stuff
       # Fit the model
-      obj <- TMB::MakeADFun(  data = data,
-                              parameters = params_use,
-                              random = random,
-                              DLL= dllName,
-                              map= map_use,
-                              silent = TRUE )
+      objRE <- TMB::MakeADFun(  data = data,
+                                parameters = params_use,
+                                random = random,
+                                DLL= dllName,
+                                map= map_use,
+                                silent = TRUE )
+
+      objFE <- TMB::MakeADFun(  data = data,
+                                parameters = params_use,
+                                random = NULL,
+                                DLL= dllName,
+                                map= map_use,
+                                silent = TRUE )
+
+      if( is.nan(objRE$fn() ) )
+        randObj <- objFE
+      else randObj <- objRE
 
       # Create a control list for the assessment model
       tmbCtrl <- list(  eval.max = maxEval, 
                         iter.max = maxIter  )
 
-      startPar <- obj$par
+      startPar <- randObj$par
 
-      opt <- try( nlminb (  start     = obj$par,
-                            objective = obj$fn,
-                            gradient  = obj$gr,
-                            control   = tmbCtrl ) )
 
-      if( class(opt) == "try-error" )
+      optRE <- try( nlminb (  start     = startPar,
+                              objective = randObj$fn,
+                              gradient  = randObj$gr,
+                              control   = tmbCtrl ) )
+
+      if( class(optRE) == "try-error" )
       {
+        browser()
         message("NaN evaluation of gradient function.\n")
-        lastPar <- startPar
         for( kRefit in 1:4 )
         {
-          lastPar <- lastPar + rnorm(length(lastPar), mean = 0, sd = 0.3)
+          newPar <- startPar + rnorm(length(startPar), mean = 0, sd = 0.3)
 
-          opt <- try( nlminb (  start     = lastPar,
-                                objective = obj$fn,
-                                gradient  = obj$gr,
+          optRE <- try( nlminb (  start     = newPar,
+                                objective = randObj$fn,
+                                gradient  = randObj$gr,
                                 control   = tmbCtrl ) )
 
+          if( class(optRE) != "try-error")
+            if( grepl("relative",opt$message))
+            {
+              obj <- randObj
+              opt <- optRE
+              break
+            }
 
-          if( grepl("relative",opt$message))
-            break
         }
+      } else {
+        obj <- randObj
+        opt <- optRE
       }
     }
 
@@ -247,6 +277,7 @@
 
         if( !pdHess )
         {
+
           message("AM had non PD Hessian, attempting to refit. \n")
           for( kRefit in 1:4 )
           {
@@ -258,18 +289,18 @@
                                   gradient  = obj$gr,
                                   control   = tmbCtrl ) )
 
-            sdrep   <- try(TMB::sdreport(obj))
+            sdrepRetry   <- try(TMB::sdreport(obj))
             
-            if( class(sdrep) != "try-error")
-              pdHess  <- sdrep$pdHess 
-            else {
-              message("sdrep failed\n")
-              browser()
+            if( class(sdrepRetry) != "try-error")
+            {
+              pdHess  <- sdrepRetry$pdHess 
+              sdRep   <- sdrepRetry
             }
 
             if(pdHess)
               break
           }
+
         }
         
 
@@ -284,7 +315,10 @@
       }
 
       if( class( sdrep ) == "try-error" )
+      {
+        message("sdrep failed\n")
         browser()
+      }
     }
 
 
@@ -301,9 +335,11 @@
       phaseReports[[phase_cur]]$map     <- map_use
     }
 
-    cat(  "\nPhase ", phase_cur, " completed with code ",
+    if(phaseMsg)
+      cat(  "\nPhase ", phase_cur, " completed with code ",
           opt$convergence, " and following message:\n", sep = "" )
-    cat("\n", opt$message, "\n\n", sep = "" )
+    if(phaseMsg)
+      cat("\n", opt$message, "\n\n", sep = "" )
     
   } # close phase loop
 
@@ -329,7 +365,7 @@
   outList$objfun            <- obj$fn()
   outList$optOutput         <- opt
   outList$map               <- map_use
-  outList$maxGrad           <- max(obj$gr())
+  outList$maxGrad           <- max(abs(obj$gr()),na.rm =T)
   # outList$totTime           <- sum(fitReport$time,na.rm = TRUE)
   
   return( outList )  

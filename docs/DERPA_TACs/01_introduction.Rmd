@@ -25,7 +25,7 @@ and there are biological reasons to expect biological parameters
 to be similar among complex members [@thorson2015giants]. For example, 
 estimates of management parameters and stock status are improved in 
 scenarios where data is of low statistical power (i.e., short 
-time series or noisy observations) when hierarchical multi-stoc 
+time series or noisy observations) when hierarchical multi-stock 
 surplus production models penalise survey catchability and intrinsic
 growth rate by shrinkage priors, compared to single-stock
 models fit to the same data [@johnson2018evaluating].
@@ -41,20 +41,21 @@ the management procedure and the true underlying stock
 dynamics [@benson2015evaluating], or on the comparative 
 performance when considering technical interactions 
 between target and non-target (bycatch) species 
-when setting catch limits [@ono2017management]. Similarly,
-research on hierarchical stock assessment procedures
+when setting catch limits based on 
+independent single-stock assessments [@ono2017management]. 
+Similarly, research on hierarchical stock assessment procedures
 has been focused on assessment bias under different
 levels of model complexity [@punt2011among; @jiao2016integrating;
-@jiao2011poor; @jiao2009hierarchical].  
+@jiao2011poor; @jiao2009hierarchical; @johnson2018evaluating].  
 
 In this paper, we use closed loop simulation to evaluate 
 procedures for setting catch limits in a spatially diverse 
 multi-species flatfish fishery. We condition our simulated
 fishery on the complex of Dover, English, and Rock 
-soles in British Columbia, Canada [add latin, Pleuronectiformes]. 
+soles in British Columbia, Canada [*Pleuronectidae spp*]. 
 These three species co-occur along the BC coast, are caught 
 together in directed trawl fisheries, and are surveyed by 
-the same multi-species trawl survey. (WHY ARE THEY DATA LIMITED...). 
+the same multi-species trawl survey. (WHY ARE THEY DATA LIMITED?...). 
 The commercial fishery is managed across three major areas
 by a strict output control individual transferrable qutoa (ITQ) 
 system, under which a harvester must obtain quota for all fish

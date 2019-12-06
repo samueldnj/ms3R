@@ -28,7 +28,8 @@
   message( "\ (.saveFit) Created simulation folder ",folder,"in ./Outputs/.\n" )
   
   # Save path so we can access it later
-  blob$path <- path
+  blob$path     <- path
+  blob$simLabel <- folder
 
   # Save blob
   save(blob,file = file.path(path,paste(folder,".RData",sep="")))
@@ -42,15 +43,24 @@
 
   graphics.off()
   # Save a convergence diagnostic image  
-  png( filename = file.path(path,"convDiagnostics.png"),
-        height = 11, width = 8.5, units = "in", res = 300)
-    plotConvStats(obj = blob)
-  dev.off()
+  if( blob$ctlList$mp$assess$method == "hierProd" )
+  {
+    png( filename = file.path(path,"convDiagnostics.png"),
+          height = 11, width = 8.5, units = "in", res = 300)
+      plotConvStats(obj = blob)
+    dev.off()
+  }
 
   # Save an example retroBiomass  
   png( filename = file.path(path,"retroSB.png"),
         height = 11, width = 8.5, units = "in", res = 300)
     plotRetroSB(obj = blob, iRep = 1)
+  dev.off()
+
+  # Save an example retroBiomass with aggregation 
+  png( filename = file.path(path,"retroSBagg.png"),
+        height = 11, width = 8.5, units = "in", res = 300)
+    plotRetroSBagg(obj = blob, iRep = 1)
   dev.off()
 
 

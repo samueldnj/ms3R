@@ -6,7 +6,7 @@ Our operating model was based on an age- and
 sex-structured, multi-species and multi-stock population
 dynamics model. We simulated the species and stocks
 assuming no ecological interactions or movement
-between areas. This assumption may be unrealistic,
+between areas. This assumption is unrealistic,
 but it is how the stocks are currenly managed
 so we decided that this was the best place to begin
 our management simulation.
@@ -15,3 +15,49 @@ our management simulation.
 
 # Appendix B: Surplus production assessment model
 
+We defined our multi-species, multi-stock surplus 
+production stock assessment model as an extension 
+of a model that was the subject of a previously
+published sensitivity analysis of hierarchical
+surplus production models [@johnson2018evaluating].
+Because this model was previously published, we
+only discuss the differences between the version
+we used in this paper and version in the previous 
+publication.
+
+The full model is described in Table B1. 
+As in the equations in the main body of this paper, 
+we denote species by a subscript $s$, stock areas 
+by a subscript $p$, and observation series from 
+different fleets are denoted by a subscript $f$ for fleet
+for all equations in Table B1.
+
+The following list is all the extensions from the 
+original model to the AM used in this paper, with
+references to Table B1 in parentheses:
+
+1. An additional shrinkage prior on Umsy_sp across
+species (Equation U1)
+2. Initial biomass prior for tuning purposes (Eq. B3)
+3. All variance parameters were fixed
+
+We fixed all variance parameters of the stock assessment 
+model during closed loop simulations. This was required
+to improve stability of the assessments during closed loop
+simulations with limited data, and also allowed us 
+to tune the performance of the management procedure.
+
+
+```{r, echo = FALSE, warnings = FALSE, include = FALSE}
+# Read in table of AM equations here.
+
+AMeqTab <- tibble::tribble(
+  ~Eq.no,      ~Definition,
+  "B.1",       "$B_{s,p,t_0} = \left\{\begin{array}{ll} B_{s,p,0} & t_0 = 1 \\ B_{s,p,init} & t_0 > 1 \end{array} \right.",
+  "B.2",       "$B_{s,p,t} = (B_{s,p,t-1} + r_{s,p} \cdot B_{s,p,t-1} \cdot (1 - \frac{B_{s,p,t-1}}{B_{s,p,0}}) - C_{s,p,t-1}) e^{\zeta_{s,p,t}}",
+  "B.3",       "$\zeta_{s,p,t} \sim N(0, \sigma_{s,p})$",
+  "O.1",       "I_{s,p,f,t} = q_{s,p,f} \cdot B_{s,p,t}",
+
+)
+
+```

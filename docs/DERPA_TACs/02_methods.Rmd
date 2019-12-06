@@ -190,7 +190,7 @@ expected revenue $\bar{R}_{p,t}$ as the sum
 of the expected revenues for each species,
 when modified by the utility function.
 \begin{align}
-U_{s,p,t}(E_{p,t}) &= \frac{5 - \frac{\hat{C}_{s,p,t}}{TAC_{s,p,t}}}{4} \\
+U_{s,p,t}(E_{p,t}) &= \frac{5 \cdot \frac{\hat{C}_{s,p,t}}{TAC_{s,p,t}} - 1}{4 \cdot \frac{\hat{C}_{s,p,t}}{TAC_{s,p,t}}} \\
 \bar{R}_{p,t} & = \sum_{s} \hat{C}_{s,p,t} \cdot P_s \cdot U_{s,p,t}(E_{p,t}).
 \end{align}
 
@@ -266,7 +266,7 @@ source of uncertainty in the OM:
 2. Red noise in catch rates
 3. Correlations in catch rates among stocks/species
 
-### Managment procedures
+### Management procedures
 
 We tested nine MPs corresponding to the nine assessment 
 model configurations outlined above. We chose to restrict

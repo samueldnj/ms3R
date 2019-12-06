@@ -78,7 +78,6 @@ Type objective_function<Type>::operator() ()
   DATA_ARRAY(C_spt);            // Catch data
   
   // Model dimensions
-  
   int nS = I_spft.dim(0);           // No. of species
   int nP = I_spft.dim(1);           // No. of species
   int nF = I_spft.dim(2);           // No. of surveys
@@ -86,11 +85,10 @@ Type objective_function<Type>::operator() ()
 
   // Model switches
   DATA_INTEGER(SigmaPriorCode); // 0 => IG on diagonal element, 1 => IW on cov matrix
-  // DATA_INTEGER(tauqPriorCode);  // 0 => IG on tauq2, 1 => normal
-  // DATA_INTEGER(sigUPriorCode);  // 0 => IG on sigU2, 1 => normal
   DATA_IVECTOR(condMLEq_f);     // 0 => q estimated, 1 => q derived from obs model (mean resid)
   DATA_IVECTOR(shrinkq_f);      // 0 => q a leading par, 1 => q shrank to complex mean
   DATA_IVECTOR(tvq_f);          // 0 => q constant, 1 => q time-varying
+  DATA_IVECTOR(fleetq_f);       // 0 => no q estimated, 1 => q estimated for fleet f
   DATA_INTEGER(lnqPriorCode);   // 0 => hyperprior, 1 => multilevel
   DATA_INTEGER(lnUPriorCode);   // 0 => hyperprior, 1 => multilevel 
   DATA_INTEGER(BPriorCode);     // 0 => normal, 1 => Jeffreys 
@@ -99,6 +97,7 @@ Type objective_function<Type>::operator() ()
   DATA_IARRAY(initBioCode_sp);  // initial biomass at 0 => unfished, 1=> fished
   DATA_IARRAY(calcIndex_spf);   // Indicator for calculating obs model variance for an index
   DATA_IARRAY(stockq_spf);      // Indicator for calculating catchability for a stock/species/fleet combo
+  DATA_IARRAY(speciesq_sf);     // Indicator for calculating catchability for a species/fleet combo
   DATA_SCALAR(posPenFactor);    // Positive-penalty multiplication factor
   DATA_IARRAY(solveInitBio_sp); // Indicator for solving initial biomass from first data point and catchability. 0 => off, fIdx > 0 => fleet number
 
@@ -107,11 +106,13 @@ Type objective_function<Type>::operator() ()
   // Leading Parameters
   PARAMETER_ARRAY(lnBmsy_sp);           // Biomass at MSY
   PARAMETER(lnUmsy);                    // Optimal complex exploitation rate
-  PARAMETER_ARRAY(lnqComm_spf);         // Commercial CPUE catchability
-  PARAMETER_ARRAY(lnqSurv_sf);          // Survey catchability - species mean
+  PARAMETER_VECTOR(lnqFreespf_vec);     // species/stock/fleet catchability for freely estimated fleets (usually commercial)
+  PARAMETER_VECTOR(lnqShrinkf_vec);     // fleet mean catchability for fleets that use a shrinkage prior
   PARAMETER_VECTOR(lntauspf_vec);       // survey obs error var
   PARAMETER_VECTOR(lnBinit_vec);        // Non-equilibrium initial biomass - vector so not all stocks need it
   // Priors
+  PARAMETER_VECTOR(deltalnqsf_vec);     // deviation for species~fleet catchability w/in a fleet
+  PARAMETER_VECTOR(lntauq_f);           // survey catchability sd among species w/in a fleet
   PARAMETER_VECTOR(deltalnqspf_vec);    // deviation for stock catchability w/in a species/survey
   PARAMETER_VECTOR(lntauq_s);           // survey catchability sd among stocks w/in a species
   PARAMETER_VECTOR(tvlnqDevs_vec);      // Time-varying catchability devs
@@ -131,11 +132,7 @@ Type objective_function<Type>::operator() ()
   PARAMETER_VECTOR(tau2IGa_f);          // Inverse Gamma Prior parameters for tau2 prior
   PARAMETER_VECTOR(tau2IGb_f);          // Inverse Gamma Prior parameters for tau2 prior
   PARAMETER_VECTOR(sigma2IG);           // Inverse Gamma Prior parameters for Sigma2 prior
-  // PARAMETER(nu);                        // IW degrees of freedom for Sigma prior    
   PARAMETER(deltat);                    // Fractional time step used in pop dynamics to reduce chaotic behaviour
-
-  int nComm = lnqComm_spf.dim(2);
-  int nSurv = lnqSurv_sf.dim(1);
   
   // Random Effects
   PARAMETER(lnsigmaProc);               // Species effect cov matrix diag
@@ -155,7 +152,6 @@ Type objective_function<Type>::operator() ()
   array<Type>       tau2_spf(nS,nP,nF); 
   array<Type>       lnqhat_spf(nS,nP,nF);
   array<Type>       tau2hat_pf(nP,nF);
-  array<Type>       qSurv_sf(nS,nSurv);
 
   // Transform arrays
   Bmsy_sp = exp(lnBmsy_sp);
@@ -173,8 +169,11 @@ Type objective_function<Type>::operator() ()
   array<Type>       lnq_sf(nS,nF);
   array<Type>       lnq_spf(nS,nP,nF);
   vector<Type>      tauq_s(nS);
+  vector<Type>      tauq_f(nF);
   vector<Type>      tau2q_s(nS);
+  vector<Type>      lnq_f(nF);
 
+  lnq_f.setZero();
   q_spf.setZero();
   lnqdev_spft.setZero();
   qhat_spf.setZero();
@@ -183,7 +182,9 @@ Type objective_function<Type>::operator() ()
   lnq_sf.setZero();
   lnq_spf.setZero();
   tauq_s.setZero();
+  tauq_f.setZero();
   tau2q_s.setZero();
+  tau_spf.fill(0);
 
   // Umsy
   vector<Type>      Umsy_s(nS);
@@ -195,6 +196,7 @@ Type objective_function<Type>::operator() ()
 
   // Now transform and build 
   tauq_s    = exp(lntauq_s);
+  tauq_f    = exp(lntauq_f);
   tau2q_s    = exp(2. * lntauq_s);
   sigUmsy_s = exp(lnsigUmsy_s);
 
@@ -206,15 +208,45 @@ Type objective_function<Type>::operator() ()
   int deltalnqVecIdx = 0;
   int qDevVecIdx = 0;
   int BinitvecIdx = 0;
-  tau_spf.fill(0);
-  // species/stock pars
+  int qShrinkIdx_f = 0;
+  int qShrinkIdx_sf = 0;
+  int qFreeIdx = 0;
+  
+
+  // Loops to spread vector parameters over species/stock/fleet arrays
+  for( int f = 0; f < nF; f++ )
+  {
+    // Now fill in speces/fleet level catchability pars
+    if( shrinkq_f(f) == 1 & fleetq_f(f) == 1 )
+    {
+      lnq_f(f) = lnqShrinkf_vec(qShrinkIdx_f);
+      qShrinkIdx_f++;
+    }
+  }
+
   for( int s = 0; s < nS; s++ )
   {
+    // First, do species level productivity
     lnUmsy_s(s) = lnUmsy + sigUmsy * epslnUmsy_s(s);
 
-    // Stock specific
+    // Now do species~fleet catchability
+    for( int f = 0; f < nF; f++ )
+    {
+      if( shrinkq_f(f) == 1 & condMLEq_f(f) == 0 & speciesq_sf(s,f) == 1 )
+      {
+        lnq_sf(s,f) = lnq_f(f) + tauq_f(f) * deltalnqsf_vec(qShrinkIdx_sf);
+        qShrinkIdx_sf++;  
+      }
+      
+    }
+
+
     for( int p = 0; p < nP; p++ )
     {
+
+      // Umsy shrinkage decomp
+      lnUmsy_sp(s,p)  = lnUmsy_s(s)  + sigUmsy_s(s) * epslnUmsy_sp(s,p);
+
       // Fill Binit if estimated
       if( initBioCode_sp(s,p) == 1 & solveInitBio_sp(s,p) == 0)
       {
@@ -222,9 +254,7 @@ Type objective_function<Type>::operator() ()
         BinitvecIdx++;
       }
 
-
-
-      for( int f = 0; f < nF; f++)
+      for( int f = 0; f < nF; f++ )
       {
         // Fill obs error variance
         int indicateFirstObs = 0;
@@ -234,53 +264,30 @@ Type objective_function<Type>::operator() ()
           tauVecIdx++;
         }
         // Fill stock specific q devs
-        if( stockq_spf(s,p,f) == 1 )
+        if( stockq_spf(s,p,f) == 1 & condMLEq_f(f) == 0 )
         {
           deltalnq_spf(s,p,f) = deltalnqspf_vec(deltalnqVecIdx);
           deltalnqVecIdx++;
         }
         // Make stock specific survey qs using devs
-        if( shrinkq_f(f) == 1)
+        if( shrinkq_f(f) == 1 & condMLEq_f(f) == 0 )
         {
-          int fleetIdx = f - nComm;
-          lnq_spf(s,p,f)  = lnqSurv_sf(s,fleetIdx) + tauq_s(s) * deltalnq_spf(s,p,f);
+          lnq_spf(s,p,f)  = lnq_sf(s,f) + tauq_s(s) * deltalnq_spf(s,p,f);
         }
-
-        if( shrinkq_f(f) == 0 )
-          lnq_spf(s,p,f)  = lnqComm_spf(s,p,f); 
-        
-        if( tvq_f(f) == 1 & calcIndex_spf(s,p,f) == 1 )
-          for( int t = 1; t < nT; t++ )
-          {
-            lnqdev_spft(s,p,f,t)  += lnqdev_spft(s,p,f,t-1);
-            // Add deviation if an observation is recorded
-
-            if(I_spft(s,p,f,t) > 0 )
-            {
-              if( indicateFirstObs == 1)
-              {
-                lnqdev_spft(s,p,f,t) += tautvqDev * tvlnqDevs_vec(qDevVecIdx);
-                qDevVecIdx++;
-              }
-
-              if( indicateFirstObs == 0 )
-                indicateFirstObs = 1;
-
-            }
-          }
+        // Now use free catchability if wanted
+        if( shrinkq_f(f) == 0 & condMLEq_f(f) == 0 )
+        {
+          lnq_spf(s,p,f)  = lnqFreespf_vec(qFreeIdx);
+          qFreeIdx++; 
+        }
       }
 
-      // Fill Binit if solved from data
-      if( initBioCode_sp(s,p) == 1 & solveInitBio_sp(s,p) > 0)
-        Binit_sp(s,p) = I_spft(s,p,solveInitBio_sp(s,p)-1,initT_sp(s,p)) / exp(lnq_spf(s,p,solveInitBio_sp(s,p)-1));
-      
-      // Umsy shrinkage decomp
-      lnUmsy_sp(s,p)  = lnUmsy_s(s)  + sigUmsy_s(s) * epslnUmsy_sp(s,p);
     }
+
   }
-  
+
+
   // Exponentiate for later
-  qSurv_sf  = exp(lnqSurv_sf);
   q_spf     = exp(lnq_spf);
   Umsy_s    = exp(lnUmsy_s);
   Umsy_sp   = exp(lnUmsy_sp);
@@ -359,6 +366,9 @@ Type objective_function<Type>::operator() ()
           // Update temp biomass
           tmpB_spt = posfun(tmpBdt, Type(1e-1), pospen);
         }
+        if( t < nT)
+          tmpB_spt = posfun( tmpB_spt, C_spt(s,p,t), pospen);
+        
         B_spt(s,p,t) = tmpB_spt;
 
         lnB_spt(s,p,t) = log(B_spt(s,p,t));
@@ -488,19 +498,16 @@ Type objective_function<Type>::operator() ()
   // First, let's do catchability
   if( lnqPriorCode == 1 )
   {
-    for( int f = 0; f < nF; f++ )  
-    {
-      if( nP > 1 & condMLEq_f(f) == 0 )
-        for( int p = 0; p < nP; p++ )
-        {
-          vector<Type> devVec = deltalnq_spf.col(f).col(p);
-          nlpq -= dnorm( devVec, Type(0), Type(1), true).sum();
-        }
-    }
 
+    if(nP > 1)
+      nlpq -= dnorm( deltalnqspf_vec, Type(0), Type(1), true).sum();
+    
+    if(nS > 1)
+      nlpq -= dnorm( deltalnqsf_vec, Type(0), Type(1), true).sum();
   }
 
-  nlpq -= dnorm( tvlnqDevs_vec, Type(0), Type(1), true).sum();
+  if( tvq_f.sum() > 0 )
+    nlpq -= dnorm( tvlnqDevs_vec, Type(0), Type(1), true).sum();
 
   // Then productivity
   // If number of species is greater than 1,
@@ -521,11 +528,7 @@ Type objective_function<Type>::operator() ()
 
   // Hyperpriors
   // Catchability
-  for( int f = 0; f < nSurv; f++ )
-  {
-    vector<Type> tmplnq = lnqSurv_sf.col(f);
-    nlpq -= dnorm( tmplnq, mlnq, sdlnq, true).sum();
-  }
+  nlpq -= dnorm( lnqShrinkf_vec, mlnq, sdlnq, true).sum();
 
   // Productivity
   nlpU -= dnorm( lnUmsy, mlnUmsy, sdlnUmsy, true);
@@ -563,7 +566,8 @@ Type objective_function<Type>::operator() ()
     lnU_Umsy_spt.col(t) = log(U_Umsy_spt.col(t));
   }
   lnU_UmsyT_sp = lnU_Umsy_spt.col(nT-1);
-  
+
+
 
   // =========================================================== //
   // ==================== Reporting Section ==================== //
@@ -588,11 +592,15 @@ Type objective_function<Type>::operator() ()
   REPORT(I_spft);
   REPORT(C_spt);
 
+  // Switches
+  REPORT( shrinkq_f );
+  REPORT( stockq_spf );
+  REPORT( speciesq_sf );
+
   // Leading Pars
   REPORT(Binit_sp);
   REPORT(Umsy);
   REPORT(Bmsy_sp);
-  REPORT(lnqSurv_sf);
   REPORT(tau2_spf);
   REPORT(tau_spf);
   REPORT(tau2hat_pf);
@@ -618,16 +626,21 @@ Type objective_function<Type>::operator() ()
   // Derived variables
   REPORT(U_spt);
   REPORT(lnq_spf);
+  REPORT(lnqhat_spf);
   REPORT(lnq_sf);
+  REPORT(lnq_f);
   REPORT(MSY_sp);
   REPORT(qhat_spf);
   REPORT(qhat_spft);
-  REPORT(qSurv_sf);
   REPORT(q_spf);
   REPORT(Umsy_sp);
   REPORT(Umsy_s);
   REPORT(DnT_sp);
   REPORT(U_Umsy_spt);
+  REPORT(qShrinkIdx_sf);
+  REPORT(deltalnqsf_vec);
+  REPORT(tauq_f);
+  REPORT(tauq_s);
 
   // Optimisation quantities
   REPORT(zSum_spf);
@@ -639,8 +652,8 @@ Type objective_function<Type>::operator() ()
   REPORT(nlpq);
   REPORT(nlpU);
   REPORT(nlpB);
-  REPORT(nllProcVarPrior);
-  REPORT(nllObsVarPrior);
+  // REPORT(nllProcVarPrior);
+  // REPORT(nllObsVarPrior);
   REPORT(pospen);
 
   REPORT(objFun);

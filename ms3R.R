@@ -17,6 +17,7 @@ source("simSCAL.R")
 source("ms3Rplots.R")
 source("applyTMBphase.R")
 source("batchTools.R")
+source("stats.R")
 
 
 TMB::compile("hierProd.cpp")

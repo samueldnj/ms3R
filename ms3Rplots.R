@@ -10,6 +10,56 @@
 #
 # <><><><><><><><><><><><><><><><><><><><><><><><><><><>
 
+plotHCR <- function(  LCP = .4,
+                      UCP = .6,
+                      lowF = .1,
+                      highF = 1 )
+{
+  x <- seq(0,1.3, length.out = 100 )
+  y <- rep(lowF, length(x))
+
+
+  par( mar = c(4,5,1,1), oma = c(2,2,1,1) )
+
+  plot( x = range(x), y = c(0,1.2), type = "n",
+        las = 1,
+        xlab = expression(B/B[MSY]),
+        ylab = expression(F/F[MSY]),
+        cex.lab = 1.5,
+        cex.axis = 1.5 )
+    segments( x0 = 0, x1 = LCP,
+              y0 = lowF, y1 = lowF,
+              col = "grey50", lwd = 3 )
+    segments( x0 = LCP, x1 = UCP,
+              y0 = lowF, y1 = highF,
+              col = "grey50", lwd = 3 )
+    segments( x0 = UCP, x1 = max(x),
+              y0 = highF, y1 = highF,
+              col = "grey50", lwd = 3 )
+    abline( v = c(LCP, UCP),
+            col = c("red","darkgreen"),
+            lty = 2, lwd = 2 )
+    abline( h = highF, lty = 2, col = "grey70" )
+
+
+}
+
+plotUtilityFunction <- function( )
+{
+  x <- seq(1e-1,1, length = 1000)
+
+  y <- (5*x - 1)/4/x
+
+  plot( x = range(x), y = range(y),
+        xlab = expression(C[spt]/TAC[spt]),
+        ylab = "Utility", type = "n", las = 1 )
+    mtext( side = 3, text = "TAC utilisation utility", font = 2)
+    lines( x = x, y = y, lwd = 3, col = "grey40" )
+    abline(h = c(0,1), lty = 2, col = "black" )
+    abline( v = .2, lty = 2, col = "red", lwd = .8 )
+
+}
+
 
 # plotConvStats()
 plotConvStats <- function( obj = blob )
@@ -23,11 +73,12 @@ plotConvStats <- function( obj = blob )
 
   # Now we want to get the mean and SD
   # of these values over the replicates
-  quantsMaxGrad_qtsp <- apply( X = maxGrad_itsp, FUN = quantile,
-                              MARGIN = 2:4, probs = c(0.05, 0.5, 0.95) )
+  quantsMaxGrad_qtsp <- apply(  X = maxGrad_itsp, FUN = quantile,
+                                MARGIN = 2:4, probs = c(0.05, 0.5, 0.95),
+                                na.rm = T )
 
   propPDHess_tsp  <- apply( X = pdHess_itsp, FUN = mean,
-                            MARGIN = 2:4 )
+                            MARGIN = 2:4, na.rm = T )
 
   pT <- obj$ctlList$opMod$pT
   nS <- obj$om$nS
@@ -115,6 +166,315 @@ plotConvStats <- function( obj = blob )
 
 }
 
+
+# TAC utilisation envelopes
+plotTulipTACu <- function( obj = blob, nTrace = 3 )
+{
+
+  tMP     <- obj$om$tMP
+  nS      <- obj$om$nS
+  nP      <- obj$om$nP 
+  nT      <- obj$om$nT
+  
+
+  # Get catch for trawl fleet, in projections only
+  C_ispt     <- obj$om$C_ispft[,,,2,tMP:nT]
+  TAC_ispt   <- obj$mp$hcr$TAC_ispft[,,,2,tMP:nT]
+
+  nReps   <- dim(TAC_ispt)[1]
+
+  TACu_ispt <- C_ispt / TAC_ispt
+
+  TACu_qspt <- apply( X = TACu_ispt, FUN = quantile,
+                      MARGIN = c(2,3,4), probs = c(0.025, 0.5, 0.975),
+                      na.rm = T )
+
+
+
+  speciesNames  <- obj$om$speciesNames
+  stockNames    <- obj$om$stockNames
+  fYear         <- obj$ctlList$opMod$fYear
+
+  yrs <- seq( from = fYear, by = 1, length.out = nT)
+  yrs <- yrs[tMP:nT]
+
+
+  traces <- sample( 1:nReps, size = nTrace  )
+
+  par(  mfcol = c(nP,nS), 
+        mar = c(1,1.5,1,1.5),
+        oma = c(5,5,3,3) )
+
+
+  for(s in 1:nS)
+  {
+    for( p in 1:nP )
+    {
+      plot( x = range(yrs),
+            y = c(0,max(TACu_qspt, na.rm = T) ),
+            type = "n", axes = F )
+
+      mfg <- par("mfg")
+      if( mfg[1] == mfg[3] )
+        axis( side = 1 )
+      if( mfg[1] == 1 )
+        mtext( side = 3, text = speciesNames[s], font = 2, line = 0 )
+      axis( side = 2, las = 1 )
+      if( mfg[2] == mfg[4] )
+      {
+        corners <- par("usr") #Gets the four corners of plot area (x1, x2, y1, y2)
+        par(xpd = TRUE) #Draw outside plot area
+        text(x = corners[2]+2, y = mean(corners[3:4]), stockNames[p], srt = 270,
+              font = 2, cex = 1.5 )
+        par(xpd = FALSE)
+      }
+      box()
+      grid()
+      polygon(  x = c(yrs, rev(yrs)),
+                y = c(TACu_qspt[1,s,p,], rev(TACu_qspt[3,s,p,])),
+                col = "grey65", border = NA )
+      lines( x = yrs, y = TACu_qspt[2,s,p,], lwd = 3 )
+      for( tIdx in traces )
+        lines( x = yrs, y = TACu_ispt[tIdx,s,p,], lwd = .8 )
+
+      abline( v = yrs[tMP], col = "grey30", lty = 3 )
+    }
+  }
+  mtext( side = 2, outer = TRUE, text = expression(C[spt]/TAC[spt]),
+          line = 2, font = 2)
+
+  mtext( side = 1, outer = TRUE, text = "Year",
+          line = 2, font = 2)
+
+}
+
+# Biomass envelopes
+plotTulipBt <- function(  obj = blob, nTrace = 3,
+                          dep = FALSE,
+                          ref = "B0",
+                          Ct  = FALSE )
+{
+  SB_ispt   <- obj$om$SB_ispt
+  C_ispt    <- obj$om$C_ispt
+
+  tMP     <- obj$om$tMP
+  nS      <- obj$om$nS
+  nP      <- obj$om$nP 
+  nT      <- obj$om$nT
+  nReps   <- dim(SB_ispt)[1]
+
+  # Get reference points
+  B0_sp   <- obj$ctlList$opMod$histRpt$B0_sp
+  Bmsy_sp <- obj$rp[[1]]$FmsyRefPts$BeqFmsy_sp
+
+  speciesNames  <- obj$om$speciesNames
+  stockNames    <- obj$om$stockNames
+  fYear         <- obj$ctlList$opMod$fYear
+
+  yrs <- seq( from = fYear, by = 1, length.out = nT)
+
+  if( dep )
+  {
+    if( ref == "B0" )
+    {
+      for( s in 1:nS )
+        for( p in 1:nP )
+        {
+          SB_ispt[,s,p,] <- SB_ispt[,s,p,] / B0_sp[s,p]
+          C_ispt[,s,p,]  <- C_ispt[,s,p,] / B0_sp[s,p]
+
+        }
+      Bmsy_sp <- Bmsy_sp / B0_sp
+      B0_sp   <- B0_sp / B0_sp
+
+
+    }
+
+    if( ref == "Bmsy" )
+    {
+      for( s in 1:nS )
+        for( p in 1:nP )
+        {
+          SB_ispt[,s,p,] <- SB_ispt[,s,p,] / Bmsy_sp[s,p]
+          C_ispt[,s,p,]  <- C_ispt[,s,p,] / Bmsy_sp[s,p]
+        }
+
+      B0_sp   <- B0_sp / Bmsy_sp
+      Bmsy_sp <- Bmsy_sp / Bmsy_sp
+      
+    }
+  }
+
+  if( !dep )
+    yAxisLab <- "Biomass (kt)"
+
+  if( dep )
+  {
+    if( ref == "Bmsy" )
+      yAxisLab <- expression(B[t]/B[MSY])
+
+    if( ref == "B0" )
+      yAxisLab <- expression(B[t]/B[0])
+  }
+
+  # Now take quantiles
+  SB_qspt <- apply( X = SB_ispt, FUN = quantile,
+                    MARGIN = c(2,3,4), probs = c(0.025, 0.5, 0.975),
+                    na.rm = T )
+
+  C_qspt <- apply( X = C_ispt, FUN = quantile,
+                    MARGIN = c(2,3,4), probs = c(0.025, 0.5, 0.975),
+                    na.rm = T )
+
+  traces <- sample( 1:nReps, size = nTrace  )
+
+  par(  mfcol = c(nP,nS), 
+        mar = c(1,1.5,1,1.5),
+        oma = c(3,3,3,3) )
+
+
+  for(s in 1:nS)
+  {
+    for( p in 1:nP )
+    {
+      plot( x = range(yrs),
+            y = c(0,max(SB_qspt[,s,p,], na.rm = T) ),
+            type = "n", axes = F )
+
+      mfg <- par("mfg")
+      if( mfg[1] == mfg[3] )
+        axis( side = 1 )
+      if( mfg[1] == 1 )
+        mtext( side = 3, text = speciesNames[s], font = 2, line = 0 )
+      axis( side = 2, las = 1 )
+      if( mfg[2] == mfg[4] )
+      {
+        corners <- par("usr") #Gets the four corners of plot area (x1, x2, y1, y2)
+        par(xpd = TRUE) #Draw outside plot area
+        text(x = corners[2]+3, y = mean(corners[3:4]), stockNames[p], srt = 270,
+              font = 2, cex = 1.5 )
+        par(xpd = FALSE)
+      }
+      box()
+      grid()
+      polygon(  x = c(yrs, rev(yrs)),
+                y = c(SB_qspt[1,s,p,], rev(SB_qspt[3,s,p,])),
+                col = "grey65", border = NA )
+      lines( x = yrs, y = SB_qspt[2,s,p,], lwd = 3 )
+      for( tIdx in traces )
+        lines( x = yrs, y = SB_ispt[tIdx,s,p,], lwd = .8 )
+
+      if( Ct )
+      {
+        rect( xleft = yrs - .3, xright = yrs + .3,
+              ybottom = 0, ytop = C_qspt[2,s,p,], col = "grey65",
+              border = NA )
+        segments( x0 = yrs[tMP:nT], x1 = yrs[tMP:nT],
+                  y0 = C_qspt[1,s,p,tMP:nT], y1 = C_qspt[3,s,p,tMP:nT],
+                  col = "black" )
+      }
+
+      abline( v = yrs[tMP], col = "grey30", lty = 3 )
+      abline( h = B0_sp[s,p], lty = 2, col = "grey50", lwd = 2  )
+      abline( h = Bmsy_sp[s,p], lty = 3, col = "darkgreen", lwd = 2)
+
+      if( mfg[1] == 1 & mfg[2] == 1 )
+        legend( x = "bottomleft", bty = "n",
+                legend = c( "Median Spawning Biomass", 
+                            "Central 95%",
+                            "Replicate Traces",
+                            "Unfished",
+                            expression(B[MSY])),
+                col = c(  "black", "grey65", "black",
+                          "grey50", "darkgreen" ),
+                pch = c(NA,15, NA, NA, NA),
+                lty = c(1, NA, 1, 2, 3),
+                lwd = c(3, NA, .8, 2, 2 ) )
+    }
+  }
+  mtext( side = 2, outer = TRUE, text = yAxisLab,
+          line = 1.5, font = 2)
+
+  mtext( side = 1, outer = TRUE, text = "Year",
+          line = 2, font = 2)
+}
+
+# plotTulipEffort_p()
+# Effort over time gridded
+# by stock area - envelopes
+plotTulipEffort_p <- function( obj = blob, nTrace = 3 )
+{
+  E_ipft <- obj$om$E_ipft
+
+  E_ipft[E_ipft == 0] <- NA
+
+  tMP     <- obj$om$tMP
+  nS      <- obj$om$nS
+  nP      <- obj$om$nP 
+  nT      <- obj$om$nT
+  nF      <- obj$om$nF
+  nReps   <- dim(E_ipft)[1]
+
+  E_qpft <- apply(  X = E_ipft, FUN = quantile,
+                    MARGIN = c(2,3,4), probs = c(0.025, 0.5, 0.975),
+                    na.rm = T )
+
+  E_qpft[E_qpft == 0] <- NA
+
+  traces <- sample( 1:nReps, size = nTrace  )
+
+
+  speciesNames  <- obj$om$speciesNames
+  stockNames    <- obj$om$stockNames
+  fleetNames    <- obj$om$fleetNames
+  fYear         <- obj$ctlList$opMod$fYear
+
+  yrs <- seq( from = fYear, by = 1, length.out = nT)
+
+  fleetCols <- RColorBrewer::brewer.pal( nF, "Dark2" )
+
+  par(  mfcol = c(nP,1), 
+        mar = c(1,1.5,1,1.5),
+        oma = c(3,4,3,3) )
+
+  for( p in 1:nP )
+  {
+    plot( x = range(yrs),
+          y = c(0,max(E_qpft[,p,,],na.rm = T) ),
+          type = "n", axes = F )
+      mfg <- par("mfg")
+      # Plot axes and facet labels
+      if( mfg[1] == mfg[3] )
+        axis( side = 1 )
+      axis( side = 2, las = 1 )
+      if( mfg[2] == mfg[4] )
+      {
+        corners <- par("usr") #Gets the four corners of plot area (x1, x2, y1, y2)
+        par(xpd = TRUE) #Draw outside plot area
+        text(x = corners[2]+2, y = mean(corners[3:4]), stockNames[p], srt = 270,
+              font = 2, cex = 1.5 )
+        par(xpd = FALSE)
+      }
+      box()
+      grid()
+      for( f in 1:nF )
+      {
+        if(f == 2 )
+        {
+          polygon( x = c(yrs,rev(yrs)), y = c(E_qpft[1,p,f,],rev(E_qpft[3,p,f,])), 
+                  col = scales::alpha(fleetCols[f], alpha = .3), border = NA )
+          for( tIdx in traces )
+            lines( x = yrs, y = E_ipft[tIdx,p,f,], col = fleetCols[f], lwd = .8 )
+        }
+        lines( x = yrs, y = E_qpft[2,p,f,], col = fleetCols[f], lwd = 3)
+        
+      }
+      abline( v = yrs[tMP] - 0.5, lty = 2, lwd = 0.5 )
+  }
+  mtext( side = 2, outer = TRUE, text = "Trawl Effort (fishing hours?)",
+          line = 2, font = 2)
+} # END plotTulipEffort_p()
+
 # plotEffort_p()
 # Effort over time gridded
 # by stock area
@@ -183,6 +543,8 @@ plotCtTACt_sp <- function(  obj = blob,
   C_spft   <- obj$om$C_ispft[iRep,,,,]
   TAC_spft <- obj$mp$hcr$TAC_ispft[iRep,,,,]
 
+  C_spft[C_spft == 0] <- NA
+
   tMP     <- obj$om$tMP
   nS      <- obj$om$nS
   nP      <- obj$om$nP 
@@ -228,8 +590,14 @@ plotCtTACt_sp <- function(  obj = blob,
       grid()
       for( f in fleets )
       {
-        lines( x = yrs, y = C_spft[s,p,f,], col = fleetCols[f], lwd = 2, lty = 1)
-        lines( x = yrs, y = TAC_spft[s,p,f,], col = fleetCols[f], lwd = 2, lty = 2)
+        rect( xleft = yrs - .3,
+              xright = yrs + .3,
+              ybottom = 0,
+              ytop = TAC_spft[s,p,f,],
+              border = NA, col = fleetCols[f] )
+        
+        lines(  x = yrs[], y = C_spft[s,p,f,],
+                lty = 2, lwd = 2, col = "grey50" )
       }
       abline( v = yrs[tMP] - 0.5, lty = 2, lwd = 0.5 )
     }
@@ -305,6 +673,9 @@ plotBtCt_sp <- function(  obj = blob,
 
 }
 
+
+# plotRetroSB()
+# Retrospective plots of AM fits for a given replicate
 plotRetroSB <- function( obj = blob, iRep = 1 )
 {
   # Get biomass arrays
@@ -314,6 +685,9 @@ plotRetroSB <- function( obj = blob, iRep = 1 )
   retroSB_tspt  <- obj$mp$assess$retroSB_itspt[iRep,,,,]
 
   retroSB_tspt[retroSB_tspt < 0] <- NA
+
+  # Get proportion of TACs for splitting aggregated biomass
+  propTAC_spt   <- obj$mp$hcr$propTAC_ispt[iRep,,,]
 
 
   tMP     <- obj$om$tMP
@@ -328,14 +702,14 @@ plotRetroSB <- function( obj = blob, iRep = 1 )
 
   yrs <- seq( from = fYear, by = 1, length.out = nT)
 
-  par(  mfcol = c(nS,nP), 
+  par(  mfcol = c(nP,nS), 
         mar = c(1,1.5,1,1.5),
         oma = c(3,3,3,3) )
   for(s in 1:nS)
     for( p in 1:nP )
     {
       plot( x = range(yrs),
-            y = c(0,max(totB_spt[s,p,],VB_spt[s,p,],SB_spt[s,p,],retroSB_tspt[,s,p,],na.rm = T) ),
+            y = c(0,1.2*max(totB_spt[s,p,],VB_spt[s,p,],SB_spt[s,p,],na.rm = T) ),
             type = "n", axes = F )
 
       mfg <- par("mfg")
@@ -358,7 +732,122 @@ plotRetroSB <- function( obj = blob, iRep = 1 )
       lines( x = yrs, y = VB_spt[s,p,], col = "grey40", lwd = 2, lty = 3 )
       lines( x = yrs, y = totB_spt[s,p,], col = "black", lwd = 2 )
       for( tt in 1:pT )
+      {
+        propTAC <- propTAC_spt[s,p,tMP + tt - 1]
+        lines( x = yrs, y = propTAC * retroSB_tspt[tt,s,p,], col = "grey60", lwd = 1 )
+      }
+  
+      abline( v = yrs[tMP] - 0.5, lty = 2, lwd = 0.5 )
+    }
+
+}
+
+# plotRetroSBagg()
+# Retrospective plots of AM fits for a given replicate
+# with biomasses aggregated to match the scale of the AM
+plotRetroSBagg <- function( obj = blob, iRep = 1 )
+{
+  # Get biomass arrays
+  SB_spt        <- obj$om$SB_ispt[iRep,,,]
+  VB_spt        <- obj$om$vB_ispft[iRep,,,2,]
+  totB_spt      <- obj$om$B_ispt[iRep,,,]
+  retroSB_tspt  <- obj$mp$assess$retroSB_itspt[iRep,,,,]
+
+  ctlList <- obj$ctlList
+
+  retroSB_tspt[retroSB_tspt < 0] <- NA
+
+  # Aggregate OM biomasses to match AM biomass
+  if( ctlList$mp$assess$spCoastwide )
+  {
+    newSB_spt        <- apply( X = SB_spt, FUN = sum, MARGIN = c(1,3), na.rm = T )
+    newVB_spt        <- apply( X = VB_spt, FUN = sum, MARGIN = c(1,3), na.rm = T )
+    newtotB_spt      <- apply( X = totB_spt, FUN = sum, MARGIN = c(1,3), na.rm = T )
+
+    SB_spt    <- SB_spt[,1,,drop = FALSE]
+    SB_spt[,1,] <- newSB_spt
+    VB_spt    <- VB_spt[,1,,drop = FALSE]
+    VB_spt[,1,] <- newVB_spt
+    totB_spt  <- totB_spt[,1,,drop = FALSE]
+    totB_spt[,1,] <- newtotB_spt
+
+  }
+
+  if( ctlList$mp$assess$spDataPooled )
+  {
+    newSB_spt        <- apply( X = SB_spt, FUN = sum, MARGIN = c(2,3), na.rm = T )
+    newVB_spt        <- apply( X = VB_spt, FUN = sum, MARGIN = c(2,3), na.rm = T )
+    newtotB_spt      <- apply( X = totB_spt, FUN = sum, MARGIN = c(2,3), na.rm = T )
+
+    SB_spt    <- SB_spt[1,,,drop = FALSE]
+    SB_spt[1,,] <- newSB_spt
+    VB_spt    <- VB_spt[1,,,drop = FALSE]
+    VB_spt[1,,] <- newVB_spt
+    totB_spt  <- totB_spt[1,,,drop = FALSE]
+    totB_spt[1,,] <- newtotB_spt
+  }
+
+  SB_spt[SB_spt == 0]     <- NA
+  VB_spt[VB_spt == 0]     <- NA
+  totB_spt[totB_spt == 0] <- NA
+
+
+  tMP     <- obj$om$tMP
+  nS      <- obj$om$nS
+  nP      <- obj$om$nP 
+  nT      <- obj$om$nT
+
+  nSS     <- dim( SB_spt)[1]
+  nPP     <- dim( SB_spt)[2]
+
+  speciesNames  <- obj$ctlList$opMod$species
+  stockNames    <- obj$ctlList$opMod$stock
+  fYear         <- obj$ctlList$opMod$fYear
+  pT            <- obj$ctlList$opMod$pT
+
+  browser()
+
+  if( nPP == 1 )
+    stockNames <- "Coastwide"
+
+  if( nSS == 1 )
+    speciesNames <- "Data Pooled"
+
+  yrs <- seq( from = fYear, by = 1, length.out = nT)
+
+  par(  mfcol = c(nPP,nSS), 
+        mar = c(1,1.5,1,1.5),
+        oma = c(3,3,3,3) )
+  for(s in 1:nSS)
+    for( p in 1:nPP )
+    {
+      plot( x = range(yrs),
+            y = c(0,1.2*max(totB_spt[s,p,],VB_spt[s,p,],SB_spt[s,p,],na.rm = T) ),
+            type = "n", axes = F )
+
+      mfg <- par("mfg")
+      if( mfg[1] == mfg[3] )
+        axis( side = 1 )
+      if( mfg[1] == 1 )
+        mtext( side = 3, text = speciesNames[s], font = 2, line = 0 )
+      axis( side = 2, las = 1 )
+      if( mfg[2] == mfg[4] )
+      {
+        corners <- par("usr") #Gets the four corners of plot area (x1, x2, y1, y2)
+        par(xpd = TRUE) #Draw outside plot area
+        text(x = corners[2]+1.5, y = mean(corners[3:4]), stockNames[p], srt = 270,
+              font = 2, cex = 1.5 )
+        par(xpd = FALSE)
+      }
+      box()
+      grid()
+      lines( x = yrs, y = SB_spt[s,p,], col = "red", lwd = 3 )
+      lines( x = yrs, y = VB_spt[s,p,], col = "grey40", lwd = 2, lty = 3 )
+      lines( x = yrs, y = totB_spt[s,p,], col = "black", lwd = 2 )
+      for( tt in 1:pT )
+      {
         lines( x = yrs, y = retroSB_tspt[tt,s,p,], col = "grey60", lwd = 1 )
+      }
   
       abline( v = yrs[tMP] - 0.5, lty = 2, lwd = 0.5 )
     }

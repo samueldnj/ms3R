@@ -178,6 +178,23 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
 
   # Calculate stock status
   projSB_sp   <- assess$retroSB_tspt[pt,,,t] 
+  projVB_sp   <- assess$retroVB_tspft[pt,,,2,t] 
+
+  nS  <- obj$om$nS
+  nP  <- obj$om$nP
+
+  # Pull data
+  I_spft <- obj$mp$data$I_spft
+
+  # Use the last two years of data in Synoptic
+  # and calculate mean over time to get
+  # splitting weights
+  rctMeanI_sp <- apply( X = I_spft[,,4,(t-2):(t-1)],
+                        FUN = mean,
+                        MARGIN = c(1,2), na.rm = T )
+
+  # Calculate total recent mean index for a species
+  rctMeanI_s <- apply( X = rctMeanI_sp, FUN = sum, MARGIN = 1)
 
   # if( t >= tMP )
   #   browser()
@@ -202,12 +219,48 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
                                   UCP = hcr$UCP_spt[,,t],
                                   Fref = Fref_sp,
                                   MoreArgs = list( lowFmult = .1) )
-
-
   
   # Now apply "F" as a harvest rate, since
   # we don't have M information
-  hcr$TAC_spt[,,t] <- hcr$targetF_spt[,,t] * projSB_sp
+  hcr$TAC_spt[,,t] <- hcr$targetF_spt[,,t] * projVB_sp
+
+  propTAC_sp <- array(1, dim = c(nS,nP) )
+
+  if( ctlList$mp$assess$spDataPooled & ctlList$mp$assess$spCoastwide )
+  {
+    # Calc proportion of TAC for each species
+    propTAC_s  <- rctMeanI_s / sum(rctMeanI_s)
+    
+    # Distribute among stocks
+    propTAC_sp <- rctMeanI_sp
+    for( s in 1:nS )
+      propTAC_sp[s,] <- propTAC_sp[s,] / rctMeanI_s[s] * propTAC_s[s]
+
+    hcr$TAC_spt[,,t] <- hcr$TAC_spt[,,t] * propTAC_sp
+  }
+
+  if( ctlList$mp$assess$spCoastwide & !ctlList$mp$assess$spDataPooled )
+  {
+    # Distribute among stocks
+    propTAC_sp <- rctMeanI_sp
+    for( s in 1:nS )
+      propTAC_sp[s,] <- propTAC_sp[s,] / rctMeanI_s[s]
+
+    hcr$TAC_spt[,,t] <- hcr$TAC_spt[,,t] * propTAC_sp
+  }
+
+  if( ctlList$mp$assess$spDataPooled & !ctlList$mp$assess$spCoastwide )
+  {
+    # Distribute among species
+    propTAC_sp <- rctMeanI_sp
+    for( p in 1:nP )
+      propTAC_sp[,p] <- propTAC_sp[,p] / sum(propTAC_sp[,p])
+
+    hcr$TAC_spt[,,t] <- hcr$TAC_spt[,,t] * propTAC_sp
+  }
+
+  # Save proportion of TAC for use in retro SB plots
+  hcr$propTAC_spt[,,t] <- propTAC_sp
 
   # Now put all the lists we modified back into obj
   obj$mp$hcr    <- hcr
@@ -281,11 +334,36 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   spDataPooled    <- ctlList$mp$assess$spDataPooled
   spSingleStock   <- ctlList$mp$assess$spSingleStock
 
+  oldFleet <- NULL
+  oldStock <- NULL
+
   # Coastwide version ( nP' == 1)
   if( spCoastwide )
   {
     # Turn stock/area dimension of
     # surveys into more fleets
+    newI_spft <- array(NA, dim = c(nS,1,nF*nP,t-1) )
+
+    oldFleet <- rep(0,nF*nP)
+    oldStock <- rep(0,nF*nP)
+
+    # Record new fleet indices
+    newFleetIndices <- 1:(nF*nP)
+
+    # Loop and spread indices out as separate fleets
+    for( s in 1:nS )
+    {
+      for( p in 1:nP )
+      {
+        newIdx <- (p-1)*nF + 1:nF
+        oldFleet[newIdx] <- 1:nF
+        oldStock[newIdx] <- p
+        
+        newI_spft[s,1,newIdx,] <- I_spft[s,p,,]
+      }
+    }
+
+    I_spft <- newI_spft
 
 
     # Add catch across stocks
@@ -302,12 +380,18 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     # within stocks
     newI_spft <- I_spft[1,,,,drop = FALSE]
     I_spft[I_spft < 0] <- NA
+
+    # Need to take care, since we probably
+    # won't add the CPUE...
+
     newI_spft[1,,,] <- apply( X = I_spft,
                               FUN = sum,
                               MARGIN = c(2,3,4),
                               na.rm = T )
     newI_spft[newI_spft == 0 ]  <- -1
     newI_spft[is.na(newI_spft)] <- -1
+
+
 
     I_spft <- newI_spft
 
@@ -327,28 +411,57 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   # Single stock version (no hierarchical method)
   if( spSingleStock | (nSS == 1 & nPP == 1) )
   {
+
     for( s in 1:nSS)
       for( p in 1:nPP )
       {
-        mlnUmsy   <- log(refPtList$FmsyRefPts$Umsy_sp[s,p])
-        mBmsy_sp  <- refPtList$FmsyRefPts$BeqFmsy_sp[s,p,drop = FALSE]
+        
+        if(spSingleStock)
+        {
+          mlnUmsy   <- log(refPtList$FmsyRefPts$Umsy_sp[s,p])
+          mBmsy_sp  <- refPtList$FmsyRefPts$BeqFmsy_sp[s,p,drop = FALSE]
+        }
+
+        if( spCoastwide & spDataPooled )
+        {
+          mlnUmsy         <- mean(log(refPtList$FmsyRefPts$Umsy_sp))
+          mBmsy_sp        <- refPtList$FmsyRefPts$BeqFmsy_sp[1,1,drop = FALSE]
+          mBmsy_sp[1,1]   <- sum(refPtList$FmsyRefPts$BeqFmsy_sp)
+        }
+
 
         # Make lists for TMB AD function
         tmbLists <- .makeDatParHierProd(  C_spt[s,p,,drop = FALSE], 
                                           I_spft[s,p,,,drop = FALSE],
-                                          ctlList )
+                                          ctlList,
+                                          mlnUmsy = mlnUmsy,
+                                          mBmsy_sp = mBmsy_sp,
+                                          oldStock = oldStock,
+                                          oldFleet = oldFleet  )
 
         # Set some phases - 
         # if no phase is set then pars not
         # estimated
-        phases <- list( lnqSurv_sf    = ctlList$mp$assess$spPhzlnqSurv,
-                        lnqComm_spf   = ctlList$mp$assess$spPhzlnqComm,
-                        tvlnqDevs_vec = ctlList$mp$assess$spPhzTVq,
-                        lntauspf_vec  = ctlList$mp$assess$spPhztauObs,
-                        lnBmsy_sp     = ctlList$mp$assess$spPhzBmsy,
-                        lnUmsy        = ctlList$mp$assess$spPhzUmsy,
-                        lnsigmaProc   = ctlList$mp$assess$spPhzSigmaProc,
-                        zetaspt_vec   = ctlList$mp$assess$spPhzProcErr,  )
+        phases <- list( lnqShrinkf_vec  = ctlList$mp$assess$spPhzlnqShrink,
+                        lnqFreespf_vec  = ctlList$mp$assess$spPhzlnqFree,
+                        tvlnqDevs_vec   = ctlList$mp$assess$spPhzTVq,
+                        lntauspf_vec    = ctlList$mp$assess$spPhztauObs,
+                        lnBmsy_sp       = ctlList$mp$assess$spPhzBmsy,
+                        lnUmsy          = ctlList$mp$assess$spPhzUmsy,
+                        lnsigmaProc     = ctlList$mp$assess$spPhzSigmaProc,
+                        zetaspt_vec     = ctlList$mp$assess$spPhzProcErr )
+
+        if( is.null(ctlList$mp$assess$spTVqFleets) )
+          phases$tvlnqDevs_vec <- -1
+
+        if( is.null(ctlList$mp$assess$spShrinkqFleets) | spSingleStock )
+          phases$deltalnqspf_vec <- -1
+
+
+        if( ctlList$mp$assess$spSolveInitBio )
+          phases$spPhzlnBinit <- -1
+
+
 
         tmbLists$phases <- phases
         tmbLists$random <- ctlList$mp$assess$spRE
@@ -359,41 +472,86 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
         amObj <- .applyTMBphase(  tmbLists = tmbLists,
                                   dllName = "hierProd",
                                   optimizer = "nlminb",
-                                  silent = FALSE,
-                                  calcSD = FALSE,
+                                  silent = ctlList$ctl$quiet,
+                                  calcSD = TRUE,
                                   maxPhase = NULL,
                                   base_map = list(),
                                   maxEval = ctlList$ctl$maxEval,
-                                  maxIter = ctlList$ctl$maxIter )
+                                  maxIter = ctlList$ctl$maxIter,
+                                  phaseMsg = ctlList$ctl$phaseMessages )
+
 
         # Need to save catchability
         # info for allocating catch
         # under coastwide models
 
         # Save biomass
-        obj$mp$assess$retroSB_tspt[pt,s,p,1:t]    <- amObj$repOpt$B_spt[s,p,]
-        for( f in 1:nFF )
+        if(spSingleStock)
         {
-          obj$mp$assess$retroVB_tspft[pt,s,p,f,1:t]       <- amObj$repOpt$B_spt[s,p,]
-          obj$mp$assess$retroq_tspf[pt,s,p,spFleetIdx[f]] <- amObj$repOpt$qhat_spf[,,f]
+          obj$mp$assess$retroSB_tspt[pt,s,p,1:t]    <- amObj$repOpt$B_spt[1,1,]
+          for( f in 1:nFF )
+          {
+            obj$mp$assess$retroVB_tspft[pt,s,p,f,1:t]       <- amObj$repOpt$B_spt[1,1,]
+            obj$mp$assess$retroq_tspf[pt,s,p,spFleetIdx[f]] <- amObj$repOpt$qhat_spf[1,1,f]
+          }
+
+          if( ctlList$mp$hcr$Fref == "Umsy" )
+            obj$mp$hcr$Fref_spt[s,p,t]      <- amObj$repOpt$Umsy_sp
+
+          if( ctlList$mp$hcr$Fref == "Fmsy" )
+            obj$mp$hcr$Fref_spt[s,p,t]      <- amObj$repOpt$Umsy_sp
+
+          if( ctlList$mp$hcr$Bref == "Bmsy" )
+            obj$mp$hcr$Bref_spt[s,p,t]      <- amObj$repOpt$Bmsy_sp  
+
+          if( ctlList$mp$hcr$Bref == "B0" )
+            obj$mp$hcr$Bref_spt[s,p,t]      <- 2*amObj$repOpt$Bmsy_sp
+
+
+          # Save convergence info
+          obj$mp$assess$pdHess_tsp[pt,s,p]  <- amObj$pdHess
+          obj$mp$assess$maxGrad_tsp[pt,s,p] <- amObj$maxGrad
         }
 
-        if( ctlList$mp$hcr$Fref == "Umsy" )
-          obj$mp$hcr$Fref_spt[s,p,t]      <- amObj$repOpt$Umsy_sp
+        if( spCoastwide & spDataPooled )
+        {
+          for( s in 1:nS )
+          {
+            # Stock specific observations are spread into extra fleets 
+            # in the coastwide aggregation, so no need to place this 
+            # next part in a stock loop
+            for( f in 1:nFF )
+            {
+              oldFleetIdx <- oldFleet[f]
+              oldStockIdx <- oldStock[f]
+              obj$mp$assess$retroVB_tspft[pt,s,oldStockIdx,oldFleetIdx,1:t]       <- amObj$repOpt$B_spt[1,1,]
+              obj$mp$assess$retroq_tspf[pt,s,oldStockIdx,spFleetIdx[oldFleetIdx]] <- amObj$repOpt$qhat_spf[1,1,f]
+            }
+            # retro SB has to be in a loop because it's a ts, no guarantee
+            # that the entries will enter in the right way (OK, there's a guarantee
+            # but I never remember the orientation)
+            for( p in 1:nP )
+              obj$mp$assess$retroSB_tspt[pt,s,p,1:t]    <- amObj$repOpt$B_spt[1,1,1:t]
+              
+            
+          }
+          # Only one U/B value, so no need for loops here
+          if( ctlList$mp$hcr$Fref == "Umsy" )
+            obj$mp$hcr$Fref_spt[,,t]      <- amObj$repOpt$Umsy_sp
 
-        if( ctlList$mp$hcr$Fref == "Fmsy" )
-          obj$mp$hcr$Fref_spt[s,p,t]      <- amObj$repOpt$Umsy_sp
+          if( ctlList$mp$hcr$Fref == "Fmsy" )
+            obj$mp$hcr$Fref_spt[,,t]      <- amObj$repOpt$Umsy_sp
 
-        if( ctlList$mp$hcr$Bref == "Bmsy" )
-          obj$mp$hcr$Bref_spt[s,p,t]      <- amObj$repOpt$Bmsy_sp  
+          if( ctlList$mp$hcr$Bref == "Bmsy" )
+            obj$mp$hcr$Bref_spt[,,t]      <- amObj$repOpt$Bmsy_sp  
 
-        if( ctlList$mp$hcr$Bref == "B0" )
-          obj$mp$hcr$Bref_spt[s,p,t]      <- amObj$repOpt$B0_sp
+          if( ctlList$mp$hcr$Bref == "B0" )
+            obj$mp$hcr$Bref_spt[,,t]      <- 2*amObj$repOpt$Bmsy_sp
 
-
-        # Save convergence info
-        obj$mp$assess$pdHess_tsp[pt,s,p]  <- amObj$pdHess
-        obj$mp$assess$maxGrad_tsp[pt,s,p] <- amObj$maxGrad
+          # Save convergence info
+          obj$mp$assess$pdHess_tsp[pt,,]  <- amObj$pdHess
+          obj$mp$assess$maxGrad_tsp[pt,,] <- amObj$maxGrad 
+        }
 
       }
 
@@ -405,11 +563,30 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     mlnUmsy   <- mean(log(refPtList$FmsyRefPts$Umsy_sp))
     mBmsy_sp  <- refPtList$FmsyRefPts$expBeqFmsy_sp
 
+    # Add Bmsy across stocks if coastwide
+    if( spCoastwide )
+    {
+      mBmsy_sp_new      <- mBmsy_sp[,1,drop = FALSE]
+      mBmsy_sp_new[,1]  <- apply( X = mBmsy_sp, FUN = sum, MARGIN = 1)
+
+      mBmsy_sp <- mBmsy_sp_new
+    }
+
+    if( spDataPooled )
+    {
+      mBmsy_sp_new <- mBmsy_sp[1,,drop = FALSE]
+      mBmsy_sp_new[1,] <- apply( X = mBmsy_sp, FUN = sum, MARGIN = 2 )
+
+      mBmsy_sp <- mBmsy_sp_new
+    }
+
     tmbLists <- .makeDatParHierProd(  C_spt, 
                                       I_spft,
                                       ctlList,
                                       mlnUmsy = mlnUmsy,
-                                      mBmsy_sp = mBmsy_sp )
+                                      mBmsy_sp = mBmsy_sp,
+                                      oldStock = oldStock,
+                                      oldFleet = oldFleet  )
 
     # Set phases
     # if no phase is set then pars not
@@ -418,19 +595,20 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     # Need to put in phases that are responsive to changes in
     # the fleet structure...
 
-    phases <- list( lnqSurv_sf    = ctlList$mp$assess$spPhzlnqSurv,
-                    lnqComm_spf   = ctlList$mp$assess$spPhzlnqComm,
-                    tvlnqDevs_vec = ctlList$mp$assess$spPhzTVq,
-                    lntauspf_vec  = ctlList$mp$assess$spPhztauObs,
-                    lnBmsy_sp     = ctlList$mp$assess$spPhzBmsy,
-                    lnUmsy        = ctlList$mp$assess$spPhzUmsy,
-                    lnsigmaProc   = ctlList$mp$assess$spPhzSigmaProc,
-                    zetaspt_vec   = ctlList$mp$assess$spPhzProcErr,
-                    lnBinit_vec   = ctlList$mp$assess$spPhzlnBinit )
+    phases <- list( lnqShrinkf_vec  = ctlList$mp$assess$spPhzlnqShrink,
+                    lnqFreespf_vec  = ctlList$mp$assess$spPhzlnqFree,
+                    tvlnqDevs_vec   = ctlList$mp$assess$spPhzTVq,
+                    lntauspf_vec    = ctlList$mp$assess$spPhztauObs,
+                    lnBmsy_sp       = ctlList$mp$assess$spPhzBmsy,
+                    lnUmsy          = ctlList$mp$assess$spPhzUmsy,
+                    lnsigmaProc     = ctlList$mp$assess$spPhzSigmaProc,
+                    zetaspt_vec     = ctlList$mp$assess$spPhzProcErr,
+                    lnBinit_vec     = ctlList$mp$assess$spPhzlnBinit )
 
     if( nSS > 1 )
     {
-      phases$epslnUmsy_s <- ctlList$mp$assess$spPhzepslnUmsy_s
+      phases$epslnUmsy_s      <- ctlList$mp$assess$spPhzepslnUmsy_s
+      phases$deltalnqsf_vec   <- ctlList$mp$assess$spPhzdeltalnq_sf
     }
     
     if( nPP > 1 )
@@ -442,8 +620,9 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     if( is.null(ctlList$mp$assess$spTVqFleets) )
       phases$tvlnqDevs_vec <- -1
 
-    if( is.null(ctlList$mp$assess$spShrinkqFleets) )
+    if( is.null(ctlList$mp$assess$spShrinkqFleets) | nPP == 1 )
       phases$deltalnqspf_vec <- -1
+
 
     if( ctlList$mp$assess$spSolveInitBio )
       phases$spPhzlnBinit <- -1
@@ -458,6 +637,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     tmbLists$phases <- phases
     tmbLists$random <- ctlList$mp$assess$spRE
 
+
     # Apply AM, save retro biomass
     # and reference points
     amObj <- .applyTMBphase(  tmbLists = tmbLists,
@@ -467,35 +647,112 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
                               calcSD = TRUE,
                               maxPhase = NULL,
                               base_map = list(),
+                              phaseMsg = ctlList$ctl$phaseMessages,
                               maxEval = ctlList$ctl$maxEval,
                               maxIter = ctlList$ctl$maxIter )
 
 
-    # browser()
-    # Save biomass
-    obj$mp$assess$retroSB_tspt[pt,1:nSS,1:nPP,1:t]    <- amObj$repOpt$B_spt
-    for( f in 1:nFF )
+    if( !spCoastwide & !spDataPooled )
     {
-      obj$mp$assess$retroVB_tspft[pt,1:nSS,1:nPP,f,1:t]       <- amObj$repOpt$B_spt
-      obj$mp$assess$retroq_tspf[pt,1:nSS,1:nPP,spFleetIdx[f]] <- amObj$repOpt$qhat_spf[,,f]
+      # Save biomass
+      obj$mp$assess$retroSB_tspt[pt,1:nSS,1:nPP,1:t]    <- amObj$repOpt$B_spt
+      for( f in 1:nFF )
+      {
+        obj$mp$assess$retroVB_tspft[pt,1:nSS,1:nPP,f,1:t]       <- amObj$repOpt$B_spt
+        obj$mp$assess$retroq_tspf[pt,1:nSS,1:nPP,spFleetIdx[f]] <- amObj$repOpt$qhat_spf[,,f]
+      }
+
+      # Now reference points
+      if( ctlList$mp$hcr$Fref == "Umsy" )
+        obj$mp$hcr$Fref_spt[1:nSS,1:nPP,t]      <- amObj$repOpt$Umsy_sp
+
+      if( ctlList$mp$hcr$Fref == "Fmsy" )
+        obj$mp$hcr$Fref_spt[1:nSS,1:nPP,t]      <- amObj$repOpt$Umsy_sp
+
+      if( ctlList$mp$hcr$Bref == "Bmsy" )
+        obj$mp$hcr$Bref_spt[1:nSS,1:nPP,t]      <- amObj$repOpt$Bmsy_sp  
+
+      if( ctlList$mp$hcr$Bref == "B0" )
+        obj$mp$hcr$Bref_spt[1:nSS,1:nPP,t]      <- 2*amObj$repOpt$Bmsy_sp
+
+      # Save convergence info
+      obj$mp$assess$pdHess_tsp[pt,1:nSS,1:nPP]  <- amObj$sdrep$pdHess
+      obj$mp$assess$maxGrad_tsp[pt,1:nSS,1:nPP] <- amObj$maxGrad
     }
 
-    # Now reference points
-    if( ctlList$mp$hcr$Fref == "Umsy" )
-      obj$mp$hcr$Fref_spt[1:nSS,1:nPP,t]      <- amObj$repOpt$Umsy_sp
+    if( spCoastwide )
+    {
+      # Save retro biomass
+      for( p in 1:nP )
+        obj$mp$assess$retroSB_tspt[pt,1:nSS,p,1:t]    <- amObj$repOpt$B_spt[1:nSS,1,1:t]
 
-    if( ctlList$mp$hcr$Fref == "Fmsy" )
-      obj$mp$hcr$Fref_spt[1:nSS,1:nPP,t]      <- amObj$repOpt$Umsy_sp
+      # Save retro exp. biomass and catchability
+      for( f in 1:nFF )
+      {
+        oldFleetIdx <- oldFleet[f]
+        oldStockIdx <- oldStock[f]
+        obj$mp$assess$retroVB_tspft[pt,1:nSS,oldStockIdx,oldFleetIdx,1:t]       <- amObj$repOpt$B_spt[1:nSS,1,1:t]
+        obj$mp$assess$retroq_tspf[pt,1:nSS,oldStockIdx,spFleetIdx[oldFleetIdx]] <- amObj$repOpt$qhat_spf[1:nSS,1,f]
+      }
 
-    if( ctlList$mp$hcr$Bref == "Bmsy" )
-      obj$mp$hcr$Bref_spt[1:nSS,1:nPP,t]      <- amObj$repOpt$Bmsy_sp  
+      # Now reference points
+      for( p in 1:nP )
+      {
+        if( ctlList$mp$hcr$Fref == "Umsy" )
+          obj$mp$hcr$Fref_spt[1:nSS,p,t]      <- amObj$repOpt$Umsy_sp[1:nSS,1]
 
-    if( ctlList$mp$hcr$Bref == "B0" )
-      obj$mp$hcr$Bref_spt[1:nSS,1:nPP,t]      <- 2*amObj$repOpt$Bmsy_sp
+        if( ctlList$mp$hcr$Fref == "Fmsy" )
+          obj$mp$hcr$Fref_spt[1:nSS,p,t]      <- amObj$repOpt$Umsy_sp[1:nSS,1]
 
-    # Save convergence info
-    obj$mp$assess$pdHess_tsp[pt,,]  <- amObj$sdrep$pdHess
-    obj$mp$assess$maxGrad_tsp[pt,,] <- amObj$maxGrad
+        if( ctlList$mp$hcr$Bref == "Bmsy" )
+          obj$mp$hcr$Bref_spt[1:nSS,p,t]      <- amObj$repOpt$Bmsy_sp[1:nSS,1]
+
+        if( ctlList$mp$hcr$Bref == "B0" )
+          obj$mp$hcr$Bref_spt[1:nSS,p,t]      <- 2*amObj$repOpt$Bmsy_sp[1:nSS,1]
+      }
+
+      # Save convergence info
+      obj$mp$assess$pdHess_tsp[pt,1:nSS,]  <- amObj$sdrep$pdHess
+      obj$mp$assess$maxGrad_tsp[pt,1:nSS,] <- amObj$maxGrad
+    }
+
+    if( spDataPooled )
+    {
+      # Save retro biomass
+      for( s in 1:nS )
+        obj$mp$assess$retroSB_tspt[pt,s,1:nP,1:t]    <- amObj$repOpt$B_spt[1,1:nPP,1:t]
+
+      # Save retro exp. biomass and catchability
+      for( f in 1:nFF )
+      {
+        for( s in 1:nS )
+        {
+          obj$mp$assess$retroVB_tspft[pt,s,1:nP,f,1:t]       <- amObj$repOpt$B_spt[1,1:nP,1:t]
+          obj$mp$assess$retroq_tspf[pt,s,1:nP,spFleetIdx[f]] <- amObj$repOpt$qhat_spf[1,1:nP,f]
+        }
+        
+      }
+
+      # Now reference points
+      for( s in 1:nS )
+      {
+        if( ctlList$mp$hcr$Fref == "Umsy" )
+          obj$mp$hcr$Fref_spt[s,1:nP,t]      <- amObj$repOpt$Umsy_sp[1,1:nP]
+
+        if( ctlList$mp$hcr$Fref == "Fmsy" )
+          obj$mp$hcr$Fref_spt[s,1:nP,t]      <- amObj$repOpt$Umsy_sp[1,1:nP]
+
+        if( ctlList$mp$hcr$Bref == "Bmsy" )
+          obj$mp$hcr$Bref_spt[s,1:nP,t]      <- amObj$repOpt$Bmsy_sp[1,1:nP]
+
+        if( ctlList$mp$hcr$Bref == "B0" )
+          obj$mp$hcr$Bref_spt[s,1:nP,t]      <- 2*amObj$repOpt$Bmsy_sp[1,1:nP]
+      }
+
+      # Save convergence info
+      obj$mp$assess$pdHess_tsp[pt,,]  <- amObj$sdrep$pdHess
+      obj$mp$assess$maxGrad_tsp[pt,,] <- amObj$maxGrad
+    }
 
   }
 
@@ -513,7 +770,10 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
                                   I_spft,
                                   ctlList,
                                   mlnUmsy,
-                                  mBmsy_sp )
+                                  mBmsy_sp,
+                                  oldFleet = NULL,
+                                  oldStock = NULL,
+                                  spCoastwide = FALSE )
 {
   # Get model dims
   nSS <- dim(C_spt)[1]
@@ -579,24 +839,36 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   # Now create some vectors to
   # indicate if q is shrunk or not, and if
   # q is conditionally derived or not
+
+  # Add something for when fleets are spread (coastwide)
   condMLEq_f <- rep(0, nF)
-  condMLEq_f[ctlList$mp$assess$spCondMLEqFleets - min(ctlList$mp$assess$spFleets) + 1] <- 1
+  if( !is.null(oldFleet) )
+  {
+    oldCondMLEqFleets <- ctlList$mp$assess$spCondMLEqFleets - min(ctlList$mp$assess$spFleets) + 1
+    condMLEq_f[oldFleet %in% oldCondMLEqFleets] <- 1
+  } else  
+    condMLEq_f[ctlList$mp$assess$spCondMLEqFleets - min(ctlList$mp$assess$spFleets) + 1] <- 1
+
+
   # Shrink q?
   shrinkq_f  <- rep(0, nF)
-  shrinkq_f[ctlList$mp$assess$spShrinkqFleets - min(ctlList$mp$assess$spFleets) + 1] <- 1
+  if( !is.null(oldFleet))
+  {
+    oldShrinkqFleets <- ctlList$mp$assess$spShrinkqFleets - min(ctlList$mp$assess$spFleets) + 1
+    shrinkq_f[oldFleet %in% oldShrinkqFleets] <- 1
+  } else
+    shrinkq_f[ctlList$mp$assess$spShrinkqFleets - min(ctlList$mp$assess$spFleets) + 1] <- 1
+
   # Time-varying q?
   tvq_f       <- rep(0,nF)
-  tvq_f[ctlList$mp$assess$spTVqFleets] <- 1       
-
-  nEstq   <- length(which(condMLEq_f == 0))
-  nCondq  <- length(which(condMLEq_f == 1))
-
-  nShrinkq    <- length(which(shrinkq_f == 1))
-  nFreeq      <- length(which(shrinkq_f == 0))
-
+  if(!is.null(oldFleet))
+    tvq_f[oldFleet %in% ctlList$mp$assess$spTVqFleets] <- 1
+  else tvq_f[ctlList$mp$assess$spTVqFleets] <- 1  
 
   calcIndex_spf <- array(0, dim = c(nSS,nPP,nF) )
   stockq_spf    <- array(0, dim = c(nSS,nPP,nF) )
+  speciesq_sf   <- array(0, dim = c(nSS,nF) )
+  fleetq_f      <- rep(0, nF)
   nqDevs        <- 0
   for( s in 1:nSS )
     for( p in 1:nPP )
@@ -610,14 +882,35 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
       }
 
   nStocks_sf <- apply(X = calcIndex_spf, FUN = sum, MARGIN = c(1,3) )
-  for( s in 1:nSS )
-    for( f in 1:nF )
+  for( f in 1:nF )
+  {
+    for( s in 1:nSS )
+    {
       if( nStocks_sf[s,f] > 1 & 
           shrinkq_f[f] == 1 &
           condMLEq_f[f] == 0  )
         stockq_spf[s,,f] <- calcIndex_spf[s,,f]
 
+      if( any(I_spft[s,,f,] > 0, na.rm = T) &
+          shrinkq_f[f] == 1 &
+          condMLEq_f[f] == 0 )
+        speciesq_sf[s,f] <- 1
+    }
 
+    if( any(I_spft[,,f,] > 0, na.rm = T) &
+        condMLEq_f[f] == 0 )
+      fleetq_f[f] <- 1
+  }
+     
+
+  nEstq   <- length(which(condMLEq_f == 0 & fleetq_f == 1))
+  nCondq  <- length(which(condMLEq_f == 1))
+
+  nShrinkq    <- length(which(shrinkq_f == 1 & fleetq_f == 1))
+  nFreeq      <- length(which(shrinkq_f == 0 & condMLEq_f == 0 & fleetq_f == 1))
+
+  logisticq_spf <- array(0, dim = c(nSS,nPP,nF))
+  logisticq_spf[,,(oldFleet %in% ctlList$mp$assess$spLogisticqFleets)] <- 1
 
   I_spft[is.na(I_spft)] <- -1
 
@@ -628,6 +921,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
                 condMLEq_f      = condMLEq_f,
                 shrinkq_f       = shrinkq_f,
                 tvq_f           = tvq_f,
+                fleetq_f        = fleetq_f,
                 lnqPriorCode    = lnqPriorCode,
                 lnUPriorCode    = lnUPriorCode,
                 BPriorCode      = 0,
@@ -636,19 +930,22 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
                 initBioCode_sp  = initBioCode_sp,
                 calcIndex_spf   = calcIndex_spf,
                 stockq_spf      = stockq_spf,
+                speciesq_sf     = speciesq_sf,
                 posPenFactor    = ctlList$mp$assess$spPosPenFactor,
                 solveInitBio_sp = solveInitBio_sp )
   
 
   pars <- list( lnBmsy_sp         = log(mBmsy_sp),
                 lnUmsy            = mlnUmsy,
-                lnqSurv_sf        = array(0, dim = c(nSS,nShrinkq)),
-                lnqComm_spf       = array(0, dim = c(nSS,nPP,nFreeq)),
+                lnqFreespf_vec    = rep(0, max(nSS*nPP*nFreeq,1)),
+                lnqShrinkf_vec    = rep(0, max(1,nShrinkq)),
                 lntauspf_vec      = rep(log(ctlList$mp$assess$sptauObs_spf), sum(calcIndex_spf)),
                 lnBinit_vec       = lnBinit_vec,
-                deltalnqspf_vec   = rep(0,sum(stockq_spf)),
+                deltalnqsf_vec    = rep(0,max(1,sum(speciesq_sf))),
+                deltalnqspf_vec   = rep(0,max(1,sum(stockq_spf))),
+                lntauq_f          = rep(log(ctlList$mp$assess$sptauq),nF),
                 lntauq_s          = rep(log(ctlList$mp$assess$sptauq),nSS),
-                tvlnqDevs_vec     = rep(0,nqDevs),
+                tvlnqDevs_vec     = rep(0,max(1,nqDevs)),
                 lntautvqDev       = log(ctlList$mp$assess$sptauqdev),
                 mlnq              = log(ctlList$mp$assess$spmlnq),
                 sdlnq             = ctlList$mp$assess$spsdlnq,
@@ -670,6 +967,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
                 zetaspt_vec       = rep(0,sum(nT - initPE_sp) - nSS * nPP),
                 sigmaProcMult_sp  = array(1, dim = c(nSS,nPP)),
                 logit_gammaYr     = 0 )
+
 
   return( tmbLists = list(  data = data,
                             pars = pars ) )
@@ -769,7 +1067,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     for( p in 1:nP )
     {
       obj$mp$assess$retroSB_tspt[pt:pT,s,p,t]     <- tmpObj$om$SB_spt[s,p,t]
-      obj$mp$assess$retroVB_tspft[pt:pT,s,p,,t] <- tmpObj$om$vB_spft[s,p,,t] 
+      obj$mp$assess$retroVB_tspft[pt:pT,s,p,,t]   <- tmpObj$om$vB_spft[s,p,,t] 
       
     }
 
@@ -815,9 +1113,6 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
 
 
   ####---------- THE BLOOOBBBB ----- ####
-  blob <- list( om = NULL,
-                mp = NULL )
-
 
 
   # OM lists
@@ -855,24 +1150,26 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
 
 
 
-  mp$hcr <- list( Fref_ispt = array( NA, dim = c(nReps, nS, nP, nT ) ),       # Reference F in HCR
-                  Bref_ispt = array( NA, dim = c(nReps, nS, nP, nT ) ),       # Reference biomass (B0 or Bmsy, usually)
-                  targetF_ispt = array( NA, dim = c(nReps, nS, nP, nT) ),     # Target F from HCR
-                  LCP_ispt = array(NA, dim = c(nReps, nS, nP, nT) ),          # Lower control point
-                  UCP_ispt = array(NA, dim = c(nReps, nS, nP, nT) ),          # Upper control point
-                  TAC_ispt = array(NA, dim = c(nReps, nS, nP, nT ) ),         # TAC summed across all fleets
-                  TAC_ispft = array(NA, dim = c(nReps, nS, nP, nF, nT ) ) )   # TAC allocated by fleet
+  mp$hcr <- list( Fref_ispt     = array( NA, dim = c(nReps, nS, nP, nT ) ),      # Reference F in HCR
+                  Bref_ispt     = array( NA, dim = c(nReps, nS, nP, nT ) ),      # Reference biomass (B0 or Bmsy, usually)
+                  targetF_ispt  = array( NA, dim = c(nReps, nS, nP, nT) ),       # Target F from HCR
+                  LCP_ispt      = array(NA, dim = c(nReps, nS, nP, nT) ),        # Lower control point
+                  UCP_ispt      = array(NA, dim = c(nReps, nS, nP, nT) ),        # Upper control point
+                  TAC_ispt      = array(NA, dim = c(nReps, nS, nP, nT ) ),       # TAC summed across all fleets
+                  propTAC_ispt  = array(NA, dim = c(nReps, nS, nP, nT ) ),       # proportion of TAC for disaggregating pooled TACs
+                  TAC_ispft     = array(NA, dim = c(nReps, nS, nP, nF, nT ) ) )  # TAC allocated by fleet
 
 
-  blob <- list( om = om, mp = mp, ctlList = ctlList )
+  blob <- list( om = om, mp = mp, ctlList = ctlList,
+                rp = vector(mode = "list", length = nReps) )
 
 
   ##########################################################
   ######### ------- CLOSED LOOP SIMULATION ------- #########
   ##########################################################
 
-  if(!obj$ctlList$ctl$quiet)
-    message(" (.mgmtProc) Running feedback loop...\n")
+  
+  message(" (.mgmtProc) Running feedback loop...\n")
 
   for( i in 1:nReps )
   {
@@ -894,6 +1191,8 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     simObj <- .calcHistEffortDynamics( simObj )
     # Calcualate times for observations
     simObj <- .calcTimes( simObj )
+
+
 
     if( nT >= tMP )
     {
@@ -917,6 +1216,9 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
         } # END objNext conditional
 
         simObj <- objNext
+
+        message( "(.mgmtProc) Time step t = ", t ," complete\n", sep = "")
+
       } # END t loop
     } # END feedback sim for replicate i
 
@@ -950,6 +1252,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     blob$mp$hcr$LCP_ispt[i,,,]        <- simObj$mp$hcr$LCP_spt
     blob$mp$hcr$UCP_ispt[i,,,]        <- simObj$mp$hcr$UCP_spt
     blob$mp$hcr$TAC_ispt[i,,,]        <- simObj$mp$hcr$TAC_spt
+    blob$mp$hcr$propTAC_ispt[i,,,]    <- simObj$mp$hcr$propTAC_spt
     blob$mp$hcr$TAC_ispft[i,,,,]      <- simObj$mp$hcr$TAC_spft
 
 
@@ -960,8 +1263,10 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     blob$mp$assess$retroq_itspf[i,,,,]    <- simObj$mp$assess$retroq_tspf
     blob$mp$assess$maxGrad_itsp[i,,,]     <- simObj$mp$assess$maxGrad_tsp
     blob$mp$assess$pdHess_itsp[i,,,]      <- simObj$mp$assess$pdHess_tsp
-  
 
+    # Save reference points for this replicate - more necessary when
+    # we have multiple conditioning draws
+    blob$rp[[i]] <- simObj$rp
 
     message( " (.mgmtProc) Completed replicate ", i, " of ", nReps, ".\n", sep = "")
   } # END i loop
@@ -986,6 +1291,127 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
 
   return(blob)
 } # END .mgmtProc()
+
+
+# .solveMaxEffort()
+# Uses species catchability to solve for
+# the maximum effort allowed in a stock area
+# before any species TAC is completely caught.
+# inputs: simObj = simulation object
+#         t = time step
+# outputs: simObj = simulation object with
+#                   projected effort
+# Source: SDN Johnson
+.solveMaxEffort <- function(  TAC_spf   = TAC_spft[,,,t], 
+                              vB_spf    = vB_spft[,,,t],
+                              qF_spf    = qF_spft[,,,t],
+                              vB_axspf  = vB_axspft[,,,,,t],
+                              sel_axspf = sel_axspft[,,,,,t],
+                              N_axsp    = N_axspt[,,,,t],
+                              M_xsp     = M_xsp,
+                              A_s       = A_s,
+                              lastE_pf  = E_pft[,,t-1],
+                              wt_axsp   = meanWtAge_axsp,
+                              nS = nS, nP = nP, nX = nX, nF = nF )
+{
+  # First, we need to get whichFleets
+  TAC_f <- apply( X = TAC_spf, FUN = sum, MARGIN = 3 )
+  whichFleets <- which(TAC_f > 0)
+
+
+
+  # Now loop over areas and slowly increase effort
+  # in each area until the TAC of one species is met
+  C_spf <- array( 0, dim = c(nS,nP,nF) )
+  E_pf  <- array( 0, dim = c(nP,nF) )
+  solveE_s <- rep(0,nS)
+  for( p in 1:nP )
+  {
+    for( f in whichFleets )
+    {
+      catDiff_s <- C_spf[,p,f] - TAC_spf[,p,f]
+      catRem_s  <- TAC_spf[,p,f] - C_spf[,p,f]
+      propE     <- 0
+      nSteps    <- 0 
+
+      checkCatDiff <- all(abs(catDiff_s) > 1e-2)
+
+      while( checkCatDiff )
+      {
+
+        # Solve for the effort using the TAC and 
+        solveE_s <- -1/qF_spf[,p,f] * log( 1 - catRem_s / (vB_spf[,p,f] - C_spf[,p,f]))
+        propE <- propE + 0.8*min(solveE_s,na.rm = T)
+
+        propF_s <- propE * qF_spf[,p,f]
+
+        # Now use this to generate a catch
+        catArrays <- .applyBaranovCatchEq(  M_xsp = M_xsp[,,p,drop = FALSE],
+                                            sel_axspf = sel_axspf[,,,p,f,drop = FALSE],
+                                            vB_axspf = vB_axspf[,,,p,f,drop = FALSE],
+                                            F_spf = array(propF_s, dim = c(nS,1,1)),
+                                            wt_axsp = wt_axsp[,,,p,drop = FALSE],
+                                            nS = nS,
+                                            nP = 1,
+                                            nF = 1,
+                                            nX = nX,
+                                            A_s = A_s )
+
+        # Save catch
+        C_spf[,p,f] <- catArrays$C_spf
+
+        catDiff_s <- C_spf[,p,f] - TAC_spf[,p,f]
+        catRem_s  <- TAC_spf[,p,f] - C_spf[,p,f]
+
+        nSteps <- nSteps + 1
+        if( nSteps > 5 )
+        {
+          break
+
+        }
+
+        if( any(catRem_s < 0 ) )
+        {
+          # Put in routine to wind back E a little
+          propE <- 0.9 * propE
+
+          propF_s <- propE * qF_spf[,p,f]
+
+          # Now use this to generate a catch
+          catArrays <- .applyBaranovCatchEq(  M_xsp = M_xsp[,,p,drop = FALSE],
+                                              sel_axspf = sel_axspf[,,,p,f,drop = FALSE],
+                                              vB_axspf = vB_axspf[,,,p,f,drop = FALSE],
+                                              F_spf = array(propF_s, dim = c(nS,1,1)),
+                                              wt_axsp = wt_axsp[,,,p,drop = FALSE],
+                                              nS = nS,
+                                              nP = 1,
+                                              nF = 1,
+                                              nX = nX,
+                                              A_s = A_s )
+
+          # Save catch
+          C_spf[,p,f] <- catArrays$C_spf
+
+          catDiff_s <- C_spf[,p,f] - TAC_spf[,p,f]
+          catRem_s  <- TAC_spf[,p,f] - C_spf[,p,f]
+
+          break
+
+        }
+
+        
+
+      }
+      E_pf[p,f] <- propE
+    }
+  }
+
+  out <- list( E_pf = E_pf )
+
+} # END .solveMaxEffort()
+
+
+
 
 # .solveProjEffortDynamics()
 # Uses catchability, price, and a utility
@@ -1454,6 +1880,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   mp$hcr$targetF_spt          <- array( NA, dim = c(nS, nP, nT) )
   mp$hcr$TAC_spft             <- array(0,  dim = c(nS,nP,nF,nT) )     # MP TAC by fleet in kt
   mp$hcr$TAC_spt              <- array(0,  dim = c(nS,nP,nT) )        # MP TAC in kt
+  mp$hcr$propTAC_spt          <- array(1,  dim = c(nS,nP,nT) )        # MP TAC in kt
 
 
   # Process and observation errors
@@ -1485,6 +1912,64 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
 
   return(obj)
 } # END initMS3pop()
+
+
+# .applyBaranovCatchEq()
+# Refactored to apply Baranov eq. in both the
+# effort solver and the operating model.
+.applyBaranovCatchEq <- function( M_xsp,
+                                  sel_axspf,
+                                  vB_axspf,
+                                  F_spf,
+                                  wt_axsp,
+                                  nS,
+                                  nP,
+                                  nF,
+                                  nX,
+                                  A_s )
+{ 
+  # Make arrays to hold catch
+  nA <- max(A_s)
+  Cw_axspf <- array(0, dim = c(nA,nX,nS,nP,nF) )
+  C_axspf  <- array(0, dim = c(nA,nX,nS,nP,nF) )
+  C_spf    <- array(0, dim = c(nS,nP,nF) )
+  Z_axsp   <- array(0, dim = c(nA,nX,nS,nP))
+
+  # Now generate Z
+  for( s in 1:nS )
+    for( p in 1:nP )
+    {
+      # Fill Z with Ms
+      Z_axsp[1:A_s[s],1,s,p] <- M_xsp[1,s,p]
+      Z_axsp[1:A_s[s],2,s,p] <- M_xsp[2,s,p]
+
+      # Now loop over fleets, ages, and sexes, add fishing mortality
+      # rates and generate catch
+      for( f in 1:nF )
+      {
+        Z_axsp[,,s,p] <- Z_axsp[,,s,p] + sel_axspf[,,s,p,f] * F_spf[s,p,f]
+
+        # Now generate catch
+        for( a in 1:A_s[s] )
+        {
+          for( x in 1:nX )
+          {
+            Cw_axspf[a,x,s,p,f]  <- (1 - exp( - Z_axsp[a,x,s,p])) * vB_axspf[a,x,s,p,f] * F_spf[s,p,f] / Z_axsp[a,x,s,p]
+            C_axspf[a,x,s,p,f]   <- Cw_axspf[a,x,s,p,f] / wt_axsp[a,x,s,p]
+            C_spf[s,p,f]         <- C_spf[s,p,f] + sum(Cw_axspf[a,x,s,p,f],na.rm = T)
+          }
+        }
+        
+      } # END f loop        
+    } # END p loop
+    # END s loop
+
+  out <- list(  Cw_axspf  = Cw_axspf,
+                C_axspf   = C_axspf,
+                C_spf     = C_spf )
+
+  return(out)
+} # END .applyBaranovCatchEq()
 
 # Operating model function (similar to mseR)
 .ageSexOpMod <- function( obj, t )
@@ -1572,6 +2057,9 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   lenAge_axsp       <- om$lenAge_axsp
   matAge_asp        <- om$matAge_asp
 
+  # Pull observation error multiplier
+  projObsErrMult    <- obj$ctlList$opMod$projObsErrMult
+
   # Initialise population
   if( t == 1 )
   {
@@ -1636,24 +2124,37 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   # Now calculate effort for each area (for closed loop sim)
   if( t >= tMP )
   {
-    effortMod <- .solveProjEffortDynamics( TAC_spf   = TAC_spft[,,,t], 
-                                            vB_spf    = vB_spft[,,,t],
-                                            qF_spf    = qF_spft[,,,t],
-                                            # vB_axspf  = vB_axspft[,,,,,t],
-                                            # sel_axspf = sel_axspft[,,,,,t],
-                                            # N_axsp    = N_axspt[,,,,t],
-                                            # M_xsp     = M_xsp,
-                                            # A_s       = A_s,
-                                            # wt_axsp   = meanWtAge_axsp,
-                                            price_s   = om$price_s,
-                                            alphaU    = om$alphaU,
-                                            ut_50     = om$ut_50,
-                                            ut_95     = om$ut_95,
-                                            w_pf      = om$w_pf,
-                                            nS = nS, nP = nP, nX = nX, nF = nF  )
+
+    effortMod <- .solveMaxEffort( TAC_spf   = TAC_spft[,,,t], 
+                                  vB_spf    = vB_spft[,,,t],
+                                  qF_spf    = qF_spft[,,,t],
+                                  vB_axspf  = vB_axspft[,,,,,t],
+                                  sel_axspf = sel_axspft[,,,,,t],
+                                  N_axsp    = N_axspt[,,,,t],
+                                  M_xsp     = M_xsp,
+                                  A_s       = A_s,
+                                  wt_axsp   = meanWtAge_axsp,
+                                  lastE_pf  = E_pft[,,t-1],
+                                  nS = nS, nP = nP, nX = nX, nF = nF )
+
+    # effortMod <- .solveProjEffortDynamics( TAC_spf   = TAC_spft[,,,t], 
+    #                                         vB_spf    = vB_spft[,,,t],
+    #                                         qF_spf    = qF_spft[,,,t],
+    #                                         # vB_axspf  = vB_axspft[,,,,,t],
+    #                                         # sel_axspf = sel_axspft[,,,,,t],
+    #                                         # N_axsp    = N_axspt[,,,,t],
+    #                                         # M_xsp     = M_xsp,
+    #                                         # A_s       = A_s,
+    #                                         # wt_axsp   = meanWtAge_axsp,
+    #                                         price_s   = om$price_s,
+    #                                         alphaU    = om$alphaU,
+    #                                         ut_50     = om$ut_50,
+    #                                         ut_95     = om$ut_95,
+    #                                         w_pf      = om$w_pf,
+    #                                         nS = nS, nP = nP, nX = nX, nF = nF  )
 
     E_pft[,,t]     <- effortMod$E_pf
-    Rev_spft[,,,t] <- effortMod$rev_spf
+    # Rev_spft[,,,t] <- effortMod$rev_spf
 
     # Convert to F
     for( s in 1:nS )
@@ -1705,7 +2206,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
       for( p in 1:nP )
       {
         idxOn <- obj$mp$data$idxOn_spft[s,p,,t]
-        I_spft[s,p,idxOn,t] <- q_spft[s,p,idxOn,t] * vB_spft[s,p,idxOn,t] * exp(om$tauObs_spf[s,p,idxOn] * err$delta_spft[s,p,idxOn,t])
+        I_spft[s,p,idxOn,t] <- q_spft[s,p,idxOn,t] * vB_spft[s,p,idxOn,t] * exp(om$tauObs_spf[s,p,idxOn] * err$delta_spft[s,p,idxOn,t] * projObsErrMult)
       }
   }
 
