@@ -17,8 +17,8 @@ mp$assess$spCoastwide FALSE
 mp$assess$spDataPooled FALSE
 mp$assess$spSingleStock FALSE
 mp$assess$spPosPenFactor 1e5
-mp$assess$sptauq .01
-mp$assess$spsigU .01
+mp$assess$sptauq .05
+mp$assess$spsigU .05
 mp$assess$spFleets c(1,2,3,4)
 mp$assess$spShrinkqFleets c(3,4)
 mp$assess$spTVqFleets NULL
@@ -28,7 +28,7 @@ mp$assess$spLateStart FALSE
 mp$assess$spsigmaProc .05
 mp$assess$sptauqdev .1
 mp$assess$spsdUmsy .05
-mp$assess$spCVBmsy .5
+mp$assess$spCVBmsy .1
 mp$assess$spmlnq .5
 mp$assess$spsdlnq .05
 mp$assess$sptauObs_spf .25
@@ -47,7 +47,7 @@ mp$assess$spPhzlnqFree -1
 mp$assess$spPhzTVq -1
 mp$assess$spPhzProcErr -3
 mp$assess$spPhzSigmaProc -3
-mp$assess$spPhztauObs -1
+mp$assess$spPhztauObs 1
 mp$data$idxOn c(4)
 mp$data$obsInt_i rep(2,3)
 mp$hcr$Bref "Bmsy"

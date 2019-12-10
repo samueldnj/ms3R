@@ -17,8 +17,8 @@ mp$assess$spCoastwide FALSE
 mp$assess$spDataPooled FALSE
 mp$assess$spSingleStock FALSE
 mp$assess$spPosPenFactor 1e5
-mp$assess$sptauq .02
-mp$assess$spsigU .02
+mp$assess$sptauq .01
+mp$assess$spsigU .01
 mp$assess$spFleets c(1,2,3,4)
 mp$assess$spShrinkqFleets c(3,4)
 mp$assess$spTVqFleets NULL
@@ -27,11 +27,11 @@ mp$assess$spSolveInitBio FALSE
 mp$assess$spLateStart FALSE
 mp$assess$spsigmaProc .05
 mp$assess$sptauqdev .1
-mp$assess$spsdUmsy .1
-mp$assess$spCVBmsy .05
+mp$assess$spsdUmsy .05
+mp$assess$spCVBmsy .1
 mp$assess$spmlnq .5
-mp$assess$spsdlnq .05
-mp$assess$sptauObs_spf .2
+mp$assess$spsdlnq .1
+mp$assess$sptauObs_spf .5
 mp$assess$spInitPE 30
 mp$assess$spRE c("zetaspt_vec")
 #mp$assess$spRE NULL
@@ -47,7 +47,7 @@ mp$assess$spPhzlnqFree -1
 mp$assess$spPhzTVq -1
 mp$assess$spPhzProcErr -3
 mp$assess$spPhzSigmaProc -3
-mp$assess$spPhztauObs -1
+mp$assess$spPhztauObs 3
 mp$data$idxOn c(4)
 mp$data$obsInt_i rep(2,3)
 mp$hcr$Bref "Bmsy"
