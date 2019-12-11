@@ -17,8 +17,8 @@ mp$assess$spCoastwide FALSE
 mp$assess$spDataPooled FALSE
 mp$assess$spSingleStock FALSE
 mp$assess$spPosPenFactor 1e5
-mp$assess$sptauq .05
-mp$assess$spsigU .05
+mp$assess$sptauq .01
+mp$assess$spsigU .01
 mp$assess$spFleets c(1,2,3,4)
 mp$assess$spShrinkqFleets c(3,4)
 mp$assess$spTVqFleets NULL
@@ -30,7 +30,7 @@ mp$assess$sptauqdev .1
 mp$assess$spsdUmsy .05
 mp$assess$spCVBmsy .1
 mp$assess$spmlnq .5
-mp$assess$spsdlnq .05
+mp$assess$spsdlnq .1
 mp$assess$sptauObs_spf .25
 mp$assess$spInitPE 30
 mp$assess$spRE c("zetaspt_vec")

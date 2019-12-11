@@ -55,17 +55,13 @@ fishery on the complex of Dover, English, and Rock
 soles in British Columbia, Canada [*Pleuronectidae spp*]. 
 These three species co-occur along the BC coast, are caught 
 together in directed trawl fisheries, and are surveyed by 
-the same multi-species trawl survey. (WHY ARE THEY DATA LIMITED?...). 
-The commercial fishery is managed across three major areas
-by a strict output control individual transferrable qutoa (ITQ) 
-system, under which a harvester must obtain quota for all fish
-caught (not landed), and must stop fishing for the season 
-otherwise.
+the same multi-species trawl survey. While time series
+of catch and commercial CPUE exist for all species and 
+areas since the 1950s, fisher, biological data is limited for 
+many species/area combinations. 
 
-- Disutility for catch/quota == 1
-- Different relative value of each species
-- Different composition in each area
-- Different preferences for fishing each area.
+
+
 
 
 

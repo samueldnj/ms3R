@@ -2,6 +2,62 @@
 
 ## British Columbia's flatfish fishery
 
+British Columbia's complex of right-eyed flounders is 
+a spatially diverse and interacting group. While the
+there are several right-eyed flounders in BC waters, we 
+will focus only on Dover sole (*Microstomus pacficus*), 
+English sole (*Parophrys vetulus*), and rock sole 
+(*Lepidopsetta bilineata*), as these three species are
+actively managed as part of the BC groundfish fishery 
+with the same management unit boundaries, and are
+targeted at different times of the year by the same 
+bottom trawl sector. 
+
+
+
+
+dover sole complex is divided into three 
+distinct but connected stocks (Figure 1), distributed along 
+the BC coast from the northern tip of Haida Gwaii, south 
+through Hecate Strait into Queen Charlotte Sound, and on 
+the west coast of Vancouver Island. Although the dover 
+sole fishery has operated since 1954, prior to 1970 it 
+was very limited, increasing to present levels by the 
+late 1980's (Figure 2).
+
+Despite a long history of exploitation, dover sole stocks 
+have never been evaluated using model-based assessments. 
+No observational data exists for the Queen Charlotte Sound 
+(QCS) and west coast of Vancouver Island (WCVI) stocks 
+prior to 2003, precluding a model based assessment 
+before that time [@fargo1999flatfish-s]. The Haida Gwaii 
+and Hecate Strait (HS) stock was surveyed from 
+1984 - 2003 (Figure 2, Survey 1), but data was only 
+used to perform catch curve analyses for total mortality 
+rate estimates [@fargo1998flatfish-s]. During 1984 - 2003, 
+a fine-mesh trawl survey was used for the Vancouver Island 
+stock and a portion of the Hecate Strait stock, but the 
+survey was not designed for groundfish and produced 
+stock indices that were highly variable. Since 2003, a 
+new bottom trawl survey has operated coast-wide, which 
+samples all three stocks (Figure 2, Survey 2), but 
+no assessment has been performed in that time.
+
+Dover sole may be suitable for a hierarchical multi-stock 
+assessment for 3 main reasons. First, the Hecate Strait 
+stock has longer series of informative data than the 
+other stocks, potentially providing information for 
+the other two stocks. Second, modeling a single-species 
+makes it likely that stock productivities and responses 
+to the environment are similar. Lastly, all stocks are 
+observed by Survey 2, making it likely that the 
+observation model parameters for each stock are similar 
+for that survey. By applying the hierarchical multi-stock 
+approach, the similarities between stocks may be 
+exploited to the benefit of the whole complex, extending 
+model based stock assessments for dover sole for the 
+first time.
+
 
 ## Simulation model framework
 
@@ -68,36 +124,34 @@ model in Template Model Builder, extending
 a model from our previous research [@kristensen2015tmb;
 @johnson2018evaluating]. For hierarchical model formulations, 
 we applied shrinkage priors to survey catchability 
-and intrinsic growth rate (Appendix B).
+and intrinsic growth rate (Appendix B). In total,
+five model configurations were defined:
 
-9 in total, spanning 3 dimensions
+1. Hierarchical multi-stock
+2. Single-stock
+3. Hierarchical coastwide (3 species)
+4. Hierarchical data-pooled (3 stocks)
+5. Data-pooled coastwide (1 stock)
 
-dim1: pooled <-> hierarchical <-> separated
-dim2: single species <-> multi-species
-dim3: spatial <-> coastwide
-
-
-1. Coastwide (1 stock)
-    a. Pooled
-    b. Hierarchical multispecies
-    c. single-species
-2. Spatial (by stock area - 3 stocks)
-    a. Pooled w/in area      
-    b. Single species w/in area.
-    c. Hierarchical multi-species w/in area
-    d. Hierarchical multi-stock across areas, w/in species
-3. Fully spatial (nS * 3 stocks)
-    a. Hierarchical multi-species multi-stock
-    b. Single stock
 
 Data is pooled by simple summation of both
 catch and biomass indices across species within
 each area. This reflects that each species' survey 
 biomass index is an estimate of trawlable biomass, 
 so the pooled index is an estimate of trawlable
-complex biomass available to the survey. For coastwide
-assessments, each survey (pooled or separate) is
-considered as a separate index of the same population.
+complex biomass available to the survey. We also
+summed the CPUE observations for the commercial
+trawl fleets, under the assumption that the same
+trawl effort was used to calculate the unstandardised
+CPUE observations (i.e. the CPUE series had the same
+denominators); however, this assumption was inaccurate as the
+species-specific CPUE had species-specific effort, and
+not all sets catch all three species. Ignoring the
+inaccuracy biased the data-pooled CPUE and introduced
+more variability, which we decided was acceptable
+for research purposes. Under coastwide assessments, 
+each survey (pooled or separate) was considered as a 
+separate index of the same population.
 
 Each time step $t$, the AM estimates production model 
 equilibria $B_{MSY}$ and $U_{MSY}$, and an expected 
@@ -249,26 +303,18 @@ Not really the question here, tho.
 Maybe just increased/decreased
 data availability - this is really
 
-Data scenarios:
-1. Surveys only
-2. Commercial CPUE and surveys for historical period - can't
-really pool commercial CPUE in the same way...
-
 Survey CV scenarios:
 1. current CV
 2. Half current CV
 3. Twice current CV
 
-Effort model scenarios - maybe a different paper on
-sustainable overfishing, as this would be a major
-source of uncertainty in the OM:
-1. White noise in catch rates
-2. Red noise in catch rates
-3. Correlations in catch rates among stocks/species
+Sensitivity runs:
+1. Bmsy prior CV = 0.1, 0.5, 1.0
+
 
 ### Management procedures
 
-We tested nine MPs corresponding to the nine assessment 
+We tested five MPs corresponding to the five assessment 
 model configurations outlined above. We chose to restrict
 ourselves to the AM configuration only, as this would
 allow us to focus on the management performance
@@ -306,4 +352,5 @@ AAV_{s,p} = \frac{\sum_t |C_{s,p,t} - C_{s,p,t+1} | }{\sum_t C_{s,p,t}}.
 All metrics are calculated
 over the first $K$ years of the projection
 period.
-22
+
+
