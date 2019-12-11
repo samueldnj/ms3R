@@ -50,6 +50,7 @@ mp$mp3$ctl$mpName 'dataPooled'
 mp$mp3$mp$assess$spSingleStock FALSE
 mp$mp3$mp$assess$spDataPooled TRUE
 mp$mp3$mp$assess$spCoastwide FALSE
+mp$mp3$mp$assess$spsdlnq .75
 #
 # MP 4 : coastwide
 #
