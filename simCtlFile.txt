@@ -34,7 +34,6 @@ mp$assess$spsdlnq .75
 mp$assess$sptauObs_spf .5
 mp$assess$spInitPE 30
 mp$assess$spRE c("zetaspt_vec")
-#mp$assess$spRE NULL
 mp$assess$spPhzUmsy -3
 mp$assess$spPhzepslnUmsy_s 5
 mp$assess$spPhzepslnUmsy_sp 7
