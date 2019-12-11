@@ -57,6 +57,7 @@ mp$mp4$ctl$mpName 'coastwide'
 mp$mp4$mp$assess$spSingleStock FALSE
 mp$mp4$mp$assess$spDataPooled FALSE
 mp$mp4$mp$assess$spCoastwide TRUE
+mp$mp4$mp$assess$spsdlnq .75
 #
 # MP 5 : totallyAggregated
 #
@@ -64,5 +65,6 @@ mp$mp5$ctl$mpName 'totallyAggregated'
 mp$mp5$mp$assess$spSingleStock FALSE
 mp$mp5$mp$assess$spDataPooled TRUE
 mp$mp5$mp$assess$spCoastwide TRUE
+mp$mp5$mp$assess$spsdlnq .5
 #
 ## <END FILE>
