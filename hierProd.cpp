@@ -107,12 +107,10 @@ Type objective_function<Type>::operator() ()
   PARAMETER_ARRAY(lnBmsy_sp);           // Biomass at MSY
   PARAMETER(lnUmsy);                    // Optimal complex exploitation rate
   PARAMETER_VECTOR(lnqFreespf_vec);     // species/stock/fleet catchability for freely estimated fleets (usually commercial)
-  PARAMETER_VECTOR(lnqShrinkf_vec);     // fleet mean catchability for fleets that use a shrinkage prior
+  PARAMETER_VECTOR(lnqShrinksf_vec);    // fleet/species mean catchability for fleets that use a shrinkage prior
   PARAMETER_VECTOR(lntauspf_vec);       // survey obs error var
   PARAMETER_VECTOR(lnBinit_vec);        // Non-equilibrium initial biomass - vector so not all stocks need it
   // Priors
-  PARAMETER_VECTOR(deltalnqsf_vec);     // deviation for species~fleet catchability w/in a fleet
-  PARAMETER_VECTOR(lntauq_f);           // survey catchability sd among species w/in a fleet
   PARAMETER_VECTOR(deltalnqspf_vec);    // deviation for stock catchability w/in a species/survey
   PARAMETER_VECTOR(lntauq_s);           // survey catchability sd among stocks w/in a species
   PARAMETER_VECTOR(tvlnqDevs_vec);      // Time-varying catchability devs
@@ -169,7 +167,6 @@ Type objective_function<Type>::operator() ()
   array<Type>       lnq_sf(nS,nF);
   array<Type>       lnq_spf(nS,nP,nF);
   vector<Type>      tauq_s(nS);
-  vector<Type>      tauq_f(nF);
   vector<Type>      tau2q_s(nS);
   vector<Type>      lnq_f(nF);
 
@@ -182,7 +179,6 @@ Type objective_function<Type>::operator() ()
   lnq_sf.setZero();
   lnq_spf.setZero();
   tauq_s.setZero();
-  tauq_f.setZero();
   tau2q_s.setZero();
   tau_spf.fill(0);
 
@@ -196,7 +192,6 @@ Type objective_function<Type>::operator() ()
 
   // Now transform and build 
   tauq_s    = exp(lntauq_s);
-  tauq_f    = exp(lntauq_f);
   tau2q_s    = exp(2. * lntauq_s);
   sigUmsy_s = exp(lnsigUmsy_s);
 
@@ -213,32 +208,23 @@ Type objective_function<Type>::operator() ()
   int qFreeIdx = 0;
   
 
-  // Loops to spread vector parameters over species/stock/fleet arrays
-  for( int f = 0; f < nF; f++ )
-  {
-    // Now fill in speces/fleet level catchability pars
-    if( shrinkq_f(f) == 1 & fleetq_f(f) == 1 )
-    {
-      lnq_f(f) = lnqShrinkf_vec(qShrinkIdx_f);
-      qShrinkIdx_f++;
-    }
-  }
-
+  
   for( int s = 0; s < nS; s++ )
   {
     // First, do species level productivity
     lnUmsy_s(s) = lnUmsy + sigUmsy * epslnUmsy_s(s);
 
-    // Now do species~fleet catchability
+    // Loops to spread vector parameters over species/stock/fleet arrays
     for( int f = 0; f < nF; f++ )
     {
-      if( shrinkq_f(f) == 1 & condMLEq_f(f) == 0 & speciesq_sf(s,f) == 1 )
+      // Now fill in speces/fleet level catchability pars
+      if( shrinkq_f(f) == 1 & speciesq_sf(s,f) == 1 )
       {
-        lnq_sf(s,f) = lnq_f(f) + tauq_f(f) * deltalnqsf_vec(qShrinkIdx_sf);
-        qShrinkIdx_sf++;  
+        lnq_sf(s,f) = lnqShrinksf_vec(qShrinkIdx_sf);
+        qShrinkIdx_sf++;
       }
-      
     }
+
 
 
     for( int p = 0; p < nP; p++ )
@@ -498,12 +484,9 @@ Type objective_function<Type>::operator() ()
   // First, let's do catchability
   if( lnqPriorCode == 1 )
   {
-
     if(nP > 1)
       nlpq -= dnorm( deltalnqspf_vec, Type(0), Type(1), true).sum();
     
-    if(nS > 1)
-      nlpq -= dnorm( deltalnqsf_vec, Type(0), Type(1), true).sum();
   }
 
   if( tvq_f.sum() > 0 )
@@ -528,7 +511,7 @@ Type objective_function<Type>::operator() ()
 
   // Hyperpriors
   // Catchability
-  nlpq -= dnorm( lnqShrinkf_vec, mlnq, sdlnq, true).sum();
+  nlpq -= dnorm( lnqShrinksf_vec, mlnq, sdlnq, true).sum();
 
   // Productivity
   nlpU -= dnorm( lnUmsy, mlnUmsy, sdlnUmsy, true);
@@ -638,8 +621,7 @@ Type objective_function<Type>::operator() ()
   REPORT(DnT_sp);
   REPORT(U_Umsy_spt);
   REPORT(qShrinkIdx_sf);
-  REPORT(deltalnqsf_vec);
-  REPORT(tauq_f);
+  REPORT(deltalnqspf_vec);
   REPORT(tauq_s);
 
   // Optimisation quantities

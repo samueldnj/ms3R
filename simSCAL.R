@@ -442,7 +442,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
         # Set some phases - 
         # if no phase is set then pars not
         # estimated
-        phases <- list( lnqShrinkf_vec  = ctlList$mp$assess$spPhzlnqShrink,
+        phases <- list( lnqShrinksf_vec = ctlList$mp$assess$spPhzlnqShrink,
                         lnqFreespf_vec  = ctlList$mp$assess$spPhzlnqFree,
                         tvlnqDevs_vec   = ctlList$mp$assess$spPhzTVq,
                         lntauspf_vec    = ctlList$mp$assess$spPhztauObs,
@@ -453,9 +453,6 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
 
         if( is.null(ctlList$mp$assess$spTVqFleets) )
           phases$tvlnqDevs_vec <- -1
-
-        if( is.null(ctlList$mp$assess$spShrinkqFleets) | spSingleStock )
-          phases$deltalnqspf_vec <- -1
 
 
         if( ctlList$mp$assess$spSolveInitBio )
@@ -595,7 +592,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     # Need to put in phases that are responsive to changes in
     # the fleet structure...
 
-    phases <- list( lnqShrinkf_vec  = ctlList$mp$assess$spPhzlnqShrink,
+    phases <- list( lnqShrinksf_vec = ctlList$mp$assess$spPhzlnqShrink,
                     lnqFreespf_vec  = ctlList$mp$assess$spPhzlnqFree,
                     tvlnqDevs_vec   = ctlList$mp$assess$spPhzTVq,
                     lntauspf_vec    = ctlList$mp$assess$spPhztauObs,
@@ -608,7 +605,6 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     if( nSS > 1 )
     {
       phases$epslnUmsy_s      <- ctlList$mp$assess$spPhzepslnUmsy_s
-      phases$deltalnqsf_vec   <- ctlList$mp$assess$spPhzdeltalnq_sf
     }
     
     if( nPP > 1 )
@@ -906,7 +902,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   nEstq   <- length(which(condMLEq_f == 0 & fleetq_f == 1))
   nCondq  <- length(which(condMLEq_f == 1))
 
-  nShrinkq    <- length(which(shrinkq_f == 1 & fleetq_f == 1))
+  nShrinkq    <- sum(speciesq_sf)
   nFreeq      <- length(which(shrinkq_f == 0 & condMLEq_f == 0 & fleetq_f == 1))
 
   logisticq_spf <- array(0, dim = c(nSS,nPP,nF))
@@ -938,12 +934,10 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   pars <- list( lnBmsy_sp         = log(mBmsy_sp),
                 lnUmsy            = mlnUmsy,
                 lnqFreespf_vec    = rep(0, max(nSS*nPP*nFreeq,1)),
-                lnqShrinkf_vec    = rep(0, max(1,nShrinkq)),
+                lnqShrinksf_vec    = rep(0, max(1,nShrinkq)),
                 lntauspf_vec      = rep(log(ctlList$mp$assess$sptauObs_spf), sum(calcIndex_spf)),
                 lnBinit_vec       = lnBinit_vec,
-                deltalnqsf_vec    = rep(0,max(1,sum(speciesq_sf))),
                 deltalnqspf_vec   = rep(0,max(1,sum(stockq_spf))),
-                lntauq_f          = rep(log(ctlList$mp$assess$sptauq),nF),
                 lntauq_s          = rep(log(ctlList$mp$assess$sptauq),nSS),
                 tvlnqDevs_vec     = rep(0,max(1,nqDevs)),
                 lntautvqDev       = log(ctlList$mp$assess$sptauqdev),

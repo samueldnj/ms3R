@@ -7,7 +7,7 @@ ctl$phaseMessages FALSE
 ctl$maxEval 1e4
 ctl$maxIter 1e4
 ctl$rSeed 123
-ctl$nReps 10
+ctl$nReps 100
 mp$assess$assInt 1
 mp$assess$method "hierProd"
 mp$assess$idxPoints 3
