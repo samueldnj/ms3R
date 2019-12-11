@@ -805,8 +805,6 @@ plotRetroSBagg <- function( obj = blob, iRep = 1 )
   fYear         <- obj$ctlList$opMod$fYear
   pT            <- obj$ctlList$opMod$pT
 
-  browser()
-
   if( nPP == 1 )
     stockNames <- "Coastwide"
 
