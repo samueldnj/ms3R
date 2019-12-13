@@ -12,15 +12,49 @@
 # <><><><><><><><><><><><><><><><><><><><><><><><><><><>
 
 
+# calcBatchTable()
+# Function to calculate a table of stats for 
+# a whole batch (usually a given subfolder of
+# ./Outputs/)
+calcBatchTable <- function( batchFolder = "" )
+{
+  # set output folder
+  simFolder <- here::here("Outputs",batchFolder)
+  statsFolder <- file.path(simFolder, "statistics")
+
+  # List directories in project folder, remove "." from list
+  dirList <- list.dirs (path=simFolder,full.names = FALSE,
+                        recursive=FALSE)
+  # Restrict to sim_ folders, count sims
+  simList <- dirList[grep(pattern="sim",x=dirList)]
+  nSims <- length(simList)
+
+  statsTables <- lapply(  X = 1:nSims, FUN = makeStatTable,
+                          folder = batchFolder )
+
+  batchStatTable <- do.call("rbind", statsTables)
+
+  # Now save to batchFolder
+  if(!dir.exists(file.path(simFolder,"statistics")))
+    dir.create(file.path(simFolder,"statistics"))
+
+  outFile <- file.path(simFolder,"statistics","fullStatTable.csv")
+
+  write.csv( batchStatTable, file = outFile)
+
+  message(" (calcBatchTable) Stats table calculated and saved to ", outFile, "\n")
+
+}
 
 
-# 
+# makeStatTable()
+# Wrapper for 
 makeStatTable <- function( sims = 1, folder = "" )
 {
   # First, load blob
   source("tools.R")
 
-  .loadSim(sim, folder = folder)
+  .loadSim(sims, folder = folder)
 
   statTable <- .simPerfStats( obj = blob )
 

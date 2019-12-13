@@ -118,8 +118,6 @@
 
     }
 
-    browser()
-
     # if(phase_cur == maxPhase)
     #   browser()
 

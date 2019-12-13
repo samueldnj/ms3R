@@ -10,6 +10,24 @@
 #
 # <><><><><><><><><><><><><><><><><><><><><><><><><><><>
 
+
+# plotBatchPerf_sp()
+# Plots multipanels (faceted by species/stock)
+# of performance statistics on the y axis, with respect
+# to the OM grid on the x axis
+plotBatchPerf_sp <- function( batchFolder = "thirdBatch",
+                              xAxis = "projObsErrMult")
+
+
+
+# plotHCR()
+# Plots a generic hockey-stick
+# harvest control rule, with given
+# lower, upper control points, and
+# low/high Fs. Stock status is calculated
+# as a proportion of Bmsy, and fishing
+# mortality rate as a proportion of
+# Fmsy.
 plotHCR <- function(  LCP = .4,
                       UCP = .6,
                       lowF = .1,
@@ -42,7 +60,7 @@ plotHCR <- function(  LCP = .4,
     abline( h = highF, lty = 2, col = "grey70" )
 
 
-}
+} # END plotHCR()
 
 plotUtilityFunction <- function( )
 {
