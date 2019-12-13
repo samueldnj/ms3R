@@ -408,7 +408,7 @@ calcRefPts <- function( obj )
     {
       surv <- rep(1, length = A_s[s])
       a <- c(1:A_s[s])
-      surv[1:(A_s[s]-1)] <- exp( -M_xsp[nX,s,p] * (a - 1) )
+      surv[a] <- exp( -M_xsp[nX,s,p] * (a - 1) )
       surv[A_s[s]] <- surv[A_s[s]] / (1 - exp(-M_xsp[nX,s,p]))
       genTime_sp[s,p] <- sum( a * matAge_asp[a,s,p] * surv) / sum( surv * matAge_asp[a,s,p])
     }
