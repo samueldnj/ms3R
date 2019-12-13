@@ -7,23 +7,29 @@ a spatially diverse and interacting group. While the
 there are several right-eyed flounders in BC waters, we 
 will focus only on Dover sole (*Microstomus pacficus*), 
 English sole (*Parophrys vetulus*), and rock sole 
-(*Lepidopsetta bilineata*), as these three species are
-actively managed as part of the BC groundfish fishery 
+(*Lepidopsetta bilineata*), which we will refer to
+as the DER complex. We chose these three species
+as they are actively managed as part of the BC groundfish fishery 
 with the same management unit boundaries, and are
 targeted at different times of the year by the same 
 bottom trawl sector. 
 
+The DER complex is managed in three spatially distinct stock
+areas, which line up with clusters of BC groundfish management
+areas, which are themselves made up of groups of Pacific Fishery
+Management Areas [@PRIFMP2015]. From North to South, the first extends 
+from Dixon Entrance, north of Haida Gwaii, south through 
+Hecate Strait; we refer to it as the Hecate Strait/Haida 
+Gwaii (HSHG) stock, and it corresponds to BC groundfish 
+area 5CDE. The second stock area is Queen Charlotte Sound 
+(QCS), or BC groundfish area 5AB. Finally, the third
+area extends along the West Coast of Vancouver Island (WCVI) 
+from its northern tip down to the entrance to Juan de Fuca Strait,
+and corresponds to BC groundfish area 3CD.
 
+All species in the DER complex have been subject to 
+exploitation since 
 
-
-dover sole complex is divided into three 
-distinct but connected stocks (Figure 1), distributed along 
-the BC coast from the northern tip of Haida Gwaii, south 
-through Hecate Strait into Queen Charlotte Sound, and on 
-the west coast of Vancouver Island. Although the dover 
-sole fishery has operated since 1954, prior to 1970 it 
-was very limited, increasing to present levels by the 
-late 1980's (Figure 2).
 
 Despite a long history of exploitation, dover sole stocks 
 have never been evaluated using model-based assessments. 
@@ -65,16 +71,10 @@ Our simulation framework has an operating
 model component, and management procedure components. The
 stochastic operating model simulates the responses of a 
 spatially complex multispecies fish populations to
-trawl fishing effort. Fishing effort is allocated among
-areas according to a simplifed Ideal Free Distribution (IFD) 
-model in response to TACs set by the management procedure
-component, with the attractiveness of an area based on the relative 
-historical fishing effort, relative price of each species, 
-and catch rates from the previous fishing season. A key 
-feature of our effort allocation method
-is that a declining utility is assiged to the utilisation
-of the TAC, as if quota is completely filled then fishing for 
-all species must stop for the season.
+trawl fishing effort. Fishing effort is allocated
+so that no catch exceeds the TAC in for any species
+in any area, but at least one species' TAC is fully
+utilised in each area.
 
 The operating model (OM) component is a multi-species,
 multi-stock age- and sex-structured population dynamics model 
@@ -86,12 +86,12 @@ and survey catch-at-age/length. Given the low volume
 of biological data from recent time periods, we applied 
 a hierarchical multi-species and multi-stock
 formulation with shrinkage priors on natural mortality,
-stock-recruitment steepness, and trawl survey 
-catchability. We refer readers to Appendix A for 
-full details.
+stock-recruitment steepness, trawl survey 
+catchability, and selectivity-at-length parameters. 
+We refer readers to Appendix A for full details.
 
 Closed loop simulations apply the management procedure
-iteratively in the following N steps over the T years 
+iteratively in the following 5 steps over the T years 
 of the projection:
 
 1. Use an assessment method to determine stock
@@ -220,96 +220,85 @@ TAC_{s,p,t+1} = \frac{I_{s,p,t}}{I_{p,t}} TAC_{p,t+1}.
 
 ### Fishing effort allocation and fishing mortality
 
-We allocated fishing effort according to an
-ideal free distribution model, which allocated 
-effort to maximise expected revenue 
-from each area. The expected revenue for each
-area was computed as the sum of the expected catch 
-times the relative value of each species, modulated 
-by a utility function for species catch that became 
-negative as the catch of that species approached the 
-total allowable catch in that area.
-
-For species $s$ in stock area $p$ at time $t$, we 
-determined expected catch $\hat{C}_{s,p,t}$ as a 
-function of effort $E_{p,t}$ using a simplifed
-Baranov equation
-\begin{align}
-\hat{C}_{s,p,t} &= (1 - e^{E_{p,t} \cdot \hat{q}_{p,t-1}}) \cdot \hat{B}_{s,p,t}.
-\end{align}
-We then calculated the utility $U_{s,p,t}$ for the
-expected catch of species $s$ that resulted from
-effort $E_{p,t}$. Finally, we found the
-expected revenue $\bar{R}_{p,t}$ as the sum
-of the expected revenues for each species,
-when modified by the utility function.
-\begin{align}
-U_{s,p,t}(E_{p,t}) &= \frac{5 \cdot \frac{\hat{C}_{s,p,t}}{TAC_{s,p,t}} - 1}{4 \cdot \frac{\hat{C}_{s,p,t}}{TAC_{s,p,t}}} \\
-\bar{R}_{p,t} & = \sum_{s} \hat{C}_{s,p,t} \cdot P_s \cdot U_{s,p,t}(E_{p,t}).
-\end{align}
-
-This form of expected revenue is meant to represent
-the response of quota trading to scarcity of species
-quota under the ITQ managment system. As catch approaches
-the available quota, quota becomes scarce and the cost of 
-obtaining more quota increases, as that quota's value
-reflects not only the landed value of the species, but
-the value of access to fishing grounds that it grants. This
-often exceeds the landed value of the fish, and therefore
-creates a negative utility in exhausting the available
-quota. 
-
-**SDNJ** Need to add little optimisation method to 
-allocate a fixed level of effort among the areas, 
-based on expected revenue and the relative costs
-of fishing in an area, probably based on the 
-historical effort allocation and GFE price.
-
+We allocated maximum fishing effort to each area. 
+Maximum effort was defined as the amount required to
+fully utilise the TAC of at least one species, 
+but never exceed any of the three species' TACs. 
 Effort was then supplied to the operating model to
 generate realised fishing mortality among
-species and stock areas. Given the lag
-in the catch rates used to generate the 
-effort allocation, there is a small chance
-that the effort applied in an area will
-exhaust the quota. In these cases, fishing
-was allowed to continue until the catch
-reached 130% of the TAC for that species/stock
-combination, after which all effort
-was terminated in that stock area. The
-overage in realised catch over
-the the TAC was then deducted from
-the following year's TAC. **ADD underfulfillment
-as well?**
+species and stock areas as
+\begin{equation}
+F_{s,p,f,t} = \bar{q}^{(F)}_{s,p,f} * E_{s,p,f,t},
+\end{equation}
+where $\bar{q}^{(F)}_{s,p,f}$ is the average 
+ratio of fishing mortality to fishing
+effort, estimated from the historical data
+and the OM conditioning assessment. ***UNDERFULFILMENT?***
+
+We chose to use maximum effort over an effort dynamics
+model because of (i) its simplicity and (ii) its similarity 
+to other MSE simulations for BC fisheries. We considered 
+including an effort dynamics model to allocate a pool 
+of effort over the three areas [@hilborn1987general;
+@walters1999multispecies], but determined that this was
+not necessary for determining the management performance 
+of the multiple assessment models that we are testing.
+Furthermore, although the BC groundfish fishery balances
+the utilisation of many more than three TACs in practice,
+avoiding fully utilising TACs to account for future bycatch,
+we found that the maxmium effort model effectively 
+simulated the TAC under-utilisations for two species 
+out of the three. Finally, BC sablefish, herring, and
+outside yelloweye rockfish use full TAC utilisation 
+in their management simulations
+[@cox2019evaluating;**INSERT HERRING and OYE CSAS HERE**],
+under the assumption that full TAC utilisation provides
+and upper bound on the management risk.
+
 
 ## Simulation experiments and performance
 
-We ran a total of $N$ simulations, made up of
-fully factorial combinations of $J$ OM scenarios
-and 9 management procedures. We ran each OM/MP 
-combination as 100 replicates, each initialised
+For the main experiment, we ran a total of $20$ 
+simulations, made up of fully factorial combinations 
+of four OM scenario and five management procedures. 
+We ran 100 replicates of each OM/MP, each initialised
 with a unique random seed, thereby integrating 
 over all stochastic processes. To eliminate the
 effect of random variation between simulations, 
 each simulation was initialised with the same set
-of 100 random seeds.
+of 100 random seeds. We ran extra replicates until the 
+sample size of 100 was reached when AMs failed to
+converge in the closed loop simulations.
 
 ### OM scenarios
 
-Based on effort allocation model? Not a source
-of management control, and really a source of
-uncertainty for the system as it's user defined.
-Not really the question here, tho. 
+We tested our five MPs against four operating model 
+scenarios. Each scenario simulated an increase or 
+decrease in data quality at the beginning of the 
+projection period. Changes in data quality were
+controlled by a change in the observation error 
+standard deviation for the Synoptic trawl survey series, 
+which is the only series that is carried 
+into the projections and used for management.
 
-Maybe just increased/decreased
-data availability - this is really
+Projection period? 2 generations - add gen time
+calc to ref points.
 
 Survey CV scenarios:
-1. current CV
-2. Half current CV
-3. Twice current CV
+1. Current $\tau_{s,p,f}$ value from conditioning;
+2. Half current SD: $\tau_{s,p,f,proj} = 0.5 \cdot \tau_{s,p,f}$;
+3. Twice current SD: $\tau_{s,p,f,proj} = 2 \cdot \tau_{s,p,f}$;
+4. Four times current SD: $\tau_{s,p,f,proj} = 4 \cdot \tau_{s,p,f}$
 
+Given the need for informative prior distributions to stabilise
+the assessment model behaviour in simulations, we also
+conducted some sensitivity analyses. Sensitivity
+runs focused on the prior distributions applied to
+the Bmsy and Umsy values used in
 Sensitivity runs:
 1. Bmsy prior CV = 0.1, 0.5, 1.0
+2. Random Bmsy prior mean drawn from the conditioning 
+assessment's posterior?
 
 
 ### Management procedures
@@ -347,10 +336,8 @@ overfishing occured;
 AAV_{s,p} = \frac{\sum_t |C_{s,p,t} - C_{s,p,t+1} | }{\sum_t C_{s,p,t}}.
 \end{equation*}
 6. $C_{s,p,t} / TAC_{s,p,t}$: quota utilisation ratios?
-7. $R_{s,p,t}$: average revenue?
 
-All metrics are calculated
-over the first $K$ years of the projection
-period.
+All metrics are calculated over the first ten years 
+of the projection period.
 
 

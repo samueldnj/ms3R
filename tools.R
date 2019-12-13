@@ -34,8 +34,9 @@
   # Save blob
   save(blob,file = file.path(path,paste(folder,".RData",sep="")))
 
+
   # Make html sim report
-  # makeFitReport( simID = folder, groupFolder = groupFolder )
+  makeSimReport( simID = folder, groupFolder = "" )
 
   # Create a quick to read info file for the sim folder
   .makeInfoFile(blob)
@@ -63,6 +64,16 @@
     plotRetroSBagg(obj = blob, iRep = 1)
   dev.off()
 
+  # Save an example retroBiomass with aggregation 
+  png( filename = file.path(path,"tulipDepCat.png"),
+        height = 8.5, width = 11, units = "in", res = 300)
+    plotTulipBt(obj = blob, dep = TRUE, Ct = TRUE)
+  dev.off()
+
+  # Calculate and save stats table
+  perfStats <- .simPerfStats(obj = blob)
+  write.csv( perfStats, file = file.path(path,"simPerfStats.csv"))
+
 
   # Copy AM file
   if(blob$ctlList$mp$assess$method == "hierProd" )
@@ -81,6 +92,49 @@
         append = TRUE)
   
 } # END .saveBlob
+
+# .makeSimReport()
+# Makes a .html report of the simulation
+# showing basic performance plots
+# and tables
+.makeSimReport <- function( simNum, groupFolder = "" )
+{
+  simFolder <- here::here("Outputs",groupFolder)
+
+  # List directories in project folder, remove "." from list
+  dirList <- list.dirs (path=simFolder,full.names = FALSE,
+                        recursive=FALSE)
+  # Restrict to fit_ folders, pick the nominated simulation
+  simList <- dirList[grep(pattern="sim",x=dirList)]
+
+  if( is.character(simNum) )
+    folder <- simList[grepl(x = simList, pattern = simNum) ]
+  else
+    folder <- simList[simNum]
+
+  # Load the nominated blob
+  simFileName <- paste(folder,".RData",sep="")
+  simPath <- file.path(simFolder,folder,simFileName)
+  simFolderPath <- here::here("Outputs",groupFolder,folder)
+
+  # Create parameter list for rendering the document
+  params <- list( rootDir= simFolderPath,
+                  RdataFile = simFileName)
+  # Make an output file name
+  outFile <- paste( "simReport.html", sep = "")
+
+  # Render
+  rmarkdown::render(  input = here::here("docs/reports","simReportTemplate.Rmd"), 
+                      output_file = outFile,
+                      output_dir = simFolderPath,
+                      params = params,
+                      envir = new.env(),
+                      output_format = "bookdown::html_document2" )
+
+  # remove temporary files
+  dataReportFiles <- "simReport_files"
+  unlink(file.path(simFolderPath,dataReportFiles), recursive = TRUE)
+} # END .makeSimReport()
 
 # .makeInfoFile()
 # Creates an info list for the
@@ -123,9 +177,9 @@
 #               or character giving the name of the folder
 # ouputs:   NULL
 # usage:    Prior to plotting simulation outputs
-.loadSim <- function( sim = 1 )
+.loadSim <- function( sim = 1, folder = "" )
 {
-  simFolder <- here::here("Outputs")
+  simFolder <- here::here(file.path("Outputs",folder))
 
   # List directories in project folder, remove "." from list
   if(is.numeric(sim))

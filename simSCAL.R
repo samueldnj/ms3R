@@ -846,6 +846,15 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     condMLEq_f[ctlList$mp$assess$spCondMLEqFleets - min(ctlList$mp$assess$spFleets) + 1] <- 1
 
 
+  condMLEobsErr_f <- rep(0,nF)
+  if( !is.null(oldFleet) )
+  {
+    oldCondMLEobsErrFleets <- ctlList$mp$assess$spCondMLEobsErrFleets - min(ctlList$mp$assess$spFleets) + 1
+    condMLEobsErr_f[oldFleet %in% oldCondMLEobsErrFleets] <- 1
+  } else  
+    condMLEobsErr_f[ctlList$mp$assess$spCondMLEobsErrFleets - min(ctlList$mp$assess$spFleets) + 1] <- 1
+
+
   # Shrink q?
   shrinkq_f  <- rep(0, nF)
   if( !is.null(oldFleet))
@@ -864,6 +873,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   calcIndex_spf <- array(0, dim = c(nSS,nPP,nF) )
   stockq_spf    <- array(0, dim = c(nSS,nPP,nF) )
   speciesq_sf   <- array(0, dim = c(nSS,nF) )
+  estObsErr_spf <- array(0, dim = c(nSS,nPP,nF))
   fleetq_f      <- rep(0, nF)
   nqDevs        <- 0
   for( s in 1:nSS )
@@ -888,9 +898,11 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
         stockq_spf[s,,f] <- calcIndex_spf[s,,f]
 
       if( any(I_spft[s,,f,] > 0, na.rm = T) &
-          shrinkq_f[f] == 1 &
-          condMLEq_f[f] == 0 )
+          shrinkq_f[f] == 1 )
         speciesq_sf[s,f] <- 1
+
+      if( condMLEobsErr_f[f] == 0 )
+        estObsErr_spf[s,,f] <- calcIndex_spf[s,,f]
     }
 
     if( any(I_spft[,,f,] > 0, na.rm = T) &
@@ -905,10 +917,15 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   nShrinkq    <- sum(speciesq_sf)
   nFreeq      <- length(which(shrinkq_f == 0 & condMLEq_f == 0 & fleetq_f == 1))
 
+  
+
   logisticq_spf <- array(0, dim = c(nSS,nPP,nF))
   logisticq_spf[,,(oldFleet %in% ctlList$mp$assess$spLogisticqFleets)] <- 1
 
   I_spft[is.na(I_spft)] <- -1
+
+  IGtau2alpha   <- ctlList$mp$assess$spIGtau2alpha
+  IGtau2beta    <- ctlList$mp$assess$spIGtau2Mode * (ctlList$mp$assess$spIGtau2alpha + 1)
 
   # Start making data list
   data <- list( I_spft          = I_spft,
@@ -918,6 +935,8 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
                 shrinkq_f       = shrinkq_f,
                 tvq_f           = tvq_f,
                 fleetq_f        = fleetq_f,
+                fleetWeights_f  = ctlList$mp$assess$spFleetWeights,
+                condMLEobsErr_f = condMLEobsErr_f,
                 lnqPriorCode    = lnqPriorCode,
                 lnUPriorCode    = lnUPriorCode,
                 BPriorCode      = 0,
@@ -935,7 +954,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
                 lnUmsy            = mlnUmsy,
                 lnqFreespf_vec    = rep(0, max(nSS*nPP*nFreeq,1)),
                 lnqShrinksf_vec    = rep(0, max(1,nShrinkq)),
-                lntauspf_vec      = rep(log(ctlList$mp$assess$sptauObs_spf), sum(calcIndex_spf)),
+                lntauspf_vec      = rep(log(ctlList$mp$assess$sptauObs_spf), sum(estObsErr_spf)),
                 lnBinit_vec       = lnBinit_vec,
                 deltalnqspf_vec   = rep(0,max(1,sum(stockq_spf))),
                 lntauq_s          = rep(log(ctlList$mp$assess$sptauq),nSS),
@@ -953,8 +972,8 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
                 sdBmsy_sp         = mBmsy_sp*ctlList$mp$assess$spCVBmsy,
                 mBinit_sp         = mBmsy_sp/2,
                 sdBinit_sp        = mBmsy_sp,
-                tau2IGa_f         = rep(9,nF),
-                tau2IGb_f         = rep(.4,nF),
+                tau2IGa_f         = rep(IGtau2alpha,nF),
+                tau2IGb_f         = rep(IGtau2beta,nF),
                 sigma2IG          = c(1,.02),
                 deltat            = 1,
                 lnsigmaProc       = log(ctlList$mp$assess$spsigmaProc),
@@ -1730,6 +1749,22 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   # Save historical errors
   obj$errors$delta_spft[,,,histdx]  <- repObj$residCPUE_spft # obs errors
   obj$errors$omegaRinit_asp         <- repObj$omegaRinit_asp # Initialisation errors
+  obj$errors$obsErrMult_spft        <- array(1, dim = c(nS,nP,nF,nT))
+
+  # Adjust obs error multiplier if 
+  # projObsErrMult != 1
+  if( ctlList$opMod$projObsErrMult != 1.0 )
+  {
+    nPhaseIn        <- ctlList$opMod$phaseInObsErrMult
+    projObsErrMult  <- ctlList$opMod$projObsErrMult
+    for( k in 0:nPhaseIn)
+    {
+      # Calculate this step's adjustment multiplier
+      adjMult <- 1.0 + k / nPhaseIn * (projObsErrMult - 1.0)
+      obj$errors$obsErrMult_spft[,,,tMP+k] <-  adjMult * obj$errors$obsErrMult_spft[,,,tMP+k]
+    }
+    obj$errors$obsErrMult_spft[,,,(tMP+nPhaseIn):nT] <- projObsErrMult
+  }
 
   message(" (.condMS3pop) Running OM for historical period.\n")
 
@@ -2051,8 +2086,6 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   lenAge_axsp       <- om$lenAge_axsp
   matAge_asp        <- om$matAge_asp
 
-  # Pull observation error multiplier
-  projObsErrMult    <- obj$ctlList$opMod$projObsErrMult
 
   # Initialise population
   if( t == 1 )
@@ -2200,7 +2233,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
       for( p in 1:nP )
       {
         idxOn <- obj$mp$data$idxOn_spft[s,p,,t]
-        I_spft[s,p,idxOn,t] <- q_spft[s,p,idxOn,t] * vB_spft[s,p,idxOn,t] * exp(om$tauObs_spf[s,p,idxOn] * err$delta_spft[s,p,idxOn,t] * projObsErrMult)
+        I_spft[s,p,idxOn,t] <- q_spft[s,p,idxOn,t] * vB_spft[s,p,idxOn,t] * exp(om$tauObs_spf[s,p,idxOn] * err$delta_spft[s,p,idxOn,t] * err$obsErrMult_spft[s,p,idxOn,t])
       }
   }
 

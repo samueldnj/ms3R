@@ -89,6 +89,8 @@ Type objective_function<Type>::operator() ()
   DATA_IVECTOR(shrinkq_f);      // 0 => q a leading par, 1 => q shrank to complex mean
   DATA_IVECTOR(tvq_f);          // 0 => q constant, 1 => q time-varying
   DATA_IVECTOR(fleetq_f);       // 0 => no q estimated, 1 => q estimated for fleet f
+  DATA_VECTOR(fleetWeights_f);  // scalars for fleet components of the likelihood function
+  DATA_IVECTOR(condMLEobsErr_f);// 0 => obs error sd estimated as a free par, 1 => conditional MLE
   DATA_INTEGER(lnqPriorCode);   // 0 => hyperprior, 1 => multilevel
   DATA_INTEGER(lnUPriorCode);   // 0 => hyperprior, 1 => multilevel 
   DATA_INTEGER(BPriorCode);     // 0 => normal, 1 => Jeffreys 
@@ -149,7 +151,7 @@ Type objective_function<Type>::operator() ()
   array<Type>       tau_spf(nS,nP,nF);  
   array<Type>       tau2_spf(nS,nP,nF); 
   array<Type>       lnqhat_spf(nS,nP,nF);
-  array<Type>       tau2hat_pf(nP,nF);
+  array<Type>       tau2hat_spf(nS,nP,nF);
 
   // Transform arrays
   Bmsy_sp = exp(lnBmsy_sp);
@@ -244,7 +246,7 @@ Type objective_function<Type>::operator() ()
       {
         // Fill obs error variance
         int indicateFirstObs = 0;
-        if( calcIndex_spf(s,p,f) == 1 )
+        if( calcIndex_spf(s,p,f) == 1 & condMLEobsErr_f(f) == 0 )
         {
           tau_spf(s,p,f) = exp(lntauspf_vec(tauVecIdx));
           tauVecIdx++;
@@ -435,15 +437,19 @@ Type objective_function<Type>::operator() ()
           }
         }
 
+        // Add valid Obs and SS to a total for each survey
+        tau2hat_spf(s,p,f) = SS_spf(s,p,f) / validObs_spf(s,p,f);
+
+        if( condMLEobsErr_f(f) == 1)
+          tau2_spf(s,p,f) = tau2hat_spf(s,p,f);
+
         // Add to likelihood
         if( calcIndex_spf(s,p,f) == 1 )
-          nllObs += 0.5 * ( validObs_spf(s,p,f)*log(tau2_spf(s,p,f)) + SS_spf(s,p,f)/tau2_spf(s,p,f));
+          nllObs += fleetWeights_f(f) * 0.5 * ( validObs_spf(s,p,f)*log(tau2_spf(s,p,f)) + SS_spf(s,p,f)/tau2_spf(s,p,f));
 
-        // Add valid Obs and SS to a total for each survey
-        totObs_pf(p,f) += validObs_spf(s,p,f);
-        totSS_pf(p,f) += SS_spf(s,p,f);
+        
       }
-      tau2hat_pf(p,f) = totSS_pf(p,f) / totObs_pf(p,f);
+      
     }
   }
   objFun += nllObs;
@@ -523,10 +529,11 @@ Type objective_function<Type>::operator() ()
   // Obs error var
   Type nllObsVarPrior = 0.;
   Type nllProcVarPrior = 0.;
+  
   for( int f = 0; f < nF; f++ )
     for( int s = 0; s < nS; s++ )
       for( int p = 0; p < nP; p++)
-        if( calcIndex_spf(s,p,f) == 1)
+        if( calcIndex_spf(s,p,f) == 1 & condMLEobsErr_f(f) == 0)
           nllObsVarPrior -= dinvgamma(tau2_spf(s,p,f),tau2IGa_f(f), tau2IGb_f(f), true);
 
 
@@ -586,7 +593,7 @@ Type objective_function<Type>::operator() ()
   REPORT(Bmsy_sp);
   REPORT(tau2_spf);
   REPORT(tau_spf);
-  REPORT(tau2hat_pf);
+  REPORT(tau2hat_spf);
   REPORT(sigmaProc_sp);
 
   // State variables

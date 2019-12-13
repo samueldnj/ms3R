@@ -745,7 +745,7 @@ plotRetroSB <- function( obj = blob, iRep = 1 )
 # plotRetroSBagg()
 # Retrospective plots of AM fits for a given replicate
 # with biomasses aggregated to match the scale of the AM
-plotRetroSBagg <- function( obj = blob, iRep = 1 )
+plotRetroSBagg <- function( obj = blob, iRep = 1, Ct = TRUE )
 {
   # Get biomass arrays
   SB_spt        <- obj$om$SB_ispt[iRep,,,]
@@ -756,6 +756,13 @@ plotRetroSBagg <- function( obj = blob, iRep = 1 )
   ctlList <- obj$ctlList
 
   retroSB_tspt[retroSB_tspt < 0] <- NA
+
+
+  C_spft   <- obj$om$C_ispft[iRep,,,,]
+  TAC_spft <- obj$mp$hcr$TAC_ispft[iRep,,,,]
+
+  C_spt    <- apply(X = C_spft, FUN = sum, MARGIN = c(1,2,4))
+  TAC_spt  <- apply(X = TAC_spft, FUN = sum, MARGIN = c(1,2,4))
 
   # Aggregate OM biomasses to match AM biomass
   if( ctlList$mp$assess$spCoastwide )
@@ -771,6 +778,12 @@ plotRetroSBagg <- function( obj = blob, iRep = 1 )
     totB_spt  <- totB_spt[,1,,drop = FALSE]
     totB_spt[,1,] <- newtotB_spt
 
+    C_spt        <- C_spft[,1,1,,drop = FALSE]
+    C_spt[,1,]  <- apply(X = C_spft, FUN = sum, MARGIN = c(1,4))
+
+    TAC_spt        <- C_spft[,1,,,drop = FALSE]
+    TAC_spt[,1,]  <- apply(X = C_spft, FUN = sum, MARGIN = c(1,4))
+
   }
 
   if( ctlList$mp$assess$spDataPooled )
@@ -785,6 +798,12 @@ plotRetroSBagg <- function( obj = blob, iRep = 1 )
     VB_spt[1,,] <- newVB_spt
     totB_spt  <- totB_spt[1,,,drop = FALSE]
     totB_spt[1,,] <- newtotB_spt
+
+    C_spt        <- C_spft[1,,1,,drop = FALSE]
+    C_spt[,1,,]   <- apply(X = C_spft, FUN = sum, MARGIN = c(2,4))
+
+    TAC_spt        <- TAC_spft[1,,1,,drop = FALSE]
+    TAC_spt[,1,,]  <- apply(X = C_spft, FUN = sum, MARGIN = c(2,4))
   }
 
   SB_spt[SB_spt == 0]     <- NA
@@ -845,6 +864,17 @@ plotRetroSBagg <- function( obj = blob, iRep = 1 )
       for( tt in 1:pT )
       {
         lines( x = yrs, y = retroSB_tspt[tt,s,p,], col = "grey60", lwd = 1 )
+      }
+      if( Ct )
+      {
+        rect( xleft = yrs[tMP:nT] - .3, xright = yrs[tMP:nT] + .3, 
+              ytop = TAC_spt[s,p,tMP:nT], ybottom = 0, col = NA,
+              border = "black" )
+
+        rect( xleft = yrs - .3, xright = yrs + .3, 
+              ytop = C_spt[s,p,], ybottom = 0, col = "grey40",
+              border = NA )
+
       }
   
       abline( v = yrs[tMP] - 0.5, lty = 2, lwd = 0.5 )

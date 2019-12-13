@@ -1,2 +1,41 @@
 # Discussion
 
+In this paper, we compared the management performance 
+of five alternative management procedures for use in a simulated 
+spatially diverse, data-limited, multi-species flatfish fishery. 
+We conditioned our flatfish fishery operating model on an 
+age-structured hierarchical multi-species multi-stock stock 
+assessment model, and simulated data quality by adjusting the
+amount of noise in survey observations used for management. 
+Simulated procedures then either treated stocks as independent 
+in assessments, or grouped stocks together by either pooling
+data or using a hierarchical multi-stock assessment model; all
+AMs were different configurations of the same assessment model, 
+which extended a model from previous research [@johnson2018evaluating].
+Biomass and management parameter estimates were then used 
+to set TACs, and if data were pooled, TACs were split among
+stocks and species in proportion with survey observations.
+
+Main takeaway: which performed best/was most stable under
+changes in obs error variances?
+
+Second takeaway: TAC utilisation issue?
+
+Sensitivity:
+
+Limitations:
+1. Informative priors were necessary for stability
+2. Addition of  biomass and CPUE indices instead 
+of re-calculation
+3. No tuning of MPs to specific things?
+4. Effort dynamics: simplified, would require more
+
+Further work:
+- While considering technical interactions, is it possible 
+to tune all stocks to a nominated level? Probably not
+- 
+
+
+
+
+

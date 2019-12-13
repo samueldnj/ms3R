@@ -48,17 +48,24 @@ has been focused on assessment bias under different
 levels of model complexity [@punt2011among; @jiao2016integrating;
 @jiao2011poor; @jiao2009hierarchical; @johnson2018evaluating].  
 
-In this paper, we use closed loop simulation to evaluate 
-procedures for setting catch limits in a spatially diverse 
-multi-species flatfish fishery. We condition our simulated
-fishery on the complex of Dover, English, and Rock 
-soles in British Columbia, Canada [*Pleuronectidae spp*]. 
+In this paper, we evaluate management procedures for setting 
+catch limits in a spatially diverse multi-species flatfish fishery. 
+We condition our simulated fishery on the complex of 
+Dover, English, and Rock soles in British Columbia, 
+Canada [*Pleuronectidae spp*]. 
 These three species co-occur along the BC coast, are caught 
 together in directed trawl fisheries, and are surveyed by 
 the same multi-species trawl survey. While time series
 of catch and commercial CPUE exist for all species and 
-areas since the 1950s, fisher, biological data is limited for 
-many species/area combinations. 
+areas since the 1950s, all observation series are quite 
+noisy and some are very short, making this complex a 
+good candidate for management with a hierarchical stock
+assessment model. Our closed loop simulation experiments 
+compare the performance of management procedures built 
+around single-stock, data-pooled, and hierarchical 
+multi-stock assessment models. We measure the performance
+with respect to increasing and decreasing observation
+error variance. 
 
 
 

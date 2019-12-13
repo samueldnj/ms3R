@@ -34,6 +34,8 @@ calcRefPts <- function( obj )
   obj$rec.a_sp  <- 4.*h_sp*R0_sp/(B0_sp*(1.-h_sp))
   obj$rec.b_sp  <- (5.*h_sp-1.)/(B0_sp*(1.-h_sp))
 
+  # Calculate generation time
+  obj$genTime_sp <- .calcGenTime(obj)
 
   # Calculate reference curves
   refCurves <- .calcRefCurves( obj )
@@ -379,3 +381,38 @@ calcRefPts <- function( obj )
 }     # END function .getFmsy
 
 
+# .calcGenTime
+# Purpose:     Calculate generation time as average age of mature stock
+# Parameters:  natural mortality and maturity
+# Returns:     generation time
+# Source:      S.P. Cox
+.calcGenTime <- function( obj )
+{
+  # Compute eqbm spawning biomass per recruit for
+  # given f and species/stock pars
+  nS    <- obj$nS
+  nP    <- obj$nP
+  A_s   <- obj$A_s
+  nA    <- obj$nA
+  nL    <- obj$nL
+  nX    <- obj$nX
+  M_xsp <- obj$M_xsp
+
+  # Life history schedules
+  matAge_asp        <- obj$matAge_asp
+
+  genTime_sp <- array(0, dim = c(nS,nP))
+
+  for(s in 1:nS )
+    for( p in 1:nP )
+    {
+      surv <- rep(1, length = A_s[s])
+      a <- c(1:A_s[s])
+      surv[1:(A_s[s]-1)] <- exp( -M_xsp[nX,s,p] * (a - 1) )
+      surv[A_s[s]] <- surv[A_s[s]] / (1 - exp(-M_xsp[nX,s,p]))
+      genTime_sp[s,p] <- sum( a * matAge_asp[a,s,p] * surv) / sum( surv * matAge_asp[a,s,p])
+    }
+
+  genTime_sp
+  
+}

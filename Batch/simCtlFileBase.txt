@@ -19,10 +19,12 @@ mp$assess$spSingleStock FALSE
 mp$assess$spPosPenFactor 1e5
 mp$assess$sptauq .01
 mp$assess$spsigU .01
+mp$assess$spFleetWeights c(.1,.1,.5,1.0)
 mp$assess$spFleets c(1,2,3,4)
 mp$assess$spShrinkqFleets c(3,4)
 mp$assess$spTVqFleets NULL
-mp$assess$spCondMLEqFleets c(1,2)
+mp$assess$spCondMLEqFleets c(1,2,4)
+mp$assess$spCondMLEobsErrFleets c(1,2)
 mp$assess$spSolveInitBio FALSE
 mp$assess$spLateStart FALSE
 mp$assess$spsigmaProc .05
@@ -35,10 +37,10 @@ mp$assess$sptauObs_spf .25
 mp$assess$spInitPE 30
 mp$assess$spRE c("zetaspt_vec")
 mp$assess$spPhzUmsy -3
-mp$assess$spPhzepslnUmsy_s 5
-mp$assess$spPhzepslnUmsy_sp 7
-mp$assess$spPhzdeltalnq_spf 6
-mp$assess$spPhzdeltalnq_sf 4
+mp$assess$spPhzepslnUmsy_s 4
+mp$assess$spPhzepslnUmsy_sp 5
+mp$assess$spPhzdeltalnq_spf -5
+mp$assess$spPhzdeltalnq_sf -4
 mp$assess$spPhzBmsy 2
 mp$assess$spPhzlnBinit -2
 mp$assess$spPhzlnqShrink 1
@@ -61,5 +63,6 @@ opMod$ut_95 .75
 opMod$pT 20
 opMod$histFile "fit_06112019105141"
 opMod$price_s c(Dover=1.33,English=1.37,Rock=1.65,Petrale=3.22,Arrowtooth=0.37)
-opMod$projObsErrMult 2.0
+opMod$projObsErrMult 1.0
+opMod$phaseInObsErrMult 6
 # <End File>

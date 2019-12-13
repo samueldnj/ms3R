@@ -12,23 +12,35 @@
 # <><><><><><><><><><><><><><><><><><><><><><><><><><><>
 
 
+
+
+# 
+makeStatTable <- function( sims = 1, folder = "" )
+{
+  # First, load blob
+  source("tools.R")
+
+  .loadSim(sim, folder = folder)
+
+  statTable <- .simPerfStats( obj = blob )
+
+  statTable
+} # END makeStatTable()
+
 # .simPerfStats()
 # Produces a statistics table for a simulation from
 # the output produced by a runMS3() call
 # inputs:   sim=int indicating which simulation to compute stats for
 # outputs:  statTable=data.frame showing conservation and catch performance
 # usage:    in lapply to produce stats for a group of simulations
-.simPerfStats <- function ( sim=1 )
+.simPerfStats <- function( obj  )
 {
-  # First, load blob
-  source("tools.R")
-  .loadSim(sim)
-
-  om        <- blob$om
-  opMod     <- blob$ctlList$opMod
-  mp        <- blob$mp
-  ctlList   <- blob$ctlList
-  rp        <- blob$rp[[1]]
+  # Pull sublists
+  om        <- obj$om
+  opMod     <- obj$ctlList$opMod
+  mp        <- obj$mp
+  ctlList   <- obj$ctlList
+  rp        <- obj$rp[[1]]
   
   # Control info
   nS      <- om$nS
@@ -58,11 +70,11 @@
   probPDHess_isp <- apply( X = pdHess_itsp, FUN = mean, MARGIN = c(1,3,4), na.rm = T )
   medProbPDH_sp  <- apply( X = probPDHess_isp, FUN = median, MARGIN = c(2,3), na.rm = T )
 
-  if(is.null(blob$simLabel))
+  if(is.null(obj$simLabel))
   {
-    simLabel <- stringr::str_split(blob$path,"/")[[1]]
+    simLabel <- stringr::str_split(obj$path,"/")[[1]]
     simLabel <- simLabel[length(simLabel)]
-  } else simLabel <- blob$simLabel
+  } else simLabel <- obj$simLabel
 
   # First, create a data.frame of NAs with a row for each of MRE,MARE
   colLabels <- c( "simLabel",
