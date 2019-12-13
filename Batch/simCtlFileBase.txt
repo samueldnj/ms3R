@@ -49,6 +49,8 @@ mp$assess$spPhzTVq -1
 mp$assess$spPhzProcErr -3
 mp$assess$spPhzSigmaProc -3
 mp$assess$spPhztauObs 1
+mp$assess$spIGtau2alpha 9
+mp$assess$spIGtau2Mode 0.25
 mp$data$idxOn c(4)
 mp$data$obsInt_i rep(2,3)
 mp$hcr$Bref "Bmsy"
