@@ -1,0 +1,316 @@
+---  
+title: "hierSCAL OM fit report"
+geometry: letterpaper
+nocaption: false
+header-includes:
+- \usepackage{booktabs}
+- \usepackage{longtable}
+- \usepackage{array}
+- \usepackage{multirow}
+- \usepackage[table]{xcolor}
+- \usepackage{wrapfig}
+- \usepackage{float}
+- \usepackage{colortbl}
+- \usepackage{pdflscape}
+- \usepackage{tabu}
+- \usepackage{threeparttable}
+- \usepackage{threeparttablex}
+- \usepackage[normalem]{ulem}
+- \usepackage{makecell}
+- \usepackage{caption}
+- \usepackage{pdflscape}
+- \newcommand{\blandscape}{\begin{landscape}}
+- \newcommand{\elandscape}{\end{landscape}}
+always_allow_html: yes
+params:
+  batchDir: "~/Work/code/models/stockAssessment/multispecies/hierSCAL/Outputs/fits/April26"
+output: 
+  pdf_document:
+    keep_tex: true
+    fig_caption: true
+    latex_engine: pdflatex
+    template: ~/Work/write/templates/tex/TandF.latex
+  html_document:
+    self_contained: true
+    toc: true
+    toc_depth: 2
+    toc_float: true
+    df_print: kable
+    keep_md: false
+  word_document:
+    df_print: kable
+    reference_docx: /Users/sdnjohnson/Work/write/templates/docx/basic.docx
+  bookdown::pdf_document2:
+    keep_tex: true
+    fig_caption: true
+    latex_engine: pdflatex
+    template: ~/Work/write/templates/tex/TandF.latex
+    fig_width: 7
+    fig_height: 6
+  bookdown::html_document2:
+    self_contained: true
+    df_print: kable
+    keep_md: false
+    toc: true
+    toc_depth: 2
+    toc_float: true
+    number_sections: false
+  bookdown::word_document2:
+    df_print: kable
+    reference_docx: /Users/sdnjohnson/Work/write/templates/docx/basic.docx
+---
+
+# Data Scenario and Model Hypothesis
+
+```{r, setup, message=FALSE, warning=FALSE, include=FALSE, echo = FALSE}
+
+# I usually load my libraries up front to keep things organized
+library( bookdown )
+library( knitr )
+library( kableExtra )
+library( dplyr )
+library( stringr )
+library( tidyverse )
+library( here )
+library( ggridges )
+library( ggsidekick )
+
+knitr::opts_knit$set( fig.pos = 'p',
+                      out.width = '100%', dpi=300, 
+                      root.dir = params$batchDir,
+                      message = FALSE, warning = FALSE, echo = FALSE )
+
+options(warn = -1)
+
+source(here("plots.R"))
+source(here("SCALfuns.R"))
+source(here("SCALtools.R"))
+source(here("refPts.R"))
+
+# Count the number of fits in the batch directory
+info.df <- readBatchInfo(params$batchDir)
+
+
+```
+
+Comparison of model fits for hierSCAL fit to DERPA data 
+under multiple data scenarios and model hypotheses.
+
+Batch folder: `r params$batchDir`
+
+
+
+
+```{r, captions, include = FALSE, echo = FALSE}
+SBsptCaption <- "Comparison of spawning biomass"
+
+StdIdxCap   <- "Standardised vulnerable biomass (coloured lines) and the scaled and standardised biomass indices they are fitting to (coloured points), for all stocks and species."
+
+IdxResCap   <- "Standardised residuals for model fits to biomass indices (coloured points) and a loess smoother with a 20% confidence interval (coloured lines and grey regions), for all fleets, stocks, and species."
+
+RecPlotCap <- "Age-1 recruitments for all species and stocks. Equilibrium unfished recruitment $R_0$ is indicated by the horizontal dashed line."
+
+RecDevPlotCap <- "Deviations from expected recruitment for all species and stocks."
+
+YeqFCurvesCap <- "Equilibrium yield curves as a function of fishing mortality rates, assuming all fishing mortality comes from the modern trawl fleet."
+
+ProbLenAgeCap <- "Probability curves of length-at-age for males (blue) and females (red). Curves show the probability of each length within an age group, and opacity of the lines increases with age."
+
+tvqCap <- "Time series of observation model catchability (log-scale, coloured points) for the commercial fleets and Hecate Strait Multispecies Assemblage survey. Lines show the smoothed trend using a Loess smoother"
+
+fishingMortCap <- "Estimates of fishing mortality from each fleet (coloured points and lines), gridded over species (columns) and stocks (rows). Fishing mortality rates are found using an iterative Newton-Rhapson solver conditioned on the observed catch."
+
+modeledCatchCap <- "Modeled removals (blue points) using estimated fishing mortality compared to observed catches (open circles), gridded over species (columns) and stocks (rows)."
+
+SRplotCap <- "Stock-recruit curves (solid lines) and modeled recruitments (grey points), gridded over species (columns) and stocks (rows)."
+
+selLenCap <- "Selectivity-at-length for each fleet, gridded over species (columns) and stocks (rows). "
+
+selAgeCap <- "Selectivity-at-age for each fleet, for females only, gridded over species (columns) and stocks (rows). "
+
+```
+
+
+# Full complex
+
+## Spawning Biomass
+
+```{r, plotSBall, echo = FALSE, message = FALSE, fig.cap = SBsptCaption }
+plotSBspt( repObj = repObj, initYear = fYear)
+```
+
+
+## Fits to indices
+
+```{r, idxFitsall, echo = FALSE, fig.cap = StdIdxCap }
+plotScaledIdxGrid( repObj = repObj )
+
+```
+
+```{r, idxResidsAll, echo = FALSE, fig.cap = IdxResCap }
+plotIdxResidsGrid( repObj = repObj )
+
+```
+
+## Recruitment
+
+```{r, recruitments, echo = FALSE, fig.cap = RecPlotCap }
+plotRspt( repObj = repObj, initYear = fYear )
+```
+
+```{r, recruitmentDevs, echo = FALSE, fig.cap = RecDevPlotCap }
+plotRsptDev( repObj = repObj, initYear = fYear )
+```
+
+```{r, stockRecCurves, echo = FALSE, fig.cap = SRplotCap }
+plotSRsp( repObj = repObj, initYear = fYear )
+```
+
+
+## Time-varying catchability
+
+```{r, tvq, echo = FALSE, fig.cap = tvqCap }
+plotTVq( repObj = repObj, sIdx = 1:nS, pIdx = 1:nP )
+```
+
+## Fishing mortality
+
+```{r, fishingMortPlot, echo = FALSE, fig.cap = fishingMortCap }
+  plotFspft( repObj = repObj, initYear = fYear )
+```
+
+```{r, catchFitPlot, echo = FALSE, fig.cap = modeledCatchCap }
+  plotCatchFit_spt( repObj = repObj, initYear = fYear )
+```
+
+
+## Growth (Probability of Length-at-age)
+
+```{r, plotProbLenAge, echo = FALSE, fig.cap = ProbLenAgeCap}
+plotProbLenAge_sp(repObj)
+```
+
+## Selectivity
+
+```{r, plotSelLength, echo = FALSE, fig.cap = selLenCap }
+plotSelLen_spf(repObj = repObj, sIdx = 1:nS, pIdx = 1:nP )
+```
+
+```{r, plotSelAge, echo = FALSE, fig.cap = selAgeCap }
+plotSelAge_spf(repObj = repObj, sIdx = 1:nS, pIdx = 1:nP )
+```
+
+## Reference Points
+
+### Yield Curves
+
+```{r, YeqFCurves, fig.cap = YeqFCurvesCap, echo = FALSE}
+nS      <- repObj$nS
+nP      <- repObj$nP
+plotYeqF(repObj = repObj, sIdx = 1:nS, pIdx = 1:nP)
+
+
+```
+
+### Goldilocks Plots
+
+
+
+### Table
+
+```{r, FmsyRefPtsTable, echo = FALSE}
+
+FmsyRefPts <- repObj$refPts$FmsyRefPts
+
+# need to combine these all into a table - also want B0/R0 etc
+B0_sp       <- round(repObj$B0_sp,2)
+R0_sp       <- round(repObj$R0_sp,2)
+h_sp        <- round(repObj$h_sp,2)
+M_spx       <- round(repObj$M_spx,2)
+Bmsy_sp     <- round(FmsyRefPts$BeqFmsy_sp,2)
+Fmsy_sp     <- round(FmsyRefPts$Fmsy_sp,2)
+Umsy_sp     <- round(FmsyRefPts$Umsy_sp,2)
+MSY_sp      <- round(FmsyRefPts$YeqFmsy_sp,2)
+SSBT_sp     <- round(repObj$SB_spt[,,nT,drop = FALSE],2)
+DT_sp       <- round(SSBT_sp[,,1]/B0_sp,2)
+DmsyT_sp    <- round(SSBT_sp[,,1]/Bmsy_sp,2)
+
+nTabRow <- nS * nP
+nTabCol <- 14
+refPtsTab <- matrix(NA, nrow = nTabRow, ncol = nTabCol )
+colnames(refPtsTab) <- c( "Species",
+                          "Stock",
+                          "B0",
+                          "R0",
+                          "M_m",
+                          "M_f",
+                          "h",
+                          "Bmsy",
+                          "Fmsy",
+                          "Umsy",
+                          "MSY",
+                          "SSB_T",
+                          "D_T",
+                          "Dmsy_T" )
+
+for( s in 1:nS )
+  for(p in 1:nP )
+  {
+    rowIdx <- (s - 1) * nP + p
+
+    refPtsTab[rowIdx,"Species"]  <- species[s]
+    refPtsTab[rowIdx,"Stock"]    <- stock[p]
+    refPtsTab[rowIdx,"B0"]       <- B0_sp[s,p]
+    refPtsTab[rowIdx,"R0"]       <- R0_sp[s,p]
+    refPtsTab[rowIdx,"M_m"]      <- M_spx[s,p,1]
+    refPtsTab[rowIdx,"M_f"]      <- M_spx[s,p,2]
+    refPtsTab[rowIdx,"Bmsy"]     <- Bmsy_sp[s,p]
+    refPtsTab[rowIdx,"Fmsy"]     <- Fmsy_sp[s,p]
+    refPtsTab[rowIdx,"Umsy"]     <- Umsy_sp[s,p]
+    refPtsTab[rowIdx,"MSY"]      <- MSY_sp[s,p]
+    refPtsTab[rowIdx,"SSB_T"]    <- SSBT_sp[s,p,1]
+    refPtsTab[rowIdx,"D_T"]      <- DT_sp[s,p]
+    refPtsTab[rowIdx,"Dmsy_T"]   <- DmsyT_sp[s,p]
+
+  }
+
+# Kable that table!
+kable(  refPtsTab, escape = FALSE, 
+        caption = "Biological reference points for each stock and species.", booktabs = T,
+        align = rep("c",ncol(refPtsTab))) %>%
+  kable_styling(latex_options = c("striped", "scale_down","hold_position"),
+                bootstrap_options = c("striped", "hover"))
+
+```
+
+
+
+## Correlations
+
+**UNDER CONSTRUCTION**
+
+# Individual species
+
+**UNDER CONSTRUCTION**
+
+## Compositional data
+
+## Growth
+
+
+# Optimisation performance
+
+## Phase fit table
+
+```{r, phaseTable, echo = FALSE }
+phaseReportTable <- reports$phaseList$fitReport
+
+kable(  phaseReportTable, escape = FALSE, 
+        caption = "Optimisation performance of hierSCAL for each phase.", booktabs = T,
+        align = rep("c",ncol(phaseReportTable))) %>%
+  kable_styling(latex_options = c("striped", "scale_down","hold_position"),
+                bootstrap_options = c("striped", "hover"))
+
+```
+
+

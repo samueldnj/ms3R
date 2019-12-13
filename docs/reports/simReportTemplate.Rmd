@@ -1,0 +1,214 @@
+---  
+title: "hierSCAL OM fit report"
+geometry: letterpaper
+nocaption: false
+header-includes:
+- \usepackage{booktabs}
+- \usepackage{longtable}
+- \usepackage{array}
+- \usepackage{multirow}
+- \usepackage[table]{xcolor}
+- \usepackage{wrapfig}
+- \usepackage{float}
+- \usepackage{colortbl}
+- \usepackage{pdflscape}
+- \usepackage{tabu}
+- \usepackage{threeparttable}
+- \usepackage{threeparttablex}
+- \usepackage[normalem]{ulem}
+- \usepackage{makecell}
+- \usepackage{caption}
+- \usepackage{pdflscape}
+- \newcommand{\blandscape}{\begin{landscape}}
+- \newcommand{\elandscape}{\end{landscape}}
+always_allow_html: yes
+params:
+  rootDir: "~/Work/code/models/stockAssessment/multispecies/ms3R/Outputs/sim_11122019143054/"
+  RdataFile: "sim_11122019143054.RData"
+output: 
+  pdf_document:
+    keep_tex: true
+    fig_caption: true
+    latex_engine: pdflatex
+    template: ~/Work/write/templates/tex/TandF.latex
+  html_document:
+    self_contained: true
+    toc: true
+    toc_depth: 2
+    toc_float: true
+    df_print: kable
+    keep_md: false
+  word_document:
+    df_print: kable
+    reference_docx: /Users/sdnjohnson/Work/write/templates/docx/basic.docx
+  bookdown::pdf_document2:
+    keep_tex: true
+    fig_caption: true
+    latex_engine: pdflatex
+    template: ~/Work/write/templates/tex/TandF.latex
+    fig_width: 7
+    fig_height: 6
+  bookdown::html_document2:
+    self_contained: true
+    df_print: kable
+    keep_md: false
+    toc: true
+    toc_depth: 2
+    toc_float: true
+    number_sections: false
+  bookdown::word_document2:
+    df_print: kable
+    reference_docx: /Users/sdnjohnson/Work/write/templates/docx/basic.docx
+---
+
+# Simulation details
+
+```{r, setup, message=FALSE, warning=FALSE, include=FALSE, echo = FALSE}
+
+# I usually load my libraries up front to keep things organized
+library(bookdown)
+library(knitr)
+library(kableExtra)
+library(dplyr)
+library(stringr)
+library(tidyverse)
+library(here)
+
+knitr::opts_knit$set(   fig.pos = 'p',
+                        out.width = '100%', dpi=300, 
+                        root.dir = params$rootDir,
+                        message = FALSE, warning = FALSE, echo = FALSE )
+
+options(warn = -1)
+
+source(here("ms3Rplots.R"))
+source(here("tools.R"))
+source(here("refPts.R"))
+source(here("stats.R"))
+
+# Read in report file
+
+blobPath <- file.path(params$rootDir, params$RdataFile)
+load(blobPath)
+
+
+fYear   <- blob$ctlList$opMod$fYear
+nS      <- blob$om$nS
+nP      <- blob$om$nP
+nT      <- blob$om$nT
+
+species <- blob$om$speciesNames
+stock   <- blob$om$stockNames
+
+```
+
+Standard sim report for ms3R
+
+Scenario: `r blob$ctlList$ctl$scenarioName`
+
+Model Hypothesis: `r blob$ctlList$ctl$mpName`
+
+Species complex: `r blob$ctlList$data$species`
+
+Stock areas: `r blob$ctlList$data$stocks`
+
+
+
+
+```{r, captions, include = FALSE, echo = FALSE}
+SBsptCaption <- "Simulation envelopes of spawning biomass and catch scaled by unfished biomass.  
+Columns are species, and rows are stock areas. Median biomass is shown by the thick black lines, 
+with the grey region showing the central 95% of the distribution of spawning biomass, and thin black lines showing three randomly selected
+simulation replicates. Catch is shown as grey bars in the historical period, which represent
+median catch in the projection, with thin vertical line segments showing the central 95%
+of the catch distribution."
+
+TACuCaption <- "Simulation envelopes of TAC utilisation. Columns are species, rows are stock 
+areas. Heavy black lines show the median TAC utilisation, with thin black lines showing 3 
+random replicates, and the grey region showing the central 95% of the distribution."
+
+EffTulipCaption <- "Simulation envelopes of effort in each stock area."
+
+convStatsCaption <- "Convergence diagnostics for the simulated assessment model at each projection time step.
+The left hand column shows the distribution of maximum gradient components across replicates, 
+and the right hand column shows the proportion of replicates where the AM produced a 
+positive definite Hessian matrix."
+
+# StdIdxCap   <- "Standardised vulnerable biomass (coloured lines) and the scaled and standardised biomass indices they are fitting to (coloured points), for all stocks and species."
+
+# IdxResCap   <- "Standardised residuals for model fits to biomass indices (coloured points) and a loess smoother with a 20% confidence interval (coloured lines and grey regions), for all fleets, stocks, and species."
+
+# RecPlotCap <- "Age-1 recruitments for all species and stocks. Equilibrium unfished recruitment $R_0$ is indicated by the horizontal dashed line."
+
+# RecDevPlotCap <- "Deviations from expected recruitment for all species and stocks."
+
+# YeqFCurvesCap <- "Equilibrium yield curves as a function of fishing mortality rates, assuming all fishing mortality comes from the modern trawl fleet."
+
+# ProbLenAgeCap <- "Probability curves of length-at-age for males (blue) and females (red). Curves show the probability of each length within an age group, and opacity of the lines increases with age."
+
+# tvqCap <- "Time series of observation model catchability (log-scale, coloured points) for the commercial fleets and Hecate Strait Multispecies Assemblage survey. Lines show the smoothed trend using a Loess smoother"
+
+# fishingMortCap <- "Estimates of fishing mortality from each fleet (coloured points and lines), gridded over species (columns) and stocks (rows). Fishing mortality rates are found using an iterative Newton-Rhapson solver conditioned on the observed catch."
+
+# modeledCatchCap <- "Modeled removals (blue points) using estimated fishing mortality compared to observed catches (open circles), gridded over species (columns) and stocks (rows)."
+
+# SRplotCap <- "Stock-recruit curves (solid lines) and modeled recruitments (grey points), gridded over species (columns) and stocks (rows)."
+
+# selLenCap <- "Selectivity-at-length for each fleet, gridded over species (columns) and stocks (rows). "
+
+# selAgeCap <- "Selectivity-at-age for each fleet, for females only, gridded over species (columns) and stocks (rows). "
+
+# circRecDevsCap <- "Standardised recruitment deviations. Blue indicates a positive deviation, red indicates a negative deviation, and the area of each circle is proportional to the size of the deviation."
+
+# corrRecDevsCap <- "Correlation matrix of recruitment deviations. Blue indicates a positive correlation, and red indicates a negative correlation."
+
+```
+
+
+# Simulation envelopes
+
+## Spawning Biomass
+
+```{r, plotTulipBtCt, echo = FALSE, message = FALSE, fig.cap = SBsptCaption }
+plotTulipBt( obj = blob, dep = TRUE, Ct = TRUE )
+```
+
+## TAC utilisation
+
+```{r, plotTulipTACu, echo = FALSE, message = FALSE, fig.cap = TACuCaption }
+plotTulipTACu( obj = blob )
+```
+
+## Effort allocation
+
+```{r, plotTulipEffort, echo = FALSE, message = FALSE, fig.cap = EffTulipCaption }
+plotTulipEffort_p( obj = blob )
+```
+
+
+# To be added:
+
+- Single sim replicates with catch
+- 
+
+# Performance
+
+## Stats table
+
+```{r, phaseTable, echo = FALSE }
+
+statTable <- .simPerfStats( obj = blob )
+
+kable(  statTable, escape = FALSE, 
+        caption = "Performance statistics for this simulation.", booktabs = T,
+        align = rep("c",ncol(statTable))) %>%
+  kable_styling( latex_options = c("striped", "scale_down","hold_position"),
+                 bootstrap_options = c("striped", "hover"))
+
+```
+
+## Convergence diagnostics
+
+```{r, plotConvergence, echo = FALSE, message = FALSE, fig.cap = convStatsCaption }
+plotConvStats( obj = blob )
+```
