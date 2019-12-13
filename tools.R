@@ -36,7 +36,7 @@
 
 
   # Make html sim report
-  makeSimReport( simID = folder, groupFolder = "" )
+  .makeSimReport( simID = folder, groupFolder = "" )
 
   # Create a quick to read info file for the sim folder
   .makeInfoFile(blob)
