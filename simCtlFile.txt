@@ -24,8 +24,8 @@ mp$assess$spFleetWeights c(1.0,1.0,1.0,1.0)
 mp$assess$spFleets c(1,2,3,4)
 mp$assess$spShrinkqFleets c(3,4)
 mp$assess$spTVqFleets NULL
-mp$assess$spCondMLEqFleets c(1,2)
-mp$assess$spCondMLEobsErrFleets c(1,2,3,4)
+mp$assess$spCondMLEqFleets c(1,2,4)
+mp$assess$spCondMLEobsErrFleets c(1,2,3)
 mp$assess$spSolveInitBio FALSE
 mp$assess$spLateStart FALSE
 mp$assess$spsigmaProc .05
