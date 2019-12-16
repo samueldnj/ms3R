@@ -6,25 +6,25 @@ parameter value
 # Scenario 1 : DER_obsErr1.0
 #
 scenario$scenario1$ctl$scenarioName 'DER_obsErr1.0'
-scenario$scenario1$opMod$pT 25
+scenario$scenario1$opMod$pT 32
 scenario$scenario1$opMod$projObsErrMult 1.0
 #
 # Scenario 2 : DER_obsErr0.5
 #
 scenario$scenario2$ctl$scenarioName 'DER_obsErr0.5'
-scenario$scenario2$opMod$pT 25
+scenario$scenario2$opMod$pT 32
 scenario$scenario2$opMod$projObsErrMult 0.5
 #
 # Scenario 3 : DER_obsErr1.5
 #
 scenario$scenario3$ctl$scenarioName 'DER_obsErr1.5'
-scenario$scenario3$opMod$pT 25
+scenario$scenario3$opMod$pT 32
 scenario$scenario3$opMod$projObsErrMult 1.5
 #
 # Scenario 4 : DER_obsErr2.0
 #
 scenario$scenario4$ctl$scenarioName 'DER_obsErr2.0'
-scenario$scenario4$opMod$pT 25
+scenario$scenario4$opMod$pT 32
 scenario$scenario4$opMod$projObsErrMult 2.0
 #
 #
@@ -36,6 +36,13 @@ mp$mp1$ctl$mpName 'singleStock'
 mp$mp1$mp$assess$spSingleStock TRUE
 mp$mp1$mp$assess$spDataPooled FALSE
 mp$mp1$mp$assess$spCoastwide FALSE
+mp$mp1$mp$assess$spShrinkqFleets c(3,4)
+mp$mp1$mp$assess$spCondMLEqFleets c(1,2)
+mp$mp1$mp$assess$spCondMLEobsErrFleets c(1,2,3,4)
+mp$mp1$mp$assess$spPhzlnqShrink 1
+mp$mp1$mp$assess$spPhztauObs -2
+mp$mp1$mp$assess$spmlnq .5
+mp$mp1$mp$assess$spsdlnq .01
 #
 # MP 2 : fullMultistock
 #

@@ -414,7 +414,7 @@ Type objective_function<Type>::operator() ()
         {
           // compute conditional MLE q from observation
           // Single stock model
-          if( shrinkq_f(f) == 0 ) 
+          if( shrinkq_f(f) == 0 | nP == 1 ) 
             lnqhat_spf(s,p,f) = zSum_spf(s,p,f) / validObs_spf(s,p,f);
 
           // Multi-stock model

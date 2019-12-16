@@ -454,7 +454,6 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
         if( is.null(ctlList$mp$assess$spTVqFleets) )
           phases$tvlnqDevs_vec <- -1
 
-
         if( ctlList$mp$assess$spSolveInitBio )
           phases$spPhzlnBinit <- -1
 
@@ -924,6 +923,8 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
 
   I_spft[is.na(I_spft)] <- -1
 
+  # browser()
+
   IGtau2alpha   <- ctlList$mp$assess$spIGtau2alpha
   IGtau2beta    <- ctlList$mp$assess$spIGtau2Mode * (ctlList$mp$assess$spIGtau2alpha + 1)
 
@@ -1113,7 +1114,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   # Get model dimensions - refactor
   # so that this is done outside of the
   # initPop function
-  nReps <- ctlList$ctl$nReps
+  nReps <- ctlList$ctl$totReps
   pT    <- ctlList$opMod$pT
   tMP   <- obj$om$tMP
   nT    <- obj$om$nT
@@ -1176,6 +1177,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   blob <- list( om = om, mp = mp, ctlList = ctlList,
                 rp = vector(mode = "list", length = nReps) )
 
+  blob$goodReps <- rep(FALSE, nReps )
 
   ##########################################################
   ######### ------- CLOSED LOOP SIMULATION ------- #########
@@ -1277,11 +1279,21 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     blob$mp$assess$maxGrad_itsp[i,,,]     <- simObj$mp$assess$maxGrad_tsp
     blob$mp$assess$pdHess_itsp[i,,,]      <- simObj$mp$assess$pdHess_tsp
 
+    if( prod(simObj$mp$assess$pdHess_tsp) == 1 )
+      blob$goodReps[i] <- TRUE
+
     # Save reference points for this replicate - more necessary when
     # we have multiple conditioning draws
     blob$rp[[i]] <- simObj$rp
 
     message( " (.mgmtProc) Completed replicate ", i, " of ", nReps, ".\n", sep = "")
+
+    if( sum(blob$goodReps) == ctlList$ctl$nGoodReps )
+    {
+      message(  " (.mgmtProc) Completed ",  ctlList$ctl$nReps, 
+                " replicates with all convergent AMs, ending simulation.\n", sep = "")
+      break
+    }
   } # END i loop
 
 
@@ -1900,7 +1912,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   mp$assess$retroVB_tspft     <- array( NA, dim = c(pT, nS, nP, nF, nT) )
   mp$assess$retroq_tspf       <- array( NA, dim = c(pT, nS, nP, nF) )
   mp$assess$maxGrad_tsp       <- array( NA, dim = c(pT, nS, nP) )
-  mp$assess$pdHess_tsp        <- array( NA, dim = c(pT, nS, nP) )
+  mp$assess$pdHess_tsp        <- array( FALSE, dim = c(pT, nS, nP) )
 
   mp$hcr$LCP_spt              <- array( NA, dim = c(nS, nP, nT) )
   mp$hcr$UCP_spt              <- array( NA, dim = c(nS, nP, nT) )

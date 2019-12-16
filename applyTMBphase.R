@@ -119,7 +119,7 @@
     }
 
     # if(phase_cur == maxPhase)
-    #   browser()
+      # browser()
 
     # Fit the model using fixed effects only
     obj <- TMB::MakeADFun(  data = data,
@@ -248,9 +248,9 @@
           newPar <- startPar + rnorm(length(startPar), mean = 0, sd = 0.3)
 
           optRE <- try( nlminb (  start     = newPar,
-                                objective = randObj$fn,
-                                gradient  = randObj$gr,
-                                control   = tmbCtrl ) )
+                                  objective = randObj$fn,
+                                  gradient  = randObj$gr,
+                                  control   = tmbCtrl ) )
 
           if( class(optRE) != "try-error")
             if( grepl("relative",opt$message))
@@ -335,6 +335,8 @@
       phaseReports[[phase_cur]]$map     <- map_use
     }
 
+    # browser()
+
     if(phaseMsg)
       cat(  "\nPhase ", phase_cur, " completed with code ",
           opt$convergence, " and following message:\n", sep = "" )
@@ -343,9 +345,9 @@
     
   } # close phase loop
 
-
   # if(!outList$pdHess)
   #   browser()
+
 
   # Save phase reports
   if( savePhases )
