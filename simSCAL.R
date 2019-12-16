@@ -845,6 +845,13 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     condMLEq_f[ctlList$mp$assess$spCondMLEqFleets - min(ctlList$mp$assess$spFleets) + 1] <- 1
 
 
+  fleetWeights_f <- ctlList$mp$assess$spFleetWeights
+  if( !is.null(oldFleet) )
+  {
+    fleetWeights_f <- fleetWeights_f[oldFleet]
+
+  }
+
   condMLEobsErr_f <- rep(0,nF)
   if( !is.null(oldFleet) )
   {
@@ -936,7 +943,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
                 shrinkq_f       = shrinkq_f,
                 tvq_f           = tvq_f,
                 fleetq_f        = fleetq_f,
-                fleetWeights_f  = ctlList$mp$assess$spFleetWeights,
+                fleetWeights_f  = fleetWeights_f,
                 condMLEobsErr_f = condMLEobsErr_f,
                 lnqPriorCode    = lnqPriorCode,
                 lnUPriorCode    = lnUPriorCode,

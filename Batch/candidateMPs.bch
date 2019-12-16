@@ -38,7 +38,7 @@ mp$mp1$mp$assess$spCondMLEqFleets c(1,2)
 mp$mp1$mp$assess$spPhzlnqShrink 1
 mp$mp1$mp$assess$spPhztauObs -2
 mp$mp1$mp$assess$spmlnq .5
-mp$mp1$mp$assess$spsdlnq .01
+mp$mp1$mp$assess$spsdlnq .1
 #
 # MP 2 : fullMultistock
 #

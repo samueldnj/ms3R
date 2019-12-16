@@ -42,7 +42,6 @@ mp$mp1$mp$assess$spDataPooled FALSE
 mp$mp1$mp$assess$spCoastwide FALSE
 mp$mp1$mp$assess$spShrinkqFleets c(3,4)
 mp$mp1$mp$assess$spCondMLEqFleets c(1,2)
-#mp$mp1$mp$assess$spCondMLEobsErrFleets c(1,2,3,4)
 mp$mp1$mp$assess$spPhzlnqShrink 1
 mp$mp1$mp$assess$spPhztauObs -2
 mp$mp1$mp$assess$spmlnq .5
