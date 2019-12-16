@@ -1291,9 +1291,13 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
 
     if( sum(blob$goodReps) == ctlList$ctl$nGoodReps )
     {
-      message(  " (.mgmtProc) Completed ",  ctlList$ctl$nReps, 
+      message(  " (.mgmtProc) Completed ",  ctlList$ctl$nGoodReps, 
                 " replicates with all convergent AMs, ending simulation.\n", sep = "")
       break
+    } else {
+      finishedGood <- sum(blob$goodReps)
+      message( " (.mgmtProc) Completed ", finishedGood, " of ", ctlList$ctl$nGoodReps, 
+                " replicates with all convergent AMs.")
     }
   } # END i loop
 

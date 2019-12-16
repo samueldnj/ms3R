@@ -91,7 +91,9 @@ makeStatTable <- function( sims = 1, folder = "" )
 
   # get the replicate numbers for succesful fits (PD Hessians) in
   # MPs
-  pdHess_itsp <- mp$assess$pdHess_itsp
+  allConvReps <- blob$goodReps
+  pdHess_itsp <- mp$assess$pdHess_itsp[allConvReps,,,]
+  
 
   # Calculat probability of a good replicate (all PD hessians)
   goodReps  <- apply( X = pdHess_itsp, FUN = prod, MARGIN = 1, na.rm = T)
@@ -144,11 +146,11 @@ makeStatTable <- function( sims = 1, folder = "" )
   MSY_sp    <- rp$FmsyRefPts$YeqFmsy_sp
 
   # Calculate depletion wrt Bmsy
-  SB_ispt   <- om$SB_ispt
-  C_ispt    <- om$C_ispt
-  TAC_ispt  <- mp$hcr$TAC_ispt
+  SB_ispt   <- om$SB_ispt[allConvReps,,,]
+  C_ispt    <- om$C_ispt[allConvReps,,,]
+  TAC_ispt  <- mp$hcr$TAC_ispt[allConvReps,,,]
   TACu_ispt <- C_ispt / TAC_ispt
-  F_ispt    <- om$F_ispft[,,,2,]
+  F_ispt    <- om$F_ispft[allConvReps,,,2,]
   
   # Calculate probability that Bt above LRP
   pBtGt.4Bmsy_sp <- .calcStatsProportion( TS_ispt = SB_ispt,

@@ -8,7 +8,7 @@ ctl$maxEval 1e4
 ctl$maxIter 1e4
 ctl$rSeed 123
 ctl$totReps 100
-ctl$nGoodReps 2
+ctl$nGoodReps 10
 mp$assess$assInt 1
 mp$assess$method "hierProd"
 mp$assess$idxPoints 3
@@ -16,7 +16,7 @@ mp$assess$idxScalar 1
 mp$assess$idxFleets 4
 mp$assess$spCoastwide FALSE
 mp$assess$spDataPooled FALSE
-mp$assess$spSingleStock TRUE
+mp$assess$spSingleStock FALSE
 mp$assess$spPosPenFactor 1e5
 mp$assess$sptauq .01
 mp$assess$spsigU .01
