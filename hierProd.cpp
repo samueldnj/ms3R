@@ -94,6 +94,7 @@ Type objective_function<Type>::operator() ()
   DATA_INTEGER(lnqPriorCode);   // 0 => hyperprior, 1 => multilevel
   DATA_INTEGER(lnUPriorCode);   // 0 => hyperprior, 1 => multilevel 
   DATA_INTEGER(BPriorCode);     // 0 => normal, 1 => Jeffreys 
+  DATA_INTEGER(tauObsPriorCode);// 0 => Off, 1 => On
   DATA_IARRAY(initT_sp);        // first year of assessment
   DATA_IARRAY(initProcErr_sp);  // first year of process error devs
   DATA_IARRAY(initBioCode_sp);  // initial biomass at 0 => unfished, 1=> fished
@@ -414,7 +415,7 @@ Type objective_function<Type>::operator() ()
         {
           // compute conditional MLE q from observation
           // Single stock model
-          if( shrinkq_f(f) == 0 | nP == 1 ) 
+          if( shrinkq_f(f) == 0 | nP == 1 | stockq_spf(s,p,f) == 0 ) 
             lnqhat_spf(s,p,f) = zSum_spf(s,p,f) / validObs_spf(s,p,f);
 
           // Multi-stock model
@@ -533,7 +534,7 @@ Type objective_function<Type>::operator() ()
   for( int f = 0; f < nF; f++ )
     for( int s = 0; s < nS; s++ )
       for( int p = 0; p < nP; p++)
-        if( calcIndex_spf(s,p,f) == 1 & condMLEobsErr_f(f) == 0)
+        if( calcIndex_spf(s,p,f) == 1 & condMLEobsErr_f(f) == 0 & tauObsPriorCode == 1)
           nllObsVarPrior -= dinvgamma(tau2_spf(s,p,f),tau2IGa_f(f), tau2IGb_f(f), true);
 
 
@@ -642,7 +643,7 @@ Type objective_function<Type>::operator() ()
   REPORT(nlpU);
   REPORT(nlpB);
   // REPORT(nllProcVarPrior);
-  // REPORT(nllObsVarPrior);
+  REPORT(nllObsVarPrior);
   REPORT(pospen);
 
   REPORT(objFun);
