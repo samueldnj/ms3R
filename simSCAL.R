@@ -94,6 +94,9 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
           next
 
         lastObs <- max(histOn)
+        if(obsInt[i] == 1)
+          lastObs <- tMP
+
         newObs <- seq( from = lastObs, to = nT, by = obsInt[i] )
         idxOn_spft[s,p,fIdx,c(histOn,newObs)] <- TRUE
       }

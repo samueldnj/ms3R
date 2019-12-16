@@ -100,6 +100,13 @@ nT      <- blob$om$nT
 species <- blob$om$speciesNames
 stock   <- blob$om$stockNames
 
+goodReps    <- blob$goodReps
+nGoodReps   <- sum(goodReps)
+goodRepIdx  <- which(goodReps)
+
+# Draw a random replicate for plotting
+randReplicate <- sample(goodRepIdx)
+
 ```
 
 Standard sim report for ms3R
@@ -134,33 +141,13 @@ The left hand column shows the distribution of maximum gradient components acros
 and the right hand column shows the proportion of replicates where the AM produced a 
 positive definite Hessian matrix."
 
-# StdIdxCap   <- "Standardised vulnerable biomass (coloured lines) and the scaled and standardised biomass indices they are fitting to (coloured points), for all stocks and species."
+retroSBCaption <- "Retrospective assesment model estimates of stock biomass from a 
+randomly selected simulation replicate. Red lines are spawning stock biomass, black
+lines are total biomass, and grey dashed lines are commercial trawl fishery 
+exploitable biomass. Catch bars show realised catch in grey for the whole
+simulation period, and in the projection period TACs set by the harvest control
+rule are shown as hollow black rectangles over the grey catch bars."
 
-# IdxResCap   <- "Standardised residuals for model fits to biomass indices (coloured points) and a loess smoother with a 20% confidence interval (coloured lines and grey regions), for all fleets, stocks, and species."
-
-# RecPlotCap <- "Age-1 recruitments for all species and stocks. Equilibrium unfished recruitment $R_0$ is indicated by the horizontal dashed line."
-
-# RecDevPlotCap <- "Deviations from expected recruitment for all species and stocks."
-
-# YeqFCurvesCap <- "Equilibrium yield curves as a function of fishing mortality rates, assuming all fishing mortality comes from the modern trawl fleet."
-
-# ProbLenAgeCap <- "Probability curves of length-at-age for males (blue) and females (red). Curves show the probability of each length within an age group, and opacity of the lines increases with age."
-
-# tvqCap <- "Time series of observation model catchability (log-scale, coloured points) for the commercial fleets and Hecate Strait Multispecies Assemblage survey. Lines show the smoothed trend using a Loess smoother"
-
-# fishingMortCap <- "Estimates of fishing mortality from each fleet (coloured points and lines), gridded over species (columns) and stocks (rows). Fishing mortality rates are found using an iterative Newton-Rhapson solver conditioned on the observed catch."
-
-# modeledCatchCap <- "Modeled removals (blue points) using estimated fishing mortality compared to observed catches (open circles), gridded over species (columns) and stocks (rows)."
-
-# SRplotCap <- "Stock-recruit curves (solid lines) and modeled recruitments (grey points), gridded over species (columns) and stocks (rows)."
-
-# selLenCap <- "Selectivity-at-length for each fleet, gridded over species (columns) and stocks (rows). "
-
-# selAgeCap <- "Selectivity-at-age for each fleet, for females only, gridded over species (columns) and stocks (rows). "
-
-# circRecDevsCap <- "Standardised recruitment deviations. Blue indicates a positive deviation, red indicates a negative deviation, and the area of each circle is proportional to the size of the deviation."
-
-# corrRecDevsCap <- "Correlation matrix of recruitment deviations. Blue indicates a positive correlation, and red indicates a negative correlation."
 
 ```
 
@@ -185,10 +172,17 @@ plotTulipTACu( obj = blob )
 plotTulipEffort_p( obj = blob )
 ```
 
+# Example replicates
+
+## Retrospective biomass
+
+```{r, plotRetroSB, echo = FALSE, message = FALSE, fig.cap = retroSBCaption }
+plotRetroSBagg(obj = blob, iRep = randReplicate)
+```
 
 # To be added:
 
-- Single sim replicates with catch
+- Plots of scaled indices over biomass fits.
 - 
 
 # Performance
