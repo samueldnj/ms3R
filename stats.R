@@ -117,7 +117,7 @@ makeStatTable <- function( sims = 1, folder = "" )
                   "scenario","mp",
                   "species","stock",
                   "projObsErrMult",
-                  "pGoodReps", "medProbPDH_sp",
+                  "nGoodReps", "medProbPDH_sp",
                   "pBtGt.4Bmsy", "PBtGt.8Bmsy",
                   "pCtGtMSY", "pFtGtFmsy",
                   "avgCatch","AAV", "avgTACu" )
@@ -132,7 +132,7 @@ makeStatTable <- function( sims = 1, folder = "" )
   statTable[,"simLabel"]        <- simLabel
   statTable[,"scenario"]        <- ctlList$ctl$scenarioName
   statTable[,"mp"]              <- ctlList$ctl$mpName
-  statTable[,"pGoodReps"]       <- pGoodReps
+  statTable[,"pGoodReps"]       <- sum(allConvReps)
   statTable[,"projObsErrMult"]  <- opMod$projObsErrMult
 
   # Need to start layering in performance metrics

@@ -1707,6 +1707,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   nT  <- obj$om$nT
   nF  <- obj$om$nF
   tMP <- obj$om$tMP
+  pT  <- ctlList$opMod$pT
 
   # Now, copy model fit
   histdx <- 1:(tMP - 1)
@@ -1779,7 +1780,8 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   # projObsErrMult != 1
   if( ctlList$opMod$projObsErrMult != 1.0 )
   {
-    nPhaseIn        <- ctlList$opMod$phaseInObsErrMult
+    nPhaseIn        <- min(ctlList$opMod$phaseInObsErrMult,pT-1)
+
     projObsErrMult  <- ctlList$opMod$projObsErrMult
     for( k in 0:nPhaseIn)
     {
