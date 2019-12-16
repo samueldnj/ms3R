@@ -41,7 +41,6 @@
   # Create a quick to read info file for the sim folder
   .makeInfoFile(blob)
 
-
   graphics.off()
   
   # Save an example retroBiomass with aggregation 

@@ -144,8 +144,8 @@ doBatchRun <- function( arg )
           nCores, " cores.\n", sep = "" )
     tBegin    <- proc.time()
     startDate <- date()
-    # tmp       <- clusterApplyLB(cl, x=parBatchArgList, fun=doBatchRun)
-    tmp <-lapply(X=parBatchArgList, FUN=doBatchRun)
+    tmp       <- clusterApplyLB(cl, x=parBatchArgList, fun=doBatchRun)
+    # tmp <-lapply(X=parBatchArgList, FUN=doBatchRun)
     stopCluster(cl)
 
     # Now copy the contents of each batchFolderName to the project folder

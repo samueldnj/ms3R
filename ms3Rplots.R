@@ -16,7 +16,8 @@
 # of performance statistics on the y axis, with respect
 # to the OM grid on the x axis
 plotBatchPerf_sp <- function( batchFolder = "thirdBatch",
-                              xAxis = "projObsErrMult")
+                              xAxis = "projObsErrMult",
+                              yAxis = "")
 
 
 
@@ -775,6 +776,12 @@ plotRetroSBagg <- function( obj = blob, iRep = 1, Ct = TRUE )
 
   retroSB_tspt[retroSB_tspt < 0] <- NA
 
+  # Model dims
+  tMP     <- obj$om$tMP
+  nS      <- obj$om$nS
+  nP      <- obj$om$nP 
+  nT      <- obj$om$nT
+
 
   C_spft   <- obj$om$C_ispft[iRep,,,,]
   TAC_spft <- obj$mp$hcr$TAC_ispft[iRep,,,,]
@@ -796,11 +803,17 @@ plotRetroSBagg <- function( obj = blob, iRep = 1, Ct = TRUE )
     totB_spt  <- totB_spt[,1,,drop = FALSE]
     totB_spt[,1,] <- newtotB_spt
 
-    C_spt        <- C_spft[,1,1,,drop = FALSE]
-    C_spt[,1,]  <- apply(X = C_spft, FUN = sum, MARGIN = c(1,4))
+    sumC_spt          <- C_spft[,1,1,,drop = FALSE]
+    sumC_spt[,1,1,]   <- apply(X = C_spft, FUN = sum, MARGIN = c(1,4))
+    newC_spt          <- array(NA, dim = c(nS,1,nT))
+    newC_spt[,1,]     <- sumC_spt[,1,1,]
+    C_spt             <- newC_spt
 
-    TAC_spt        <- C_spft[,1,,,drop = FALSE]
-    TAC_spt[,1,]  <- apply(X = C_spft, FUN = sum, MARGIN = c(1,4))
+    sumTAC_spt        <- C_spft[,1,,,drop = FALSE]
+    sumTAC_spt[,1,1,] <- apply(X = TAC_spft, FUN = sum, MARGIN = c(1,4))
+    newTAC_spt        <- array(NA, dim = c(nS,1,nT))
+    newTAC_spt[,1,]   <- sumTAC_spt[,1,1,]
+    TAC_spt           <- newTAC_spt        
 
   }
 
@@ -817,22 +830,23 @@ plotRetroSBagg <- function( obj = blob, iRep = 1, Ct = TRUE )
     totB_spt  <- totB_spt[1,,,drop = FALSE]
     totB_spt[1,,] <- newtotB_spt
 
-    C_spt        <- C_spft[1,,1,,drop = FALSE]
-    C_spt[,1,,]   <- apply(X = C_spft, FUN = sum, MARGIN = c(2,4))
+    sumC_spt          <- C_spft[1,,1,,drop = FALSE]
+    sumC_spt[1,,1,]   <- apply(X = C_spft, FUN = sum, MARGIN = c(2,4))
+    newC_spt          <- array(NA, dim = c(1,nP,nT))
+    newC_spt[1,,]     <- sumC_spt[1,,1,]
+    C_spt             <- newC_spt
+    
 
-    TAC_spt        <- TAC_spft[1,,1,,drop = FALSE]
-    TAC_spt[,1,,]  <- apply(X = C_spft, FUN = sum, MARGIN = c(2,4))
+    sumTAC_spt        <- TAC_spft[1,,1,,drop = FALSE]
+    sumTAC_spt[1,,,]  <- apply(X = TAC_spft, FUN = sum, MARGIN = c(2,4))
+    newTAC_spt        <- array(NA, dim = c(1,nP,nT))
+    newTAC_spt[1,,]   <- sumTAC_spt[1,,1,]
+    TAC_spt           <- newTAC_spt
   }
 
   SB_spt[SB_spt == 0]     <- NA
   VB_spt[VB_spt == 0]     <- NA
   totB_spt[totB_spt == 0] <- NA
-
-
-  tMP     <- obj$om$tMP
-  nS      <- obj$om$nS
-  nP      <- obj$om$nP 
-  nT      <- obj$om$nT
 
   nSS     <- dim( SB_spt)[1]
   nPP     <- dim( SB_spt)[2]
@@ -885,13 +899,14 @@ plotRetroSBagg <- function( obj = blob, iRep = 1, Ct = TRUE )
       }
       if( Ct )
       {
-        rect( xleft = yrs[tMP:nT] - .3, xright = yrs[tMP:nT] + .3, 
-              ytop = TAC_spt[s,p,tMP:nT], ybottom = 0, col = NA,
-              border = "black" )
-
+        # Plot actual catch
         rect( xleft = yrs - .3, xright = yrs + .3, 
               ytop = C_spt[s,p,], ybottom = 0, col = "grey40",
               border = NA )
+        # Plot a rectangle of TACs
+        rect( xleft = yrs[tMP:nT] - .3, xright = yrs[tMP:nT] + .3, 
+              ytop = TAC_spt[s,p,tMP:nT], ybottom = 0, col = NA,
+              border = "black" )
 
       }
   
