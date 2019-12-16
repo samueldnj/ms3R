@@ -36,39 +36,20 @@
 
 
   # Make html sim report
-  .makeSimReport( simNum = folder, groupFolder = "" )
+  # .makeSimReport( simNum = folder, groupFolder = "" )
 
   # Create a quick to read info file for the sim folder
   .makeInfoFile(blob)
 
 
   graphics.off()
-  # Save a convergence diagnostic image  
-  if( blob$ctlList$mp$assess$method == "hierProd" )
-  {
-    png( filename = file.path(path,"convDiagnostics.png"),
-          height = 11, width = 8.5, units = "in", res = 300)
-      plotConvStats(obj = blob)
-    dev.off()
-  }
-
-  # Save an example retroBiomass  
-  png( filename = file.path(path,"retroSB.png"),
-        height = 11, width = 8.5, units = "in", res = 300)
-    plotRetroSB(obj = blob, iRep = 1)
-  dev.off()
-
+  
   # Save an example retroBiomass with aggregation 
   png( filename = file.path(path,"retroSBagg.png"),
         height = 11, width = 8.5, units = "in", res = 300)
     plotRetroSBagg(obj = blob, iRep = 1)
   dev.off()
 
-  # Save an example retroBiomass with aggregation 
-  png( filename = file.path(path,"tulipDepCat.png"),
-        height = 8.5, width = 11, units = "in", res = 300)
-    plotTulipBt(obj = blob, dep = TRUE, Ct = TRUE)
-  dev.off()
 
   # Calculate and save stats table
   perfStats <- .simPerfStats(obj = blob)

@@ -91,7 +91,7 @@ makeStatTable <- function( sims = 1, folder = "" )
 
   # get the replicate numbers for succesful fits (PD Hessians) in
   # MPs
-  allConvReps <- blob$goodReps
+  allConvReps <- obj$goodReps
   pdHess_itsp <- mp$assess$pdHess_itsp[allConvReps,,,]
   
 
@@ -146,9 +146,9 @@ makeStatTable <- function( sims = 1, folder = "" )
   MSY_sp    <- rp$FmsyRefPts$YeqFmsy_sp
 
   # Calculate depletion wrt Bmsy
-  SB_ispt   <- om$SB_ispt[allConvReps,,,]
-  C_ispt    <- om$C_ispt[allConvReps,,,]
-  TAC_ispt  <- mp$hcr$TAC_ispt[allConvReps,,,]
+  SB_ispt   <- om$SB_ispt[allConvReps,,,,drop = FALSE]
+  C_ispt    <- om$C_ispt[allConvReps,,,,drop = FALSE]
+  TAC_ispt  <- mp$hcr$TAC_ispt[allConvReps,,,,drop = FALSE]
   TACu_ispt <- C_ispt / TAC_ispt
   F_ispt    <- om$F_ispft[allConvReps,,,2,]
   

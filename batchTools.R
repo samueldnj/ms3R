@@ -96,8 +96,6 @@ doBatchRun <- function( arg )
   blobName     <- batchDesign$blobName  # Vector of blobNames.
   nJobs        <- length(blobName)      # Number of blobs (i.e., simulations).
 
-  # closeWin()                     # Close GUI to avoid TclTk ugliness.
-
   result <- data.frame( sim=character(nJobs), scenarioLabel=character(nJobs),
                         mpLabel=character(nJobs), elapsed=numeric(nJobs),
                         stringsAsFactors=FALSE )
@@ -146,8 +144,8 @@ doBatchRun <- function( arg )
           nCores, " cores.\n", sep = "" )
     tBegin    <- proc.time()
     startDate <- date()
-    tmp       <- clusterApplyLB(cl, x=parBatchArgList, fun=doBatchRun)
-    # tmp <-lapply(X=parBatchArgList, FUN=doBatchRun)
+    # tmp       <- clusterApplyLB(cl, x=parBatchArgList, fun=doBatchRun)
+    tmp <-lapply(X=parBatchArgList, FUN=doBatchRun)
     stopCluster(cl)
 
     # Now copy the contents of each batchFolderName to the project folder
