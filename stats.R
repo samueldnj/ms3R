@@ -96,10 +96,8 @@ makeStatTable <- function( sims = 1, folder = "" )
   
 
   # Calculat probability of a good replicate (all PD hessians)
-  goodReps  <- apply( X = pdHess_itsp, FUN = prod, MARGIN = 1, na.rm = T)
-  goodReps  <- which(goodReps == 1)
-  nGoodReps <- length(goodReps)
-  pGoodReps <- nGoodReps/nReps
+  nGoodReps <- sum(allConvReps)
+  pGoodReps <- nGoodReps
 
   # And the median over replicates of the probability of a 
   # PD Hessian over time
@@ -132,7 +130,7 @@ makeStatTable <- function( sims = 1, folder = "" )
   statTable[,"simLabel"]        <- simLabel
   statTable[,"scenario"]        <- ctlList$ctl$scenarioName
   statTable[,"mp"]              <- ctlList$ctl$mpName
-  statTable[,"pGoodReps"]       <- sum(allConvReps)
+  statTable[,"nGoodReps"]       <- sum(allConvReps)
   statTable[,"projObsErrMult"]  <- opMod$projObsErrMult
 
   # Need to start layering in performance metrics

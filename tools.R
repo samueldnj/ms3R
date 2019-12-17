@@ -42,12 +42,6 @@
   .makeInfoFile(blob)
 
   graphics.off()
-  
-  # # Save an example retroBiomass with aggregation 
-  # png( filename = file.path(path,"retroSBagg.png"),
-  #       height = 11, width = 8.5, units = "in", res = 300)
-  #   plotRetroSBagg(obj = blob, iRep = 1)
-  # dev.off()
 
 
   # Calculate and save stats table

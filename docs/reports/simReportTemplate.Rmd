@@ -105,7 +105,8 @@ nGoodReps   <- sum(goodReps)
 goodRepIdx  <- which(goodReps)
 
 # Draw a random replicate for plotting
-randReplicate <- sample(goodRepIdx)
+set.seed(123)
+randReplicate <- sample(goodRepIdx, size = 1)
 
 ```
 

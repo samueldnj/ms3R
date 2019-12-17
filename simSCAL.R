@@ -1311,6 +1311,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     }
   } # END i loop
 
+  blob$nSims <- i
 
   # Name the blob array dimensions...
   tMP   -> blob$om$tMP

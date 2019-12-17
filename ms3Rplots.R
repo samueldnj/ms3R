@@ -17,7 +17,19 @@
 # to the OM grid on the x axis
 plotBatchPerf_sp <- function( batchFolder = "thirdBatch",
                               xAxis = "projObsErrMult",
-                              yAxis = "")
+                              yAxis = "PBtGt.8Bmsy" )
+{
+  # First load full stats table from the batch folder
+  statsFile <- here::here(  "Outputs",batchFolder,"statistics",
+                            "fullStatTable.csv")
+  read.csv(statsFile, header = TRUE, stringsAsFactors = FALSE )
+
+  # Now, let's start plotting.
+
+
+
+
+}
 
 
 

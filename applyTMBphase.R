@@ -349,6 +349,7 @@
   #   browser()
 
 
+
   # Save phase reports
   if( savePhases )
     outList$phaseReports      <- phaseReports
@@ -363,11 +364,15 @@
     outList$repOpt         <- repInit
   }
 
+
   # And the remainder of the details
   outList$objfun            <- obj$fn()
   outList$optOutput         <- opt
   outList$map               <- map_use
-  outList$maxGrad           <- max(abs(obj$gr()),na.rm =T)
+  if(!is.null(outList$sdrep))
+    outList$maxGrad           <- max(abs(outList$sdrep$gradient.fixed),na.rm =T)
+  else
+    outList$maxGrad           <- max(abs(obj$gr(opt$par)),na.rm =T)
   # outList$totTime           <- sum(fitReport$time,na.rm = TRUE)
   
   return( outList )  
