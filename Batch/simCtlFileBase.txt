@@ -18,8 +18,8 @@ mp$assess$spCoastwide FALSE
 mp$assess$spDataPooled FALSE
 mp$assess$spSingleStock TRUE
 mp$assess$spPosPenFactor 1e5
-mp$assess$sptauq .01
-mp$assess$spsigU .01
+mp$assess$sptauq .02
+mp$assess$spsigU .02
 mp$assess$spFleetWeights c(1.0,1.0,1.0,1.0)
 mp$assess$spFleets c(1,2,3,4)
 mp$assess$spShrinkqFleets c(3,4)

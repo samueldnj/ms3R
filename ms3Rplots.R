@@ -15,17 +15,121 @@
 # Plots multipanels (faceted by species/stock)
 # of performance statistics on the y axis, with respect
 # to the OM grid on the x axis
-plotBatchPerf_sp <- function( batchFolder = "thirdBatch",
+# CAUTION: currently only works for numeric xAxis and yAxis
+plotBatchPerf_sp <- function( batchFolder = "fourthBatch",
                               xAxis = "projObsErrMult",
-                              yAxis = "PBtGt.8Bmsy" )
+                              yAxis = "PBtGt.8Bmsy",
+                              yRangeIn = NULL )
 {
   # First load full stats table from the batch folder
   statsFile <- here::here(  "Outputs",batchFolder,"statistics",
                             "fullStatTable.csv")
-  read.csv(statsFile, header = TRUE, stringsAsFactors = FALSE )
+  statTable <- read.csv(statsFile, header = TRUE, stringsAsFactors = FALSE )
 
-  # Now, let's start plotting.
+  # Now, let's start plotting. We can fix it later
+  speciesNames  <- unique(statTable$species)
+  stockNames    <- unique(statTable$stock)
 
+  scenarios <- unique(statTable$scenario)
+  mps       <- unique(statTable$mp)
+
+  nS <- length(speciesNames)
+  nP <- length(stockNames)
+
+  nScen <- length(scenarios)
+  nMPs  <- length(mps)
+
+
+
+  xLabs <- unique(statTable[,xAxis])
+  xLabs <- xLabs[order(xLabs)]
+  xMax  <- max(xLabs)
+  xMin  <- min(xLabs)
+  
+  cols <- RColorBrewer::brewer.pal(n = nMPs, "Dark2")
+
+
+  par(  mfcol = c( nP, nS ), 
+        mar = c( 0,2,0,2 ), 
+        oma = c(5,7,3,4) )
+
+  yRange <- yRangeIn
+
+  mpJitter <- seq( from = -.3, to = .3, length = nMPs )
+
+  xDiff <- mean(diff(xLabs))
+  mpJitter <- mpJitter * xDiff
+
+
+  for( s in 1:nS )
+    for( p in 1:nP )
+    {
+      subTable <- statTable %>%
+                  filter( species == speciesNames[s],
+                          stock == stockNames[p] )
+      
+      if(is.null(yRangeIn))            
+        yRange <- range(subTable[,yAxis])      
+      
+      
+      plot( x = c(-.5 + xMin,xMax + .5), y = yRange,
+            type = "n", axes = FALSE )
+        mfg <- par("mfg")
+        # axes
+        if( mfg[1] == mfg[3])
+          axis( side = 1, at = xLabs )
+
+        if( mfg[1] == 1 )
+          mtext( side = 3, text = speciesNames[s], font = 2, line = 0 )
+        
+        axis( side = 2, las = 1 )
+        
+        box()
+        # Add vertical grid lines to split OMs
+        grid()
+
+        # Now, plot the stuff
+        for( m in 1:nMPs )
+        {
+          mpTable <- subTable %>% filter( mp == mps[m] )
+          mpTable <- mpTable[order(mpTable[,xAxis]),]
+
+          points( x = mpTable[,xAxis] + mpJitter[m],
+                  y = mpTable[,yAxis],
+                  col = cols[m], pch = 14 + m )
+          lines(  x = mpTable[,xAxis] + mpJitter[m],
+                  y = mpTable[,yAxis],
+                  col = cols[m], lwd = .8 )
+        }
+
+        if( mfg[2] == mfg[4] )
+        {
+          corners <- par("usr") #Gets the four corners of plot area (x1, x2, y1, y2)
+          par(xpd = TRUE) #Draw outside plot area
+          text( x = corners[2]+0.2, 
+                y = mean(corners[3:4]), 
+                labels = stockNames[p], srt = 270,
+                font = 2, cex = 1.5 )
+          par(xpd = FALSE)
+        }
+
+
+
+    }
+  legend( "topleft",
+          legend = mps,
+          col = cols,
+          pch = 14 + 1:nMPs,
+          lwd = 1 )
+
+  
+
+  mtext( side = 1, text = xAxis,
+         outer = TRUE, cex = 1.5, 
+         font = 2, line = 3 )
+
+  mtext( side = 2, text = yAxis,
+         outer = TRUE, cex = 1.5, font = 2, line = 2 )
 
 
 
