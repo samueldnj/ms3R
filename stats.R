@@ -97,7 +97,7 @@ makeStatTable <- function( sims = 1, folder = "" )
 
   # Calculat probability of a good replicate (all PD hessians)
   nGoodReps <- sum(allConvReps)
-  pGoodReps <- nGoodReps
+  pGoodReps <- signif(nGoodReps/blob$nSim,2)
 
   # And the median over replicates of the probability of a 
   # PD Hessian over time
@@ -115,8 +115,9 @@ makeStatTable <- function( sims = 1, folder = "" )
                   "scenario","mp",
                   "species","stock",
                   "projObsErrMult",
-                  "nGoodReps", "medProbPDH_sp",
+                  "nGoodReps", "medProbPDH_sp","pGoodReps",
                   "pBtGt.4Bmsy", "PBtGt.8Bmsy",
+                  "pBtGtBmsy",
                   "pCtGtMSY", "pFtGtFmsy",
                   "avgCatch","AAV", "avgTACu" )
 
@@ -130,7 +131,8 @@ makeStatTable <- function( sims = 1, folder = "" )
   statTable[,"simLabel"]        <- simLabel
   statTable[,"scenario"]        <- ctlList$ctl$scenarioName
   statTable[,"mp"]              <- ctlList$ctl$mpName
-  statTable[,"nGoodReps"]       <- sum(allConvReps)
+  statTable[,"nGoodReps"]       <- nGoodReps
+  statTable[,"pGoodReps"]       <- pGoodReps
   statTable[,"projObsErrMult"]  <- opMod$projObsErrMult
 
   # Need to start layering in performance metrics
@@ -164,6 +166,14 @@ makeStatTable <- function( sims = 1, folder = "" )
                                           prop = .8,
                                           nS = nS,
                                           nP = nP )
+
+  # Above Bmsy
+  pBtGtBmsy_sp <- .calcStatsProportion( TS_ispt = SB_ispt,
+                                        ref_sp = Bmsy_sp,
+                                        tdx = tMP:nT,
+                                        prop = 1.0,
+                                        nS = nS,
+                                        nP = nP )  
 
   # Overfishing is occuring (Ft > Fmsy)
   pFtGtFmsy_sp <- .calcStatsProportion( TS_ispt = F_ispt,
@@ -206,6 +216,7 @@ makeStatTable <- function( sims = 1, folder = "" )
       # Conservation performance
       statTable[rowIdx,"pBtGt.4Bmsy"]     <- pBtGt.4Bmsy_sp[s,p]
       statTable[rowIdx,"PBtGt.8Bmsy"]     <- pBtGt.8Bmsy_sp[s,p]
+      statTable[rowIdx,"pBtGtBmsy"]       <- pBtGtBmsy_sp[s,p]
       statTable[rowIdx,"pCtGtMSY"]        <- pCtGtMSY_sp[s,p]
       statTable[rowIdx,"pFtGtFmsy"]       <- pFtGtFmsy_sp[s,p]
 

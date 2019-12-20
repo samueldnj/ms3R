@@ -1,0 +1,81 @@
+# Batch File
+parameter value
+#
+## Scenarios
+#
+# Scenario 1 : DER_CVBmsy.5
+#
+scenario$scenario1$ctl$scenarioName 'DER_base'
+scenario$scenario1$ctl$nGoodReps 10
+scenario$scenario1$mp$assess$spCVBmsy .5
+#
+# Scenario 2 : DER_shrinkSD.05
+#
+scenario$scenario2$ctl$scenarioName 'DER_shrinkSD.05'
+scenario$scenario2$ctl$nGoodReps 10
+scenario$scenario2$mp$assess$sptauq .05
+scenario$scenario2$mp$assess$spsigU .05
+#
+# Scenario 3 : DER_CVBmsy1.0
+#
+scenario$scenario3$ctl$scenarioName 'DER_CVBmsy1.0'
+scenario$scenario3$ctl$nGoodReps 10
+scenario$scenario3$mp$assess$spCVBmsy 1.0
+#
+# Scenario 4 : DER_shrinkSD.1
+#
+scenario$scenario4$ctl$scenarioName 'DER_shrinkSD.1'
+scenario$scenario4$ctl$nGoodReps 10
+scenario$scenario4$mp$assess$sptauq .1
+scenario$scenario4$mp$assess$spsigU .1
+#
+# Scenario 5 : DER_estUmsy
+#
+scenario$scenario5$ctl$scenarioName 'DER_estUmsy_SD.01'
+scenario$scenario5$ctl$nGoodReps 10
+scenario$scenario5$mp$assess$spPhzUmsy 3
+scenario$scenario5$mp$assess$spsdUmsy .01
+#
+# Scenario 5 : DER_estUmsy
+#
+scenario$scenario6$ctl$scenarioName 'DER_estUmsy_SD.05'
+scenario$scenario6$ctl$nGoodReps 10
+scenario$scenario6$mp$assess$spPhzUmsy 3
+scenario$scenario6$mp$assess$spsdUmsy .05
+#
+#
+## Management Procedures
+#
+# MP 1 : singleStock
+#
+mp$mp1$ctl$mpName 'singleStock'
+mp$mp1$mp$assess$spSingleStock TRUE
+mp$mp1$mp$assess$spDataPooled FALSE
+mp$mp1$mp$assess$spCoastwide FALSE
+mp$mp1$mp$assess$spShrinkqFleets c(3,4)
+mp$mp1$mp$assess$spCondMLEqFleets c(1,2)
+mp$mp1$mp$assess$spPhzlnqShrink 1
+mp$mp1$mp$assess$spPhztauObs 1
+#
+# MP 2 : fullMultistock
+#
+mp$mp2$ctl$mpName 'fullMultistock'
+mp$mp2$mp$assess$spSingleStock FALSE
+mp$mp2$mp$assess$spDataPooled FALSE
+mp$mp2$mp$assess$spCoastwide FALSE
+mp$mp2$mp$assess$spFleetWeights c(1.0,1.0,1.0,1.0)
+mp$mp2$mp$assess$spFleets c(1,2,3,4)
+mp$mp2$mp$assess$spShrinkqFleets c(3,4)
+mp$mp2$mp$assess$spTVqFleets NULL
+mp$mp2$mp$assess$spCondMLEqFleets c(1,2)
+mp$mp2$mp$assess$spPhzBmsy 2
+mp$mp2$mp$assess$spPhzepslnUmsy_s 5
+mp$mp2$mp$assess$spPhzepslnUmsy_sp 7
+mp$mp2$mp$assess$spPhzdeltalnq_spf 6
+mp$mp2$mp$assess$spPhzdeltalnq_sf 4
+mp$mp2$mp$assess$spPhzlnqShrink 1
+mp$mp2$mp$assess$spPhztauObs 1
+mp$mp2$mp$assess$spIGtau2alpha 1
+mp$mp2$mp$assess$spIGtau2Mode 0.09
+#
+## <END FILE>

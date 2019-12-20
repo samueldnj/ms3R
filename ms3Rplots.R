@@ -199,10 +199,11 @@ plotUtilityFunction <- function( )
 # plotConvStats()
 plotConvStats <- function( obj = blob )
 {
+  goodReps      <- obj$goodReps
 
   # Pull max gradient value and hessian indicator
-  maxGrad_itsp  <- obj$mp$assess$maxGrad_itsp
-  pdHess_itsp   <- obj$mp$assess$pdHess_itsp
+  maxGrad_itsp  <- obj$mp$assess$maxGrad_itsp[goodReps,,,,drop = FALSE]
+  pdHess_itsp   <- obj$mp$assess$pdHess_itsp[goodReps,,,,drop = FALSE]
 
   nReps <- dim(maxGrad_itsp)[1]
 
@@ -310,21 +311,25 @@ plotTulipTACu <- function( obj = blob, nTrace = 3 )
   nS      <- obj$om$nS
   nP      <- obj$om$nP 
   nT      <- obj$om$nT
+
+  goodReps <- obj$goodReps
   
 
   # Get catch for trawl fleet, in projections only
-  C_ispt     <- obj$om$C_ispft[,,,2,tMP:nT]
-  TAC_ispt   <- obj$mp$hcr$TAC_ispft[,,,2,tMP:nT]
+  C_ispft     <- obj$om$C_ispft[goodReps,,,2,tMP:nT,drop = FALSE]
+  TAC_ispft   <- obj$mp$hcr$TAC_ispft[goodReps,,,2,tMP:nT,drop = FALSE]
 
-  nReps   <- dim(TAC_ispt)[1]
+  nReps   <- dim(TAC_ispft)[1]
 
-  TACu_ispt <- C_ispt / TAC_ispt
+  TACu_ispft <- C_ispft / TAC_ispft
 
-  TACu_qspt <- apply( X = TACu_ispt, FUN = quantile,
-                      MARGIN = c(2,3,4), probs = c(0.025, 0.5, 0.975),
+
+  TACu_qspt <- apply( X = TACu_ispft, FUN = quantile,
+                      MARGIN = c(2,3,5), probs = c(0.025, 0.5, 0.975),
                       na.rm = T )
 
-
+  TACu_ispt <- array(0, dim = c(nReps,nS,nP,(nT - tMP + 1)))
+  TACu_ispt[1:nReps,,,] <- TACu_ispft[1:nReps,,,1,]
 
   speciesNames  <- obj$om$speciesNames
   stockNames    <- obj$om$stockNames
@@ -334,7 +339,7 @@ plotTulipTACu <- function( obj = blob, nTrace = 3 )
   yrs <- yrs[tMP:nT]
 
 
-  traces <- sample( 1:nReps, size = nTrace  )
+  traces <- sample( 1:nReps, size = min(nTrace,nReps)  )
 
   par(  mfcol = c(nP,nS), 
         mar = c(1,1.5,1,1.5),
@@ -389,8 +394,10 @@ plotTulipBt <- function(  obj = blob, nTrace = 3,
                           ref = "B0",
                           Ct  = FALSE )
 {
-  SB_ispt   <- obj$om$SB_ispt
-  C_ispt    <- obj$om$C_ispt
+  goodReps <- obj$goodReps
+
+  SB_ispt   <- obj$om$SB_ispt[goodReps,,,,drop = FALSE]
+  C_ispt    <- obj$om$C_ispt[goodReps,,,,drop = FALSE]
 
   tMP     <- obj$om$tMP
   nS      <- obj$om$nS
@@ -461,7 +468,7 @@ plotTulipBt <- function(  obj = blob, nTrace = 3,
                     MARGIN = c(2,3,4), probs = c(0.025, 0.5, 0.975),
                     na.rm = T )
 
-  traces <- sample( 1:nReps, size = nTrace  )
+  traces <- sample( 1:nReps, size = min(nTrace,nReps)  )
 
   par(  mfcol = c(nP,nS), 
         mar = c(1,1.5,1,1.5),
@@ -539,7 +546,9 @@ plotTulipBt <- function(  obj = blob, nTrace = 3,
 # by stock area - envelopes
 plotTulipEffort_p <- function( obj = blob, nTrace = 3 )
 {
-  E_ipft <- obj$om$E_ipft
+  goodReps <- obj$goodReps
+
+  E_ipft <- obj$om$E_ipft[goodReps,,,,drop = FALSE ]
 
   E_ipft[E_ipft == 0] <- NA
 
@@ -556,7 +565,7 @@ plotTulipEffort_p <- function( obj = blob, nTrace = 3 )
 
   E_qpft[E_qpft == 0] <- NA
 
-  traces <- sample( 1:nReps, size = nTrace  )
+  traces <- sample( 1:nReps, size = min(nTrace,nReps)  )
 
 
   speciesNames  <- obj$om$speciesNames

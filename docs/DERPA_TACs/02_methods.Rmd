@@ -233,7 +233,7 @@ F_{s,p,f,t} = \bar{q}^{(F)}_{s,p,f} * E_{s,p,f,t},
 where $\bar{q}^{(F)}_{s,p,f}$ is the average 
 ratio of fishing mortality to fishing
 effort, estimated from the historical data
-and the OM conditioning assessment. ***UNDERFULFILMENT?***
+and the OM conditioning assessment.
 
 We chose to use maximum effort over an effort dynamics
 model because of (i) its simplicity and (ii) its similarity 
@@ -269,6 +269,8 @@ each simulation was initialised with the same set
 of 100 random seeds. We ran extra replicates until the 
 sample size of 100 was reached when AMs failed to
 converge in the closed loop simulations.
+
+### Omniscient manager simulations
 
 ### OM scenarios
 

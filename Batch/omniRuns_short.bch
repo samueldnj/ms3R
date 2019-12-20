@@ -1,0 +1,100 @@
+# Batch File
+parameter value
+#
+## Scenarios
+#
+# Scenario 1 : DER_CVBmsy.5
+#
+scenario$scenario1$ctl$scenarioName 'DER_base'
+scenario$scenario1$ctl$nGoodReps 10
+scenario$scenario1$ctl$omni TRUE
+#
+#
+## Management Procedures
+#
+# MP 1 : omni_allWt1
+#
+mp$mp1$ctl$mpName 'omni_allWt1'
+#
+# MP 2 : omni_avgCatStock
+#
+mp$mp2$ctl$mpName 'omni_avgCatStock'
+mp$mp2$mp$omni$avgCatWt 1.0
+mp$mp2$mp$omni$totCatWt 0
+mp$mp2$mp$omni$sumCatWt 0
+mp$mp2$mp$omni$depBmsyWt 0
+mp$mp2$mp$omni$closedWt 0
+mp$mp2$mp$omni$AAVWt 0
+mp$mp2$mp$omni$catDiffWt 0
+#
+# MP 3 : omni_avgCatCplx
+#
+mp$mp3$ctl$mpName 'omni_avgCatCplx'
+mp$mp3$mp$omni$avgCatWt 0.0
+mp$mp3$mp$omni$totCatWt 1
+mp$mp3$mp$omni$sumCatWt 0
+mp$mp3$mp$omni$depBmsyWt 0
+mp$mp3$mp$omni$closedWt 0
+mp$mp3$mp$omni$AAVWt 0
+mp$mp3$mp$omni$catDiffWt 0
+#
+# MP 4 : omni_totCat
+#
+mp$mp4$ctl$mpName 'omni_totCat'
+mp$mp4$mp$omni$avgCatWt 0.0
+mp$mp4$mp$omni$totCatWt 0
+mp$mp4$mp$omni$sumCatWt 1
+mp$mp4$mp$omni$depBmsyWt 0
+mp$mp4$mp$omni$closedWt 0
+mp$mp4$mp$omni$AAVWt 0
+mp$mp4$mp$omni$catDiffWt 0
+#
+# MP 5 : omni_totCat.4Bmsy
+#
+mp$mp5$ctl$mpName 'omni_totCat.4Bmsy'
+mp$mp5$mp$omni$depBmsy 0.4
+mp$mp5$mp$omni$avgCatWt 0.0
+mp$mp5$mp$omni$totCatWt 0
+mp$mp5$mp$omni$sumCatWt 1
+mp$mp5$mp$omni$depBmsyWt 1
+mp$mp5$mp$omni$closedWt 0
+mp$mp5$mp$omni$AAVWt 0
+mp$mp5$mp$omni$catDiffWt 0
+#
+# MP 6 : omni_totCat.8Bmsy
+#
+mp$mp6$ctl$mpName 'omni_totCat.8Bmsy'
+mp$mp6$mp$omni$depBmsy 0.8
+mp$mp6$mp$omni$avgCatWt 0.0
+mp$mp6$mp$omni$totCatWt 0
+mp$mp6$mp$omni$sumCatWt 1
+mp$mp6$mp$omni$depBmsyWt 1
+mp$mp6$mp$omni$closedWt 0
+mp$mp6$mp$omni$AAVWt 0
+mp$mp6$mp$omni$catDiffWt 0
+#
+# MP 7 : omni_totCatAAV
+#
+mp$mp7$ctl$mpName 'omni_totCatAAV'
+mp$mp7$mp$omni$depBmsy 0.8
+mp$mp7$mp$omni$avgCatWt 0.0
+mp$mp7$mp$omni$totCatWt 0
+mp$mp7$mp$omni$sumCatWt 1
+mp$mp7$mp$omni$depBmsyWt 0
+mp$mp7$mp$omni$closedWt 0
+mp$mp7$mp$omni$AAVWt 1
+mp$mp7$mp$omni$catDiffWt 0
+#
+# MP 8 : omni_totCat_catDiff
+#
+mp$mp8$ctl$mpName 'omni_totCat_catDiff'
+mp$mp8$mp$omni$depBmsy 0.8
+mp$mp8$mp$omni$avgCatWt 0.0
+mp$mp8$mp$omni$totCatWt 0
+mp$mp8$mp$omni$sumCatWt 1
+mp$mp8$mp$omni$depBmsyWt 0
+mp$mp8$mp$omni$closedWt 0
+mp$mp8$mp$omni$AAVWt 0
+mp$mp8$mp$omni$catDiffWt 1
+#
+## <END FILE>

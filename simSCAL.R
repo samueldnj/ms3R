@@ -1188,7 +1188,8 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   blob <- list( om = om, mp = mp, ctlList = ctlList,
                 rp = vector(mode = "list", length = nReps) )
 
-  blob$goodReps <- rep(FALSE, nReps )
+  blob$goodReps       <- rep(FALSE, nReps )
+  blob$omniObjFun_isp <- array( NA, dim = c(nReps,nS,nP))
 
   ##########################################################
   ######### ------- CLOSED LOOP SIMULATION ------- #########
@@ -1219,8 +1220,11 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     simObj <- .calcTimes( simObj )
 
 
-
-    if( nT >= tMP )
+    if( ctlList$ctl$omni )
+    {
+      simObj <- .solveProjPop( simObj )
+    }
+    else if( nT >= tMP )
     {
       for( t in tMP:nT )
       {
@@ -1293,6 +1297,12 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     if( prod(simObj$mp$assess$pdHess_tsp) == 1 )
       blob$goodReps[i] <- TRUE
 
+    if( ctlList$ctl$omni )
+    {
+      blob$goodReps[i] <- TRUE
+      blob$omniObjFun_isp[i,,] <- simObj$objFun_sp
+    }
+
     # Save reference points for this replicate - more necessary when
     # we have multiple conditioning draws
     blob$rp[[i]] <- simObj$rp
@@ -1332,6 +1342,322 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
 
   return(blob)
 } # END .mgmtProc()
+
+# .solveProjPop()
+# Solves for the fishing mortality or effort rates
+# to maximise yield and keep fisheries open. Optimises
+# based on a given objective function.
+# inputs: obj = simulation object
+# outputs: obj = solved simulation object with all time 
+#                 steps filled
+# usage:  under omniscient manager sims, or for no fishing.
+# NOTE: need some objectives input via simCtlFile
+.solveProjPop <- function( obj )
+{
+  # Pull control list items
+  om      <- obj$om
+  ctlList <- obj$ctlList
+  mp      <- ctlList$mp
+  # Model dimensions
+  nS      <- om$nS
+  nP      <- om$nP
+  nT      <- om$nT
+  tMP     <- om$tMP
+  pT      <- ctlList$opMod$pT
+
+  # runModel()
+  # Private function to run operating model and return
+  # objective function value based on depletion, catch
+  # and closures.
+  # inputs: pars = vector of F or E values
+  #         obj = simulation object
+  # outputs: outList = list of  
+  #                      - obj = simulation object
+  #                      - f = objective function value
+  # Modified from SP Cox's function
+  runModel <- function( pars, obj )
+  {
+    # Pull control list items
+    om      <- obj$om
+    ctlList <- obj$ctlList
+    mp      <- ctlList$mp
+
+    # Some omni control pars
+    maxF    <- mp$omni$maxF
+    maxE    <- mp$omni$maxE
+    parMult <- mp$omni$expParMult
+    Fmsy_sp <- obj$rp$FmsyRefPts$Fmsy_sp
+    depBmsy <- mp$omni$depBmsy
+    maxAAV  <- mp$omni$maxAAV
+
+    # Obj function weights
+    avgCatWt  <- mp$omni$avgCatWt
+    totCatWt  <- mp$omni$totCatWt
+    depBmsyWt <- mp$omni$depBmsyWt
+    closedWt  <- mp$omni$closedWt
+    AAVWt     <- mp$omni$AAVWt
+    catDiffWt <- mp$omni$catDiffWt
+    sumCatWt  <- mp$omni$sumCatWt
+
+    # Model dimensions
+    nS      <- om$nS
+    nP      <- om$nP
+    nT      <- om$nT
+    tMP     <- om$tMP
+    pT      <- ctlList$opMod$pT
+
+
+    # Some pars that are global to either effort
+    # simulation
+    projInt <- nT - tMP + 1
+    nKnots  <- mp$omni$nKnots
+    space   <- projInt / (nKnots - 1)
+    knotPts <- round( seq(from = 1, by = space, length.out = nKnots) )
+    knotPts[knotPts > projInt] <- projInt
+
+    # Create x points for interpolation spline
+    x <- knotPts
+
+    # Set fishing mortality to 0 for tMP:nT
+    # so that operating model does not hang
+    obj$om$F_spft[,,,tMP:nT] <- 0
+
+    # Choose whether this is effort or fishing mort.
+    # If perfect targeting (all TACs fully utilised)
+    if( ctlList$opMod$effortMod == "targeting" )
+    {
+      # Then we are solving for stock/species specific
+      # Fs (nS * nP at each time step)
+      tmpF <- exp( pars )
+      knotF_spk <- array( tmpF, dim = c(nS,nP,nKnots) )
+
+      # Make spline for each species/stock
+      for( s in 1:nS )
+        for( p in 1:nP )
+        {
+          splineF <- spline( x = x, y = knotF_spk[s,p,], n = projInt)$y
+          splineF[splineF < 0] <- 0
+          splineF[splineF > maxF] <- maxF
+
+          obj$om$F_spft[s,p,2,tMP:nT] <- parMult*splineF
+        }
+    }
+
+    # If bycatch is simulated (single area effort catches all species)
+    if( ctlList$opMod$effortMod %in% c("dynModel","Max") )
+    {
+      # Then we are solving for area specific
+      # Es (nP at each time step)
+      tmpE      <- exp( pars )
+      knotE_pk  <- array( tmpE, dim = c(nP,nKnots) )
+
+      # Make spline for each species/stock
+      for( p in 1:nP )
+      {
+        splineE <- spline( x = x, y = knotE_pk[p,], n = projInt)$y
+        splineE[splineE < 0] <- 0
+        splineE[splineE > maxE] <- maxE
+
+        obj$om$E_pft[p,2,tMP:nT] <- parMult*splineE
+
+        for( s in 1:nS )
+          obj$om$F_spft[s,p,2,tMP:nT] <- splineE * om$qF_spft[s,p,2,tMP - 1]
+      }
+    }
+
+    # run model for projection period
+    for(t in tMP:nT )
+    {
+      obj <- .ageSexOpMod(obj, t)
+    }
+
+    # Pull projection catch and biomass
+    Cproj_spt   <- obj$om$C_spft[,,2,tMP:nT]
+    TACproj_spt <- obj$om$TAC_spft[,,2,tMP:nT]
+    Bproj_spt   <- obj$om$B_spt[,,tMP:nT]
+    Bmsy_sp     <- obj$rp$FmsyRefPts$BeqFmsy_sp
+    
+    # Make arrays to hold stock specific
+    # penalties
+    barBt_sp        <- array(0, dim = c(nS,nP))
+    barAAV_sp       <- array(0, dim = c(nS,nP))
+    closedCount_sp  <- array(0, dim = c(nS,nP))
+    barCatDiff_sp   <- array(0, dim = c(nS,nP))
+
+    # Get minimum catch in historical period
+    histCatch_spt <- apply( X = om$C_spft[,,,1:(tMP-1)], FUN = sum, MARGIN = c(1,2,4))
+    Cmin_sp <- apply( X = histCatch_spt, FUN = min, MARGIN = c(1,2),
+                      na.rm = T )
+
+    # Private function for calculating AAV
+    .calcAAV <- function( C )
+    {
+      diffC <- diff(C)
+      absDiffC <- abs(diffC)
+
+      AAV <- sum(absDiffC) / sum(C)
+      AAV
+    }
+
+    catDiff_tsp <- abs(apply( X = obj$om$C_spft[,,2,(tMP-1):nT],
+                              FUN = diff, MARGIN = c(1,2) ) )
+    catDiff_spt <- aperm( catDiff_tsp, c(2,3,1))
+
+    catDiffRel_spt <- catDiff_spt / (obj$om$C_spft[,,2,tMP:nT - 1])
+    catDiffRel_spt[!is.finite(catDiffRel_spt)] <- 1
+
+
+
+    # Now loop over species/stocks and
+    # calculate penalties
+    for( s in 1:nS )
+      for( p in 1:nP )
+      {
+        # biomass lower than Bmsy
+        barBt_sp[s,p] <- barrierPen(  x = Bproj_spt[s,p,]/Bmsy_sp[s,p],
+                                      xBar = depBmsy,
+                                      above = TRUE )
+
+        # Catch less than historical minimum (closures)
+        closedCount_sp[s,p] <- sum( Cproj_spt[s,p,] < Cmin_sp[s,p] )
+
+        # Penalty on AAV
+        AAV <- .calcAAV( Cproj_spt[s,p,] )
+        barAAV_sp[s,p] <- barrierPen( x = AAV, xBar = maxAAV, 
+                                      above = FALSE )
+
+
+        barCatDiff_sp[s,p] <- barrierPen( x = catDiffRel_spt[s,p,],
+                                          xBar = .2, above = FALSE )
+      }
+
+    # Calculate average catch
+    Csum    <- sum(Cproj_spt,na.rm = T)
+    Cbar_sp <- apply( X = Cproj_spt, FUN = mean, MARGIN = c(1,2))
+    totCbar <- mean( apply(X = Cproj_spt, FUN = sum, MARGIN = 3 ) )
+
+    # Total obj function for each stock/species
+    objFun_sp <- -avgCatWt * log(Cbar_sp) + 
+                  depBmsyWt*barBt_sp + 
+                  AAVWt * barAAV_sp + 
+                  closedWt*closedCount_sp +
+                  catDiffWt * barCatDiff_sp
+   
+    objFun    <-  sum(objFun_sp) -
+                  totCatWt * log(totCbar) -
+                  sumCatWt * log(Csum)
+
+    # Return results
+    result            <- obj
+    result$objFun_sp  <- objFun_sp
+    result$objFun     <- objFun
+    
+    result
+  } # END runModel
+
+  # getObjFunctionVal
+  # Purpose:        Private function to run operating model and extract objective function
+  # Parameters:     pars=log-Fs for t=tMP,...nT
+  # Returns:        Objective function f=barrier penalty for biomass less than Bmsy plus
+  #                 log(cumulative catch) and penalty for deviation from Fmsy. 
+  #                 Multiplier 1000 is for desired precision
+  # Source:         S.P. Cox
+  getObjFunctionVal <- function( pars, obj ){
+    # Function to run asOM and return objective function
+    val <- runModel( pars, obj )$objFun
+    
+    val
+  }     # END function getObjFunctionVal
+
+
+  # -------- Optimisation ------- #
+  # Create vector of initial parameters - need to determine
+  # if it's nP * nKnots or nS * nP * nKnots
+  nPars <- nP * ctlList$mp$omni$nKnots
+  if( ctlList$opMod$effortMod == "targeting" )
+    nPars <- nS * nPars
+
+  # Pull average historical effort from fleet 2 and average Fmsy
+  histEbar  <- mean(  obj$om$E_pft[,2,1:(tMP - 1)],
+                      na.rm = T )
+
+  Fmsybar   <- mean( obj$rp$FmsyRefPts$Fmsy_sp)
+
+
+  # Might need to refine this later, but for now we
+  # use a random vector
+  initPars <- rnorm(n = nPars, sd = .3)
+
+  # Multiply by the appropriate scalar
+  if( ctlList$opMod$effortMod %in% c("Max","dynModel") )
+    initPars <- log( histEbar * exp(initPars) )
+
+  if( ctlList$opMod$effortMod %in% c("targeting") )
+    initPars <- log( Fmsybar * exp(initPars) )
+
+
+  # OK, run optimisation
+  if( ctlList$ctl$omni )
+  {
+    message( " (.solveProjPop) Running omnsicient manager optimisation, please wait.\n")
+    # Find pars that give the best catch/AAV and minimise
+    # closures/low catch
+    opt <- optim( par = initPars, fn = getObjFunctionVal,
+                  method = "BFGS", obj = obj,
+                  control=list(maxit=3000, reltol=0.001 ) )
+                  #control=list(maxit=3000, reltol=0.001,ndeps=c(.01,.01) ) )
+
+    # opt <- optim( par = opt$par, fn = getObjFunctionVal,
+    #               method = "Nelder-Mead", obj = obj,
+    #               control=list(maxit=3000, reltol=0.001,ndeps=c(.01,.01) ) )
+
+    message( " (.solveProjPop) Optimisation for omniscient manager completed with f = ", 
+              round(opt$value,2), ".\n")
+    optPars <- opt$par
+
+  }
+
+  # rerun OM with optimised parameters
+  message( " (.solveProjPop) Running OM without estimation method.\n")
+  obj <- runModel( pars = optPars, obj = obj )
+
+  return(obj)
+} # END .solveProjPop()
+
+# barrierPen
+# Purpose:        Imposes an increasingly large penalty as a quantity x 
+#                 approaches a pre-determined barrier. Approaches from above
+#                 and below are treated differently depending on user preference
+#                 e.g., for keeping Bt > Bmsy one would use above=TRUE, but for 
+#                 AAV < 50%, one would use below=TRUE
+# Parameters:     x - vector (or scalar) quantity to test, xBar is the barrier, above
+#                 determines from which direction the penalty is applied
+# Returns:        scalar penalty value
+# Source:         S.P. Cox
+barrierPen <- function( x, xBar, above=TRUE)
+{
+  tmp <- rep(0,length(x))
+  if( above )
+  {   
+    # Penalty grows quadratically below barrier xBar
+    tmp[ x <= xBar ]  <- ( x[x<=xBar]-xBar )^2 
+  
+    # Penalty grows to Inf as Bt approaches Bmsy from above
+    tmp[ x > xBar ]   <- (-1.)*log( x[x>xBar] - xBar )
+  }
+  else
+  {
+    # Penalty grows quadratically above barrier xBar
+    tmp[ x >= xBar ]  <- ( x[x>=xBar]-xBar )^2 
+
+    # Penalty grows to Inf as Bt approaches Bmsy from below
+    tmp[ x < xBar ]   <- (-1.)*log( xBar - x[x<xBar] )
+  }
+  bar <- sum(tmp)
+  return( bar )
+}
+
+
 
 
 # .solveMaxEffort()
@@ -2039,6 +2365,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   data  <- obj$mp$data
   err   <- obj$errors
   hcr   <- obj$mp$hcr
+  opMod <- obj$ctlList$opMod
 
   # Get model dimensions, and state variables
   tMP               <- om$tMP
@@ -2179,43 +2506,69 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   SB_spt[,,t] <- apply(X = SB_asp, FUN = sum, MARGIN = c(2,3), na.rm = T )
 
   # Now calculate effort for each area (for closed loop sim)
-  if( t >= tMP )
+  if( t >= tMP & all(is.na(F_spft[,,,t])) )
   {
+    if( opMod$effortMod == "Max" )
+    {
+      effortMod <- .solveMaxEffort( TAC_spf   = TAC_spft[,,,t], 
+                                    vB_spf    = vB_spft[,,,t],
+                                    qF_spf    = qF_spft[,,,t],
+                                    vB_axspf  = vB_axspft[,,,,,t],
+                                    sel_axspf = sel_axspft[,,,,,t],
+                                    N_axsp    = N_axspt[,,,,t],
+                                    M_xsp     = M_xsp,
+                                    A_s       = A_s,
+                                    wt_axsp   = meanWtAge_axsp,
+                                    lastE_pf  = E_pft[,,t-1],
+                                    nS = nS, nP = nP, nX = nX, nF = nF )
 
-    effortMod <- .solveMaxEffort( TAC_spf   = TAC_spft[,,,t], 
-                                  vB_spf    = vB_spft[,,,t],
-                                  qF_spf    = qF_spft[,,,t],
-                                  vB_axspf  = vB_axspft[,,,,,t],
-                                  sel_axspf = sel_axspft[,,,,,t],
-                                  N_axsp    = N_axspt[,,,,t],
-                                  M_xsp     = M_xsp,
-                                  A_s       = A_s,
-                                  wt_axsp   = meanWtAge_axsp,
-                                  lastE_pf  = E_pft[,,t-1],
-                                  nS = nS, nP = nP, nX = nX, nF = nF )
+       E_pft[,,t]     <- effortMod$E_pf
+      # Rev_spft[,,,t] <- effortMod$rev_spf
 
-    # effortMod <- .solveProjEffortDynamics( TAC_spf   = TAC_spft[,,,t], 
-    #                                         vB_spf    = vB_spft[,,,t],
-    #                                         qF_spf    = qF_spft[,,,t],
-    #                                         # vB_axspf  = vB_axspft[,,,,,t],
-    #                                         # sel_axspf = sel_axspft[,,,,,t],
-    #                                         # N_axsp    = N_axspt[,,,,t],
-    #                                         # M_xsp     = M_xsp,
-    #                                         # A_s       = A_s,
-    #                                         # wt_axsp   = meanWtAge_axsp,
-    #                                         price_s   = om$price_s,
-    #                                         alphaU    = om$alphaU,
-    #                                         ut_50     = om$ut_50,
-    #                                         ut_95     = om$ut_95,
-    #                                         w_pf      = om$w_pf,
-    #                                         nS = nS, nP = nP, nX = nX, nF = nF  )
+      # Convert to F
+      for( s in 1:nS )
+        F_spft[s,,,t] <- E_pft[,,t] * qF_spft[s,,,t]
+    }
 
-    E_pft[,,t]     <- effortMod$E_pf
-    # Rev_spft[,,,t] <- effortMod$rev_spf
 
-    # Convert to F
-    for( s in 1:nS )
-      F_spft[s,,,t] <- E_pft[,,t] * qF_spft[s,,,t]
+    if( opMod$effortMod == "dynModel" )
+    {
+      effortMod <- .solveProjEffortDynamics(  TAC_spf   = TAC_spft[,,,t], 
+                                              vB_spf    = vB_spft[,,,t],
+                                              qF_spf    = qF_spft[,,,t],
+                                              # vB_axspf  = vB_axspft[,,,,,t],
+                                              # sel_axspf = sel_axspft[,,,,,t],
+                                              # N_axsp    = N_axspt[,,,,t],
+                                              # M_xsp     = M_xsp,
+                                              # A_s       = A_s,
+                                              # wt_axsp   = meanWtAge_axsp,
+                                              price_s   = om$price_s,
+                                              alphaU    = om$alphaU,
+                                              ut_50     = om$ut_50,
+                                              ut_95     = om$ut_95,
+                                              w_pf      = om$w_pf,
+                                              nS = nS, nP = nP, nX = nX, nF = nF  )
+      E_pft[,,t]     <- effortMod$E_pf
+      Rev_spft[,,,t] <- effortMod$rev_spf
+
+      # Convert to F
+      for( s in 1:nS )
+        F_spft[s,,,t] <- E_pft[,,t] * qF_spft[s,,,t]
+    }
+
+    if( opMod$effortMod == "targeting" )
+    {
+      F_spft[,,,t] <- mfPA( C_spf     = TAC_spft[,,,t], 
+                            vB_axspf  = vB_axspft[,,,,,t],
+                            vB_spf    = vB_spft[,,,t],
+                            N_axsp    = N_axspt[,,,,t],
+                            sel_axspf = sel_axspft[,,,,,t],
+                            M_xsp     = M_xsp,
+                            A_s       = A_s,
+                            wt_axsp   = meanWtAge_axsp,
+                            nS = nS, nP = nP, nX = nX, nF = nF  )
+    }
+   
 
   } # END F approximation
 

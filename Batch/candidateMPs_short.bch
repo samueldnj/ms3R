@@ -1,0 +1,99 @@
+# Batch File
+parameter value
+#
+## Scenarios
+#
+# Scenario 1 : DER_obsErr1.0
+#
+scenario$scenario1$ctl$scenarioName 'DER_obsErr1.0'
+scenario$scenario1$opMod$projObsErrMult 1.0
+scenario$scenario1$ctl$nGoodReps 10
+#
+# Scenario 2 : DER_obsErr0.5
+#
+scenario$scenario2$ctl$scenarioName 'DER_obsErr0.5'
+scenario$scenario2$opMod$projObsErrMult 0.5
+scenario$scenario2$ctl$nGoodReps 10
+#
+# Scenario 3 : DER_obsErr1.5
+#
+scenario$scenario3$ctl$scenarioName 'DER_obsErr1.5'
+scenario$scenario3$opMod$projObsErrMult 1.5
+scenario$scenario3$ctl$nGoodReps 10
+#
+# Scenario 4 : DER_obsErr2.0
+#
+scenario$scenario4$ctl$scenarioName 'DER_obsErr2.0'
+scenario$scenario4$opMod$projObsErrMult 2.0
+scenario$scenario4$ctl$nGoodReps 10
+#
+# Scenario 5 : DER_obsErr1.0
+#
+scenario$scenario5$ctl$scenarioName 'DER_annualSurvey'
+scenario$scenario5$opMod$projObsErrMult 2.0
+scenario$scenario5$ctl$nGoodReps 10
+scenario$scenario5$mp$data$obsInt_i rep(1,3)
+#
+#
+## Management Procedures
+#
+# MP 1 : singleStock
+#
+mp$mp1$ctl$mpName 'singleStock'
+mp$mp1$mp$assess$spSingleStock TRUE
+mp$mp1$mp$assess$spDataPooled FALSE
+mp$mp1$mp$assess$spCoastwide FALSE
+mp$mp1$mp$assess$spShrinkqFleets c(3,4)
+mp$mp1$mp$assess$spCondMLEqFleets c(1,2)
+#mp$mp1$mp$assess$spCondMLEobsErrFleets c(1,2,3,4)
+mp$mp1$mp$assess$spPhzlnqShrink 1
+mp$mp1$mp$assess$spPhztauObs -2
+mp$mp1$mp$assess$spmlnq .5
+mp$mp1$mp$assess$spsdlnq .1
+#
+# MP 2 : fullMultistock
+#
+mp$mp2$ctl$mpName 'fullMultistock'
+mp$mp2$mp$assess$spSingleStock FALSE
+mp$mp2$mp$assess$spDataPooled FALSE
+mp$mp2$mp$assess$spCoastwide FALSE
+mp$mp2$mp$assess$spFleetWeights c(1.0,1.0,1.0,1.0)
+mp$mp2$mp$assess$spFleets c(1,2,3,4)
+mp$mp2$mp$assess$spShrinkqFleets c(3,4)
+mp$mp2$mp$assess$spTVqFleets NULL
+mp$mp2$mp$assess$spCondMLEqFleets c(1,2)
+mp$mp2$mp$assess$spPhzBmsy 2
+mp$mp2$mp$assess$spPhzepslnUmsy_s 5
+mp$mp2$mp$assess$spPhzepslnUmsy_sp 7
+mp$mp2$mp$assess$spPhzdeltalnq_spf 6
+mp$mp2$mp$assess$spPhzdeltalnq_sf 4
+mp$mp2$mp$assess$spPhzlnqShrink 1
+mp$mp2$mp$assess$spPhztauObs 1
+mp$mp2$mp$assess$spIGtau2alpha 1
+mp$mp2$mp$assess$spIGtau2Mode 0.09
+#
+# MP 3 : dataPooled
+#
+mp$mp3$ctl$mpName 'dataPooled'
+mp$mp3$mp$assess$spSingleStock FALSE
+mp$mp3$mp$assess$spDataPooled TRUE
+mp$mp3$mp$assess$spCoastwide FALSE
+mp$mp3$mp$assess$spsdlnq .75
+#
+# MP 4 : coastwide
+#
+mp$mp4$ctl$mpName 'coastwide'
+mp$mp4$mp$assess$spSingleStock FALSE
+mp$mp4$mp$assess$spDataPooled FALSE
+mp$mp4$mp$assess$spCoastwide TRUE
+mp$mp4$mp$assess$spsdlnq .75
+#
+# MP 5 : totallyAggregated
+#
+mp$mp5$ctl$mpName 'totallyAggregated'
+mp$mp5$mp$assess$spSingleStock FALSE
+mp$mp5$mp$assess$spDataPooled TRUE
+mp$mp5$mp$assess$spCoastwide TRUE
+mp$mp5$mp$assess$spsdlnq .5
+#
+## <END FILE>

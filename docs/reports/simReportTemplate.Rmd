@@ -1,5 +1,5 @@
 ---  
-title: "hierSCAL OM fit report"
+title: "ms3R Simulation Report"
 geometry: letterpaper
 nocaption: false
 header-includes:
@@ -164,7 +164,7 @@ plotTulipBt( obj = blob, dep = TRUE, Ct = TRUE )
 ## TAC utilisation
 
 ```{r, plotTulipTACu, echo = FALSE, message = FALSE, fig.cap = TACuCaption }
-plotTulipTACu( obj = blob )
+plotTulipTACu( obj = blob, nTrace = 3 )
 ```
 
 ## Effort allocation
@@ -205,5 +205,6 @@ kable(  statTable, escape = FALSE,
 ## Convergence diagnostics
 
 ```{r, plotConvergence, echo = FALSE, message = FALSE, fig.cap = convStatsCaption }
-plotConvStats( obj = blob )
+if(!blob$ctlList$ctl$omni)
+  plotConvStats( obj = blob )
 ```
