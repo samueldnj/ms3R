@@ -1189,7 +1189,6 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
                 rp = vector(mode = "list", length = nReps) )
 
   blob$goodReps       <- rep(FALSE, nReps )
-  blob$omniObjFun_isp <- array( NA, dim = c(nReps,nS,nP))
 
   omniObjFun <- list( objFun_i         = array( NA, dim = nReps),
                       objFun_isp       = array( NA, dim = c(nReps,nS,nP)),
@@ -1313,17 +1312,6 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     {
       blob$goodReps[i] <- TRUE
 
-      result$objFun_sp        <- objFun_sp
-    result$objFun           <- objFun
-    result$Cbar_sp          <- Cbar_sp
-    result$totCbar          <- totCbar
-    result$Csum             <- Csum   
-    result$barBt_sp         <- barBt_sp
-    result$closedCount_sp   <- closedCount_sp
-    result$barAAV_sp        <- barAAV_sp
-    result$barCatDiff_sp    <- barCatDiff_sp
-    result$barEffDiff_p     <- barEffDiff_p
-
       blob$omniObjFun$objFun_isp[i,,]       <- simObj$objFun_sp
       blob$omniObjFun$objFun_i[i]           <- simObj$objFun       
       blob$omniObjFun$Cbar_isp[i,,]         <- simObj$Cbar_sp
@@ -1335,9 +1323,6 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
       blob$omniObjFun$barAAV_isp[i,,]       <- simObj$barAAV_sp
       blob$omniObjFun$barCatDiff_isp[i,,]   <- simObj$barCatDiff_sp
       blob$omniObjFun$barEffDiff_ip[i,]     <- simObj$barEffDiff_p
-
-
-      # Add more objective function components here
 
     }
 

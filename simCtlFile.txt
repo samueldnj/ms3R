@@ -70,10 +70,10 @@ mp$omni$expParMult 1.0
 mp$omni$avgCatWt 0.
 mp$omni$totCatWt 0.0
 mp$omni$sumCatWt 1.0
-mp$omni$depBmsyWt 1
-mp$omni$closedWt 1
-mp$omni$AAVWt 1.0
-mp$omni$catDiffWt 1.0
+mp$omni$depBmsyWt 0
+mp$omni$closedWt 0
+mp$omni$AAVWt 0
+mp$omni$catDiffWt 0
 mp$omni$effDiffWt 1.0
 opMod$allocYears 20
 opMod$alphaU .05
