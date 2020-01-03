@@ -1,4 +1,4 @@
-# simCtlFile.txt, written to fit_20052019111648on 1558376234
+# simCtlFileBase.txt, written for ms3R
 parameter value
 ctl$scenarioName "baseDER"
 ctl$mpName "baseMultiStock"
@@ -61,7 +61,7 @@ mp$hcr$LCP .4
 mp$hcr$UCP .6
 mp$omni$nKnots 10
 mp$omni$maxF 1.0
-mp$omni$maxE 50
+mp$omni$maxE 100
 mp$omni$maxAAV .25
 mp$omni$maxRelEffDiff .1
 mp$omni$maxRelCatDiff .2

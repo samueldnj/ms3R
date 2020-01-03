@@ -97,16 +97,40 @@ mp$mp8$mp$omni$closedWt 0
 mp$mp8$mp$omni$AAVWt 0
 mp$mp8$mp$omni$catDiffWt 1
 #
-# MP 9 : omni_totCat_catDiff_AAV_depBmsy
+# MP 8 : omni_totCat_effDiff
 #
-mp$mp9$ctl$mpName 'omni_totCat_catDiff_AAV_depBmsy'
+mp$mp9$ctl$mpName 'omni_totCat_effDiff'
 mp$mp9$mp$omni$depBmsy 0.4
 mp$mp9$mp$omni$avgCatWt 0.0
 mp$mp9$mp$omni$totCatWt 0
 mp$mp9$mp$omni$sumCatWt 1
-mp$mp9$mp$omni$depBmsyWt 1
+mp$mp9$mp$omni$depBmsyWt 0
 mp$mp9$mp$omni$closedWt 0
-mp$mp9$mp$omni$AAVWt 1
-mp$mp9$mp$omni$catDiffWt 1
+mp$mp9$mp$omni$AAVWt 0
+mp$mp9$mp$omni$effDiffWt 1
+#
+# MP 10 : omni_totCat_catDiff_AAV_depBmsy
+#
+mp$mp10$ctl$mpName 'omni_totCat_catDiff_AAV_depBmsy'
+mp$mp10$mp$omni$depBmsy 0.4
+mp$mp10$mp$omni$avgCatWt 0.0
+mp$mp10$mp$omni$totCatWt 0
+mp$mp10$mp$omni$sumCatWt 1
+mp$mp10$mp$omni$depBmsyWt 1
+mp$mp10$mp$omni$closedWt 0
+mp$mp10$mp$omni$AAVWt 1
+mp$mp10$mp$omni$catDiffWt 1
+#
+# MP 11 : omni_totCat_effDiff_AAV_depBmsy
+#
+mp$mp11$ctl$mpName 'omni_totCat_effDiff_AAV_depBmsy'
+mp$mp11$mp$omni$depBmsy 0.4
+mp$mp11$mp$omni$avgCatWt 0.0
+mp$mp11$mp$omni$totCatWt 0
+mp$mp11$mp$omni$sumCatWt 1
+mp$mp11$mp$omni$depBmsyWt 1
+mp$mp11$mp$omni$closedWt 0
+mp$mp11$mp$omni$AAVWt 1
+mp$mp11$mp$omni$effDiffWt 1
 #
 ## <END FILE>

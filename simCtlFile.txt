@@ -1,4 +1,4 @@
-# simCtlFile.txt, written to fit_20052019111648on 1558376234
+# simCtlFile.txt, saved to ms3R root working directory
 parameter value
 ctl$scenarioName "DER_fit"
 ctl$mpName "omni_totYield"
