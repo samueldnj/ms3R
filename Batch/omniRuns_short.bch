@@ -75,7 +75,7 @@ mp$mp6$mp$omni$catDiffWt 0
 #
 # MP 7 : omni_totCat_closures
 #
-mp$mp7$ctl$mpName 'omni_totCat_catDiff'
+mp$mp7$ctl$mpName 'omni_totCat_closures'
 mp$mp7$mp$omni$depBmsy 0.4
 mp$mp7$mp$omni$avgCatWt 0.0
 mp$mp7$mp$omni$totCatWt 0
@@ -83,7 +83,7 @@ mp$mp7$mp$omni$sumCatWt 1
 mp$mp7$mp$omni$depBmsyWt 0
 mp$mp7$mp$omni$closedWt 1
 mp$mp7$mp$omni$AAVWt 0
-mp$mp7$mp$omni$catDiffWt 1
+mp$mp7$mp$omni$catDiffWt 0
 #
 # MP 8 : omni_totCat_catDiff
 #

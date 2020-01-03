@@ -1301,10 +1301,12 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     {
       blob$goodReps[i] <- TRUE
       blob$omniObjFun_isp[i,,] <- simObj$objFun_sp
+
+      # Add more objective function components here
     }
 
     # Save reference points for this replicate - more necessary when
-    # we have multiple conditioning draws
+    # we have multiple conditioning assessment posterior dist draws
     blob$rp[[i]] <- simObj$rp
 
     message( " (.mgmtProc) Completed replicate ", i, " of ", nReps, ".\n", sep = "")
@@ -1727,6 +1729,7 @@ combBarrierPen <- function( x, eps,
     # If keeping below, translate down
     # by 2eps and apply penalty to translated x...
     xprime <- x - 2 * eps
+
     PsiB[ xprime <= - eps] <- -log( - xprime [xprime <= -eps] / eps ) 
 
     PsiP[ xprime > - eps ] <- xprime[ xprime > - eps ] + eps

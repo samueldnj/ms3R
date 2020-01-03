@@ -97,7 +97,7 @@ makeStatTable <- function( sims = 1, folder = "" )
 
   # Calculat probability of a good replicate (all PD hessians)
   nGoodReps <- sum(allConvReps)
-  pGoodReps <- signif(nGoodReps/blob$nSim,2)
+  pGoodReps <- signif(nGoodReps/obj$nSim,2)
 
   # And the median over replicates of the probability of a 
   # PD Hessian over time
