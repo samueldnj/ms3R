@@ -63,7 +63,8 @@ mp$omni$nKnots 10
 mp$omni$maxF 1.0
 mp$omni$maxE 50
 mp$omni$maxAAV .25
-mp$omin$maxRelCatDiff .2
+mp$omni$maxRelEffDiff .1
+mp$omni$maxRelCatDiff .2
 mp$omni$depBmsy 0.4
 mp$omni$expParMult 1.0
 mp$omni$avgCatWt 1.0
@@ -73,6 +74,7 @@ mp$omni$depBmsyWt 1.0
 mp$omni$closedWt 1.0
 mp$omni$AAVWt 1.0
 mp$omni$catDiffWt 1.0
+mp$omni$effDiffWt 1.0
 opMod$allocYears 20
 opMod$alphaU .05
 opMod$commGears c(2)

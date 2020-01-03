@@ -1191,6 +1191,18 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   blob$goodReps       <- rep(FALSE, nReps )
   blob$omniObjFun_isp <- array( NA, dim = c(nReps,nS,nP))
 
+  omniObjFun <- list( objFun_i         = array( NA, dim = nReps),
+                      objFun_isp       = array( NA, dim = c(nReps,nS,nP)),
+                      Cbar_isp         = array( NA, dim = c(nReps,nS,nP)),
+                      totCbar_i        = array( NA, dim = nReps),
+                      Csum_i           = array( NA, dim = nReps),
+                      barBt_isp        = array( NA, dim = c(nReps,nS,nP)),
+                      barBt2_isp       = array( NA, dim = c(nReps,nS,nP)),
+                      closedCount_isp  = array( NA, dim = c(nReps,nS,nP)),
+                      barAAV_isp       = array( NA, dim = c(nReps,nS,nP)),
+                      barCatDiff_isp   = array( NA, dim = c(nReps,nS,nP)),
+                      barEffDiff_ip    = array( NA, dim = c(nReps,nP)) )
+
   ##########################################################
   ######### ------- CLOSED LOOP SIMULATION ------- #########
   ##########################################################
@@ -1300,9 +1312,33 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     if( ctlList$ctl$omni )
     {
       blob$goodReps[i] <- TRUE
-      blob$omniObjFun_isp[i,,] <- simObj$objFun_sp
+
+      result$objFun_sp        <- objFun_sp
+    result$objFun           <- objFun
+    result$Cbar_sp          <- Cbar_sp
+    result$totCbar          <- totCbar
+    result$Csum             <- Csum   
+    result$barBt_sp         <- barBt_sp
+    result$closedCount_sp   <- closedCount_sp
+    result$barAAV_sp        <- barAAV_sp
+    result$barCatDiff_sp    <- barCatDiff_sp
+    result$barEffDiff_p     <- barEffDiff_p
+
+      blob$omniObjFun$objFun_isp[i,,]       <- simObj$objFun_sp
+      blob$omniObjFun$objFun_i[i]           <- simObj$objFun       
+      blob$omniObjFun$Cbar_isp[i,,]         <- simObj$Cbar_sp
+      blob$omniObjFun$totCbar_i[i]          <- simObj$totCbar
+      blob$omniObjFun$Csum_i[i]             <- simObj$Csum
+      blob$omniObjFun$barBt_isp[i]          <- simObj$barBt_sp
+      blob$omniObjFun$barBt2_isp[i]         <- simObj$barBt2_sp
+      blob$omniObjFun$closedCount_isp[i,,]  <- simObj$closedCount_sp
+      blob$omniObjFun$barAAV_isp[i,,]       <- simObj$barAAV_sp
+      blob$omniObjFun$barCatDiff_isp[i,,]   <- simObj$barCatDiff_sp
+      blob$omniObjFun$barEffDiff_ip[i,]     <- simObj$barEffDiff_p
+
 
       # Add more objective function components here
+
     }
 
     # Save reference points for this replicate - more necessary when
@@ -1385,12 +1421,14 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     mp      <- ctlList$mp
 
     # Some omni control pars
-    maxF    <- mp$omni$maxF
-    maxE    <- mp$omni$maxE
-    parMult <- mp$omni$expParMult
-    Fmsy_sp <- obj$rp$FmsyRefPts$Fmsy_sp
-    depBmsy <- mp$omni$depBmsy
-    maxAAV  <- mp$omni$maxAAV
+    maxF        <- mp$omni$maxF
+    maxE        <- mp$omni$maxE
+    parMult     <- mp$omni$expParMult
+    Fmsy_sp     <- obj$rp$FmsyRefPts$Fmsy_sp
+    depBmsy     <- mp$omni$depBmsy
+    maxAAV      <- mp$omni$maxAAV
+    maxEffDiff  <- mp$omni$maxRelEffDiff
+    maxCatDiff  <- mp$omni$maxRelCatDiff
 
     # Obj function weights
     avgCatWt  <- mp$omni$avgCatWt
@@ -1400,6 +1438,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     AAVWt     <- mp$omni$AAVWt
     catDiffWt <- mp$omni$catDiffWt
     sumCatWt  <- mp$omni$sumCatWt
+    effDiffWt <- mp$omni$effDiffWt
 
     # Model dimensions
     nS      <- om$nS
@@ -1486,6 +1525,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     barAAV_sp       <- array(0, dim = c(nS,nP))
     closedCount_sp  <- array(0, dim = c(nS,nP))
     barCatDiff_sp   <- array(0, dim = c(nS,nP))
+    barEffDiff_p    <- array(0, dim = c(nP))
 
     # Get minimum catch in historical period
     histCatch_spt <- apply( X = om$C_spft[,,,1:(tMP-1)], FUN = sum, MARGIN = c(1,2,4))
@@ -1502,6 +1542,8 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
       AAV
     }
 
+
+    # Catch difference
     catDiff_tsp <- abs(apply( X = obj$om$C_spft[,,2,(tMP-1):nT],
                               FUN = diff, MARGIN = c(1,2) ) )
     catDiff_spt <- aperm( catDiff_tsp, c(2,3,1))
@@ -1509,6 +1551,15 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     catDiffRel_spt <- catDiff_spt / (obj$om$C_spft[,,2,tMP:nT - 1])
     catDiffRel_spt[!is.finite(catDiffRel_spt)] <- 1
 
+    # Effort difference (prefer to keep total effort similar)
+    effDiff_tp  <- abs(apply( X = obj$om$E_pft[,2,(tMP-1):nT],
+                              FUN = diff, MARGIN = c(1) ) )
+
+
+    effDiff_pt   <- aperm( effDiff_tp, c(2,1) )
+
+    effDiffRel_pt <- effDiff_pt / obj$om$E_pft[,2,tMP:nT - 1]
+    effDiffRel_pt[!is.finite(effDiffRel_pt)] <- 1
 
 
     # Now loop over species/stocks and
@@ -1539,9 +1590,19 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
 
 
         barCatDiff_sp[s,p] <- combBarrierPen( x = catDiffRel_spt[s,p,],
-                                              eps = .5, alpha = .25,
+                                              eps = maxCatDiff, 
+                                              alpha = maxCatDiff/2,
                                               above = FALSE )
+
+        
       }
+
+
+    barEffDiff_p <- apply(  X = effDiffRel_pt, FUN = combBarrierPen,
+                            MARGIN  = 1, 
+                            eps     = maxEffDiff,
+                            alpha   = 1, 
+                            above   = FALSE )
 
     # Calculate average catch
     Csum    <- sum(Cproj_spt,na.rm = T)
@@ -1559,7 +1620,8 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
    
     objFun    <-  sum(objFun_sp) -
                   totCatWt * log(totCbar) -
-                  sumCatWt * log(Csum)
+                  sumCatWt * log(Csum) +
+                  effDiffWt * sum(barEffDiff_p)
 
     # Return results
     result                  <- obj
@@ -1569,9 +1631,11 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     result$totCbar          <- totCbar
     result$Csum             <- Csum   
     result$barBt_sp         <- barBt_sp
+    result$barBt2_sp        <- barBt2_sp
     result$closedCount_sp   <- closedCount_sp
     result$barAAV_sp        <- barAAV_sp
     result$barCatDiff_sp    <- barCatDiff_sp
+    result$barEffDiff_p     <- barEffDiff_p
     
     result
   } # END runModel
