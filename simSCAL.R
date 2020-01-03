@@ -1480,6 +1480,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     # Make arrays to hold stock specific
     # penalties
     barBt_sp        <- array(0, dim = c(nS,nP))
+    barBt2_sp       <- array(0, dim = c(nS,nP))
     barAAV_sp       <- array(0, dim = c(nS,nP))
     closedCount_sp  <- array(0, dim = c(nS,nP))
     barCatDiff_sp   <- array(0, dim = c(nS,nP))
@@ -1513,22 +1514,31 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     for( s in 1:nS )
       for( p in 1:nP )
       {
-        # biomass lower than Bmsy
-        barBt_sp[s,p] <- barrierPen(  x = Bproj_spt[s,p,]/Bmsy_sp[s,p],
-                                      xBar = depBmsy,
-                                      above = TRUE )
+        # biomass above some depletion level
+        barBt_sp[s,p] <- combBarrierPen(  x = Bproj_spt[s,p,]/Bmsy_sp[s,p],
+                                          eps = depBmsy,
+                                          alpha = depBmsy / 2,
+                                          above = TRUE )
+
+        barBt2_sp[s,p] <- combBarrierPen(   x = Bproj_spt[s,p,]/Bmsy_sp[s,p],
+                                            eps = 3*depBmsy,
+                                            alpha = 3*depBmsy / 2,
+                                            above = FALSE )
 
         # Catch less than historical minimum (closures)
         closedCount_sp[s,p] <- sum( Cproj_spt[s,p,] < Cmin_sp[s,p] )
 
         # Penalty on AAV
         AAV <- .calcAAV( Cproj_spt[s,p,] )
-        barAAV_sp[s,p] <- barrierPen( x = AAV, xBar = maxAAV, 
-                                      above = FALSE )
+        barAAV_sp[s,p] <- combBarrierPen( x = AAV, 
+                                          eps = maxAAV, 
+                                          alpha = maxAAV/2,
+                                          above = FALSE )
 
 
-        barCatDiff_sp[s,p] <- barrierPen( x = catDiffRel_spt[s,p,],
-                                          xBar = .2, above = FALSE )
+        barCatDiff_sp[s,p] <- combBarrierPen( x = catDiffRel_spt[s,p,],
+                                              eps = .5, alpha = .25,
+                                              above = FALSE )
       }
 
     # Calculate average catch
@@ -1536,21 +1546,30 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     Cbar_sp <- apply( X = Cproj_spt, FUN = mean, MARGIN = c(1,2))
     totCbar <- mean( apply(X = Cproj_spt, FUN = sum, MARGIN = 3 ) )
 
+
     # Total obj function for each stock/species
-    objFun_sp <- -avgCatWt * log(Cbar_sp) + 
-                  depBmsyWt*barBt_sp + 
-                  AAVWt * barAAV_sp + 
-                  closedWt*closedCount_sp +
-                  catDiffWt * barCatDiff_sp
+    objFun_sp <- -  avgCatWt * log(Cbar_sp) + 
+                    depBmsyWt * barBt_sp + 
+                    depBmsyWt * barBt2_sp +
+                    AAVWt * barAAV_sp + 
+                    closedWt * closedCount_sp +
+                    catDiffWt * barCatDiff_sp
    
     objFun    <-  sum(objFun_sp) -
                   totCatWt * log(totCbar) -
                   sumCatWt * log(Csum)
 
     # Return results
-    result            <- obj
-    result$objFun_sp  <- objFun_sp
-    result$objFun     <- objFun
+    result                  <- obj
+    result$objFun_sp        <- objFun_sp
+    result$objFun           <- objFun
+    result$Cbar_sp          <- Cbar_sp
+    result$totCbar          <- totCbar
+    result$Csum             <- Csum   
+    result$barBt_sp         <- barBt_sp
+    result$closedCount_sp   <- closedCount_sp
+    result$barAAV_sp        <- barAAV_sp
+    result$barCatDiff_sp    <- barCatDiff_sp
     
     result
   } # END runModel
@@ -1565,6 +1584,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   getObjFunctionVal <- function( pars, obj ){
     # Function to run asOM and return objective function
     val <- runModel( pars, obj )$objFun
+
     
     val
   }     # END function getObjFunctionVal
@@ -1599,13 +1619,21 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   # OK, run optimisation
   if( ctlList$ctl$omni )
   {
+
+
     message( " (.solveProjPop) Running omnsicient manager optimisation, please wait.\n")
+
+    initObjFunVal <- round(getObjFunctionVal( pars = initPars, obj = obj), 3)
+
+    message(" (.solveProjPop) Initial objective function value f =", initObjFunVal, ".\n")
+
+
     # Find pars that give the best catch/AAV and minimise
     # closures/low catch
     opt <- optim( par = initPars, fn = getObjFunctionVal,
-                  method = "BFGS", obj = obj,
-                  control=list(maxit=3000, reltol=0.001 ) )
-                  #control=list(maxit=3000, reltol=0.001,ndeps=c(.01,.01) ) )
+                  method = "Nelder-Mead", obj = obj,
+                  #control=list(maxit=3000, reltol=0.001 ) )
+                  control=list(maxit=3000, reltol=0.001,ndeps=c(.01,.01) ) )
 
     # opt <- optim( par = opt$par, fn = getObjFunctionVal,
     #               method = "Nelder-Mead", obj = obj,
@@ -1644,6 +1672,7 @@ barrierPen <- function( x, xBar, above=TRUE)
   
     # Penalty grows to Inf as Bt approaches Bmsy from above
     tmp[ x > xBar ]   <- (-1.)*log( x[x>xBar] - xBar )
+
   }
   else
   {
@@ -1655,6 +1684,77 @@ barrierPen <- function( x, xBar, above=TRUE)
   }
   bar <- sum(tmp)
   return( bar )
+}
+
+
+# combBarrierPen()
+# Imposes a convex combination of a 
+# logarithmic barrier penalty and a classic
+# linear penalty as x approaches a pre-determined
+# barrier value epsilon, defining the edge of 
+# the "feasible" region. 
+# Inputs:     x = Quantity to be penalised
+#             eps = penalised value of x
+#             above = boolean with TRUE => keep above
+#             alpha = coefficient for logarithmic barrier
+#                       penalty component PsiB in combination.
+#                       Also controls coefficient alpha/eps of
+#                       linear component PsiP. Guarantees
+#                       continuity in first derivative.
+# Notes:      Higher values of alpha will increase the weight
+#             of the logarithmic component in the feasible region,
+#             while at the same time increasing the weight of the 
+#             linear penalty in the infeasible region through 
+#             the coeff alpha/eps
+# Returns:    Scalar penalty summed over components of x
+# Source:     SDN Johnson
+# Reference:  Srinivasan et al, 2008 
+combBarrierPen <- function( x, eps, 
+                            above = TRUE,
+                            alpha = .05 )
+{
+  if(eps == 0)
+  {
+    eps <- eps + 1
+    x   <- x + 1
+  }
+
+  tmp   <- rep(0,length(x))
+  PsiB  <- rep(0,length(x))
+  PsiP  <- rep(0,length(x))
+  if( !above )
+  {
+    # If keeping below, translate down
+    # by 2eps and apply penalty to translated x...
+    xprime <- x - 2 * eps
+    PsiB[ xprime <= - eps] <- -log( - xprime [xprime <= -eps] / eps ) 
+
+    PsiP[ xprime > - eps ] <- xprime[ xprime > - eps ] + eps
+
+    tmp <- alpha * PsiB  + alpha/eps * PsiP
+  }
+
+
+
+  if( above )
+  {
+
+    PsiB[ - x <= -eps] <- -log( x[-x <= -eps] / eps ) 
+
+    PsiP[ - x > - eps ] <- -x[ -x > -eps ] + eps
+
+    tmp <- alpha * PsiB  + alpha/eps * PsiP
+  }
+
+
+
+  # plot( x = range(x), y = range(tmp,PsiB,PsiP) )
+  #   lines( x = x, y = tmp, lty = 1, lwd = 2, col = "darkgreen")
+  #   lines( x = x, y = PsiB, col = "red", lwd = 2, lty = 2 )
+  #   lines( x = x, y = PsiP, col = "darkblue", lwd = 2, lty = 3 )
+
+  pen <- sum(tmp)
+  return(pen)
 }
 
 

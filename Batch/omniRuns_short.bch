@@ -3,10 +3,10 @@ parameter value
 #
 ## Scenarios
 #
-# Scenario 1 : DER_CVBmsy.5
+# Scenario 1 : DER_base
 #
 scenario$scenario1$ctl$scenarioName 'DER_base'
-scenario$scenario1$ctl$nGoodReps 10
+scenario$scenario1$ctl$nGoodReps 100
 scenario$scenario1$ctl$omni TRUE
 #
 #
@@ -61,34 +61,34 @@ mp$mp5$mp$omni$closedWt 0
 mp$mp5$mp$omni$AAVWt 0
 mp$mp5$mp$omni$catDiffWt 0
 #
-# MP 6 : omni_totCat.8Bmsy
+# MP 6 : omni_totCatAAV
 #
-mp$mp6$ctl$mpName 'omni_totCat.8Bmsy'
-mp$mp6$mp$omni$depBmsy 0.8
+mp$mp6$ctl$mpName 'omni_totCatAAV'
+mp$mp6$mp$omni$depBmsy 0.4
 mp$mp6$mp$omni$avgCatWt 0.0
 mp$mp6$mp$omni$totCatWt 0
 mp$mp6$mp$omni$sumCatWt 1
-mp$mp6$mp$omni$depBmsyWt 1
+mp$mp6$mp$omni$depBmsyWt 0
 mp$mp6$mp$omni$closedWt 0
-mp$mp6$mp$omni$AAVWt 0
+mp$mp6$mp$omni$AAVWt 1
 mp$mp6$mp$omni$catDiffWt 0
 #
-# MP 7 : omni_totCatAAV
+# MP 7 : omni_totCat_closures
 #
-mp$mp7$ctl$mpName 'omni_totCatAAV'
-mp$mp7$mp$omni$depBmsy 0.8
+mp$mp7$ctl$mpName 'omni_totCat_catDiff'
+mp$mp7$mp$omni$depBmsy 0.4
 mp$mp7$mp$omni$avgCatWt 0.0
 mp$mp7$mp$omni$totCatWt 0
 mp$mp7$mp$omni$sumCatWt 1
 mp$mp7$mp$omni$depBmsyWt 0
-mp$mp7$mp$omni$closedWt 0
-mp$mp7$mp$omni$AAVWt 1
-mp$mp7$mp$omni$catDiffWt 0
+mp$mp7$mp$omni$closedWt 1
+mp$mp7$mp$omni$AAVWt 0
+mp$mp7$mp$omni$catDiffWt 1
 #
 # MP 8 : omni_totCat_catDiff
 #
 mp$mp8$ctl$mpName 'omni_totCat_catDiff'
-mp$mp8$mp$omni$depBmsy 0.8
+mp$mp8$mp$omni$depBmsy 0.4
 mp$mp8$mp$omni$avgCatWt 0.0
 mp$mp8$mp$omni$totCatWt 0
 mp$mp8$mp$omni$sumCatWt 1
@@ -96,5 +96,17 @@ mp$mp8$mp$omni$depBmsyWt 0
 mp$mp8$mp$omni$closedWt 0
 mp$mp8$mp$omni$AAVWt 0
 mp$mp8$mp$omni$catDiffWt 1
+#
+# MP 9 : omni_totCat_catDiff_AAV_depBmsy
+#
+mp$mp9$ctl$mpName 'omni_totCat_catDiff_AAV_depBmsy'
+mp$mp9$mp$omni$depBmsy 0.4
+mp$mp9$mp$omni$avgCatWt 0.0
+mp$mp9$mp$omni$totCatWt 0
+mp$mp9$mp$omni$sumCatWt 1
+mp$mp9$mp$omni$depBmsyWt 1
+mp$mp9$mp$omni$closedWt 0
+mp$mp9$mp$omni$AAVWt 1
+mp$mp9$mp$omni$catDiffWt 1
 #
 ## <END FILE>
