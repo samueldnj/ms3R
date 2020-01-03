@@ -70,10 +70,10 @@ mp$omni$expParMult 1.0
 mp$omni$avgCatWt 0.
 mp$omni$totCatWt 0.0
 mp$omni$sumCatWt 1.0
-mp$omni$depBmsyWt 0
+mp$omni$depBmsyWt 1
 mp$omni$closedWt 0
 mp$omni$AAVWt 0
-mp$omni$catDiffWt 0
+mp$omni$catDiffWt 1
 mp$omni$effDiffWt 1.0
 opMod$allocYears 20
 opMod$alphaU .05
@@ -81,7 +81,7 @@ opMod$commGears c(2)
 opMod$ut_50 .85
 opMod$ut_95 .75
 opMod$effortMod "Max"
-opMod$pT 40
+opMod$pT 10
 opMod$histFile "fit_06112019105141"
 opMod$price_s c(Dover=1.33,English=1.37,Rock=1.65,Petrale=3.22,Arrowtooth=0.37)
 opMod$projObsErrMult 1.0

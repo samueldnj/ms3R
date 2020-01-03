@@ -1190,17 +1190,17 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
 
   blob$goodReps       <- rep(FALSE, nReps )
 
-  omniObjFun <- list( objFun_i         = array( NA, dim = nReps),
-                      objFun_isp       = array( NA, dim = c(nReps,nS,nP)),
-                      Cbar_isp         = array( NA, dim = c(nReps,nS,nP)),
-                      totCbar_i        = array( NA, dim = nReps),
-                      Csum_i           = array( NA, dim = nReps),
-                      barBt_isp        = array( NA, dim = c(nReps,nS,nP)),
-                      barBt2_isp       = array( NA, dim = c(nReps,nS,nP)),
-                      closedCount_isp  = array( NA, dim = c(nReps,nS,nP)),
-                      barAAV_isp       = array( NA, dim = c(nReps,nS,nP)),
-                      barCatDiff_isp   = array( NA, dim = c(nReps,nS,nP)),
-                      barEffDiff_ip    = array( NA, dim = c(nReps,nP)) )
+  blob$omniObjFun <- list(  objFun_i         = array( NA, dim = nReps),
+                            objFun_isp       = array( NA, dim = c(nReps,nS,nP)),
+                            Cbar_isp         = array( NA, dim = c(nReps,nS,nP)),
+                            totCbar_i        = array( NA, dim = nReps),
+                            Csum_i           = array( NA, dim = nReps),
+                            barBt_isp        = array( NA, dim = c(nReps,nS,nP)),
+                            barBt2_isp       = array( NA, dim = c(nReps,nS,nP)),
+                            closedCount_isp  = array( NA, dim = c(nReps,nS,nP)),
+                            barAAV_isp       = array( NA, dim = c(nReps,nS,nP)),
+                            barCatDiff_isp   = array( NA, dim = c(nReps,nS,nP)),
+                            barEffDiff_ip    = array( NA, dim = c(nReps,nP)) )
 
   ##########################################################
   ######### ------- CLOSED LOOP SIMULATION ------- #########
@@ -1311,6 +1311,8 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     if( ctlList$ctl$omni )
     {
       blob$goodReps[i] <- TRUE
+
+      browser()
 
       blob$omniObjFun$objFun_isp[i,,]       <- simObj$objFun_sp
       blob$omniObjFun$objFun_i[i]           <- simObj$objFun       
@@ -2091,7 +2093,11 @@ combBarrierPen <- function( x, eps,
   ctlList <- obj$ctlList
 
   # Count which fleets are fishing
-  whichFleets <- which( ctlList$opMod$alloc > 0 )
+  allocYears <- ctlList$opMod$allocYears
+  allocYearCatch <- obj$om$C_spft[,,,(tMP - allocYears):(tMP - 1)]
+  totCatch_f <- apply(X = allocYearCatch, FUN = sum, MARGIN = c(3))
+  whichFleets <- which( totCatch_f > 0 )
+  browser()
 
   w_pf <- array(1,dim = c(nP,length(whichFleets)))
 
