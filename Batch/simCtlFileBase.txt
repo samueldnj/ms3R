@@ -74,7 +74,7 @@ mp$omni$depBmsyWt 1.0
 mp$omni$closedWt 1.0
 mp$omni$AAVWt 1.0
 mp$omni$catDiffWt 1.0
-mp$omni$effDiffWt 1.0
+mp$omni$effDiffWt 0.0
 opMod$allocYears 20
 opMod$alphaU .05
 opMod$commGears c(2)

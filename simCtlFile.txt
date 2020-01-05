@@ -8,7 +8,7 @@ ctl$maxEval 1e4
 ctl$maxIter 1e4
 ctl$rSeed 123
 ctl$totReps 100
-ctl$nGoodReps 1
+ctl$nGoodReps 5
 ctl$omni TRUE
 mp$assess$assInt 1
 mp$assess$method "hierProd"

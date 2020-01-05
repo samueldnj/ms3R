@@ -2094,10 +2094,9 @@ combBarrierPen <- function( x, eps,
 
   # Count which fleets are fishing
   allocYears <- ctlList$opMod$allocYears
-  allocYearCatch <- obj$om$C_spft[,,,(tMP - allocYears):(tMP - 1)]
+  allocYearCatch <- obj$om$C_spft[,,1:2,(tMP - allocYears):(tMP - 1)]
   totCatch_f <- apply(X = allocYearCatch, FUN = sum, MARGIN = c(3))
   whichFleets <- which( totCatch_f > 0 )
-  browser()
 
   w_pf <- array(1,dim = c(nP,length(whichFleets)))
 
