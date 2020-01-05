@@ -1312,8 +1312,6 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     {
       blob$goodReps[i] <- TRUE
 
-      browser()
-
       blob$omniObjFun$objFun_isp[i,,]       <- simObj$objFun_sp
       blob$omniObjFun$objFun_i[i]           <- simObj$objFun       
       blob$omniObjFun$Cbar_isp[i,,]         <- simObj$Cbar_sp
