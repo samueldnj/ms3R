@@ -1588,7 +1588,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     barEffDiff_p <- apply(  X = effDiffRel_pt, FUN = combBarrierPen,
                             MARGIN  = 1, 
                             eps     = maxEffDiff,
-                            alpha   = 1, 
+                            alpha   = maxEffDiff/2, 
                             above   = FALSE )
 
     # Calculate average catch
