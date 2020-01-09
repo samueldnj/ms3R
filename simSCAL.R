@@ -1533,8 +1533,10 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
                               FUN = diff, MARGIN = c(1,2) ) )
     catDiff_spt <- aperm( catDiff_tsp, c(2,3,1))
 
-    catDiffRel_spt <- catDiff_spt / (obj$om$C_spft[,,2,tMP:nT - 1])
+    catDiffRel_spt <- catDiff_spt / (obj$om$C_spft[,,2,(tMP:nT) - 1])
     catDiffRel_spt[!is.finite(catDiffRel_spt)] <- 1
+
+    browser()
 
     # Effort difference (prefer to keep total effort similar)
     effDiff_tp  <- abs(apply( X = obj$om$E_pft[,2,(tMP-1):nT],

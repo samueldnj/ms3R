@@ -255,7 +255,6 @@ in their management simulations
 under the assumption that full TAC utilisation provides
 and upper bound on the management risk.
 
-
 ## Simulation experiments and performance
 
 For the main experiment, we ran a total of $20$ 
@@ -269,8 +268,6 @@ each simulation was initialised with the same set
 of 100 random seeds. We ran extra replicates until the 
 sample size of 100 was reached when AMs failed to
 converge in the closed loop simulations.
-
-### Omniscient manager simulations
 
 ### OM scenarios
 
@@ -312,6 +309,15 @@ allow us to focus on the management performance
 of the range of models under different data quality 
 scenarios, rather than the interaction between the
 assessment model and other management procedure components.
+
+### Omniscient manager simulations
+
+We measured our MP performance against the performance of 
+simulations using an omniscient manager.
+
+Because several of the 9 DER complex stocks
+are in healthy states at the beginning of the projection
+period ($B > B_{MSY}$) we 
 
 ### Performance metrics
 
