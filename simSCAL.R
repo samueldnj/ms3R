@@ -1190,17 +1190,20 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
 
   blob$goodReps       <- rep(FALSE, nReps )
 
-  blob$omniObjFun <- list(  objFun_i         = array( NA, dim = nReps),
-                            objFun_isp       = array( NA, dim = c(nReps,nS,nP)),
-                            Cbar_isp         = array( NA, dim = c(nReps,nS,nP)),
-                            totCbar_i        = array( NA, dim = nReps),
-                            Csum_i           = array( NA, dim = nReps),
-                            barBt_isp        = array( NA, dim = c(nReps,nS,nP)),
-                            barBt2_isp       = array( NA, dim = c(nReps,nS,nP)),
-                            closedCount_isp  = array( NA, dim = c(nReps,nS,nP)),
-                            barAAV_isp       = array( NA, dim = c(nReps,nS,nP)),
-                            barCatDiff_isp   = array( NA, dim = c(nReps,nS,nP)),
-                            barEffDiff_ip    = array( NA, dim = c(nReps,nP)) )
+  blob$omniObjFun <- list(  objFun_i            = array( NA, dim = nReps),
+                            objFun_isp          = array( NA, dim = c(nReps,nS,nP)),
+                            Cbar_isp            = array( NA, dim = c(nReps,nS,nP)),
+                            totCbar_i           = array( NA, dim = nReps),
+                            Csum_i              = array( NA, dim = nReps),
+                            barLoDep_isp        = array( NA, dim = c(nReps,nS,nP)),
+                            barHiDep_isp        = array( NA, dim = c(nReps,nS,nP)),
+                            barProbHiDep_isp    = array( NA, dim = c(nReps,nS,nP)),
+                            barProbLoDep_isp    = array( NA, dim = c(nReps,nS,nP)),
+                            barInitCatDiff_isp  = array( NA, dim = c(nReps,nS,nP)),
+                            closedCount_isp     = array( NA, dim = c(nReps,nS,nP)),
+                            barAAV_isp          = array( NA, dim = c(nReps,nS,nP)),
+                            barCatDiff_isp      = array( NA, dim = c(nReps,nS,nP)),
+                            barEffDiff_ip       = array( NA, dim = c(nReps,nP)) )
 
   ##########################################################
   ######### ------- CLOSED LOOP SIMULATION ------- #########
@@ -1312,17 +1315,20 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     {
       blob$goodReps[i] <- TRUE
 
-      blob$omniObjFun$objFun_isp[i,,]       <- simObj$objFun_sp
-      blob$omniObjFun$objFun_i[i]           <- simObj$objFun       
-      blob$omniObjFun$Cbar_isp[i,,]         <- simObj$Cbar_sp
-      blob$omniObjFun$totCbar_i[i]          <- simObj$totCbar
-      blob$omniObjFun$Csum_i[i]             <- simObj$Csum
-      blob$omniObjFun$barBt_isp[i]          <- simObj$barBt_sp
-      blob$omniObjFun$barBt2_isp[i]         <- simObj$barBt2_sp
-      blob$omniObjFun$closedCount_isp[i,,]  <- simObj$closedCount_sp
-      blob$omniObjFun$barAAV_isp[i,,]       <- simObj$barAAV_sp
-      blob$omniObjFun$barCatDiff_isp[i,,]   <- simObj$barCatDiff_sp
-      blob$omniObjFun$barEffDiff_ip[i,]     <- simObj$barEffDiff_p
+      blob$omniObjFun$objFun_isp[i,,]         <- simObj$objFun_sp
+      blob$omniObjFun$objFun_i[i]             <- simObj$objFun       
+      blob$omniObjFun$Cbar_isp[i,,]           <- simObj$Cbar_sp
+      blob$omniObjFun$totCbar_i[i]            <- simObj$totCbar
+      blob$omniObjFun$Csum_i[i]               <- simObj$Csum
+      blob$omniObjFun$barLoDep_isp[i,,]       <- simObj$barLoDep_sp
+      blob$omniObjFun$barHiDep_isp[i,,]       <- simObj$barHiDep_sp
+      blob$omniObjFun$barProbLoDep_isp[i,,]   <- simObj$barProbLoDep_sp
+      blob$omniObjFun$barProbHiDep_isp[i,,]   <- simObj$barProbHiDep_sp
+      blob$omniObjFun$barInitCatDiff_isp[i,,] <- simObj$barInitCatDiff_sp
+      blob$omniObjFun$closedCount_isp[i,,]    <- simObj$closedCount_sp
+      blob$omniObjFun$barAAV_isp[i,,]         <- simObj$barAAV_sp
+      blob$omniObjFun$barCatDiff_isp[i,,]     <- simObj$barCatDiff_sp
+      blob$omniObjFun$barEffDiff_ip[i,]       <- simObj$barEffDiff_p
 
     }
 
@@ -1410,20 +1416,23 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     maxE        <- mp$omni$maxE
     parMult     <- mp$omni$expParMult
     Fmsy_sp     <- obj$rp$FmsyRefPts$Fmsy_sp
-    depBmsy     <- mp$omni$depBmsy
+    loDepBmsy   <- mp$omni$loDepBmsy
+    hiDepBmsy   <- mp$omni$hiDepBmsy
     maxAAV      <- mp$omni$maxAAV
     maxEffDiff  <- mp$omni$maxRelEffDiff
     maxCatDiff  <- mp$omni$maxRelCatDiff
 
     # Obj function weights
-    avgCatWt  <- mp$omni$avgCatWt
-    totCatWt  <- mp$omni$totCatWt
-    depBmsyWt <- mp$omni$depBmsyWt
-    closedWt  <- mp$omni$closedWt
-    AAVWt     <- mp$omni$AAVWt
-    catDiffWt <- mp$omni$catDiffWt
-    sumCatWt  <- mp$omni$sumCatWt
-    effDiffWt <- mp$omni$effDiffWt
+    avgCatWt      <- mp$omni$avgCatWt
+    totCatWt      <- mp$omni$totCatWt
+    depBmsyWt     <- mp$omni$depBmsyWt
+    closedWt      <- mp$omni$closedWt
+    AAVWt         <- mp$omni$AAVWt
+    catDiffWt     <- mp$omni$catDiffWt
+    sumCatWt      <- mp$omni$sumCatWt
+    effDiffWt     <- mp$omni$effDiffWt
+    initCatDiffWt <- mp$omni$initCatDiffWt
+    probDepWt     <- mp$omni$probDepWt
 
     # Model dimensions
     nS      <- om$nS
@@ -1504,13 +1513,20 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     Bmsy_sp     <- obj$rp$FmsyRefPts$BeqFmsy_sp
     
     # Make arrays to hold stock specific
-    # penalties
-    barBt_sp        <- array(0, dim = c(nS,nP))
-    barBt2_sp       <- array(0, dim = c(nS,nP))
-    barAAV_sp       <- array(0, dim = c(nS,nP))
-    closedCount_sp  <- array(0, dim = c(nS,nP))
-    barCatDiff_sp   <- array(0, dim = c(nS,nP))
-    barEffDiff_p    <- array(0, dim = c(nP))
+    # penalties and intermediate values
+    # Lots of options here from development of the
+    # best objective function
+    barLoDep_sp         <- array(0, dim = c(nS,nP))
+    barHiDep_sp         <- array(0, dim = c(nS,nP))
+    probLoDep_sp        <- array(0, dim = c(nS,nP))
+    probHiDep_sp        <- array(0, dim = c(nS,nP))
+    barProbLoDep_sp     <- array(0, dim = c(nS,nP))
+    barProbHiDep_sp     <- array(0, dim = c(nS,nP))
+    barAAV_sp           <- array(0, dim = c(nS,nP))
+    closedCount_sp      <- array(0, dim = c(nS,nP))
+    barCatDiff_sp       <- array(0, dim = c(nS,nP))
+    barInitCatDiff_sp   <- array(0, dim = c(nS,nP))
+    barEffDiff_p        <- array(0, dim = c(nP))
 
     # Get minimum catch in historical period
     histCatch_spt <- apply( X = om$C_spft[,,,1:(tMP-1)], FUN = sum, MARGIN = c(1,2,4))
@@ -1536,7 +1552,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     catDiffRel_spt <- catDiff_spt / (obj$om$C_spft[,,2,(tMP:nT) - 1])
     catDiffRel_spt[!is.finite(catDiffRel_spt)] <- 1
 
-    browser()
+    initCatDiffRel_sp <- catDiffRel_spt[,,1]
 
     # Effort difference (prefer to keep total effort similar)
     effDiff_tp  <- abs(apply( X = obj$om$E_pft[,2,(tMP-1):nT],
@@ -1555,15 +1571,30 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
       for( p in 1:nP )
       {
         # biomass above some depletion level
-        barBt_sp[s,p] <- combBarrierPen(  x = Bproj_spt[s,p,]/Bmsy_sp[s,p],
-                                          eps = depBmsy,
-                                          alpha = depBmsy / 2,
-                                          above = TRUE )
+        barLoDep_sp[s,p] <- combBarrierPen(  x = Bproj_spt[s,p,]/Bmsy_sp[s,p],
+                                              eps = loDepBmsy,
+                                              alpha = loDepBmsy / 2,
+                                              above = TRUE )
 
-        barBt2_sp[s,p] <- combBarrierPen(   x = Bproj_spt[s,p,]/Bmsy_sp[s,p],
-                                            eps = 3*depBmsy,
-                                            alpha = 3*depBmsy / 2,
+        barHiDep_sp[s,p] <- combBarrierPen( x = Bproj_spt[s,p,]/Bmsy_sp[s,p],
+                                            eps = hiDepBmsy,
+                                            alpha = hiDepBmsy / 2,
                                             above = FALSE )
+
+        # What about the probability of being between
+        # lowDep and HiDep?
+        probHiDep_sp[s,p]   <- sum(Bproj_spt[s,p,]/Bmsy_sp[s,p] > hiDepBmsy) / pT
+        probLoDep_sp[s,p]   <- sum( Bproj_spt[s,p,]/Bmsy_sp[s,p] > loDepBmsy) / pT
+
+        barProbHiDep_sp[s,p] <- combBarrierPen( probHiDep_sp[s,p],
+                                                eps = mp$omni$hiDepProb,
+                                                alpha = mp$omni$hiDepProb,
+                                                above = FALSE )
+
+        barProbLoDep_sp[s,p] <- combBarrierPen( probLoDep_sp[s,p],
+                                                eps = mp$omni$loDepProb,
+                                                alpha = mp$omni$loDepProb,
+                                                above = TRUE )
 
         # Catch less than historical minimum (closures)
         closedCount_sp[s,p] <- sum( Cproj_spt[s,p,] < Cmin_sp[s,p] )
@@ -1582,6 +1613,10 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
                                               above = FALSE )
 
         
+        barInitCatDiff_sp[s,p] <- combBarrierPen( x = initCatDiffRel_sp[s,p],
+                                                  eps = maxCatDiff, 
+                                                  alpha = 1,
+                                                  above = FALSE )
       }
 
 
@@ -1599,11 +1634,14 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
 
     # Total obj function for each stock/species
     objFun_sp <- -  avgCatWt * log(Cbar_sp) + 
-                    depBmsyWt * barBt_sp + 
-                    depBmsyWt * barBt2_sp +
+                    depBmsyWt * barLoDep_sp + 
+                    depBmsyWt * barHiDep_sp +
                     AAVWt * barAAV_sp + 
                     closedWt * closedCount_sp +
-                    catDiffWt * barCatDiff_sp
+                    catDiffWt * barCatDiff_sp + 
+                    initCatDiffWt * barInitCatDiff_sp + 
+                    probDepWt * barProbLoDep_sp +
+                    probDepWt * barProbHiDep_sp
    
     objFun    <-  sum(objFun_sp) -
                   totCatWt * log(totCbar) -
@@ -1611,18 +1649,21 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
                   effDiffWt * sum(barEffDiff_p)
 
     # Return results
-    result                  <- obj
-    result$objFun_sp        <- objFun_sp
-    result$objFun           <- objFun
-    result$Cbar_sp          <- Cbar_sp
-    result$totCbar          <- totCbar
-    result$Csum             <- Csum   
-    result$barBt_sp         <- barBt_sp
-    result$barBt2_sp        <- barBt2_sp
-    result$closedCount_sp   <- closedCount_sp
-    result$barAAV_sp        <- barAAV_sp
-    result$barCatDiff_sp    <- barCatDiff_sp
-    result$barEffDiff_p     <- barEffDiff_p
+    result                    <- obj
+    result$objFun_sp          <- objFun_sp
+    result$objFun             <- objFun
+    result$Cbar_sp            <- Cbar_sp
+    result$totCbar            <- totCbar
+    result$Csum               <- Csum   
+    result$barLoDep_sp        <- barLoDep_sp
+    result$barHiDep_sp        <- barHiDep_sp
+    result$barProbHiDep_sp    <- barProbHiDep_sp
+    result$barProbLoDep_sp    <- barProbLoDep_sp
+    result$closedCount_sp     <- closedCount_sp
+    result$barAAV_sp          <- barAAV_sp
+    result$barCatDiff_sp      <- barCatDiff_sp
+    result$barEffDiff_p       <- barEffDiff_p
+    result$barInitCatDiff_sp  <- barInitCatDiff_sp
     
     result
   } # END runModel
