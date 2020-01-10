@@ -80,6 +80,8 @@ mp$omni$AAVWt 0.0
 mp$omni$catDiffWt 0.0
 mp$omni$effDiffWt 0.0
 mp$omni$initCatDiffWt 0.0
+mp$omni$penType "barrier"
+mp$omni$linBeta 2
 opMod$allocYears 20
 opMod$alphaU .05
 opMod$commGears c(2)

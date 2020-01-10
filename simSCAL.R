@@ -1528,6 +1528,28 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     barInitCatDiff_sp   <- array(0, dim = c(nS,nP))
     barEffDiff_p        <- array(0, dim = c(nP))
 
+    # Exponential penalty functions
+    expLoDep_sp         <- array(0, dim = c(nS,nP))
+    expHiDep_sp         <- array(0, dim = c(nS,nP))
+    expProbLoDep_sp     <- array(0, dim = c(nS,nP))
+    expProbHiDep_sp     <- array(0, dim = c(nS,nP))
+    expAAV_sp           <- array(0, dim = c(nS,nP))
+    expCatDiff_sp       <- array(0, dim = c(nS,nP))
+    expInitCatDiff_sp   <- array(0, dim = c(nS,nP))
+    expEffDiff_p        <- array(0, dim = c(nP))
+
+    # Linear penalty functions
+    linLoDep_sp         <- array(0, dim = c(nS,nP))
+    linHiDep_sp         <- array(0, dim = c(nS,nP))
+    linProbLoDep_sp     <- array(0, dim = c(nS,nP))
+    linProbHiDep_sp     <- array(0, dim = c(nS,nP))
+    linAAV_sp           <- array(0, dim = c(nS,nP))
+    linCatDiff_sp       <- array(0, dim = c(nS,nP))
+    linInitCatDiff_sp   <- array(0, dim = c(nS,nP))
+    linEffDiff_p        <- array(0, dim = c(nP))
+
+
+
     # Get minimum catch in historical period
     histCatch_spt <- apply( X = om$C_spft[,,,1:(tMP-1)], FUN = sum, MARGIN = c(1,2,4))
     Cmin_sp <- apply( X = histCatch_spt, FUN = min, MARGIN = c(1,2),
@@ -1576,10 +1598,32 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
                                               alpha = loDepBmsy / 2,
                                               above = TRUE )
 
+        expLoDep_sp[s,p]  <- expPenaltyFunction(  x = Bproj_spt[s,p,]/Bmsy_sp[s,p],
+                                                  eps = loDepBmsy,
+                                                  alpha = 1,
+                                                  above = TRUE )
+
+        linLoDep_sp[s,p]  <- linPenaltyFunction(  x = Bproj_spt[s,p,]/Bmsy_sp[s,p],
+                                                  eps = loDepBmsy,
+                                                  alpha = 1,
+                                                  above = TRUE,
+                                                  beta = mp$omni$linBeta )
+
         barHiDep_sp[s,p] <- combBarrierPen( x = Bproj_spt[s,p,]/Bmsy_sp[s,p],
                                             eps = hiDepBmsy,
                                             alpha = hiDepBmsy / 2,
                                             above = FALSE )
+
+        expHiDep_sp[s,p]  <- expPenaltyFunction(  x = Bproj_spt[s,p,]/Bmsy_sp[s,p],
+                                                  eps = hiDepBmsy,
+                                                  alpha = 1,
+                                                  above = FALSE )
+
+        linHiDep_sp[s,p]  <- linPenaltyFunction(  x = Bproj_spt[s,p,]/Bmsy_sp[s,p],
+                                                  eps = hiDepBmsy,
+                                                  alpha = 1,
+                                                  above = FALSE,
+                                                  beta = mp$omni$linBeta )
 
         # What about the probability of being between
         # lowDep and HiDep?
@@ -1596,6 +1640,30 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
                                                 alpha = mp$omni$loDepProb,
                                                 above = TRUE )
 
+
+        expProbLoDep_sp[s,p]  <- expPenaltyFunction(  x = probLoDep_sp[s,p],
+                                                      eps = loDepBmsy,
+                                                      alpha = 10,
+                                                      above = TRUE )        
+
+        expProbHiDep_sp[s,p]  <- expPenaltyFunction(  x = probHiDep_sp[s,p],
+                                                      eps = hiDepBmsy,
+                                                      alpha = 10,
+                                                      above = FALSE )     
+
+
+        linProbLoDep_sp[s,p]  <- linPenaltyFunction(  x = probLoDep_sp[s,p],
+                                                      eps = loDepBmsy,
+                                                      alpha = 10,
+                                                      above = TRUE,
+                                                      beta = mp$omni$linBeta )        
+
+        linProbHiDep_sp[s,p]  <- linPenaltyFunction(  x = probHiDep_sp[s,p],
+                                                      eps = hiDepBmsy,
+                                                      alpha = 10,
+                                                      above = FALSE,
+                                                      beta = mp$omni$linBeta )     
+
         # Catch less than historical minimum (closures)
         closedCount_sp[s,p] <- sum( Cproj_spt[s,p,] < Cmin_sp[s,p] )
 
@@ -1606,17 +1674,50 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
                                           alpha = maxAAV/2,
                                           above = FALSE )
 
+        expAAV_sp[s,p] <- expPenaltyFunction( x = AAV,
+                                              eps = maxAAV,
+                                              alpha = 10,
+                                              above = FALSE )    
+
+        linAAV_sp[s,p] <- linPenaltyFunction( x = AAV,
+                                              eps = maxAAV,
+                                              alpha = 10,
+                                              above = FALSE,
+                                              beta = mp$omni$linBeta )   
+
 
         barCatDiff_sp[s,p] <- combBarrierPen( x = catDiffRel_spt[s,p,],
                                               eps = maxCatDiff, 
                                               alpha = maxCatDiff/2,
                                               above = FALSE )
 
+        expCatDiff_sp[s,p] <- expPenaltyFunction( x = catDiffRel_spt,
+                                                  eps = maxCatDiff,
+                                                  alpha = 1,
+                                                  above = FALSE )     
+
+        linCatDiff_sp[s,p] <- linPenaltyFunction( x = catDiffRel_spt,
+                                                  eps = maxCatDiff,
+                                                  alpha = 1,
+                                                  above = FALSE,
+                                                  beta = mp$omni$linBeta ) 
+
         
         barInitCatDiff_sp[s,p] <- combBarrierPen( x = initCatDiffRel_sp[s,p],
                                                   eps = maxCatDiff, 
                                                   alpha = 1,
                                                   above = FALSE )
+
+        expInitCatDiff_sp[s,p] <- expPenaltyFunction( x = initCatDiffRel_sp[s,p],
+                                                      eps = maxCatDiff,
+                                                      alpha = 2, 
+                                                      above = FALSE )
+
+        linInitCatDiff_sp[s,p] <- linPenaltyFunction( x = initCatDiffRel_sp[s,p],
+                                                      eps = maxCatDiff,
+                                                      alpha = 2, 
+                                                      above = FALSE,
+                                                      beta = mp$omni$linBeta )
       }
 
 
@@ -1626,6 +1727,19 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
                             alpha   = maxEffDiff/2, 
                             above   = FALSE )
 
+    expEffDiff_p <- apply(  X = effDiffRel_pt, FUN = expPenaltyFunction,
+                            MARGIN = 1,
+                            eps = maxEffDiff,
+                            alpha = 1,
+                            above = FALSE )
+
+    linEffDiff_p <- apply(  X = effDiffRel_pt, FUN = linPenaltyFunction,
+                            MARGIN = 1,
+                            eps = maxEffDiff,
+                            alpha = 1,
+                            beta = mp$omni$linBeta,
+                            above = FALSE )
+
     # Calculate average catch
     Csum    <- sum(Cproj_spt,na.rm = T)
     Cbar_sp <- apply( X = Cproj_spt, FUN = mean, MARGIN = c(1,2))
@@ -1633,20 +1747,61 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
 
 
     # Total obj function for each stock/species
-    objFun_sp <- -  avgCatWt * log(Cbar_sp) + 
+    objFun_sp <- -  avgCatWt * log(1e3*Cbar_sp) + 
+                    closedWt * closedCount_sp
+
+    if( mp$omni$penType == "barrier" )
+    {
+      objFun_sp <- objFun_sp +
                     depBmsyWt * barLoDep_sp + 
                     depBmsyWt * barHiDep_sp +
-                    AAVWt * barAAV_sp + 
-                    closedWt * closedCount_sp +
+                    AAVWt * barAAV_sp +  
                     catDiffWt * barCatDiff_sp + 
                     initCatDiffWt * barInitCatDiff_sp + 
                     probDepWt * barProbLoDep_sp +
                     probDepWt * barProbHiDep_sp
+
+    }
+
+    if( mp$omni$penType == "exponential" )
+    {
+      objFun_sp <- objFun_sp +
+                    depBmsyWt * expLoDep_sp + 
+                    depBmsyWt * expHiDep_sp +
+                    AAVWt * expAAV_sp +  
+                    catDiffWt * expCatDiff_sp + 
+                    initCatDiffWt * expInitCatDiff_sp + 
+                    probDepWt * expProbLoDep_sp +
+                    probDepWt * expProbHiDep_sp
+    }
+
+    if( mp$omni$penType == "linear" )
+    {
+      objFun_sp <- objFun_sp +
+                    depBmsyWt * linLoDep_sp + 
+                    depBmsyWt * linHiDep_sp +
+                    AAVWt * linAAV_sp +  
+                    catDiffWt * linCatDiff_sp + 
+                    initCatDiffWt * linInitCatDiff_sp + 
+                    probDepWt * linProbLoDep_sp +
+                    probDepWt * linProbHiDep_sp
+    }
+
+                    
    
     objFun    <-  sum(objFun_sp) -
-                  totCatWt * log(totCbar) -
-                  sumCatWt * log(Csum) +
-                  effDiffWt * sum(barEffDiff_p)
+                  totCatWt * log(1e3*totCbar) -
+                  sumCatWt * log(1e3*Csum) 
+
+    if( mp$omni$penType == "barrier" )
+      objFun <- objFun + effDiffWt * sum(barEffDiff_p)
+
+    if( mp$omni$penType == "exponential" )
+      objFun <- objFun + effDiffWt * sum(expEffDiff_p)    
+    
+
+    if( mp$omni$penType == "linear" )
+      objFun <- objFun + effDiffWt * sum(linEffDiff_p)  
 
     # Return results
     result                    <- obj
@@ -1655,16 +1810,38 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     result$Cbar_sp            <- Cbar_sp
     result$totCbar            <- totCbar
     result$Csum               <- Csum   
-    result$barLoDep_sp        <- barLoDep_sp
-    result$barHiDep_sp        <- barHiDep_sp
-    result$barProbHiDep_sp    <- barProbHiDep_sp
-    result$barProbLoDep_sp    <- barProbLoDep_sp
     result$closedCount_sp     <- closedCount_sp
-    result$barAAV_sp          <- barAAV_sp
-    result$barCatDiff_sp      <- barCatDiff_sp
-    result$barEffDiff_p       <- barEffDiff_p
-    result$barInitCatDiff_sp  <- barInitCatDiff_sp
+
+    if( mp$omni$penType == "barrier")
+      result$barLoDep_sp        <- barLoDep_sp
+      result$barHiDep_sp        <- barHiDep_sp
+      result$barProbHiDep_sp    <- barProbHiDep_sp
+      result$barProbLoDep_sp    <- barProbLoDep_sp
+      result$barAAV_sp          <- barAAV_sp
+      result$barCatDiff_sp      <- barCatDiff_sp
+      result$barEffDiff_p       <- barEffDiff_p
+      result$barInitCatDiff_sp  <- barInitCatDiff_sp
+
+    if( mp$omni$penType == "exponential" )
+      result$barLoDep_sp        <- expLoDep_sp
+      result$barHiDep_sp        <- expHiDep_sp
+      result$barProbHiDep_sp    <- expProbHiDep_sp
+      result$barProbLoDep_sp    <- expProbLoDep_sp
+      result$barAAV_sp          <- expAAV_sp
+      result$barCatDiff_sp      <- expCatDiff_sp
+      result$barEffDiff_p       <- expEffDiff_p
+      result$barInitCatDiff_sp  <- expInitCatDiff_sp      
     
+    if( mp$omni$penType == "linear" )
+      result$barLoDep_sp        <- linLoDep_sp
+      result$barHiDep_sp        <- linHiDep_sp
+      result$barProbHiDep_sp    <- linProbHiDep_sp
+      result$barProbLoDep_sp    <- linProbLoDep_sp
+      result$barAAV_sp          <- linAAV_sp
+      result$barCatDiff_sp      <- linCatDiff_sp
+      result$barEffDiff_p       <- linEffDiff_p
+      result$barInitCatDiff_sp  <- linInitCatDiff_sp 
+
     result
   } # END runModel
 
@@ -1725,9 +1902,9 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     # Find pars that give the best catch/AAV and minimise
     # closures/low catch
     opt <- optim( par = initPars, fn = getObjFunctionVal,
-                  method = "Nelder-Mead", obj = obj,
-                  #control=list(maxit=3000, reltol=0.001 ) )
-                  control=list(maxit=3000, reltol=0.001,ndeps=c(.01,.01) ) )
+                  method = "BFGS", obj = obj,
+                  control=list(maxit=3000, reltol=0.01 ) )
+                  # control=list(maxit=3000, reltol=0.001,ndeps=c(.01,.01) ) )
 
     # opt <- optim( par = opt$par, fn = getObjFunctionVal,
     #               method = "Nelder-Mead", obj = obj,
@@ -1780,6 +1957,46 @@ barrierPen <- function( x, xBar, above=TRUE)
   return( bar )
 }
 
+
+# expPenaltyFunction()
+# A simple exponential penalty function
+expPenaltyFunction <- function( x, eps, 
+                                alpha,
+                                above = TRUE )
+{
+  tmp <- rep(0, length(x))
+
+  if( above )
+  {
+    tmp <- exp( alpha * ( -x + eps ) )
+  }
+
+  if( !above )
+    tmp <- exp( alpha * ( x - eps ) )
+
+  pen <- sum(tmp)
+  pen
+}
+
+# linPenaltyFunction()
+# A simple exponential penalty function
+linPenaltyFunction <- function( x, eps, 
+                                alpha,
+                                beta = 1,
+                                above = TRUE )
+{
+  tmp <- rep(0, length(x))
+
+  if( above )
+  {
+    tmp[x <= eps] <- alpha * (-x + eps)
+  }
+
+  if( !above )
+    tmp[x >= eps] <- alpha * (x - eps)
+  pen <- sum(tmp^beta)
+  pen
+}
 
 # combBarrierPen()
 # Imposes a convex combination of a 
