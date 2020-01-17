@@ -1,0 +1,133 @@
+formula,area,formula_version,year,model,est_link,se_link,est,lwr,upr
+cpue ~ 0 + year_factor,5CDE,Unstandardized,1996,Combined,4.321761582,0.081896426,75.32119593,64.15131477,88.43595142
+cpue ~ 0 + year_factor,5CDE,Unstandardized,1997,Combined,4.343412714,0.066161051,76.96976742,67.6087257,87.62693034
+cpue ~ 0 + year_factor,5CDE,Unstandardized,1998,Combined,4.463782093,0.05541902,86.81523228,77.87934844,96.77642027
+cpue ~ 0 + year_factor,5CDE,Unstandardized,1999,Combined,4.550443508,0.050266846,94.67438786,85.79154765,104.4769556
+cpue ~ 0 + year_factor,5CDE,Unstandardized,2.00E+03,Combined,4.658788386,0.045100521,105.5081695,96.5819011,115.2594192
+cpue ~ 0 + year_factor,5CDE,Unstandardized,2001,Combined,4.795618305,0.054414964,120.9791607,108.7405725,134.5951837
+cpue ~ 0 + year_factor,5CDE,Unstandardized,2002,Combined,4.790588498,0.049588629,120.3721866,109.2233408,132.6590379
+cpue ~ 0 + year_factor,5CDE,Unstandardized,2003,Combined,5.024047215,0.053189883,152.0253396,136.9745367,168.7299293
+cpue ~ 0 + year_factor,5CDE,Unstandardized,2004,Combined,5.135266914,0.052449386,169.9096651,153.3106288,188.3058894
+cpue ~ 0 + year_factor,5CDE,Unstandardized,2005,Combined,4.591154041,0.051971901,98.60816243,89.05811342,109.1823005
+cpue ~ 0 + year_factor,5CDE,Unstandardized,2006,Combined,5.28914187,0.054455782,198.173294,178.1112826,220.4950404
+cpue ~ 0 + year_factor,5CDE,Unstandardized,2007,Combined,5.279648047,0.063237702,196.3007745,173.4175295,222.2035696
+cpue ~ 0 + year_factor,5CDE,Unstandardized,2008,Combined,5.000959556,0.060448227,148.5556382,131.9576492,167.241367
+cpue ~ 0 + year_factor,5CDE,Unstandardized,2009,Combined,5.410275826,0.053121188,223.6932797,201.5743503,248.2393385
+cpue ~ 0 + year_factor,5CDE,Unstandardized,2010,Combined,5.059696702,0.059206586,157.5427266,140.2815947,176.9277771
+cpue ~ 0 + year_factor,5CDE,Unstandardized,2011,Combined,5.074847595,0.052252466,159.9478133,144.377697,177.1970569
+cpue ~ 0 + year_factor,5CDE,Unstandardized,2012,Combined,4.774510561,0.054426388,118.4523252,106.4669748,131.7869074
+cpue ~ 0 + year_factor,5CDE,Unstandardized,2013,Combined,4.866905081,0.053229435,129.9182077,117.0469796,144.2048377
+cpue ~ 0 + year_factor,5CDE,Unstandardized,2014,Combined,5.092806006,0.067308404,162.8461688,142.7195527,185.8110834
+cpue ~ 0 + year_factor,5CDE,Unstandardized,2015,Combined,5.064416061,0.064269645,158.2879845,139.5534326,179.5375834
+cpue ~ 0 + year_factor,5CDE,Unstandardized,2016,Combined,4.64244624,0.071969696,103.797952,90.14194876,119.5227636
+cpue ~ 0 + year_factor,5CDE,Unstandardized,2017,Combined,4.603745417,0.065525175,99.85762455,87.8223544,113.5422211
+cpue ~ 0 + year_factor + depth + month + latitude + (1 | locality) + (1 | vessel) + (1 | year_locality),5CDE,Full standardization,1996,Combined,3.010644481,0.207462253,20.30047898,13.51795045,30.48608947
+cpue ~ 0 + year_factor + depth + month + latitude + (1 | locality) + (1 | vessel) + (1 | year_locality),5CDE,Full standardization,1997,Combined,2.846518364,0.20475893,17.22769674,11.53275054,25.73484389
+cpue ~ 0 + year_factor + depth + month + latitude + (1 | locality) + (1 | vessel) + (1 | year_locality),5CDE,Full standardization,1998,Combined,2.90330702,0.198621413,18.23434712,12.35436017,26.91288018
+cpue ~ 0 + year_factor + depth + month + latitude + (1 | locality) + (1 | vessel) + (1 | year_locality),5CDE,Full standardization,1999,Combined,2.746410243,0.197507935,15.58657931,10.58348418,22.95477088
+cpue ~ 0 + year_factor + depth + month + latitude + (1 | locality) + (1 | vessel) + (1 | year_locality),5CDE,Full standardization,2.00E+03,Combined,3.24605771,0.192212303,25.68886708,17.62505723,37.4420283
+cpue ~ 0 + year_factor + depth + month + latitude + (1 | locality) + (1 | vessel) + (1 | year_locality),5CDE,Full standardization,2001,Combined,3.199880459,0.200167477,24.52959772,16.56931026,36.31419505
+cpue ~ 0 + year_factor + depth + month + latitude + (1 | locality) + (1 | vessel) + (1 | year_locality),5CDE,Full standardization,2002,Combined,3.242223407,0.199422205,25.59055676,17.31123799,37.82956457
+cpue ~ 0 + year_factor + depth + month + latitude + (1 | locality) + (1 | vessel) + (1 | year_locality),5CDE,Full standardization,2003,Combined,3.005916463,0.202320062,20.20472451,13.59047448,30.03801617
+cpue ~ 0 + year_factor + depth + month + latitude + (1 | locality) + (1 | vessel) + (1 | year_locality),5CDE,Full standardization,2004,Combined,3.545983192,0.203449125,34.67375956,23.27134807,51.66308365
+cpue ~ 0 + year_factor + depth + month + latitude + (1 | locality) + (1 | vessel) + (1 | year_locality),5CDE,Full standardization,2005,Combined,3.511026547,0.207216931,33.48262164,22.30657241,50.25810024
+cpue ~ 0 + year_factor + depth + month + latitude + (1 | locality) + (1 | vessel) + (1 | year_locality),5CDE,Full standardization,2006,Combined,3.733514778,0.197414354,41.82585874,28.40549591,61.58676001
+cpue ~ 0 + year_factor + depth + month + latitude + (1 | locality) + (1 | vessel) + (1 | year_locality),5CDE,Full standardization,2007,Combined,3.36933998,0.204935964,29.05934098,19.44646862,43.42409487
+cpue ~ 0 + year_factor + depth + month + latitude + (1 | locality) + (1 | vessel) + (1 | year_locality),5CDE,Full standardization,2008,Combined,3.3616786,0.203173671,28.837557,19.36482364,42.94408817
+cpue ~ 0 + year_factor + depth + month + latitude + (1 | locality) + (1 | vessel) + (1 | year_locality),5CDE,Full standardization,2009,Combined,3.720689341,0.19696609,41.29284916,28.06815905,60.74852964
+cpue ~ 0 + year_factor + depth + month + latitude + (1 | locality) + (1 | vessel) + (1 | year_locality),5CDE,Full standardization,2010,Combined,3.170159073,0.204544232,23.81127179,15.94670746,35.55446576
+cpue ~ 0 + year_factor + depth + month + latitude + (1 | locality) + (1 | vessel) + (1 | year_locality),5CDE,Full standardization,2011,Combined,3.605121018,0.204145661,36.78613539,24.65538964,54.88535271
+cpue ~ 0 + year_factor + depth + month + latitude + (1 | locality) + (1 | vessel) + (1 | year_locality),5CDE,Full standardization,2012,Combined,3.312301223,0.203539041,27.44821732,18.41866777,40.90440435
+cpue ~ 0 + year_factor + depth + month + latitude + (1 | locality) + (1 | vessel) + (1 | year_locality),5CDE,Full standardization,2013,Combined,3.463288971,0.201420675,31.9217939,21.50970973,47.37399708
+cpue ~ 0 + year_factor + depth + month + latitude + (1 | locality) + (1 | vessel) + (1 | year_locality),5CDE,Full standardization,2014,Combined,3.860260935,0.216051264,47.47773833,31.08733361,72.50977731
+cpue ~ 0 + year_factor + depth + month + latitude + (1 | locality) + (1 | vessel) + (1 | year_locality),5CDE,Full standardization,2015,Combined,3.625404594,0.208768366,37.5399085,24.93365745,56.51977584
+cpue ~ 0 + year_factor + depth + month + latitude + (1 | locality) + (1 | vessel) + (1 | year_locality),5CDE,Full standardization,2016,Combined,3.473183394,0.22297162,32.23920938,20.82510063,49.90932049
+cpue ~ 0 + year_factor + depth + month + latitude + (1 | locality) + (1 | vessel) + (1 | year_locality),5CDE,Full standardization,2017,Combined,3.522184398,0.210148905,33.85830775,22.42760451,51.11491079
+cpue ~ 0 + year_factor,5AB,Unstandardized,1996,Combined,3.327922944,0.079310257,27.88037244,23.86647706,32.56932999
+cpue ~ 0 + year_factor,5AB,Unstandardized,1997,Combined,3.192685681,0.057046183,24.35374609,21.77745288,27.23481722
+cpue ~ 0 + year_factor,5AB,Unstandardized,1998,Combined,3.282759008,0.052801956,26.64919672,24.02913792,29.55493818
+cpue ~ 0 + year_factor,5AB,Unstandardized,1999,Combined,3.341114966,0.047467028,28.25060762,25.74085943,31.00505767
+cpue ~ 0 + year_factor,5AB,Unstandardized,2.00E+03,Combined,3.642561679,0.043955668,38.18954088,35.03713745,41.62557613
+cpue ~ 0 + year_factor,5AB,Unstandardized,2001,Combined,3.850079666,0.043449343,46.99680711,43.16020774,51.17444967
+cpue ~ 0 + year_factor,5AB,Unstandardized,2002,Combined,4.130267146,0.035967151,62.19453572,57.96106721,66.73721621
+cpue ~ 0 + year_factor,5AB,Unstandardized,2003,Combined,4.116825828,0.035203056,61.3641524,57.27291572,65.74764272
+cpue ~ 0 + year_factor,5AB,Unstandardized,2004,Combined,3.988442968,0.038656518,53.97078968,50.03267002,58.21888254
+cpue ~ 0 + year_factor,5AB,Unstandardized,2005,Combined,3.876345292,0.039832764,48.24756169,44.62405548,52.16529928
+cpue ~ 0 + year_factor,5AB,Unstandardized,2006,Combined,3.762020403,0.043489148,43.0352868,39.51900411,46.8644378
+cpue ~ 0 + year_factor,5AB,Unstandardized,2007,Combined,3.247448241,0.053731058,25.72461308,23.15325481,28.58154171
+cpue ~ 0 + year_factor,5AB,Unstandardized,2008,Combined,2.832048386,0.069013488,16.98020725,14.83192497,19.43965054
+cpue ~ 0 + year_factor,5AB,Unstandardized,2009,Combined,3.594768236,0.052109032,36.40726113,32.8724373,40.32219002
+cpue ~ 0 + year_factor,5AB,Unstandardized,2010,Combined,4.329721262,0.042890821,75.92312098,69.80148286,82.58163099
+cpue ~ 0 + year_factor,5AB,Unstandardized,2011,Combined,4.23924574,0.047566994,69.35552001,63.18168287,76.13263745
+cpue ~ 0 + year_factor,5AB,Unstandardized,2012,Combined,4.332670689,0.055922703,76.14738126,68.24213513,84.96838004
+cpue ~ 0 + year_factor,5AB,Unstandardized,2013,Combined,3.712728316,0.066351838,40.9654208,35.96976459,46.65489809
+cpue ~ 0 + year_factor,5AB,Unstandardized,2014,Combined,3.913475873,0.062467851,50.07269615,44.30240149,56.59455956
+cpue ~ 0 + year_factor,5AB,Unstandardized,2015,Combined,3.36764927,0.067663517,29.01025157,25.40710291,33.12438648
+cpue ~ 0 + year_factor,5AB,Unstandardized,2016,Combined,3.650012108,0.066936437,38.4751319,33.74447472,43.86898262
+cpue ~ 0 + year_factor,5AB,Unstandardized,2017,Combined,2.952619382,0.084795639,19.15606512,16.2228368,22.61964633
+cpue ~ 0 + year_factor + depth + month + latitude + (1 | locality) + (1 | vessel) + (1 | year_locality),5AB,Full standardization,1996,Combined,3.680053779,0.359511898,39.64852628,19.59766563,80.21392272
+cpue ~ 0 + year_factor + depth + month + latitude + (1 | locality) + (1 | vessel) + (1 | year_locality),5AB,Full standardization,1997,Combined,3.691025112,0.350930083,40.08591844,20.14995687,79.74611894
+cpue ~ 0 + year_factor + depth + month + latitude + (1 | locality) + (1 | vessel) + (1 | year_locality),5AB,Full standardization,1998,Combined,3.249265889,0.354621451,25.77141389,12.86110762,51.64141329
+cpue ~ 0 + year_factor + depth + month + latitude + (1 | locality) + (1 | vessel) + (1 | year_locality),5AB,Full standardization,1999,Combined,3.295369988,0.351911948,26.98739723,13.53965206,53.79160452
+cpue ~ 0 + year_factor + depth + month + latitude + (1 | locality) + (1 | vessel) + (1 | year_locality),5AB,Full standardization,2.00E+03,Combined,3.437625079,0.351511487,31.11297949,15.62172485,61.96610822
+cpue ~ 0 + year_factor + depth + month + latitude + (1 | locality) + (1 | vessel) + (1 | year_locality),5AB,Full standardization,2001,Combined,3.581250188,0.34982858,35.91841755,18.09410456,71.30127468
+cpue ~ 0 + year_factor + depth + month + latitude + (1 | locality) + (1 | vessel) + (1 | year_locality),5AB,Full standardization,2002,Combined,3.747129488,0.348044577,42.39919976,21.43365,83.87242208
+cpue ~ 0 + year_factor + depth + month + latitude + (1 | locality) + (1 | vessel) + (1 | year_locality),5AB,Full standardization,2003,Combined,4.112570906,0.344790496,61.10360747,31.08674537,120.1042696
+cpue ~ 0 + year_factor + depth + month + latitude + (1 | locality) + (1 | vessel) + (1 | year_locality),5AB,Full standardization,2004,Combined,3.675154163,0.35188843,39.45473884,19.79546437,78.63803483
+cpue ~ 0 + year_factor + depth + month + latitude + (1 | locality) + (1 | vessel) + (1 | year_locality),5AB,Full standardization,2005,Combined,3.86760285,0.348160143,47.82759861,24.17233917,94.63209879
+cpue ~ 0 + year_factor + depth + month + latitude + (1 | locality) + (1 | vessel) + (1 | year_locality),5AB,Full standardization,2006,Combined,3.704723941,0.349189343,40.63882704,20.49770293,80.57069952
+cpue ~ 0 + year_factor + depth + month + latitude + (1 | locality) + (1 | vessel) + (1 | year_locality),5AB,Full standardization,2007,Combined,3.173017615,0.353094887,23.87943469,11.95263358,47.70726028
+cpue ~ 0 + year_factor + depth + month + latitude + (1 | locality) + (1 | vessel) + (1 | year_locality),5AB,Full standardization,2008,Combined,3.191554456,0.35783572,24.32621211,12.06364574,49.05354553
+cpue ~ 0 + year_factor + depth + month + latitude + (1 | locality) + (1 | vessel) + (1 | year_locality),5AB,Full standardization,2009,Combined,3.512720531,0.358495724,33.53938873,16.61106288,67.71936296
+cpue ~ 0 + year_factor + depth + month + latitude + (1 | locality) + (1 | vessel) + (1 | year_locality),5AB,Full standardization,2010,Combined,4.235570328,0.350486059,69.10107775,34.76522659,137.3487078
+cpue ~ 0 + year_factor + depth + month + latitude + (1 | locality) + (1 | vessel) + (1 | year_locality),5AB,Full standardization,2011,Combined,4.071800656,0.350535325,58.66249851,29.51065602,116.6117327
+cpue ~ 0 + year_factor + depth + month + latitude + (1 | locality) + (1 | vessel) + (1 | year_locality),5AB,Full standardization,2012,Combined,3.746883918,0.358335586,42.38878906,21.00049838,85.56032364
+cpue ~ 0 + year_factor + depth + month + latitude + (1 | locality) + (1 | vessel) + (1 | year_locality),5AB,Full standardization,2013,Combined,3.822297366,0.360003571,45.70909831,22.5715523,92.56437662
+cpue ~ 0 + year_factor + depth + month + latitude + (1 | locality) + (1 | vessel) + (1 | year_locality),5AB,Full standardization,2014,Combined,4.110895314,0.361649981,61.00130848,30.02593027,123.9315353
+cpue ~ 0 + year_factor + depth + month + latitude + (1 | locality) + (1 | vessel) + (1 | year_locality),5AB,Full standardization,2015,Combined,4.09720755,0.364208316,60.17202542,29.46960083,122.861272
+cpue ~ 0 + year_factor + depth + month + latitude + (1 | locality) + (1 | vessel) + (1 | year_locality),5AB,Full standardization,2016,Combined,4.099071264,0.362932112,60.28427343,29.59851893,122.7829552
+cpue ~ 0 + year_factor + depth + month + latitude + (1 | locality) + (1 | vessel) + (1 | year_locality),5AB,Full standardization,2017,Combined,4.064917505,0.367882072,58.26010216,28.32850787,119.8170945
+cpue ~ 0 + year_factor,3CD,Unstandardized,1996,Combined,-0.057565145,0.274178542,0.944060388,0.551587338,1.615791288
+cpue ~ 0 + year_factor,3CD,Unstandardized,1997,Combined,-0.238472992,0.311006491,0.787829966,0.42825104,1.449327607
+cpue ~ 0 + year_factor,3CD,Unstandardized,1998,Combined,1.046091838,0.186382709,2.84650475,1.975421373,4.101701745
+cpue ~ 0 + year_factor,3CD,Unstandardized,1999,Combined,1.501841199,0.118480359,4.489948353,3.55949861,5.663616824
+cpue ~ 0 + year_factor,3CD,Unstandardized,2.00E+03,Combined,2.251566778,0.084161219,9.502612661,8.057560056,11.20682275
+cpue ~ 0 + year_factor,3CD,Unstandardized,2001,Combined,1.833891443,0.093379278,6.258192734,5.211501746,7.515103745
+cpue ~ 0 + year_factor,3CD,Unstandardized,2002,Combined,1.929950632,0.08602166,6.889170131,5.820278888,8.154362705
+cpue ~ 0 + year_factor,3CD,Unstandardized,2003,Combined,1.985662404,0.094394236,7.283870652,6.053579204,8.764198813
+cpue ~ 0 + year_factor,3CD,Unstandardized,2004,Combined,2.234692664,0.081262129,9.343609784,7.967883431,10.9568676
+cpue ~ 0 + year_factor,3CD,Unstandardized,2005,Combined,1.813135872,0.084950636,6.12963909,5.189475462,7.240129691
+cpue ~ 0 + year_factor,3CD,Unstandardized,2006,Combined,0.627997772,0.125682997,1.873854935,1.464712676,2.397284039
+cpue ~ 0 + year_factor,3CD,Unstandardized,2007,Combined,0.894104098,0.1526864,2.445144199,1.812738624,3.29817552
+cpue ~ 0 + year_factor,3CD,Unstandardized,2008,Combined,0.375355202,0.143783901,1.455508322,1.098053159,1.929327793
+cpue ~ 0 + year_factor,3CD,Unstandardized,2009,Combined,2.154416081,0.099554102,8.622853661,7.094288622,10.4807697
+cpue ~ 0 + year_factor,3CD,Unstandardized,2010,Combined,1.620099812,0.111820128,5.053594701,4.058982643,6.291926241
+cpue ~ 0 + year_factor,3CD,Unstandardized,2011,Combined,2.462441029,0.089284713,11.73341822,9.849719635,13.97736263
+cpue ~ 0 + year_factor,3CD,Unstandardized,2012,Combined,2.279864666,0.089706456,9.775357386,8.199228069,11.65446445
+cpue ~ 0 + year_factor,3CD,Unstandardized,2013,Combined,2.418974625,0.101871651,11.234334,9.20094494,13.71709768
+cpue ~ 0 + year_factor,3CD,Unstandardized,2014,Combined,2.935157206,0.103986085,18.82446223,15.35351565,23.08008057
+cpue ~ 0 + year_factor,3CD,Unstandardized,2015,Combined,1.632445208,0.122716107,5.116370024,4.022572556,6.507587335
+cpue ~ 0 + year_factor,3CD,Unstandardized,2016,Combined,2.772504608,0.102547406,15.99865423,13.08559089,19.56021241
+cpue ~ 0 + year_factor,3CD,Unstandardized,2017,Combined,1.253801832,0.145445645,3.503637911,2.634592094,4.659346941
+cpue ~ 0 + year_factor + depth + month + latitude + (1 | locality) + (1 | vessel) + (1 | year_locality),3CD,Full standardization,1996,Combined,2.780025548,0.532577535,16.11943276,5.675584649,45.78138265
+cpue ~ 0 + year_factor + depth + month + latitude + (1 | locality) + (1 | vessel) + (1 | year_locality),3CD,Full standardization,1997,Combined,0.8987629,0.714306869,2.456562217,0.605755667,9.962264086
+cpue ~ 0 + year_factor + depth + month + latitude + (1 | locality) + (1 | vessel) + (1 | year_locality),3CD,Full standardization,1998,Combined,3.017711562,0.447680787,20.44445226,8.501624137,49.16420925
+cpue ~ 0 + year_factor + depth + month + latitude + (1 | locality) + (1 | vessel) + (1 | year_locality),3CD,Full standardization,1999,Combined,2.746442186,0.405866289,15.58707719,7.03532762,34.53385379
+cpue ~ 0 + year_factor + depth + month + latitude + (1 | locality) + (1 | vessel) + (1 | year_locality),3CD,Full standardization,2.00E+03,Combined,3.133414604,0.38267048,22.95221863,10.84149025,48.59150613
+cpue ~ 0 + year_factor + depth + month + latitude + (1 | locality) + (1 | vessel) + (1 | year_locality),3CD,Full standardization,2001,Combined,2.470052781,0.398174278,11.82307087,5.417482351,25.80257688
+cpue ~ 0 + year_factor + depth + month + latitude + (1 | locality) + (1 | vessel) + (1 | year_locality),3CD,Full standardization,2002,Combined,2.758169536,0.392614303,15.77094836,7.305631603,34.04535375
+cpue ~ 0 + year_factor + depth + month + latitude + (1 | locality) + (1 | vessel) + (1 | year_locality),3CD,Full standardization,2003,Combined,2.064565251,0.402640481,7.881870514,3.580097044,17.35256951
+cpue ~ 0 + year_factor + depth + month + latitude + (1 | locality) + (1 | vessel) + (1 | year_locality),3CD,Full standardization,2004,Combined,2.618149666,0.390485939,13.71033141,6.377634273,29.47381101
+cpue ~ 0 + year_factor + depth + month + latitude + (1 | locality) + (1 | vessel) + (1 | year_locality),3CD,Full standardization,2005,Combined,2.51147728,0.399748712,12.32312132,5.629213902,26.9770028
+cpue ~ 0 + year_factor + depth + month + latitude + (1 | locality) + (1 | vessel) + (1 | year_locality),3CD,Full standardization,2006,Combined,2.17930208,0.409310818,8.840134398,3.963204345,19.71838174
+cpue ~ 0 + year_factor + depth + month + latitude + (1 | locality) + (1 | vessel) + (1 | year_locality),3CD,Full standardization,2007,Combined,1.615024423,0.432075474,5.028010719,2.155788377,11.72698214
+cpue ~ 0 + year_factor + depth + month + latitude + (1 | locality) + (1 | vessel) + (1 | year_locality),3CD,Full standardization,2008,Combined,1.399032202,0.417817679,4.051277252,1.786234103,9.18851977
+cpue ~ 0 + year_factor + depth + month + latitude + (1 | locality) + (1 | vessel) + (1 | year_locality),3CD,Full standardization,2009,Combined,2.811811454,0.398850011,16.64003359,7.614584592,36.36320729
+cpue ~ 0 + year_factor + depth + month + latitude + (1 | locality) + (1 | vessel) + (1 | year_locality),3CD,Full standardization,2010,Combined,2.160681763,0.415842832,8.677051335,3.84060464,19.60400169
+cpue ~ 0 + year_factor + depth + month + latitude + (1 | locality) + (1 | vessel) + (1 | year_locality),3CD,Full standardization,2011,Combined,3.117906916,0.385627442,22.59902844,10.6129731,48.12186761
+cpue ~ 0 + year_factor + depth + month + latitude + (1 | locality) + (1 | vessel) + (1 | year_locality),3CD,Full standardization,2012,Combined,2.793918366,0.394749233,16.34493995,7.53990716,35.43240735
+cpue ~ 0 + year_factor + depth + month + latitude + (1 | locality) + (1 | vessel) + (1 | year_locality),3CD,Full standardization,2013,Combined,2.812379616,0.419590278,16.6494905,7.315406992,37.89338507
+cpue ~ 0 + year_factor + depth + month + latitude + (1 | locality) + (1 | vessel) + (1 | year_locality),3CD,Full standardization,2014,Combined,3.655055309,0.432805161,38.66965982,16.5561427,90.31950362
+cpue ~ 0 + year_factor + depth + month + latitude + (1 | locality) + (1 | vessel) + (1 | year_locality),3CD,Full standardization,2015,Combined,3.022762886,0.429392844,20.54798507,8.856511158,47.67336514
+cpue ~ 0 + year_factor + depth + month + latitude + (1 | locality) + (1 | vessel) + (1 | year_locality),3CD,Full standardization,2016,Combined,4.143746421,0.397716245,63.03854853,28.9110126,137.4513808
+cpue ~ 0 + year_factor + depth + month + latitude + (1 | locality) + (1 | vessel) + (1 | year_locality),3CD,Full standardization,2017,Combined,2.722478107,0.462890942,15.21798735,6.142377361,37.70317671
