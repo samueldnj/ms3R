@@ -63,9 +63,10 @@ good candidate for management with a hierarchical stock
 assessment model. Our closed loop simulation experiments 
 compare the performance of management procedures built 
 around single-stock, data-pooled, and hierarchical 
-multi-stock assessment models. We measure the performance
-with respect to increasing and decreasing observation
-error variance. 
+multi-stock assessment models to the outcomes from fishing
+effort allocated by an omniscient manager [@walters1998evaluation], 
+who wants to maximise average catch subject to 
+constraints on catch and effort variability, and stock status.
 
 
 

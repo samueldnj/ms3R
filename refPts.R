@@ -414,5 +414,6 @@ calcRefPts <- function( obj )
     }
 
   genTime_sp
+
   
 }

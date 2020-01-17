@@ -100,8 +100,8 @@ hierarchical assessments, or single-stock assessments;
 2. Apply a harvest control rule to determine
 total allowable catch, and then allocate TAC 
 among species if using a data-pooling method;
-3. Allocate effort to maximise profits
-according to effort allocation model;
+3. Allocate effort to fully realise at least
+one TAC in each stock area;
 4. Generate realised catches from effort with
 updated catch rates;
 5. Update stochastic population dynamics and
@@ -312,40 +312,134 @@ assessment model and other management procedure components.
 
 ### Omniscient manager simulations
 
-We measured our MP performance against the performance of 
-simulations using an omniscient manager.
+We measured our MP performance against the a simulated
+omniscient manager. An omniscient manager is aware of
+all the consequences of their actions, and is able to
+adapt the management to meet certain objectives. We found
+that comparing to an omnisicient manager was preferable 
+to using standard MSE metrics, such as depletion and catch
+levels, because several stocks are in a healthy state. Being 
+in a healthy state means that the stock behaves more like
+a developing fishery [@walters1998evaluation], and the 
+standard catch and biomass depletion metrics are less 
+sensitive to differences in the structure of the MP.
 
-Because several of the 9 DER complex stocks
-are in healthy states at the beginning of the projection
-period ($B > B_{MSY}$) we 
+We implemented the omniscient manager as an optimisation
+of future fishing effort by area, with the objective
+function defined as
+\begin{equation}
+\mathcal{O} = \sum_{s,p} \left[ -\log(\bar{C}_{s,p,\cdot}) + 
+                  \mathcal{P}_{dep}(B_{s,p,t}/B_{MSY,s,p}) +
+                  \mathcal{P}_{closed}(C_{s,p,\cdot}) +
+                  \mathcal{P}_{AAV}(C_{s,p,\cdot}) +
+                  \mathcal{P}_{diff}(C_{s,p,\cdot}) +
+                  \mathcal{P}_{diff}(E_{s,p,\cdot}) +
+                  \mathcal{P}_{init}(C_{s,p,t_{MP}}) +
+                  \mathcal{P}_{init}(E_{s,p,t_{MP}})
+\end{equation}
+where the objective is to maxmimise average catch 
+$\bar{C}_{s,p,\cdot}$ for each stock and species over the
+projection period. Penalty functions $\mathcal{P}$ were 
+applied for:
+
+1. biomass being outside the interval
+$[.4B_{MSY,s,p},1.2B_{MSY,s,p}$ ($\mathcal{P}_{dep}$);
+2. catch being below the historical minimum ($\mathcal{P}_{closed}$);
+3. annual average variation above 30% ($\mathcal{P}_{closed}$);
+4. annual changes in catch and effort being above 
+30% and 20%, respectively ($\mathcal{P}_{diff}$).
+5. difference between historical catch and effort 
+above 20% and 10% ($\mathcal{P}_{init}$).
+
+We defined penalty functions so that inside
+the desired region the penalty was zero, but outside
+the desired region the penalty grew as a cubic function. 
+So, for example, a penalty designed to keep a measurement 
+$x$ above a the desired region boundary $\epsilon$ is of 
+the form
+\begin{equation}
+\mathcal{P}(x ~|~ \epsilon) = \left\{
+  \begin{array}{ll}
+    0 & x \geq \epsilon, \\
+    |x - \epsilon|^2 & x < epsilon. \\
+  \end{array} \right. 
+\end{equation}
+This form has a several advantages over
+simple linear penalties, or a logarithmic barrier
+penalty [@srinivasan2008tracking]. First, the cubic 
+function makes the boundary threshold $\epsilon$ a soft 
+boundary, which is able to be crossed if doing favours 
+another portion of the objective function, and because
+cubics stick closer to the $x$-axis when $|x-\epsilon| < 1$
+this boundary is softer than lower degree polynomials. Second, 
+making the penalty zero in the desirable region stops
+the objective function from favouring regions far
+from the boundaries of penalty functions, as a logarithmic
+function would, for example, favouring overly conservative
+effort series to keep biomass far from the lower depletion
+boundary. Third, the cubic form of the penalty outside
+the desired region means that the penalty function and its
+first two derivatives are continuous with $x$ (**CHECK**),
+allowing quasi-newton optimisation methods to be applied. Last,
+the cubic polynomial actually favours small excursions
+outside of the desired region when it is a net increase
+in the objective function, as cubics stick closer to the
+$x$-axis than lower degree polynomials.
+
+Each penalty function is applied with a weighting, which
+we used as tuning parameters. Tuning was required to balance
+the relative contribution of each penalty, depending
+on whether it was applied to a time series or point value,
+and also to achieve realistic time series of effort or catch.
+For example, commercial harvesters are unable to double or triple
+effort in a short period of time, as this would require significant
+capital investment or a large increase in human resources. 
+Similarly, in practice harvesters are reluctant to allow catch 
+to increase by more than 10% - 20% per year (**REACH OUT TO
+TRAWL FOR INPUT/POSSIBLE CITATION HERE**). **Tuning criteria?**
+
+We used a cubic spline of effort in each area to reduce
+the number of free parameters in the optimisation. For each
+area, 11 knot points were distributed across the full 40 year
+projection, making them spaced by 4 years. Effort splines
+were constrained to be between 0 and 50 units, by simply
+replacing any value outside that range with the closest
+value inside the range (i.e. negative values by zero,
+large values by 50).
+
+
+We ran the omniscient manager simulation for every random
+seed that was used in the stochastic MP simulations. By doing so, 
+we assured that an omniscient manager simulation was available
+for every set of observation and process errors a stochastic MP 
+was exposed to. 
+
 
 ### Performance metrics
 
-Given that no set of formal management objectives exists
-for the BC flatfish fishery, we decided to generic
-conservation metrics to evaluate the
-conservation performance of our management procedures
-(metrics 1 - 3 below). In addition to the standard 
-average catch and annual average variation (metrics 4
-and 5), we also defined quota utilisation
-and average revenue metrics for evaluating the
-MPs from a commercial point of view.
 
-1. $P(B_{s,p,t} < .4B_{MSY,s,p})$: the probability of 
-biomass falling below the generally accepted limit 
-reference point of 40% of $B_{MSY}$;
-2. $P(B_{s,p,t} < .8B_{MSY,s,p})$: the probability that
-a stock is in an overfished state;
-3. $P(U_{s,p,t} > U_{MSY,s,p})$: the probability that
-overfishing occured;
-4. $\bar{C}_{s,p,t}$: average catch;
-5. $AAV_{s,p}$: the average annual variation in catch
-\begin{equation*}
-AAV_{s,p} = \frac{\sum_t |C_{s,p,t} - C_{s,p,t+1} | }{\sum_t C_{s,p,t}}.
-\end{equation*}
-6. $C_{s,p,t} / TAC_{s,p,t}$: quota utilisation ratios?
+We measured the performance of the stochastic MPs by comparing
+the realised catch and biomass trajectories to those
+of the omniscient manager simulations. For each random
+seed, the relative and absolute loss of catch and biomass
+was calculated as [@walters1998evaluation]:
+\begin{align}
+L_{abs} &= \sum_{t} | X_{t,MP} - X_{t,omni} |, \\
+L_{rel} &= \sum_{t} (X_{t,MP} - X_{t,omni})/X_{t,omni}, 
+\end{align}
+where the $X_{t,MP}$ values are either catch or 
+biomass series from the MP runs or the omniscient manager
+simulation. Each loss function was calculated on the 
+appropriate scale for the MP; that is, the single stock 
+and full multi-stock MPs calculate loss for all 9 stocks, 
+while the data pooled and coastwide MPs calculate loss on 
+the aggregate level. Using the appropriate scale
+avoids consideration of the TAC allocation method in
+the MP performance. When repeated over all random seed values, 
+the loss functions generate a distribution of biomass and 
+catch loss, which we compare for performance of each 
+stochastic MP.
 
-All metrics are calculated over the first ten years 
-of the projection period.
+
 
 

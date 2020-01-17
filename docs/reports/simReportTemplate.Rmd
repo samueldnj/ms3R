@@ -184,7 +184,7 @@ plotRetroSBagg(obj = blob, iRep = randReplicate)
 # To be added:
 
 - Plots of scaled indices over biomass fits.
-- 
+
 
 # Performance
 

@@ -110,6 +110,52 @@
   unlink(file.path(simFolderPath,dataReportFiles), recursive = TRUE)
 } # END .makeSimReport()
 
+# .makeBatchReport()
+# Makes a .html report of the simulation
+# showing basic performance plots
+# and tables
+.makeBatchReport <- function( batchFolder = "" )
+{
+  simFolder <- here::here("Outputs",batchFolder)
+
+  # Create parameter list for rendering the document
+  params <- list( batchDir = simFolder )
+  # Make an output file name
+  outFile <- paste( "batchReport.html", sep = "")
+  outFolder <- file.path(simFolder,"batchReports")
+
+  # Render
+  rmarkdown::render(  input = here::here("docs/reports","batchReportTemplate.Rmd"), 
+                      output_file = outFile,
+                      output_dir = outFolder,
+                      params = params,
+                      envir = new.env(),
+                      output_format = "bookdown::html_document2" )
+
+  # remove temporary files
+  dataReportFiles <- "batchReport_files"
+  unlink(file.path(outFolder,dataReportFiles), recursive = TRUE)
+} # END .makeBatchReport()
+
+# readBatchInfo()
+# Loads a data.frame of info files for
+# a given groupFolder
+readBatchInfo <- function(batchDir = here("Outputs") )
+{
+  batchFitDirs <- list.dirs(batchDir,recursive = FALSE)
+  batchFitDirs <- batchFitDirs[grepl(x = batchFitDirs, pattern = "sim_")]
+  nFits <- length(batchFitDirs)
+
+  # Read in the info files
+  infoFiles <- file.path(batchFitDirs,"infoFile.txt")
+  info.df <- lapply(X = infoFiles, FUN = lisread )
+  info.df <- as.data.frame(do.call(rbind, info.df)) %>%
+              mutate_all(as.character)
+
+
+  info.df
+}
+
 # .makeInfoFile()
 # Creates an info list for the
 # fit object in the argument
@@ -121,6 +167,7 @@
   infoList$scenario <- obj$ctlList$ctl$scenarioName
   infoList$mp       <- obj$ctlList$ctl$mpName
   infoList$path     <- obj$path
+  infoList$simLabel <- obj$simLabel
 
 
   outFile <- file.path(obj$path, "infoFile.txt")

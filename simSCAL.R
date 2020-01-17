@@ -1203,7 +1203,9 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
                             closedCount_isp     = array( NA, dim = c(nReps,nS,nP)),
                             barAAV_isp          = array( NA, dim = c(nReps,nS,nP)),
                             barCatDiff_isp      = array( NA, dim = c(nReps,nS,nP)),
-                            barEffDiff_ip       = array( NA, dim = c(nReps,nP)) )
+                            barEffDiff_i        = array( NA, dim = c(nReps)),
+                            barInitEffDiff_i    = array( NA, dim = c(nReps)) )
+
 
   ##########################################################
   ######### ------- CLOSED LOOP SIMULATION ------- #########
@@ -1328,7 +1330,8 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
       blob$omniObjFun$closedCount_isp[i,,]    <- simObj$closedCount_sp
       blob$omniObjFun$barAAV_isp[i,,]         <- simObj$barAAV_sp
       blob$omniObjFun$barCatDiff_isp[i,,]     <- simObj$barCatDiff_sp
-      blob$omniObjFun$barEffDiff_ip[i,]       <- simObj$barEffDiff_p
+      blob$omniObjFun$barEffDiff_i[i]         <- simObj$barEffDiff
+      blob$omniObjFun$barInitEffDiff_i[i]     <- simObj$barInitEffDiff
 
     }
 
@@ -1425,13 +1428,15 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     # Obj function weights
     avgCatWt      <- mp$omni$avgCatWt
     totCatWt      <- mp$omni$totCatWt
-    depBmsyWt     <- mp$omni$depBmsyWt
+    hiDepBmsyWt   <- mp$omni$hiDepBmsyWt
+    loDepBmsyWt   <- mp$omni$loDepBmsyWt
     closedWt      <- mp$omni$closedWt
     AAVWt         <- mp$omni$AAVWt
     catDiffWt     <- mp$omni$catDiffWt
     sumCatWt      <- mp$omni$sumCatWt
     effDiffWt     <- mp$omni$effDiffWt
     initCatDiffWt <- mp$omni$initCatDiffWt
+    initEffDiffWt <- mp$omni$initEffDiffWt
     probDepWt     <- mp$omni$probDepWt
 
     # Model dimensions
@@ -1526,7 +1531,6 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     closedCount_sp      <- array(0, dim = c(nS,nP))
     barCatDiff_sp       <- array(0, dim = c(nS,nP))
     barInitCatDiff_sp   <- array(0, dim = c(nS,nP))
-    barEffDiff_p        <- array(0, dim = c(nP))
 
     # Exponential penalty functions
     expLoDep_sp         <- array(0, dim = c(nS,nP))
@@ -1536,7 +1540,6 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     expAAV_sp           <- array(0, dim = c(nS,nP))
     expCatDiff_sp       <- array(0, dim = c(nS,nP))
     expInitCatDiff_sp   <- array(0, dim = c(nS,nP))
-    expEffDiff_p        <- array(0, dim = c(nP))
 
     # Linear penalty functions
     linLoDep_sp         <- array(0, dim = c(nS,nP))
@@ -1546,7 +1549,6 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     linAAV_sp           <- array(0, dim = c(nS,nP))
     linCatDiff_sp       <- array(0, dim = c(nS,nP))
     linInitCatDiff_sp   <- array(0, dim = c(nS,nP))
-    linEffDiff_p        <- array(0, dim = c(nP))
 
 
 
@@ -1577,15 +1579,14 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     initCatDiffRel_sp <- catDiffRel_spt[,,1]
 
     # Effort difference (prefer to keep total effort similar)
-    effDiff_tp  <- abs(apply( X = obj$om$E_pft[,2,(tMP-1):nT],
-                              FUN = diff, MARGIN = c(1) ) )
+    totEff_t   <- apply( X = obj$om$E_pft[,2,(tMP-1):nT],
+                          FUN = sum, MARGIN = 2 )
+    effDiff_t  <- abs(diff(totEff_t))
 
+    effDiffRel_t <- effDiff_t / totEff_t[-pT]
+    effDiffRel_t[!is.finite(effDiffRel_t)] <- 1
 
-    effDiff_pt   <- aperm( effDiff_tp, c(2,1) )
-
-    effDiffRel_pt <- effDiff_pt / obj$om$E_pft[,2,tMP:nT - 1]
-    effDiffRel_pt[!is.finite(effDiffRel_pt)] <- 1
-
+    initEffDiffRel <- effDiffRel_t[1]
 
     # Now loop over species/stocks and
     # calculate penalties
@@ -1605,7 +1606,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
 
         linLoDep_sp[s,p]  <- linPenaltyFunction(  x = Bproj_spt[s,p,]/Bmsy_sp[s,p],
                                                   eps = loDepBmsy,
-                                                  alpha = 1,
+                                                  alpha = 4,
                                                   above = TRUE,
                                                   beta = mp$omni$linBeta )
 
@@ -1621,7 +1622,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
 
         linHiDep_sp[s,p]  <- linPenaltyFunction(  x = Bproj_spt[s,p,]/Bmsy_sp[s,p],
                                                   eps = hiDepBmsy,
-                                                  alpha = 1,
+                                                  alpha = .1,
                                                   above = FALSE,
                                                   beta = mp$omni$linBeta )
 
@@ -1681,7 +1682,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
 
         linAAV_sp[s,p] <- linPenaltyFunction( x = AAV,
                                               eps = maxAAV,
-                                              alpha = 10,
+                                              alpha = 2,
                                               above = FALSE,
                                               beta = mp$omni$linBeta )   
 
@@ -1691,14 +1692,14 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
                                               alpha = maxCatDiff/2,
                                               above = FALSE )
 
-        expCatDiff_sp[s,p] <- expPenaltyFunction( x = catDiffRel_spt,
+        expCatDiff_sp[s,p] <- expPenaltyFunction( x = catDiffRel_spt[s,p,],
                                                   eps = maxCatDiff,
                                                   alpha = 1,
                                                   above = FALSE )     
 
-        linCatDiff_sp[s,p] <- linPenaltyFunction( x = catDiffRel_spt,
+        linCatDiff_sp[s,p] <- linPenaltyFunction( x = catDiffRel_spt[s,p,],
                                                   eps = maxCatDiff,
-                                                  alpha = 1,
+                                                  alpha = 2,
                                                   above = FALSE,
                                                   beta = mp$omni$linBeta ) 
 
@@ -1721,24 +1722,38 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
       }
 
 
-    barEffDiff_p <- apply(  X = effDiffRel_pt, FUN = combBarrierPen,
-                            MARGIN  = 1, 
-                            eps     = maxEffDiff,
-                            alpha   = maxEffDiff/2, 
-                            above   = FALSE )
+    barEffDiff <- combBarrierPen( x       = effDiffRel_t,
+                                  eps     = maxEffDiff,
+                                  alpha   = maxEffDiff/2, 
+                                  above   = FALSE )
 
-    expEffDiff_p <- apply(  X = effDiffRel_pt, FUN = expPenaltyFunction,
-                            MARGIN = 1,
-                            eps = maxEffDiff,
-                            alpha = 1,
-                            above = FALSE )
+    expEffDiff <- expPenaltyFunction( x     = effDiffRel_t,
+                                      eps   = maxEffDiff,
+                                      alpha = 1,
+                                      above = FALSE )
 
-    linEffDiff_p <- apply(  X = effDiffRel_pt, FUN = linPenaltyFunction,
-                            MARGIN = 1,
-                            eps = maxEffDiff,
-                            alpha = 1,
-                            beta = mp$omni$linBeta,
-                            above = FALSE )
+    linEffDiff <- linPenaltyFunction( x     = effDiffRel_t,
+                                      eps   = maxEffDiff,
+                                      alpha = 2,
+                                      beta  = mp$omni$linBeta,
+                                      above = FALSE )
+
+
+    barInitEffDiff <- combBarrierPen( x       = initEffDiffRel,
+                                      eps     = maxEffDiff,
+                                      alpha   = maxEffDiff/2, 
+                                      above   = FALSE )
+
+    expInitEffDiff <- expPenaltyFunction( x     = initEffDiffRel,
+                                          eps   = maxEffDiff,
+                                          alpha = 1,
+                                          above = FALSE )
+
+    linInitEffDiff <- linPenaltyFunction( x     = initEffDiffRel,
+                                          eps   = maxEffDiff,
+                                          alpha = 2,
+                                          beta  = mp$omni$linBeta,
+                                          above = FALSE )
 
     # Calculate average catch
     Csum    <- sum(Cproj_spt,na.rm = T)
@@ -1753,8 +1768,8 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     if( mp$omni$penType == "barrier" )
     {
       objFun_sp <- objFun_sp +
-                    depBmsyWt * barLoDep_sp + 
-                    depBmsyWt * barHiDep_sp +
+                    loDepBmsyWt * barLoDep_sp + 
+                    hiDepBmsyWt * barHiDep_sp +
                     AAVWt * barAAV_sp +  
                     catDiffWt * barCatDiff_sp + 
                     initCatDiffWt * barInitCatDiff_sp + 
@@ -1766,8 +1781,8 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     if( mp$omni$penType == "exponential" )
     {
       objFun_sp <- objFun_sp +
-                    depBmsyWt * expLoDep_sp + 
-                    depBmsyWt * expHiDep_sp +
+                    loDepBmsyWt * expLoDep_sp + 
+                    hiDepBmsyWt * expHiDep_sp +
                     AAVWt * expAAV_sp +  
                     catDiffWt * expCatDiff_sp + 
                     initCatDiffWt * expInitCatDiff_sp + 
@@ -1778,8 +1793,8 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     if( mp$omni$penType == "linear" )
     {
       objFun_sp <- objFun_sp +
-                    depBmsyWt * linLoDep_sp + 
-                    depBmsyWt * linHiDep_sp +
+                    loDepBmsyWt * linLoDep_sp + 
+                    hiDepBmsyWt * linHiDep_sp +
                     AAVWt * linAAV_sp +  
                     catDiffWt * linCatDiff_sp + 
                     initCatDiffWt * linInitCatDiff_sp + 
@@ -1793,15 +1808,25 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
                   totCatWt * log(1e3*totCbar) -
                   sumCatWt * log(1e3*Csum) 
 
-    if( mp$omni$penType == "barrier" )
-      objFun <- objFun + effDiffWt * sum(barEffDiff_p)
+    # HACKY PLACEHOLDER FOR MORE ELEGANT SOLUTION
+    # for( s in 1:nS )
+    #   for( p in 1:nP )
+    #     if( any(Bproj_spt[s,p,]/Bmsy_sp[s,p] < 0.4) ) objFun <- objFun + 100
 
-    if( mp$omni$penType == "exponential" )
-      objFun <- objFun + effDiffWt * sum(expEffDiff_p)    
+    if( mp$omni$penType == "barrier" )
+      objFun <- objFun + 
+                  effDiffWt * barEffDiff +
+                  initEffDiffWt * barInitEffDiff
     
+    if( mp$omni$penType == "exponential" )
+      objFun <- objFun + 
+                  effDiffWt * expEffDiff +
+                  initEffDiffWt * expInitEffDiff   
 
     if( mp$omni$penType == "linear" )
-      objFun <- objFun + effDiffWt * sum(linEffDiff_p)  
+      objFun <- objFun + 
+                  effDiffWt * linEffDiff +
+                  initEffDiffWt * linInitEffDiff
 
     # Return results
     result                    <- obj
@@ -1813,34 +1838,43 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     result$closedCount_sp     <- closedCount_sp
 
     if( mp$omni$penType == "barrier")
+    {
       result$barLoDep_sp        <- barLoDep_sp
       result$barHiDep_sp        <- barHiDep_sp
       result$barProbHiDep_sp    <- barProbHiDep_sp
       result$barProbLoDep_sp    <- barProbLoDep_sp
       result$barAAV_sp          <- barAAV_sp
       result$barCatDiff_sp      <- barCatDiff_sp
-      result$barEffDiff_p       <- barEffDiff_p
+      result$barEffDiff         <- barEffDiff
       result$barInitCatDiff_sp  <- barInitCatDiff_sp
+      result$barInitEffDiff     <- barInitEffDiff
+    }
 
     if( mp$omni$penType == "exponential" )
+    {
       result$barLoDep_sp        <- expLoDep_sp
       result$barHiDep_sp        <- expHiDep_sp
       result$barProbHiDep_sp    <- expProbHiDep_sp
       result$barProbLoDep_sp    <- expProbLoDep_sp
       result$barAAV_sp          <- expAAV_sp
       result$barCatDiff_sp      <- expCatDiff_sp
-      result$barEffDiff_p       <- expEffDiff_p
-      result$barInitCatDiff_sp  <- expInitCatDiff_sp      
+      result$barEffDiff         <- expEffDiff  
+      result$barInitCatDiff_sp  <- expInitCatDiff_sp 
+      result$barInitEffDiff     <- expInitEffDiff
+    }
     
     if( mp$omni$penType == "linear" )
+    {
       result$barLoDep_sp        <- linLoDep_sp
       result$barHiDep_sp        <- linHiDep_sp
       result$barProbHiDep_sp    <- linProbHiDep_sp
       result$barProbLoDep_sp    <- linProbLoDep_sp
       result$barAAV_sp          <- linAAV_sp
       result$barCatDiff_sp      <- linCatDiff_sp
-      result$barEffDiff_p       <- linEffDiff_p
-      result$barInitCatDiff_sp  <- linInitCatDiff_sp 
+      result$barEffDiff         <- linEffDiff  
+      result$barInitCatDiff_sp  <- linInitCatDiff_sp
+      result$barInitEffDiff     <- linInitEffDiff
+    }
 
     result
   } # END runModel
@@ -1989,12 +2023,12 @@ linPenaltyFunction <- function( x, eps,
 
   if( above )
   {
-    tmp[x <= eps] <- alpha * (-x + eps)
+    tmp[x <= eps] <- alpha * (-x[x <= eps] + eps)
   }
 
   if( !above )
-    tmp[x >= eps] <- alpha * (x - eps)
-  pen <- sum(tmp^beta)
+    tmp[x >= eps] <- alpha * (x[x >= eps] - eps)
+  pen <- sum(abs(tmp)^beta)
   pen
 }
 
@@ -2463,6 +2497,60 @@ combBarrierPen <- function( x, eps,
   obj$om$sel_axspft[,,,,,histdx]  <- repObj$sel_axspft
   obj$om$sel_lspft[,,,,histdx]    <- aperm(repObj$sel_lfspt,c(1,3,4,2,5))
 
+  # If unstandardised commercial CPUE is provided,
+  # then read it in and replace report object
+  if( !is.null(ctlList$opMod$commCPUEdata) )
+  {
+    fileList <- list.files( ctlList$opMod$commCPUEdata)
+    fileList <- fileList[grepl("DER.csv",fileList)]
+    
+
+    cpueTables <- lapply( X = file.path(ctlList$opMod$commCPUEdata,fileList), 
+                          FUN = read.csv, header = TRUE,
+                          stringsAsFactors = FALSE )
+
+    areas <- stringr::str_split(fileList, "_")
+
+    pullFirst <- function(x) {x[[1]]}
+
+    areas <- unlist(lapply(X = areas, FUN = pullFirst))
+
+    names(cpueTables) <- areas
+
+    # Need to make sure years match
+    fYear <- ctlList$opMod$fYear
+    histYears <- seq(fYear,by = 1, length.out = tMP-1)
+    
+    histFleetYrs <- which(histYears <= 1995)
+    modFleetYrs  <- which(histYears > 1995 )
+
+    # Now make a dummy effort by species arra
+    E_spft <- array(NA, dim = c(nS,nP,nF,tMP-1))
+
+    speciesNames  <- c("Dover","English","Rock")
+    stockNames    <- c("HSHG","QCS","WCVI")
+
+    for( s in 1:nS )
+      for( p in 1:nP )
+      {
+        unstdCPUE <- cpueTables[[stockNames[p]]]
+
+        cpueHist <- unstdCPUE[histFleetYrs,speciesNames[s]]
+        cpueMod  <- unstdCPUE[modFleetYrs,speciesNames[s]]
+
+        E_spft[s,p,1,histFleetYrs]  <- repObj$predCw_spft[s,p,1,histFleetYrs] / cpueHist
+        E_spft[s,p,2,modFleetYrs]  <- repObj$predCw_spft[s,p,2,modFleetYrs] / cpueMod
+      }
+
+    histE_pft <- apply(X = 1e3*E_spft, FUN = mean, MARGIN = c(2,3,4), na.rm = T)
+    histE_pft[!is.finite(histE_pft)] <- NA
+    histE_pft[histE_pft == 0] <- NA
+    obj$om$E_pft[,,histdx] <- histE_pft
+  }
+
+  
+
+
   # Now fill in future sel
   obj$om$sel_axspft[,,,,,tMP:nT]  <- repObj$sel_axspft[,,,,,tMP-1]
   obj$om$sel_lspft[,,,,tMP:nT]    <- obj$om$sel_lspft[,,,,tMP-1]
@@ -2473,11 +2561,12 @@ combBarrierPen <- function( x, eps,
 
   # Now commercial fishing mortality catchability
   for( s in 1:nS )
-    obj$om$qF_spft[s,,,histdx]      <- repObj$F_spft[s,,,] / repObj$E_pft
+    obj$om$qF_spft[s,,,histdx]      <- repObj$F_spft[s,,,] / obj$om$E_pft[,,histdx]
 
   obj$om$qF_spft[!is.finite(obj$om$qF_spft)] <- 0
 
   # Fill in future q as fixed at conditioning year's value
+  # (OR maybe use mean of historical values? look at TS)
   obj$om$q_spft[,,,tMP:nT]        <- repObj$q_spft[,,,tMP-1]
   obj$om$qF_spft[,,,tMP:nT]       <- obj$om$qF_spft[,,,tMP-1]
 

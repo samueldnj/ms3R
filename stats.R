@@ -214,16 +214,16 @@ makeStatTable <- function( sims = 1, folder = "" )
       statTable[rowIdx, "medProbPDH_sp"]  <- medProbPDH_sp[s,p]
 
       # Conservation performance
-      statTable[rowIdx,"pBtGt.4Bmsy"]     <- pBtGt.4Bmsy_sp[s,p]
-      statTable[rowIdx,"PBtGt.8Bmsy"]     <- pBtGt.8Bmsy_sp[s,p]
-      statTable[rowIdx,"pBtGtBmsy"]       <- pBtGtBmsy_sp[s,p]
-      statTable[rowIdx,"pCtGtMSY"]        <- pCtGtMSY_sp[s,p]
-      statTable[rowIdx,"pFtGtFmsy"]       <- pFtGtFmsy_sp[s,p]
+      statTable[rowIdx,"pBtGt.4Bmsy"]     <- round(pBtGt.4Bmsy_sp[s,p],2)
+      statTable[rowIdx,"PBtGt.8Bmsy"]     <- round(pBtGt.8Bmsy_sp[s,p],2)
+      statTable[rowIdx,"pBtGtBmsy"]       <- round(pBtGtBmsy_sp[s,p],2)
+      statTable[rowIdx,"pCtGtMSY"]        <- round(pCtGtMSY_sp[s,p],2)
+      statTable[rowIdx,"pFtGtFmsy"]       <- round(pFtGtFmsy_sp[s,p],2)
 
       # Catch statistics
-      statTable[rowIdx,"avgCatch"]        <- Cbar_sp[s,p]
-      statTable[rowIdx,"AAV"]             <- AAV_sp[s,p]
-      statTable[rowIdx,"avgTACu"]         <- TACubar_sp[s,p]
+      statTable[rowIdx,"avgCatch"]        <- round(Cbar_sp[s,p],2)
+      statTable[rowIdx,"AAV"]             <- round(AAV_sp[s,p],2)
+      statTable[rowIdx,"avgTACu"]         <- round(TACubar_sp[s,p],2)
 
     }
 
@@ -253,11 +253,8 @@ makeStatTable <- function( sims = 1, folder = "" )
     for(p in 1:nP )
       Quotient_ispt[,s,p,] <- TS_ispt[,s,p,] / ref_sp[s,p] 
 
-  aboveIdx <- which( Quotient_ispt > prop)
-
   # Set an indicator array
-  Ind_ispt <- array(0, dim = dim(Quotient_ispt))
-  Ind_ispt[aboveIdx] <- 1
+  Ind_ispt <- Quotient_ispt > prop
 
   probGtDep_sp <- apply( X = Ind_ispt, FUN = mean, MARGIN = c(2,3) )
       
@@ -282,7 +279,7 @@ makeStatTable <- function( sims = 1, folder = "" )
 
 
   # Calculate diff
-  diffC_ispt        <- aperm(apply( X = sumC_ispt, FUN = diff, MARGIN = marg, na.rm = T ),c(2:4,1))
+  diffC_ispt        <- aperm(apply( X = sumC_ispt, FUN = diff, MARGIN = marg, na.rm = T ),c(margin,4,1))
   absDiffC_ispt     <- abs(diffC_ispt)
   sumAbsDiffC_isp   <- apply( X = absDiffC_ispt, FUN = sum, MARGIN = marg, na.rm = T )
   sumCatch_isp      <- apply( X = C_ispt, FUN = sum, MARGIN = marg, na.rm = T )
@@ -294,3 +291,331 @@ makeStatTable <- function( sims = 1, folder = "" )
 
   return(AAV_qsp)
 } # END .calcStatsAAV
+
+
+# .getCplxStats()
+# A pared down perf stats function for complex level
+# quantities (i.e. total catch across all species/stocks etc.)
+# Useful for comparing omniscient manager obj fun
+# weightings
+.getCplxStats <- function( obj )
+{
+  # Model dims
+  tMP <- obj$om$tMP
+  nT  <- obj$om$nT
+  nS  <- obj$om$nS
+  nP  <- obj$om$nP
+
+  # Names of stuff
+  scenarioName  <- obj$ctlList$ctl$scenarioName
+  mpName        <- obj$ctlList$ctl$mpName
+
+  # Pull simulation label
+  if(is.null(obj$simLabel))
+  {
+    simLabel <- stringr::str_split(obj$path,"/")[[1]]
+    simLabel <- simLabel[length(simLabel)]
+  } else simLabel <- obj$simLabel
+
+  allConvReps <- obj$goodReps
+
+  projYrs <- tMP:nT
+
+  C_ispt <- obj$om$C_ispt[allConvReps,,,projYrs]
+  B_ispt <- obj$om$SB_ispt[allConvReps,,,projYrs]
+
+  # Pull Bmsy
+  Bmsy_sp <- obj$rp[[1]]$FmsyRefPts$BeqFmsy_sp
+
+  # Turn into complex catch
+  C_it <- apply( X = C_ispt, FUN = sum, MARGIN = c(1,4))
+
+  # Calculate AAV at the complex level
+  diffC_ti      <- apply( X = C_it, FUN = diff, MARGIN = 1)
+  diffC_it      <- abs(t(diffC_ti))
+  sumAbsDiff_i  <- apply( X = diffC_it, FUN = sum, MARGIN = 1)
+  sumCatch_i    <- apply( X = C_it, FUN = sum, MARGIN = 1)
+  AAVC_i        <- sumAbsDiff_i / sumCatch_i
+  AAVCplx       <- round(median( AAVC_i),2)
+  
+  # We want median (over reps) average and total complex catch
+  Cbar    <- round(median(apply( X = C_it, FUN = mean, MARGIN = 1 ) ),2)
+  totC    <- round(median(apply( X = C_it, FUN = sum,  MARGIN = 1 ) ),2)
+
+  # Now loop over species and stocks, calculate
+  # depletion probs (make the following values inputs either
+  # as function args or in the ctl file)
+  LRP <- 0.4
+  USR <- 2
+
+  depBmsy_ispt <- B_ispt
+  for( s in 1:nS )
+    for( p in 1:nP )
+    {
+      depBmsy_ispt[,s,p,] <- B_ispt[,s,p,]/Bmsy_sp[s,p]
+    }
+
+  depGtLRP_ispt <- depBmsy_ispt > LRP
+  depLtUSR_ispt <- depBmsy_ispt < USR
+
+  probDepGtLRP_isp <- apply(X = depGtLRP_ispt, FUN = mean, MARGIN = c(1,2,3))
+  probDepLtUSR_isp <- apply(X = depLtUSR_ispt, FUN = mean, MARGIN = c(1,2,3))
+
+  # Get distribution of depletion within desired region 
+  # across species, stocks, and replicates
+  distProbDepLRP_q <- quantile( probDepGtLRP_isp, probs = c(0.025, 0.5, 0.975) )
+  distProbDepUSR_q <- quantile( probDepLtUSR_isp, probs = c(0.025, 0.5, 0.975) )
+
+  # Make above vectors into a distribution as "med (CI limits)"
+  distLRP_chr <- paste(distProbDepLRP_q[2], " (", distProbDepLRP_q[1],", ", distProbDepLRP_q[3], ")", sep = "")
+  distUSR_chr <- paste(distProbDepUSR_q[2], " (", distProbDepUSR_q[1],", ", distProbDepUSR_q[3], ")", sep = "")
+
+  # Make into a list
+  out.df <- data.frame( simLabel    = simLabel,
+                        scenario    = scenarioName,
+                        mp          = mpName,
+                        Cbar        = round(Cbar,2),
+                        totC        = round(totC,2),
+                        AAV         = round(AAVCplx,2),
+                        PGtLRP      = distLRP_chr,
+                        PLtUSR      = distUSR_chr )
+
+  out.df
+} # END .getCplxStats()
+
+
+# .getOmniInfo()
+# Pulls omniscient manager information from the blob and control
+# list.
+.getOmniInfo <- function(obj)
+{
+  # Model dims
+  tMP <- obj$om$tMP
+  nT  <- obj$om$nT
+  nS  <- obj$om$nS
+  nP  <- obj$om$nP
+
+  # Names of stuff
+  scenarioName  <- obj$ctlList$ctl$scenarioName
+  mpName        <- obj$ctlList$ctl$mpName
+  speciesNames  <- obj$om$speciesNames
+  stockNames    <- obj$om$stockNames
+
+  # Pull simulation label
+  if(is.null(obj$simLabel))
+  {
+    simLabel <- stringr::str_split(obj$path,"/")[[1]]
+    simLabel <- simLabel[length(simLabel)]
+  } else simLabel <- obj$simLabel
+
+
+
+  allConvReps <- obj$goodReps
+
+  projYrs <- tMP:nT
+
+  # Get omni sub-ctlList
+  omniList    <- obj$ctlList$mp$omni
+  omniObjFun  <- obj$omniObjFun
+
+  # Pull obj fun targets
+  loDepBmsy     <- omniList$loDepBmsy
+  hiDepBmsy     <- omniList$hiDepBmsy
+  maxF          <- omniList$maxF
+  maxE          <- omniList$maxE
+  maxAAV        <- omniList$maxAAV
+  maxRelEffDiff <- omniList$maxRelEffDiff
+  maxRelCatDiff <- omniList$maxRelCatDiff
+  # component weights
+  avgCatWt      <- omniList$avgCatWt
+  totCatWt      <- omniList$totCatWt
+  sumCatWt      <- omniList$sumCatWt
+  hiDepBmsyWt   <- omniList$hiDepBmsyWt
+  loDepBmsyWt   <- omniList$loDepBmsyWt
+  probDepWt     <- omniList$probDepWt
+  closedWt      <- omniList$closedWt
+  AAVWt         <- omniList$AAVWt
+  catDiffWt     <- omniList$catDiffWt
+  effDiffWt     <- omniList$effDiffWt
+  initCatDiffWt <- omniList$initCatDiffWt
+  initEffDiffWt <- omniList$initEffDiffWt
+
+  # Objective function penalty controls
+  penType       <- omniList$penType
+  linBeta       <- omniList$linBeta
+
+  # Now pull objective function values
+
+  # Complex level
+  objFun_i            <- omniObjFun$objFun_i[allConvReps]
+  totCbar_i           <- omniObjFun$totCbar_i[allConvReps]
+  Csum_i              <- omniObjFun$Csum_i[allConvReps]
+  barEffDiff_ip       <- omniObjFun$barEffDiff_ip[allConvReps,]
+
+
+  # Species/stock
+  objFun_isp          <- omniObjFun$objFun_isp[allConvReps,,]
+  Cbar_isp            <- omniObjFun$Cbar_isp[allConvReps,,]
+  barLoDep_isp        <- omniObjFun$barLoDep_isp[allConvReps,,]
+  barHiDep_isp        <- omniObjFun$barHiDep_isp[allConvReps,,]
+  barProbLoDep_isp    <- omniObjFun$barProbLoDep_isp[allConvReps,,]
+  barProbHiDep_isp    <- omniObjFun$barProbHiDep_isp[allConvReps,,]
+  barInitCatDiff_isp  <- omniObjFun$barInitCatDiff_isp[allConvReps,,]
+  closedCount_isp     <- omniObjFun$closedCount_isp[allConvReps,,]
+  barAAV_isp          <- omniObjFun$barAAV_isp[allConvReps,,]
+  barCatDiff_isp      <- omniObjFun$barCatDiff_isp[allConvReps,,]
+
+  # Sum effort diff over stocks
+  barEffDiff_i        <- omniObjFun$barEffDiff_i[allConvReps]
+  barInitEffDiff_i    <- omniObjFun$barInitEffDiff_i[allConvReps]
+
+  # Now, we want to make a couple of tables
+  # make a table of weights as well, this will be good for
+  # tuning the weights later...
+  wtTableColNames <- c( 'simLabel',
+                        'scenario',
+                        'mp',
+                        'wt_CbarCplx',
+                        'wt_CbarStock',
+                        'wt_totC',
+                        'wt_hiDep',
+                        'wt_loDep',
+                        'wt_probDep',
+                        'wt_closure',
+                        'wt_AAV',
+                        'wt_catDiff',
+                        'wt_effDiff',
+                        'wt_initCatDiff',
+                        'wt_initEffDiff')
+
+  wtTable <- matrix(NA, nrow = 1, ncol = length(wtTableColNames) )
+  colnames(wtTable) <- wtTableColNames
+
+  wtTable[,'simLabel']        <- simLabel
+  wtTable[,'scenario']        <- scenarioName
+  wtTable[,'mp']              <- mpName
+  wtTable[,'wt_CbarCplx']     <- totCatWt
+  wtTable[,'wt_CbarStock']    <- avgCatWt
+  wtTable[,'wt_totC']         <- sumCatWt
+  wtTable[,'wt_hiDep']        <- hiDepBmsyWt
+  wtTable[,'wt_loDep']        <- loDepBmsyWt
+  wtTable[,'wt_probDep']      <- probDepWt
+  wtTable[,'wt_closure']      <- closedWt
+  wtTable[,'wt_AAV']          <- AAVWt
+  wtTable[,'wt_catDiff']      <- catDiffWt
+  wtTable[,'wt_effDiff']      <- effDiffWt
+  wtTable[,'wt_initCatDiff']  <- initCatDiffWt
+  wtTable[,'wt_initEffDiff']  <- initCatDiffWt
+
+
+  # First, the complex level quantities
+  cplxTableColNames <- c( 'simLabel',
+                          'scenario',
+                          'mp',
+                          'objFun',
+                          'wt_CbarCplx',
+                          'of_CbarCplx',
+                          'wt_totC',
+                          'of_totC',
+                          'wt_EffDiff',
+                          'of_EffDiff',
+                          'wt_initEffDiff',
+                          'of_initEffDiff' )
+  cplxOmniObjFunTable <- matrix(NA, nrow = 1, ncol = length(cplxTableColNames) )
+  colnames(cplxOmniObjFunTable) <- cplxTableColNames
+  cplxOmniObjFunTable <- as.data.frame(cplxOmniObjFunTable)
+
+  cplxOmniObjFunTable[,'simLabel']    <- simLabel
+  cplxOmniObjFunTable[,'scenario']    <- scenarioName
+  cplxOmniObjFunTable[,'mp']          <- mpName
+  cplxOmniObjFunTable[,'objFun']      <- round(mean(objFun_i),2)
+  cplxOmniObjFunTable[,'of_CbarCplx'] <- round(mean(totCbar_i),2)
+  cplxOmniObjFunTable[,'wt_CbarCplx'] <- totCatWt
+  cplxOmniObjFunTable[,'of_totC']     <- round(mean(Csum_i),2)
+  cplxOmniObjFunTable[,'wt_totC']     <- sumCatWt
+  cplxOmniObjFunTable[,'of_EffDiff']  <- round(mean(barEffDiff_i),2)
+  cplxOmniObjFunTable[,'wt_EffDiff']  <- effDiffWt
+  cplxOmniObjFunTable[,'of_EffDiff']  <- round(mean(barInitEffDiff_i),2)
+  cplxOmniObjFunTable[,'wt_EffDiff']  <- initEffDiffWt
+
+
+  # Now a stock/species objective function table
+  stockTableColNames <- c(  'simLabel',
+                            'scenario',
+                            'mp',
+                            'species',
+                            'stock',
+                            'objFun',
+                            'wt_CbarStock',
+                            'of_CbarStock',
+                            'wt_hiDep',
+                            'of_hiDep',
+                            'wt_loDep',
+                            'of_loDep',
+                            'wt_probDep',
+                            'of_probHiDep',
+                            'of_probLoDep',
+                            'wt_closure',
+                            'of_closure',
+                            'wt_AAV',
+                            'of_AAV',
+                            'wt_catDiff',
+                            'of_catDiff',
+                            'wt_initCatDiff',
+                            'of_initCatDiff' )
+
+  stockObjFunTable <- matrix( NA, ncol = length(stockTableColNames), nrow = nS * nP )
+  colnames(stockObjFunTable) <- stockTableColNames
+  stockObjFunTable <- as.data.frame(stockObjFunTable)
+
+  stockObjFunTable[,'simLabel']  <- simLabel
+  stockObjFunTable[,'scenario']  <- scenarioName
+  stockObjFunTable[,'mp']        <- mpName
+
+
+  for( s in 1:nS )
+    for( p in 1:nP )
+    {
+      rowIdx <- (s - 1) * nP + p
+      stockObjFunTable[rowIdx,'species']        <- speciesNames[p]
+      stockObjFunTable[rowIdx,'stock']          <- stockNames[p]
+      stockObjFunTable[rowIdx,'objFun']         <- round(mean( objFun_isp[,s,p]),2)
+      stockObjFunTable[rowIdx,'wt_CbarStock']   <- avgCatWt
+      stockObjFunTable[rowIdx,'of_CbarStock']   <- round(mean( Cbar_isp[,s,p]),2)
+      stockObjFunTable[rowIdx,'wt_hiDep']       <- hiDepBmsyWt
+      stockObjFunTable[rowIdx,'of_hiDep']       <- round(mean( barHiDep_isp[,s,p]),2)
+      stockObjFunTable[rowIdx,'wt_loDep']       <- loDepBmsyWt
+      stockObjFunTable[rowIdx,'of_loDep']       <- round(mean( barLoDep_isp[,s,p]),2)
+      stockObjFunTable[rowIdx,'wt_probDep']     <- probDepWt
+      stockObjFunTable[rowIdx,'of_probHiDep']   <- round(mean( barProbHiDep_isp[,s,p]),2)
+      stockObjFunTable[rowIdx,'of_probLoDep']   <- round(mean( barProbLoDep_isp[,s,p]),2)
+      stockObjFunTable[rowIdx,'wt_closure']     <- closedWt
+      stockObjFunTable[rowIdx,'of_closure']     <- round(mean( closedCount_isp[,s,p]),2)
+      stockObjFunTable[rowIdx,'wt_AAV']         <- AAVWt
+      stockObjFunTable[rowIdx,'of_AAV']         <- round(mean( barAAV_isp[,s,p] ),2)
+      stockObjFunTable[rowIdx,'wt_catDiff']     <- catDiffWt
+      stockObjFunTable[rowIdx,'of_catDiff']     <- round(mean( barCatDiff_isp[,s,p]),2)
+      stockObjFunTable[rowIdx,'wt_initCatDiff'] <- initCatDiffWt
+      stockObjFunTable[rowIdx,'of_initCatDiff'] <- round(mean( barInitCatDiff_isp[,s,p]),2)
+    }
+
+
+  outList <- list(  wtTable     = wtTable,
+                    cplxTable   = cplxOmniObjFunTable,
+                    stockTable  = stockObjFunTable )
+
+
+  outList
+} # END .getOmniInfo()
+
+
+
+
+
+
+
+
+
+
+
+

@@ -6,46 +6,170 @@ parameter value
 # Scenario 1 : DER_base
 #
 scenario$scenario1$ctl$scenarioName 'DER_base'
-scenario$scenario1$ctl$nGoodReps 100
+scenario$scenario1$ctl$nGoodReps 30
 scenario$scenario1$ctl$omni TRUE
 #
 #
 ## Management Procedures
 #
-# MP 10 : omni_totCat_catDiff_AAV_depBmsy
+# MP 1 : omni_totCat1_catDiff1_initCatDiff1_loDep1_hiDep.05
 #
-mp$mp1$ctl$mpName 'omni_totCat1_catDiff1_initCatDiff1.5_AAV1_depBmsy2'
-mp$mp1$mp$omni$avgCatWt 0.0
-mp$mp1$mp$omni$totCatWt 0
-mp$mp1$mp$omni$sumCatWt 1
-mp$mp1$mp$omni$depBmsyWt 2
+mp$mp1$ctl$mpName 'omni_totCat1_catDiff1_initCatDiff1_loDep1_hiDep.05'
+mp$mp1$mp$omni$avgCatWt 0.
+mp$mp1$mp$omni$totCatWt 1.0
+mp$mp1$mp$omni$sumCatWt .0
+mp$mp1$mp$omni$hiDepBmsyWt .05
+mp$mp1$mp$omni$loDepBmsyWt 1.0
+mp$mp1$mp$omni$probDepWt 0.0
 mp$mp1$mp$omni$closedWt 0
-mp$mp1$mp$omni$AAVWt 1
+mp$mp1$mp$omni$AAVWt 0
 mp$mp1$mp$omni$catDiffWt 1
-mp$mp1$mp$omni$initCatDiffWt 1.5
+mp$mp1$mp$omni$effDiffWt .0
+mp$mp1$mp$omni$initCatDiffWt 1.0
+mp$mp1$mp$omni$initEffDiffWt .0
 #
-# MP 10 : omni_totCat_catDiff_initCatDiff_AAV_depBmsy
+# MP 2 : omni_totCat1_catDiff1_initCatDiff1_loDep1_hiDep.05
 #
-mp$mp2$ctl$mpName 'omni_totCat2_catDiff.5_initCatDiff1_AAV2_depBmsy1'
-mp$mp2$mp$omni$avgCatWt 0.0
-mp$mp2$mp$omni$totCatWt 0
-mp$mp2$mp$omni$sumCatWt 2
-mp$mp2$mp$omni$depBmsyWt 1
+mp$mp2$ctl$mpName 'omni_totCat1_EffDiff1_initEffDiff1_loDep1_hiDep.05'
+mp$mp2$mp$omni$avgCatWt 0.
+mp$mp2$mp$omni$totCatWt 1.0
+mp$mp2$mp$omni$sumCatWt .0
+mp$mp2$mp$omni$hiDepBmsyWt .05
+mp$mp2$mp$omni$loDepBmsyWt 1.0
+mp$mp2$mp$omni$probDepWt 0.0
 mp$mp2$mp$omni$closedWt 0
-mp$mp2$mp$omni$AAVWt 2
-mp$mp2$mp$omni$catDiffWt .5
-mp$mp2$mp$omni$initCatDiffWt 1
+mp$mp2$mp$omni$AAVWt 0
+mp$mp2$mp$omni$catDiffWt 0
+mp$mp2$mp$omni$effDiffWt 1
+mp$mp2$mp$omni$initCatDiffWt 0.0
+mp$mp2$mp$omni$initEffDiffWt 1.0
 #
-# MP 10 : omni_totCat_catDiff_initCatDiff_AAV_depBmsy
+# MP 3 : omni_totCat1_catDiff1_initCatDiff1_loDep1_hiDep.05
 #
-mp$mp3$ctl$mpName 'omni_totCat3_catDiff1_initCatDiff2_AAV1_depBmsy.5'
-mp$mp3$mp$omni$avgCatWt 0.0
-mp$mp3$mp$omni$totCatWt 0
-mp$mp3$mp$omni$sumCatWt 3
-mp$mp3$mp$omni$depBmsyWt .5
+mp$mp3$ctl$mpName 'omni_totCat1_EffDiff1_initEffDiff1_loDep10'
+mp$mp3$mp$omni$avgCatWt 0.
+mp$mp3$mp$omni$totCatWt 1.0
+mp$mp3$mp$omni$sumCatWt .0
+mp$mp3$mp$omni$hiDepBmsyWt .0
+mp$mp3$mp$omni$loDepBmsyWt 10.0
+mp$mp3$mp$omni$probDepWt 0.0
 mp$mp3$mp$omni$closedWt 0
-mp$mp3$mp$omni$AAVWt 1
-mp$mp3$mp$omni$catDiffWt 1
-mp$mp3$mp$omni$initCatDiffWt 2
+mp$mp3$mp$omni$AAVWt 0
+mp$mp3$mp$omni$catDiffWt 0
+mp$mp3$mp$omni$effDiffWt 1
+mp$mp3$mp$omni$initCatDiffWt 0.0
+mp$mp3$mp$omni$initEffDiffWt 1.0
+#
+# MP 4 : omni_totCat1
+#
+mp$mp4$ctl$mpName 'omni_totCat1'
+mp$mp4$mp$omni$avgCatWt 0.
+mp$mp4$mp$omni$totCatWt 1.0
+mp$mp4$mp$omni$sumCatWt .0
+mp$mp4$mp$omni$hiDepBmsyWt .0
+mp$mp4$mp$omni$loDepBmsyWt .0
+mp$mp4$mp$omni$probDepWt 0.0
+mp$mp4$mp$omni$closedWt 0
+mp$mp4$mp$omni$AAVWt 0
+mp$mp4$mp$omni$catDiffWt 0
+mp$mp4$mp$omni$effDiffWt .0
+mp$mp4$mp$omni$initCatDiffWt .0
+mp$mp4$mp$omni$initEffDiffWt .0
+#
+# MP 5 : omni_totCat1_loDep1
+#
+mp$mp5$ctl$mpName 'omni_totCat1_loDep1'
+mp$mp5$mp$omni$avgCatWt 0.
+mp$mp5$mp$omni$totCatWt 1.0
+mp$mp5$mp$omni$sumCatWt .0
+mp$mp5$mp$omni$hiDepBmsyWt .0
+mp$mp5$mp$omni$loDepBmsyWt 1.0
+mp$mp5$mp$omni$probDepWt 0.0
+mp$mp5$mp$omni$closedWt 0
+mp$mp5$mp$omni$AAVWt 0
+mp$mp5$mp$omni$catDiffWt 0
+mp$mp5$mp$omni$effDiffWt .0
+mp$mp5$mp$omni$initCatDiffWt .0
+mp$mp5$mp$omni$initEffDiffWt .0
+#
+# MP 6 : omni_totCat1_loDep1_hiDep.05
+#
+mp$mp6$ctl$mpName 'omni_totCat1_loDep1_hiDep.05'
+mp$mp6$mp$omni$avgCatWt 0.
+mp$mp6$mp$omni$totCatWt 1.0
+mp$mp6$mp$omni$sumCatWt .0
+mp$mp6$mp$omni$hiDepBmsyWt .05
+mp$mp6$mp$omni$loDepBmsyWt 1.0
+mp$mp6$mp$omni$probDepWt 0.0
+mp$mp6$mp$omni$closedWt 0
+mp$mp6$mp$omni$AAVWt 0
+mp$mp6$mp$omni$catDiffWt 0
+mp$mp6$mp$omni$effDiffWt .0
+mp$mp6$mp$omni$initCatDiffWt .0
+mp$mp6$mp$omni$initEffDiffWt .0
+#
+# MP 7 : omni_totCat1_loDep1_hiDep.05_effDiffWt1_initEffDiffWt2
+#
+mp$mp7$ctl$mpName 'omni_totCat1_loDep1_hiDep.05_effDiffWt1_initEffDiffWt2'
+mp$mp7$mp$omni$avgCatWt 0.
+mp$mp7$mp$omni$totCatWt 1.0
+mp$mp7$mp$omni$sumCatWt .0
+mp$mp7$mp$omni$hiDepBmsyWt .05
+mp$mp7$mp$omni$loDepBmsyWt 1.0
+mp$mp7$mp$omni$probDepWt 0.0
+mp$mp7$mp$omni$closedWt 0
+mp$mp7$mp$omni$AAVWt 0
+mp$mp7$mp$omni$catDiffWt 0
+mp$mp7$mp$omni$effDiffWt 1.0
+mp$mp7$mp$omni$initCatDiffWt .0
+mp$mp7$mp$omni$initEffDiffWt 2.0
+#
+# MP 8 : omni_totCat1_loDep3
+#
+mp$mp8$ctl$mpName 'omni_totCat1_loDep3'
+mp$mp8$mp$omni$avgCatWt 0.
+mp$mp8$mp$omni$totCatWt 1.0
+mp$mp8$mp$omni$sumCatWt .0
+mp$mp8$mp$omni$hiDepBmsyWt .0
+mp$mp8$mp$omni$loDepBmsyWt 3.0
+mp$mp8$mp$omni$probDepWt 0.0
+mp$mp8$mp$omni$closedWt 0
+mp$mp8$mp$omni$AAVWt 0
+mp$mp8$mp$omni$catDiffWt 0
+mp$mp8$mp$omni$effDiffWt .0
+mp$mp8$mp$omni$initCatDiffWt .0
+mp$mp8$mp$omni$initEffDiffWt .0
+#
+# MP 9 : omni_totCat1_loDep3_hiDep.1
+#
+mp$mp9$ctl$mpName 'omni_totCat1_loDep3_hiDep.1'
+mp$mp9$mp$omni$avgCatWt 0.
+mp$mp9$mp$omni$totCatWt 1.0
+mp$mp9$mp$omni$sumCatWt .0
+mp$mp9$mp$omni$hiDepBmsyWt .1
+mp$mp9$mp$omni$loDepBmsyWt 3.0
+mp$mp9$mp$omni$probDepWt 0.0
+mp$mp9$mp$omni$closedWt 0
+mp$mp9$mp$omni$AAVWt 0
+mp$mp9$mp$omni$catDiffWt 0
+mp$mp9$mp$omni$effDiffWt .0
+mp$mp9$mp$omni$initCatDiffWt .0
+mp$mp9$mp$omni$initEffDiffWt .0
+#
+# MP 10 : omni_totCat1_effDiffWt2
+#
+mp$mp10$ctl$mpName 'omni_totCat1_effDiffWt2'
+mp$mp10$mp$omni$avgCatWt 0.
+mp$mp10$mp$omni$totCatWt 1.0
+mp$mp10$mp$omni$sumCatWt .0
+mp$mp10$mp$omni$hiDepBmsyWt .1
+mp$mp10$mp$omni$loDepBmsyWt 3.0
+mp$mp10$mp$omni$probDepWt 0.0
+mp$mp10$mp$omni$closedWt 0
+mp$mp10$mp$omni$AAVWt 0
+mp$mp10$mp$omni$catDiffWt 0
+mp$mp10$mp$omni$effDiffWt 2
+mp$mp10$mp$omni$initCatDiffWt .0
+mp$mp10$mp$omni$initEffDiffWt .0
 #
 ## <END FILE>
