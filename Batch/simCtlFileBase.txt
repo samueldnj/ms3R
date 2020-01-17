@@ -95,4 +95,5 @@ opMod$projObsErrMult 1.0
 opMod$pT 32
 opMod$ut_50 .85
 opMod$ut_95 .75
+opMod$commCPUEdata "history/DERPAcpue"
 # <End File>
