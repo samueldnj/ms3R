@@ -335,7 +335,7 @@ function defined as
                   \mathcal{P}_{diff}(C_{s,p,\cdot}) +
                   \mathcal{P}_{diff}(E_{s,p,\cdot}) +
                   \mathcal{P}_{init}(C_{s,p,t_{MP}}) +
-                  \mathcal{P}_{init}(E_{s,p,t_{MP}})
+                  \mathcal{P}_{init}(E_{s,p,t_{MP}}) \right]
 \end{equation}
 where the objective is to maxmimise average catch 
 $\bar{C}_{s,p,\cdot}$ for each stock and species over the

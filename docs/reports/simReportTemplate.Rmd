@@ -202,9 +202,27 @@ kable(  statTable, escape = FALSE,
 
 ```
 
-## Convergence diagnostics
+
 
 ```{r, plotConvergence, echo = FALSE, message = FALSE, fig.cap = convStatsCaption }
 if(!blob$ctlList$ctl$omni)
+{
+
+  cat(paste("## ", "Convergence diagnostics\n",sep = ""))
+
   plotConvStats( obj = blob )
+}
 ```
+
+```{r, omniTitle, echo = FALSE, message = FALSE, results = "asis" }
+if(blob$ctlList$ctl$omni)
+{
+  childDoc <- knitr::knit_child(here::here("docs","reports","omniSimReportChild.Rmd"),options = list(results = "asis"),quiet = TRUE)
+
+  cat(childDoc)
+}
+
+```
+
+
+

@@ -11,6 +11,30 @@ affil:
 email:
   - samuelj@sfu.ca
   - spcox@sfu.ca
+abstract: 
+    "Management decisions in multi-species fisheries are often made on a single-species
+    and single-stock basis, with TACs often set by considering the output of 
+    a single-species stock assessment model. Single-species assessment methods, at best, 
+    only implicitly include multi-species interactions through natural mortality and 
+    recruitment process errors, which are not suitable for capturing technical interactions 
+    between multiple species and fishing gear. Ignorance of technical interactions when 
+    setting TACs will often lead to sub-optimal fishery outcomes, such as under-utilised TACs from choke
+    effects in output-controlled fisheries. In turn, these sub-optimal outcomes may
+    degrade the information linkage between stock-status and management decisions
+    by lowering the statistical power of catch data, reducing the efficacy
+    of stock assessment models. These issues are further compounded in situations where 
+    data or management resources are limited, exemplified by short time-series of 
+    fishery independent observations or limited biologica data, or the 
+    structure of the management decision is mismatched to the spatial structure of the system, 
+    exemplified by aggregating multiple spatial stocks or species into one management unit. 
+    In this paper, we simulate a spatially structured, multi-species flatfish fishery, and
+    test the performance of multiple management procedures that are based on assessment methods 
+    often used to deal with data limitations in multi-species fisheries, including 
+    data-pooling across spatial strata or across multiple species. Procedure performance
+    is measured as absolute or relative loss in catch and biomass compared to the outcome 
+    of omniscient manager simulations. To include technical interactions in our management system,
+    we defined harvest control rules that used the equilibrum fishing mortality rates 
+    derived from omniscient manager simulations. We found that..."
 date: \today
 bibliography: /Users/sdnjohnson/Work/Library/library.bib
 natbib: true
@@ -22,7 +46,6 @@ fontsize: 12pt
 lineno: true
 numbersections: false
 appendix: false
-abstract: 
 output: 
   pdf_document:
     citation_package: natbib

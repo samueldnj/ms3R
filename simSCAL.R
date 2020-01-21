@@ -1328,6 +1328,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
       blob$omniObjFun$barProbHiDep_isp[i,,]   <- simObj$barProbHiDep_sp
       blob$omniObjFun$barInitCatDiff_isp[i,,] <- simObj$barInitCatDiff_sp
       blob$omniObjFun$closedCount_isp[i,,]    <- simObj$closedCount_sp
+
       blob$omniObjFun$barAAV_isp[i,,]         <- simObj$barAAV_sp
       blob$omniObjFun$barCatDiff_isp[i,,]     <- simObj$barCatDiff_sp
       blob$omniObjFun$barEffDiff_i[i]         <- simObj$barEffDiff
@@ -1699,7 +1700,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
 
         linCatDiff_sp[s,p] <- linPenaltyFunction( x = catDiffRel_spt[s,p,],
                                                   eps = maxCatDiff,
-                                                  alpha = 2,
+                                                  alpha = 1,
                                                   above = FALSE,
                                                   beta = mp$omni$linBeta ) 
 

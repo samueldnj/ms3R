@@ -1,7 +1,11 @@
 # Results
 
+## Omniscient manager simulations
 
+### Implied harvest control rules
 
 ## MP performance
+
+
 
 ## Sensitivity to prior distributions

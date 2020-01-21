@@ -10,6 +10,219 @@
 #
 # <><><><><><><><><><><><><><><><><><><><><><><><><><><>
 
+# plotCvsB()
+# Fishing mortality as a function of biomass,
+# used for showing how well an MP meets the 
+# proposed HCR, and for determining the HCR
+# implied by the omniscient manager sim
+plotCvsB <- function( obj )
+{
+  goodReps <- obj$goodReps
+
+  SB_ispt   <- obj$om$SB_ispt[goodReps,,,,drop = FALSE]
+  C_ispt    <- obj$om$C_ispt[goodReps,,,,drop = FALSE]
+  F_ispt    <- obj$om$F_ispft[goodReps,,,2,]
+  vB_ispt   <- obj$om$vB_ispft[goodReps,,,2,]
+
+  tMP     <- obj$om$tMP
+  nS      <- obj$om$nS
+  nP      <- obj$om$nP 
+  nT      <- obj$om$nT
+  nReps   <- sum(goodReps)
+
+  # Now, let's start plotting. We can fix it later
+  speciesNames  <- (obj$om$speciesNames)
+  stockNames    <- (obj$om$stockNames)
+
+
+  projYrs <- tMP:nT
+
+  dep_ispt <- SB_ispt
+  Bmsy_sp  <- obj$rp[[1]]$FmsyRefPts$BeqFmsy_sp
+  Fmsy_sp  <- obj$rp[[1]]$FmsyRefPts$Fmsy_sp
+  MSY_sp   <- obj$rp[[1]]$FmsyRefPts$YeqFmsy_sp
+
+  ctlList <- obj$ctlList
+
+  par(  mfcol = c(nP,nS), 
+        mar = c(1,1.5,1,1.5),
+        oma = c(5,5,3,3) )
+
+  U_ispt <- C_ispt / vB_ispt
+
+  for(s in 1:nS)
+  {
+    for( p in 1:nP )
+    {
+      # Convert biomass to Bmsy depletion
+      dep_ispt[,s,p,] <- SB_ispt[,s,p,] / Bmsy_sp[s,p]
+
+      # Depletion and F
+      maxDep <- max(SB_ispt[,s,p,projYrs], na.rm = T)
+      maxC   <- max(C_ispt[,s,p,projYrs], na.rm = T)
+
+      # Plot window
+      plot( x = c(0,maxDep), y = c(0,maxC),
+            type = "n", axes = F)
+        mfg <- par("mfg")
+        # axes
+        axis( side = 1 )
+
+        if( mfg[1] == 1 )
+          mtext( side = 3, text = speciesNames[s], font = 2, line = 0.2, cex = 1.5 )
+
+        if( mfg[2] == mfg[4] )
+        {
+          corners <- par("usr") #Gets the four corners of plot area (x1, x2, y1, y2)
+          par(xpd = TRUE) #Draw outside plot area
+          text( x = corners[2]+0.5, 
+                y = mean(corners[3:4]), 
+                labels = stockNames[p], srt = 270,
+                font = 2, cex = 1.5 )
+          par(xpd = FALSE)
+        }
+        
+        axis( side = 2, las = 1 )
+        box()
+
+        ptCol <- scales::alpha("grey70", alpha = .3)
+
+        points( x = SB_ispt[,s,p,projYrs], y = C_ispt[,s,p,projYrs],
+                col = ptCol, pch = 1 ) 
+
+        for( i in 1:nReps )
+        { 
+          # Plot a smoother for each replicate
+          lineCol <- scales::alpha("red", alpha = .3)
+          smoother <- loess.smooth( x = SB_ispt[i,s,p,projYrs], 
+                                    y = C_ispt[i,s,p,projYrs] )
+          lines( smoother, col = "grey30", lwd = .8 )
+          flB <- SB_ispt[i,s,p,projYrs[c(1,length(projYrs))]]
+          flC <- C_ispt[i,s,p,projYrs[c(1,length(projYrs))]]
+          points( x = flB,
+                  y = flC,
+                  col = c("blue","red"), cex = .5,
+                  pch = 16 )
+        }
+
+
+        abline( v = Bmsy_sp[s,p], lty = 2, lwd = .8)
+        abline( h = MSY_sp[s,p], lty = 2, lwd = .8)
+
+    }
+  }
+
+  mtext( side = 1, text = "Spawning Biomass (kt)", outer = TRUE, line = 2, font = 2)
+  mtext( side = 2, text = "Catch (kt)", outer = TRUE, line = 2, font = 2)
+
+}
+
+
+# plotFvsB()
+# Fishing mortality as a function of biomass,
+# used for showing how well an MP meets the 
+# proposed HCR, and for determining the HCR
+# implied by the omniscient manager sim
+plotFvsB <- function( obj )
+{
+  goodReps <- obj$goodReps
+
+  SB_ispt   <- obj$om$SB_ispt[goodReps,,,,drop = FALSE]
+  C_ispt    <- obj$om$C_ispt[goodReps,,,,drop = FALSE]
+  F_ispt    <- obj$om$F_ispft[goodReps,,,2,]
+  vB_ispt   <- obj$om$vB_ispft[goodReps,,,2,]
+
+  tMP     <- obj$om$tMP
+  nS      <- obj$om$nS
+  nP      <- obj$om$nP 
+  nT      <- obj$om$nT
+  nReps   <- sum(goodReps)
+
+  # Now, let's start plotting. We can fix it later
+  speciesNames  <- (obj$om$speciesNames)
+  stockNames    <- (obj$om$stockNames)
+
+
+  projYrs <- tMP:nT
+
+  dep_ispt <- SB_ispt
+  Bmsy_sp  <- obj$rp[[1]]$FmsyRefPts$BeqFmsy_sp
+  Fmsy_sp  <- obj$rp[[1]]$FmsyRefPts$Fmsy_sp
+
+  ctlList <- obj$ctlList
+
+  par(  mfcol = c(nP,nS), 
+        mar = c(1,1.5,1,2.5),
+        oma = c(5,5,3,3) )
+
+  U_ispt <- C_ispt / vB_ispt
+
+  for(s in 1:nS)
+  {
+    for( p in 1:nP )
+    {
+      # Convert biomass to Bmsy depletion
+      dep_ispt[,s,p,] <- SB_ispt[,s,p,] / Bmsy_sp[s,p]
+
+      # Depletion and F
+      maxDep <- max(SB_ispt[,s,p,projYrs], na.rm = T)
+      maxF   <- max(F_ispt[,s,p,projYrs], na.rm = T)
+
+      # Plot window
+      plot( x = c(0,maxDep), y = c(0,maxF),
+            type = "n", axes = F)
+        mfg <- par("mfg")
+        # axes
+        axis(side =1)
+
+        if( mfg[1] == 1 )
+          mtext( side = 3, text = speciesNames[s], font = 2, line = 0.2, cex = 1.5 )
+
+        if( mfg[2] == mfg[4] )
+        {
+          corners <- par("usr") #Gets the four corners of plot area (x1, x2, y1, y2)
+          par(xpd = TRUE) #Draw outside plot area
+          text( x = corners[2]+0.5, 
+                y = mean(corners[3:4]), 
+                labels = stockNames[p], srt = 270,
+                font = 2, cex = 1.5 )
+          par(xpd = FALSE)
+        }
+        
+        axis( side = 2, las = 1 )
+        box()
+
+        ptCol <- scales::alpha("grey70", alpha = .3)
+
+        points( x = SB_ispt[,s,p,projYrs], y = F_ispt[,s,p,projYrs],
+                col = ptCol, pch = 1 ) 
+
+        for( i in 1:nReps )
+        { 
+          # Plot a smoother for each replicate
+          lineCol <- scales::alpha("red", alpha = .3)
+          smoother <- loess.smooth( x = SB_ispt[i,s,p,projYrs], 
+                                    y = F_ispt[i,s,p,projYrs] )
+          lines( smoother, col = "grey30", lwd = .8 )
+          flB <- SB_ispt[i,s,p,projYrs[c(1,length(projYrs))]]
+          flF <- F_ispt[i,s,p,projYrs[c(1,length(projYrs))]]
+          points( x = flB,
+                  y = flF,
+                  col = c("blue","red"), cex = .5,
+                  pch = 16 )
+        }
+
+
+        abline( v = Bmsy_sp[s,p], lty = 2, lwd = .8)
+        abline( h = Fmsy_sp[s,p], lty = 2, lwd = .8)
+
+    }
+  }
+
+  mtext( side = 1, text = expression(B/B[MSY]), outer = TRUE, line = 2, font = 2)
+  mtext( side = 2, text = expression(F/F[MSY]), outer = TRUE, line = 2, font = 2)
+
+}
 
 # plotBatchPerf_sp()
 # Plots multipanels (faceted by species/stock)

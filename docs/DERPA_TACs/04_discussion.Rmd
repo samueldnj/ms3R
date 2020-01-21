@@ -19,16 +19,19 @@ stocks and species in proportion with survey observations.
 Main takeaway: which performed best/was most stable under
 changes in obs error variances?
 
-Second takeaway: TAC utilisation issue?
+Second takeaway: TAC utilisation issue? Optimal biomass
+under Fmsy_MS
 
 Sensitivity:
 
 Limitations:
 1. Informative priors were necessary for stability
+of MP
 2. Addition of  biomass and CPUE indices instead 
-of re-calculation
-3. No tuning of MPs to specific things?
-4. Effort dynamics: simplified, would require more
+of re-calculation under coastwide and data-pooled MPs
+4. Effort dynamics: simplified, would require more empirical
+work for an application - e.g. landed value is assumed equal
+5. 
 
 Further work:
 - While considering technical interactions, is it possible 
