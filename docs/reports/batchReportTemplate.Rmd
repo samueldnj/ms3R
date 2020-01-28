@@ -1,0 +1,195 @@
+---  
+title: "ms3R Batch Report"
+author: Samuel D. N. Johnson
+date: \today
+geometry: letterpaper
+nocaption: false
+header-includes:
+- \usepackage{booktabs}
+- \usepackage{longtable}
+- \usepackage{array}
+- \usepackage{multirow}
+- \usepackage[table]{xcolor}
+- \usepackage{wrapfig}
+- \usepackage{float}
+- \usepackage{colortbl}
+- \usepackage{pdflscape}
+- \usepackage{tabu}
+- \usepackage{threeparttable}
+- \usepackage{threeparttablex}
+- \usepackage[normalem]{ulem}
+- \usepackage{makecell}
+- \usepackage{caption}
+- \usepackage{pdflscape}
+- \newcommand{\blandscape}{\begin{landscape}}
+- \newcommand{\elandscape}{\end{landscape}}
+always_allow_html: yes
+params:
+  batchDir: "~/Work/code/models/stockAssessment/multispecies/ms3R/Outputs/"
+output: 
+  pdf_document:
+    keep_tex: true
+    fig_caption: true
+    latex_engine: pdflatex
+    template: ~/Work/write/templates/tex/TandF.latex
+  html_document:
+    self_contained: true
+    toc: true
+    toc_depth: 2
+    toc_float: true
+    df_print: kable
+    keep_md: false
+  word_document:
+    df_print: kable
+    reference_docx: /Users/sdnjohnson/Work/write/templates/docx/basic.docx
+  bookdown::pdf_document2:
+    keep_tex: true
+    fig_caption: true
+    latex_engine: pdflatex
+    template: ~/Work/write/templates/tex/TandF.latex
+    fig_width: 7
+    fig_height: 6
+  bookdown::html_document2:
+    self_contained: true
+    df_print: kable
+    keep_md: false
+    toc: true
+    toc_depth: 2
+    toc_float: true
+    number_sections: false
+  bookdown::word_document2:
+    df_print: kable
+    reference_docx: /Users/sdnjohnson/Work/write/templates/docx/basic.docx
+---
+
+# Batch Description
+
+```{r, setup, message=FALSE, warning=FALSE, include=FALSE, echo = FALSE}
+
+# I usually load my libraries up front to keep things organized
+library( bookdown )
+library( knitr )
+library( kableExtra )
+library( dplyr )
+library( stringr )
+library( tidyverse )
+library( here )
+library( ggridges )
+library( ggsidekick )
+
+knitr::opts_knit$set( fig.pos = 'p',
+                      out.width = '100%', dpi=300, 
+                      root.dir = params$batchDir,
+                      message = FALSE, warning = FALSE, echo = FALSE )
+
+options(warn = -1)
+
+source(here("ms3Rplots.R"))
+source(here("simSCAL.R"))
+source(here("tools.R"))
+source(here("stats.R"))
+source(here("refPts.R"))
+
+# Count the number of fits in the batch directory
+info.df <- readBatchInfo(params$batchDir)
+
+
+# Loop over the batch sims, and load their
+# blobs, saving to a named list
+nSims <- nrow(info.df)
+batchBlobs <- vector(mode = "list", length = nSims )
+
+for(simIdx in 1:nSims)
+{
+  # Recover Rdata file name
+  simFolderFiles <- list.files( info.df$path[simIdx] )
+  simFile <- simFolderFiles[grepl(".RData", simFolderFiles)]
+  simPath <- file.path(info.df$path[simIdx],simFile)
+
+  # Load sim object
+  load(simPath)
+  # Assign to global environment
+  assign( "blob",blob,pos=1 )
+
+  # Save to batchBlobs
+  batchBlobs[[simIdx]] <- blob
+}
+
+nS <- blob$om$nS
+nP <- blob$om$nP
+nT <- blob$om$nT
+speciesNames <- blob$om$speciesNames
+stockNames   <- blob$om$stockNames
+
+# Make simulation performane stats
+batchPerfStats <- lapply( X = batchBlobs, FUN = .simPerfStats )
+
+message("All simulation objects loaded and ready to make batch report")
+
+```
+
+Batch report file for ms3R simulations.
+
+Batch folder: `r params$batchDir`
+
+
+```{r, batchTable, include = TRUE, echo = FALSE}
+ScenMPtable <- info.df[,1:2]
+
+kable(  ScenMPtable, escape = FALSE, 
+        caption = "Scenarios and MPs in batch.", booktabs = T,
+        align = rep("c",ncol(ScenMPtable))) %>%
+  kable_styling(latex_options = c("striped", "scale_down","hold_position"),
+                bootstrap_options = c("striped", "hover"))
+
+```
+
+
+```{r, captions, include = FALSE, echo = FALSE}
+# Captions for different comparison tables
+
+complexPerfTabCap <- "Complex level performance statistics."
+omniObjFunTabCap <- "Objective function weights, values, and variables of interest for omniscient manager simulation."
+
+
+```
+
+
+# Complex level performance
+
+```{r, cplxPerf, echo = FALSE}
+
+cplxStats <- lapply( X = batchBlobs, FUN = .getCplxStats)
+
+cplxStatTable <- do.call(rbind, cplxStats) 
+
+
+
+kable(  cplxStatTable, escape = FALSE, 
+        caption = complexPerfTabCap, booktabs = T,
+        align = rep("c",ncol(cplxStatTable))) %>%
+  kable_styling(latex_options = c("striped", "scale_down","hold_position"),
+                bootstrap_options = c("striped", "hover"))
+
+```
+
+
+# Individual stock performance
+
+```{r, renderScenarioChildren, echo = FALSE, results = 'asis' }
+for( s in 1:nS )
+{
+  cat(paste("## ", speciesNames[s], "\n", sep = "" ) )
+  for( p in 1:nP)
+  {
+    cat(paste("### ", stockNames[p], "\n", sep = "" ) )
+
+    childDoc <- knitr::knit_child(here::here("docs","reports","stockBatchChild.Rmd"),options = list(results = "asis"),quiet = TRUE)
+
+    cat(childDoc)
+  }
+}
+
+```
+
+

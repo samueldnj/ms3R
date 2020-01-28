@@ -1,0 +1,100 @@
+---  
+title: "ms3R Batch Report - Stock child doc"
+author: Samuel D. N. Johnson
+date: \today
+geometry: letterpaper
+nocaption: false
+header-includes:
+- \usepackage{booktabs}
+- \usepackage{longtable}
+- \usepackage{array}
+- \usepackage{multirow}
+- \usepackage[table]{xcolor}
+- \usepackage{wrapfig}
+- \usepackage{float}
+- \usepackage{colortbl}
+- \usepackage{pdflscape}
+- \usepackage{tabu}
+- \usepackage{threeparttable}
+- \usepackage{threeparttablex}
+- \usepackage[normalem]{ulem}
+- \usepackage{makecell}
+- \usepackage{caption}
+- \usepackage{pdflscape}
+- \newcommand{\blandscape}{\begin{landscape}}
+- \newcommand{\elandscape}{\end{landscape}}
+always_allow_html: yes
+params:
+  batchDir: "~/Work/code/models/stockAssessment/multispecies/ms3R/Outputs/"
+output: 
+  pdf_document:
+    keep_tex: true
+    fig_caption: true
+    latex_engine: pdflatex
+    template: ~/Work/write/templates/tex/TandF.latex
+  html_document:
+    self_contained: true
+    toc: true
+    toc_depth: 2
+    toc_float: true
+    df_print: kable
+    keep_md: false
+  word_document:
+    df_print: kable
+    reference_docx: /Users/sdnjohnson/Work/write/templates/docx/basic.docx
+  bookdown::pdf_document2:
+    keep_tex: true
+    fig_caption: true
+    latex_engine: pdflatex
+    template: ~/Work/write/templates/tex/TandF.latex
+    fig_width: 7
+    fig_height: 6
+  bookdown::html_document2:
+    self_contained: true
+    df_print: kable
+    keep_md: false
+    toc: true
+    toc_depth: 2
+    toc_float: true
+    number_sections: false
+  bookdown::word_document2:
+    df_print: kable
+    reference_docx: /Users/sdnjohnson/Work/write/templates/docx/basic.docx
+---
+
+
+```{r, echo = FALSE, include = FALSE, warning = FALSE, message = FALSE}
+
+# Add
+stockName   <- stockNames[p]
+speciesName <- speciesNames[s]
+
+PerfTableCap <- paste( "Performance statistics for the ", stockName,
+                       "stock of ", speciesName, "sole for all batch runs." )
+
+
+
+
+```
+
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+
+# Pull out stock and species specific rows of performance tables
+stockTables <- vector( mode = "list", length = nSims)
+for( simIdx in 1:nSims )
+{
+  stockTables[[simIdx]] <- batchPerfStats[[simIdx]] %>% filter( species == speciesName, stock == stockName )
+}
+
+stockPerfTable <- do.call(rbind, stockTables) 
+
+
+kable(  stockPerfTable, escape = FALSE, 
+        caption = PerfTableCap, booktabs = T,
+        align = rep("c",ncol(stockPerfTable))) %>%
+  kable_styling( latex_options = c("striped", "scale_down","hold_position"),
+                 bootstrap_options = c("striped", "hover"))
+
+```
+
