@@ -94,7 +94,7 @@ opMod$histFile "fit_06112019105141"
 opMod$phaseInObsErrMult 6
 opMod$price_s c(Dover=1.33,English=1.37,Rock=1.65,Petrale=3.22,Arrowtooth=0.37)
 opMod$projObsErrMult 1.0
-opMod$pT 32
+opMod$pT 60
 opMod$ut_50 .85
 opMod$ut_95 .75
 opMod$commCPUEdata "history/DERPAcpue"
