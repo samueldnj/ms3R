@@ -72,7 +72,8 @@ mp$omni$loDepBmsy 0.4
 mp$omni$loDepProb 0.95
 mp$omni$hiDepBmsy 2.5
 mp$omni$hiDepProb 0.05
-mp$omni$expParMult 0
+mp$omni$expParMult 1
+mp$omni$inputF 0.109183155
 mp$omni$avgCatWt 0.
 mp$omni$totCatWt 1.0
 mp$omni$sumCatWt .0
@@ -95,7 +96,7 @@ opMod$commGears c(2)
 opMod$ut_50 .85
 opMod$ut_95 .75
 opMod$effortMod "targeting"
-opMod$pT 10
+opMod$pT 100
 opMod$histFile "fit_27012020154808"
 opMod$price_s c(Dover=1.33,English=1.37,Rock=1.65,Petrale=3.22,Arrowtooth=0.37)
 opMod$projObsErrMult 1.0

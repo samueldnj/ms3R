@@ -19,7 +19,7 @@
 calcRefPts <- function( obj )
 {
   # Calculate selectivity
-  obj <- .calcSel_xsp(obj, fleetIdx = 2)
+  # obj <- .calcSel_xsp(obj, fleetIdx = 2)
 
   # Calculate R0_sp
   h_sp      <- obj$h_sp
@@ -73,6 +73,8 @@ calcRefPts <- function( obj )
   # so labeling and dimensions are needed
   nS          <- obj$nS
   nP          <- obj$nP
+  nA          <- obj$nA
+  nX          <- obj$nX
   sexNames    <- dimnames(obj$M_xsp)[[1]]
   specNames   <- dimnames(obj$M_xsp)[[2]]
   stockNames  <- dimnames(obj$M_xsp)[[3]]
@@ -87,6 +89,9 @@ calcRefPts <- function( obj )
                               dimnames = list(  species = specNames,
                                                 stock = stockNames,
                                                 F = f ) )
+
+  surv_axspf    <- array( NA, dim = c(nA,nX,nS,nP,nFs) )
+
   Beq_spf       <- Req_spf
   expBeq_spf    <- Req_spf
   Yeq_spf       <- Req_spf
@@ -94,18 +99,19 @@ calcRefPts <- function( obj )
   ssbpr_spf     <- Req_spf
   Ueq_spf       <- Req_spf
 
+
   # Loop and fill
   for( i in 1:length(f) )
   {
-    tmp         <- .calcEquil( f = f[i], obj = obj )
-    Req_spf[,,i]    <- tmp$Req_sp
-    Beq_spf[,,i]    <- tmp$Beq_sp
-    expBeq_spf[,,i] <- tmp$expBeq_sp
-    Yeq_spf[,,i]    <- tmp$Yeq_sp
-    ypr_spf[,,i]    <- tmp$ypr_sp
-    ssbpr_spf[,,i]  <- tmp$ssbpr_sp
-    Ueq_spf[,,i]    <- tmp$Ueq_sp
-
+    tmp               <- .calcEquil( f = f[i], obj = obj )
+    Req_spf[,,i]      <- tmp$Req_sp
+    Beq_spf[,,i]      <- tmp$Beq_sp
+    expBeq_spf[,,i]   <- tmp$expBeq_sp
+    Yeq_spf[,,i]      <- tmp$Yeq_sp
+    ypr_spf[,,i]      <- tmp$ypr_sp
+    ssbpr_spf[,,i]    <- tmp$ssbpr_sp
+    Ueq_spf[,,i]      <- tmp$Ueq_sp
+    surv_axspf[,,,,i] <- tmp$surv_axsp
   }
 
   refCurves <- list()
@@ -116,6 +122,7 @@ calcRefPts <- function( obj )
     refCurves$expBeq_spf  <- expBeq_spf
     refCurves$Yeq_spf     <- Yeq_spf
     refCurves$Ueq_spf     <- Yeq_spf
+    refCurves$surv_axspf  <- surv_axspf
 
   return( refCurves )
 }
@@ -148,6 +155,7 @@ calcRefPts <- function( obj )
     equil$ypr_sp     <- yprList$ypr_sp
     equil$ssbpr_sp   <- yprList$ssbpr_sp
     equil$Ueq_sp     <- equil$Yeq_sp / equil$expBeq_sp
+    equil$surv_axsp  <- tmp$Surv_axsp
 
   return(equil)
 }
@@ -220,13 +228,14 @@ calcRefPts <- function( obj )
   nL    <- obj$nL
   nX    <- obj$nX
   M_xsp <- obj$M_xsp
+  nT    <- obj$nT
 
   # Life history schedules
   matAge_asp        <- obj$matAge_asp
   lenAge_axsp       <- aperm(obj$lenAge_aspx,c(1,4,2,3))
   wtAge_axsp        <- aperm(obj$meanWtAge_aspx,c(1,4,2,3))
   probLenAge_laspx  <- obj$probLenAge_laspx
-  selAge_axsp       <- obj$selAge_axsp
+  selAge_axsp       <- obj$sel_axspft[,,,,2,nT]
 
   # Compute Z_asp
   Z_axsp    <- array( NA, dim = c(nA,nX,nS,nP))

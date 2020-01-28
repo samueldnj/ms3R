@@ -1614,6 +1614,9 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
       for( s in 1:nS )
         for( p in 1:nP )
           obj$om$F_spft[s,p,2,tMP:nT] <- parMult*obj$rp$FmsyRefPts$Fmsy_sp[s,p]
+
+      if( !is.null(ctlList$omni$inputF) )
+        obj$om$F_spft[,,2,tMP:nT] <- ctlList$omni$inputF
     }
 
     # run model for projection period
@@ -2856,7 +2859,8 @@ combBarrierPen <- function( x, eps,
   om$lenAge_axsp        <- aperm( repObj$lenAge_aspx, c(1,4,2,3) )
 
   # Calculate ref points and get R0 and recruitment pars
-  refPtList             <- calcRefPts( repObj )$refPts
+  tmp                   <- calcRefPts( repObj )
+  refPtList             <- tmp$refPts
 
   # Make data list - anything else?
   # mp list - mostly for retrospective
@@ -3209,6 +3213,22 @@ combBarrierPen <- function( x, eps,
    
 
   } # END F approximation
+
+  # if( t == nT-5 )
+  # {
+
+  #   inputF <- obj$ctlList$mp$omni$inputF
+
+  #   whichF <- which.min(abs(rp$refCurves$F - inputF))
+
+  #   rpSurv_axsp <- rp$refCurves$surv_axspf[,,,,whichF]
+
+  #   currentSurv_axsp <- N_axspt[,,,,t]
+  #   for( s in 1:nS )
+  #     for( p in 1:nP )
+  #       currentSurv_axsp[,,s,p] <- currentSurv_axsp[,,s,p] / R_spt[s,p,t]
+
+  # }
 
   # Now generate Z
   for( s in 1:nS )
