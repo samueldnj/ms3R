@@ -9,11 +9,11 @@ ctl$maxIter 1e4
 ctl$rSeed 123
 ctl$totReps 10
 ctl$nGoodReps 5
-ctl$omni FALSE
-ctl$perfConF TRUE
+ctl$omni TRUE
+ctl$perfConF FALSE
 ctl$noProcErr TRUE
 mp$assess$assInt 1
-mp$assess$method "PerfectInfo"
+mp$assess$method "hierProd"
 mp$assess$idxPoints 3
 mp$assess$idxScalar 1
 mp$assess$idxFleets 4
@@ -83,9 +83,9 @@ mp$omni$probDepWt 0.0
 mp$omni$closedWt 0
 mp$omni$AAVWt 0
 mp$omni$catDiffWt 0.0
-mp$omni$effDiffWt 0.0
-mp$omni$initCatDiffWt .0
-mp$omni$initEffDiffWt 0.0
+mp$omni$effDiffWt 1.0
+mp$omni$initCatDiffWt 1.0
+mp$omni$initEffDiffWt 1.0
 mp$omni$penType "linear"
 mp$omni$linBeta 3
 opMod$allocYears 20
@@ -95,7 +95,7 @@ opMod$baranovStep .5
 opMod$commGears c(2)
 opMod$ut_50 .85
 opMod$ut_95 .75
-opMod$effortMod "targeting"
+opMod$effortMod "Max"
 opMod$pT 100
 opMod$histFile "fit_27012020154808"
 opMod$price_s c(Dover=1.33,English=1.37,Rock=1.65,Petrale=3.22,Arrowtooth=0.37)
