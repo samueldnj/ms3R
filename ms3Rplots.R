@@ -33,9 +33,9 @@ plotEmpYieldCurves <- function( sims = 1:11 )
   {
     .loadSim(x)
     
-    C_spk[,,x] <- apply(X = blob$om$C_ispt[goodReps,,,nT], FUN = median, MARGIN = c(2,3), na.rm = T )
-    B_spk[,,x] <- apply(X = blob$om$SB_ispt[goodReps,,,nT], FUN = median, MARGIN = c(2,3), na.rm = T )
-    F_spk[,,x] <- apply(X = blob$om$F_ispft[goodReps,,,2,nT], FUN = median, MARGIN = c(2,3), na.rm = T )
+    C_spk[,,x] <- apply(X = blob$om$C_ispt[goodReps,,,nT,drop = FALSE], FUN = median, MARGIN = c(2,3), na.rm = T )
+    B_spk[,,x] <- apply(X = blob$om$SB_ispt[goodReps,,,nT,drop = FALSE], FUN = median, MARGIN = c(2,3), na.rm = T )
+    F_spk[,,x] <- apply(X = blob$om$F_ispft[goodReps,,,2,nT,drop = FALSE], FUN = median, MARGIN = c(2,3), na.rm = T )
 
     # Clean up
     gc()
@@ -125,6 +125,7 @@ plotEmpYieldCurves <- function( sims = 1:11 )
 
   mtext( side = 1, text = "Fishing mortality (/yr)", outer = T, line = 2)
   mtext( side = 2, text = "Eqbm biomass and catch (kt)", outer = T, line = 2 )
+
 
 
   out <- list(  Fmsy_sp = Fmsy_sp,
