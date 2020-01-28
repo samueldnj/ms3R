@@ -137,6 +137,8 @@ random replicates, and the grey region showing the central 95% of the distributi
 
 EffTulipCaption <- "Simulation envelopes of effort in each stock area."
 
+FTulipCaption <- "Simulation envelopes of fishing mortality for each stock."
+
 convStatsCaption <- "Convergence diagnostics for the simulated assessment model at each projection time step.
 The left hand column shows the distribution of maximum gradient components across replicates, 
 and the right hand column shows the proportion of replicates where the AM produced a 
@@ -167,10 +169,17 @@ plotTulipBt( obj = blob, dep = TRUE, Ct = TRUE )
 plotTulipTACu( obj = blob, nTrace = 3 )
 ```
 
+## Fishing mortality
+
+```{r, plotTulipF, echo = FALSE, message = FALSE, fig.cap = EffTulipCaption }
+plotTulipF( obj = blob )
+```
+
+
 ## Effort allocation
 
-```{r, plotTulipEffort, echo = FALSE, message = FALSE, fig.cap = EffTulipCaption }
-plotTulipEffort_p( obj = blob )
+```{r, plotTulipEffort, echo = FALSE, message = FALSE, fig.cap = FTulipCaption }
+plotTulipF( obj = blob )
 ```
 
 # Example replicates
@@ -205,7 +214,8 @@ kable(  statTable, escape = FALSE,
 
 
 ```{r, plotConvergence, echo = FALSE, message = FALSE, fig.cap = convStatsCaption }
-if(!blob$ctlList$ctl$omni)
+if(   !(blob$ctlList$ctl$omni | blob$ctlList$ctl$perfConF)  & 
+    ( !blob$ctlList$mp$assess$method %in% c("idxBased","PerfectInfo" ) ) )
 {
 
   cat(paste("## ", "Convergence diagnostics\n",sep = ""))

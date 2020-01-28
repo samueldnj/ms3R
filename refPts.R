@@ -53,6 +53,7 @@ calcRefPts <- function( obj )
   obj$refPts$R0_sp        <- R0_sp  
   obj$refPts$rec.a_sp     <- obj$rec.a_sp
   obj$refPts$rec.b_sp     <- obj$rec.b_sp
+  obj$refPts$B0_sp        <- refCurves$Beq_spf[,,1]
   
   return(obj)
 
@@ -104,6 +105,7 @@ calcRefPts <- function( obj )
     ypr_spf[,,i]    <- tmp$ypr_sp
     ssbpr_spf[,,i]  <- tmp$ssbpr_sp
     Ueq_spf[,,i]    <- tmp$Ueq_sp
+
   }
 
   refCurves <- list()
@@ -226,15 +228,10 @@ calcRefPts <- function( obj )
   probLenAge_laspx  <- obj$probLenAge_laspx
   selAge_axsp       <- obj$selAge_axsp
 
-  # Double matAge for easy copying later
-  matAge_axsp       <- array(NA, dim = c(nA,nX,nS,nP))
-  for( x in 1:nX)
-    matAge_axsp[,x,,] <- matAge_asp
-
   # Compute Z_asp
   Z_axsp    <- array( NA, dim = c(nA,nX,nS,nP))
   Surv_axsp <- array( NA, dim = c(nA,nX,nS,nP))
-  Surv_axsp[1,,,] <- 1/nX
+  Surv_axsp[1,,,] <- 1
   for( x in 1:nX )
     for( s in 1:nS )
       for( p in 1:nP )
@@ -250,25 +247,34 @@ calcRefPts <- function( obj )
         }
       }
 
-  # Calculate yield-per-recruit
-  C_axsp <- array(0, dim = dim(Surv_axsp))
-  for( x in 1:nX)
-    C_axsp[,x,,]    <- Surv_axsp[,x,,,drop = FALSE] * wtAge_axsp[,x,,,drop = FALSE] * 
-                          selAge_axsp[,x,,,drop = FALSE] * f * 
-                          (1 - exp(-Z_axsp[,x,,,drop = FALSE]))/Z_axsp[,x,,,drop = FALSE]
+  # Calculate yield-per-recruit, ssb per recruit, and exp biomass per recruit
+  # by using survival array
+  ssbpr_asp   <- array( NA, dim = c(nA,nS,nP) )
+  expbpr_axsp <- array( NA, dim = c(nA,nX,nS,nP) )
+  C_axsp      <- array(0, dim = dim(Surv_axsp))
+
+  for( s in 1:nS )
+    for( p in 1:nP)
+    {
+      ssbpr_asp[,s,p]  <- Surv_axsp[,nX,s,p] * wtAge_axsp[,nX,s,p] * matAge_asp[,s,p]
+      for( x in 1:nX )
+      {
+        C_axsp[,x,s,p]    <- Surv_axsp[,x,s,p] * wtAge_axsp[,x,s,p] * 
+                              selAge_axsp[,x,s,p] * f * 
+                              (1 - exp(-Z_axsp[,x,s,p]))/Z_axsp[,x,s,p]
+
+        expbpr_axsp[,x,s,p] <- Surv_axsp[,x,s,p] * selAge_axsp[,x,s,p] * wtAge_axsp[,x,s,p]
+      }
+
+    }
   # Replace NAs with 0 (unmodeled ages)
-  Z_axsp[is.na(Z_axsp)] <- 0
-  Surv_axsp[is.na(Surv_axsp)] <- 0
-  C_axsp[is.na(C_axsp)] <- 0
+  # Z_axsp[is.na(Z_axsp)] <- 0
+  # Surv_axsp[is.na(Surv_axsp)] <- 0
+  # C_axsp[is.na(C_axsp)] <- 0
   
-  # Compute YPR
-  ypr_sp    <- apply( X = C_axsp, FUN = sum, MARGIN = c(3,4),na.rm = T)
-
-  # spawning biomass per recruit
-  ssbpr_asp  <- Surv_axsp[,nX,,] * wtAge_axsp[,nX,,] * matAge_axsp[,nX,,]
-  ssbpr_sp   <- apply( X = ssbpr_asp, FUN = sum, MARGIN = c(2,3), na.rm = T )
-
-  expbpr_axsp <- Surv_axsp * selAge_axsp * wtAge_axsp
+  # Compute ratios
+  ypr_sp      <- apply( X = C_axsp, FUN = sum, MARGIN = c(3,4),na.rm = T)
+  ssbpr_sp    <- apply( X = ssbpr_asp, FUN = sum, MARGIN = c(2,3), na.rm = T )
   expbpr_sp   <- apply( X = expbpr_axsp, FUN = sum, MARGIN = c(3,4), na.rm = T )  
 
   # compile output list

@@ -26,7 +26,8 @@ abstract:
     data or management resources are limited, exemplified by short time-series of 
     fishery independent observations or limited biologica data, or the 
     structure of the management decision is mismatched to the spatial structure of the system, 
-    exemplified by aggregating multiple spatial stocks or species into one management unit. 
+    exemplified by aggregating multiple spatial stocks or species into one management unit. In
+    those situations, assessments may either 
     In this paper, we simulate a spatially structured, multi-species flatfish fishery, and
     test the performance of multiple management procedures that are based on assessment methods 
     often used to deal with data limitations in multi-species fisheries, including 

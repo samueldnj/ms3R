@@ -10,6 +10,183 @@
 #
 # <><><><><><><><><><><><><><><><><><><><><><><><><><><>
 
+plotEmpYieldCurves <- function( sims = 1:11 )
+{
+  nSims <- length(sims)
+  blobList <- vector(mode = "list", length = nSims)
+
+  .loadSim(sims[1])
+
+  nS <- blob$om$nS
+  nP <- blob$om$nP
+  nT <- blob$om$nT
+
+  goodReps <- blob$goodReps
+
+
+  # Arrays to hold empirical eqbm yields
+  C_spk <- array( 0, dim = c(nS,nP,nSims) )
+  B_spk <- array( 0, dim = c(nS,nP,nSims) )
+  F_spk <- array( 0, dim = c(nS,nP,nSims) )
+
+  for( x in sims )
+  {
+    .loadSim(x)
+    
+    C_spk[,,x] <- apply(X = blob$om$C_ispt[goodReps,,,nT], FUN = median, MARGIN = c(2,3), na.rm = T )
+    B_spk[,,x] <- apply(X = blob$om$SB_ispt[goodReps,,,nT], FUN = median, MARGIN = c(2,3), na.rm = T )
+    F_spk[,,x] <- apply(X = blob$om$F_ispft[goodReps,,,2,nT], FUN = median, MARGIN = c(2,3), na.rm = T )
+
+    # Clean up
+    gc()
+  }
+
+  # Pull ref curves from RP object
+  refCurves       <- blob$rp[[1]]$refCurves
+  Fvec            <- refCurves$F
+  BeqRefCurve_spf <- refCurves$Beq_spf
+  YeqRefCurve_spf <- refCurves$Yeq_spf
+
+
+  Fmsy_sp <- array(0, dim = c(nS,nP))
+  Bmsy_sp <- array(0, dim = c(nS,nP))
+  MSY_sp <- array(0, dim = c(nS,nP))
+
+  par(  mfcol = c(nP,nS), 
+        mar = c(1,1.5,1,1.5),
+        oma = c(5,5,3,3) )
+
+  for( s in 1:nS )
+    for( p in 1:nP )
+    {
+
+      plot( x = c(0,max(F_spk[s,p,])), y = c(0,max(B_spk[s,p,])),
+            type = "n", axes = FALSE )
+        axis( side = 1 )
+        axis( side = 2, las = 1 )
+        grid()
+        box()
+
+        F <- F_spk[s,p,]
+        C <- C_spk[s,p,]
+        B <- B_spk[s,p,]
+
+        actualOrder <- order(F)
+
+        C <- C[actualOrder]
+        B <- B[actualOrder]
+        F <- F[actualOrder]
+
+        CFspline <- splinefun(x = F, y = C)
+        BFspline <- splinefun(x = F, y = B)
+        empFmsy  <- uniroot(  interval = range(F),
+                              f = CFspline,
+                              deriv = 1 )$root
+        empMSY  <- CFspline(empFmsy)
+        empBmsy <- BFspline(empFmsy)
+
+        empFmsy <- round(empFmsy,2)
+        empBmsy <- round(empBmsy,2)
+        empMSY  <- round(empMSY,2)
+
+        lines( x = F, y = C,
+                col = "steelblue", lwd = 2, lty = 1 )
+        lines( x = F, y = B,
+                col = "black", lwd = 2, lty = 1 )        
+
+        lines( x = Fvec, y = YeqRefCurve_spf[s,p,],
+                col = "salmon", lty = 2 )
+
+        lines( x = Fvec, y = BeqRefCurve_spf[s,p,],
+                col = "black", lty = 2 )
+
+
+        legend( "topright",
+                legend = c( paste("Fmsy = ", empFmsy, sep = "" ),
+                            paste(" MSY = ", empMSY, sep = ""),
+                            paste("Bmsy = ", empBmsy, sep = "") ) )
+
+
+        # Plot some guidelines
+        segments(  x0 = empFmsy, x1 = empFmsy,
+                    y0 = 0, y1 = empBmsy,
+                    lty = 2, col = "red" )
+        segments(  x0 = 0, x1 = empFmsy,
+                    y0 = empMSY, y1 = empMSY,
+                    lty = 2, col = "red" )
+        segments(  x0 = 0, x1 = empFmsy,
+                    y0 = empBmsy, y1 = empBmsy,
+                    lty = 2, col = "red" )
+        
+        Fmsy_sp[s,p] <- empFmsy
+        Bmsy_sp[s,p] <- empBmsy
+        MSY_sp[s,p]  <- empMSY
+    }
+
+  mtext( side = 1, text = "Fishing mortality (/yr)", outer = T, line = 2)
+  mtext( side = 2, text = "Eqbm biomass and catch (kt)", outer = T, line = 2 )
+
+
+  out <- list(  Fmsy_sp = Fmsy_sp,
+                Bmsy_sp = Bmsy_sp,
+                MSY_sp  = MSY_sp )
+
+  out
+}
+
+# compareRefPts()
+# Compares OM and conditioning fit reference points
+# for a sanity check
+compareYieldCurves <- function( obj )
+{
+  refPtsOM <- obj$rp[[1]]
+  refPtsAM <- obj$ctlList$opMod$histRpt$refPts
+
+  # Pull model dimensions
+  nS <- obj$om$nS
+  nP <- obj$om$nP
+
+  speciesNames  <- obj$om$speciesNames
+  stockNames    <- obj$om$stockNames
+
+  # Now, loop and plot reference points
+  par(  mfcol = c(nP,nS), 
+        mar = c(1,1.5,1,1.5),
+        oma = c(5,5,3,3) )
+
+  for( s in 1:nS )
+    for( p in 1:nP )
+    {
+      refCurvesOM <- refPtsOM$refCurves
+      refCurvesAM <- refPtsAM$refCurves
+      plot( x = range( refCurvesOM$F ),
+            y = c(0, max(refCurvesOM$Yeq_spf[s,p,], refCurvesOM$Beq_spf[s,p,]  )),
+            type = "n", axes = FALSE )
+        axis( side = 1 )
+        axis( side = 2, las = 1 )
+
+        lines(  x = refCurvesOM$F, y = refCurvesOM$Yeq_spf[s,p,],
+                col = "black", lwd = 3 )
+        lines(  x = refCurvesOM$F, y = refCurvesOM$Beq_spf[s,p,],
+                col = "steelblue", lwd = 3 )
+
+        lines(  x = refCurvesAM$F, y = refCurvesAM$Yeq_spf[s,p,],
+                col = "black", lty = 2, lwd = 3 )
+        lines(  x = refCurvesAM$F, y = refCurvesAM$Beq_spf[s,p,],
+                col = "black", lty = 2, lwd = 3 )
+
+
+        points( x = refPtsOM$FmsyRefPts$Fmsy_sp[s,p],
+                y = refPtsOM$FmsyRefPts$YeqFmsy_sp[s,p], 
+                col = "red", pch = 16, cex = 1.5 )
+        points( x = refPtsAM$FmsyRefPts$Fmsy_sp[s,p],
+                y = refPtsAM$FmsyRefPts$YeqFmsy_sp[s,p], 
+                col = "steelblue", pch = 21, cex = 1.5 )
+
+    }
+} 
+
+
 # plotCvsB()
 # Fishing mortality as a function of biomass,
 # used for showing how well an MP meets the 
@@ -58,11 +235,11 @@ plotCvsB <- function( obj )
       dep_ispt[,s,p,] <- SB_ispt[,s,p,] / Bmsy_sp[s,p]
 
       # Depletion and F
-      maxDep <- max(SB_ispt[,s,p,projYrs], na.rm = T)
-      maxC   <- max(C_ispt[,s,p,projYrs], na.rm = T)
+      maxDep <- max(dep_ispt[,s,p,projYrs], na.rm = T)
+      maxC   <- max(C_ispt[,s,p,projYrs]/MSY_sp[s,p], na.rm = T)
 
       # Plot window
-      plot( x = c(0,maxDep), y = c(0,maxC),
+      plot( x = c(0,3), y = c(0,2),
             type = "n", axes = F)
         mfg <- par("mfg")
         # axes
@@ -87,18 +264,18 @@ plotCvsB <- function( obj )
 
         ptCol <- scales::alpha("grey70", alpha = .3)
 
-        points( x = SB_ispt[,s,p,projYrs], y = C_ispt[,s,p,projYrs],
+        points( x = dep_ispt[,s,p,projYrs], y = C_ispt[,s,p,projYrs]/MSY_sp[s,p],
                 col = ptCol, pch = 1 ) 
 
         for( i in 1:nReps )
         { 
           # Plot a smoother for each replicate
           lineCol <- scales::alpha("red", alpha = .3)
-          smoother <- loess.smooth( x = SB_ispt[i,s,p,projYrs], 
-                                    y = C_ispt[i,s,p,projYrs] )
+          smoother <- loess.smooth( x = dep_ispt[i,s,p,projYrs], 
+                                    y = C_ispt[i,s,p,projYrs]/MSY_sp[s,p] )
           lines( smoother, col = "grey30", lwd = .8 )
-          flB <- SB_ispt[i,s,p,projYrs[c(1,length(projYrs))]]
-          flC <- C_ispt[i,s,p,projYrs[c(1,length(projYrs))]]
+          flB <- dep_ispt[i,s,p,projYrs[c(1,length(projYrs))]]
+          flC <- C_ispt[i,s,p,projYrs[c(1,length(projYrs))]]/MSY_sp[s,p]
           points( x = flB,
                   y = flC,
                   col = c("blue","red"), cex = .5,
@@ -106,14 +283,14 @@ plotCvsB <- function( obj )
         }
 
 
-        abline( v = Bmsy_sp[s,p], lty = 2, lwd = .8)
-        abline( h = MSY_sp[s,p], lty = 2, lwd = .8)
+        abline( v = 1, lty = 2, lwd = .8)
+        abline( h = 1, lty = 2, lwd = .8)
 
     }
   }
 
-  mtext( side = 1, text = "Spawning Biomass (kt)", outer = TRUE, line = 2, font = 2)
-  mtext( side = 2, text = "Catch (kt)", outer = TRUE, line = 2, font = 2)
+  mtext( side = 1, text = expression(B/B[MSY]), outer = TRUE, line = 2, font = 2)
+  mtext( side = 2, text = expression(C/MSY), outer = TRUE, line = 2, font = 2)
 
 }
 
@@ -165,11 +342,11 @@ plotFvsB <- function( obj )
       dep_ispt[,s,p,] <- SB_ispt[,s,p,] / Bmsy_sp[s,p]
 
       # Depletion and F
-      maxDep <- max(SB_ispt[,s,p,projYrs], na.rm = T)
-      maxF   <- max(F_ispt[,s,p,projYrs], na.rm = T)
+      maxDep <- max(dep_ispt[,s,p,projYrs], na.rm = T)
+      maxF   <- max(F_ispt[,s,p,projYrs]/Fmsy_sp[s,p], na.rm = T)
 
       # Plot window
-      plot( x = c(0,maxDep), y = c(0,maxF),
+      plot( x = c(0,3), y = c(0,2),
             type = "n", axes = F)
         mfg <- par("mfg")
         # axes
@@ -194,18 +371,18 @@ plotFvsB <- function( obj )
 
         ptCol <- scales::alpha("grey70", alpha = .3)
 
-        points( x = SB_ispt[,s,p,projYrs], y = F_ispt[,s,p,projYrs],
+        points( x = dep_ispt[,s,p,projYrs], y = F_ispt[,s,p,projYrs]/Fmsy_sp[s,p],
                 col = ptCol, pch = 1 ) 
 
         for( i in 1:nReps )
         { 
           # Plot a smoother for each replicate
           lineCol <- scales::alpha("red", alpha = .3)
-          smoother <- loess.smooth( x = SB_ispt[i,s,p,projYrs], 
-                                    y = F_ispt[i,s,p,projYrs] )
+          smoother <- loess.smooth( x = dep_ispt[i,s,p,projYrs], 
+                                    y = F_ispt[i,s,p,projYrs]/Fmsy_sp[s,p] )
           lines( smoother, col = "grey30", lwd = .8 )
-          flB <- SB_ispt[i,s,p,projYrs[c(1,length(projYrs))]]
-          flF <- F_ispt[i,s,p,projYrs[c(1,length(projYrs))]]
+          flB <- dep_ispt[i,s,p,projYrs[c(1,length(projYrs))]]
+          flF <- F_ispt[i,s,p,projYrs[c(1,length(projYrs))]]/Fmsy_sp[s,p]
           points( x = flB,
                   y = flF,
                   col = c("blue","red"), cex = .5,
@@ -213,8 +390,8 @@ plotFvsB <- function( obj )
         }
 
 
-        abline( v = Bmsy_sp[s,p], lty = 2, lwd = .8)
-        abline( h = Fmsy_sp[s,p], lty = 2, lwd = .8)
+        abline( v = 1, lty = 2, lwd = .8)
+        abline( h = 1, lty = 2, lwd = .8)
 
     }
   }
@@ -515,6 +692,89 @@ plotConvStats <- function( obj = blob )
 
 }
 
+plotTulipF <- function( obj = blob, nTrace = 3 )
+{
+  # Model dimensions
+  tMP     <- obj$om$tMP
+  nS      <- obj$om$nS
+  nP      <- obj$om$nP 
+  nT      <- obj$om$nT
+  nF      <- obj$om$nF
+
+  # Good replicates
+  goodReps <- obj$goodReps
+
+  # Pull reference points
+  Fmsy_sp <- obj$rp[[1]]$FmsyRefPts$Fmsy_sp
+    
+  # Fishing mortality series
+  F_ispft <- obj$om$F_ispft[goodReps,,,,]
+
+  # Fishing mortality envelopes
+  F_qspft <- apply(  X = F_ispft, FUN = quantile,
+                    MARGIN = c(2,3,4,5), probs = c(0.025, 0.5, 0.975),
+                    na.rm = T )
+
+  nReps   <- dim(F_ispft)[1]
+
+  speciesNames  <- obj$om$speciesNames
+  stockNames    <- obj$om$stockNames
+  fYear         <- obj$ctlList$opMod$fYear
+
+  yrs <- seq( from = fYear, by = 1, length.out = nT)
+
+  traces <- sample( 1:nReps, size = min(nTrace,nReps)  )
+
+  par(  mfcol = c(nP,nS), 
+        mar = c(1,1.5,1,1.5),
+        oma = c(5,5,3,3) )
+
+
+  for(s in 1:nS)
+  {
+    for( p in 1:nP )
+    {
+      plot( x = range(yrs),
+            y = c(0,max(F_ispft[,s,p,,], na.rm = T) ),
+            type = "n", axes = F )
+
+      mfg <- par("mfg")
+      if( mfg[1] == mfg[3] )
+        axis( side = 1 )
+      if( mfg[1] == 1 )
+        mtext( side = 3, text = speciesNames[s], font = 2, line = 0 )
+      axis( side = 2, las = 1 )
+      if( mfg[2] == mfg[4] )
+      {
+        corners <- par("usr") #Gets the four corners of plot area (x1, x2, y1, y2)
+        par(xpd = TRUE) #Draw outside plot area
+        text(x = corners[2]+2, y = mean(corners[3:4]), stockNames[p], srt = 270,
+              font = 2, cex = 1.5 )
+        par(xpd = FALSE)
+      }
+      box()
+      grid()
+      for( f in 1:nF )
+      {
+        polygon(  x = c(yrs, rev(yrs)),
+                  y = c(F_qspft[1,s,p,f,], rev(F_qspft[3,s,p,f,])),
+                  col = "grey65", border = NA )
+        lines( x = yrs, y = F_qspft[2,s,p,f,], lwd = 3 )
+        for( tIdx in traces )
+          lines( x = yrs, y = F_ispft[tIdx,s,p,f,], lwd = .8 )
+      }
+
+      abline( v = yrs[tMP], col = "grey30", lty = 3 )
+      abline( h = Fmsy_sp[s,p], lty = 2, lwd = 1, col = "red")
+    }
+  }
+
+  mtext( side = 2, outer = TRUE, text = "Fishing mortality (/yr)",
+          line = 2, font = 2)
+
+  mtext( side = 1, outer = TRUE, text = "Year",
+          line = 2, font = 2)
+}
 
 # TAC utilisation envelopes
 plotTulipTACu <- function( obj = blob, nTrace = 3 )
@@ -1254,42 +1514,71 @@ plotRetroSBagg <- function( obj = blob, iRep = 1, Ct = TRUE )
 }
 
 
+.plotDiagCondition <- function( obj = blob, iRep = 1)
+{
+  repObj <- obj$ctlList$opMod$histRpt
+
+  diagCondition( repObj, obj, iRep )
+
+
+}
+
 # diagCondition()
 # Plots that help diagnose issues with conditioning
 # between the fitted OM report, and the conditioned
 # ms3R operating model.
 diagCondition <- function(  repObj  = totRep,
-                            ms3Obj   = test  )
+                            ms3Obj  = test,
+                            iRep    = 1 )
 {
-  par(mfrow = c(3,3), mar = c(1.5,1,1.5,1), oma = c(3,3,3,3) )
+  par(mfrow = c(3,2), mar = c(1.5,1,1.5,1), oma = c(3,3,3,3) )
 
   # Biomass RE
-  plotRE_spt( repObj = repObj, omObj = ms3Obj$om, series = "SB_spt" )
+  plotRE_spt( repObj = repObj, omObj = ms3Obj$om, 
+              AMseries = "SB_spt", 
+              OMseries = "SB_ispt", 
+              iRep )
   mtext( side = 3, text = "SB_spt", line = 0, font = 2)
 
   # Recruitment
-  plotRE_spt( repObj = repObj, omObj = ms3Obj$om, series = "R_spt" )
+  plotRE_spt( repObj = repObj, 
+              omObj = ms3Obj$om, 
+              AMseries = "R_spt",
+              OMseries = "R_ispt", 
+              iRep )
   mtext( side = 3, text = "R_spt", line = 0, font = 2)  
 
   # Recruitment errors
-  plotRE_spt( repObj = repObj, omObj = ms3Obj$errors, series = "omegaR_spt" )
+  plotRE_spt( repObj = repObj, 
+              omObj = ms3Obj$errors, 
+              AMseries = "omegaR_spt",
+              OMseries = "omegaR_ispt", 
+              iRep )
   mtext( side = 3, text = expression(omega[R]), line = 0, font = 2)  
 
   # Catch
-  plotRE_spft( repObj = repObj, omObj = ms3Obj$om, series = "C_spft" )
+  plotRE_spft(  repObj = repObj, 
+                omObj = ms3Obj$om, 
+                AMseries = "C_spft",
+                OMseries = "C_ispft", 
+                iRep )
   mtext( side = 3, text = expression(C[spft]), line = 0, font = 2)    
 
   # F
-  plotRE_spft( repObj = repObj, omObj = ms3Obj$om, series = "F_spft" )
+  plotRE_spft(  repObj = repObj, 
+                omObj = ms3Obj$om, 
+                AMseries = "F_spft",
+                OMseries = "F_ispft", 
+                iRep )
   mtext( side = 3, text = expression(F[spft]), line = 0, font = 2) 
 
-  # Numbers at age
-  plotRE_axspt( repObj = repObj, omObj = ms3Obj$om, series = "N_axspt" )
-  mtext( side = 3, text = expression(N[axspt]), line = 0, font = 2)    
+  # # Numbers at age
+  # plotRE_axspt( repObj = repObj, omObj = ms3Obj$om, series = "N_iaxspt" )
+  # mtext( side = 3, text = expression(N[axspt]), line = 0, font = 2)    
 
-  # Biomass at age
-  plotRE_axspt( repObj = repObj, omObj = ms3Obj$om, series = "N_axspt" )
-  mtext( side = 3, text = expression(B[axspt]), line = 0, font = 2)    
+  # # Biomass at age
+  # plotRE_axspt( repObj = repObj, omObj = ms3Obj$om, series = "N_axspt" )
+  # mtext( side = 3, text = expression(B[axspt]), line = 0, font = 2)    
 }
 
 calcREdist <- function( est, true, marg, 
@@ -1309,14 +1598,18 @@ calcREdist <- function( est, true, marg,
 
 }
 
-plotRE_spt <- function( repObj, omObj, series = "SB_spt" )
+plotRE_spt <- function( repObj, omObj, 
+                        AMseries = "SB_spt",
+                        OMseries = "SB_ispt", iRep )
 {
   nS <- repObj$nS
   nP <- repObj$nP
   nT <- repObj$nT
 
-  true_spt <- repObj[[series]]
-  est_spt  <- omObj[[series]]
+
+
+  true_spt <- repObj[[AMseries]]
+  est_spt  <- omObj[[OMseries]][iRep,,,]
 
   re_qspt  <- calcREdist( true = true_spt,
                           est  = est_spt[,,1:nT],
@@ -1351,14 +1644,14 @@ plotRE_spt <- function( repObj, omObj, series = "SB_spt" )
     abline( h = 0, lty = 3, lwd = .8 )
 }
 
-plotRE_spft <- function( repObj, omObj, series = "C_spft" )
+plotRE_spft <- function( repObj, omObj, series = "C_spft", iRep )
 {
   nS <- repObj$nS
   nP <- repObj$nP
   nT <- repObj$nT
 
-  true_spft <- repObj[[series]]
-  est_spft  <- omObj[[series]]
+  true_spft <- repObj[[AMseries]]
+  est_spft  <- omObj[[OMseries]][iRep,,,,]
 
   re_qspt  <- calcREdist( true = true_spft,
                             est  = est_spft[,,,1:nT],
@@ -1394,14 +1687,14 @@ plotRE_spft <- function( repObj, omObj, series = "C_spft" )
     abline( h = 0, lty = 3, lwd = .8 )
 }
 
-plotRE_axspt <- function( repObj, omObj, series = "N_axspt" )
+plotRE_axspt <- function( repObj, omObj, series = "N_axspt", iRep )
 {
   nS <- repObj$nS
   nP <- repObj$nP
   nT <- repObj$nT
 
-  true_axspt <- repObj[[series]]
-  est_axspt  <- omObj[[series]]
+  true_axspt <- repObj[[AMseries]]
+  est_axspt  <- omObj[[OMseries]][iRep,,,,,]
 
   re_qspt  <- calcREdist( true = true_axspt,
                             est  = est_axspt[,,,,1:nT],

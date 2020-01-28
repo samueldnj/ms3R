@@ -36,7 +36,7 @@ Type square(Type x)
 {
   return pow(x,2);
 }
-
+  
 // dinvgamma()
 // R-style inverse gamma probability distribution density
 // function.

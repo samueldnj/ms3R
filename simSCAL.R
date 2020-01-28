@@ -140,7 +140,11 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
 
 
   # 3. Determine stock status and set catch limit
-  obj  <- .applyPrecHCR( obj, t )
+  if( ctlList$mp$hcr$type == "ramped")
+    obj  <- .applyPrecHCR( obj, t )
+
+  if( ctlList$mp$hcr$type == "conF" )
+    obj  <- .applyConstantF( obj, t )
 
   # Now spread catch among allocation
   for( s in 1:nS )
@@ -157,6 +161,99 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
 
 } # END .updatePop()
 
+
+# .applyConstantF()
+# Applies a harvest control rule to
+# the assessment outputs
+.applyConstantF <- function( obj, t )
+{
+  hcr     <- obj$mp$hcr
+  ctlList <- obj$ctlList
+  assess  <- obj$mp$assess
+
+  # calculate projection time
+  tMP <- obj$om$tMP
+  pt  <- t - tMP + 1
+
+  # Get HCR quantities
+  Fref_sp <- hcr$Fref_spt[,,t]
+
+  # Model dims
+  nS  <- obj$om$nS
+  nP  <- obj$om$nP
+
+  # Stock status
+  projSB_sp   <- assess$retroSB_tspt[pt,,,t] 
+  projVB_sp   <- assess$retroVB_tspft[pt,,,2,t] 
+
+  # Pull data
+  I_spft <- obj$mp$data$I_spft
+
+  # Use the last two years of data in Synoptic
+  # and calculate mean over time to get
+  # splitting weights
+  rctMeanI_sp <- apply( X = I_spft[,,4,(t-2):(t-1)],
+                        FUN = mean,
+                        MARGIN = c(1,2), na.rm = T )
+
+  # Calculate total recent mean index for a species
+  rctMeanI_s <- apply( X = rctMeanI_sp, FUN = sum, MARGIN = 1)
+
+  # if( t >= tMP )
+  #   browser()
+
+  
+  # Compute target F
+  hcr$targetF_spt[,,t] <- Fref_sp
+  
+  # Now apply "F" as a harvest rate, since
+  # we don't have M information
+  hcr$TAC_spt[,,t] <- hcr$targetF_spt[,,t] * projVB_sp
+
+  propTAC_sp <- array(1, dim = c(nS,nP) )
+
+  if( ctlList$mp$assess$spDataPooled & ctlList$mp$assess$spCoastwide )
+  {
+    # Calc proportion of TAC for each species
+    propTAC_s  <- rctMeanI_s / sum(rctMeanI_s)
+    
+    # Distribute among stocks
+    propTAC_sp <- rctMeanI_sp
+    for( s in 1:nS )
+      propTAC_sp[s,] <- propTAC_sp[s,] / rctMeanI_s[s] * propTAC_s[s]
+
+    hcr$TAC_spt[,,t] <- hcr$TAC_spt[,,t] * propTAC_sp
+  }
+
+  if( ctlList$mp$assess$spCoastwide & !ctlList$mp$assess$spDataPooled )
+  {
+    # Distribute among stocks
+    propTAC_sp <- rctMeanI_sp
+    for( s in 1:nS )
+      propTAC_sp[s,] <- propTAC_sp[s,] / rctMeanI_s[s]
+
+    hcr$TAC_spt[,,t] <- hcr$TAC_spt[,,t] * propTAC_sp
+  }
+
+  if( ctlList$mp$assess$spDataPooled & !ctlList$mp$assess$spCoastwide )
+  {
+    # Distribute among species
+    propTAC_sp <- rctMeanI_sp
+    for( p in 1:nP )
+      propTAC_sp[,p] <- propTAC_sp[,p] / sum(propTAC_sp[,p])
+
+    hcr$TAC_spt[,,t] <- hcr$TAC_spt[,,t] * propTAC_sp
+  }
+
+  # Save proportion of TAC for use in retro SB plots
+  hcr$propTAC_spt[,,t] <- propTAC_sp
+
+  # Now put all the lists we modified back into obj
+  obj$mp$hcr    <- hcr
+  obj$mp$assess <- assess
+
+  return(obj)
+} # END .applyConstantF()
 
 # .applyPrecHCR()
 # Applies a harvest control rule to
@@ -1236,7 +1333,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     simObj <- .calcTimes( simObj )
 
 
-    if( ctlList$ctl$omni )
+    if( ctlList$ctl$omni | ctlList$ctl$perfConF )
     {
       simObj <- .solveProjPop( simObj )
     }
@@ -1310,10 +1407,11 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     blob$mp$assess$maxGrad_itsp[i,,,]     <- simObj$mp$assess$maxGrad_tsp
     blob$mp$assess$pdHess_itsp[i,,,]      <- simObj$mp$assess$pdHess_tsp
 
-    if( prod(simObj$mp$assess$pdHess_tsp) == 1 )
+    if( prod(simObj$mp$assess$pdHess_tsp) == 1 | 
+        ctlList$mp$assess$method %in% c("idxBased","PerfectInfo") )
       blob$goodReps[i] <- TRUE
 
-    if( ctlList$ctl$omni )
+    if( ctlList$ctl$omni | ctlList$ctl$perfConF )
     {
       blob$goodReps[i] <- TRUE
 
@@ -1482,7 +1580,10 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
 
           obj$om$F_spft[s,p,2,tMP:nT] <- parMult*splineF
         }
+
     }
+
+
 
     # If bycatch is simulated (single area effort catches all species)
     if( ctlList$opMod$effortMod %in% c("dynModel","Max") )
@@ -1504,6 +1605,15 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
         for( s in 1:nS )
           obj$om$F_spft[s,p,2,tMP:nT] <- splineE * om$qF_spft[s,p,2,tMP - 1]
       }
+    }
+
+    # This is a projection model that always uses
+    # Fmsy
+    if( ctlList$ctl$perfConF )
+    {
+      for( s in 1:nS )
+        for( p in 1:nP )
+          obj$om$F_spft[s,p,2,tMP:nT] <- parMult*obj$rp$FmsyRefPts$Fmsy_sp[s,p]
     }
 
     # run model for projection period
@@ -1809,10 +1919,6 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
                   totCatWt * log(1e3*totCbar) -
                   sumCatWt * log(1e3*Csum) 
 
-    # HACKY PLACEHOLDER FOR MORE ELEGANT SOLUTION
-    # for( s in 1:nS )
-    #   for( p in 1:nP )
-    #     if( any(Bproj_spt[s,p,]/Bmsy_sp[s,p] < 0.4) ) objFun <- objFun + 100
 
     if( mp$omni$penType == "barrier" )
       objFun <- objFun + 
@@ -1949,6 +2055,14 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
               round(opt$value,2), ".\n")
     optPars <- opt$par
 
+  }
+
+  if( ctlList$ctl$perfConF )
+  {
+    # Create a dummy optPars object,
+    # and replace all future Fs with Fmsy in
+    # runModel
+    optPars <- initPars 
   }
 
   # rerun OM with optimised parameters
@@ -2593,7 +2707,9 @@ combBarrierPen <- function( x, eps,
   for( s in 1:nS )
     for( p in 1:nP )
     {
-      obj$errors$omegaR_spt[s,p,] <- rnorm(nT)
+      if( !ctlList$ctl$noProcErr )
+        obj$errors$omegaR_spt[s,p,] <- rnorm(nT)
+
       for( f in 1:nF )
         obj$errors$delta_spft[s,p,f,] <- rnorm(nT)
 
@@ -2602,7 +2718,7 @@ combBarrierPen <- function( x, eps,
       # Save historical proc errors, but use simulated recruitments after
       # last estimated recruitment
       lastIdx <- max(which(repObj$omegaR_spt[s,p,] != 0) )
-      obj$errors$omegaR_spt[s,p,histdx[1:lastIdx]]   <- repObj$omegaR_spt[s,p,1:lastIdx]  # rec devs    
+      obj$errors$omegaR_spt[s,p,histdx[1:lastIdx]]   <- repObj$omegaR_spt[s,p,1:lastIdx] + 0.5*repObj$sigmaR_sp[s,p]  # rec devs    
     }
 
 
@@ -2777,8 +2893,8 @@ combBarrierPen <- function( x, eps,
   errors <- list()
 
   # Arrays for holding errors
-  errors$omegaR_spt <- array(NA, dim = c(nS,nP,nT) )
-  errors$delta_spft <- array(NA, dim = c(nS,nP,nF,nT) )
+  errors$omegaR_spt <- array(0, dim = c(nS,nP,nT) )
+  errors$delta_spft <- array(0, dim = c(nS,nP,nF,nT) )
 
 
 
@@ -2871,6 +2987,7 @@ combBarrierPen <- function( x, eps,
   err   <- obj$errors
   hcr   <- obj$mp$hcr
   opMod <- obj$ctlList$opMod
+
 
   # Get model dimensions, and state variables
   tMP               <- om$tMP
@@ -2979,9 +3096,11 @@ combBarrierPen <- function( x, eps,
           if( a == 1 )
           {
             R_spt[s,p,t] <- reca_sp[s,p] * SB_spt[s,p,t-1] / (1 + recb_sp[s,p] * SB_spt[s,p,t-1])
-            R_spt[s,p,t] <- R_spt[s,p,t] * exp( om$sigmaR_sp[s,p] * err$omegaR_spt[s,p,t]) 
+            
+            if( !obj$ctlList$ctl$noProcErr )
+              R_spt[s,p,t] <- R_spt[s,p,t] * exp( om$sigmaR_sp[s,p] * err$omegaR_spt[s,p,t] - 0.5*om$sigmaR_sp[s,p]^2) 
 
-            N_axspt[a,,s,p,t] <- R_spt[s,p,t] / nX
+            N_axspt[a,,s,p,t] <- R_spt[s,p,t]
           }
           # Apply mortality           
           if( a > 1 )
@@ -3063,15 +3182,29 @@ combBarrierPen <- function( x, eps,
 
     if( opMod$effortMod == "targeting" )
     {
-      F_spft[,,,t] <- mfPA( C_spf     = TAC_spft[,,,t], 
-                            vB_axspf  = vB_axspft[,,,,,t],
-                            vB_spf    = vB_spft[,,,t],
-                            N_axsp    = N_axspt[,,,,t],
-                            sel_axspf = sel_axspft[,,,,,t],
-                            M_xsp     = M_xsp,
-                            A_s       = A_s,
-                            wt_axsp   = meanWtAge_axsp,
-                            nS = nS, nP = nP, nX = nX, nF = nF  )
+      # F_spft[,,,t] <- .mfPA(  C_spf     = TAC_spft[,,,t], 
+      #                         vB_axspf  = vB_axspft[,,,,,t],
+      #                         vB_spf    = vB_spft[,,,t],
+      #                         N_axsp    = N_axspt[,,,,t],
+      #                         sel_axspf = sel_axspft[,,,,,t],
+      #                         M_xsp     = M_xsp,
+      #                         A_s       = A_s,
+      #                         wt_axsp   = meanWtAge_axsp,
+      #                         nS = nS, nP = nP, nX = nX, nF = nF  )
+
+      Flist <- .solveBaranov( C_spf       = TAC_spft[,,,t], 
+                              vB_axspf    = vB_axspft[,,,,,t],
+                              vB_spf      = vB_spft[,,,t],
+                              N_axsp      = N_axspt[,,,,t],
+                              sel_axspf   = sel_axspft[,,,,,t],
+                              M_xsp       = M_xsp,
+                              A_s         = A_s,
+                              wt_axsp     = meanWtAge_axsp,
+                              nS = nS, nP = nP, nX = nX, nF = nF,
+                              nIter       = opMod$baranovIter,
+                              baranovStep = opMod$baranovStep  )
+
+      F_spft[,,,t] <- Flist$F_spf
     }
    
 
@@ -3121,7 +3254,8 @@ combBarrierPen <- function( x, eps,
       for( p in 1:nP )
       {
         idxOn <- obj$mp$data$idxOn_spft[s,p,,t]
-        I_spft[s,p,idxOn,t] <- q_spft[s,p,idxOn,t] * vB_spft[s,p,idxOn,t] * exp(om$tauObs_spf[s,p,idxOn] * err$delta_spft[s,p,idxOn,t] * err$obsErrMult_spft[s,p,idxOn,t])
+        tau <- om$tauObs_spf[s,p,idxOn] * err$obsErrMult_spft[s,p,idxOn,t]
+        I_spft[s,p,idxOn,t] <- q_spft[s,p,idxOn,t] * vB_spft[s,p,idxOn,t] * exp(tau * err$delta_spft[s,p,idxOn,t] - 0.5 * tau^2)
       }
   }
 
@@ -3165,9 +3299,121 @@ combBarrierPen <- function( x, eps,
   return( obj )
 } # END ageSexOpMod()
 
-# mfPA()
-# Multi-fleet Pope's approximation
-mfPA <- function( C_spf     = newCat_spf, 
+
+# .solveBaranov()
+# Generalised Newton-Rhapson solver or the Baranov
+# catch equation, given catch, vulnerable biomass
+# and other stuff.
+.solveBaranov <- function(  C_spf       = newCat_spf, 
+                            vB_axspf    = vB_axspft[,,,,,t],
+                            vB_spf      = vB_spft[,,,t],
+                            N_axsp      = N_axspt[,,,,t],
+                            sel_axspf   = sel_axspft[,,,,,t],
+                            M_xsp       = M_xsp,
+                            A_s         = A_s,
+                            wt_axsp     = meanWtAge_axsp,
+                            nS = nS, nP = nP, nX = nX, nF = nF,
+                            nIter       = 5,
+                            baranovStep = 0.5  )
+{
+  # Make arrays to hold estimated catch with
+  # succesive approximations
+  appZ_axsp         <- array(0, dim = dim(N_axsp))
+  appF_axspf        <- array(0, dim = dim(vB_axspf) )
+  appF_spf          <- array(0, dim = dim(C_spf))
+
+  # Approximated catch
+  appC_axspf        <- array(0, dim = dim(vB_axspf) )
+  appC_spf          <- array(0, dim = dim(C_spf))
+
+  # Jacobian
+  J_spf             <- array(0, dim = dim(C_spf))
+
+  # Initialise F at C/B
+  appF_spf   <- C_spf / vB_spf
+
+  # Calculate first iteration of Z
+  for( s in 1:nS )
+    for( p in 1:nP )
+    {
+      for( x in 1:nX )
+      {
+        appZ_axsp[1:A_s[s],x,s,p] <- M_xsp[x,s,p]
+
+        for( f in 1:nF )
+          appZ_axsp[1:A_s[s],x,s,p] <- appZ_axsp[1:A_s[s],x,s,p] + appF_spf[s,p,f] * sel_axspf[1:A_s[s],x,s,p,f]
+      } 
+    }
+
+  # if nIter == 0, return F and Z as is.
+
+  if( nIter > 0 & any( C_spf > 0) )
+  {
+    # Refine F
+    for( i in 1:nIter)
+    {
+      # Reset objective function
+      f_spf <- C_spf
+
+      # Calculate implied catch using new Z and F
+      for( s in 1:nS )
+        for( p in 1:nP )
+        {
+          whichF <- which( C_spf[s,p,] > 0)
+          for( f in whichF )
+          {
+            
+            appC_axspf[1:A_s[s],,s,p,f] <- vB_axspf[1:A_s[s],,s,p,f] * (1 - appZ_axsp[1:A_s[s],,s,p]) * appF_spf[s,p,f]/appZ_axsp[1:A_s[s],,s,p]
+          }
+
+          appC_spf[s,p,] <- apply( X = appC_axspf[,,s,p,], FUN = sum, MARGIN = c(3))
+
+          for( x in 1:nX )
+            for( a in 1:A_s[s] )
+              for( f in 1:whichF )
+              {
+                # Calculate jacobian
+                tmpJ1 <- vB_axspf[a,x,s,p,f] / appZ_axsp[a,x,s,p]
+                tmpJ2 <- appF_spf[s,p,f] * sel_axspf[a,x,s,p,f] * exp( - appZ_axsp[a,x,s,p] )
+                tmpJ3 <- (1 - exp( -appZ_axsp[a,x,s,p]))
+                tmpJ4 <- (appZ_axsp[a,x,s,p] - appF_spf[s,p,f] * sel_axspf[a,x,s,p,f])/appZ_axsp[a,x,s,p]
+
+                J_spf[s,p,f] <- J_spf[s,p,f] -  tmpJ1 * ( tmpJ2 + tmpJ3 * tmpJ4)
+              }
+          
+        }
+
+      for( f in whichF )
+      {
+        f_spf[,,f] <- f_spf[,,f] - appC_spf[,,f]
+        appF_spf[,,f] <- appF_spf[,,f] - baranovStep * f_spf[,,f]/J_spf[,,f]
+      }
+
+      # Calculate next iteration of Z
+      for( s in 1:nS )
+        for( p in 1:nP )
+        {
+          for( x in 1:nX )
+          {
+            appZ_axsp[1:A_s[s],x,s,p] <- M_xsp[x,s,p]
+
+            for( f in 1:nF )
+              appZ_axsp[1:A_s[s],x,s,p] <- appZ_axsp[1:A_s[s],x,s,p] + appF_spf[s,p,f] * sel_axspf[1:A_s[s],x,s,p,f]
+          } 
+        }
+
+    } # END i
+  } # END nIter > 0
+
+  # outputs for baranov solver
+  outList <- list(  F_spf   = appF_spf,
+                    Z_axsp  = appZ_axsp )
+} # END .solveBaranov
+
+# .mfPA()
+# Multi-fleet Pope's approximation - 
+# I don't think this is suitable for only one commercial fishery...
+.mfPA <- function( C_spf     = newCat_spf, 
                   vB_axspf  = vB_axspft[,,,,,t],
                   vB_spf    = vB_spft[,,,t],
                   N_axsp    = N_axspt[,,,,t],
@@ -3230,6 +3476,6 @@ mfPA <- function( C_spf     = newCat_spf,
     }
 
   appF_spf
-} # END mfPA()
+} # END .mfPA()
 
 

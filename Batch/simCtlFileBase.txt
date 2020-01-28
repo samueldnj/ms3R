@@ -10,6 +10,7 @@ ctl$rSeed 123
 ctl$totReps 400
 ctl$nGoodReps 100
 ctl$omni FALSE
+ctl$perfConF TRUE
 mp$assess$assInt 1
 mp$assess$method "hierProd"
 mp$assess$idxPoints 3

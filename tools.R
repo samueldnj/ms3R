@@ -169,7 +169,6 @@ readBatchInfo <- function(batchDir = here("Outputs") )
   infoList$path     <- obj$path
   infoList$simLabel <- obj$simLabel
 
-
   outFile <- file.path(obj$path, "infoFile.txt")
 
 
@@ -222,7 +221,7 @@ readBatchInfo <- function(batchDir = here("Outputs") )
   # Assign to global environment
   assign( "blob",blob,pos=1 )
 
-  message(" (.loadSim) Simulation in ", folder, " loaded and placed in gloab environment as blob.\n", sep="" )
+  message(" (.loadSim) Simulation in ", folder, " loaded and placed in global environment as blob.\n", sep="" )
 } # END .loadFit()
 
 # loadFit()
