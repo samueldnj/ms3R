@@ -1565,22 +1565,33 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     # If perfect targeting (all TACs fully utilised)
     if( ctlList$opMod$effortMod == "targeting" )
     {
-      # Then we are solving for stock/species specific
-      # Fs (nS * nP at each time step)
-      tmpF <- exp( pars )
-      knotF_spk <- array( tmpF, dim = c(nS,nP,nKnots) )
+      # This is a projection model that always uses
+      # a multiple of Fmsy
+      if( ctlList$ctl$perfConF )
+      {
+        for( s in 1:nS )
+          for( p in 1:nP )
+            obj$om$F_spft[s,p,2,tMP:nT] <- parMult*obj$rp$FmsyRefPts$Fmsy_sp[s,p]
 
-      # Make spline for each species/stock
-      for( s in 1:nS )
-        for( p in 1:nP )
-        {
-          splineF <- spline( x = x, y = knotF_spk[s,p,], n = projInt)$y
-          splineF[splineF < 0] <- 0
-          splineF[splineF > maxF] <- maxF
+        if( !is.null(ctlList$omni$inputF) )
+          obj$om$F_spft[,,2,tMP:nT] <- ctlList$omni$inputF
+      } else {  
+        # Then we are solving for stock/species specific
+        # Fs (nS * nP at each time step)
+        tmpF <- exp( pars )
+        knotF_spk <- array( tmpF, dim = c(nS,nP,nKnots) )
 
-          obj$om$F_spft[s,p,2,tMP:nT] <- parMult*splineF
-        }
+        # Make spline for each species/stock
+        for( s in 1:nS )
+          for( p in 1:nP )
+          {
+            splineF <- spline( x = x, y = knotF_spk[s,p,], n = projInt)$y
+            splineF[splineF < 0] <- 0
+            splineF[splineF > maxF] <- maxF
 
+            obj$om$F_spft[s,p,2,tMP:nT] <- parMult*splineF
+          }
+      }
     }
 
 
@@ -1588,36 +1599,46 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     # If bycatch is simulated (single area effort catches all species)
     if( ctlList$opMod$effortMod %in% c("dynModel","Max") )
     {
-      # Then we are solving for area specific
-      # Es (nP at each time step)
-      tmpE      <- exp( pars )
-      knotE_pk  <- array( tmpE, dim = c(nP,nKnots) )
-
-      # Make spline for each species/stock
-      for( p in 1:nP )
+      # This is a projection model that always uses
+      # Fmsy
+      if( ctlList$ctl$perfConF )
       {
-        splineE <- spline( x = x, y = knotE_pk[p,], n = projInt)$y
-        splineE[splineE < 0] <- 0
-        splineE[splineE > maxE] <- maxE
+        for( p in 1:nP )
+          obj$om$E_pft[p,2,tMP:nT] <- parMult*mean(obj$rp$FmsyRefPts$Fmsy_sp[,p]/om$qF_spft[,p,2,tMP - 1])
 
-        obj$om$E_pft[p,2,tMP:nT] <- parMult*splineE
+        if( !is.null(ctlList$omni$inputE) )
+          for( p in 1:nP )
+            obj$om$E_pft[p,2,tMP:nT] <- ctlList$omni$inputE_p[p]
 
         for( s in 1:nS )
-          obj$om$F_spft[s,p,2,tMP:nT] <- splineE * om$qF_spft[s,p,2,tMP - 1]
-      }
-    }
+          for( p in 1:nP )
+            obj$om$F_spft[s,p,2,tMP:nT] <- obj$om$E_pft[p,2,tMP:nT] * om$qF_spft[s,p,2,tMP - 1]
 
-    # This is a projection model that always uses
-    # Fmsy
-    if( ctlList$ctl$perfConF )
-    {
-      for( s in 1:nS )
+      } else {
+        # Then we are solving for area specific
+        # Es (nP at each time step)
+        tmpE      <- exp( pars )
+        knotE_pk  <- array( tmpE, dim = c(nP,nKnots) )
+
+        # Make spline for each species/stock
         for( p in 1:nP )
-          obj$om$F_spft[s,p,2,tMP:nT] <- parMult*obj$rp$FmsyRefPts$Fmsy_sp[s,p]
+        {
+          splineE <- spline( x = x, y = knotE_pk[p,], n = projInt)$y
+          splineE[splineE < 0] <- 0
+          splineE[splineE > maxE] <- maxE
 
-      if( !is.null(ctlList$omni$inputF) )
-        obj$om$F_spft[,,2,tMP:nT] <- ctlList$omni$inputF
+          obj$om$E_pft[p,2,tMP:nT] <- parMult*splineE
+
+          for( s in 1:nS )
+            obj$om$F_spft[s,p,2,tMP:nT] <- obj$om$E_pft[p,2,tMP:nT] * om$qF_spft[s,p,2,tMP - 1]
+        }
+      }
+
     }
+
+    
+
+    
 
     # run model for projection period
     for(t in tMP:nT )
@@ -2721,7 +2742,9 @@ combBarrierPen <- function( x, eps,
       # Save historical proc errors, but use simulated recruitments after
       # last estimated recruitment
       lastIdx <- max(which(repObj$omegaR_spt[s,p,] != 0) )
-      obj$errors$omegaR_spt[s,p,histdx[1:lastIdx]]   <- repObj$omegaR_spt[s,p,1:lastIdx] + 0.5*repObj$sigmaR_sp[s,p]  # rec devs    
+      obj$errors$omegaR_spt[s,p,histdx[1:lastIdx]]   <- repObj$omegaR_spt[s,p,1:lastIdx] 
+      if( !ctlList$ctl$noProcErr )
+        obj$errors$omegaR_spt[s,p,histdx[1:lastIdx]] + 0.5*repObj$sigmaR_sp[s,p]  # rec devs    
     }
 
 

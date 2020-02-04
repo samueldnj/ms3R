@@ -10,6 +10,183 @@
 #
 # <><><><><><><><><><><><><><><><><><><><><><><><><><><>
 
+
+# plotEffYieldCurves()
+# Function for plotting effort based
+# yield curves for each species and
+# the complex in a stock area.
+plotEffYieldCurves <- function( obj = blob, 
+                                maxE = 100 )
+{
+  # First, pull reference points and curves
+  rp <- obj$rp[[1]]
+  refCurves <- rp$refCurves
+
+  nP <- obj$om$nP
+  nS <- obj$om$nS
+  nT <- obj$om$nT
+  nF <- obj$om$nF
+  tMP <- obj$om$tMP
+
+  # Species and stock names
+  speciesNames  <- obj$om$speciesNames
+  stockNames    <- obj$om$stockNames
+
+  # Pull effort/F catchability
+  qF_sp <- obj$om$qF_ispft[1,,,2,tMP]
+
+  # Make a grid of effort values
+  Eseq    <- seq(0, maxE, length.out = 1000)
+
+  # Private function to make an effort based curve
+  # from an F based curve
+  makeEffCurve <- function( E, 
+                            sIdx    = 1, 
+                            pIdx    = 1,
+                            Fseq    = refCurves$F,
+                            depSeq  = refCurves$Yeq_spf,
+                            qF_sp   = qF_sp )
+  {
+    # Convert effort to F
+    inputF  <- E * qF_sp[sIdx,pIdx]
+
+    # Make a spline between F and 
+    # the desired curve
+    curveSpline <- splinefun( x=Fseq, y=depSeq[sIdx,pIdx,] )
+
+    # Now determine the y value of the reference curve
+    # WRT effort
+    yVal <- curveSpline(inputF)
+
+    yVal
+
+  }
+
+  # Now we want to make biomass and
+  # yield curves for each species/stock wrt Eseq
+  Yeq_spe <- array(NA, dim = c(nS,nP,length(Eseq)) )
+  Beq_spe <- array(NA, dim = c(nS,nP,length(Eseq)) )
+
+  for( s in 1:nS )
+    for( p in 1:nP )
+    {
+      Yeq_spe[s,p,] <- sapply(  X = Eseq, 
+                                FUN = makeEffCurve,
+                                sIdx = s, pIdx = p,
+                                depSeq = refCurves$Yeq_spf,
+                                qF_sp = qF_sp )
+
+      Beq_spe[s,p,] <- sapply(  X = Eseq, 
+                                FUN = makeEffCurve,
+                                sIdx = s, pIdx = p,
+                                depSeq = refCurves$Beq_spf,
+                                qF_sp = qF_sp )
+    }
+
+  Yeq_spe[Yeq_spe < 0 ] <- NA
+  Beq_spe[Beq_spe < 0 ] <- NA
+
+  # Now sum yield curves over species within
+  # an area
+  Yeq_pe <- apply( X = Yeq_spe, FUN = sum, MARGIN = c(2,3), na.rm = T )
+
+  # replace non-positive yield with NA, then add a zero at zero effort
+  Yeq_pe[Yeq_pe <= 0 ] <- NA
+  Yeq_pe[,1] <- 0
+
+  # Now compute MSY for SS and MS curves
+  # MSY is still the same for SS, just need the effort
+  # that corresponds to it, which is Fmsy/qF
+  EmsySS_sp <- rp$FmsyRefPts$Fmsy_sp / qF_sp
+  MSYSS_sp  <- rp$FmsyRefPts$YeqFmsy_sp
+
+  EmsyMS_p  <- rep(0,nP)
+  MSYMS_p   <- rep(0,nP)
+  MSYSS_sp  <- array(NA, dim = c(nS,nP))
+
+  # Now we need to solve for the stat point
+  # of the complex yield curve
+  for( p in 1:nP )
+  {
+    # First, get complex Emsy, then
+    # use splines to get species specific
+    # yields
+    compYieldSpline <- splinefun( x = Eseq, y = Yeq_pe[p,] )
+
+    # Need to restrict to area where first deriv is non-singular
+    # (i.e. where all yield curves are +ve), right now
+    # uses Emax/3 as a placeholder
+
+    # Solve for stat point
+
+    EmsyMS_p[p] <- uniroot( f = compYieldSpline, 
+                            interval = c(0, maxE / 3),
+                            deriv = 1 )$root
+
+    MSYMS_p[p] <- compYieldSpline(EmsyMS_p[p])
+
+    # Now loop over species, fit spline
+    # and get MSY for each species
+    for( s in 1:nS )
+    {
+      specYieldSpline <- splinefun( x = Eseq, y = Yeq_spe[s,p,] )
+      MSYSS_sp[s,p]   <- specYieldSpline(EmsyMS_p[p])
+    }
+  }
+
+
+
+  specCols <- RColorBrewer::brewer.pal(n = nS, "Dark2")
+
+  par( mfrow = c(3,1), mar = c(1,1,1,1), oma = c(3,3,1,1) )
+  for( p in 1:nP )
+  {
+    plot( x = range(Eseq), y = c(0, max(Yeq_pe[p,],na.rm = T) ),
+          type = "n", xlab = "", ylab = "", axes = F )
+      axis(side = 2, las = 1)
+      box()
+      grid()
+
+      for( s in 1:nS )
+      {
+        lines( x = Eseq, y = Yeq_spe[s,p,],
+               col = specCols[s], lty = 1, lwd = 2 )
+        # lines( x = Eseq, y = Beq_spe[s,p,],
+        #        col = specCols[s], lty = 2, lwd = 2 )
+
+      }
+      mfg <- par("mfg")
+      if( mfg[1] == mfg[3])
+        axis(side = 1)
+
+      lines(  x = Eseq, y = Yeq_pe[p,],
+              col = "black", lty = 1, lwd = 3 )
+
+      segments( x0 = EmsyMS_p[p], col = "grey40",
+                y0 = 0, y1 = MSYMS_p[p], lty = 2  )
+
+      segments( x0 = 0, x1 = EmsyMS_p[p], col = "grey40",
+                y0 = c(MSYMS_p[p],MSYSS_sp[,p]), lty = 2  )
+
+      if(  p == 1 )
+        legend( x = "topright", bty = "n",
+                col = c(specCols,"black"),
+                lwd = c(2,2,2,3),
+                legend = c(speciesNames,"Complex") )
+
+  }
+
+  mtext( outer = TRUE, side = 1, text = "Total Effort Index", line = 2 )
+  mtext( outer = TRUE, side = 2, text = "Equilibrium Yield (kt)", line = 2 )
+
+
+}
+
+# plotEmpYieldCurves
+# Function to plot median simuated yield 
+# resulting from a grid of constant fishing 
+# mortality rates - used for checking the
+# reference point calculations
 plotEmpYieldCurves <- function( sims = 1:11 )
 {
   nSims <- length(sims)
@@ -133,7 +310,7 @@ plotEmpYieldCurves <- function( sims = 1:11 )
                 MSY_sp  = MSY_sp )
 
   out
-}
+} # END plotEmpYieldCurves()
 
 # compareRefPts()
 # Compares OM and conditioning fit reference points

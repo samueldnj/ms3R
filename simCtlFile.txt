@@ -9,8 +9,8 @@ ctl$maxIter 1e4
 ctl$rSeed 123
 ctl$totReps 10
 ctl$nGoodReps 5
-ctl$omni TRUE
-ctl$perfConF FALSE
+ctl$omni FALSE
+ctl$perfConF TRUE
 ctl$noProcErr TRUE
 mp$assess$assInt 1
 mp$assess$method "hierProd"
@@ -73,7 +73,8 @@ mp$omni$loDepProb 0.95
 mp$omni$hiDepBmsy 2.5
 mp$omni$hiDepProb 0.05
 mp$omni$expParMult 1
-mp$omni$inputF 0.109183155
+mp$omni$inputF NULL
+mp$omni$inputE NULL
 mp$omni$avgCatWt 0.
 mp$omni$totCatWt 1.0
 mp$omni$sumCatWt .0
