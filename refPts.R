@@ -87,26 +87,20 @@ calcRefPts <- function( obj )
 
   # Private function to make an effort based curve
   # from an F based curve
-  makeEffCurve <- function( E, 
-                            sIdx    = 1, 
+  makeEffCurve <- function( sIdx    = 1, 
                             pIdx    = 1,
                             Fseq    = refCurves$F,
                             depSeq  = refCurves$Yeq_spf,
                             qF_sp   = qF_sp )
   {
     # Convert effort to F
-    inputF  <- E * qF_sp[sIdx,pIdx]
+    E  <- Fseq / qF_sp[sIdx,pIdx]
 
     # Make a spline between F and 
     # the desired curve
-    curveSpline <- splinefun( x=Fseq, y=depSeq[sIdx,pIdx,] )
+    curveSpline <- splinefun( x=E, y=depSeq[sIdx,pIdx,] )
 
-    # Now determine the y value of the reference curve
-    # WRT effort
-    yVal <- curveSpline(inputF)
-
-    yVal
-
+    curveSpline
   }
 
   # Now we want to make biomass and
@@ -117,17 +111,19 @@ calcRefPts <- function( obj )
   for( s in 1:nS )
     for( p in 1:nP )
     {
+      yieldCurveSpline  <- makeEffCurve(  sIdx = s, pIdx = p,
+                                          depSeq = refCurves$Yeq_spf,
+                                          qF_sp = qF_sp  )
+
+      bioCurveSpline    <- makeEffCurve(  sIdx = s, pIdx = p,
+                                          depSeq = refCurves$Beq_spf,
+                                          qF_sp = qF_sp  )
+
       Yeq_spe[s,p,] <- sapply(  X = Eseq, 
-                                FUN = makeEffCurve,
-                                sIdx = s, pIdx = p,
-                                depSeq = refCurves$Yeq_spf,
-                                qF_sp = qF_sp )
+                                FUN = yieldCurveSpline )
 
       Beq_spe[s,p,] <- sapply(  X = Eseq, 
-                                FUN = makeEffCurve,
-                                sIdx = s, pIdx = p,
-                                depSeq = refCurves$Beq_spf,
-                                qF_sp = qF_sp )
+                                FUN = bioCurveSpline )
     }
 
   Yeq_spe[Yeq_spe < 0 ] <- NA

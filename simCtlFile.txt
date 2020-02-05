@@ -8,10 +8,10 @@ ctl$maxEval 1e4
 ctl$maxIter 1e4
 ctl$rSeed 123
 ctl$totReps 400
-ctl$nGoodReps 400
-ctl$omni TRUE
-ctl$perfConF FALSE
-ctl$noProcErr FALSE
+ctl$nGoodReps 2
+ctl$omni FALSE
+ctl$perfConF TRUE
+ctl$noProcErr TRUE
 mp$assess$assInt 1
 mp$assess$method "hierProd"
 mp$assess$idxPoints 3
@@ -97,7 +97,7 @@ opMod$commGears c(2)
 opMod$ut_50 .85
 opMod$ut_95 .75
 opMod$effortMod "Max"
-opMod$pT 100
+opMod$pT 40
 opMod$histFile "fit_27012020154808"
 opMod$price_s c(Dover=1.33,English=1.37,Rock=1.65,Petrale=3.22,Arrowtooth=0.37)
 opMod$projObsErrMult 1.0
