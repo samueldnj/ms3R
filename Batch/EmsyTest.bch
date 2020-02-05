@@ -1,4 +1,4 @@
-# Batch Control File, created Wed Feb  5 14:03:42 2020 by makeBatchDesign() 
+# Batch Control File, created Wed Feb  5 14:07:51 2020 by makeBatchDesign() 
 parameter value
 #
 # Scenarios 
@@ -22,55 +22,505 @@ scenario$scenario1$opMod$effortMod 'Max'
 mp$mp1$ctl$mpName 'perfConE0'
 mp$mp1$mp$omni$expParMult 0
 #
-# MP 2 : perfConE0.4
+# MP 2 : perfConE0.04
 #
-mp$mp2$ctl$mpName 'perfConE0.4'
-mp$mp2$mp$omni$expParMult 0.4
+mp$mp2$ctl$mpName 'perfConE0.04'
+mp$mp2$mp$omni$expParMult 0.04
 #
-# MP 3 : perfConE0.8
+# MP 3 : perfConE0.08
 #
-mp$mp3$ctl$mpName 'perfConE0.8'
-mp$mp3$mp$omni$expParMult 0.8
+mp$mp3$ctl$mpName 'perfConE0.08'
+mp$mp3$mp$omni$expParMult 0.08
 #
-# MP 4 : perfConE1.2
+# MP 4 : perfConE0.12
 #
-mp$mp4$ctl$mpName 'perfConE1.2'
-mp$mp4$mp$omni$expParMult 1.2
+mp$mp4$ctl$mpName 'perfConE0.12'
+mp$mp4$mp$omni$expParMult 0.12
 #
-# MP 5 : perfConE1.6
+# MP 5 : perfConE0.16
 #
-mp$mp5$ctl$mpName 'perfConE1.6'
-mp$mp5$mp$omni$expParMult 1.6
+mp$mp5$ctl$mpName 'perfConE0.16'
+mp$mp5$mp$omni$expParMult 0.16
 #
-# MP 6 : perfConE2
+# MP 6 : perfConE0.2
 #
-mp$mp6$ctl$mpName 'perfConE2'
-mp$mp6$mp$omni$expParMult 2
+mp$mp6$ctl$mpName 'perfConE0.2'
+mp$mp6$mp$omni$expParMult 0.2
 #
-# MP 7 : perfConE2.4
+# MP 7 : perfConE0.24
 #
-mp$mp7$ctl$mpName 'perfConE2.4'
-mp$mp7$mp$omni$expParMult 2.4
+mp$mp7$ctl$mpName 'perfConE0.24'
+mp$mp7$mp$omni$expParMult 0.24
 #
-# MP 8 : perfConE2.8
+# MP 8 : perfConE0.28
 #
-mp$mp8$ctl$mpName 'perfConE2.8'
-mp$mp8$mp$omni$expParMult 2.8
+mp$mp8$ctl$mpName 'perfConE0.28'
+mp$mp8$mp$omni$expParMult 0.28
 #
-# MP 9 : perfConE3.2
+# MP 9 : perfConE0.32
 #
-mp$mp9$ctl$mpName 'perfConE3.2'
-mp$mp9$mp$omni$expParMult 3.2
+mp$mp9$ctl$mpName 'perfConE0.32'
+mp$mp9$mp$omni$expParMult 0.32
 #
-# MP 10 : perfConE3.6
+# MP 10 : perfConE0.36
 #
-mp$mp10$ctl$mpName 'perfConE3.6'
-mp$mp10$mp$omni$expParMult 3.6
+mp$mp10$ctl$mpName 'perfConE0.36'
+mp$mp10$mp$omni$expParMult 0.36
 #
-# MP 11 : perfConE4
+# MP 11 : perfConE0.4
 #
-mp$mp11$ctl$mpName 'perfConE4'
-mp$mp11$mp$omni$expParMult 4
+mp$mp11$ctl$mpName 'perfConE0.4'
+mp$mp11$mp$omni$expParMult 0.4
+#
+# MP 12 : perfConE0.44
+#
+mp$mp12$ctl$mpName 'perfConE0.44'
+mp$mp12$mp$omni$expParMult 0.44
+#
+# MP 13 : perfConE0.48
+#
+mp$mp13$ctl$mpName 'perfConE0.48'
+mp$mp13$mp$omni$expParMult 0.48
+#
+# MP 14 : perfConE0.52
+#
+mp$mp14$ctl$mpName 'perfConE0.52'
+mp$mp14$mp$omni$expParMult 0.52
+#
+# MP 15 : perfConE0.56
+#
+mp$mp15$ctl$mpName 'perfConE0.56'
+mp$mp15$mp$omni$expParMult 0.56
+#
+# MP 16 : perfConE0.6
+#
+mp$mp16$ctl$mpName 'perfConE0.6'
+mp$mp16$mp$omni$expParMult 0.6
+#
+# MP 17 : perfConE0.64
+#
+mp$mp17$ctl$mpName 'perfConE0.64'
+mp$mp17$mp$omni$expParMult 0.64
+#
+# MP 18 : perfConE0.68
+#
+mp$mp18$ctl$mpName 'perfConE0.68'
+mp$mp18$mp$omni$expParMult 0.68
+#
+# MP 19 : perfConE0.72
+#
+mp$mp19$ctl$mpName 'perfConE0.72'
+mp$mp19$mp$omni$expParMult 0.72
+#
+# MP 20 : perfConE0.76
+#
+mp$mp20$ctl$mpName 'perfConE0.76'
+mp$mp20$mp$omni$expParMult 0.76
+#
+# MP 21 : perfConE0.8
+#
+mp$mp21$ctl$mpName 'perfConE0.8'
+mp$mp21$mp$omni$expParMult 0.8
+#
+# MP 22 : perfConE0.84
+#
+mp$mp22$ctl$mpName 'perfConE0.84'
+mp$mp22$mp$omni$expParMult 0.84
+#
+# MP 23 : perfConE0.88
+#
+mp$mp23$ctl$mpName 'perfConE0.88'
+mp$mp23$mp$omni$expParMult 0.88
+#
+# MP 24 : perfConE0.92
+#
+mp$mp24$ctl$mpName 'perfConE0.92'
+mp$mp24$mp$omni$expParMult 0.92
+#
+# MP 25 : perfConE0.96
+#
+mp$mp25$ctl$mpName 'perfConE0.96'
+mp$mp25$mp$omni$expParMult 0.96
+#
+# MP 26 : perfConE1
+#
+mp$mp26$ctl$mpName 'perfConE1'
+mp$mp26$mp$omni$expParMult 1
+#
+# MP 27 : perfConE1.04
+#
+mp$mp27$ctl$mpName 'perfConE1.04'
+mp$mp27$mp$omni$expParMult 1.04
+#
+# MP 28 : perfConE1.08
+#
+mp$mp28$ctl$mpName 'perfConE1.08'
+mp$mp28$mp$omni$expParMult 1.08
+#
+# MP 29 : perfConE1.12
+#
+mp$mp29$ctl$mpName 'perfConE1.12'
+mp$mp29$mp$omni$expParMult 1.12
+#
+# MP 30 : perfConE1.16
+#
+mp$mp30$ctl$mpName 'perfConE1.16'
+mp$mp30$mp$omni$expParMult 1.16
+#
+# MP 31 : perfConE1.2
+#
+mp$mp31$ctl$mpName 'perfConE1.2'
+mp$mp31$mp$omni$expParMult 1.2
+#
+# MP 32 : perfConE1.24
+#
+mp$mp32$ctl$mpName 'perfConE1.24'
+mp$mp32$mp$omni$expParMult 1.24
+#
+# MP 33 : perfConE1.28
+#
+mp$mp33$ctl$mpName 'perfConE1.28'
+mp$mp33$mp$omni$expParMult 1.28
+#
+# MP 34 : perfConE1.32
+#
+mp$mp34$ctl$mpName 'perfConE1.32'
+mp$mp34$mp$omni$expParMult 1.32
+#
+# MP 35 : perfConE1.36
+#
+mp$mp35$ctl$mpName 'perfConE1.36'
+mp$mp35$mp$omni$expParMult 1.36
+#
+# MP 36 : perfConE1.4
+#
+mp$mp36$ctl$mpName 'perfConE1.4'
+mp$mp36$mp$omni$expParMult 1.4
+#
+# MP 37 : perfConE1.44
+#
+mp$mp37$ctl$mpName 'perfConE1.44'
+mp$mp37$mp$omni$expParMult 1.44
+#
+# MP 38 : perfConE1.48
+#
+mp$mp38$ctl$mpName 'perfConE1.48'
+mp$mp38$mp$omni$expParMult 1.48
+#
+# MP 39 : perfConE1.52
+#
+mp$mp39$ctl$mpName 'perfConE1.52'
+mp$mp39$mp$omni$expParMult 1.52
+#
+# MP 40 : perfConE1.56
+#
+mp$mp40$ctl$mpName 'perfConE1.56'
+mp$mp40$mp$omni$expParMult 1.56
+#
+# MP 41 : perfConE1.6
+#
+mp$mp41$ctl$mpName 'perfConE1.6'
+mp$mp41$mp$omni$expParMult 1.6
+#
+# MP 42 : perfConE1.64
+#
+mp$mp42$ctl$mpName 'perfConE1.64'
+mp$mp42$mp$omni$expParMult 1.64
+#
+# MP 43 : perfConE1.68
+#
+mp$mp43$ctl$mpName 'perfConE1.68'
+mp$mp43$mp$omni$expParMult 1.68
+#
+# MP 44 : perfConE1.72
+#
+mp$mp44$ctl$mpName 'perfConE1.72'
+mp$mp44$mp$omni$expParMult 1.72
+#
+# MP 45 : perfConE1.76
+#
+mp$mp45$ctl$mpName 'perfConE1.76'
+mp$mp45$mp$omni$expParMult 1.76
+#
+# MP 46 : perfConE1.8
+#
+mp$mp46$ctl$mpName 'perfConE1.8'
+mp$mp46$mp$omni$expParMult 1.8
+#
+# MP 47 : perfConE1.84
+#
+mp$mp47$ctl$mpName 'perfConE1.84'
+mp$mp47$mp$omni$expParMult 1.84
+#
+# MP 48 : perfConE1.88
+#
+mp$mp48$ctl$mpName 'perfConE1.88'
+mp$mp48$mp$omni$expParMult 1.88
+#
+# MP 49 : perfConE1.92
+#
+mp$mp49$ctl$mpName 'perfConE1.92'
+mp$mp49$mp$omni$expParMult 1.92
+#
+# MP 50 : perfConE1.96
+#
+mp$mp50$ctl$mpName 'perfConE1.96'
+mp$mp50$mp$omni$expParMult 1.96
+#
+# MP 51 : perfConE2
+#
+mp$mp51$ctl$mpName 'perfConE2'
+mp$mp51$mp$omni$expParMult 2
+#
+# MP 52 : perfConE2.04
+#
+mp$mp52$ctl$mpName 'perfConE2.04'
+mp$mp52$mp$omni$expParMult 2.04
+#
+# MP 53 : perfConE2.08
+#
+mp$mp53$ctl$mpName 'perfConE2.08'
+mp$mp53$mp$omni$expParMult 2.08
+#
+# MP 54 : perfConE2.12
+#
+mp$mp54$ctl$mpName 'perfConE2.12'
+mp$mp54$mp$omni$expParMult 2.12
+#
+# MP 55 : perfConE2.16
+#
+mp$mp55$ctl$mpName 'perfConE2.16'
+mp$mp55$mp$omni$expParMult 2.16
+#
+# MP 56 : perfConE2.2
+#
+mp$mp56$ctl$mpName 'perfConE2.2'
+mp$mp56$mp$omni$expParMult 2.2
+#
+# MP 57 : perfConE2.24
+#
+mp$mp57$ctl$mpName 'perfConE2.24'
+mp$mp57$mp$omni$expParMult 2.24
+#
+# MP 58 : perfConE2.28
+#
+mp$mp58$ctl$mpName 'perfConE2.28'
+mp$mp58$mp$omni$expParMult 2.28
+#
+# MP 59 : perfConE2.32
+#
+mp$mp59$ctl$mpName 'perfConE2.32'
+mp$mp59$mp$omni$expParMult 2.32
+#
+# MP 60 : perfConE2.36
+#
+mp$mp60$ctl$mpName 'perfConE2.36'
+mp$mp60$mp$omni$expParMult 2.36
+#
+# MP 61 : perfConE2.4
+#
+mp$mp61$ctl$mpName 'perfConE2.4'
+mp$mp61$mp$omni$expParMult 2.4
+#
+# MP 62 : perfConE2.44
+#
+mp$mp62$ctl$mpName 'perfConE2.44'
+mp$mp62$mp$omni$expParMult 2.44
+#
+# MP 63 : perfConE2.48
+#
+mp$mp63$ctl$mpName 'perfConE2.48'
+mp$mp63$mp$omni$expParMult 2.48
+#
+# MP 64 : perfConE2.52
+#
+mp$mp64$ctl$mpName 'perfConE2.52'
+mp$mp64$mp$omni$expParMult 2.52
+#
+# MP 65 : perfConE2.56
+#
+mp$mp65$ctl$mpName 'perfConE2.56'
+mp$mp65$mp$omni$expParMult 2.56
+#
+# MP 66 : perfConE2.6
+#
+mp$mp66$ctl$mpName 'perfConE2.6'
+mp$mp66$mp$omni$expParMult 2.6
+#
+# MP 67 : perfConE2.64
+#
+mp$mp67$ctl$mpName 'perfConE2.64'
+mp$mp67$mp$omni$expParMult 2.64
+#
+# MP 68 : perfConE2.68
+#
+mp$mp68$ctl$mpName 'perfConE2.68'
+mp$mp68$mp$omni$expParMult 2.68
+#
+# MP 69 : perfConE2.72
+#
+mp$mp69$ctl$mpName 'perfConE2.72'
+mp$mp69$mp$omni$expParMult 2.72
+#
+# MP 70 : perfConE2.76
+#
+mp$mp70$ctl$mpName 'perfConE2.76'
+mp$mp70$mp$omni$expParMult 2.76
+#
+# MP 71 : perfConE2.8
+#
+mp$mp71$ctl$mpName 'perfConE2.8'
+mp$mp71$mp$omni$expParMult 2.8
+#
+# MP 72 : perfConE2.84
+#
+mp$mp72$ctl$mpName 'perfConE2.84'
+mp$mp72$mp$omni$expParMult 2.84
+#
+# MP 73 : perfConE2.88
+#
+mp$mp73$ctl$mpName 'perfConE2.88'
+mp$mp73$mp$omni$expParMult 2.88
+#
+# MP 74 : perfConE2.92
+#
+mp$mp74$ctl$mpName 'perfConE2.92'
+mp$mp74$mp$omni$expParMult 2.92
+#
+# MP 75 : perfConE2.96
+#
+mp$mp75$ctl$mpName 'perfConE2.96'
+mp$mp75$mp$omni$expParMult 2.96
+#
+# MP 76 : perfConE3
+#
+mp$mp76$ctl$mpName 'perfConE3'
+mp$mp76$mp$omni$expParMult 3
+#
+# MP 77 : perfConE3.04
+#
+mp$mp77$ctl$mpName 'perfConE3.04'
+mp$mp77$mp$omni$expParMult 3.04
+#
+# MP 78 : perfConE3.08
+#
+mp$mp78$ctl$mpName 'perfConE3.08'
+mp$mp78$mp$omni$expParMult 3.08
+#
+# MP 79 : perfConE3.12
+#
+mp$mp79$ctl$mpName 'perfConE3.12'
+mp$mp79$mp$omni$expParMult 3.12
+#
+# MP 80 : perfConE3.16
+#
+mp$mp80$ctl$mpName 'perfConE3.16'
+mp$mp80$mp$omni$expParMult 3.16
+#
+# MP 81 : perfConE3.2
+#
+mp$mp81$ctl$mpName 'perfConE3.2'
+mp$mp81$mp$omni$expParMult 3.2
+#
+# MP 82 : perfConE3.24
+#
+mp$mp82$ctl$mpName 'perfConE3.24'
+mp$mp82$mp$omni$expParMult 3.24
+#
+# MP 83 : perfConE3.28
+#
+mp$mp83$ctl$mpName 'perfConE3.28'
+mp$mp83$mp$omni$expParMult 3.28
+#
+# MP 84 : perfConE3.32
+#
+mp$mp84$ctl$mpName 'perfConE3.32'
+mp$mp84$mp$omni$expParMult 3.32
+#
+# MP 85 : perfConE3.36
+#
+mp$mp85$ctl$mpName 'perfConE3.36'
+mp$mp85$mp$omni$expParMult 3.36
+#
+# MP 86 : perfConE3.4
+#
+mp$mp86$ctl$mpName 'perfConE3.4'
+mp$mp86$mp$omni$expParMult 3.4
+#
+# MP 87 : perfConE3.44
+#
+mp$mp87$ctl$mpName 'perfConE3.44'
+mp$mp87$mp$omni$expParMult 3.44
+#
+# MP 88 : perfConE3.48
+#
+mp$mp88$ctl$mpName 'perfConE3.48'
+mp$mp88$mp$omni$expParMult 3.48
+#
+# MP 89 : perfConE3.52
+#
+mp$mp89$ctl$mpName 'perfConE3.52'
+mp$mp89$mp$omni$expParMult 3.52
+#
+# MP 90 : perfConE3.56
+#
+mp$mp90$ctl$mpName 'perfConE3.56'
+mp$mp90$mp$omni$expParMult 3.56
+#
+# MP 91 : perfConE3.6
+#
+mp$mp91$ctl$mpName 'perfConE3.6'
+mp$mp91$mp$omni$expParMult 3.6
+#
+# MP 92 : perfConE3.64
+#
+mp$mp92$ctl$mpName 'perfConE3.64'
+mp$mp92$mp$omni$expParMult 3.64
+#
+# MP 93 : perfConE3.68
+#
+mp$mp93$ctl$mpName 'perfConE3.68'
+mp$mp93$mp$omni$expParMult 3.68
+#
+# MP 94 : perfConE3.72
+#
+mp$mp94$ctl$mpName 'perfConE3.72'
+mp$mp94$mp$omni$expParMult 3.72
+#
+# MP 95 : perfConE3.76
+#
+mp$mp95$ctl$mpName 'perfConE3.76'
+mp$mp95$mp$omni$expParMult 3.76
+#
+# MP 96 : perfConE3.8
+#
+mp$mp96$ctl$mpName 'perfConE3.8'
+mp$mp96$mp$omni$expParMult 3.8
+#
+# MP 97 : perfConE3.84
+#
+mp$mp97$ctl$mpName 'perfConE3.84'
+mp$mp97$mp$omni$expParMult 3.84
+#
+# MP 98 : perfConE3.88
+#
+mp$mp98$ctl$mpName 'perfConE3.88'
+mp$mp98$mp$omni$expParMult 3.88
+#
+# MP 99 : perfConE3.92
+#
+mp$mp99$ctl$mpName 'perfConE3.92'
+mp$mp99$mp$omni$expParMult 3.92
+#
+# MP 100 : perfConE3.96
+#
+mp$mp100$ctl$mpName 'perfConE3.96'
+mp$mp100$mp$omni$expParMult 3.96
+#
+# MP 101 : perfConE4
+#
+mp$mp101$ctl$mpName 'perfConE4'
+mp$mp101$mp$omni$expParMult 4
 #
 #
 #
