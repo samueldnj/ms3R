@@ -1,0 +1,76 @@
+# Batch Control File, created Wed Feb  5 14:03:42 2020 by makeBatchDesign() 
+parameter value
+#
+# Scenarios 
+#
+# Scenario 1 : DER_fit 
+#
+scenario$scenario1$ctl$scenarioName 'DER_fit'
+scenario$scenario1$ctl$perfConF TRUE
+scenario$scenario1$ctl$noProcErr TRUE
+scenario$scenario1$ctl$totReps 2
+scenario$scenario1$ctl$nGoodReps 2
+scenario$scenario1$opMod$pT 100
+scenario$scenario1$opMod$effortMod 'Max'
+#
+#
+#
+# Management Procedures 
+#
+# MP 1 : perfConE0
+#
+mp$mp1$ctl$mpName 'perfConE0'
+mp$mp1$mp$omni$expParMult 0
+#
+# MP 2 : perfConE0.4
+#
+mp$mp2$ctl$mpName 'perfConE0.4'
+mp$mp2$mp$omni$expParMult 0.4
+#
+# MP 3 : perfConE0.8
+#
+mp$mp3$ctl$mpName 'perfConE0.8'
+mp$mp3$mp$omni$expParMult 0.8
+#
+# MP 4 : perfConE1.2
+#
+mp$mp4$ctl$mpName 'perfConE1.2'
+mp$mp4$mp$omni$expParMult 1.2
+#
+# MP 5 : perfConE1.6
+#
+mp$mp5$ctl$mpName 'perfConE1.6'
+mp$mp5$mp$omni$expParMult 1.6
+#
+# MP 6 : perfConE2
+#
+mp$mp6$ctl$mpName 'perfConE2'
+mp$mp6$mp$omni$expParMult 2
+#
+# MP 7 : perfConE2.4
+#
+mp$mp7$ctl$mpName 'perfConE2.4'
+mp$mp7$mp$omni$expParMult 2.4
+#
+# MP 8 : perfConE2.8
+#
+mp$mp8$ctl$mpName 'perfConE2.8'
+mp$mp8$mp$omni$expParMult 2.8
+#
+# MP 9 : perfConE3.2
+#
+mp$mp9$ctl$mpName 'perfConE3.2'
+mp$mp9$mp$omni$expParMult 3.2
+#
+# MP 10 : perfConE3.6
+#
+mp$mp10$ctl$mpName 'perfConE3.6'
+mp$mp10$mp$omni$expParMult 3.6
+#
+# MP 11 : perfConE4
+#
+mp$mp11$ctl$mpName 'perfConE4'
+mp$mp11$mp$omni$expParMult 4
+#
+#
+#

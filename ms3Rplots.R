@@ -15,84 +15,15 @@
 # Function for plotting effort based
 # yield curves for each species and
 # the complex in a stock area.
-plotEffYieldCurves <- function( obj = blob, 
-                                maxE = 100 )
+plotEffYieldCurves <- function( obj = blob )
 {
   # First, pull reference points and curves
-  rp <- obj$rp[[1]]
-  refCurves <- rp$refCurves
+  rp          <- obj$rp[[1]]
+  refCurves   <- rp$refCurves
+  EmsyRefPts  <- rp$EmsyRefPts
 
-  nP <- obj$om$nP
-  nS <- obj$om$nS
-  nT <- obj$om$nT
-  nF <- obj$om$nF
-  tMP <- obj$om$tMP
-
-  # Species and stock names
-  speciesNames  <- obj$om$speciesNames
-  stockNames    <- obj$om$stockNames
-
-  # Pull effort/F catchability
-  qF_sp <- obj$om$qF_ispft[1,,,2,tMP]
-
-  # Make a grid of effort values
-  Eseq    <- seq(0, maxE, length.out = 1000)
-
-  # Private function to make an effort based curve
-  # from an F based curve
-  makeEffCurve <- function( E, 
-                            sIdx    = 1, 
-                            pIdx    = 1,
-                            Fseq    = refCurves$F,
-                            depSeq  = refCurves$Yeq_spf,
-                            qF_sp   = qF_sp )
-  {
-    # Convert effort to F
-    inputF  <- E * qF_sp[sIdx,pIdx]
-
-    # Make a spline between F and 
-    # the desired curve
-    curveSpline <- splinefun( x=Fseq, y=depSeq[sIdx,pIdx,] )
-
-    # Now determine the y value of the reference curve
-    # WRT effort
-    yVal <- curveSpline(inputF)
-
-    yVal
-
-  }
-
-  # Now we want to make biomass and
-  # yield curves for each species/stock wrt Eseq
-  Yeq_spe <- array(NA, dim = c(nS,nP,length(Eseq)) )
-  Beq_spe <- array(NA, dim = c(nS,nP,length(Eseq)) )
-
-  for( s in 1:nS )
-    for( p in 1:nP )
-    {
-      Yeq_spe[s,p,] <- sapply(  X = Eseq, 
-                                FUN = makeEffCurve,
-                                sIdx = s, pIdx = p,
-                                depSeq = refCurves$Yeq_spf,
-                                qF_sp = qF_sp )
-
-      Beq_spe[s,p,] <- sapply(  X = Eseq, 
-                                FUN = makeEffCurve,
-                                sIdx = s, pIdx = p,
-                                depSeq = refCurves$Beq_spf,
-                                qF_sp = qF_sp )
-    }
-
-  Yeq_spe[Yeq_spe < 0 ] <- NA
-  Beq_spe[Beq_spe < 0 ] <- NA
-
-  # Now sum yield curves over species within
-  # an area
-  Yeq_pe <- apply( X = Yeq_spe, FUN = sum, MARGIN = c(2,3), na.rm = T )
-
-  # replace non-positive yield with NA, then add a zero at zero effort
-  Yeq_pe[Yeq_pe <= 0 ] <- NA
-  Yeq_pe[,1] <- 0
+  browser()
+  
 
   # Now compute MSY for SS and MS curves
   # MSY is still the same for SS, just need the effort

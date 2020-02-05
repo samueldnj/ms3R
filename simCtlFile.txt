@@ -1,7 +1,7 @@
 # simCtlFile.txt, saved to ms3R root working directory
 parameter value
 ctl$scenarioName "DER_fit"
-ctl$mpName "PerfectInfo_conUmsy"
+ctl$mpName "PerfectInfo_conEmsy"
 ctl$quiet FALSE
 ctl$phaseMessages FALSE
 ctl$maxEval 1e4
