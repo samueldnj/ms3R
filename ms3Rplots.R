@@ -1057,8 +1057,9 @@ plotTulipBt <- function(  obj = blob, nTrace = 3,
   nReps   <- dim(SB_ispt)[1]
 
   # Get reference points
-  B0_sp   <- obj$ctlList$opMod$histRpt$B0_sp
-  Bmsy_sp <- obj$rp[[1]]$FmsyRefPts$BeqFmsy_sp
+  B0_sp     <- obj$ctlList$opMod$histRpt$B0_sp
+  BmsySS_sp <- obj$rp[[1]]$FmsyRefPts$BeqFmsy_sp
+  BmsyMS_sp <- obj$rp[[1]]$EmsyRefPts$BeqEmsyMS_sp
 
   speciesNames  <- obj$om$speciesNames
   stockNames    <- obj$om$stockNames
@@ -1077,8 +1078,9 @@ plotTulipBt <- function(  obj = blob, nTrace = 3,
           C_ispt[,s,p,]  <- C_ispt[,s,p,] / B0_sp[s,p]
 
         }
-      Bmsy_sp <- Bmsy_sp / B0_sp
-      B0_sp   <- B0_sp / B0_sp
+      BmsySS_sp <- BmsySS_sp / B0_sp
+      BmsyMS_sp <- BmsyMS_sp / B0_sp
+      B0_sp     <- B0_sp / B0_sp
 
 
     }
@@ -1092,8 +1094,9 @@ plotTulipBt <- function(  obj = blob, nTrace = 3,
           C_ispt[,s,p,]  <- C_ispt[,s,p,] / Bmsy_sp[s,p]
         }
 
-      B0_sp   <- B0_sp / Bmsy_sp
-      Bmsy_sp <- Bmsy_sp / Bmsy_sp
+      B0_sp     <- B0_sp / Bmsy_sp
+      BmsySS_sp <- BmsySS_sp / Bmsy_sp
+      BmsyMS_sp <- BmsyMS_sp / Bmsy_sp
       
     }
   }
@@ -1169,7 +1172,8 @@ plotTulipBt <- function(  obj = blob, nTrace = 3,
 
       abline( v = yrs[tMP], col = "grey30", lty = 3 )
       abline( h = B0_sp[s,p], lty = 2, col = "grey50", lwd = 2  )
-      abline( h = Bmsy_sp[s,p], lty = 3, col = "darkgreen", lwd = 2)
+      abline( h = BmsySS_sp[s,p], lty = 3, col = "darkgreen", lwd = 2)
+      abline( h = BmsyMS_sp[s,p], lty = 3, col = "steelblue", lwd = 2)
 
       if( mfg[1] == 1 & mfg[2] == 1 )
         legend( x = "bottomleft", bty = "n",
@@ -1177,12 +1181,13 @@ plotTulipBt <- function(  obj = blob, nTrace = 3,
                             "Central 95%",
                             "Replicate Traces",
                             "Unfished",
-                            expression(B[MSY])),
+                            expression(B[MSY,MS]),
+                            expression(B[MSY,SS])),
                 col = c(  "black", "grey65", "black",
-                          "grey50", "darkgreen" ),
-                pch = c(NA,15, NA, NA, NA),
-                lty = c(1, NA, 1, 2, 3),
-                lwd = c(3, NA, .8, 2, 2 ) )
+                          "grey50", "darkgreen","steelblue" ),
+                pch = c(NA,15, NA, NA, NA,NA),
+                lty = c(1, NA, 1, 2, 3, 3),
+                lwd = c(3, NA, .8, 2, 2, 2 ) )
     }
   }
   mtext( side = 2, outer = TRUE, text = yAxisLab,

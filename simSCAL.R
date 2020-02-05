@@ -1327,6 +1327,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     # Condition history of simulation model
     # and draw random errors for projection
     simObj <- .condMS3pop( simObj )
+
     # Calculate effort dynamics parameters
     simObj <- .calcHistEffortDynamics( simObj )
     # Calcualate times for observations
@@ -1578,14 +1579,15 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
       } else {  
         # Then we are solving for stock/species specific
         # Fs (nS * nP at each time step)
-        tmpF <- exp( pars )
-        knotF_spk <- array( tmpF, dim = c(nS,nP,nKnots) )
+        tmpFmult <- exp( pars )
+        knotF_spk <- array( tmpFmult, dim = c(nS,nP,nKnots) )
 
         # Make spline for each species/stock
         for( s in 1:nS )
           for( p in 1:nP )
           {
             splineF <- spline( x = x, y = knotF_spk[s,p,], n = projInt)$y
+            splineF <- splineF * obj$rp$FmsyRefPts$Fmsy_sp[s,p]
             splineF[splineF < 0] <- 0
             splineF[splineF > maxF] <- maxF
 
@@ -1604,7 +1606,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
       if( ctlList$ctl$perfConF )
       {
         for( p in 1:nP )
-          obj$om$E_pft[p,2,tMP:nT] <- parMult*mean(obj$rp$FmsyRefPts$Fmsy_sp[,p]/om$qF_spft[,p,2,tMP - 1])
+          obj$om$E_pft[p,2,tMP:nT] <- parMult*obj$rp$EmsyRefPts$EmsyMS_p[p]
 
         if( !is.null(ctlList$omni$inputE) )
           for( p in 1:nP )
@@ -1617,17 +1619,23 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
       } else {
         # Then we are solving for area specific
         # Es (nP at each time step)
-        tmpE      <- exp( pars )
-        knotE_pk  <- array( tmpE, dim = c(nP,nKnots) )
+        tmpEmult    <- exp( pars )
+        knotE_pk    <- array( tmpEmult, dim = c(nP,nKnots) )
 
         # Make spline for each species/stock
         for( p in 1:nP )
         {
+          # Make spline, multiply by Emsy
           splineE <- spline( x = x, y = knotE_pk[p,], n = projInt)$y
+          splineE <- splineE * obj$rp$EmsyRefPts$EmsyMS_p[p]
+
+          # Correct for under and over efforts
           splineE[splineE < 0] <- 0
           splineE[splineE > maxE] <- maxE
 
-          obj$om$E_pft[p,2,tMP:nT] <- parMult*splineE
+          # Assign to projection
+          obj$om$E_pft[p,2,tMP:nT] <- parMult * splineE
+
 
           for( s in 1:nS )
             obj$om$F_spft[s,p,2,tMP:nT] <- obj$om$E_pft[p,2,tMP:nT] * om$qF_spft[s,p,2,tMP - 1]
@@ -2044,12 +2052,12 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   # use a random vector
   initPars <- rnorm(n = nPars, sd = .3)
 
-  # Multiply by the appropriate scalar
-  if( ctlList$opMod$effortMod %in% c("Max","dynModel") )
-    initPars <- log( histEbar * exp(initPars) )
+  # # Multiply by the appropriate scalar
+  # if( ctlList$opMod$effortMod %in% c("Max","dynModel") )
+  #   initPars <- log( histEbar * exp(initPars) )
 
-  if( ctlList$opMod$effortMod %in% c("targeting") )
-    initPars <- log( Fmsybar * exp(initPars) )
+  # if( ctlList$opMod$effortMod %in% c("targeting") )
+  #   initPars <- log( Fmsybar * exp(initPars) )
 
 
   # OK, run optimisation
@@ -2710,6 +2718,20 @@ combBarrierPen <- function( x, eps,
   obj$om$qF_spft[,,,tMP:nT]       <- obj$om$qF_spft[,,,tMP-1]
 
 
+  # Now we have enough info to calculate reference points
+  stime <- Sys.time()
+  message(" (.condMS3pop) Calculating Fmsy and Emsy reference points\n")
+  
+  repObj$om <- obj$om
+  refPtList <- calcRefPts( repObj )
+  obj$rp    <- refPtList
+
+  etime <- Sys.time()
+  rpTime <- round(etime - stime,2)
+  message( paste(" (.condMS3pop) Reference point calculations completed in ", 
+                  rpTime, " seconds\n", sep = "" ) )
+
+
   # Add historical data
   obj$mp$data$I_spft[,,,histdx]      <- repObj$I_spft
   obj$mp$data$A_axspft[,,,,,histdx]  <- aperm( repObj$age_aspftx, c(1,6,2:5) )
@@ -2881,10 +2903,6 @@ combBarrierPen <- function( x, eps,
   om$probLenAge_laxsp   <- aperm( repObj$probLenAge_laspx, c(1,2,5,3,4) )
   om$lenAge_axsp        <- aperm( repObj$lenAge_aspx, c(1,4,2,3) )
 
-  # Calculate ref points and get R0 and recruitment pars
-  tmp                   <- calcRefPts( repObj )
-  refPtList             <- tmp$refPts
-
   # Make data list - anything else?
   # mp list - mostly for retrospective
   # analyses and assessment model settings
@@ -2939,7 +2957,6 @@ combBarrierPen <- function( x, eps,
   # Return initialised object
   obj <- list(  om = om, 
                 mp = mp, 
-                rp = refPtList, 
                 errors = errors,
                 ctlList = ctlList )
 
@@ -3014,7 +3031,6 @@ combBarrierPen <- function( x, eps,
   err   <- obj$errors
   hcr   <- obj$mp$hcr
   opMod <- obj$ctlList$opMod
-
 
   # Get model dimensions, and state variables
   tMP               <- om$tMP

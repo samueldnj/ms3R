@@ -6,16 +6,17 @@ British Columbia's complex of right-eyed flounders is
 a spatially diverse and interacting group. While the
 there are several right-eyed flounders in BC waters, we 
 will focus only on Dover sole (*Microstomus pacficus*), 
-English sole (*Parophrys vetulus*), and rock sole 
-(*Lepidopsetta bilineata*), which we will refer to
-as the DER complex. We chose these three species
-as they are actively managed as part of the BC groundfish fishery 
-with the same management unit boundaries, and are
-targeted at different times of the year by the same 
-bottom trawl sector. 
+English sole (*Parophrys vetulus*), and southern rock sole 
+(*Lepidopsetta bilineata*), which we refer to as rock sole 
+here. Taken together, we denote the Dover, English and rock sole 
+multi-stock complex as the DER complex. We chose the DER complex
+as it is managed as part of the BC groundfish fishery, all three 
+species have the same management unit boundaries, and are
+targeted at different times of the year by the same commercial
+bottom trawl fleet. 
 
 The DER complex is managed in three spatially distinct stock
-areas, which line up with clusters of BC groundfish management
+areas, which line up with aggregates of BC groundfish management
 areas, which are themselves made up of groups of Pacific Fishery
 Management Areas [@PRIFMP2015]. From North to South, the first extends 
 from Dixon Entrance, north of Haida Gwaii, south through 
@@ -27,8 +28,10 @@ area extends along the West Coast of Vancouver Island (WCVI)
 from its northern tip down to the entrance to Juan de Fuca Strait,
 and corresponds to BC groundfish area 3CD.
 
-All species in the DER complex have been subject to 
-exploitation since 
+All species in the DER complex have experienced exploitation
+since before 1956. At that time, Dover sole was only 
+lightly exploited, with full commercial level exploitation
+beginning in the 1970s. English and rock soles and 
 
 
 Despite a long history of exploitation, dover sole stocks 
@@ -127,8 +130,8 @@ we applied shrinkage priors to survey catchability
 and intrinsic growth rate (Appendix B). In total,
 five model configurations were defined:
 
-1. Hierarchical multi-stock
-2. Single-stock
+1. Hierarchical multi-stock (9 stocks, sharing info)
+2. Single-stock (9 stocks, independent)
 3. Hierarchical coastwide (3 species)
 4. Hierarchical data-pooled (3 stocks)
 5. Data-pooled coastwide (1 stock)
