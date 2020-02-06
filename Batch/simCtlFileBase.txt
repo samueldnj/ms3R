@@ -2,6 +2,7 @@
 parameter value
 ctl$scenarioName "baseDER"
 ctl$mpName "baseMultiStock"
+ctl$optimOutput FALSE
 ctl$quiet TRUE
 ctl$phaseMessages FALSE
 ctl$maxEval 1e4

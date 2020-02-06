@@ -544,14 +544,14 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
         
         if(spSingleStock)
         {
-          mBmsy_sp  <- Beq
+          mBmsy_sp  <- Beq_sp[s,p,drop = FALSE]
 
-          omFref_sp <- Yeq_sp / Beq_sp
+          omFref_sp <- Yeq_sp[s,p,drop = FALSE] / Beq_sp[s,p,drop = FALSE]
         }
 
         if( spCoastwide & spDataPooled )
         {
-          mBmsy_sp        <- refPtList$FmsyRefPts$BeqFmsy_sp[1,1,drop = FALSE]
+          mBmsy_sp        <- Beq_sp[1,1,drop = FALSE]
           mBmsy_sp[1,1]   <- sum(Beq)
 
           omFref_sp       <- sum(Yeq_sp) / sum(Beq_sp)
@@ -717,8 +717,6 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
       mBmsy_sp_new[,1]  <- apply( X = Beq_sp, FUN = sum, MARGIN = 1)
 
       mBmsy_sp <- mBmsy_sp_new
-
-      browser()
 
       for( s in 1:nS )
         omFref_sp[s,] <- sum(Yeq_sp[s,]) / sum(Beq_sp[s,])
