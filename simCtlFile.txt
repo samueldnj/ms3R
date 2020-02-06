@@ -1,17 +1,17 @@
 # simCtlFile.txt, saved to ms3R root working directory
 parameter value
 ctl$scenarioName "DER_fit"
-ctl$mpName "PerfectInfo_conEmsy"
+ctl$mpName "omni_totCat_effDiff"
 ctl$quiet FALSE
 ctl$phaseMessages FALSE
 ctl$maxEval 1e4
 ctl$maxIter 1e4
 ctl$rSeed 123
 ctl$totReps 400
-ctl$nGoodReps 2
-ctl$omni FALSE
-ctl$perfConF TRUE
-ctl$noProcErr TRUE
+ctl$nGoodReps 10
+ctl$omni TRUE
+ctl$perfConF FALSE
+ctl$noProcErr FALSE
 mp$assess$assInt 1
 mp$assess$method "hierProd"
 mp$assess$idxPoints 3

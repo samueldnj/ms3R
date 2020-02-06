@@ -1606,7 +1606,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
       if( ctlList$ctl$perfConF )
       {
         for( p in 1:nP )
-          obj$om$E_pft[p,2,tMP:nT] <- parMult*obj$rp$EmsyRefPts$EmsyMS_p[p]
+          obj$om$E_pft[p,2,tMP:nT] <- parMult*obj$rp$EmsyMSRefPts$EmsyMS_p[p]
 
         if( !is.null(ctlList$omni$inputE) )
           for( p in 1:nP )
@@ -1627,7 +1627,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
         {
           # Make spline, multiply by Emsy
           splineE <- spline( x = x, y = knotE_pk[p,], n = projInt)$y
-          splineE <- splineE * obj$rp$EmsyRefPts$EmsyMS_p[p]
+          splineE <- splineE * obj$rp$EmsyMSRefPts$EmsyMS_p[p]
 
           # Correct for under and over efforts
           splineE[splineE < 0] <- 0

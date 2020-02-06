@@ -44,14 +44,15 @@ calcRefPts <- function( obj )
   FmsyRefPts <- .getFmsy_sp(  obj = obj, 
                               refCurves = refCurves )
 
-  EmsyRefPts <- .getEmsy_p( obj = obj,
-                            refCurves = refCurves,
-                            FmsyRefPts )
+  tmpEmsyRefPts <- .getEmsy_p(  obj = obj,
+                                refCurves = refCurves$EffCurves )
+
   
   obj$refPts <- list()
   obj$refPts$refCurves    <- refCurves
   obj$refPts$FmsyRefPts   <- FmsyRefPts
-  obj$refPts$EmsyRefPts   <- EmsyRefPts
+  obj$refPts$EmsyRefPts   <- tmpEmsyRefPts$EmsyRefPts
+  obj$refPts$EmsyMSRefPts <- tmpEmsyRefPts$EmsyMSRefPts
   # Get survivorship
   obj$refPts$Surv_axsp    <- tmp$Surv_axsp
   obj$refPts$ssbpr_sp     <- yprList$ssbpr_sp
@@ -64,131 +65,6 @@ calcRefPts <- function( obj )
 
 } # END calcRefPts()
 
-# .getEmsy_p()
-# Calculates effort based reference curves
-# for each stock and species, then computes
-# multispecies optimum yield and effort
-# values for each stock area. Returns
-# arrays for plotting of yield curves.
-.getEmsy_p <- function( obj, refCurves, FmsyRefPts )
-{
-  tMP <- obj$om$tMP
-  nS  <- obj$om$nS
-  nP  <- obj$om$nP
-
-  # Pull effort/F catchability
-  qF_sp <- obj$om$qF_spft[,,2,tMP]
-
-  # Get a maximum effort value
-  maxE  <- max(refCurves$F[length(refCurves$F)] / qF_sp )
-
-  # Make a grid of effort values
-  Eseq    <- seq(0, maxE, length.out = 1000)
-
-  # Private function to make an effort based curve
-  # from an F based curve
-  makeEffCurve <- function( sIdx    = 1, 
-                            pIdx    = 1,
-                            Fseq    = refCurves$F,
-                            depSeq  = refCurves$Yeq_spf,
-                            qF_sp   = qF_sp )
-  {
-    # Convert effort to F
-    E  <- Fseq / qF_sp[sIdx,pIdx]
-
-    # Make a spline between F and 
-    # the desired curve
-    curveSpline <- splinefun( x=E, y=depSeq[sIdx,pIdx,] )
-
-    curveSpline
-  }
-
-  # Now we want to make biomass and
-  # yield curves for each species/stock wrt Eseq
-  Yeq_spe <- array(NA, dim = c(nS,nP,length(Eseq)) )
-  Beq_spe <- array(NA, dim = c(nS,nP,length(Eseq)) )
-
-  for( s in 1:nS )
-    for( p in 1:nP )
-    {
-      yieldCurveSpline  <- makeEffCurve(  sIdx = s, pIdx = p,
-                                          depSeq = refCurves$Yeq_spf,
-                                          qF_sp = qF_sp  )
-
-      bioCurveSpline    <- makeEffCurve(  sIdx = s, pIdx = p,
-                                          depSeq = refCurves$Beq_spf,
-                                          qF_sp = qF_sp  )
-
-      Yeq_spe[s,p,] <- sapply(  X = Eseq, 
-                                FUN = yieldCurveSpline )
-
-      Beq_spe[s,p,] <- sapply(  X = Eseq, 
-                                FUN = bioCurveSpline )
-    }
-
-  Yeq_spe[Yeq_spe < 0 ] <- NA
-  Beq_spe[Beq_spe < 0 ] <- NA
-
-  # Now sum yield curves over species within
-  # an area
-  Yeq_pe <- apply( X = Yeq_spe, FUN = sum, MARGIN = c(2,3), na.rm = T )
-
-  # replace non-positive yield with NA, then add a zero at zero effort
-  Yeq_pe[Yeq_pe <= 0 ] <- NA
-  Yeq_pe[,1] <- 0
-
-  # Now compute MSY for MS curves
-  # MSY is still the same for SS, just need the effort
-  # that corresponds to it, which is Fmsy/qF
-  EmsyMS_p      <- rep(0,nP)
-  MSYMS_p       <- rep(0,nP)
-  YeqEmsyMS_sp  <- array(NA, dim = c(nS,nP))
-  BeqEmsyMS_sp     <- array(NA, dim = c(nS,nP))
-
-  # Now we need to solve for the stat point
-  # of the complex yield curve
-  for( p in 1:nP )
-  {
-    # First, get complex Emsy, then
-    # use splines to get species specific
-    # yields
-    compYieldSpline <- splinefun( x = Eseq, y = Yeq_pe[p,] )
-
-    # Need to restrict to area where first deriv is non-singular
-    # (i.e. where all yield curves are +ve), right now
-    # uses Emax/3 as a placeholder
-
-    # Solve for stat point
-
-    EmsyMS_p[p] <- uniroot( f = compYieldSpline, 
-                            interval = c(0, maxE),
-                            deriv = 1 )$root
-
-    MSYMS_p[p] <- compYieldSpline(EmsyMS_p[p])
-
-    # Now loop over species, fit spline
-    # and get MSY for each species
-    for( s in 1:nS )
-    {
-      specYieldSpline   <- splinefun( x = Eseq, y = Yeq_spe[s,p,] )
-      YeqEmsyMS_sp[s,p] <- specYieldSpline(EmsyMS_p[p])
-
-      specBioSpline     <- splinefun( x = Eseq, y = Beq_spe[s,p,] )
-      BeqEmsyMS_sp[s,p] <- specBioSpline(EmsyMS_p[p])
-    }
-  }
-
-  outList <- list(  E             = Eseq,
-                    Yeq_spe       = Yeq_spe,
-                    Yeq_pe        = Yeq_pe,
-                    Beq_spe       = Beq_spe,
-                    EmsyMS_p      = EmsyMS_p,
-                    YeqEmsyMS_sp  = YeqEmsyMS_sp,
-                    BeqEmsyMS_sp  = BeqEmsyMS_sp  )
-
-  outList
-}
-
 # .calcRefCurves()
 # Calculates equilibrium curves of equilbrium biomass, numbers,
 # yield and recruitment as a function of input fishing mortality rates
@@ -197,7 +73,9 @@ calcRefPts <- function( obj )
 .calcRefCurves <- function( obj, nFs = 1000 )
 {
   # First, compute max F (tolerance of 1e-5)
+  nT   <- dim(obj$om$qF_spft)[4]
   maxF <- max( 10*obj$M_xsp )
+  maxE <- max( maxF / obj$om$qF_spft[,,2,nT])
 
   # We're going to need to fill each species' ref curves,
   # so labeling and dimensions are needed
@@ -212,6 +90,7 @@ calcRefPts <- function( obj )
 
 
   f <- seq( from = 0.0, to = maxF, length = nFs )
+  e <- seq( from = 0.0, to = maxE, length = nFs )
 
   # Create matrices to hold Recruitment reference curve, name rows and copy
   # for each of Beq, Neq and Yeq
@@ -244,6 +123,35 @@ calcRefPts <- function( obj )
     surv_axspf[,,,,i] <- tmp$surv_axsp
   }
 
+  Req_spe      <- array( NA,  dim = c(nS, nP, nFs),
+                              dimnames = list(  species = specNames,
+                                                stock = stockNames,
+                                                F = f ) )
+
+  surv_axspe    <- array( NA, dim = c(nA,nX,nS,nP,nFs) )
+
+  Beq_spe       <- Req_spe
+  expBeq_spe    <- Req_spe
+  Yeq_spe       <- Req_spe
+  ypr_spe       <- Req_spe
+  ssbpr_spe     <- Req_spe
+  Ueq_spe       <- Req_spe
+
+  # Loop and fill
+  for( i in 1:length(e) )
+  {
+    tmp               <- .calcEquil( f = e[i], obj = obj, type = "effort" )
+    Req_spe[,,i]      <- tmp$Req_sp
+    Beq_spe[,,i]      <- tmp$Beq_sp
+    expBeq_spe[,,i]   <- tmp$expBeq_sp
+    Yeq_spe[,,i]      <- tmp$Yeq_sp
+    ypr_spe[,,i]      <- tmp$ypr_sp
+    ssbpr_spe[,,i]    <- tmp$ssbpr_sp
+    Ueq_spe[,,i]      <- tmp$Ueq_sp
+    surv_axspe[,,,,i] <- tmp$surv_axsp
+  }
+
+  # Save F based ref points
   refCurves <- list()
     refCurves$F           <- f
     refCurves$ypr_spf     <- ypr_spf
@@ -254,6 +162,17 @@ calcRefPts <- function( obj )
     refCurves$Ueq_spf     <- Yeq_spf
     refCurves$surv_axspf  <- surv_axspf
 
+  # Save E based ref points
+  refCurves$EffCurves <- list()
+    refCurves$EffCurves$E           <- e
+    refCurves$EffCurves$ypr_spe     <- ypr_spe
+    refCurves$EffCurves$Req_spe     <- Req_spe
+    refCurves$EffCurves$Beq_spe     <- Beq_spe
+    refCurves$EffCurves$expBeq_spe  <- expBeq_spe
+    refCurves$EffCurves$Yeq_spe     <- Yeq_spe
+    refCurves$EffCurves$Ueq_spe     <- Yeq_spe
+    refCurves$EffCurves$surv_axspe  <- surv_axspe    
+
   return( refCurves )
 }
 
@@ -263,7 +182,7 @@ calcRefPts <- function( obj )
 # inputs:   f = input fishing mortality rate
 #           obj = list of biological parameters
 # ouputs:   equil = list() of equilibrium biomass, yield and recruitment
-.calcEquil <- function( f = 0, obj )
+.calcEquil <- function( f = 0, obj, type = "fmort" )
 {
   nS  <- obj$nS
   nP  <- obj$nP
@@ -271,7 +190,7 @@ calcRefPts <- function( obj )
 
 
   # Now calculate eqbm recruitment at given f value
-  tmp <- .calcPerRecruit( f = f, obj = obj )
+  tmp <- .calcPerRecruit( f = f, obj = obj, type = type )
   yprList <- tmp$yprList
 
   recruits_sp <- ( obj$rec.a_sp * yprList$ssbpr_sp - 1) / (obj$rec.b_sp * yprList$ssbpr_sp)
@@ -346,7 +265,7 @@ calcRefPts <- function( obj )
 # Returns:     a list with equilibrium quantities - (i) spawning stock biomass-per-recruit
 #              and (ii) yield-per-recruit (ypr)
 # Source:      S.P. Cox, modified for hierSCAL by SDNJ
-.calcPerRecruit <- function( f, obj )
+.calcPerRecruit <- function( f, obj, type = "fmort" )
 {
 
   # Compute eqbm spawning biomass per recruit for
@@ -359,6 +278,7 @@ calcRefPts <- function( obj )
   nX    <- obj$nX
   M_xsp <- obj$M_xsp
   nT    <- obj$nT
+  qF_sp <- obj$om$qF_spft[,,2,nT+1]
 
   # Life history schedules
   matAge_asp        <- obj$matAge_asp
@@ -366,6 +286,8 @@ calcRefPts <- function( obj )
   wtAge_axsp        <- aperm(obj$meanWtAge_aspx,c(1,4,2,3))
   probLenAge_laspx  <- obj$probLenAge_laspx
   selAge_axsp       <- obj$sel_axspft[,,,,2,nT]
+
+  fmort <- array(f, dim =c(nS,nP) )
 
   # Compute Z_asp
   Z_axsp    <- array( NA, dim = c(nA,nX,nS,nP))
@@ -375,10 +297,13 @@ calcRefPts <- function( obj )
     for( s in 1:nS )
       for( p in 1:nP )
       {
+        if( type == "effort" )
+          fmort[s,p] <- f * qF_sp[s,p]
+
         Z_axsp[1:A_s[s],x,s,p] <- M_xsp[x,s,p]
         for( a in 1:A_s[s])
         {
-          Z_axsp[a,x,s,p] <- Z_axsp[a,x,s,p] + selAge_axsp[a,x,s,p] * f
+          Z_axsp[a,x,s,p] <- Z_axsp[a,x,s,p] + selAge_axsp[a,x,s,p] * fmort[s,p]
           if( a > 1 )
             Surv_axsp[a,x,s,p] <- Surv_axsp[a-1,x,s,p] * exp( -Z_axsp[a-1,x,s,p])
           if( a == A_s[s])
@@ -399,7 +324,7 @@ calcRefPts <- function( obj )
       for( x in 1:nX )
       {
         C_axsp[,x,s,p]    <- Surv_axsp[,x,s,p] * wtAge_axsp[,x,s,p] * 
-                              selAge_axsp[,x,s,p] * f * 
+                              selAge_axsp[,x,s,p] * fmort[s,p] * 
                               (1 - exp(-Z_axsp[,x,s,p]))/Z_axsp[,x,s,p]
 
         expbpr_axsp[,x,s,p] <- Surv_axsp[,x,s,p] * selAge_axsp[,x,s,p] * wtAge_axsp[,x,s,p]
@@ -449,6 +374,118 @@ calcRefPts <- function( obj )
 
 #   return(recList)
 # }
+
+# .getEmsy_p()
+# Calculates effort based reference curves
+# for each stock and species, then computes
+# multispecies optimum yield and effort
+# values for each stock area. Returns
+# arrays for plotting of yield curves.
+.getEmsy_p <- function( obj, refCurves, FmsyRefPts )
+{
+  nS  <- obj$nS
+  nP  <- obj$nP
+
+  Eseq <- refCurves$E
+
+  .getEmsy <- function( yieldCurve, E = Eseq )
+  {
+    minE <- 0
+    maxE <- max(E)
+
+    # Now check if yieldCurve goes negative anywhere
+    if( any(yieldCurve < 0) )
+    {
+      minE <- E[min(which(yieldCurve >= 0))]
+      maxE <- E[max(which(yieldCurve >= 0))]
+    }
+
+    eySplineFun <- splinefun( x=E, y=yieldCurve )  
+
+    # Find stat point for Fmsy
+    Emsy <- try( uniroot( f = eySplineFun, interval = c(minE, maxE),
+                          deriv = 1 )$root )
+    if(class(Emsy) == "try-error")
+    {
+      browser(cat("uniroot failed\n\n"))
+      Emsy <- 0
+    }
+
+    Emsy <- min(Emsy, maxE)
+
+    return(Emsy)
+  }
+
+  # calculate Fmsy for each species/stock
+  Emsy_sp <-  apply(  X = refCurves$Yeq_spe, FUN = .getEmsy,
+                      MARGIN = c(1,2) )
+
+  Yeq_spe <- refCurves$Yeq_spe
+  Yeq_spe[Yeq_spe < 0] <- NA
+
+  # Now we want the total stock area yield curve
+  Yeq_pe  <- apply( X  = refCurves$Yeq_spe, FUN = sum, MARGIN = c(2,3), 
+                    na.rm = T )
+  Yeq_pe[Yeq_pe == 0] <- NA
+  Yeq_pe[,1] <- 0
+  Emsy_p  <- apply( X = Yeq_pe, FUN = .getEmsy, MARGIN = 1)
+
+  # Now create a matrix to hold the species/stock values
+  # on each curve
+  spMat       <- matrix(0, nrow = nS, ncol = nP)
+  dimnames(spMat) <- dimnames(Emsy_sp)
+
+  EmsyRefPts  <- list(  yprEmsy_sp    = spMat,
+                        YeqEmsy_sp    = spMat,
+                        BeqEmsy_sp    = spMat,
+                        ReqEmsy_sp    = spMat,
+                        expBeqEmsy_sp = spMat,
+                        Umsy_sp       = spMat )
+
+  EmsyMSRefPts <- list( yprEmsy_sp    = spMat,
+                        YeqEmsy_sp    = spMat,
+                        BeqEmsy_sp    = spMat,
+                        ReqEmsy_sp    = spMat,
+                        expBeqEmsy_sp = spMat,
+                        Umsy_sp       = spMat,
+                        YeqEmsy_p     = rep(0,nP) )
+
+  
+  # Calculate ref points
+  EmsyRefPts$Emsy_sp    <- Emsy_sp
+  EmsyMSRefPts$EmsyMS_p   <- Emsy_p
+
+  # Loop and get each stock/species ref pt
+  for( p in 1:nP )
+  {
+    for( s in 1:nS )
+    {
+      tmp <- .calcEquil( f = Emsy_sp[s,p], obj = obj, type = "effort" )
+      EmsyRefPts$yprEmsy_sp[s,p]    <- tmp$ypr_sp[s,p]
+      EmsyRefPts$YeqEmsy_sp[s,p]    <- tmp$Yeq_sp[s,p]
+      EmsyRefPts$BeqEmsy_sp[s,p]    <- tmp$Beq_sp[s,p]
+      EmsyRefPts$expBeqEmsy_sp[s,p] <- tmp$expBeq_sp[s,p]
+      EmsyRefPts$NeqEmsy_sp[s,p]    <- tmp$Neq_sp[s,p]
+      EmsyRefPts$ReqEmsy_sp[s,p]    <- tmp$Req_sp[s,p]
+      EmsyRefPts$Umsy_sp[s,p]       <- tmp$Ueq_sp[s,p]
+
+      tmpMS <- .calcEquil( f = Emsy_p[p], obj = obj, type = "effort" )
+      EmsyMSRefPts$yprEmsy_sp[s,p]    <- tmpMS$ypr_sp[s,p]
+      EmsyMSRefPts$YeqEmsy_sp[s,p]    <- tmpMS$Yeq_sp[s,p]
+      EmsyMSRefPts$BeqEmsy_sp[s,p]    <- tmpMS$Beq_sp[s,p]
+      EmsyMSRefPts$expBeqEmsy_sp[s,p] <- tmpMS$expBeq_sp[s,p]
+      EmsyMSRefPts$NeqEmsy_sp[s,p]    <- tmpMS$Neq_sp[s,p]
+      EmsyMSRefPts$ReqEmsy_sp[s,p]    <- tmpMS$Req_sp[s,p]
+      EmsyMSRefPts$Umsy_sp[s,p]       <- tmpMS$Ueq_sp[s,p]
+
+    }
+    # Now sum species eq yield for complex opt yield
+    EmsyMSRefPts$YeqEmsy_p[p]         <- sum( EmsyMSRefPts$YeqEmsy_sp[,p] )
+  }
+
+  outlist <- list(  EmsyRefPts    = EmsyRefPts,
+                    EmsyMSRefPts  = EmsyMSRefPts )
+}
 
 # .getFmsy     ()
 # Purpose:     fit a spline function to f vs yield, then use a root finder to get Fmsy. 
