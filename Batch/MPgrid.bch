@@ -1,4 +1,4 @@
-# Batch Control File, created Thu Feb  6 14:20:19 2020 by makeBatchDesign() 
+# Batch Control File, created Thu Feb  6 15:22:32 2020 by makeBatchDesign() 
 parameter value
 #
 # Scenarios 
@@ -22,17 +22,19 @@ mp$mp1$mp$assess$spSingleStock TRUE
 mp$mp1$mp$assess$spDataPooled FALSE
 mp$mp1$mp$assess$spCoastwide FALSE
 mp$mp1$mp$assess$spFleetWeights c(.1,.5,1.0,1.0)
-mp$mp1$mp$assess$spShrinkqFleets NULL
-mp$mp1$mp$assess$spCondMLEqFleets c(1,2,3,4)
+mp$mp1$mp$assess$spShrinkqFleets c(3,4)
+mp$mp1$mp$assess$spCondMLEqFleets c(1,2)
 mp$mp1$mp$assess$spPhzBmsy 1
-mp$mp1$mp$assess$spPhzlnqShrink -1
+mp$mp1$mp$assess$spPhzlnqShrink 2
 mp$mp1$mp$assess$spPhztauObs -1
 mp$mp1$mp$assess$spPhzepslnUmsy_s -5
 mp$mp1$mp$assess$spPhzepslnUmsy_sp -7
 mp$mp1$mp$assess$spPhzdeltalnq_spf -6
 mp$mp1$mp$assess$spPhzdeltalnq_sf -4
 mp$mp1$mp$assess$spmlnq .5
-mp$mp1$mp$assess$spsdlnq .1
+mp$mp1$mp$assess$spsdlnq .01
+mp$mp1$mp$assess$spsdUmsy .02
+mp$mp1$mp$assess$spCVBmsy .1
 #
 # MP 2 : singleStock_omF_SSrefPts
 #
@@ -43,17 +45,19 @@ mp$mp2$mp$assess$spSingleStock TRUE
 mp$mp2$mp$assess$spDataPooled FALSE
 mp$mp2$mp$assess$spCoastwide FALSE
 mp$mp2$mp$assess$spFleetWeights c(.1,.5,1.0,1.0)
-mp$mp2$mp$assess$spShrinkqFleets NULL
-mp$mp2$mp$assess$spCondMLEqFleets c(1,2,3,4)
+mp$mp2$mp$assess$spShrinkqFleets c(3,4)
+mp$mp2$mp$assess$spCondMLEqFleets c(1,2)
 mp$mp2$mp$assess$spPhzBmsy 1
-mp$mp2$mp$assess$spPhzlnqShrink -1
+mp$mp2$mp$assess$spPhzlnqShrink 2
 mp$mp2$mp$assess$spPhztauObs -1
 mp$mp2$mp$assess$spPhzepslnUmsy_s -5
 mp$mp2$mp$assess$spPhzepslnUmsy_sp -7
 mp$mp2$mp$assess$spPhzdeltalnq_spf -6
 mp$mp2$mp$assess$spPhzdeltalnq_sf -4
 mp$mp2$mp$assess$spmlnq .5
-mp$mp2$mp$assess$spsdlnq .1
+mp$mp2$mp$assess$spsdlnq .01
+mp$mp2$mp$assess$spsdUmsy .02
+mp$mp2$mp$assess$spCVBmsy .1
 #
 # MP 3 : singleStock_estF_MSrefPts
 #
@@ -64,17 +68,19 @@ mp$mp3$mp$assess$spSingleStock TRUE
 mp$mp3$mp$assess$spDataPooled FALSE
 mp$mp3$mp$assess$spCoastwide FALSE
 mp$mp3$mp$assess$spFleetWeights c(.1,.5,1.0,1.0)
-mp$mp3$mp$assess$spShrinkqFleets NULL
-mp$mp3$mp$assess$spCondMLEqFleets c(1,2,3,4)
+mp$mp3$mp$assess$spShrinkqFleets c(3,4)
+mp$mp3$mp$assess$spCondMLEqFleets c(1,2)
 mp$mp3$mp$assess$spPhzBmsy 1
-mp$mp3$mp$assess$spPhzlnqShrink -1
+mp$mp3$mp$assess$spPhzlnqShrink 2
 mp$mp3$mp$assess$spPhztauObs -1
 mp$mp3$mp$assess$spPhzepslnUmsy_s -5
 mp$mp3$mp$assess$spPhzepslnUmsy_sp -7
 mp$mp3$mp$assess$spPhzdeltalnq_spf -6
 mp$mp3$mp$assess$spPhzdeltalnq_sf -4
 mp$mp3$mp$assess$spmlnq .5
-mp$mp3$mp$assess$spsdlnq .1
+mp$mp3$mp$assess$spsdlnq .01
+mp$mp3$mp$assess$spsdUmsy .02
+mp$mp3$mp$assess$spCVBmsy .1
 #
 # MP 4 : singleStock_omF_MSrefPts
 #
@@ -85,17 +91,19 @@ mp$mp4$mp$assess$spSingleStock TRUE
 mp$mp4$mp$assess$spDataPooled FALSE
 mp$mp4$mp$assess$spCoastwide FALSE
 mp$mp4$mp$assess$spFleetWeights c(.1,.5,1.0,1.0)
-mp$mp4$mp$assess$spShrinkqFleets NULL
-mp$mp4$mp$assess$spCondMLEqFleets c(1,2,3,4)
+mp$mp4$mp$assess$spShrinkqFleets c(3,4)
+mp$mp4$mp$assess$spCondMLEqFleets c(1,2)
 mp$mp4$mp$assess$spPhzBmsy 1
-mp$mp4$mp$assess$spPhzlnqShrink -1
+mp$mp4$mp$assess$spPhzlnqShrink 2
 mp$mp4$mp$assess$spPhztauObs -1
 mp$mp4$mp$assess$spPhzepslnUmsy_s -5
 mp$mp4$mp$assess$spPhzepslnUmsy_sp -7
 mp$mp4$mp$assess$spPhzdeltalnq_spf -6
 mp$mp4$mp$assess$spPhzdeltalnq_sf -4
 mp$mp4$mp$assess$spmlnq .5
-mp$mp4$mp$assess$spsdlnq .1
+mp$mp4$mp$assess$spsdlnq .01
+mp$mp4$mp$assess$spsdUmsy .02
+mp$mp4$mp$assess$spCVBmsy .1
 #
 # MP 5 : hierMultiStock_estF_SSrefPts
 #
@@ -118,7 +126,11 @@ mp$mp5$mp$assess$spPhzdeltalnq_sf 4
 mp$mp5$mp$assess$spPhzlnqShrink 1
 mp$mp5$mp$assess$spPhztauObs -1
 mp$mp5$mp$assess$spIGtau2alpha 1
-mp$mp5$mp$assess$spsdlnq .5
+mp$mp5$mp$assess$spsdlnq .1
+mp$mp5$mp$assess$spsdUmsy .02
+mp$mp5$mp$assess$spCVBmsy .2
+mp$mp5$mp$assess$sptauq .02
+mp$mp5$mp$assess$spsigU .02
 #
 # MP 6 : hierMultiStock_omF_SSrefPts
 #
@@ -141,7 +153,11 @@ mp$mp6$mp$assess$spPhzdeltalnq_sf 4
 mp$mp6$mp$assess$spPhzlnqShrink 1
 mp$mp6$mp$assess$spPhztauObs -1
 mp$mp6$mp$assess$spIGtau2alpha 1
-mp$mp6$mp$assess$spsdlnq .5
+mp$mp6$mp$assess$spsdlnq .1
+mp$mp6$mp$assess$spsdUmsy .02
+mp$mp6$mp$assess$spCVBmsy .2
+mp$mp6$mp$assess$sptauq .02
+mp$mp6$mp$assess$spsigU .02
 #
 # MP 7 : hierMultiStock_estF_MSrefPts
 #
@@ -164,7 +180,11 @@ mp$mp7$mp$assess$spPhzdeltalnq_sf 4
 mp$mp7$mp$assess$spPhzlnqShrink 1
 mp$mp7$mp$assess$spPhztauObs -1
 mp$mp7$mp$assess$spIGtau2alpha 1
-mp$mp7$mp$assess$spsdlnq .5
+mp$mp7$mp$assess$spsdlnq .1
+mp$mp7$mp$assess$spsdUmsy .02
+mp$mp7$mp$assess$spCVBmsy .2
+mp$mp7$mp$assess$sptauq .02
+mp$mp7$mp$assess$spsigU .02
 #
 # MP 8 : hierMultiStock_omF_MSrefPts
 #
@@ -187,7 +207,11 @@ mp$mp8$mp$assess$spPhzdeltalnq_sf 4
 mp$mp8$mp$assess$spPhzlnqShrink 1
 mp$mp8$mp$assess$spPhztauObs -1
 mp$mp8$mp$assess$spIGtau2alpha 1
-mp$mp8$mp$assess$spsdlnq .5
+mp$mp8$mp$assess$spsdlnq .1
+mp$mp8$mp$assess$spsdUmsy .02
+mp$mp8$mp$assess$spCVBmsy .2
+mp$mp8$mp$assess$sptauq .02
+mp$mp8$mp$assess$spsigU .02
 #
 # MP 9 : dataPooled_estF_SSrefPts
 #
@@ -247,7 +271,11 @@ mp$mp13$mp$assess$spSingleStock FALSE
 mp$mp13$mp$assess$spDataPooled FALSE
 mp$mp13$mp$assess$spCoastwide TRUE
 mp$mp13$mp$assess$spPhztauObs -1
-mp$mp13$mp$assess$spsdlnq .5
+mp$mp13$mp$assess$spsdlnq 1
+mp$mp13$mp$assess$spsdUmsy .05
+mp$mp13$mp$assess$spCVBmsy .2
+mp$mp13$mp$assess$sptauq .05
+mp$mp13$mp$assess$spsigU .05
 #
 # MP 14 : coastwide_omF_SSrefPts
 #
@@ -259,7 +287,11 @@ mp$mp14$mp$assess$spSingleStock FALSE
 mp$mp14$mp$assess$spDataPooled FALSE
 mp$mp14$mp$assess$spCoastwide TRUE
 mp$mp14$mp$assess$spPhztauObs -1
-mp$mp14$mp$assess$spsdlnq .5
+mp$mp14$mp$assess$spsdlnq 1
+mp$mp14$mp$assess$spsdUmsy .05
+mp$mp14$mp$assess$spCVBmsy .2
+mp$mp14$mp$assess$sptauq .05
+mp$mp14$mp$assess$spsigU .05
 #
 # MP 15 : coastwide_estF_MSrefPts
 #
@@ -271,7 +303,11 @@ mp$mp15$mp$assess$spSingleStock FALSE
 mp$mp15$mp$assess$spDataPooled FALSE
 mp$mp15$mp$assess$spCoastwide TRUE
 mp$mp15$mp$assess$spPhztauObs -1
-mp$mp15$mp$assess$spsdlnq .5
+mp$mp15$mp$assess$spsdlnq 1
+mp$mp15$mp$assess$spsdUmsy .05
+mp$mp15$mp$assess$spCVBmsy .2
+mp$mp15$mp$assess$sptauq .05
+mp$mp15$mp$assess$spsigU .05
 #
 # MP 16 : coastwide_omF_MSrefPts
 #
@@ -283,7 +319,11 @@ mp$mp16$mp$assess$spSingleStock FALSE
 mp$mp16$mp$assess$spDataPooled FALSE
 mp$mp16$mp$assess$spCoastwide TRUE
 mp$mp16$mp$assess$spPhztauObs -1
-mp$mp16$mp$assess$spsdlnq .5
+mp$mp16$mp$assess$spsdlnq 1
+mp$mp16$mp$assess$spsdUmsy .05
+mp$mp16$mp$assess$spCVBmsy .2
+mp$mp16$mp$assess$sptauq .05
+mp$mp16$mp$assess$spsigU .05
 #
 # MP 17 : totalAgg_estF_SSrefPts
 #

@@ -5,8 +5,8 @@ ctl$mpName "baseMultiStock"
 ctl$optimOutput FALSE
 ctl$quiet TRUE
 ctl$phaseMessages FALSE
-ctl$maxEval 1e4
-ctl$maxIter 1e4
+ctl$maxEval 1e5
+ctl$maxIter 1e5
 ctl$rSeed 123
 ctl$totReps 400
 ctl$nGoodReps 100
