@@ -1,76 +1,15 @@
-# Batch Control File, created Tue Jan 28 15:45:51 2020 by makeBatchDesign() 
+# Batch Control File, created Thu Feb  6 12:15:21 2020 by makeBatchDesign() 
 parameter value
 #
 # Scenarios 
 #
 # Scenario 1 : DER_fit 
 #
-scenario$scenario1$ctl$scenarioName 'DER_fit'
-scenario$scenario1$ctl$perfConF TRUE
-scenario$scenario1$ctl$noProcErr TRUE
-scenario$scenario1$ctl$totReps 1
-scenario$scenario1$ctl$nGoodReps 1
-scenario$scenario1$opMod$pT 100
-scenario$scenario1$opMod$effortMod 'Max'
+scenario$scenario1$opMod$pT 40
+scenario$scenario1$opMod$nGoodReps 100
+scenario$scenario1$opMod$totReps 400
 #
 #
 #
 # Management Procedures 
-#
-# MP 1 : perfConF0
-#
-mp$mp1$ctl$mpName 'perfConF0'
-mp$mp1$mp$omni$expParMult 0
-#
-# MP 2 : perfConF0.4
-#
-mp$mp2$ctl$mpName 'perfConF0.4'
-mp$mp2$mp$omni$expParMult 0.4
-#
-# MP 3 : perfConF0.8
-#
-mp$mp3$ctl$mpName 'perfConF0.8'
-mp$mp3$mp$omni$expParMult 0.8
-#
-# MP 4 : perfConF1.2
-#
-mp$mp4$ctl$mpName 'perfConF1.2'
-mp$mp4$mp$omni$expParMult 1.2
-#
-# MP 5 : perfConF1.6
-#
-mp$mp5$ctl$mpName 'perfConF1.6'
-mp$mp5$mp$omni$expParMult 1.6
-#
-# MP 6 : perfConF2
-#
-mp$mp6$ctl$mpName 'perfConF2'
-mp$mp6$mp$omni$expParMult 2
-#
-# MP 7 : perfConF2.4
-#
-mp$mp7$ctl$mpName 'perfConF2.4'
-mp$mp7$mp$omni$expParMult 2.4
-#
-# MP 8 : perfConF2.8
-#
-mp$mp8$ctl$mpName 'perfConF2.8'
-mp$mp8$mp$omni$expParMult 2.8
-#
-# MP 9 : perfConF3.2
-#
-mp$mp9$ctl$mpName 'perfConF3.2'
-mp$mp9$mp$omni$expParMult 3.2
-#
-# MP 10 : perfConF3.6
-#
-mp$mp10$ctl$mpName 'perfConF3.6'
-mp$mp10$mp$omni$expParMult 3.6
-#
-# MP 11 : perfConF4
-#
-mp$mp11$ctl$mpName 'perfConF4'
-mp$mp11$mp$omni$expParMult 4
-#
-#
 #

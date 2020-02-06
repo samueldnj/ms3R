@@ -171,6 +171,10 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   ctlList <- obj$ctlList
   assess  <- obj$mp$assess
 
+  # Pull reference points
+  refPtList   <- obj$rp
+  refPtType   <- ctlList$mp$hcr$refPtType
+
   # calculate projection time
   tMP <- obj$om$tMP
   pt  <- t - tMP + 1
@@ -409,6 +413,28 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   ctlList     <- obj$ctlList
   refPtList   <- obj$rp
 
+  refPtType   <- ctlList$mp$hcr$refPtType
+
+  # If refPts are SS, pull from Fmsy reference points
+  if( refPtType == "SS" )
+  {
+    refPts <- refPtList$FmsyRefPts
+
+    Yeq_sp <- refPts$YeqFmsy_sp
+    Beq_sp <- refPts$BeqFmsy_sp
+
+  }
+  # If MS, pull from EmsyMS reference point list
+  if( refPtType == "MS" )
+  {
+    refPts <- refPtList$EmsyMSRefPts
+
+    Yeq_sp <- refPts$YeqEmsy_sp
+    Beq_sp <- refPts$BeqEmsy_sp
+  }
+
+  mlnUmsy <- log(sum(Yeq_sp) / sum(Beq_sp))
+
   # Get complex dims
   nS  <- obj$om$nS
   nP  <- obj$om$nP
@@ -518,15 +544,17 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
         
         if(spSingleStock)
         {
-          mlnUmsy   <- log(refPtList$FmsyRefPts$Umsy_sp[s,p])
-          mBmsy_sp  <- refPtList$FmsyRefPts$BeqFmsy_sp[s,p,drop = FALSE]
+          mBmsy_sp  <- Beq
+
+          omFref_sp <- Yeq_sp / Beq_sp
         }
 
         if( spCoastwide & spDataPooled )
         {
-          mlnUmsy         <- mean(log(refPtList$FmsyRefPts$Umsy_sp))
           mBmsy_sp        <- refPtList$FmsyRefPts$BeqFmsy_sp[1,1,drop = FALSE]
-          mBmsy_sp[1,1]   <- sum(refPtList$FmsyRefPts$BeqFmsy_sp)
+          mBmsy_sp[1,1]   <- sum(Beq)
+
+          omFref_sp       <- sum(Yeq_sp) / sum(Beq_sp)
         }
 
 
@@ -568,7 +596,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
         amObj <- .applyTMBphase(  tmbLists = tmbLists,
                                   dllName = "hierProd",
                                   optimizer = "nlminb",
-                                  silent = ctlList$ctl$quiet,
+                                  silent = !ctlList$ctl$optimOutput,
                                   calcSD = TRUE,
                                   maxPhase = NULL,
                                   base_map = list(),
@@ -589,13 +617,24 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
           {
             obj$mp$assess$retroVB_tspft[pt,s,p,f,1:t]       <- amObj$repOpt$B_spt[1,1,]
             obj$mp$assess$retroq_tspf[pt,s,p,spFleetIdx[f]] <- amObj$repOpt$qhat_spf[1,1,f]
+
+          }
+          obj$mp$assess$retroUmsy_tsp[pt,s,p] <- amObj$repOpt$Umsy_sp
+          obj$mp$assess$retroBmsy_tsp[pt,s,p] <- amObj$repOpt$Bmsy_sp
+
+          if( ctlList$mp$hcr$Fsource == "est")
+          {
+            if( ctlList$mp$hcr$Fref == "Umsy" )
+              obj$mp$hcr$Fref_spt[s,p,t]      <- amObj$repOpt$Umsy_sp
+
+            if( ctlList$mp$hcr$Fref == "Fmsy" )
+              obj$mp$hcr$Fref_spt[s,p,t]      <- amObj$repOpt$Umsy_sp
           }
 
-          if( ctlList$mp$hcr$Fref == "Umsy" )
-            obj$mp$hcr$Fref_spt[s,p,t]      <- amObj$repOpt$Umsy_sp
-
-          if( ctlList$mp$hcr$Fref == "Fmsy" )
-            obj$mp$hcr$Fref_spt[s,p,t]      <- amObj$repOpt$Umsy_sp
+          if( ctlList$mp$hcr$Fsource == "om" )
+          {
+            obj$mp$hcr$Fref_spt[s,p,t]      <- omFref_sp[s,p]
+          } 
 
           if( ctlList$mp$hcr$Bref == "Bmsy" )
             obj$mp$hcr$Bref_spt[s,p,t]      <- amObj$repOpt$Bmsy_sp  
@@ -631,12 +670,24 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
               
             
           }
-          # Only one U/B value, so no need for loops here
-          if( ctlList$mp$hcr$Fref == "Umsy" )
-            obj$mp$hcr$Fref_spt[,,t]      <- amObj$repOpt$Umsy_sp
+          obj$mp$assess$retroUmsy_tsp[pt,,] <- amObj$repOpt$Umsy_sp
+          obj$mp$assess$retroBmsy_tsp[pt,,] <- amObj$repOpt$Bmsy_sp
 
-          if( ctlList$mp$hcr$Fref == "Fmsy" )
-            obj$mp$hcr$Fref_spt[,,t]      <- amObj$repOpt$Umsy_sp
+          # Only one U/B value, so no need for loops here
+          if( ctlList$mp$hcr$Fsource == "est")
+          {
+            if( ctlList$mp$hcr$Fref == "Umsy" )
+              obj$mp$hcr$Fref_spt[,,t]      <- amObj$repOpt$Umsy_sp
+
+            if( ctlList$mp$hcr$Fref == "Fmsy" )
+              obj$mp$hcr$Fref_spt[,,t]      <- amObj$repOpt$Umsy_sp
+          }
+
+          if( ctlList$mp$hcr$Fsource == "om" )
+          {
+            obj$mp$hcr$Fref_spt[,,t]      <- omFref_sp
+          } 
+
 
           if( ctlList$mp$hcr$Bref == "Bmsy" )
             obj$mp$hcr$Bref_spt[,,t]      <- amObj$repOpt$Bmsy_sp  
@@ -655,25 +706,33 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
 
   if( !spSingleStock & (nSS > 1 | nPP > 1) )
   {
-
-    mlnUmsy   <- mean(log(refPtList$FmsyRefPts$Umsy_sp))
     mBmsy_sp  <- refPtList$FmsyRefPts$expBeqFmsy_sp
+
+    omFref_sp <- Yeq_sp / Beq_sp
 
     # Add Bmsy across stocks if coastwide
     if( spCoastwide )
     {
       mBmsy_sp_new      <- mBmsy_sp[,1,drop = FALSE]
-      mBmsy_sp_new[,1]  <- apply( X = mBmsy_sp, FUN = sum, MARGIN = 1)
+      mBmsy_sp_new[,1]  <- apply( X = Beq_sp, FUN = sum, MARGIN = 1)
 
       mBmsy_sp <- mBmsy_sp_new
+
+      browser()
+
+      for( s in 1:nS )
+        omFref_sp[s,] <- sum(Yeq_sp[s,]) / sum(Beq_sp[s,])
     }
 
     if( spDataPooled )
     {
       mBmsy_sp_new <- mBmsy_sp[1,,drop = FALSE]
-      mBmsy_sp_new[1,] <- apply( X = mBmsy_sp, FUN = sum, MARGIN = 2 )
+      mBmsy_sp_new[1,] <- apply( X = Beq_sp, FUN = sum, MARGIN = 2 )
 
       mBmsy_sp <- mBmsy_sp_new
+
+      for( p in 1:nP )
+        omFref_sp[,p] <- sum(Yeq_sp[,p]) / sum(Beq_sp[,p])
     }
 
     tmbLists <- .makeDatParHierProd(  C_spt, 
@@ -738,7 +797,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     amObj <- .applyTMBphase(  tmbLists = tmbLists,
                               dllName = "hierProd",
                               optimizer = "nlminb",
-                              silent = ctlList$ctl$quiet,
+                              silent = !ctlList$ctl$optimOutput,
                               calcSD = TRUE,
                               maxPhase = NULL,
                               base_map = list(),
@@ -757,12 +816,23 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
         obj$mp$assess$retroq_tspf[pt,1:nSS,1:nPP,spFleetIdx[f]] <- amObj$repOpt$qhat_spf[,,f]
       }
 
-      # Now reference points
-      if( ctlList$mp$hcr$Fref == "Umsy" )
-        obj$mp$hcr$Fref_spt[1:nSS,1:nPP,t]      <- amObj$repOpt$Umsy_sp
+      obj$mp$assess$retroUmsy_tsp[pt,1:nSS,1:nPP] <- amObj$repOpt$Umsy_sp
+      obj$mp$assess$retroBmsy_tsp[pt,1:nSS,1:nPP] <- amObj$repOpt$Bmsy_sp
 
-      if( ctlList$mp$hcr$Fref == "Fmsy" )
-        obj$mp$hcr$Fref_spt[1:nSS,1:nPP,t]      <- amObj$repOpt$Umsy_sp
+      # Now reference points
+      if( ctlList$mp$hcr$Fsource == "est")
+      {
+        if( ctlList$mp$hcr$Fref == "Umsy" )
+          obj$mp$hcr$Fref_spt[1:nSS,1:nPP,t]      <- amObj$repOpt$Umsy_sp
+
+        if( ctlList$mp$hcr$Fref == "Fmsy" )
+          obj$mp$hcr$Fref_spt[1:nSS,1:nPP,t]      <- amObj$repOpt$Umsy_sp
+      }
+
+      if( ctlList$mp$hcr$Fsource == "om" )
+      {
+        obj$mp$hcr$Fref_spt[1:nSS,1:nPP,t]        <- omFref_sp
+      }
 
       if( ctlList$mp$hcr$Bref == "Bmsy" )
         obj$mp$hcr$Bref_spt[1:nSS,1:nPP,t]      <- amObj$repOpt$Bmsy_sp  
@@ -793,11 +863,24 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
       # Now reference points
       for( p in 1:nP )
       {
-        if( ctlList$mp$hcr$Fref == "Umsy" )
-          obj$mp$hcr$Fref_spt[1:nSS,p,t]      <- amObj$repOpt$Umsy_sp[1:nSS,1]
+        obj$mp$assess$retroUmsy_tsp[pt,1:nSS,p] <- amObj$repOpt$Umsy_sp[1:nSS,1]
+        obj$mp$assess$retroBmsy_tsp[pt,1:nSS,p] <- amObj$repOpt$Bmsy_sp[1:nSS,1]
 
-        if( ctlList$mp$hcr$Fref == "Fmsy" )
-          obj$mp$hcr$Fref_spt[1:nSS,p,t]      <- amObj$repOpt$Umsy_sp[1:nSS,1]
+
+        if( ctlList$mp$hcr$Fsource == "est")
+        { 
+          if( ctlList$mp$hcr$Fref == "Umsy" )
+            obj$mp$hcr$Fref_spt[1:nSS,p,t]      <- amObj$repOpt$Umsy_sp[1:nSS,1]
+
+          if( ctlList$mp$hcr$Fref == "Fmsy" )
+            obj$mp$hcr$Fref_spt[1:nSS,p,t]      <- amObj$repOpt$Umsy_sp[1:nSS,1]
+        }
+
+        if( ctlList$mp$hcr$Fsource == "om")
+        {
+          obj$mp$hcr$Fref_spt[1:nSS,p,t]      <- omFref_sp[1:nSS,p] 
+        }
+
 
         if( ctlList$mp$hcr$Bref == "Bmsy" )
           obj$mp$hcr$Bref_spt[1:nSS,p,t]      <- amObj$repOpt$Bmsy_sp[1:nSS,1]
@@ -831,11 +914,21 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
       # Now reference points
       for( s in 1:nS )
       {
-        if( ctlList$mp$hcr$Fref == "Umsy" )
-          obj$mp$hcr$Fref_spt[s,1:nP,t]      <- amObj$repOpt$Umsy_sp[1,1:nP]
+        obj$mp$assess$retroUmsy_tsp[pt,s,1:nP] <- amObj$repOpt$Umsy_sp[1,1:nP]
+        obj$mp$assess$retroBmsy_tsp[pt,s,1:nP] <- amObj$repOpt$Bmsy_sp[1,1:nP]
 
-        if( ctlList$mp$hcr$Fref == "Fmsy" )
-          obj$mp$hcr$Fref_spt[s,1:nP,t]      <- amObj$repOpt$Umsy_sp[1,1:nP]
+
+        if( ctlList$mp$hcr$Fsource == "est")
+        {
+          if( ctlList$mp$hcr$Fref == "Umsy" )
+            obj$mp$hcr$Fref_spt[s,1:nP,t]      <- amObj$repOpt$Umsy_sp[1,1:nP]
+
+          if( ctlList$mp$hcr$Fref == "Fmsy" )
+            obj$mp$hcr$Fref_spt[s,1:nP,t]      <- amObj$repOpt$Umsy_sp[1,1:nP]
+        }
+
+        if( ctlList$mp$hcr$Fsource == "om")
+          obj$mp$hcr$Fref_spt[s,1:nP,t]      <- omFref_sp[s,1:nP]
 
         if( ctlList$mp$hcr$Bref == "Bmsy" )
           obj$mp$hcr$Bref_spt[s,1:nP,t]      <- amObj$repOpt$Bmsy_sp[1,1:nP]
@@ -1267,6 +1360,8 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
                       retroSB_itspt   = array( NA, dim = c(nReps, pT, nS, nP, nT ) ),      # retroSB
                       retroVB_itspft  = array( NA, dim = c(nReps, pT, nS, nP, nF, nT ) ),  # retroVB
                       retroq_itspf    = array( NA, dim = c(nReps, pT, nS, nP, nF ) ),      # Retrospective catchability 
+                      retroUmsy_itspf = array( NA, dim = c(nReps, pT, nS, nP ) ),          # Retrospective Umsy 
+                      retroBmsy_itspf = array( NA, dim = c(nReps, pT, nS, nP ) ),          # Retrospective Bmsy 
                       maxGrad_itsp    = array( NA, dim = c(nReps, pT, nS, nP ) ),          # AM max gradient component
                       pdHess_itsp     = array( NA, dim = c(nReps, pT, nS, nP ) ) )         # AM pdHessian?
 
@@ -1405,6 +1500,8 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     blob$mp$assess$retroSB_itspt[i,,,,]   <- simObj$mp$assess$retroSB_tspt
     blob$mp$assess$retroVB_itspft[i,,,,,] <- simObj$mp$assess$retroVB_tspft
     blob$mp$assess$retroq_itspf[i,,,,]    <- simObj$mp$assess$retroq_tspf
+    blob$mp$assess$retroUmsy_itsp[i,,,]   <- simObj$mp$assess$retroUmsy_tsp
+    blob$mp$assess$retroBmsy_itsp[i,,,]   <- simObj$mp$assess$retroBmsy_tsp
     blob$mp$assess$maxGrad_itsp[i,,,]     <- simObj$mp$assess$maxGrad_tsp
     blob$mp$assess$pdHess_itsp[i,,,]      <- simObj$mp$assess$pdHess_tsp
 
@@ -2921,7 +3018,9 @@ combBarrierPen <- function( x, eps,
   mp$assess$retroR_tspt       <- array( NA, dim = c(pT, nS, nP, nT) )
   mp$assess$retroVB_tspft     <- array( NA, dim = c(pT, nS, nP, nF, nT) )
   mp$assess$retroq_tspf       <- array( NA, dim = c(pT, nS, nP, nF) )
-  mp$assess$maxGrad_tsp       <- array( NA, dim = c(pT, nS, nP) )
+  mp$assess$retroUmsy_tsp     <- array( NA, dim = c(pT, nS, nP ) )
+  mp$assess$retroBmsy_tsp     <- array( NA, dim = c(pT, nS, nP ) )
+  mp$assess$maxGrad_tsp       <- array( NA, dim = c(pT, nS, nP ) )
   mp$assess$pdHess_tsp        <- array( FALSE, dim = c(pT, nS, nP) )
 
   mp$hcr$LCP_spt              <- array( NA, dim = c(nS, nP, nT) )
