@@ -552,7 +552,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
         if( spCoastwide & spDataPooled )
         {
           mBmsy_sp        <- Beq_sp[1,1,drop = FALSE]
-          mBmsy_sp[1,1]   <- sum(Beq)
+          mBmsy_sp[1,1]   <- sum(Beq_sp)
 
           omFref_sp       <- sum(Yeq_sp) / sum(Beq_sp)
         }
