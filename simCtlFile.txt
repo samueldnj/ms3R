@@ -18,7 +18,7 @@ mp$assess$method "hierProd"
 mp$assess$idxPoints 3
 mp$assess$idxScalar 1
 mp$assess$idxFleets 4
-mp$assess$spCoastwide TRUE
+mp$assess$spCoastwide FALSE
 mp$assess$spDataPooled FALSE
 mp$assess$spSingleStock FALSE
 mp$assess$spPosPenFactor 1e5
@@ -53,7 +53,7 @@ mp$assess$spPhzlnqFree -1
 mp$assess$spPhzTVq -1
 mp$assess$spPhzProcErr -3
 mp$assess$spPhzSigmaProc -3
-mp$assess$spPhztauObs 1
+mp$assess$spPhztauObs -1
 mp$assess$spIGtau2alpha 1
 mp$assess$spIGtau2Mode 0.09
 mp$data$idxOn c(4)
