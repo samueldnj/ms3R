@@ -331,14 +331,16 @@ We implemented the omniscient manager as an optimisation
 of future fishing effort by area, with the objective
 function defined as
 \begin{equation}
-\mathcal{O} = \sum_{s,p} \left[ -\log(\bar{C}_{s,p,\cdot}) + 
-                  \mathcal{P}_{dep}(B_{s,p,t}/B_{MSY,s,p}) +
-                  \mathcal{P}_{closed}(C_{s,p,\cdot}) +
-                  \mathcal{P}_{AAV}(C_{s,p,\cdot}) +
-                  \mathcal{P}_{diff}(C_{s,p,\cdot}) +
-                  \mathcal{P}_{diff}(E_{s,p,\cdot}) +
-                  \mathcal{P}_{init}(C_{s,p,t_{MP}}) +
-                  \mathcal{P}_{init}(E_{s,p,t_{MP}}) \right]
+\mathcal{O}  = \sum_{s,p} \left[
+                  \begin{array}{l}
+                   -\log(\bar{C}_{s,p,\cdot}) + \\ 
+                  % \mathcal{P}_{dep}(B_{s,p,t}/B_{MSY,s,p}) +
+                  % \mathcal{P}_{closed}(C_{s,p,\cdot}) +
+                  % \mathcal{P}_{AAV}(C_{s,p,\cdot}) +
+                  % \mathcal{P}_{diff}(C_{s,p,\cdot}) +
+                    \mathcal{P}_{diff}(E_{p,\cdot}) + \\
+                  % \mathcal{P}_{init}(C_{s,p,t_{MP}}) +
+                    \mathcal{P}_{init}(E_{p,t_{MP}}) \end{array} \right]
 \end{equation}
 where the objective is to maxmimise average catch 
 $\bar{C}_{s,p,\cdot}$ for each stock and species over the

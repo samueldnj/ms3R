@@ -633,7 +633,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
 
           if( ctlList$mp$hcr$Fsource == "om" )
           {
-            obj$mp$hcr$Fref_spt[s,p,t]      <- omFref_sp[s,p]
+            obj$mp$hcr$Fref_spt[s,p,t]      <- omFref_sp
           } 
 
           if( ctlList$mp$hcr$Bref == "Bmsy" )

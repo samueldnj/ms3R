@@ -1,9 +1,53 @@
 # Introduction
 
+FROM ABSTRACT
+
+*Management decisions in multi-species fisheries are often made on a single-species
+and single-stock basis, with TACs often set by considering the output of 
+a single-species stock assessment model. Single-species assessment methods, at best, 
+only implicitly include multi-species interactions through natural mortality and 
+recruitment process errors, which are not suitable for capturing technical interactions 
+between multiple species and fishing gear. Ignorance of technical interactions when 
+setting TACs will often lead to sub-optimal fishery outcomes, such as under-utilised TACs from choke
+effects in output-controlled fisheries. In turn, these sub-optimal outcomes may
+degrade the information linkage between stock-status and management decisions
+by lowering the statistical power of catch data, reducing the efficacy
+of stock assessment models. These issues are further compounded in situations where 
+data or management resources are limited, exemplified by short time-series of 
+fishery independent observations or limited biologica data, or the 
+structure of the management decision is mismatched to the spatial structure of the system, 
+exemplified by aggregating multiple spatial stocks or species into one management unit. In
+those situations, assessments may either 
+In this paper, we simulate a spatially structured, multi-species flatfish fishery, and
+test the performance of multiple management procedures that are based on assessment methods 
+often used to deal with data limitations in multi-species fisheries, including 
+data-pooling across spatial strata or across multiple species. Procedure performance
+is measured as absolute or relative loss in catch and biomass compared to the outcome 
+of omniscient manager simulations. To include technical interactions in our management system,
+we defined harvest control rules that used the equilibrum fishing mortality rates 
+derived from omniscient manager simulations. We found that...*
+
+
 Management decisions in multi-species fisheries are often 
-made on a species-by-species basis. This ignores the fact that
-fishing is inherently non-selective and in most fisheries,
-fishing effort intersects multiple interacting species.
+made on a species-by-species basis. Single-species management
+often ignores the fact that fishing is inherently non-selective,
+and, in most cases, fishing effort intersects multiple 
+interacting species. Management decisions, such as total
+allowable catches (TACs) are often made for
+a given species based on the output of species specific
+stock assessments, if they even exist. Those single-species 
+assessments, at best, are only able to implicity include 
+multi-species ecological interactions in the form of 
+natural mortality rates and recruitment process errors, and
+are unable to capture anything about technical interactions.
+
+Ignorance of technical interactions while setting TACs will 
+often lead to sub-optimal fishery outcomes. For example, 
+under-utilisation of TAC could occur when multiple quota species
+are caught in the same fishing effort, creating a choke point
+on the management system (REF). In turn, under-utilised TACs
+will create uninformative catch data, which may degrade stock
+assessment performance over successive fishing seasons.
 
 - Something about bycatch, lower commercial value species,
 less data so expensive procedures like MSE are often

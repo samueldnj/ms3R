@@ -94,7 +94,7 @@ opMod$allocYears 20
 opMod$alphaU .05
 opMod$commGears c(2)
 opMod$effortMod "Max"
-opMod$histFile "fit_06112019105141"
+opMod$histFile "fit_27012020154808"
 opMod$phaseInObsErrMult 6
 opMod$price_s c(Dover=1.33,English=1.37,Rock=1.65,Petrale=3.22,Arrowtooth=0.37)
 opMod$projObsErrMult 1.0
