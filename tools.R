@@ -218,10 +218,13 @@ readBatchInfo <- function(batchDir = here("Outputs") )
   simPath <- file.path(simFolder,folder,simFileName)
   load ( file = simPath )
 
+
   # Assign to global environment
   assign( "blob",blob,pos=1 )
 
   message(" (.loadSim) Simulation in ", folder, " loaded and placed in global environment as blob.\n", sep="" )
+
+  return( file.path(simFolder,folder) )
 } # END .loadFit()
 
 # loadFit()

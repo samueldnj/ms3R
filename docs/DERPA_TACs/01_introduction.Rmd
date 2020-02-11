@@ -32,22 +32,29 @@ Management decisions in multi-species fisheries are often
 made on a species-by-species basis. Single-species management
 often ignores the fact that fishing is inherently non-selective,
 and, in most cases, fishing effort intersects multiple 
-interacting species. Management decisions, such as total
-allowable catches (TACs) are often made for
+interacting species. Management decisions, such as setting 
+total allowable catches (TACs), are often made for
 a given species based on the output of species specific
 stock assessments, if they even exist. Those single-species 
 assessments, at best, are only able to implicity include 
 multi-species ecological interactions in the form of 
-natural mortality rates and recruitment process errors, and
-are unable to capture anything about technical interactions.
+natural mortality rates and recruitment process errors 
+[@albertsen2017connecting], and are completely unable 
+to capture technical interactions between species.
 
 Ignorance of technical interactions while setting TACs will 
-often lead to sub-optimal fishery outcomes. For example, 
-under-utilisation of TAC could occur when multiple quota species
+often lead to sub-optimal fishery outcomes [@ono2017management;
+@punt2002evaluation]. For example, under-utilisation of TAC 
+could occur when multiple quota species
 are caught in the same fishing effort, creating a choke point
-on the management system (REF). In turn, under-utilised TACs
-will create uninformative catch data, which may degrade stock
-assessment performance over successive fishing seasons.
+on the management system [@baudron2015adverse]. In turn, 
+under-utilised TACs may create uninformative catch data, 
+which may further degrade stock assessment performance 
+over successive fishing seasons creating a reinforcing
+feedback loop that successively reduces data quality. 
+If unarrested, such feedback loops would weaken the 
+information linkage between management actions and 
+stock status.
 
 - Something about bycatch, lower commercial value species,
 less data so expensive procedures like MSE are often
@@ -90,7 +97,9 @@ independent single-stock assessments [@ono2017management].
 Similarly, research on hierarchical stock assessment procedures
 has been focused on assessment bias under different
 levels of model complexity [@punt2011among; @jiao2016integrating;
-@jiao2011poor; @jiao2009hierarchical; @johnson2018evaluating].  
+@jiao2011poor; @jiao2009hierarchical; @johnson2018evaluating].
+
+- Paragraph on spatial scale of management, bring in @punt2018estimates
 
 In this paper, we evaluate management procedures for setting 
 catch limits in a spatially diverse multi-species flatfish fishery. 
