@@ -65,7 +65,7 @@ mp$hcr$Bref "Bmsy"
 mp$hcr$Fref "Umsy"
 mp$hcr$LCP .4
 mp$hcr$UCP .6
-mp$omni$nKnots 11
+mp$omni$nKnots 9
 mp$omni$maxF 1.0
 mp$omni$maxE 120
 mp$omni$maxAAV .25

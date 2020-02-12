@@ -1457,6 +1457,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
         message( "(.mgmtProc) Time step t = ", t ," complete\n", sep = "")
 
       } # END t loop
+      gc()
     } # END feedback sim for replicate i
 
     # Fill blob for the current replicate
@@ -1546,6 +1547,8 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
       message( " (.mgmtProc) Completed ", finishedGood, " of ", ctlList$ctl$nGoodReps, 
                 " replicates with all convergent AMs.")
     }
+    # Clear memory of extraneous garbage
+    gc()
   } # END i loop
 
   blob$nSims <- i
