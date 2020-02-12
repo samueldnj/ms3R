@@ -6,8 +6,8 @@ parameter value
 # Scenario 1 : DER_fit 
 #
 scenario$scenario1$opMod$pT 32
-scenario$scenario1$opMod$nGoodReps 10
-scenario$scenario1$opMod$totReps 40
+scenario$scenario1$ctl$nGoodReps 10
+scenario$scenario1$ctl$totReps 40
 #
 #
 #
