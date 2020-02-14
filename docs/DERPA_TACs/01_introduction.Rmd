@@ -1,79 +1,53 @@
 # Introduction
 
-FROM ABSTRACT
-
-*Management decisions in multi-species fisheries are often made on a single-species
-and single-stock basis, with TACs often set by considering the output of 
-a single-species stock assessment model. Single-species assessment methods, at best, 
-only implicitly include multi-species interactions through natural mortality and 
-recruitment process errors, which are not suitable for capturing technical interactions 
-between multiple species and fishing gear. Ignorance of technical interactions when 
-setting TACs will often lead to sub-optimal fishery outcomes, such as under-utilised TACs from choke
-effects in output-controlled fisheries. In turn, these sub-optimal outcomes may
-degrade the information linkage between stock-status and management decisions
-by lowering the statistical power of catch data, reducing the efficacy
-of stock assessment models. These issues are further compounded in situations where 
-data or management resources are limited, exemplified by short time-series of 
-fishery independent observations or limited biologica data, or the 
-structure of the management decision is mismatched to the spatial structure of the system, 
-exemplified by aggregating multiple spatial stocks or species into one management unit. In
-those situations, assessments may either 
-In this paper, we simulate a spatially structured, multi-species flatfish fishery, and
-test the performance of multiple management procedures that are based on assessment methods 
-often used to deal with data limitations in multi-species fisheries, including 
-data-pooling across spatial strata or across multiple species. Procedure performance
-is measured as absolute or relative loss in catch and biomass compared to the outcome 
-of omniscient manager simulations. To include technical interactions in our management system,
-we defined harvest control rules that used the equilibrum fishing mortality rates 
-derived from omniscient manager simulations. We found that...*
-
 
 Management decisions in multi-species fisheries are often 
 made on a species-by-species basis. Single-species management
 often ignores the fact that fishing is inherently non-selective,
-and, in most cases, fishing effort intersects multiple 
-interacting species. Management decisions, such as setting 
-total allowable catches (TACs), are often made for
+and therefore in most cases, fishing effort results in the
+simultaneous catch of multiple species, which are said to 
+have technical interactions [@punt2002evaluation]. Management decisions, 
+such as setting total allowable catches (TACs), are often made for
 a given species based on the output of species specific
 stock assessments, if they even exist. Those single-species 
 assessments, at best, are only able to implicity include 
 multi-species ecological interactions in the form of 
 natural mortality rates and recruitment process errors 
-[@albertsen2017connecting], and are completely unable 
-to capture technical interactions between species.
-
-Ignorance of technical interactions while setting TACs will 
+[@albertsen2017connecting], but are completely unable 
+to explicitly capture technical interactions. Ignorance 
+of technical interactions while setting TACs will 
 often lead to sub-optimal fishery outcomes [@ono2017management;
 @punt2002evaluation]. For example, under-utilisation of TAC 
-could occur when multiple quota species
-are caught in the same fishing effort, creating a choke point
-on the management system [@baudron2015adverse]. In turn, 
-under-utilised TACs may create uninformative catch data, 
-which may further degrade stock assessment performance 
-over successive fishing seasons creating a reinforcing
-feedback loop that successively reduces data quality. 
-If unarrested, such feedback loops would weaken the 
-information linkage between management actions and 
-stock status.
-
-- Something about bycatch, lower commercial value species,
-less data so expensive procedures like MSE are often
-left out in the cold.
+could occur when multiple technically interacting quota species 
+are caught with very different gear availability (catchability), 
+leading to one species quota being filled faster than the others 
+and creating a choke point in the management system 
+[@baudron2015adverse]. In turn, the under-utilised TACs may 
+create uninformative catch data, which can degrade stock assessment 
+performance over successive fishing seasons, and may 
+create a reinforcing feedback loop that will lead to 
+reduced data quality in the long term. If unarrested, 
+data quality reducing feedback loops 
+would weaken the information linkage required to 
+take management actions commensurate with stock status.
 
 
+Difficulties linking management decisions to stock 
+status are compounded when data or management resources 
+are limited [@Carruthers2014Evaluating].
 Data limitations or low commercial value often preclude 
-extending the best management practices (closed loop sim, 
-aka Management Strategy Evaluation) to all species in a multi-species
-fishery. Data pooling is often used to extend assessments to 
+extending the best management practices (e.g., 
+Management Strategy Evaluation) to all species in a multi-species
+fishery. Data pooling is often used to extend stock assessments to 
 complexes of multiple stocks of similar, interacting species
 of fish, where similar may be defined in a biological
-sense, or in a sens more related to their management 
-[@gaichas2012assembly]. More recently, hierarchical stock 
-assessment models are being 
-applied to extend assessments in multi-species and multi-stock 
-complexes where better data exists for some subgroup of the complex, 
-and there are biological reasons to expect biological parameters
-to be similar among complex members [@thorson2015giants]. For example, 
+sense, or in a sense more related to overlapping management unit 
+boundaries [@gaichas2012assembly]. More recently, hierarchical stock 
+assessment models are being applied to extend assessments 
+in multi-species and multi-stock complexes where better data exists 
+for some subgroup of the complex, and there are biological reasons 
+to expect biological parameters to be similar among species in
+the complex [@thorson2015giants]. For example, 
 estimates of management parameters and stock status are improved in 
 scenarios where data is of low statistical power (i.e., short 
 time series or noisy observations) when hierarchical multi-stock 
@@ -84,43 +58,58 @@ models fit to the same data [@johnson2018evaluating].
 Although hierarchical stock assessments perform better 
 on limited data under simulation self-tests than single 
 stock methods, it is unclear if hierarchical stock assessment
-methods lead to better management outcomes either single-stock
-or data-pooled methods. Previous research on managment procedure
-performance in multi-stock and multi-species fisheries
-has been focused on spatial scale mismatches between
-the management procedure and the true underlying stock
-dynamics [@benson2015evaluating], or on the comparative 
-performance when considering technical interactions 
-between target and non-target (bycatch) species 
-when setting catch limits based on 
-independent single-stock assessments [@ono2017management]. 
-Similarly, research on hierarchical stock assessment procedures
-has been focused on assessment bias under different
-levels of model complexity [@punt2011among; @jiao2016integrating;
+methods lead to better management outcomes than single-stock
+or data-pooled methods. Previous research on stock assessment
+and managment procedure performance in multi-stock and multi-species 
+fisheries have been focused on mismatches between the spatial 
+scales of assessment or management and the true underlying stock
+dynamics [@benson2015evaluating; @punt2018estimates], or on the 
+comparative performance when considering technical interactions 
+between target and non-target (bycatch) species when setting 
+catch limits based on independent single-species stock 
+assessments [@ono2017management]. Further, research on 
+hierarchical stock assessment procedures has been focused 
+on assessment bias under different levels of model 
+complexity [@punt2011among; @jiao2016integrating;
 @jiao2011poor; @jiao2009hierarchical; @johnson2018evaluating].
 
-- Paragraph on spatial scale of management, bring in @punt2018estimates
 
-In this paper, we evaluate management procedures for setting 
-catch limits in a spatially diverse multi-species flatfish fishery. 
-We condition our simulated fishery on the complex of 
-Dover, English, and Rock soles in British Columbia, 
-Canada [*Pleuronectidae spp*]. 
-These three species co-occur along the BC coast, are caught 
+In this paper, we simulated a spatially structured, 
+multi-species flatfish fishery, and tested the performance 
+of multiple management procedures that were based on assessment 
+methods that often used to deal with data limitations in 
+multi-species fisheries. We conditioned our simulated fishery 
+on the complex of Dover, English, and Rock soles in British Columbia, 
+Canada [*Pleuronectidae spp*]. These three species 
+co-occur along the BC coast, are caught 
 together in directed trawl fisheries, and are surveyed by 
 the same multi-species trawl survey. While time series
 of catch and commercial CPUE exist for all species and 
-areas since the 1950s, all observation series are quite 
-noisy and some are very short, making this complex a 
-good candidate for management with a hierarchical stock
-assessment model. Our closed loop simulation experiments 
-compare the performance of management procedures built 
-around single-stock, data-pooled, and hierarchical 
-multi-stock assessment models to the outcomes from fishing
-effort allocated by an omniscient manager [@walters1998evaluation], 
-who wants to maximise average catch subject to 
-constraints on catch and effort variability, and stock status.
-
+areas since the 1950s, all fishery independent observation 
+series are quite noisy and some are very short, making this 
+complex a good candidate for data limited stock assessment 
+methods. Assessment methods we tested included data-pooling 
+across spatial strata, across multiple species within a 
+stratum, or total aggregation, as well as hierarchical multi-species 
+and multi-stock models that used multi-level shrinkage priors 
+to share information on productivity and survey catchability 
+parameters among replicates [@johnson2018evaluating]. Procedure 
+performance was measured as absolute or relative loss in catch and 
+biomass compared to the outcome of simulations where an 
+omniscient manager is maximising total system yield 
+[@walters1998evaluation]. To include technical interactions 
+in our simulated fishery system, we derived a commercial
+catchability ratio between fishing effort and mortality
+for each species/stock combination, and allowed future
+fishing effort to increase until at least one TAC was fully
+utilised, which represents a fully integrated output 
+control fishery with technical interactions, as is 
+the case in British Columbia. Total allowable catches 
+were set as constant removal rates based on either 
+multi-species optimal harvest rates, derived from 
+adding single-species yield curves with respect
+to effort [@mueter2006using], or traditional 
+single-species optimal harvest rates. 
 
 
 

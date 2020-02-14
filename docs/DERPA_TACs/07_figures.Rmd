@@ -1,1 +1,14 @@
 # Figures
+
+
+1. Figure of historical period spawning biomass
+
+2. Yield curves
+
+3. Omniscient manager sim outputs
+
+4. Sample single replicate projection and AM fit (4x4)
+
+5. Sample simulation envelopes (4x4)?
+
+6. Loss functions (4x4)

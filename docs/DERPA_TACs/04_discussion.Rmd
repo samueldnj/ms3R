@@ -22,6 +22,13 @@ changes in obs error variances?
 Second takeaway: TAC utilisation issue? Optimal biomass
 under Fmsy_MS
 
+This indicates that,
+under the omniscient manager's effort allocations, all stocks 
+satisfy Canadian sustainable fisheries framework criteria
+for fishery management despite targeting a fishing
+mortality rate higher than the equilibrium 
+[@DFO2006A-Harvest-Strat].
+
 Sensitivity:
 
 Limitations:

@@ -190,8 +190,8 @@ readBatchInfo <- function(batchDir = here("Outputs") )
   message("Info file created at ", outFile, ".\n", sep = "")
 } # END .makeInfoFile()
 
-# loadFit()
-# Loads the nominated fit reports object into memory, 
+# loadSim()
+# Loads the nominated sim reports object into memory, 
 # so that plot functions can be called
 # inputs:   fit=ordinal indicator of sim in project folder,
 #               or character giving the name of the folder
@@ -225,7 +225,42 @@ readBatchInfo <- function(batchDir = here("Outputs") )
   message(" (.loadSim) Simulation in ", folder, " loaded and placed in global environment as blob.\n", sep="" )
 
   return( file.path(simFolder,folder) )
-} # END .loadFit()
+} # END .loadSim()
+
+# loadLoss()
+# Loads the nominated loss reports object into memory, 
+# so that plot functions can be called
+# inputs:   sim=ordinal indicator of sim in project folder,
+#               or character giving the name of the folder
+# ouputs:   NULL
+# usage:    Prior to plotting simulation outputs
+.loadLoss <- function( sim = 1, folder = "" )
+{
+  simFolder <- here::here(file.path("Outputs",folder))
+
+  # List directories in project folder, remove "." from list
+  if(is.numeric(sim))
+  {
+    dirList <- list.dirs (path=simFolder,full.names = FALSE,
+                          recursive=FALSE)
+    # Restrict to sim_ folders, pick the nominated simulation
+    simList <- dirList[grep(pattern="sim_",x=dirList)]
+    # Pick of folder number
+    folder <- simList[sim]
+  }
+  else folder <- sim
+
+  # Load the nominated blob
+  lossFileName <- paste("loss.RData",sep="")
+  lossPath <- file.path(simFolder,folder,lossFileName)
+  load ( file = lossPath )
+
+
+  message(" (.loadLoss) Simulation loss calculations in ", folder, " loaded.\n", sep="" )
+
+  return(outList)
+} # END .loadLoss()
+
 
 # loadFit()
 # Loads the nominated fit reports object into memory, 

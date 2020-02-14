@@ -11,6 +11,109 @@
 # <><><><><><><><><><><><><><><><><><><><><><><><><><><>
 
 
+# plotLoss()
+# Plots relative and absolute loss
+# for a given simulation. Requires
+# loss for a given baseline to have
+# been calculated first, and saved
+# into the sim folder
+plotLoss <- function( sim = 1, 
+                      groupFolder = "shortGrid",
+                      lossType    = "rel",
+                      var         = "SB_ispt" )
+{
+  # Load loss reports
+  objLoss <- .loadLoss(sim = sim, groupFolder)
+
+  .loadSim(sim = sim, folder = groupFolder )
+
+  if(lossType == "rel" )
+  {
+    loss_ispt <- objLoss$lossRel[[var]]
+    yLab      <- "Relative Loss"
+  }
+
+  if(lossType == "abs" )
+  {
+    loss_ispt <- objLoss$lossRaw[[var]]
+    yLab      <- "Absolute loss (kt)"
+  }
+
+  # Pull model dimensions
+  tMP <- objLoss$tMP
+  nT  <- objLoss$nT
+  nF  <- objLoss$nF
+  nS  <- objLoss$nS
+  nP  <- objLoss$nP
+  pT  <- objLoss$pT
+
+  
+
+  # Time steps
+  fYear   <- blob$ctlList$opMod$fYear
+  tdxPlot <- tMP:nT
+  years   <- seq(from = fYear, by = 1, length.out = nT)
+
+  # Plot window - just for loss right now
+  par(  mfcol = c(nS + 1, nP + 1),
+        mar = c(.5,.5,.5,.5),
+        oma = c(3,3,3,3) )
+
+  speciesNames  <- c(blob$om$speciesNames,"data-pooled")
+  stockNames    <- c(blob$om$stockNames,"coast-wide")
+
+  loss_qspt <- apply( X = loss_ispt, FUN = quantile,
+                      probs = c(0.025, 0.5, 0.975),
+                      MARGIN = c(2,3,4) )
+
+  plotYrs <- years[tdxPlot]
+
+  # Loop and plot
+  for( s in 1:(nS+1) )
+    for( p in 1:(nP+1) )
+    {
+      maxLoss <- 1
+      
+
+      plot( x = range(years[tdxPlot]), y = c(-maxLoss,maxLoss),
+            type = "n", axes = FALSE  )
+      mfg <- par("mfg")
+      if( mfg[1] == mfg[3] )
+        axis( side = 1 )
+      if( mfg[2] == 1 )
+        axis( side = 2, las = 1)
+      if( mfg[1] == 1 )
+      {
+        mtext( side = 3, text = speciesNames[s] )
+      }
+      if( mfg[2] == mfg[4] )
+      {
+        mtext( side = 4, text = stockNames[p] )
+      }
+      grid()
+      box()
+
+      abline( v = years[tMP], lty = 2, lwd = 3 )
+
+      polygon(  x = c(years,rev(years)),
+                y = c(loss_qspt[1,s,p,],rev(loss_qspt[3,s,p,])),
+                border = NA, col = scales::alpha("grey10",.4) )
+      lines(  x = years, y = loss_qspt[2,s,p,],
+              col = "black", lwd = 3 )
+      grid()
+
+      abline( h = 0, lty = 2, lwd = 1 )
+
+
+    }
+    mtext( side = 1, text = "Year", line = 2, outer = TRUE )
+    mtext( side = 2, text = yLab, line = 2, outer = TRUE )
+
+
+} # END plotLoss()
+
+
+
 # plotEffYieldCurves()
 # Function for plotting effort based
 # yield curves for each species and

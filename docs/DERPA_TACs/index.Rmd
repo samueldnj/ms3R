@@ -45,6 +45,7 @@ geometry: letterpaper
 toc: false
 fontsize: 12pt
 lineno: true
+csl-refs: true
 numbersections: false
 appendix: false
 output: 
@@ -121,7 +122,6 @@ options(knitr.kable.NA = '')
 
 ```{r load-libraries, cache=FALSE}
 # add other packages here:
-library(csasdown)
 library(kableExtra)
 library(tidyverse)
 library(coda)

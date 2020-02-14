@@ -2001,10 +2001,9 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     Cbar_sp <- apply( X = Cproj_spt, FUN = mean, MARGIN = c(1,2))
     totCbar <- mean( apply(X = Cproj_spt, FUN = sum, MARGIN = 3 ) )
 
-
     # Total obj function for each stock/species
     objFun_sp <- -  avgCatWt * log(1e3*Cbar_sp) + 
-                    closedWt * closedCount_sp
+                    (closedWt * closedCount_sp)^mp$omni$linBeta
 
     if( mp$omni$penType == "barrier" )
     {
@@ -2174,7 +2173,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     # closures/low catch
     opt <- optim( par = initPars, fn = getObjFunctionVal,
                   method = "BFGS", obj = obj,
-                  control=list(maxit=3000, reltol=0.01 ) )
+                  control=list(maxit=10000, reltol=0.01 ) )
                   # control=list(maxit=3000, reltol=0.001,ndeps=c(.01,.01) ) )
 
     # opt <- optim( par = opt$par, fn = getObjFunctionVal,

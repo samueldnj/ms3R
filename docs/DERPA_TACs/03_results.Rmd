@@ -1,10 +1,44 @@
 # Results
 
-## Omniscient manager simulations
+## Omniscient manager simulations and multispecies equilibria
 
-### Implied harvest control rules
+We found that the median biomass of each species 
+under the omniscient manager was close to the equilibrium 
+biomass associated with the multispecies maximum 
+sustainable yield in each area [figure]. In each area, as 
+predicted by the equilibrium calculations, the optimal effort 
+for the complex results in overfishing of the Dover sole
+stocks.
+
+Despite the tendency of the manager to increase fishing
+mortality rates to above the single species $F_{MSY}$
+for all Dover sole stocks, very few simulations actually push 
+Dover sole into an overfished state. For all stocks of all 
+species, the probability of being below 40% of single species
+$B_{MSY}$ is at most 1% (TABLE), while probability of being
+above 80% of $B_{MSY}$ is at least 54%. 
+
+Tendency to reduce effort to very low in first few years
+for some replicates, despite penalty in objective 
+function -- check sims, is catchability changing??
+
 
 ## MP performance
+
+ToDo:
+
+1. Write functions to generate tables of loss for
+all 16 stock definitions under each run - short/med/long term?
+2. Plot time series of loss distributions for each 
+run, could probably combine multiple AM configs into 
+a single plot for pub. (3x3 of ss/hier MSMS, 
+and then extra row/col for dp and cw)
+3. Do we still test obs error differences?
+
+### Yield loss
+
+
+### Biomass loss
 
 
 

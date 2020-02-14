@@ -1,1 +1,10 @@
 # Tables
+
+
+1. Table of stock status and reference points from hierSCAL
+
+2. Table of MPs/OMs
+
+3. Table of omniscient manager performance
+
+4. Tables of loss

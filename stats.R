@@ -15,7 +15,8 @@
 calcLoss <- function( sim         = 1,
                       baseline    = "sim_parBatomniRuns_short_EmsyMult3",
                       groupFolder = "ms3R_stochasticRuns",
-                      lossVars    = c("C_ispt","SB_ispt") )
+                      lossVars    = c("C_ispt","SB_ispt"),
+                      output      = TRUE )
 {
   # First, load the sim that we want
   # to calculate loss for
@@ -27,11 +28,14 @@ calcLoss <- function( sim         = 1,
   # figure out which reps we want
   goodReps  <- blob$goodReps
   nReps     <- sum(goodReps)
+  totReps   <- dim(lossSim$om$SB_ispt)[1]
 
   # Now load the baseline (omniscient manager)
   .loadSim( sim = baseline, folder = groupFolder )
 
   baseSim <- blob
+
+
 
   # Model dimensions
   tMP <- lossSim$om$tMP
@@ -55,20 +59,6 @@ calcLoss <- function( sim         = 1,
   lossRaw         <- baseLineStates
   lossRel         <- baseLineStates
 
-  aggBaseStates   <- baseLineStates
-  aggSimStates    <- baseLineStates
-  aggLossRel      <- baseLineStates
-  aggLossRaw      <- baseLineStates
-
-  dpBaseStates   <- baseLineStates
-  dpSimStates    <- baseLineStates
-  dpLossRel      <- baseLineStates
-  dpLossRaw      <- baseLineStates
-
-  cwBaseStates   <- baseLineStates
-  cwSimStates    <- baseLineStates
-  cwLossRel      <- baseLineStates
-  cwLossRaw      <- baseLineStates
 
   # Pull control list settings for
   # coastwide and data pooled
@@ -79,118 +69,55 @@ calcLoss <- function( sim         = 1,
   # Loop over 
   for( varIdx in 1:length(lossVars) )
   {
+    # Clean arrays for base and sim states
+    baseState_ispt <- array(NA, dim = c(nReps,nS+1,nP+1,nT),
+                                dimnames = list(  rep = which(goodReps),
+                                                  species = c(speciesNames,"dataPooled"),
+                                                  stock   = c(stockNames,"coastWide"),
+                                                  tdx     = 1:nT ) )
+    simState_ispt  <- baseState_ispt
+
+    # Get variable
     var <- lossVars[varIdx]
-    baseLineStates[[var]] <- baseSim$om[[var]][goodReps,,,1:nT]
-    dimnames(baseLineStates[[var]]) <- list(  which(goodReps), 
-                                              speciesNames, 
-                                              stockNames,
-                                              1:nT )
-    simStates[[var]]      <- lossSim$om[[var]][goodReps,,,1:nT]
-    dimnames(simStates[[var]]) <- list( which(goodReps), 
-                                        speciesNames, 
-                                        stockNames,
-                                        1:nT )
+
+    # Copy base and sim for individual stocks/species
+    simReps <- (1:totReps)[goodReps]
+    baseState_ispt[,1:nS,1:nP,] <- baseSim$om[[var]][simReps,,,1:nT]
+    simState_ispt[,1:nS,1:nP,]  <- lossSim$om[[var]][simReps,,,1:nT]
+
+    # Now do the aggregates
+    # totally aggregated
+    baseState_ispt[,nS+1,nP+1,] <- apply(   X = baseSim$om[[var]][simReps,,,1:nT],
+                                            FUN = sum,
+                                            MARGIN = c(1,4) )
+
+    simState_ispt[,nS+1,nP+1,]  <- apply(   X = lossSim$om[[var]][simReps,,,1:nT],
+                                            FUN = sum,
+                                            MARGIN = c(1,4) )
+
+    # data-pooled
+    baseState_ispt[,nS+1,1:nP,]     <- apply(   X = baseSim$om[[var]][simReps,,,1:nT],
+                                            FUN = sum,
+                                            MARGIN = c(1,3,4) )
+
+    simState_ispt[,nS+1,1:nP,]      <- apply(   X = lossSim$om[[var]][simReps,,,1:nT],
+                                            FUN = sum,
+                                            MARGIN = c(1,3,4) )
+    
+    # coastwide
+    baseState_ispt[,1:nS,nP+1,]     <- apply(   X = baseSim$om[[var]][simReps,,,1:nT],
+                                            FUN = sum,
+                                            MARGIN = c(1,2,4) )
+
+    simState_ispt[,1:nS,nP+1,]      <- apply(   X = lossSim$om[[var]][simReps,,,1:nT],
+                                            FUN = sum,
+                                            MARGIN = c(1,2,4) )
+
+    baseLineStates[[var]] <- baseState_ispt
+    simStates[[var]]      <- simState_ispt
 
     lossRaw[[var]]        <- baseLineStates[[var]] - simStates[[var]]
     lossRel[[var]]        <- lossRaw[[var]] / baseLineStates[[var]]
-
-    # now do totally aggregated loss
-    aggBaseStates[[var]] <- array( NA, dim = c(nReps,1,1,nT))
-    aggBaseStates[[var]][,1,1,]<- apply(  X = baseSim$om[[var]][goodReps,,,1:nT],
-                                          FUN = sum,
-                                          MARGIN = c(1,4) )
-    
-    dimnames(aggBaseStates[[var]]) <- list( which(goodReps), 
-                                            "dataPooled", 
-                                            "coastwide",
-                                            1:nT )
-
-    aggSimStates[[var]] <- array( NA, dim = c(nReps,1,1,nT))
-    aggSimStates[[var]][,1,1,]<- apply(  X = lossSim$om[[var]][goodReps,,,1:nT],
-                                          FUN = sum,
-                                          MARGIN = c(1,4) )
-    
-    dimnames(aggSimStates[[var]]) <- list( which(goodReps), 
-                                            "dataPooled", 
-                                            "coastwide",
-                                            1:nT )
-
-    aggLossRaw[[var]]        <- aggBaseStates[[var]] - aggSimStates[[var]]
-    aggLossRel[[var]]        <- aggLossRaw[[var]] / aggBaseStates[[var]]    
-
-    # now do data pooled loss
-    dpBaseStates[[var]] <- array( NA, dim = c(nReps,1,nP,nT))
-    dpBaseStates[[var]][,1,,]<- apply(  X = baseSim$om[[var]][goodReps,,,1:nT],
-                                          FUN = sum,
-                                          MARGIN = c(1,3,4) )
-    
-    dimnames(dpBaseStates[[var]]) <- list( which(goodReps), 
-                                            "dataPooled", 
-                                            speciesNames,
-                                            1:nT )
-
-    dpSimStates[[var]] <- array( NA, dim = c(nReps,1,nP,nT))
-    dpSimStates[[var]][,1,,]<- apply(  X = lossSim$om[[var]][goodReps,,,1:nT],
-                                          FUN = sum,
-                                          MARGIN = c(1,3,4) )
-    
-    dimnames(dpSimStates[[var]]) <- list( which(goodReps), 
-                                            "dataPooled", 
-                                            speciesNames,
-                                            1:nT )
-
-    dpLossRaw[[var]]        <- dpBaseStates[[var]] - dpSimStates[[var]]
-    dpLossRel[[var]]        <- dpLossRaw[[var]] / dpBaseStates[[var]]    
-
-
-    # now do data pooled loss
-    dpBaseStates[[var]] <- array( NA, dim = c(nReps,1,nP,nT))
-    dpBaseStates[[var]][,1,,]<- apply(  X = baseSim$om[[var]][goodReps,,,1:nT],
-                                          FUN = sum,
-                                          MARGIN = c(1,3,4) )
-    
-    dimnames(dpBaseStates[[var]]) <- list( which(goodReps), 
-                                            "dataPooled", 
-                                            stockNames,
-                                            1:nT )
-
-    dpSimStates[[var]] <- array( NA, dim = c(nReps,1,nP,nT))
-    dpSimStates[[var]][,1,,]<- apply(  X = lossSim$om[[var]][goodReps,,,1:nT],
-                                          FUN = sum,
-                                          MARGIN = c(1,3,4) )
-    
-    dimnames(dpSimStates[[var]]) <- list( which(goodReps), 
-                                            "dataPooled", 
-                                            stockNames,
-                                            1:nT )
-
-    dpLossRaw[[var]]        <- dpBaseStates[[var]] - dpSimStates[[var]]
-    dpLossRel[[var]]        <- dpLossRaw[[var]] / dpBaseStates[[var]] 
-
-
-    # now do Coastwide loss
-    cwBaseStates[[var]] <- array( NA, dim = c(nReps,nS,1,nT))
-    cwBaseStates[[var]][,,1,]<- apply(  X = baseSim$om[[var]][goodReps,,,1:nT],
-                                        FUN = sum,
-                                        MARGIN = c(1,2,4) )
-  
-    dimnames(cwBaseStates[[var]]) <- list( which(goodReps), 
-                                            speciesNames,
-                                            "coastWide",
-                                            1:nT )
-
-    cwSimStates[[var]] <- array( NA, dim = c(nReps,nS,1,nT))
-    cwSimStates[[var]][,,1,]<- apply( X = lossSim$om[[var]][goodReps,,,1:nT],
-                                      FUN = sum,
-                                      MARGIN = c(1,2,4) )
-    
-    dimnames(cwSimStates[[var]]) <- list( which(goodReps), 
-                                            speciesNames,
-                                            "coastWide",
-                                            1:nT )
-
-    cwLossRaw[[var]]        <- cwBaseStates[[var]] - cwSimStates[[var]]
-    cwLossRel[[var]]        <- cwLossRaw[[var]] / cwBaseStates[[var]]    
 
    
   }
@@ -200,24 +127,19 @@ calcLoss <- function( sim         = 1,
                     baseStates    = baseLineStates,
                     lossRaw       = lossRaw,
                     lossRel       = lossRel,
-                    cwSimStates   =  cwSimStates,
-                    cwBaseStates  =  cwBaseStates,
-                    cwLossRaw     =  cwLossRaw,
-                    cwLossRel     =  cwLossRel,
-                    dpSimStates   =  dpSimStates,
-                    dpBaseStates  =  dpBaseStates,
-                    dpLossRaw     =  dpLossRaw,
-                    dpLossRel     =  dpLossRel,
-                    aggSimStates  =  aggSimStates,
-                    aggBaseStates =  aggBaseStates,
-                    aggLossRaw    =  aggLossRaw,
-                    aggLossRel    =  aggLossRel )
+                    tMP           = tMP,
+                    nT            = nT, 
+                    nF            = nF, 
+                    nS            = nS, 
+                    nP            = nP, 
+                    pT            = pT  )
 
 
   # Save loss to sim folder
   save( outList, file = file.path(simFolder,"loss.RData") )
 
-  outList
+  if(output)
+    return(outList)
 }
 
 
