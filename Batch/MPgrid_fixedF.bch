@@ -1,24 +1,27 @@
-# Batch Control File, created Tue Feb 18 15:25:19 2020 by makeBatchDesign() 
+# Batch Control File, created Tue Feb 18 15:32:28 2020 by makeBatchDesign() 
 parameter value
 #
 # Scenarios 
 #
-# Scenario 1 : DER_fit 
+# Scenario 1 : 'DERfit_0.5obsErr'
 #
+scenario$scenario1$ctl$scenarioName 'DERfit_0.5obsErr'
 scenario$scenario1$opMod$pT 32
 scenario$scenario1$ctl$nGoodReps 100
 scenario$scenario1$ctl$totReps 400
 scenario$scenario1$opMod$projObsErrMult 0.5
 #
-# Scenario 2 : DER_fit 
+# Scenario 2 : 'DERfit_1obsErr'
 #
+scenario$scenario2$ctl$scenarioName 'DERfit_1obsErr'
 scenario$scenario2$opMod$pT 32
 scenario$scenario2$ctl$nGoodReps 100
 scenario$scenario2$ctl$totReps 400
 scenario$scenario2$opMod$projObsErrMult 1
 #
-# Scenario 3 : DER_fit 
+# Scenario 3 : 'DERfit_2obsErr'
 #
+scenario$scenario3$ctl$scenarioName 'DERfit_2obsErr'
 scenario$scenario3$opMod$pT 32
 scenario$scenario3$ctl$nGoodReps 100
 scenario$scenario3$ctl$totReps 400
