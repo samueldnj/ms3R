@@ -12,6 +12,11 @@
 # <><><><><><><><><><><><><><><><><><><><><><><><><><><>
 
 
+# calcLoss()
+# Loads blob and calculates yearly catch and biomass 
+# loss values compared to a nominated baseline sim.
+# By default, calculates biomass and catch loss
+# on relative and absolute scale
 calcLoss <- function( sim         = 1,
                       baseline    = "sim_parBatomniRuns_short_EmsyMult3",
                       groupFolder = "ms3R_stochasticRuns",
@@ -35,8 +40,6 @@ calcLoss <- function( sim         = 1,
 
   baseSim <- blob
 
-
-
   # Model dimensions
   tMP <- lossSim$om$tMP
   nT  <- lossSim$om$nT
@@ -45,8 +48,8 @@ calcLoss <- function( sim         = 1,
   nP  <- lossSim$om$nP
   pT  <- lossSim$om$pT
 
-  speciesNames  <- lossSim$om$speciesNames
-  stockNames    <- lossSim$om$stockNames
+  speciesNames  <- c(lossSim$om$speciesNames,"dataPooled")
+  stockNames    <- c(lossSim$om$stockNames,"coastWide")
   fleetNames    <- lossSim$om$fleetNames
 
   # We want to calculate loss of given OM states
@@ -72,8 +75,8 @@ calcLoss <- function( sim         = 1,
     # Clean arrays for base and sim states
     baseState_ispt <- array(NA, dim = c(nReps,nS+1,nP+1,nT),
                                 dimnames = list(  rep = which(goodReps),
-                                                  species = c(speciesNames,"dataPooled"),
-                                                  stock   = c(stockNames,"coastWide"),
+                                                  species = speciesNames,
+                                                  stock   = stockNames,
                                                   tdx     = 1:nT ) )
     simState_ispt  <- baseState_ispt
 
@@ -122,8 +125,11 @@ calcLoss <- function( sim         = 1,
    
   }
 
-
-  outList <- list(  simStates     = simStates,
+  outList <- list(  simID         = lossSim$folder,
+                    speciesNames  = speciesNames,
+                    stockNames    = stockNames,
+                    fYear         = lossSim$ctlList$opMod$fYear,
+                    simStates     = simStates,
                     baseStates    = baseLineStates,
                     lossRaw       = lossRaw,
                     lossRel       = lossRel,
@@ -132,7 +138,8 @@ calcLoss <- function( sim         = 1,
                     nF            = nF, 
                     nS            = nS, 
                     nP            = nP, 
-                    pT            = pT  )
+                    pT            = pT,
+                    simFolder     = simFolder  )
 
 
   # Save loss to sim folder
@@ -140,7 +147,111 @@ calcLoss <- function( sim         = 1,
 
   if(output)
     return(outList)
-}
+} # END calcLoss()
+
+
+makeLossTable <- function(  sim = 1, 
+                            groupFolder = "shortGrid",
+                            save = TRUE )
+{
+  # Load loss reports
+  objLoss <- .loadLoss(sim = sim, groupFolder)
+
+  # Species/stock names and model dims
+  speciesNames    <- objLoss$speciesNames
+  stockNames      <- objLoss$stockNames
+  tMP             <- objLoss$tMP
+  nT              <- objLoss$nT 
+  nF              <- objLoss$nF 
+  nS              <- objLoss$nS 
+  nP              <- objLoss$nP 
+  pT              <- objLoss$pT
+  simFolder       <- objLoss$simFolder
+
+
+
+  # Here's the loss table
+  lossTableColNames <- c( "sim",
+                          "scenario",
+                          "mp",
+                          "species",
+                          "stock",
+                          "relLossCat_short",
+                          "relLossCat_med",
+                          "relLossCat_long",
+                          "absLossCat_short",
+                          "absLossCat_med",
+                          "absLossCat_long",
+                          "relLossBio_short",
+                          "relLossBio_med",
+                          "relLossBio_long",
+                          "absLossBio_short",
+                          "absLossBio_med",
+                          "absLossBio_long" )
+
+  lossTable <- matrix(NA, nrow = (nS * 1) * (nP + 1), ncol = length(lossTableColNames) )
+  colnames(lossTable) <- lossTableColNames
+  lossTable <- as.data.frame(lossTable)
+
+  lossTable$sim       <- objLoss$sim
+  lossTable$scenario  <- objLoss$scenario
+  lossTable$mp        <- objLoss$mp
+
+  
+  lossCat_shortTerm  <- calcTotalLossPeriod(objLoss,"C_ispt", period = tMP:(tMP+10))
+  lossCat_medTerm    <- calcTotalLossPeriod(objLoss,"C_ispt", period = tMP:(tMP+20))
+  lossCat_longTerm   <- calcTotalLossPeriod(objLoss,"C_ispt", period = tMP:nT)
+  lossBio_shortTerm  <- calcTotalLossPeriod(objLoss,"SB_ispt", period = tMP:(tMP+10))
+  lossBio_medTerm    <- calcTotalLossPeriod(objLoss,"SB_ispt", period = tMP:(tMP+20))
+  lossBio_longTerm   <- calcTotalLossPeriod(objLoss,"SB_ispt", period = tMP:nT)
+
+  for( s in 1:(nS+1) )
+    for( p in 1:(nP+1) )
+    {
+      tabRow <- (s - 1)*( nP + 1 ) + p
+
+      lossTable[tabRow,"species"] <- speciesNames[s]
+      lossTable[tabRow,"stock"]   <- stockNames[p]
+      lossTable[tabRow,"relLossCat_short"]    <- median(lossCat_shortTerm$totRelLoss_isp[,s,p])
+      lossTable[tabRow,"relLossCat_med"]      <- median(lossCat_medTerm$totRelLoss_isp[,s,p])
+      lossTable[tabRow,"relLossCat_long"]     <- median(lossCat_longTerm$totRelLoss_isp[,s,p])
+      lossTable[tabRow,"absLossCat_short"]    <- median(lossCat_shortTerm$totAbsLoss_isp[,s,p])
+      lossTable[tabRow,"absLossCat_med"]      <- median(lossCat_medTerm$totAbsLoss_isp[,s,p])
+      lossTable[tabRow,"absLossCat_long"]     <- median(lossCat_longTerm$totAbsLoss_isp[,s,p])
+      lossTable[tabRow,"relLossBio_short"]    <- median(lossBio_shortTerm$totRelLoss_isp[,s,p])
+      lossTable[tabRow,"relLossBio_med"]      <- median(lossBio_medTerm$totRelLoss_isp[,s,p])
+      lossTable[tabRow,"relLossBio_long"]     <- median(lossBio_longTerm$totRelLoss_isp[,s,p])
+      lossTable[tabRow,"absLossBio_short"]    <- median(lossBio_shortTerm$totAbsLoss_isp[,s,p])
+      lossTable[tabRow,"absLossBio_med"]      <- median(lossBio_medTerm$totAbsLoss_isp[,s,p])
+      lossTable[tabRow,"absLossBio_long"]     <- median(lossBio_longTerm$totAbsLoss_isp[,s,p])
+    
+    }
+
+  write.csv( lossTable, file = file.path(simFolder,"lossTable.csv") )
+
+  lossTable
+} # END makeLossTable()
+
+# calcTotalLossPeriod()
+# Takes a loss object, and variable name,
+# and calculates total abs and relative loss
+# for a given time period
+calcTotalLossPeriod <- function(  obj, 
+                                  var = "C_ispt",
+                                  period = tMP:nT )
+{
+  # Pull abs and rel loss
+  relLoss_ispt  <- obj$lossRel[[var]][,,,period]
+  rawLoss_ispt  <- obj$lossRaw[[var]][,,,period]
+
+  totRelLoss_isp    <- apply( X = abs(relLoss_ispt), FUN = sum, MARGIN = c(1,2,3) )
+  totAbsLoss_isp    <- apply( X = abs(rawLoss_ispt), FUN = sum, MARGIN = c(1,2,3) )
+
+  out <- list(  totRelLoss_isp = totRelLoss_isp,
+                totAbsLoss_isp = totAbsLoss_isp )
+
+  return(out)
+} # END calcTotalLossPeriod
 
 
 

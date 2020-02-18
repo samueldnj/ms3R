@@ -56,6 +56,7 @@ mp$assess$spPhzSigmaProc -3
 mp$assess$spPhztauObs 1
 mp$assess$spIGtau2alpha 1
 mp$assess$spIGtau2Mode 0.09
+mp$assess$spFixUmsy TRUE
 mp$data$idxOn c(4)
 mp$data$obsInt_i rep(2,3)
 mp$hcr$refPtType "SS"

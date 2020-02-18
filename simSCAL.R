@@ -415,25 +415,35 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
 
   refPtType   <- ctlList$mp$hcr$refPtType
 
-  # If refPts are SS, pull from Fmsy reference points
+  # Pull reference points
+  refPtsSS <- refPtList$FmsyRefPts
+  refPtsMS <- refPtList$EmsyMSRefPts
+
+  # Single species yield and biomass
+  YeqSS_sp  <- refPtsSS$YeqFmsy_sp
+  BeqSS_sp  <- refPtsSS$BeqFmsy_sp
+  UmsySS_sp <- YeqSS_sp/BeqSS_sp
+
+  # Multispecies yield and biomass
+  YeqMS_sp <- refPtsMS$YeqEmsy_sp
+  BeqMS_sp <- refPtsMS$BeqEmsy_sp
+
   if( refPtType == "SS" )
   {
-    refPts <- refPtList$FmsyRefPts
-
-    Yeq_sp <- refPts$YeqFmsy_sp
-    Beq_sp <- refPts$BeqFmsy_sp
-
+    Yeq_sp <- YeqSS_sp
+    Beq_sp <- BeqSS_sp
   }
-  # If MS, pull from EmsyMS reference point list
+
   if( refPtType == "MS" )
   {
-    refPts <- refPtList$EmsyMSRefPts
-
-    Yeq_sp <- refPts$YeqEmsy_sp
-    Beq_sp <- refPts$BeqEmsy_sp
+    Yeq_sp <- YeqMS_sp
+    Beq_sp <- BeqMS_sp
   }
 
-  mlnUmsy <- log(sum(Yeq_sp) / sum(Beq_sp))
+  
+  # Get mean lnUmsy from SS ref points, as this
+  # reflects the true stock dynamics
+  mlnUmsy_SS <- log(sum(YeqSS_sp) / sum(BeqSS_sp))
 
   # Get complex dims
   nS  <- obj$om$nS
@@ -459,6 +469,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   spCoastwide     <- ctlList$mp$assess$spCoastwide
   spDataPooled    <- ctlList$mp$assess$spDataPooled
   spSingleStock   <- ctlList$mp$assess$spSingleStock
+  spFixUmsy       <- ctlList$mp$assess$spFixUmsy
 
   oldFleet <- NULL
   oldStock <- NULL
@@ -544,17 +555,21 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
         
         if(spSingleStock)
         {
-          mBmsy_sp  <- Beq_sp[s,p,drop = FALSE]
+          mBmsy_sp  <- BeqSS_sp[s,p,drop = FALSE]
 
+          # Calculate true Umsy values for MPs where
+          # Umsy is fixed
           omFref_sp <- Yeq_sp[s,p,drop = FALSE] / Beq_sp[s,p,drop = FALSE]
+          omUmsy_sp <- UmsySS_sp[s,p,drop = FALSE]
         }
 
         if( spCoastwide & spDataPooled )
         {
-          mBmsy_sp        <- Beq_sp[1,1,drop = FALSE]
-          mBmsy_sp[1,1]   <- sum(Beq_sp)
+          mBmsy_sp        <- BeqSS_sp[1,1,drop = FALSE]
+          mBmsy_sp[1,1]   <- sum(BeqSS_sp)
 
-          omFref_sp       <- sum(Yeq_sp) / sum(Beq_sp)
+          omFref_sp       <- array(sum(Yeq_sp) / sum(Beq_sp), dim = c(1,1))
+          omUmsy_sp       <- array(sum(YeqSS_sp) / sum(BeqSS_sp), dim = c(1,1))
         }
 
 
@@ -562,10 +577,12 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
         tmbLists <- .makeDatParHierProd(  C_spt[s,p,,drop = FALSE], 
                                           I_spft[s,p,,,drop = FALSE],
                                           ctlList,
-                                          mlnUmsy = mlnUmsy,
+                                          mlnUmsy = mlnUmsy_SS,
+                                          lnUmsy_sp = log(omUmsy_sp),
                                           mBmsy_sp = mBmsy_sp,
                                           oldStock = oldStock,
-                                          oldFleet = oldFleet  )
+                                          oldFleet = oldFleet,
+                                          fixUmsy = spFixUmsy  )
 
         # Set some phases - 
         # if no phase is set then pars not
@@ -584,6 +601,9 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
 
         if( ctlList$mp$assess$spSolveInitBio )
           phases$spPhzlnBinit <- -1
+
+        if( spFixUmsy )
+          phases$lnUmsy <- -1
 
 
 
@@ -709,37 +729,46 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     mBmsy_sp  <- refPtList$FmsyRefPts$expBeqFmsy_sp
 
     omFref_sp <- Yeq_sp / Beq_sp
+    omUmsy_sp <- YeqSS_sp / BeqSS_sp
 
     # Add Bmsy across stocks if coastwide
     if( spCoastwide )
     {
       mBmsy_sp_new      <- mBmsy_sp[,1,drop = FALSE]
-      mBmsy_sp_new[,1]  <- apply( X = Beq_sp, FUN = sum, MARGIN = 1)
+      mBmsy_sp_new[,1]  <- apply( X = BeqSS_sp, FUN = sum, MARGIN = 1)
 
       mBmsy_sp <- mBmsy_sp_new
 
       for( s in 1:nS )
+      {
         omFref_sp[s,] <- sum(Yeq_sp[s,]) / sum(Beq_sp[s,])
+        omUmsy_sp[s,] <- sum(YeqSS_sp[s,]) / sum(BeqSS_sp[s,])
+      }
     }
 
     if( spDataPooled )
     {
       mBmsy_sp_new <- mBmsy_sp[1,,drop = FALSE]
-      mBmsy_sp_new[1,] <- apply( X = Beq_sp, FUN = sum, MARGIN = 2 )
+      mBmsy_sp_new[1,] <- apply( X = BeqSS_sp, FUN = sum, MARGIN = 2 )
 
       mBmsy_sp <- mBmsy_sp_new
 
       for( p in 1:nP )
+      {
         omFref_sp[,p] <- sum(Yeq_sp[,p]) / sum(Beq_sp[,p])
+        omUmsy_sp[,p] <- sum(YeqSS_sp[,p]) / sum(BeqSS_sp[,p])
+      }
     }
 
     tmbLists <- .makeDatParHierProd(  C_spt, 
                                       I_spft,
                                       ctlList,
-                                      mlnUmsy = mlnUmsy,
+                                      mlnUmsy = mlnUmsy_SS,
+                                      lnUmsy_sp = log(omUmsy_sp),
                                       mBmsy_sp = mBmsy_sp,
                                       oldStock = oldStock,
-                                      oldFleet = oldFleet  )
+                                      oldFleet = oldFleet,
+                                      fixUmsy = spFixUmsy  )
 
     # Set phases
     # if no phase is set then pars not
@@ -767,6 +796,14 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     {
       phases$deltalnqspf_vec  <- ctlList$mp$assess$spPhzdeltalnq_spf
       phases$epslnUmsy_sp     <- ctlList$mp$assess$spPhzepslnUmsy_sp
+    }
+
+    # If totally fixing Umsy at OM reference
+    if( spFixUmsy )
+    {
+      phases$lnUmsy       <- -1
+      phases$epslnUmsy_s  <- -1
+      phases$epslnUmsy_sp <- -1
     }
 
     if( is.null(ctlList$mp$assess$spTVqFleets) )
@@ -956,10 +993,12 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
                                   I_spft,
                                   ctlList,
                                   mlnUmsy,
+                                  lnUmsy_sp,
                                   mBmsy_sp,
                                   oldFleet = NULL,
                                   oldStock = NULL,
-                                  spCoastwide = FALSE )
+                                  spCoastwide = FALSE,
+                                  fixUmsy = FALSE )
 {
   # Get model dims
   nSS <- dim(C_spt)[1]
@@ -1108,6 +1147,14 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   }
      
 
+  if( fixUmsy )
+  {
+    lnUmsyInit_sp <- lnUmsy_sp - mlnUmsy
+  } else {
+    lnUmsyInit_sp <- array(0, dim = c(nSS,nPP))
+  }
+
+
   nEstq   <- length(which(condMLEq_f == 0 & fleetq_f == 1))
   nCondq  <- length(which(condMLEq_f == 1))
 
@@ -1164,7 +1211,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
                 sdlnq             = ctlList$mp$assess$spsdlnq,
                 epslnUmsy_s       = rep(0,nSS),
                 lnsigUmsy         = log(ctlList$mp$assess$spsigU),
-                epslnUmsy_sp      = array(0, dim = c(nSS,nPP)),
+                epslnUmsy_sp      = lnUmsyInit_sp,
                 lnsigUmsy_s       = rep(log(ctlList$mp$assess$spsigU),nSS),
                 mlnUmsy           = mlnUmsy,
                 sdlnUmsy          = ctlList$mp$assess$spsdUmsy,

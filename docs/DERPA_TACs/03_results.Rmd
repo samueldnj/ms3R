@@ -20,20 +20,11 @@ above 80% of $B_{MSY}$ is at least 54%.
 
 Tendency to reduce effort to very low in first few years
 for some replicates, despite penalty in objective 
-function -- check sims, is catchability changing??
+function -- check sims??
 
 
 ## MP performance
 
-ToDo:
-
-1. Write functions to generate tables of loss for
-all 16 stock definitions under each run - short/med/long term?
-2. Plot time series of loss distributions for each 
-run, could probably combine multiple AM configs into 
-a single plot for pub. (3x3 of ss/hier MSMS, 
-and then extra row/col for dp and cw)
-3. Do we still test obs error differences?
 
 ### Yield loss
 

@@ -10,22 +10,329 @@
 #
 # <><><><><><><><><><><><><><><><><><><><><><><><><><><>
 
+# plotBatchLossDists()
+# Multi-panel plot of relative and absolute
+# loss under a batch of MPs for all stock/species
+# combinations, including data-pooled and 
+# coast-wide aggregations.
+plotBatchLossDists <- function( groupFolder = "longGrid",
+                                prefix = "MPgrid",
+                                lossType = "rel",
+                                var = "C_ispt",
+                                period = 62:72,
+                                save = FALSE )
+{
+  # First, read info files from the relevant
+  # sims
+  simFolderList <- list.dirs(here::here("Outputs",groupFolder))
+  simFolderList <- simFolderList[grepl(prefix, simFolderList)]
 
-# plotLoss()
+  infoFiles     <- lapply(  X = file.path(simFolderList,"infoFile.txt"),
+                            FUN = lisread )
+
+  if( lossType == "rel" )
+  {
+    lossArrayName <- "totRelLoss_isp"
+    yLab <- "Total Relative Loss"
+  }
+
+  if( lossType == "abs" )
+  {
+    lossArrayName <- "totAbsLoss_isp"
+    yLab <- "Total Absolute Loss (kt)"
+  }
+
+  # Break up MP names into factor levels
+  # MP labels are AM_Fsrce_eqbm
+  splitMP <- function(  mpLab, 
+                        breaks = "_",
+                        factorNames = c("AM","Fsrce","eqbm") )
+  {
+    splitMP <- stringr::str_split(mpLab, breaks)[[1]]
+
+    outList <- vector(  mode = "list", 
+                        length = length(splitMP) )
+    names(outList) <- factorNames
+    for( k in 1:length(splitMP))
+      outList[[k]] <- splitMP[k]
+
+    outList
+  }
+
+  for( lIdx in 1:length(infoFiles) )
+  {
+    infoFiles[[lIdx]] <- c(infoFiles[[lIdx]], splitMP(infoFiles[[lIdx]]$mp))
+    infoFiles[[lIdx]] <- as.data.frame(infoFiles[[lIdx]])
+  }
+
+  info.df <- do.call(rbind, infoFiles) %>% 
+              mutate_if(is.factor, as.character)
+
+
+  # Load loss files, place in a list
+  simFolderNames  <- info.df$simLabel
+  lossList        <- lapply(  X = simFolderNames,
+                              FUN = .loadLoss,
+                              folder = groupFolder )
+  names(lossList) <- simFolderNames
+
+  # Calculate total loss for variable/period
+  totLossList  <- lapply( X = lossList,
+                          FUN = calcTotalLossPeriod,
+                          var = var, period = period )
+  names(totLossList) <- names(lossList)
+
+
+  nS  <- lossList[[1]]$nS
+  nP  <- lossList[[1]]$nP
+  nT  <- lossList[[1]]$nT
+  tMP <- lossList[[1]]$tMP
+  pT  <- lossList[[1]]$pT
+
+  # Get number of MPs
+  nSims <- length(lossList)
+
+
+  AMs       <- unique(info.df$AM)
+  Fsources  <- unique(info.df$Fsrce)
+  eqbm      <- unique(info.df$eqbm)
+
+  nAM       <- length(AMs)
+  nSrce     <- length(Fsources)
+  nEqbm     <- length(eqbm)
+
+  # Some axis labels and translations from
+  # simple axis label to info file AM name
+  AMcodes <- c( SS = 1,
+                MS = 2,
+                DP = 3,
+                CW = 4,
+                TA = 5 )
+
+  AMdictionary <- c(  singleStock     = "SS",
+                      hierMultiStock  = "MS",
+                      dataPooled      = "DP",
+                      coastwide       = "CW",
+                      totalAgg        = "TA" )
+
+  AMcols          <- RColorBrewer::brewer.pal(nAM, "Dark2")
+  names(AMcols)   <- names(AMdictionary)
+  FsrcePCH  <- 15 + 1:nSrce
+  names(FsrcePCH) <- Fsources
+  eqbmLTY   <- 1:nEqbm
+  names(eqbmLTY)  <- eqbm
+
+  nReps         <- dim(lossList[[1]]$lossRel[[var]])[1]
+  speciesNames  <- lossList[[1]]$speciesNames
+  stockNames    <- lossList[[1]]$stockNames
+
+  # Make an array to hold loss function values
+  totLossArray_misp <- array(NA,  dim = c(nSims, nReps, nS+1, nP+1 ),
+                                  dimnames = list(  simID = info.df$simLabel,
+                                                    rep = 1:nReps,
+                                                    species = speciesNames,
+                                                    stock = stockNames ) )
+
+  for( k in 1:nSims )
+  {
+    simID <- info.df$simLabel[k]
+    totLossArray_misp[k,,,] <- totLossList[[simID]][[lossArrayName]] 
+  }
+
+  totLossQuantiles_qmsp <- apply( X = totLossArray_misp,
+                                  FUN = quantile,
+                                  probs = c(0.025, 0.5, 0.975),
+                                  MARGIN = c(1,3,4) )
+
+  
+
+  # Loop and plot - start by plotting ALL
+  # combos
+  yJitter <- seq(from = -.3, to = .3, length = nSrce * nEqbm )
+  names(yJitter) <- apply(expand.grid(Fsources, eqbm), 1, paste, collapse="_")
+
+  # Plot total loss for given period
+  # on grid of Species/stocks
+  par(  mfcol = c(nS+1,nP+1), 
+        mar = c(.2,1.5,.2,1),
+        oma = c(3,3.5,3,3) )
+
+  for( s in 1:(nS+1) )
+    for( p in 1:(nP+1) )
+    {
+      lossRange <- max(abs(range(totLossQuantiles_qmsp[,,s,p])))
+
+      plot( y = c(0,lossRange), x = c(0,6),
+            type = "n", axes = FALSE  )
+        
+        mfg <- par("mfg")
+        if( mfg[1] == mfg[3])
+          axis( side = 1, at = AMcodes, labels = names(AMcodes) )
+
+        axis( side = 2, las = 1 )
+
+        if( mfg[1] == 1 )
+          mtext( side = 3, text = speciesNames[s], font = 2, line = 1 )
+
+        if( mfg[2] == mfg[4] )
+          mtext( side = 4, text = stockNames[p], font = 2, line = 1 )
+
+        grid()
+        box()
+
+        for( k in 1:nSims )
+        {
+          simID   <- info.df$simLabel[k]
+          AMid    <- info.df$AM[k]
+          FsrceID <- info.df$Fsrce[k]
+          eqbmID  <- info.df$eqbm[k]
+          AMcode  <- AMdictionary[AMid]
+
+          jitY    <- yJitter[paste(FsrceID,eqbmID,sep = "_")]
+
+          points( y   = totLossQuantiles_qmsp[2,simID,s,p],
+                  x   = AMcodes[AMcode] + jitY,
+                  pch = FsrcePCH[FsrceID],
+                  col = AMcols[AMid], cex = 1.5 )
+          segments( y0 = totLossQuantiles_qmsp[1,simID,s,p],
+                    y1 = totLossQuantiles_qmsp[3,simID,s,p],
+                    x0 = AMcodes[AMcode] + jitY,
+                    lty = eqbmLTY[eqbmID],
+                    col = AMcols[AMid], lwd = 2  )
+        }
+    } # END p loop
+    # END s loop
+
+  legend( x       = "bottomright",
+          bty     = "n",
+          legend  = c(Fsources,eqbm),
+          pch     = c(FsrcePCH,NA,NA),
+          lty     = c(NA,NA,eqbmLTY),
+          lwd     = 2 )
+
+
+  mtext( side = 2, outer = TRUE, text = yLab, line = 2 )
+  mtext( side = 1, outer = TRUE, text = "AM Configuration", line = 2 )
+
+
+} # END plotBatchLossDists()
+
+# plotTotLossDists()
 # Plots relative and absolute loss
 # for a given simulation. Requires
 # loss for a given baseline to have
 # been calculated first, and saved
 # into the sim folder
-plotLoss <- function( sim = 1, 
-                      groupFolder = "shortGrid",
-                      lossType    = "rel",
-                      var         = "SB_ispt" )
+plotTotLossDists <- function( sim = 1, 
+                              groupFolder = "shortGrid",
+                              lossType    = "rel",
+                              var         = "SB_ispt",
+                              save        = FALSE )
 {
   # Load loss reports
   objLoss <- .loadLoss(sim = sim, groupFolder)
+  simFolder <- objLoss$simFolder
 
-  .loadSim(sim = sim, folder = groupFolder )
+  # Species/stock names and model dims
+  speciesNames    <- objLoss$speciesNames
+  stockNames      <- objLoss$stockNames
+  tMP             <- objLoss$tMP
+  nT              <- objLoss$nT 
+  nF              <- objLoss$nF 
+  nS              <- objLoss$nS 
+  nP              <- objLoss$nP 
+  pT              <- objLoss$pT
+  simFolder       <- objLoss$simFolder
+  
+  loss_shortTerm  <- calcTotalLossPeriod(objLoss,var, period = tMP:(tMP+10))
+  loss_medTerm    <- calcTotalLossPeriod(objLoss,var, period = tMP:(tMP+20))
+  loss_longTerm   <- calcTotalLossPeriod(objLoss,var, period = tMP:nT)
+
+  if( lossType == "rel" )
+  {
+    lossListName  <- "totRelLoss_isp"  
+    yLab          <- "Total relative loss (unitless)"
+  }
+
+  if( lossType == "abs" )
+  {
+    lossListName  <- "totAbsLoss_isp"    
+    yLab          <- "Total loss (kt)"
+  }
+
+  if( save )
+    pdf( file = file.path(simFolder,paste(lossType,var,"LossCleveland.pdf",sep = "_")),
+          width = 11, height = 8.5 )
+
+  # Plot window - just for loss right now
+  par(  mfcol = c(nS + 1, nP + 1),
+        mar = c(.5,.5,.5,.5),
+        oma = c(3,3,3,3) )
+
+  for( s in 1:(nS+1) )
+    for( p in 1:(nP + 1) )
+    {
+      lossShort_i <- loss_shortTerm[[lossListName]][,s,p]
+      lossMed_i   <- loss_medTerm[[lossListName]][,s,p]
+      lossLong_i  <- loss_longTerm[[lossListName]][,s,p]
+
+      lossShort_q <- quantile(lossShort_i, probs = c(0.025, 0.5, 0.975) )
+      lossMed_q   <- quantile(lossMed_i, probs = c(0.025, 0.5, 0.975) )
+      lossLong_q  <- quantile(lossLong_i, probs = c(0.025, 0.5, 0.975) )
+
+      maxLoss     <- max( abs(lossShort_q[is.finite(lossShort_q)]),
+                          abs(lossMed_q[is.finite(lossMed_q)]),
+                          abs(lossLong_q[is.finite(lossLong_q)]), na.rm = T )
+      
+      plot( x = c(0,4), y = c(0,maxLoss), type = "n",
+            axes = FALSE )
+        mfg <- par("mfg")
+        if( mfg[1] == mfg[3] )
+          axis( side = 1, at = 1:3, labels = c("S", "M", "L") )
+        if( mfg[2] == 1 )
+          axis( side = 2, las = 1)
+        if( mfg[1] == 1 )
+        {
+          mtext( side = 3, text = speciesNames[s] )
+        }
+        if( mfg[2] == mfg[4] )
+        {
+          mtext( side = 4, text = stockNames[p] )
+        }
+        grid()
+        box()
+
+        segments( x0 = 1, y0 = lossShort_q[1], y1 = lossShort_q[3]  )
+        points( x = 1, y = lossShort_q[2]  )
+        segments( x0 = 2, y0 = lossMed_q[1], y1 = lossMed_q[3]  )
+        points( x = 2, y = lossMed_q[2]  )
+        segments( x0 = 3, y0 = lossLong_q[1], y1 = lossLong_q[3]  )
+        points( x = 3, y = lossLong_q[2]  )
+
+    }
+
+  mtext( side = 1, text = "Time Period", outer = T, line = 2)
+  mtext( side = 2, text = yLab, outer = T, line = 2)
+
+  if( save )
+    dev.off()
+} # END plotLossDists()
+
+# plotLossTulips()
+# Plots relative and absolute loss
+# for a given simulation. Requires
+# loss for a given baseline to have
+# been calculated first, and saved
+# into the sim folder
+plotLossTulip <- function(  sim = 1, 
+                            groupFolder = "shortGrid",
+                            lossType    = "rel",
+                            var         = "SB_ispt",
+                            save        = FALSE )
+{
+  # Load loss reports
+  objLoss <- .loadLoss(sim = sim, groupFolder)
+  simFolder <- objLoss$simFolder
 
   if(lossType == "rel" )
   {
@@ -47,12 +354,19 @@ plotLoss <- function( sim = 1,
   nP  <- objLoss$nP
   pT  <- objLoss$pT
 
+
+  nReps <- dim(loss_ispt)[1]
   
+  traces <- sample(1:nReps, size = 3)
 
   # Time steps
-  fYear   <- blob$ctlList$opMod$fYear
+  fYear   <- objLoss$fYear
   tdxPlot <- tMP:nT
   years   <- seq(from = fYear, by = 1, length.out = nT)
+
+  if( save )
+    pdf( file = file.path(simFolder,paste(lossType,var,"LossEnvelopes.pdf",sep = "_")),
+          width = 11, height = 8.5 )
 
   # Plot window - just for loss right now
   par(  mfcol = c(nS + 1, nP + 1),
@@ -67,6 +381,7 @@ plotLoss <- function( sim = 1,
                       MARGIN = c(2,3,4) )
 
   plotYrs <- years[tdxPlot]
+
 
   # Loop and plot
   for( s in 1:(nS+1) )
@@ -100,6 +415,9 @@ plotLoss <- function( sim = 1,
                 border = NA, col = scales::alpha("grey10",.4) )
       lines(  x = years, y = loss_qspt[2,s,p,],
               col = "black", lwd = 3 )
+      for( traceIdx in traces )
+        lines( x = years, y = loss_ispt[traceIdx,s,p,],
+                col = "black", lwd = 1 )
       grid()
 
       abline( h = 0, lty = 2, lwd = 1 )
@@ -109,6 +427,8 @@ plotLoss <- function( sim = 1,
     mtext( side = 1, text = "Year", line = 2, outer = TRUE )
     mtext( side = 2, text = yLab, line = 2, outer = TRUE )
 
+  if( save )
+    dev.off()
 
 } # END plotLoss()
 

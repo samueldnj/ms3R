@@ -1,0 +1,222 @@
+# Batch Control File, created Tue Feb 18 15:25:19 2020 by makeBatchDesign() 
+parameter value
+#
+# Scenarios 
+#
+# Scenario 1 : DER_fit 
+#
+scenario$scenario1$opMod$pT 32
+scenario$scenario1$ctl$nGoodReps 20
+scenario$scenario1$ctl$totReps 70
+scenario$scenario1$opMod$projObsErrMult 0.5
+#
+# Scenario 2 : DER_fit 
+#
+scenario$scenario2$opMod$pT 32
+scenario$scenario2$ctl$nGoodReps 20
+scenario$scenario2$ctl$totReps 70
+scenario$scenario2$opMod$projObsErrMult 1
+#
+# Scenario 3 : DER_fit 
+#
+scenario$scenario3$opMod$pT 32
+scenario$scenario3$ctl$nGoodReps 20
+scenario$scenario3$ctl$totReps 70
+scenario$scenario3$opMod$projObsErrMult 2
+#
+#
+#
+# Management Procedures 
+#
+# MP 1 : singleStock_estF_SSrefPts
+#
+mp$mp1$ctl$mpName 'singleStock_estF_SSrefPts'
+mp$mp1$mp$hcr$Fsource 'est'
+mp$mp1$mp$hcr$refPtType 'SS'
+mp$mp1$mp$assess$spSingleStock TRUE
+mp$mp1$mp$assess$spDataPooled FALSE
+mp$mp1$mp$assess$spCoastwide FALSE
+mp$mp1$mp$assess$spFleetWeights c(.1,.5,1.0,1.0)
+mp$mp1$mp$assess$spShrinkqFleets c(3,4)
+mp$mp1$mp$assess$spCondMLEqFleets c(1,2)
+mp$mp1$mp$assess$spPhzBmsy 1
+mp$mp1$mp$assess$spPhzlnqShrink 2
+mp$mp1$mp$assess$spPhztauObs -1
+mp$mp1$mp$assess$spPhzepslnUmsy_s -5
+mp$mp1$mp$assess$spPhzepslnUmsy_sp -7
+mp$mp1$mp$assess$spPhzdeltalnq_spf -6
+mp$mp1$mp$assess$spPhzdeltalnq_sf -4
+mp$mp1$mp$assess$spmlnq .5
+mp$mp1$mp$assess$spsdlnq .01
+mp$mp1$mp$assess$spsdUmsy .02
+mp$mp1$mp$assess$spCVBmsy .1
+mp$mp1$mp$assess$spFixUmsy TRUE
+#
+# MP 2 : singleStock_estF_MSrefPts
+#
+mp$mp2$ctl$mpName 'singleStock_estF_MSrefPts'
+mp$mp2$mp$hcr$Fsource 'est'
+mp$mp2$mp$hcr$refPtType 'MS'
+mp$mp2$mp$assess$spSingleStock TRUE
+mp$mp2$mp$assess$spDataPooled FALSE
+mp$mp2$mp$assess$spCoastwide FALSE
+mp$mp2$mp$assess$spFleetWeights c(.1,.5,1.0,1.0)
+mp$mp2$mp$assess$spShrinkqFleets c(3,4)
+mp$mp2$mp$assess$spCondMLEqFleets c(1,2)
+mp$mp2$mp$assess$spPhzBmsy 1
+mp$mp2$mp$assess$spPhzlnqShrink 2
+mp$mp2$mp$assess$spPhztauObs -1
+mp$mp2$mp$assess$spPhzepslnUmsy_s -5
+mp$mp2$mp$assess$spPhzepslnUmsy_sp -7
+mp$mp2$mp$assess$spPhzdeltalnq_spf -6
+mp$mp2$mp$assess$spPhzdeltalnq_sf -4
+mp$mp2$mp$assess$spmlnq .5
+mp$mp2$mp$assess$spsdlnq .01
+mp$mp2$mp$assess$spsdUmsy .02
+mp$mp2$mp$assess$spCVBmsy .1
+mp$mp2$mp$assess$spFixUmsy TRUE
+#
+# MP 3 : hierMultiStock_estF_SSrefPts
+#
+mp$mp3$ctl$mpName 'hierMultiStock_estF_SSrefPts'
+mp$mp3$mp$hcr$Fsource 'est'
+mp$mp3$mp$hcr$refPtType 'SS'
+mp$mp3$mp$assess$spSingleStock FALSE
+mp$mp3$mp$assess$spDataPooled FALSE
+mp$mp3$mp$assess$spCoastwide FALSE
+mp$mp3$mp$assess$spFleetWeights c(.5,.5,1.0,1.0)
+mp$mp3$mp$assess$spFleets c(1,2,3,4)
+mp$mp3$mp$assess$spShrinkqFleets c(3,4)
+mp$mp3$mp$assess$spTVqFleets NULL
+mp$mp3$mp$assess$spCondMLEqFleets c(1,2)
+mp$mp3$mp$assess$spPhzBmsy 2
+mp$mp3$mp$assess$spPhzepslnUmsy_s 5
+mp$mp3$mp$assess$spPhzepslnUmsy_sp 7
+mp$mp3$mp$assess$spPhzdeltalnq_spf 6
+mp$mp3$mp$assess$spPhzdeltalnq_sf 4
+mp$mp3$mp$assess$spPhzlnqShrink 1
+mp$mp3$mp$assess$spPhztauObs -1
+mp$mp3$mp$assess$spIGtau2alpha 1
+mp$mp3$mp$assess$spsdlnq .1
+mp$mp3$mp$assess$spsdUmsy .02
+mp$mp3$mp$assess$spCVBmsy .2
+mp$mp3$mp$assess$sptauq .02
+mp$mp3$mp$assess$spsigU .02
+mp$mp3$mp$assess$spFixUmsy TRUE
+#
+# MP 4 : hierMultiStock_estF_MSrefPts
+#
+mp$mp4$ctl$mpName 'hierMultiStock_estF_MSrefPts'
+mp$mp4$mp$hcr$Fsource 'est'
+mp$mp4$mp$hcr$refPtType 'MS'
+mp$mp4$mp$assess$spSingleStock FALSE
+mp$mp4$mp$assess$spDataPooled FALSE
+mp$mp4$mp$assess$spCoastwide FALSE
+mp$mp4$mp$assess$spFleetWeights c(.5,.5,1.0,1.0)
+mp$mp4$mp$assess$spFleets c(1,2,3,4)
+mp$mp4$mp$assess$spShrinkqFleets c(3,4)
+mp$mp4$mp$assess$spTVqFleets NULL
+mp$mp4$mp$assess$spCondMLEqFleets c(1,2)
+mp$mp4$mp$assess$spPhzBmsy 2
+mp$mp4$mp$assess$spPhzepslnUmsy_s 5
+mp$mp4$mp$assess$spPhzepslnUmsy_sp 7
+mp$mp4$mp$assess$spPhzdeltalnq_spf 6
+mp$mp4$mp$assess$spPhzdeltalnq_sf 4
+mp$mp4$mp$assess$spPhzlnqShrink 1
+mp$mp4$mp$assess$spPhztauObs -1
+mp$mp4$mp$assess$spIGtau2alpha 1
+mp$mp4$mp$assess$spsdlnq .1
+mp$mp4$mp$assess$spsdUmsy .02
+mp$mp4$mp$assess$spCVBmsy .2
+mp$mp4$mp$assess$sptauq .02
+mp$mp4$mp$assess$spsigU .02
+mp$mp4$mp$assess$spFixUmsy TRUE
+#
+# MP 5 : dataPooled_estF_SSrefPts
+#
+mp$mp5$ctl$mpName 'dataPooled_estF_SSrefPts'
+mp$mp5$mp$hcr$Fsource 'est'
+mp$mp5$mp$hcr$refPtType 'SS'
+mp$mp5$mp$assess$spFleetWeights c(.5,.5,1.0,1.0)
+mp$mp5$mp$assess$spSingleStock FALSE
+mp$mp5$mp$assess$spDataPooled TRUE
+mp$mp5$mp$assess$spCoastwide FALSE
+mp$mp5$mp$assess$spPhztauObs -1
+mp$mp5$mp$assess$spsdlnq .5
+mp$mp5$mp$assess$spFixUmsy TRUE
+#
+# MP 6 : dataPooled_estF_MSrefPts
+#
+mp$mp6$ctl$mpName 'dataPooled_estF_MSrefPts'
+mp$mp6$mp$hcr$Fsource 'est'
+mp$mp6$mp$hcr$refPtType 'MS'
+mp$mp6$mp$assess$spFleetWeights c(.5,.5,1.0,1.0)
+mp$mp6$mp$assess$spSingleStock FALSE
+mp$mp6$mp$assess$spDataPooled TRUE
+mp$mp6$mp$assess$spCoastwide FALSE
+mp$mp6$mp$assess$spPhztauObs -1
+mp$mp6$mp$assess$spsdlnq .5
+mp$mp6$mp$assess$spFixUmsy TRUE
+#
+# MP 7 : coastwide_estF_SSrefPts
+#
+mp$mp7$ctl$mpName 'coastwide_estF_SSrefPts'
+mp$mp7$mp$hcr$Fsource 'est'
+mp$mp7$mp$hcr$refPtType 'SS'
+mp$mp7$mp$assess$spFleetWeights c(.5,.5,1.0,1.0)
+mp$mp7$mp$assess$spSingleStock FALSE
+mp$mp7$mp$assess$spDataPooled FALSE
+mp$mp7$mp$assess$spCoastwide TRUE
+mp$mp7$mp$assess$spPhztauObs -1
+mp$mp7$mp$assess$spsdlnq 1
+mp$mp7$mp$assess$spsdUmsy .05
+mp$mp7$mp$assess$spCVBmsy .2
+mp$mp7$mp$assess$sptauq .05
+mp$mp7$mp$assess$spsigU .05
+mp$mp7$mp$assess$spFixUmsy TRUE
+#
+# MP 8 : coastwide_estF_MSrefPts
+#
+mp$mp8$ctl$mpName 'coastwide_estF_MSrefPts'
+mp$mp8$mp$hcr$Fsource 'est'
+mp$mp8$mp$hcr$refPtType 'MS'
+mp$mp8$mp$assess$spFleetWeights c(.5,.5,1.0,1.0)
+mp$mp8$mp$assess$spSingleStock FALSE
+mp$mp8$mp$assess$spDataPooled FALSE
+mp$mp8$mp$assess$spCoastwide TRUE
+mp$mp8$mp$assess$spPhztauObs -1
+mp$mp8$mp$assess$spsdlnq 1
+mp$mp8$mp$assess$spsdUmsy .05
+mp$mp8$mp$assess$spCVBmsy .2
+mp$mp8$mp$assess$sptauq .05
+mp$mp8$mp$assess$spsigU .05
+mp$mp8$mp$assess$spFixUmsy TRUE
+#
+# MP 9 : totalAgg_estF_SSrefPts
+#
+mp$mp9$ctl$mpName 'totalAgg_estF_SSrefPts'
+mp$mp9$mp$hcr$Fsource 'est'
+mp$mp9$mp$hcr$refPtType 'SS'
+mp$mp9$mp$assess$spFleetWeights c(.5,.5,1.0,1.0)
+mp$mp9$mp$assess$spSingleStock FALSE
+mp$mp9$mp$assess$spDataPooled TRUE
+mp$mp9$mp$assess$spCoastwide TRUE
+mp$mp9$mp$assess$spPhztauObs -1
+mp$mp9$mp$assess$spsdlnq .5
+mp$mp9$mp$assess$spFixUmsy TRUE
+#
+# MP 10 : totalAgg_estF_MSrefPts
+#
+mp$mp10$ctl$mpName 'totalAgg_estF_MSrefPts'
+mp$mp10$mp$hcr$Fsource 'est'
+mp$mp10$mp$hcr$refPtType 'MS'
+mp$mp10$mp$assess$spFleetWeights c(.5,.5,1.0,1.0)
+mp$mp10$mp$assess$spSingleStock FALSE
+mp$mp10$mp$assess$spDataPooled TRUE
+mp$mp10$mp$assess$spCoastwide TRUE
+mp$mp10$mp$assess$spPhztauObs -1
+mp$mp10$mp$assess$spsdlnq .5
+mp$mp10$mp$assess$spFixUmsy TRUE
+#
+#
+# <End File> 
