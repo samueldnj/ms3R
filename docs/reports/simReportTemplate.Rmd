@@ -74,10 +74,11 @@ library(stringr)
 library(tidyverse)
 library(here)
 
-knitr::opts_knit$set(   fig.pos = 'p',
+knitr::opts_chunk$set(  fig.pos = 'p',
                         out.width = '100%', dpi=300, 
                         root.dir = params$rootDir,
-                        message = FALSE, warning = FALSE, echo = FALSE )
+                        message = FALSE, warning = FALSE, echo = FALSE,
+                        fig.width = 12, fig.height = 8 )
 
 options(warn = -1)
 
@@ -96,6 +97,7 @@ fYear   <- blob$ctlList$opMod$fYear
 nS      <- blob$om$nS
 nP      <- blob$om$nP
 nT      <- blob$om$nT
+tMP     <- blob$om$tMP
 
 species <- blob$om$speciesNames
 stock   <- blob$om$stockNames
@@ -151,6 +153,19 @@ exploitable biomass. Catch bars show realised catch in grey for the whole
 simulation period, and in the projection period TACs set by the harvest control
 rule are shown as hollow black rectangles over the grey catch bars."
 
+scaledIndicesCap <- "Assessment model fits to biomass indices in the first
+year of the projections. Indices are shown as data points scaled by the
+AM estimates of catchability. Red lines are spawning stock biomass, black
+lines are total biomass, and grey dashed lines are commercial trawl fishery 
+exploitable biomass. Grey bars show catch in the historical period."
+
+AMidxResidsCap <- "Standardised residuals of assessment model fits
+to biomass indices. Point colours correspond to fleets, while point
+shapes are stock areas."
+
+JabbaSelModelCap <- "Ratios between spawning biomass and vulnerable
+biomass ($y$ axis) at a given spawning biomass depletion ($x$ axis) 
+for each fleet (colours)."
 
 ```
 
@@ -179,7 +194,7 @@ plotTulipF( obj = blob )
 ## Effort allocation
 
 ```{r, plotTulipEffort, echo = FALSE, message = FALSE, fig.cap = FTulipCaption }
-plotTulipF( obj = blob )
+plotTulipEffort_p( obj = blob )
 ```
 
 # Example replicates
@@ -190,9 +205,25 @@ plotTulipF( obj = blob )
 plotRetroSBagg(obj = blob, iRep = randReplicate)
 ```
 
-# To be added:
+## Model fits in first year
+```{r, plotScaledIndices, echo = FALSE, message = FALSE, fig.cap = scaledIndicesCap }
+plotScaledIndices(  obj = blob,
+                    iRep = 1,
+                    t = tMP )
+```
 
-- Plots of scaled indices over biomass fits.
+
+```{r, plotAMresids, echo = FALSE, message = FALSE, fig.cap = AMidxResidsCap }
+plotAMIdxResids(  obj = blob,
+                  iRep = 1,
+                  t = tMP )
+```
+
+
+```{r, plotJabbaModel, echo = FALSE, message = FALSE, fig.cap = JabbaSelModelCap }
+plotEBSBratio(  obj = blob )
+```
+
 
 
 # Performance
@@ -213,7 +244,7 @@ kable(  statTable, escape = FALSE,
 
 
 
-```{r, plotConvergence, echo = FALSE, message = FALSE, fig.cap = convStatsCaption }
+```{r, plotConvergence, echo = FALSE, message = FALSE, fig.cap = convStatsCaption, results = "as-is" }
 if(   !(blob$ctlList$ctl$omni | blob$ctlList$ctl$perfConF)  & 
     ( !blob$ctlList$mp$assess$method %in% c("idxBased","PerfectInfo" ) ) )
 {

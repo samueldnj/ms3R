@@ -1,4 +1,4 @@
-# Batch Control File, created Tue Feb 18 15:32:28 2020 by makeBatchDesign() 
+# Batch Control File, created Wed Feb 19 11:11:44 2020 by makeBatchDesign() 
 parameter value
 #
 # Scenarios 
@@ -31,10 +31,10 @@ scenario$scenario3$opMod$projObsErrMult 2
 #
 # Management Procedures 
 #
-# MP 1 : singleStock_estF_SSrefPts
+# MP 1 : singleStock_omF_SSrefPts
 #
-mp$mp1$ctl$mpName 'singleStock_estF_SSrefPts'
-mp$mp1$mp$hcr$Fsource 'est'
+mp$mp1$ctl$mpName 'singleStock_omF_SSrefPts'
+mp$mp1$mp$hcr$Fsource 'om'
 mp$mp1$mp$hcr$refPtType 'SS'
 mp$mp1$mp$assess$spSingleStock TRUE
 mp$mp1$mp$assess$spDataPooled FALSE
@@ -55,10 +55,10 @@ mp$mp1$mp$assess$spsdUmsy .02
 mp$mp1$mp$assess$spCVBmsy .1
 mp$mp1$mp$assess$spFixUmsy TRUE
 #
-# MP 2 : singleStock_estF_MSrefPts
+# MP 2 : singleStock_omF_MSrefPts
 #
-mp$mp2$ctl$mpName 'singleStock_estF_MSrefPts'
-mp$mp2$mp$hcr$Fsource 'est'
+mp$mp2$ctl$mpName 'singleStock_omF_MSrefPts'
+mp$mp2$mp$hcr$Fsource 'om'
 mp$mp2$mp$hcr$refPtType 'MS'
 mp$mp2$mp$assess$spSingleStock TRUE
 mp$mp2$mp$assess$spDataPooled FALSE
@@ -79,10 +79,10 @@ mp$mp2$mp$assess$spsdUmsy .02
 mp$mp2$mp$assess$spCVBmsy .1
 mp$mp2$mp$assess$spFixUmsy TRUE
 #
-# MP 3 : hierMultiStock_estF_SSrefPts
+# MP 3 : hierMultiStock_omF_SSrefPts
 #
-mp$mp3$ctl$mpName 'hierMultiStock_estF_SSrefPts'
-mp$mp3$mp$hcr$Fsource 'est'
+mp$mp3$ctl$mpName 'hierMultiStock_omF_SSrefPts'
+mp$mp3$mp$hcr$Fsource 'om'
 mp$mp3$mp$hcr$refPtType 'SS'
 mp$mp3$mp$assess$spSingleStock FALSE
 mp$mp3$mp$assess$spDataPooled FALSE
@@ -107,10 +107,10 @@ mp$mp3$mp$assess$sptauq .02
 mp$mp3$mp$assess$spsigU .02
 mp$mp3$mp$assess$spFixUmsy TRUE
 #
-# MP 4 : hierMultiStock_estF_MSrefPts
+# MP 4 : hierMultiStock_omF_MSrefPts
 #
-mp$mp4$ctl$mpName 'hierMultiStock_estF_MSrefPts'
-mp$mp4$mp$hcr$Fsource 'est'
+mp$mp4$ctl$mpName 'hierMultiStock_omF_MSrefPts'
+mp$mp4$mp$hcr$Fsource 'om'
 mp$mp4$mp$hcr$refPtType 'MS'
 mp$mp4$mp$assess$spSingleStock FALSE
 mp$mp4$mp$assess$spDataPooled FALSE
@@ -135,10 +135,10 @@ mp$mp4$mp$assess$sptauq .02
 mp$mp4$mp$assess$spsigU .02
 mp$mp4$mp$assess$spFixUmsy TRUE
 #
-# MP 5 : dataPooled_estF_SSrefPts
+# MP 5 : dataPooled_omF_SSrefPts
 #
-mp$mp5$ctl$mpName 'dataPooled_estF_SSrefPts'
-mp$mp5$mp$hcr$Fsource 'est'
+mp$mp5$ctl$mpName 'dataPooled_omF_SSrefPts'
+mp$mp5$mp$hcr$Fsource 'om'
 mp$mp5$mp$hcr$refPtType 'SS'
 mp$mp5$mp$assess$spFleetWeights c(.5,.5,1.0,1.0)
 mp$mp5$mp$assess$spSingleStock FALSE
@@ -148,10 +148,10 @@ mp$mp5$mp$assess$spPhztauObs -1
 mp$mp5$mp$assess$spsdlnq .5
 mp$mp5$mp$assess$spFixUmsy TRUE
 #
-# MP 6 : dataPooled_estF_MSrefPts
+# MP 6 : dataPooled_omF_MSrefPts
 #
-mp$mp6$ctl$mpName 'dataPooled_estF_MSrefPts'
-mp$mp6$mp$hcr$Fsource 'est'
+mp$mp6$ctl$mpName 'dataPooled_omF_MSrefPts'
+mp$mp6$mp$hcr$Fsource 'om'
 mp$mp6$mp$hcr$refPtType 'MS'
 mp$mp6$mp$assess$spFleetWeights c(.5,.5,1.0,1.0)
 mp$mp6$mp$assess$spSingleStock FALSE
@@ -161,10 +161,10 @@ mp$mp6$mp$assess$spPhztauObs -1
 mp$mp6$mp$assess$spsdlnq .5
 mp$mp6$mp$assess$spFixUmsy TRUE
 #
-# MP 7 : coastwide_estF_SSrefPts
+# MP 7 : coastwide_omF_SSrefPts
 #
-mp$mp7$ctl$mpName 'coastwide_estF_SSrefPts'
-mp$mp7$mp$hcr$Fsource 'est'
+mp$mp7$ctl$mpName 'coastwide_omF_SSrefPts'
+mp$mp7$mp$hcr$Fsource 'om'
 mp$mp7$mp$hcr$refPtType 'SS'
 mp$mp7$mp$assess$spFleetWeights c(.5,.5,1.0,1.0)
 mp$mp7$mp$assess$spSingleStock FALSE
@@ -178,10 +178,10 @@ mp$mp7$mp$assess$sptauq .05
 mp$mp7$mp$assess$spsigU .05
 mp$mp7$mp$assess$spFixUmsy TRUE
 #
-# MP 8 : coastwide_estF_MSrefPts
+# MP 8 : coastwide_omF_MSrefPts
 #
-mp$mp8$ctl$mpName 'coastwide_estF_MSrefPts'
-mp$mp8$mp$hcr$Fsource 'est'
+mp$mp8$ctl$mpName 'coastwide_omF_MSrefPts'
+mp$mp8$mp$hcr$Fsource 'om'
 mp$mp8$mp$hcr$refPtType 'MS'
 mp$mp8$mp$assess$spFleetWeights c(.5,.5,1.0,1.0)
 mp$mp8$mp$assess$spSingleStock FALSE
@@ -195,10 +195,10 @@ mp$mp8$mp$assess$sptauq .05
 mp$mp8$mp$assess$spsigU .05
 mp$mp8$mp$assess$spFixUmsy TRUE
 #
-# MP 9 : totalAgg_estF_SSrefPts
+# MP 9 : totalAgg_omF_SSrefPts
 #
-mp$mp9$ctl$mpName 'totalAgg_estF_SSrefPts'
-mp$mp9$mp$hcr$Fsource 'est'
+mp$mp9$ctl$mpName 'totalAgg_omF_SSrefPts'
+mp$mp9$mp$hcr$Fsource 'om'
 mp$mp9$mp$hcr$refPtType 'SS'
 mp$mp9$mp$assess$spFleetWeights c(.5,.5,1.0,1.0)
 mp$mp9$mp$assess$spSingleStock FALSE
@@ -208,10 +208,10 @@ mp$mp9$mp$assess$spPhztauObs -1
 mp$mp9$mp$assess$spsdlnq .5
 mp$mp9$mp$assess$spFixUmsy TRUE
 #
-# MP 10 : totalAgg_estF_MSrefPts
+# MP 10 : totalAgg_omF_MSrefPts
 #
-mp$mp10$ctl$mpName 'totalAgg_estF_MSrefPts'
-mp$mp10$mp$hcr$Fsource 'est'
+mp$mp10$ctl$mpName 'totalAgg_omF_MSrefPts'
+mp$mp10$mp$hcr$Fsource 'om'
 mp$mp10$mp$hcr$refPtType 'MS'
 mp$mp10$mp$assess$spFleetWeights c(.5,.5,1.0,1.0)
 mp$mp10$mp$assess$spSingleStock FALSE

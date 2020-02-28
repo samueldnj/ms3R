@@ -40,6 +40,9 @@ calcRefPts <- function( obj )
   # Calculate reference curves
   refCurves <- .calcRefCurves( obj )
 
+  # EBSBpars
+  EBSBpars <- calcJABBASelPars(obj)
+
   # First, let's just do Fmsy reference points
   FmsyRefPts <- .getFmsy_sp(  obj = obj, 
                               refCurves = refCurves )
@@ -60,17 +63,281 @@ calcRefPts <- function( obj )
   obj$refPts$rec.a_sp     <- obj$rec.a_sp
   obj$refPts$rec.b_sp     <- obj$rec.b_sp
   obj$refPts$B0_sp        <- refCurves$Beq_spf[,,1]
-  
+
+  # Get EBSB pars for JABBA-Select application
+  obj$refPts$EBSBpars <- EBSBpars
+
   return(obj$refPts)
 
 } # END calcRefPts()
+
+
+calcJABBASelPars <- function( obj )
+{
+  # Loop over all fleets, and calculate
+  # ratios of equilibrium spawning
+  # and eqbm exploitable biomass for a vector
+  # of fishing mortality rates. Then,
+  # fit the JABBA select EB/SB model
+  # to the data.
+  # Model dims
+  nF <- obj$nF
+  nS <- obj$nS
+  nP <- obj$nP
+
+  # Max F to be calculated for
+  maxF <- max( 10*obj$M_xsp )
+  Fseq <- seq( from = 0, to = maxF, length.out = 100 )
+
+
+  Beq_spfj    <- array(NA, dim = c(nS,nP,nF,100) )
+  expBeq_spfj <- array(NA, dim = c(nS,nP,nF,100) )
+  ratioB_spfj <- array(NA, dim = c(nS,nP,nF,100) )
+
+  nu_spfk <- array(NA, dim = c(nS,nP,nF,3) )
+  P1_spf  <- array(NA, dim = c(nS,nP,nF) )
+  P2_spf  <- array(NA, dim = c(nS,nP,nF) )
+
+  for( f in 1:nF)
+  {
+    for( j in 1:100 )
+    {
+      tmp <- .calcEquil(  f = Fseq[j], obj = obj,
+                          fleetIdx = f )
+      Beq_spfj[,,f,j]     <- tmp$Beq_sp
+      expBeq_spfj[,,f,j]  <- tmp$expBeq_sp
+
+    }
+  }
+
+  # Replace crashed stock biomasses with NAs
+  Beq_spfj[ Beq_spfj < 0 ]    <- 0
+  Beq_spfj[ expBeq_spfj < 0 ] <- 0
+
+  expBeq_spfj[ Beq_spfj < 0 ]     <- 0
+  expBeq_spfj[ expBeq_spfj < 0 ]  <- 0
+
+  expBeq_spfj[ expBeq_spfj == 0 ] <- NA
+  Beq_spfj[ Beq_spfj == 0 ]       <- NA
+
+  # Compute ratio
+  ratioB_spfj <- expBeq_spfj / Beq_spfj
+  
+  # Now apply a function to solve for nu parameters
+  for( s in 1:nS )
+    for( p in 1:nP )
+      for( f in 1:nF )
+      {
+        initnu_k <- c(0.25, 1, 2 )
+
+        initlognu_k <- log(initnu_k)
+
+        Peq_j <- Beq_spfj[s,p,f,] / obj$B0_sp[s,p]
+
+        P1_spf[s,p,f] <- min(Peq_j,na.rm = T)
+        P2_spf[s,p,f] <- max(Peq_j,na.rm = T)
+
+        optOut <- optim(  par = initlognu_k, fn = .EBSBlikelihood,
+                          method = "Nelder-Mead",
+                          Beq_j = Beq_spfj[s,p,f,],
+                          expBeq_j = expBeq_spfj[s,p,f,],
+                          B0 = obj$B0_sp[s,p],
+                          P1 = P1_spf[s,p,f],
+                          P2 = P2_spf[s,p,f] )
+
+
+
+        nu_spfk[s,p,f,] <- exp(optOut$par) 
+      }
+
+  # Save model parameters
+  EBSB_StockSpec <- list( P1_spf  = P1_spf,
+                          P2_spf  = P2_spf,
+                          nu_spfk = nu_spfk )
+
+  # Now do coastwide.
+  # First, borrow the sub-arrays
+  nu_sfk <- nu_spfk[,1,,,drop = FALSE]
+  P1_sf  <- P1_spf[,1,,drop = FALSE]
+  P2_sf  <- P2_spf[,1,,drop = FALSE]
+
+  Beq_sfj     <- Beq_spfj[,1,,,drop = FALSE]
+  Beq_sfj[,1,,] <- apply(X = Beq_spfj, FUN = sum, MARGIN = c(1,3,4))
+  expBeq_sfj  <- Beq_spfj[,1,,,drop = FALSE]
+  expBeq_sfj[,1,,] <- apply(X = expBeq_spfj, FUN = sum, MARGIN = c(1,3,4))
+  # Then loop and compute
+  for( s in 1:nS )
+  {
+    for( f in 1:nF )
+    {
+      initnu_k <- c(0.25, 1, 2 )
+
+      initlognu_k <- log(initnu_k)
+
+      Peq_j <- Beq_sfj[s,1,f,] / sum(obj$B0_sp[s,])
+      P1_sf[s,1,f] <- min(Peq_j,na.rm = T)
+      P2_sf[s,1,f] <- max(Peq_j,na.rm = T)
+
+      optOut <- optim(  par = initlognu_k, fn = .EBSBlikelihood,
+                        method = "Nelder-Mead",
+                        Beq_j = Beq_sfj[s,1,f,],
+                        expBeq_j = expBeq_sfj[s,1,f,],
+                        B0 = sum(obj$B0_sp[s,]),
+                        P1 = P1_sf[s,1,f],
+                        P2 = P2_sf[s,1,f] )
+
+      nu_sfk[s,1,f,] <- exp(optOut$par) 
+    }
+  }
+
+  # Save model parameters
+  EBSB_CoastWide <- list( P1_spf  = P1_sf,
+                          P2_spf  = P2_sf,
+                          nu_spfk = nu_sfk )
+
+  # Now data pooled
+  # First, borrow the sub-arrays
+  nu_pfk <- nu_spfk[1,,,,drop = FALSE]
+  P1_pf  <- P1_spf[1,,,drop = FALSE]
+  P2_pf  <- P2_spf[1,,,drop = FALSE]
+
+  Beq_pfj     <- Beq_spfj[1,,,,drop = FALSE]
+  Beq_pfj[1,,,] <- apply(X = Beq_spfj, FUN = sum, MARGIN = c(2,3,4))
+  expBeq_pfj  <- Beq_spfj[1,,,,drop = FALSE]
+  expBeq_pfj[1,,,] <- apply(X = expBeq_spfj, FUN = sum, MARGIN = c(2,3,4))
+  # Then loop and compute
+  for( p in 1:nP )
+  {
+    for( f in 1:nF )
+    {
+      initnu_k <- c(0.25, 1, 2 )
+
+      initlognu_k <- log(initnu_k)
+
+      Peq_j <- Beq_pfj[1,p,f,] / sum(obj$B0_sp[,p])
+      P1_pf[1,p,f] <- min(Peq_j,na.rm = T)
+      P2_pf[1,p,f] <- max(Peq_j,na.rm = T)
+
+      optOut <- optim(  par = initlognu_k, fn = .EBSBlikelihood,
+                        method = "Nelder-Mead",
+                        Beq_j = Beq_pfj[1,p,f,],
+                        expBeq_j = expBeq_pfj[1,p,f,],
+                        B0 = sum(obj$B0_sp[,p]),
+                        P1 = P1_pf[1,p,f],
+                        P2 = P2_pf[1,p,f] )
+
+      
+
+      nu_pfk[1,p,f,] <- exp(optOut$par) 
+    }
+  }
+
+  # Save model parameters
+  EBSB_DataPooled <- list(  P1_spf  = P1_pf,
+                            P2_spf  = P2_pf,
+                            nu_spfk = nu_pfk )
+
+  # Now TotalAgg
+  # First, borrow the sub-arrays
+  nu_fk <- nu_spfk[1,1,,,drop = FALSE]
+  P1_f  <- P1_spf[1,1,,drop = FALSE]
+  P2_f  <- P2_spf[1,1,,drop = FALSE]
+
+  Beq_fj     <- Beq_spfj[1,1,,,drop = FALSE]
+  Beq_fj[1,1,,] <- apply(X = Beq_spfj, FUN = sum, MARGIN = c(3,4))
+  expBeq_fj  <- Beq_spfj[1,1,,,drop = FALSE]
+  expBeq_fj[1,1,,] <- apply(X = expBeq_spfj, FUN = sum, MARGIN = c(3,4))
+  # Then loop and compute
+  for( f in 1:nF )
+  {
+    initnu_k <- c(0.25, 1, 2 )
+
+    initlognu_k <- log(initnu_k)
+
+    Peq_j <- Beq_fj[1,1,f,] / sum(obj$B0_sp)
+    P1_f[1,1,f] <- min(Peq_j,na.rm = T)
+    P2_f[1,1,f] <- max(Peq_j,na.rm = T)
+
+    optOut <- optim(  par = initlognu_k, fn = .EBSBlikelihood,
+                      method = "Nelder-Mead",
+                      Beq_j = Beq_fj[1,1,f,],
+                      expBeq_j = expBeq_fj[1,1,f,],
+                      B0 = sum(obj$B0_sp[,p]),
+                      P1 = P1_f[1,1,f],
+                      P2 = P2_f[1,1,f] )
+
+    
+
+    nu_fk[1,1,f,] <- exp(optOut$par) 
+  }
+
+  # Save model parameters
+  EBSB_TotalAgg <- list(  P1_spf  = P1_f,
+                          P2_spf  = P2_f,
+                          nu_spfk = nu_fk )
+  
+
+
+  # Return Exploitable/spawning biomass
+  # ratio model pars
+  out <- list(  stockSpec   = EBSB_StockSpec,
+                dataPooled  = EBSB_DataPooled,
+                coastWide   = EBSB_CoastWide,
+                totalAgg    = EBSB_TotalAgg )
+
+  out
+}
+
+# .EBSBratio()
+# Parametric function to calculate EBSB
+# ratio from a given spawning biomass
+# depletion level
+.EBSBratio <- function( Pf, P1, P2, nu_k )
+{
+  # Calculate numerator and denominator
+  numerator   <- (1 - exp(-nu_k[3] * (Pf - P1)))
+  denominator <- (1 - exp(-nu_k[3] * (P2 - P1)))
+
+  # Calculate expected ratio
+  EBSB <- nu_k[1] + (nu_k[2] - nu_k[1]) * numerator / denominator
+
+  EBSB
+} # END .EBSBratio
+
+# .EBSBoptim()
+# Optimises nu parameters for
+# the EBSB model
+.EBSBlikelihood <- function( lognu_k, B0, Beq_j, expBeq_j, P1, P2 )
+{
+  # Exponentiate lognu_k
+  nu_k <- exp(lognu_k)
+
+  # First, calculate relative depletion levels
+  # for the spawning biomass
+  Peq_j <- Beq_j / B0
+  Peq_j <- Peq_j[!is.na(Peq_j)]
+  
+  expRatio <- sapply( X = Peq_j, FUN = .EBSBratio,
+                        P1 = P1, P2 = P2, nu_k = nu_k )
+
+  obsRatio <- expBeq_j / Beq_j
+
+  resid <- log(obsRatio[!is.na(Peq_j)]) - log(expRatio[!is.na(Peq_j)])
+
+
+  SSQ <- sum(resid^2, na.rm = T)
+
+  SSQ
+} # END .EBSBlikelihood()
+
+
 
 # .calcRefCurves()
 # Calculates equilibrium curves of equilbrium biomass, numbers,
 # yield and recruitment as a function of input fishing mortality rates
 # inputs:   obj = list of biological parameters
 # ouputs:   refCurves = list() of reference curves (vectors)
-.calcRefCurves <- function( obj, nFs = 1000 )
+.calcRefCurves <- function( obj, nFs = 1000, fleetIdx = 2 )
 {
   # First, compute max F (tolerance of 1e-5)
   nT   <- dim(obj$om$qF_spft)[4]
@@ -182,7 +449,8 @@ calcRefPts <- function( obj )
 # inputs:   f = input fishing mortality rate
 #           obj = list of biological parameters
 # ouputs:   equil = list() of equilibrium biomass, yield and recruitment
-.calcEquil <- function( f = 0, obj, type = "fmort" )
+.calcEquil <- function( f = 0, obj, type = "fmort", 
+                        fleetIdx = 2 )
 {
   nS  <- obj$nS
   nP  <- obj$nP
@@ -190,7 +458,7 @@ calcRefPts <- function( obj )
 
 
   # Now calculate eqbm recruitment at given f value
-  tmp <- .calcPerRecruit( f = f, obj = obj, type = type )
+  tmp <- .calcPerRecruit( f = f, obj = obj, type = type, fleetIdx = fleetIdx )
   yprList <- tmp$yprList
 
   recruits_sp <- ( obj$rec.a_sp * yprList$ssbpr_sp - 1) / (obj$rec.b_sp * yprList$ssbpr_sp)
@@ -265,7 +533,7 @@ calcRefPts <- function( obj )
 # Returns:     a list with equilibrium quantities - (i) spawning stock biomass-per-recruit
 #              and (ii) yield-per-recruit (ypr)
 # Source:      S.P. Cox, modified for hierSCAL by SDNJ
-.calcPerRecruit <- function( f, obj, type = "fmort" )
+.calcPerRecruit <- function( f, obj, type = "fmort", fleetIdx = 2 )
 {
 
   # Compute eqbm spawning biomass per recruit for
@@ -285,7 +553,7 @@ calcRefPts <- function( obj )
   lenAge_axsp       <- aperm(obj$lenAge_aspx,c(1,4,2,3))
   wtAge_axsp        <- aperm(obj$meanWtAge_aspx,c(1,4,2,3))
   probLenAge_laspx  <- obj$probLenAge_laspx
-  selAge_axsp       <- obj$sel_axspft[,,,,2,nT]
+  selAge_axsp       <- obj$sel_axspft[,,,,fleetIdx,nT]
 
   fmort <- array(f, dim =c(nS,nP) )
 

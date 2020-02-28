@@ -124,6 +124,9 @@
   outFile <- paste( "batchReport.html", sep = "")
   outFolder <- file.path(simFolder,"batchReports")
 
+  if(!dir.exists(outFolder))
+    dir.create(outFolder)
+
   # Render
   rmarkdown::render(  input = here::here("docs/reports","batchReportTemplate.Rmd"), 
                       output_file = outFile,
@@ -136,6 +139,39 @@
   dataReportFiles <- "batchReport_files"
   unlink(file.path(outFolder,dataReportFiles), recursive = TRUE)
 } # END .makeBatchReport()
+
+# .makeBatchReport()
+# Makes a .html report of the simulation
+# showing basic performance plots
+# and tables
+.makeBatchLossReport <- function( batchFolder = "",
+                                  prefix = "" )
+{
+  simFolder <- here::here("Outputs",batchFolder)
+
+  # Create parameter list for rendering the document
+  params <- list( batchDir = simFolder,
+                  groupFolder = batchFolder,
+                  prefix = prefix )
+  # Make an output file name
+  outFile <- paste( "batchLossReport.html", sep = "")
+  outFolder <- file.path(simFolder,"batchReports")
+
+  if(!dir.exists(outFolder))
+    dir.create(outFolder)
+
+  # Render
+  rmarkdown::render(  input = here::here("docs/reports","batchLossReportTemplate.Rmd"), 
+                      output_file = outFile,
+                      output_dir = outFolder,
+                      params = params,
+                      envir = new.env(),
+                      output_format = "bookdown::html_document2" )
+
+  # remove temporary files
+  dataReportFiles <- "batchLossReport_files"
+  unlink(file.path(outFolder,dataReportFiles), recursive = TRUE)
+} # END .makeBatchLossReport()
 
 # readBatchInfo()
 # Loads a data.frame of info files for

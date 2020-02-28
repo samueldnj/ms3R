@@ -84,26 +84,32 @@ Type objective_function<Type>::operator() ()
   int nT = I_spft.dim(3);           // No of time steps
 
   // Model switches
-  DATA_INTEGER(SigmaPriorCode); // 0 => IG on diagonal element, 1 => IW on cov matrix
-  DATA_IVECTOR(condMLEq_f);     // 0 => q estimated, 1 => q derived from obs model (mean resid)
-  DATA_IVECTOR(shrinkq_f);      // 0 => q a leading par, 1 => q shrank to complex mean
-  DATA_IVECTOR(tvq_f);          // 0 => q constant, 1 => q time-varying
-  DATA_IVECTOR(fleetq_f);       // 0 => no q estimated, 1 => q estimated for fleet f
-  DATA_VECTOR(fleetWeights_f);  // scalars for fleet components of the likelihood function
-  DATA_IVECTOR(condMLEobsErr_f);// 0 => obs error sd estimated as a free par, 1 => conditional MLE
-  DATA_INTEGER(lnqPriorCode);   // 0 => hyperprior, 1 => multilevel
-  DATA_INTEGER(lnUPriorCode);   // 0 => hyperprior, 1 => multilevel 
-  DATA_INTEGER(BPriorCode);     // 0 => normal, 1 => Jeffreys 
-  DATA_INTEGER(tauObsPriorCode);// 0 => Off, 1 => On
-  DATA_IARRAY(initT_sp);        // first year of assessment
-  DATA_IARRAY(initProcErr_sp);  // first year of process error devs
-  DATA_IARRAY(initBioCode_sp);  // initial biomass at 0 => unfished, 1=> fished
-  DATA_IARRAY(calcIndex_spf);   // Indicator for calculating obs model variance for an index
-  DATA_IARRAY(stockq_spf);      // Indicator for calculating catchability for a stock/species/fleet combo
-  DATA_IARRAY(speciesq_sf);     // Indicator for calculating catchability for a species/fleet combo
-  DATA_SCALAR(posPenFactor);    // Positive-penalty multiplication factor
-  DATA_IARRAY(solveInitBio_sp); // Indicator for solving initial biomass from first data point and catchability. 0 => off, fIdx > 0 => fleet number
-
+  DATA_INTEGER(SigmaPriorCode);         // 0 => IG on diagonal element, 1 => IW on cov matrix
+  DATA_IVECTOR(condMLEq_f);             // 0 => q estimated, 1 => q derived from obs model (mean resid)
+  DATA_IVECTOR(shrinkq_f);              // 0 => q a leading par, 1 => q shrank to complex mean
+  DATA_IVECTOR(tvq_f);                  // 0 => q constant, 1 => q time-varying
+  DATA_IVECTOR(fleetq_f);               // 0 => no q estimated, 1 => q estimated for fleet f
+  DATA_VECTOR(fleetWeights_f);          // scalars for fleet components of the likelihood function
+  DATA_IVECTOR(condMLEobsErr_f);        // 0 => obs error sd estimated as a free par, 1 => conditional MLE
+  DATA_INTEGER(lnqPriorCode);           // 0 => hyperprior, 1 => multilevel
+  DATA_INTEGER(lnUPriorCode);           // 0 => hyperprior, 1 => multilevel 
+  DATA_INTEGER(BPriorCode);             // 0 => normal, 1 => Jeffreys 
+  DATA_INTEGER(tauObsPriorCode);        // 0 => Off, 1 => On
+  DATA_IARRAY(initT_sp);                // first year of assessment
+  DATA_IARRAY(initProcErr_sp);          // first year of process error devs
+  DATA_IARRAY(initIdx_sp);              // First year of biomass index observations
+  DATA_IARRAY(initBioCode_sp);          // initial biomass at 0 => unfished, 1=> fished
+  DATA_IARRAY(calcIndex_spf);           // Indicator for calculating obs model variance for an index
+  DATA_IARRAY(stockq_spf);              // Indicator for calculating catchability for a stock/species/fleet combo
+  DATA_IARRAY(speciesq_sf);             // Indicator for calculating catchability for a species/fleet combo
+  DATA_SCALAR(posPenFactor);            // Positive-penalty multiplication factor
+  DATA_IARRAY(solveInitBio_sp);         // Indicator for solving initial biomass from first data point and catchability. 0 => off, fIdx > 0 => fleet number
+  DATA_IARRAY(idxLimits_spfj);          // integers indicating initial and terminal indicies for each fleet
+  DATA_INTEGER(importQdevs);            // Import time-varying q deviations from OM (0 => NO, 1 => YES)
+  DATA_ARRAY(PTm_sp);                   // Pella-Tomlinson m variable (phi = m-1 )
+  DATA_ARRAY(nu_spfk);                  // Jabba-Select nu parameters
+  DATA_ARRAY(P1_spf);                   // Jabba-Select P1 parameters
+  DATA_ARRAY(P2_spf);                   // Jabba-Select P2 parameters
 
   /* ========== parameter section ==========*/
   // Leading Parameters
@@ -118,8 +124,9 @@ Type objective_function<Type>::operator() ()
   PARAMETER_VECTOR(lntauq_s);           // survey catchability sd among stocks w/in a species
   PARAMETER_VECTOR(tvlnqDevs_vec);      // Time-varying catchability devs
   PARAMETER(lntautvqDev);               // TV q SD
-  PARAMETER(mlnq);                      // hyperprior mean catchability across surveys (tuning par)
-  PARAMETER(sdlnq);                     // hyperprior sd in mean catchability (tuning par)
+  PARAMETER_ARRAY(mlnq_sf);             // hyperprior mean catchability across surveys (tuning par)
+  PARAMETER_ARRAY(mlnq_spf);            // hyperprior mean catchability across surveys (tuning par)
+  PARAMETER_VECTOR(sdlnq_f);            // hyperprior sd in catchability for each fleet (tuning par)
   PARAMETER_VECTOR(epslnUmsy_s);        // deviation in Umsy from complex mean to species level
   PARAMETER(lnsigUmsy);                 // complex level Umsy sd
   PARAMETER_ARRAY(epslnUmsy_sp);        // deviation in Umsy from species to stock
@@ -140,10 +147,11 @@ Type objective_function<Type>::operator() ()
   PARAMETER_VECTOR(zetaspt_vec);        // species-stock effect - in a vector for missing years
   PARAMETER_ARRAY(sigmaProcMult_sp);    // process error scalar mults - might be deprec later
   PARAMETER(logit_gammaYr);             // AR1 auto-corr on year effect (eps) - tuning?
-  
+  PARAMETER_ARRAY(omqDevs_spft);        // Imported OM q devs
 
   // State variables
   array<Type>       B_spt(nS,nP,nT+1);
+  array<Type>       vB_spft(nS,nP,nF,nT+1);
   array<Type>       lnB_spt(nS,nP,nT+1);
   array<Type>       zeta_spt(nS,nP,nT+1);
   // Leading parameters
@@ -184,6 +192,7 @@ Type objective_function<Type>::operator() ()
   tauq_s.setZero();
   tau2q_s.setZero();
   tau_spf.fill(0);
+  vB_spft.fill(0);
 
   // Umsy
   vector<Type>      Umsy_s(nS);
@@ -269,6 +278,25 @@ Type objective_function<Type>::operator() ()
           lnq_spf(s,p,f)  = lnqFreespf_vec(qFreeIdx);
           qFreeIdx++; 
         }
+
+        if( tvq_f(f) == 1 )
+        {
+          
+          for( int t = idxLimits_spfj(s,p,f,0) + 1; t <= idxLimits_spfj(s,p,f,1); t++ )
+          {
+            if( I_spft(s,p,f,t) > 0 )
+            {
+              if( importQdevs == 0 )
+              {
+                lnqdev_spft(s,p,f,t) = lnqdev_spft(s,p,f,t-1) + tvlnqDevs_vec(qDevVecIdx);
+                qDevVecIdx++;
+              }
+              if( importQdevs == 1 )
+                lnqdev_spft(s,p,f,t) = lnqdev_spft(s,p,f,t-1) + omqDevs_spft(s,p,f,t);
+            }
+          }
+
+        }
       }
 
     }
@@ -280,6 +308,14 @@ Type objective_function<Type>::operator() ()
   q_spf     = exp(lnq_spf);
   Umsy_s    = exp(lnUmsy_s);
   Umsy_sp   = exp(lnUmsy_sp);
+
+  // Calculate r and B0 for each species/stock
+  // given PTm value
+  array<Type> r_sp(nS,nP);
+  array<Type> B0_sp(nS,nP);
+
+  r_sp  = Umsy_sp * (PTm_sp - 1) / (1 - 1 / PTm_sp);
+  B0_sp = Bmsy_sp * pow(PTm_sp, 1/(PTm_sp - 1) );
 
   // Square obs error SD
   tau2_spf = tau_spf * tau_spf;
@@ -307,6 +343,9 @@ Type objective_function<Type>::operator() ()
   array<Type>       U_Umsy_spt(nS,nP,nT+1);
   array<Type>       lnU_Umsy_spt(nS,nP,nT+1);
   array<Type>       lnU_UmsyT_sp(nS,nP);
+  array<Type>       D_spt(nS,nP,nT+1);        // spawning biomass depletion
+
+  D_spt.setZero();
 
   // Fill arrays
   MSY_sp    = Bmsy_sp * Umsy_sp;
@@ -340,9 +379,23 @@ Type objective_function<Type>::operator() ()
     for( int p = 0; p < nP; p++ )
     {
       // initialise population, if initBioCode(s)==0 this will be eqbm
-      if( initBioCode_sp(s,p) == 0 ) B_spt(s,p,initT_sp(s,p)) = Type(2) * Bmsy_sp(s,p);
+      if( initBioCode_sp(s,p) == 0 ) B_spt(s,p,initT_sp(s,p)) = B0_sp(s,p);
       if( initBioCode_sp(s,p) == 1 ) B_spt(s,p,initT_sp(s,p)) = Binit_sp(s,p);
       lnB_spt(s,p,initT_sp(s,p)) = log(B_spt(s,p,initT_sp(s,p)));
+
+      D_spt(s,p,initT_sp(s,p)) = B_spt(s,p,initT_sp(s,p)) / B0_sp(s,p);
+
+      for( int f = 0; f < nF; f ++ )
+      {
+        Type BratNum = (1 - exp( -nu_spfk(s,p,f,2) * ( D_spt(s,p,initT_sp(s,p)) - P1_spf(s,p,f)) ));
+        Type BratDen = (1 - exp( -nu_spfk(s,p,f,2) * ( P2_spf(s,p,f) - P1_spf(s,p,f)) ));
+
+        vB_spft(s,p,f,initT_sp(s,p)) = B_spt(s,p,initT_sp(s,p)) * (   nu_spfk(s,p,f,0) + 
+                                            ( nu_spfk(s,p,f,1) - nu_spfk(s,p,f,0)) * 
+                                              BratNum / BratDen 
+                                          );
+      }
+
       for( int t = initT_sp(s,p) + 1; t < nT + 1; t++ )
       {
         Type tmpB_spt = B_spt(s,p,t-1);
@@ -350,7 +403,7 @@ Type objective_function<Type>::operator() ()
         {
           // Compute the deltat step of biomass (assuming catch is evenly distributed across the year)
           Type tmpBdt = 0;
-          tmpBdt =  tmpB_spt + deltat * Umsy_sp(s,p) * tmpB_spt * (Type(2.0) - tmpB_spt / Bmsy_sp(s,p) ) - deltat*C_spt(s,p,t-1);
+          tmpBdt =  tmpB_spt + deltat * Umsy_sp(s,p) * PTm_sp(s,p) * tmpB_spt * (Type(1.0) - pow(tmpB_spt / Bmsy_sp(s,p), PTm_sp(s,p)-1) / PTm_sp(s,p) ) / (PTm_sp(s,p) - 1) - deltat*C_spt(s,p,t-1);
           tmpBdt *= exp( deltat *  zeta_spt(s,p,t) );
           // Update temp biomass
           tmpB_spt = posfun(tmpBdt, Type(1e-1), pospen);
@@ -359,6 +412,19 @@ Type objective_function<Type>::operator() ()
           tmpB_spt = posfun( tmpB_spt, C_spt(s,p,t), pospen);
         
         B_spt(s,p,t) = tmpB_spt;
+        D_spt(s,p,t) = B_spt(s,p,t) / B0_sp(s,p);
+
+        for( int f = 0; f < nF; f++ )
+        {
+
+          Type BratNum = (1 - exp( -nu_spfk(s,p,f,2) * ( D_spt(s,p,t) - P1_spf(s,p,f)) ));
+          Type BratDen = (1 - exp( -nu_spfk(s,p,f,2) * ( P2_spf(s,p,f) - P1_spf(s,p,f)) ));
+
+          vB_spft(s,p,f,t) = B_spt(s,p,t) * (   nu_spfk(s,p,f,0) + 
+                                              ( nu_spfk(s,p,f,1) - nu_spfk(s,p,f,0)) * 
+                                                BratNum / BratDen 
+                                            );
+        }
 
         lnB_spt(s,p,t) = log(B_spt(s,p,t));
       }
@@ -401,13 +467,13 @@ Type objective_function<Type>::operator() ()
       for( int s = 0; s < nS; s++ )
       {
         // time
-        for( int t = initT_sp(s,p); t < nT; t++ )
+        for( int t = initIdx_sp(s,p); t < nT; t++ )
         {
           // only add a contribution if the data exists (I_spft < 0 is missing)
           if( ( I_spft(s,p,f,t) > 0. ) & (calcIndex_spf(s,p,f) == 1) ) 
           {
             validObs_spf(s,p,f) += int(1);
-            z_spft(s,p,f,t) = log( I_spft( s,p,f,t ) ) - log( B_spt( s,p,t ) );
+            z_spft(s,p,f,t) = log( I_spft( s,p,f,t ) ) - log( vB_spft( s,p,f,t ) );
             zSum_spf(s,p,f) += z_spft(s,p,f,t);
           }       
         }
@@ -428,12 +494,12 @@ Type objective_function<Type>::operator() ()
         qhat_spf(s,p,f) = exp(lnqhat_spf(s,p,f));
 
         // Subtract lnq_sf from the resids
-        for( int t = initT_sp(s,p); t < nT; t++ )
+        for( int t = initIdx_sp(s,p); t < nT; t++ )
         {
           qhat_spft(s,p,f,t) = exp( lnqhat_spf(s,p,f) + lnqdev_spft(s,p,f,t));
           if( (I_spft(s,p,f,t) > 0.0) & (calcIndex_spf(s,p,f) == 1) )
           {
-            z_spft(s,p,f,t) -= lnqhat_spf(s,p,f) - lnqdev_spft(s,p,f,t);
+            z_spft(s,p,f,t) -= log(qhat_spft(s,p,f,t));
             SS_spf(s,p,f)   += square(z_spft(s,p,f,t));
           }
         }
@@ -442,7 +508,10 @@ Type objective_function<Type>::operator() ()
         tau2hat_spf(s,p,f) = SS_spf(s,p,f) / validObs_spf(s,p,f);
 
         if( condMLEobsErr_f(f) == 1)
+        {
           tau2_spf(s,p,f) = tau2hat_spf(s,p,f);
+          tau_spf(s,p,f)  = sqrt(tau2hat_spf(s,p,f));
+        }
 
         // Add to likelihood
         if( calcIndex_spf(s,p,f) == 1 )
@@ -518,7 +587,22 @@ Type objective_function<Type>::operator() ()
 
   // Hyperpriors
   // Catchability
-  nlpq -= dnorm( lnqShrinksf_vec, mlnq, sdlnq, true).sum();
+  for( int f = 0; f < nF; f++ )
+  {
+    for( int s = 0; s < nS; s++ )
+    {
+      // Penalise species/fleet level mean
+      if( speciesq_sf(s,f) == 1)
+        nlpq -= dnorm( lnq_sf(s,f), mlnq_sf(s,f), sdlnq_f(f), true);
+
+      for( int p = 0;  p < nP; p++ )
+      { 
+        if( speciesq_sf(s,f) == 0 & stockq_spf(s,p,f) == 0 )
+          nlpq -= dnorm( lnq_spf(s,p,f), mlnq_spf(s,p,f), sdlnq_f(f), true);
+      }
+    } 
+  }
+
 
   // Productivity
   nlpU -= dnorm( lnUmsy, mlnUmsy, sdlnUmsy, true);
@@ -599,6 +683,7 @@ Type objective_function<Type>::operator() ()
 
   // State variables
   REPORT(B_spt);
+  REPORT(vB_spft);
 
   // Priors
   REPORT(mBmsy_sp);
@@ -631,6 +716,14 @@ Type objective_function<Type>::operator() ()
   REPORT(qShrinkIdx_sf);
   REPORT(deltalnqspf_vec);
   REPORT(tauq_s);
+
+  // Skew in production function
+  REPORT(PTm_sp);
+  REPORT(B0_sp);
+  REPORT(r_sp);
+  REPORT(nu_spfk);
+  REPORT(P1_spf);
+  REPORT(P2_spf);
 
   // Optimisation quantities
   REPORT(zSum_spf);

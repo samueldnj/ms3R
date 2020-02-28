@@ -20,7 +20,7 @@ plotBatchLossDists <- function( groupFolder = "longGrid",
                                 lossType = "rel",
                                 var = "C_ispt",
                                 period = 62:72,
-                                save = FALSE )
+                                lossList = NULL )
 {
   # First, read info files from the relevant
   # sims
@@ -71,10 +71,14 @@ plotBatchLossDists <- function( groupFolder = "longGrid",
 
   # Load loss files, place in a list
   simFolderNames  <- info.df$simLabel
-  lossList        <- lapply(  X = simFolderNames,
-                              FUN = .loadLoss,
-                              folder = groupFolder )
-  names(lossList) <- simFolderNames
+  if( is.null(lossList) )
+  {
+    lossList        <- lapply(  X = simFolderNames,
+                                FUN = .loadLoss,
+                                folder = groupFolder )
+    names(lossList) <- simFolderNames
+  }
+  
 
   # Calculate total loss for variable/period
   totLossList  <- lapply( X = lossList,
@@ -1763,6 +1767,7 @@ plotEffort_p <- function( obj = blob,
           line = 2, font = 2)
 } # END plotEffort_p()
 
+
 # plotCtTACt_sp()
 # Comparison plot of TAC and realized catch for each 
 # species/stock
@@ -1972,6 +1977,8 @@ plotRetroSB <- function( obj = blob, iRep = 1 )
 
 }
 
+
+
 # plotRetroSBagg()
 # Retrospective plots of AM fits for a given replicate
 # with biomasses aggregated to match the scale of the AM
@@ -2125,6 +2132,461 @@ plotRetroSBagg <- function( obj = blob, iRep = 1, Ct = TRUE )
     }
 
 }
+
+# plotEBSBratio()
+# Plots of ratio between vulnerable
+# biomass and exploitable biomass
+# for given depletion levels.
+plotEBSBratio <- function( obj = blob )
+{
+  # Pull model dims
+  nS <- obj$om$nS
+  nP <- obj$om$nP
+  nF <- obj$om$nF
+
+  fleetNames <- obj$om$fleetNames
+
+  # Pull reference points
+  rp <- obj$rp[[1]]
+
+  nu_spfk <- array(NA, dim = c(nS+1,nP+1,nF,3))
+  P1_spf  <- array(NA, dim = c(nS+1,nP+1,nF))
+  P2_spf  <- array(NA, dim = c(nS+1,nP+1,nF))
+
+  # Fill!
+  # nu pars
+  nu_spfk[1:nS,1:nP,1:nF,] <- rp$EBSBpars$stockSpec$nu_spfk
+  nu_spfk[nS+1,1:nP,1:nF,] <- rp$EBSBpars$coastWide$nu_spfk
+  nu_spfk[1:nS,1+nP,1:nF,] <- rp$EBSBpars$dataPooled$nu_spfk
+  nu_spfk[1+nS,1+nP,1:nF,] <- rp$EBSBpars$totalAgg$nu_spfk
+
+  # P1
+  P1_spf[1:nS,1:nP,1:nF] <- rp$EBSBpars$stockSpec$P1_spf
+  P1_spf[nS+1,1:nP,1:nF] <- rp$EBSBpars$coastWide$P1_spf
+  P1_spf[1:nS,1+nP,1:nF] <- rp$EBSBpars$dataPooled$P1_spf
+  P1_spf[1+nS,1+nP,1:nF] <- rp$EBSBpars$totalAgg$P1_spf
+
+  # P2
+  P2_spf[1:nS,1:nP,1:nF] <- rp$EBSBpars$stockSpec$P2_spf
+  P2_spf[nS+1,1:nP,1:nF] <- rp$EBSBpars$coastWide$P2_spf
+  P2_spf[1:nS,1+nP,1:nF] <- rp$EBSBpars$dataPooled$P2_spf
+  P2_spf[1+nS,1+nP,1:nF] <- rp$EBSBpars$totalAgg$P2_spf
+
+  depSeq <- seq(0,1,length.out = 100 )
+
+  par( mfcol = c(nS+1,nP+1),
+        mar = c(.5,.5,.5,.5),
+        oma = c(3,3,2,2) )
+
+
+  fleetCols <- RColorBrewer::brewer.pal(nF,"Set1")
+
+  for( s in 1:(nS+1) )
+    for( p in 1:(nP+1) )
+    {
+      plot( x = c(0,1), y = c(0,2), axes = FALSE,
+            type = "n" )
+        mfg <- par( "mfg" )
+
+        if( mfg[1] == mfg[3] )
+          axis( side = 1 )
+        if( mfg[2] == 1 )
+          axis( side = 2, las = 1 )
+
+        box()
+
+        for( f in 1:nF )
+        {
+          numerator   <- (1 - exp( -nu_spfk[s,p,f,3]*( depSeq - P1_spf[s,p,f]))) 
+          denominator <- (1 - exp( -nu_spfk[s,p,f,3]*( P2_spf[s,p,f] - P1_spf[s,p,f]))) 
+
+          ratioSeq    <- nu_spfk[s,p,f,1] + (nu_spfk[s,p,f,2] - nu_spfk[s,p,f,1]) * numerator/denominator
+
+
+          lines( x = depSeq, y = ratioSeq, lwd = 2, col = fleetCols[f] )
+        }
+        abline( a = 0, b = 1, lwd = .8, lty = 2 )
+    }
+
+  legend( x = "topleft",
+          legend = fleetNames,
+          col = fleetCols,
+          lwd = 2, bty = "n" )
+
+} # END plotEBSBratio()
+
+
+# plotScaledIndices()
+# Scaled indices with model fits for a given
+# replicate and year. 
+plotScaledIndices <- function(  obj = blob, 
+                                iRep = 1, 
+                                Ct = TRUE,
+                                t = blob$om$tMP )
+{
+  # Get model dims
+  tMP <- obj$om$tMP
+  nT  <- obj$om$nT
+  nS  <- obj$om$nS
+  nP  <- obj$om$nP
+  nF  <- obj$om$nF
+
+  # Calculate the projection time step
+  projt <- t - tMP + 1
+
+  # Get biomass arrays
+  SB_spt        <- obj$om$SB_ispt[iRep,,,1:t]
+  VB_spt        <- obj$om$vB_ispft[iRep,,,2,1:t]
+  totB_spt      <- obj$om$B_ispt[iRep,,,1:t]
+  fitSB_spt     <- obj$mp$assess$retroSB_itspt[iRep,projt,,,1:t]
+  fitVB_spft    <- obj$mp$assess$retroVB_itspft[iRep,projt,,,,1:t]
+  fitq_spf      <- obj$mp$assess$retroq_itspf[iRep,projt,,,]
+  fitq_spft     <- obj$mp$assess$retroq_itspft[iRep,projt,,,,1:t]
+
+  ctlList <- obj$ctlList
+
+  
+
+
+  fitSB_spt[fitSB_spt < 0] <- NA
+
+  # Model dims
+  tMP     <- obj$om$tMP
+  nS      <- obj$om$nS
+  nP      <- obj$om$nP 
+  nT      <- obj$om$nT
+
+  C_spft   <- obj$om$C_ispft[iRep,,,,1:t]
+
+  C_spt    <- apply(X = C_spft, FUN = sum, MARGIN = c(1,2,4))
+
+  # Now pull indices
+  I_spft <- obj$mp$data$I_ispft[iRep,,,,1:t]
+  I_spft[I_spft < 0] <- NA
+
+  tFirstIdx <- ctlList$mp$assess$spYrFirstIdx
+
+  if( tFirstIdx > 1 )
+    I_spft[,,,tFirstIdx] <- NA
+
+  # Aggregate OM biomasses to match AM biomass
+  if( ctlList$mp$assess$spCoastwide )
+  {
+    newSB_spt        <- apply( X = SB_spt, FUN = sum, MARGIN = c(1,3), na.rm = T )
+    newVB_spt        <- apply( X = VB_spt, FUN = sum, MARGIN = c(1,3), na.rm = T )
+    newtotB_spt      <- apply( X = totB_spt, FUN = sum, MARGIN = c(1,3), na.rm = T )        
+
+    SB_spt    <- SB_spt[,1,,drop = FALSE]
+    SB_spt[,1,] <- newSB_spt
+    VB_spt    <- VB_spt[,1,,drop = FALSE]
+    VB_spt[,1,] <- newVB_spt
+    totB_spt  <- totB_spt[,1,,drop = FALSE]
+    totB_spt[,1,] <- newtotB_spt
+
+    sumC_spt          <- C_spft[,1,1,,drop = FALSE]
+    sumC_spt[,1,1,]   <- apply(X = C_spft, FUN = sum, MARGIN = c(1,4))
+    newC_spt          <- array(NA, dim = c(nS,1,t))
+    
+    newC_spt[,1,]     <- sumC_spt[,1,1,]
+    C_spt             <- newC_spt
+
+  }
+
+  if( ctlList$mp$assess$spDataPooled )
+  {
+    newSB_spt        <- apply( X = SB_spt, FUN = sum, MARGIN = c(2,3), na.rm = T )
+    newVB_spt        <- apply( X = VB_spt, FUN = sum, MARGIN = c(2,3), na.rm = T )
+    newtotB_spt      <- apply( X = totB_spt, FUN = sum, MARGIN = c(2,3), na.rm = T )
+
+    newI_spft        <- apply( X = I_spft, FUN = sum, MARGIN = c(2,3,4), na.rm = T )
+
+    SB_spt    <- SB_spt[1,,,drop = FALSE]
+    SB_spt[1,,] <- newSB_spt
+    VB_spt    <- VB_spt[1,,,drop = FALSE]
+    VB_spt[1,,] <- newVB_spt
+    totB_spt  <- totB_spt[1,,,drop = FALSE]
+    totB_spt[1,,] <- newtotB_spt
+
+    I_spft <- I_spft[1, , , , drop= FALSE]
+    I_spft[1,,,] <- newI_spft
+    I_spft[I_spft <= 0] <- NA
+
+    sumC_spt          <- C_spft[1,,1,,drop = FALSE]
+    sumC_spt[1,,1,]   <- apply(X = C_spft, FUN = sum, MARGIN = c(2,4))
+    newC_spt          <- array(NA, dim = c(1,nP,t))
+    newC_spt[1,,]     <- sumC_spt[1,,1,]
+    C_spt             <- newC_spt
+
+  }
+
+  
+  fleetPCH  <- 20 + 1:nF
+  fleetBG   <- RColorBrewer::brewer.pal(nF, "Set1")
+  stockCol  <- RColorBrewer::brewer.pal(nP, "Spectral")
+
+
+  spTVqFleets <- ctlList$mp$assess$spTVqFleets
+
+  SB_spt[SB_spt == 0]     <- NA
+  VB_spt[VB_spt == 0]     <- NA
+  totB_spt[totB_spt == 0] <- NA
+
+  nSS     <- dim( SB_spt)[1]
+  nPP     <- dim( SB_spt)[2]
+
+  scaledIdx_spft <- array( NA, dim = c(nSS, nP, nF, t ) )
+  for( s in 1:nSS )
+    for( p in 1:nP )
+      for( f in 1:nF )
+      {
+        if( f %in% spTVqFleets)
+          scaledIdx_spft[s,p,f,] <- I_spft[s,p,f,] / fitq_spft[s,p,f,] 
+        else
+          scaledIdx_spft[s,p,f,] <- I_spft[s,p,f,] / fitq_spf[s,p,f]
+
+        # Scale by ratio of SB and VB
+        scaledIdx_spft[s,p,f,] <- scaledIdx_spft[s,p,f,] * fitSB_spt[s,p,] / fitVB_spft[s,p,f,]
+      }
+
+  speciesNames  <- obj$ctlList$opMod$species
+  stockNames    <- obj$ctlList$opMod$stock
+  fleetNames    <- obj$om$fleetNames
+  fYear         <- obj$ctlList$opMod$fYear
+  pT            <- obj$ctlList$opMod$pT
+
+  if( nPP == 1 )
+    stockNames <- "Coastwide"
+
+  if( nSS == 1 )
+    speciesNames <- "Data Pooled"
+
+  yrs <- seq( from = fYear, by = 1, length.out = t)
+  ppJitter <- seq(from = -.3, to = .3, length.out = nP )
+
+  par(  mfcol = c(nPP,nSS), 
+        mar = c(1,1.5,1,1.5),
+        oma = c(3,3,3,3) )
+  for(s in 1:nSS)
+    for( p in 1:nPP )
+    {
+      plot( x = range(yrs),
+            y = c(0,max(totB_spt[s,p,],VB_spt[s,p,],SB_spt[s,p,],na.rm = T) ),
+            type = "n", axes = F )
+
+      mfg <- par("mfg")
+      if( mfg[1] == mfg[3] )
+        axis( side = 1 )
+      if( mfg[1] == 1 )
+        mtext( side = 3, text = speciesNames[s], font = 2, line = 0 )
+      axis( side = 2, las = 1 )
+      if( mfg[2] == mfg[4] )
+      {
+        corners <- par("usr") #Gets the four corners of plot area (x1, x2, y1, y2)
+        par(xpd = TRUE) #Draw outside plot area
+        text(x = corners[2]+1.5, y = mean(corners[3:4]), stockNames[p], srt = 270,
+              font = 2, cex = 1.5 )
+        par(xpd = FALSE)
+      }
+      box()
+      grid()
+      lines( x = yrs, y = SB_spt[s,p,], col = "red", lwd = 3 )
+      lines( x = yrs, y = VB_spt[s,p,], col = "grey40", lwd = 2, lty = 3 )
+      lines( x = yrs, y = totB_spt[s,p,], col = "black", lwd = 2 )
+      lines( x = yrs, y = fitSB_spt[s,p,], col = "grey60", lwd = 1 )
+
+      for( f in 1:nF )
+      {
+        # Plot scaled indices
+        if( nP > nPP )
+          for( pp in 1:nP )
+          {
+            if( f > 1 )
+              browser()
+            points( x = yrs+ppJitter[pp], y = scaledIdx_spft[s,pp,f,],
+                    pch = fleetPCH[f], bg = fleetBG[f],
+                    cex = .8, col = stockCol[pp] )
+          }
+        if( nP == nPP) 
+        {
+          points( x = yrs, y = scaledIdx_spft[s,p,f,],
+                  pch = fleetPCH[f], bg = fleetBG[f],
+                  cex = 1.3, col = stockCol[p] )
+        }
+        
+      }
+      
+      if( Ct )
+      {
+        # Plot actual catch
+        rect( xleft = yrs - .3, xright = yrs + .3, 
+              ytop = C_spt[s,p,], ybottom = 0, col = "grey40",
+              border = NA )
+
+      }
+  
+      abline( v = yrs[tMP] - 0.5, lty = 2, lwd = 0.5 )
+    }
+    legend( x= "topright",
+            legend = fleetNames,
+            pch = fleetPCH,
+            pt.bg = fleetBG )
+
+} # END plotScaledIndices()
+
+# plotAMIdxResids()
+# Plots of standardised AM residuals
+plotAMIdxResids <- function(  obj = blob, 
+                              iRep = 1, 
+                              Ct = TRUE,
+                              t = blob$om$tMP )
+{
+  # Get model dims
+  tMP <- obj$om$tMP
+  nT  <- obj$om$nT
+  nS  <- obj$om$nS
+  nP  <- obj$om$nP
+  nF  <- obj$om$nF
+
+  # Calculate the projection time step
+  projt <- t - tMP + 1
+
+  # Get biomass arrays
+  SB_spt        <- obj$om$SB_ispt[iRep,,,1:t]
+  VB_spt        <- obj$om$vB_ispft[iRep,,,2,1:t]
+  totB_spt      <- obj$om$B_ispt[iRep,,,1:t]
+  fitSB_spt     <- obj$mp$assess$retroSB_itspt[iRep,projt,,,1:t]
+  fitVB_spft    <- obj$mp$assess$retroVB_itspft[iRep,projt,,,,1:t]
+  fitq_spf      <- obj$mp$assess$retroq_itspf[iRep,projt,,,]
+  fitq_spft     <- obj$mp$assess$retroq_itspft[iRep,projt,,,,1:t]
+  tauObs_spf    <- obj$mp$assess$retrotauObs_itspf[iRep,projt,,,]
+
+  ctlList <- obj$ctlList
+
+  fitSB_spt[fitSB_spt < 0] <- NA
+
+  spTVqFleets <- ctlList$mp$assess$spTVqFleets
+
+  # Model dims
+  tMP     <- obj$om$tMP
+  nS      <- obj$om$nS
+  nP      <- obj$om$nP 
+  nT      <- obj$om$nT
+
+  # Now pull indices
+  I_spft <- obj$mp$data$I_ispft[iRep,,,,1:t]
+  I_spft[I_spft < 0] <- NA
+
+  nSS <- nS
+  nPP <- nP
+
+  # Aggregate OM biomasses to match AM biomass
+  if( ctlList$mp$assess$spCoastwide )
+  {
+    nPP <- 1
+  }
+
+  if( ctlList$mp$assess$spDataPooled )
+  {
+    nSS <- 1
+    newI_spft        <- apply( X = I_spft, FUN = sum, MARGIN = c(2,3,4), na.rm = T )
+
+    I_spft <- I_spft[1, , , , drop= FALSE]
+    I_spft[1,,,] <- newI_spft
+    I_spft[I_spft <= 0] <- NA
+
+  }
+
+  stdResids_spft <- array( NA, dim = c(nSS, nP, nF, t) )
+
+  for( s in 1:nSS )
+    for( p in 1:nP )
+      for( f in 1:nF )
+      {
+        if( tauObs_spf[s,p,f] > 0 )
+        {
+
+          if( f %in% spTVqFleets )
+            stdResids_spft[s,p,f,] <- (-log( I_spft[s,p,f,]/fitq_spft[s,p,f,] ) + log(fitVB_spft[s,p,f,]))/tauObs_spf[s,p,f]
+          if( !f %in% spTVqFleets ) 
+            stdResids_spft[s,p,f,] <- (-log( I_spft[s,p,f,]/fitq_spf[s,p,f] ) + log(fitVB_spft[s,p,f,]))/tauObs_spf[s,p,f]
+
+
+        }
+      }
+
+  
+  fleetPCH <- 20 + 1:nF
+  fleetBG <- RColorBrewer::brewer.pal(nF, "Set1")
+
+
+
+  speciesNames  <- obj$ctlList$opMod$species
+  stockNames    <- obj$ctlList$opMod$stock
+  fleetNames    <- obj$om$fleetNames
+  fYear         <- obj$ctlList$opMod$fYear
+  pT            <- obj$ctlList$opMod$pT
+
+
+  if( nSS == 1 )
+    speciesNames <- "Data Pooled"
+
+  yrs <- seq( from = fYear, by = 1, length.out = t)
+
+  ppJitter <- seq( from = -.3, to = .3, length.out = nP )
+
+  par(  mfcol = c(nP,nSS), 
+        mar = c(1,1.5,1,1.5),
+        oma = c(3,3,3,3) )
+  for(s in 1:nSS)
+    for( p in 1:nP )
+    {
+
+      maxResid <- max(abs(stdResids_spft[s,p,,]),na.rm = T)
+      plot( x = range(yrs),
+            y = range(-maxResid,maxResid),
+            type = "n", axes = F )
+
+      mfg <- par("mfg")
+      if( mfg[1] == mfg[3] )
+        axis( side = 1 )
+      if( mfg[1] == 1 )
+        mtext( side = 3, text = speciesNames[s], font = 2, line = 0 )
+      axis( side = 2, las = 1 )
+      if( mfg[2] == mfg[4] )
+      {
+        corners <- par("usr") #Gets the four corners of plot area (x1, x2, y1, y2)
+        par(xpd = TRUE) #Draw outside plot area
+        text(x = corners[2]+1.5, y = mean(corners[3:4]), stockNames[p], srt = 270,
+              font = 2, cex = 1.5 )
+        par(xpd = FALSE)
+      }
+      box()
+      grid()
+
+      for( f in 1:nF )
+      {
+        points( x = yrs, y = stdResids_spft[s,p,f,],
+                pch = fleetPCH[f], bg = fleetBG[f],
+                cex = 1.3 )
+        nonNA <- which(!is.na(stdResids_spft[s,p,f,]))
+        if( length(nonNA) > 0 )
+          lines(  loess.smooth(  x = yrs[nonNA], y = stdResids_spft[s,p,f,nonNA]), 
+                  lwd = 2, col = fleetBG[f] )
+      }
+      abline( h = 0, lty = 2)
+      
+      
+    }
+    
+    legend( x= "bottomleft", bty = "n",
+            legend = c(fleetNames),
+            pch = fleetPCH,
+            pt.bg = fleetBG,
+            cex = 1.3 )
+
+
+
+} # END plotAMIdxResids()
 
 
 .plotDiagCondition <- function( obj = blob, iRep = 1)

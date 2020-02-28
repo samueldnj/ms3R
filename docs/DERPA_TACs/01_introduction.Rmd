@@ -32,6 +32,7 @@ would weaken the information linkage required to
 take management actions commensurate with stock status.
 
 
+
 Difficulties linking management decisions to stock 
 status are compounded when data or management resources 
 are limited [@Carruthers2014Evaluating].
@@ -111,6 +112,13 @@ adding single-species yield curves with respect
 to effort [@mueter2006using], or traditional 
 single-species optimal harvest rates. 
 
+Background on how we use empirical MS yield
+curves to determine potential harvest control
+rules for our MS fishery.
+New references:
+  @punt2020multispecies
+  @winker2018jabba
+  @winker2020jabba
 
 
 
