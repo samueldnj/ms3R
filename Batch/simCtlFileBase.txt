@@ -39,7 +39,7 @@ mp$assess$spCVBmsy .2
 mp$assess$spsdlnq_f c(.5,.5,.5,.1)
 mp$assess$sptauObs_spf .2
 mp$assess$spInitPE 30
-mp$assess$spRE c("zetaspt_vec")
+mp$assess$spRE NULL
 mp$assess$spPhzUmsy 3
 mp$assess$spPhzepslnUmsy_s 5
 mp$assess$spPhzepslnUmsy_sp 7

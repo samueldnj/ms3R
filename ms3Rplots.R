@@ -2401,7 +2401,6 @@ plotScaledIndices <- function(  obj = blob,
           for( pp in 1:nP )
           {
             if( f > 1 )
-              browser()
             points( x = yrs+ppJitter[pp], y = scaledIdx_spft[s,pp,f,],
                     pch = fleetPCH[f], bg = fleetBG[f],
                     cex = .8, col = stockCol[pp] )

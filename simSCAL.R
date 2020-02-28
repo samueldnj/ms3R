@@ -487,13 +487,13 @@ solvePTm <- function( Bmsy, B0 )
   tMP <- obj$om$tMP
 
   # PT m parameter for skew in yield curves
-  PTm_sp <- array(2, dim = c(nS,nP))
+  omPTm_sp <- array(2, dim = c(nS,nP))
 
   if( ctlList$mp$assess$spSkewYieldCurves )
     for( p in 1:nP )
-      PTm_sp[,p]  <- mapply(  FUN = solvePTm, 
-                              Bmsy = BeqSS_sp[,p],
-                              B0 = B0_sp[,p] )
+      omPTm_sp[,p]  <- mapply(  FUN = solvePTm, 
+                                Bmsy = BeqSS_sp[,p],
+                                B0 = B0_sp[,p] )
 
 
   # Pull EBSBpars and think about how to use them for
@@ -514,6 +514,7 @@ solvePTm <- function( Bmsy, B0 )
   mq_spf      <- ctlList$opMod$histRpt$q_spf
   mq_sf       <- array(1, dim = c(nS,nF))
   mq_sf[,3:4] <- ctlList$opMod$histRpt$qSurv_sf
+  sdlnq_f     <- ctlList$mp$assess$spsdlnq_f
 
   # Get data for fitting - biomass indices and catch
   spFleetIdx  <- ctlList$mp$assess$spFleets
@@ -546,7 +547,13 @@ solvePTm <- function( Bmsy, B0 )
   {
     # Turn stock/area dimension of
     # surveys into more fleets
-    newI_spft <- array(NA, dim = c(nS,1,nF*nP,t-1) )
+    newI_spft   <- array(NA, dim = c(nS,1,nF*nP,t-1) )
+    newnu_spfk  <- array(NA, dim = c(nS,1,nF*nP,3) )
+    newP1_spf   <- array(NA, dim = c(nS,1,nF*nP) )
+    newP2_spf   <- array(NA, dim = c(nS,1,nF*nP) )
+    newmq_spf   <- array(NA, dim = c(nS,1,nF*nP) )
+    newmq_sf    <- array(NA, dim = c(nS,nF*nP) )
+    newsdq_f    <- array(NA, dim = c(nF*nP) )
 
     # Need to rearrange the EBSB model
     # fleet indices here.
@@ -571,12 +578,24 @@ solvePTm <- function( Bmsy, B0 )
         oldFleet[newIdx] <- 1:nF
         oldStock[newIdx] <- p
         
-        newI_spft[s,1,newIdx,] <- I_spft[s,p,,]
+        newI_spft[s,1,newIdx,]  <- I_spft[s,p,,]
+        newnu_spfk[s,1,newIdx,] <- nu_spfk[s,1,,]
+        newP1_spf[s,1,newIdx]   <- P1_spf[s,1,]
+        newP2_spf[s,1,newIdx]   <- P2_spf[s,1,]
+        newmq_spf[s,1,newIdx]   <- mq_spf[s,1,]
+        newmq_sf[s,newIdx]      <- mq_sf[s,]
+
+        newsdq_f[ newIdx ]      <- sdlnq_f
       }
     }
 
-    I_spft <- newI_spft
-
+    I_spft  <- newI_spft
+    mq_spf  <- newmq_spf
+    mq_sf   <- newmq_sf
+    nu_spfk <- newnu_spfk
+    P1_spf  <- newP1_spf
+    P2_spf  <- newP2_spf
+    sdlnq_f <- newsdq_f
 
     # Add catch across stocks
     newC_spt <- C_spt[,1,,drop = FALSE]
@@ -597,9 +616,7 @@ solvePTm <- function( Bmsy, B0 )
     P1_spf  <- EBSBpars$dataPooled$P1_spf
     P2_spf  <- EBSBpars$dataPooled$P2_spf
 
-    # Need to take care, since we probably
-    # won't add the CPUE...
-
+    # Sum CPUE and biomass indices
     newI_spft[1,,,] <- apply( X = I_spft,
                               FUN = sum,
                               MARGIN = c(2,3,4),
@@ -609,6 +626,16 @@ solvePTm <- function( Bmsy, B0 )
 
     I_spft <- newI_spft
 
+    # Take mean of catchability values across species
+    # for prior means
+    newmq_spf <- mq_spf[1,,,drop = FALSE]
+    newmq_sf  <- mq_sf[1,,drop = FALSE]
+
+    newmq_spf[1,,]  <- apply( X = mq_spf, FUN = mean, MARGIN = c(2,3))
+    newmq_sf[1,]    <- apply( X = mq_sf, FUN = mean, MARGIN = c(2))
+
+
+    # OMq devs
     newomqDevs_spft <- omqDevs_spft[1,,,,drop = FALSE]
     newomqDevs_spft[1,,,] <- apply( X = omqDevs_spft,
                                     FUN = mean,
@@ -616,6 +643,8 @@ solvePTm <- function( Bmsy, B0 )
                                     na.rm = T )
 
     omqDevs_spft <- newomqDevs_spft
+
+
 
     # Add catches across species
     # within stocks
@@ -631,6 +660,32 @@ solvePTm <- function( Bmsy, B0 )
     nu_spfk <- EBSBpars$totalAgg$nu_spfk
     P1_spf  <- EBSBpars$totalAgg$P1_spf
     P2_spf  <- EBSBpars$totalAgg$P2_spf
+
+    newnu_spfk  <- array(NA, dim = c(1,1,nF*nP,3) )
+    newP1_spf   <- array(NA, dim = c(1,1,nF*nP) )
+    newP2_spf   <- array(NA, dim = c(1,1,nF*nP) )
+    newmq_spf   <- array(NA, dim = c(1,1,nF*nP) )
+    newmq_sf    <- array(NA, dim = c(1,nF*nP) )
+
+    for( p in 1:nP )
+    {
+      newIdx <- (p-1)*nF + 1:nF
+      oldFleet[newIdx] <- 1:nF
+      
+      newnu_spfk[1,1,newIdx,] <- nu_spfk[1,1,,]
+      newP1_spf[1,1,newIdx]   <- P1_spf[1,1,]
+      newP2_spf[1,1,newIdx]   <- P2_spf[1,1,]
+    }
+
+    newmq_spf[1,1,]   <- apply( X = mq_spf, FUN = mean, MARGIN = c(3))
+    newmq_sf[1,]      <- apply( X = mq_sf, FUN = mean, MARGIN = c(2) )
+
+    mq_spf  <- newmq_spf
+    mq_sf   <- newmq_sf
+    nu_spfk <- newnu_spfk
+    P1_spf  <- newP1_spf
+    P2_spf  <- newP2_spf
+
   }
 
   nSS <- dim(C_spt)[1]
@@ -654,7 +709,7 @@ solvePTm <- function( Bmsy, B0 )
           omFref_sp <- Yeq_sp[s,p,drop = FALSE] / Beq_sp[s,p,drop = FALSE]
           omUmsy_sp <- UmsySS_sp[s,p,drop = FALSE]
 
-          PTm_sp <- PTm_sp[s,p,drop = FALSE]
+          PTm_sp <- omPTm_sp[s,p,drop = FALSE]
         }
 
         if( spCoastwide & spDataPooled )
@@ -665,7 +720,7 @@ solvePTm <- function( Bmsy, B0 )
           omFref_sp       <- array(sum(Yeq_sp) / sum(Beq_sp), dim = c(1,1))
           omUmsy_sp       <- array(sum(YeqSS_sp) / sum(expBeqSS_sp), dim = c(1,1))
 
-          PTm_sp          <- PTm_sp[1,1,drop = FALSE]
+          PTm_sp          <- omPTm_sp[1,1,drop = FALSE]
           # Solve for total agg yield curve skew
           if( ctlList$mp$assess$spSkewYieldCurves )
             PTm_sp[1,1]     <- solvePTm( Bmsy = sum(BeqSS_sp), B0 = sum(B0_sp) )
@@ -686,6 +741,7 @@ solvePTm <- function( Bmsy, B0 )
                                           P2_spf = P2_spf,
                                           mq_spf = mq_spf,
                                           mq_sf  = mq_sf,
+                                          sdlnq_f = sdlnq_f,
                                           omqDevs_spft = omqDevs_spft,
                                           oldStock = oldStock,
                                           oldFleet = oldFleet,
@@ -847,7 +903,7 @@ solvePTm <- function( Bmsy, B0 )
 
       mBmsy_sp <- mBmsy_sp_new
 
-      PTm_sp <- PTm_sp[,1,drop = FALSE] 
+      PTm_sp <- omPTm_sp[,1,drop = FALSE] 
 
       for( s in 1:nS )
       {
@@ -864,7 +920,7 @@ solvePTm <- function( Bmsy, B0 )
       mBmsy_sp_new[1,] <- apply( X = BeqSS_sp, FUN = sum, MARGIN = 2 )
 
       mBmsy_sp <- mBmsy_sp_new
-      PTm_sp <- PTm_sp[1,,drop = FALSE] 
+      PTm_sp <- omPTm_sp[1,,drop = FALSE] 
 
       for( p in 1:nP )
       {
@@ -887,6 +943,7 @@ solvePTm <- function( Bmsy, B0 )
                                       P2_spf = P2_spf,
                                       mq_spf = mq_spf,
                                       mq_sf  = mq_sf,
+                                      sdlnq_f = sdlnq_f,
                                       omqDevs_spft = omqDevs_spft,
                                       oldStock = oldStock,
                                       oldFleet = oldFleet,
@@ -1130,6 +1187,7 @@ solvePTm <- function( Bmsy, B0 )
                                   P2_spf,
                                   mq_spf,
                                   mq_sf,
+                                  sdlnq_f,
                                   oldFleet    = NULL,
                                   oldStock    = NULL,
                                   spCoastwide = FALSE,
@@ -1264,11 +1322,17 @@ solvePTm <- function( Bmsy, B0 )
 
         posObs_t <- which(I_spft[s,p,f,] > 0)
 
-        if( tvq_f[f] == 1 )
-          nqDevs <- nqDevs + (length(posObs_t) - 1)
+        if( length(posObs_t) > 0 )
+        {
 
-        idxLimits_spfj[s,p,f,1] <- min(posObs_t - 1)
-        idxLimits_spfj[s,p,f,2] <- max(posObs_t - 1)
+          if( tvq_f[f] == 1 )
+            nqDevs <- nqDevs + (length(posObs_t) - 1)
+
+
+
+          idxLimits_spfj[s,p,f,1] <- min(posObs_t - 1)
+          idxLimits_spfj[s,p,f,2] <- max(posObs_t - 1)
+        }
       }
 
   nStocks_sf <- apply(X = calcIndex_spf, FUN = sum, MARGIN = c(1,3) )
@@ -1369,7 +1433,7 @@ solvePTm <- function( Bmsy, B0 )
                 # Prior on stock specific catchability
                 # if freely estimated
                 mlnq_spf          = log(mq_spf),
-                sdlnq_f           = ctlList$mp$assess$spsdlnq_f,
+                sdlnq_f           = sdlnq_f,
                 epslnUmsy_s       = rep(0,nSS),
                 lnsigUmsy         = log(ctlList$mp$assess$spsigU),
                 epslnUmsy_sp      = lnUmsyInit_sp,
