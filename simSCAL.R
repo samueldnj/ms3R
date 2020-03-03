@@ -895,6 +895,8 @@ solvePTm <- function( Bmsy, B0 )
     omFref_sp <- Yeq_sp / Beq_sp
     omUmsy_sp <- YeqSS_sp / BeqSS_sp
 
+    PTm_sp <- omPTm_sp
+
     # Add Bmsy across stocks if coastwide
     if( spCoastwide )
     {
@@ -930,6 +932,7 @@ solvePTm <- function( Bmsy, B0 )
           PTm_sp[,p]    <- solvePTm( Bmsy = sum(BeqSS_sp[,p]), B0 = sum(B0_sp[,p]) )
       }
     }
+
 
     tmbLists <- .makeDatParHierProd(  C_spt, 
                                       I_spft,

@@ -27,6 +27,7 @@ mp$assess$spsigU .2
 mp$assess$spFleetWeights c(1.0,1.0,1.0,1.0)
 mp$assess$spFleets c(1,2,3,4)
 mp$assess$spShrinkqFleets c(3,4)
+mp$assess$spYrFirstIdx 15
 mp$assess$spTVqFleets NULL
 mp$assess$spCondMLEqFleets NULL
 mp$assess$spCondMLEobsErrFleets NULL
@@ -48,9 +49,9 @@ mp$assess$spPhzdeltalnq_sf 4
 mp$assess$spPhzBmsy 2
 mp$assess$spPhzlnBinit -2
 mp$assess$spPhzlnqShrink 1
-mp$assess$spPhzlnqFree -1
-mp$assess$spPhzTVq -1
-mp$assess$spPhzProcErr -3
+mp$assess$spPhzlnqFree 1
+mp$assess$spPhzTVq 1
+mp$assess$spPhzProcErr 3
 mp$assess$spPhzSigmaProc -3
 mp$assess$spPhztauObs 1
 mp$assess$spIGtau2alpha 1
@@ -62,7 +63,7 @@ mp$data$idxOn c(4)
 mp$data$obsInt_i rep(2,3)
 mp$hcr$refPtType "SS"
 mp$hcr$Fsource "om"
-mp$hcr$type "conF"
+mp$hcr$type "ramped"
 mp$hcr$Bref "Bmsy"
 mp$hcr$Fref "Umsy"
 mp$hcr$LCP .4
@@ -96,7 +97,7 @@ opMod$allocYears 20
 opMod$alphaU .05
 opMod$commGears c(2)
 opMod$effortMod "Max"
-opMod$histFile "fit_27012020154808"
+opMod$histFile "fit_26022020233355"
 opMod$phaseInObsErrMult 6
 opMod$price_s c(Dover=1.33,English=1.37,Rock=1.65,Petrale=3.22,Arrowtooth=0.37)
 opMod$projObsErrMult 1.0

@@ -1,4 +1,4 @@
-# Batch Control File, created Fri Feb 28 23:37:23 2020 by makeBatchDesign() 
+# Batch Control File, created Tue Mar  3 14:42:18 2020 by makeBatchDesign() 
 parameter value
 #
 # Scenarios 
@@ -25,15 +25,12 @@ mp$mp1$mp$assess$spFleetWeights c(1,1,1.0,1.0)
 mp$mp1$mp$assess$spShrinkqFleets c(3,4)
 mp$mp1$mp$assess$spCondMLEqFleets NULL
 mp$mp1$mp$assess$spPhzBmsy 1
-mp$mp1$mp$assess$spPhzlnqShrink 2
+mp$mp1$mp$assess$spPhzlnqShrink 1
+mp$mp1$mp$assess$spPhzlnqFree 1
 mp$mp1$mp$assess$spPhztauObs 3
 mp$mp1$mp$assess$spPhzepslnUmsy_s -5
 mp$mp1$mp$assess$spPhzepslnUmsy_sp -7
 mp$mp1$mp$assess$spPhzdeltalnq_spf -6
-mp$mp1$mp$assess$spPhzdeltalnq_sf -4
-mp$mp1$mp$assess$spsdlnq_f c(1,1,.5,.5)
-mp$mp1$mp$assess$spsdUmsy .2
-mp$mp1$mp$assess$spCVBmsy .2
 mp$mp1$mp$assess$spRE NULL
 #
 # MP 2 : singleStock_omF_SSrefPts
@@ -48,15 +45,12 @@ mp$mp2$mp$assess$spFleetWeights c(1,1,1.0,1.0)
 mp$mp2$mp$assess$spShrinkqFleets c(3,4)
 mp$mp2$mp$assess$spCondMLEqFleets NULL
 mp$mp2$mp$assess$spPhzBmsy 1
-mp$mp2$mp$assess$spPhzlnqShrink 2
+mp$mp2$mp$assess$spPhzlnqShrink 1
+mp$mp2$mp$assess$spPhzlnqFree 1
 mp$mp2$mp$assess$spPhztauObs 3
 mp$mp2$mp$assess$spPhzepslnUmsy_s -5
 mp$mp2$mp$assess$spPhzepslnUmsy_sp -7
 mp$mp2$mp$assess$spPhzdeltalnq_spf -6
-mp$mp2$mp$assess$spPhzdeltalnq_sf -4
-mp$mp2$mp$assess$spsdlnq_f c(1,1,.5,.5)
-mp$mp2$mp$assess$spsdUmsy .2
-mp$mp2$mp$assess$spCVBmsy .2
 mp$mp2$mp$assess$spRE NULL
 #
 # MP 3 : singleStock_estF_MSrefPts
@@ -71,15 +65,12 @@ mp$mp3$mp$assess$spFleetWeights c(1,1,1.0,1.0)
 mp$mp3$mp$assess$spShrinkqFleets c(3,4)
 mp$mp3$mp$assess$spCondMLEqFleets NULL
 mp$mp3$mp$assess$spPhzBmsy 1
-mp$mp3$mp$assess$spPhzlnqShrink 2
+mp$mp3$mp$assess$spPhzlnqShrink 1
+mp$mp3$mp$assess$spPhzlnqFree 1
 mp$mp3$mp$assess$spPhztauObs 3
 mp$mp3$mp$assess$spPhzepslnUmsy_s -5
 mp$mp3$mp$assess$spPhzepslnUmsy_sp -7
 mp$mp3$mp$assess$spPhzdeltalnq_spf -6
-mp$mp3$mp$assess$spPhzdeltalnq_sf -4
-mp$mp3$mp$assess$spsdlnq_f c(1,1,.5,.5)
-mp$mp3$mp$assess$spsdUmsy .2
-mp$mp3$mp$assess$spCVBmsy .2
 mp$mp3$mp$assess$spRE NULL
 #
 # MP 4 : singleStock_omF_MSrefPts
@@ -94,15 +85,12 @@ mp$mp4$mp$assess$spFleetWeights c(1,1,1.0,1.0)
 mp$mp4$mp$assess$spShrinkqFleets c(3,4)
 mp$mp4$mp$assess$spCondMLEqFleets NULL
 mp$mp4$mp$assess$spPhzBmsy 1
-mp$mp4$mp$assess$spPhzlnqShrink 2
+mp$mp4$mp$assess$spPhzlnqShrink 1
+mp$mp4$mp$assess$spPhzlnqFree 1
 mp$mp4$mp$assess$spPhztauObs 3
 mp$mp4$mp$assess$spPhzepslnUmsy_s -5
 mp$mp4$mp$assess$spPhzepslnUmsy_sp -7
 mp$mp4$mp$assess$spPhzdeltalnq_spf -6
-mp$mp4$mp$assess$spPhzdeltalnq_sf -4
-mp$mp4$mp$assess$spsdlnq_f c(1,1,.5,.5)
-mp$mp4$mp$assess$spsdUmsy .2
-mp$mp4$mp$assess$spCVBmsy .2
 mp$mp4$mp$assess$spRE NULL
 #
 # MP 5 : hierMultiStock_estF_SSrefPts
@@ -113,16 +101,6 @@ mp$mp5$mp$hcr$refPtType 'SS'
 mp$mp5$mp$assess$spSingleStock FALSE
 mp$mp5$mp$assess$spDataPooled FALSE
 mp$mp5$mp$assess$spCoastwide FALSE
-mp$mp5$mp$assess$spFleetWeights c(1,1,1.0,1.0)
-mp$mp5$mp$assess$spShrinkqFleets c(3,4)
-mp$mp5$mp$assess$spCondMLEqFleets NULL
-mp$mp5$mp$assess$spPhzBmsy 2
-mp$mp5$mp$assess$spPhzepslnUmsy_s 5
-mp$mp5$mp$assess$spPhzepslnUmsy_sp 7
-mp$mp5$mp$assess$spPhzdeltalnq_spf 6
-mp$mp5$mp$assess$spPhzdeltalnq_sf 4
-mp$mp5$mp$assess$spPhzlnqShrink 1
-mp$mp5$mp$assess$spPhztauObs 3
 mp$mp5$mp$assess$spsdlnq_f c(1,1,.5,.5)
 mp$mp5$mp$assess$spsdUmsy .2
 mp$mp5$mp$assess$spCVBmsy .2
@@ -137,16 +115,6 @@ mp$mp6$mp$hcr$refPtType 'SS'
 mp$mp6$mp$assess$spSingleStock FALSE
 mp$mp6$mp$assess$spDataPooled FALSE
 mp$mp6$mp$assess$spCoastwide FALSE
-mp$mp6$mp$assess$spFleetWeights c(1,1,1.0,1.0)
-mp$mp6$mp$assess$spShrinkqFleets c(3,4)
-mp$mp6$mp$assess$spCondMLEqFleets NULL
-mp$mp6$mp$assess$spPhzBmsy 2
-mp$mp6$mp$assess$spPhzepslnUmsy_s 5
-mp$mp6$mp$assess$spPhzepslnUmsy_sp 7
-mp$mp6$mp$assess$spPhzdeltalnq_spf 6
-mp$mp6$mp$assess$spPhzdeltalnq_sf 4
-mp$mp6$mp$assess$spPhzlnqShrink 1
-mp$mp6$mp$assess$spPhztauObs 3
 mp$mp6$mp$assess$spsdlnq_f c(1,1,.5,.5)
 mp$mp6$mp$assess$spsdUmsy .2
 mp$mp6$mp$assess$spCVBmsy .2
@@ -161,16 +129,6 @@ mp$mp7$mp$hcr$refPtType 'MS'
 mp$mp7$mp$assess$spSingleStock FALSE
 mp$mp7$mp$assess$spDataPooled FALSE
 mp$mp7$mp$assess$spCoastwide FALSE
-mp$mp7$mp$assess$spFleetWeights c(1,1,1.0,1.0)
-mp$mp7$mp$assess$spShrinkqFleets c(3,4)
-mp$mp7$mp$assess$spCondMLEqFleets NULL
-mp$mp7$mp$assess$spPhzBmsy 2
-mp$mp7$mp$assess$spPhzepslnUmsy_s 5
-mp$mp7$mp$assess$spPhzepslnUmsy_sp 7
-mp$mp7$mp$assess$spPhzdeltalnq_spf 6
-mp$mp7$mp$assess$spPhzdeltalnq_sf 4
-mp$mp7$mp$assess$spPhzlnqShrink 1
-mp$mp7$mp$assess$spPhztauObs 3
 mp$mp7$mp$assess$spsdlnq_f c(1,1,.5,.5)
 mp$mp7$mp$assess$spsdUmsy .2
 mp$mp7$mp$assess$spCVBmsy .2
@@ -185,16 +143,6 @@ mp$mp8$mp$hcr$refPtType 'MS'
 mp$mp8$mp$assess$spSingleStock FALSE
 mp$mp8$mp$assess$spDataPooled FALSE
 mp$mp8$mp$assess$spCoastwide FALSE
-mp$mp8$mp$assess$spFleetWeights c(1,1,1.0,1.0)
-mp$mp8$mp$assess$spShrinkqFleets c(3,4)
-mp$mp8$mp$assess$spCondMLEqFleets NULL
-mp$mp8$mp$assess$spPhzBmsy 2
-mp$mp8$mp$assess$spPhzepslnUmsy_s 5
-mp$mp8$mp$assess$spPhzepslnUmsy_sp 7
-mp$mp8$mp$assess$spPhzdeltalnq_spf 6
-mp$mp8$mp$assess$spPhzdeltalnq_sf 4
-mp$mp8$mp$assess$spPhzlnqShrink 1
-mp$mp8$mp$assess$spPhztauObs 3
 mp$mp8$mp$assess$spsdlnq_f c(1,1,.5,.5)
 mp$mp8$mp$assess$spsdUmsy .2
 mp$mp8$mp$assess$spCVBmsy .2

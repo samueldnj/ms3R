@@ -36,7 +36,7 @@ mp$assess$spYrFirstIdx 15
 mp$assess$spsigmaProc .05
 mp$assess$sptauqdev .01
 mp$assess$spsdUmsy .2
-mp$assess$spCVBmsy .2
+mp$assess$spCVBmsy .1
 mp$assess$spsdlnq_f c(1,1,1,1)
 mp$assess$sptauObs_spf .2
 mp$assess$spInitPE 30
@@ -47,7 +47,7 @@ mp$assess$spPhzepslnUmsy_s 5
 mp$assess$spPhzepslnUmsy_sp 7
 mp$assess$spPhzdeltalnq_spf 6
 mp$assess$spPhzdeltalnq_sf 4
-mp$assess$spPhzBmsy -2
+mp$assess$spPhzBmsy 2
 mp$assess$spPhzlnBinit -2
 mp$assess$spPhzlnqShrink 1
 mp$assess$spPhzlnqFree 1
