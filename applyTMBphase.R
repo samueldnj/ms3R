@@ -307,12 +307,21 @@
 
         }
 
-        browser()
-
         gradTable <- data.frame(  par = names(sdrep$par.fixed),
                                   est = sdrep$par.fixed,
                                   sd  = sqrt(diag(sdrep$cov.fixed)),
                                   grad = as.numeric(sdrep$gradient.fixed) )
+
+        if( !posSDs )
+        {
+          notFinite <- which(!is.finite(gradTable[,3]))
+
+          gradTable[notFinite,]
+          browser()
+          
+        }
+
+
 
         outList$gradReport  <- gradTable
         outList$sdrep       <- sdrep

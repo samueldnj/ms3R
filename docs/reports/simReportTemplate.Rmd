@@ -208,14 +208,14 @@ plotRetroSBagg(obj = blob, iRep = randReplicate)
 ## Model fits in first year
 ```{r, plotScaledIndices, echo = FALSE, message = FALSE, fig.cap = scaledIndicesCap }
 plotScaledIndices(  obj = blob,
-                    iRep = 1,
+                    iRep = randReplicate,
                     t = tMP )
 ```
 
 
 ```{r, plotAMresids, echo = FALSE, message = FALSE, fig.cap = AMidxResidsCap }
 plotAMIdxResids(  obj = blob,
-                  iRep = 1,
+                  iRep = randReplicate,
                   t = tMP )
 ```
 
