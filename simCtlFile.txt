@@ -24,7 +24,7 @@ mp$assess$spSingleStock TRUE
 mp$assess$spPosPenFactor 1e3
 mp$assess$sptauq .1
 mp$assess$spsigU .2
-mp$assess$spFleetWeights c(1,1,1.0,1.0)
+mp$assess$spFleetWeights c(.5,.5,1.0,1.0)
 mp$assess$spFleets c(1,2,3,4)
 mp$assess$spShrinkqFleets c(3,4)
 mp$assess$spTVqFleets NULL
@@ -35,13 +35,13 @@ mp$assess$spLateStart FALSE
 mp$assess$spYrFirstIdx 15
 mp$assess$spsigmaProc .05
 mp$assess$sptauqdev .01
-mp$assess$spsdUmsy .2
-mp$assess$spCVBmsy .1
+mp$assess$spsdUmsy 1
+mp$assess$spCVBmsy 1
 mp$assess$spsdlnq_f c(1,1,1,1)
-mp$assess$sptauObs_spf .2
+mp$assess$sptauObs_spf .3
 mp$assess$spInitPE 30
-#mp$assess$spRE c("zetaspt_vec")
-mp$assess$spRE NULL
+mp$assess$spRE c("zetaspt_vec")
+#mp$assess$spRE NULL
 mp$assess$spPhzUmsy 3
 mp$assess$spPhzepslnUmsy_s 5
 mp$assess$spPhzepslnUmsy_sp 7
@@ -56,7 +56,7 @@ mp$assess$spPhzProcErr 3
 mp$assess$spPhzSigmaProc -3
 mp$assess$spPhztauObs 3
 mp$assess$spIGtau2alpha 1
-mp$assess$spIGtau2Mode 0.04
+mp$assess$spIGtau2Mode 0.09
 mp$assess$spFixUmsy FALSE
 mp$assess$spOMqDevs FALSE
 mp$assess$spSkewYieldCurves TRUE

@@ -274,14 +274,16 @@
       if( class(sdrep) != "try-error")
       {
         pdHess    <- sdrep$pdHess
+        SDs       <- sqrt(diag(sdrep$cov.fixed))
+        posSDs    <- all(is.finite(SDs))
 
-        if( !pdHess )
+        if( !pdHess & !posSDs )
         {
 
           message("AM had non PD Hessian, attempting to refit. \n")
           for( kRefit in 1:4 )
           {
-            lastPar <- opt$par + rnorm(length(opt$par), mean = 0, sd = 0.3)
+            lastPar <- opt$par +  rnorm(length(opt$par), mean = 0, sd = 2)
           
 
             opt <- try( nlminb (  start     = lastPar,
@@ -294,15 +296,18 @@
             if( class(sdrepRetry) != "try-error")
             {
               pdHess  <- sdrepRetry$pdHess 
+              SDs     <- sqrt(diag(sdrepRetry$cov.fixed))
+              posSDs  <- all(is.finite(SDs))
               sdRep   <- sdrepRetry
             }
 
-            if(pdHess)
+            if(pdHess | posSDs)
               break
           }
 
         }
-        
+
+        browser()
 
         gradTable <- data.frame(  par = names(sdrep$par.fixed),
                                   est = sdrep$par.fixed,
@@ -312,6 +317,7 @@
         outList$gradReport  <- gradTable
         outList$sdrep       <- sdrep
         outList$pdHess      <- pdHess
+        outList$posSDs      <- posSDs
       }
 
       if( class( sdrep ) == "try-error" )

@@ -27,7 +27,7 @@ mp$assess$spsigU .2
 mp$assess$spFleetWeights c(1.0,1.0,1.0,1.0)
 mp$assess$spFleets c(1,2,3,4)
 mp$assess$spShrinkqFleets c(3,4)
-mp$assess$spYrFirstIdx 15
+mp$assess$spYrFirstIdx 20
 mp$assess$spTVqFleets NULL
 mp$assess$spCondMLEqFleets NULL
 mp$assess$spCondMLEobsErrFleets NULL
@@ -35,12 +35,12 @@ mp$assess$spSolveInitBio FALSE
 mp$assess$spLateStart FALSE
 mp$assess$spsigmaProc .05
 mp$assess$sptauqdev .1
-mp$assess$spsdUmsy .2
-mp$assess$spCVBmsy .2
-mp$assess$spsdlnq_f c(.5,.5,.5,.1)
+mp$assess$spsdUmsy .1
+mp$assess$spCVBmsy .1
+mp$assess$spsdlnq_f c(1,1,1,1)
 mp$assess$sptauObs_spf .2
-mp$assess$spInitPE 30
-mp$assess$spRE NULL
+mp$assess$spInitPE 25
+mp$assess$spRE c("zetaspt_vec")
 mp$assess$spPhzUmsy 3
 mp$assess$spPhzepslnUmsy_s 5
 mp$assess$spPhzepslnUmsy_sp 7

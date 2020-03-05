@@ -462,13 +462,13 @@ solvePTm <- function( Bmsy, B0 )
   if( refPtType == "SS" )
   {
     Yeq_sp <- YeqSS_sp
-    Beq_sp <- expBeqSS_sp
+    Beq_sp <- BeqSS_sp
   }
 
   if( refPtType == "MS" )
   {
     Yeq_sp <- YeqMS_sp
-    Beq_sp <- expBeqMS_sp
+    Beq_sp <- BeqMS_sp
   }
 
   # Pull B0 for m value calcs
@@ -827,6 +827,7 @@ solvePTm <- function( Bmsy, B0 )
 
           # Save convergence info
           obj$mp$assess$pdHess_tsp[pt,s,p]  <- amObj$pdHess
+          obj$mp$assess$posSDs_tsp[pt,s,p]  <- amObj$posSDs
           obj$mp$assess$maxGrad_tsp[pt,s,p] <- amObj$maxGrad
         }
 
@@ -881,6 +882,7 @@ solvePTm <- function( Bmsy, B0 )
 
           # Save convergence info
           obj$mp$assess$pdHess_tsp[pt,,]  <- amObj$pdHess
+          obj$mp$assess$posSDs_tsp[pt,,]  <- amObj$posSDs
           obj$mp$assess$maxGrad_tsp[pt,,] <- amObj$maxGrad 
         }
 
@@ -1061,6 +1063,7 @@ solvePTm <- function( Bmsy, B0 )
 
       # Save convergence info
       obj$mp$assess$pdHess_tsp[pt,1:nSS,1:nPP]  <- amObj$sdrep$pdHess
+      obj$mp$assess$posSDs_tsp[pt,1:nSS,1:nPP]  <- amObj$posSDs
       obj$mp$assess$maxGrad_tsp[pt,1:nSS,1:nPP] <- amObj$maxGrad
     }
 
@@ -1112,6 +1115,7 @@ solvePTm <- function( Bmsy, B0 )
 
       # Save convergence info
       obj$mp$assess$pdHess_tsp[pt,1:nSS,]  <- amObj$sdrep$pdHess
+      obj$mp$assess$posSDs_tsp[pt,1:nSS,]  <- amObj$posSDs
       obj$mp$assess$maxGrad_tsp[pt,1:nSS,] <- amObj$maxGrad
     }
 
@@ -1162,6 +1166,7 @@ solvePTm <- function( Bmsy, B0 )
 
       # Save convergence info
       obj$mp$assess$pdHess_tsp[pt,,]  <- amObj$sdrep$pdHess
+      obj$mp$assess$posSDs_tsp[pt,,]  <- amObj$posSDs
       obj$mp$assess$maxGrad_tsp[pt,,] <- amObj$maxGrad
     }
 
@@ -1421,7 +1426,9 @@ solvePTm <- function( Bmsy, B0 )
                 P2_spf          = P2_spf )
   
 
-  pars <- list( lnBmsy_sp         = log(mBmsy_sp),
+  sumCat_sp <- apply(X = C_spt, FUN = sum, MARGIN = c(1,2) )
+
+  pars <- list( lnBmsy_sp         = log(sumCat_sp),
                 lnUmsy            = mlnUmsy,
                 lnqFreespf_vec    = rep(0, max(nSS*nPP*nFreeq,1)),
                 lnqShrinksf_vec   = rep(0, max(1,nShrinkq)),
@@ -1643,7 +1650,8 @@ solvePTm <- function( Bmsy, B0 )
                       retroUmsy_itspf   = array( NA, dim = c(nReps, pT, nS, nP ) ),          # Retrospective Umsy 
                       retroBmsy_itspf   = array( NA, dim = c(nReps, pT, nS, nP ) ),          # Retrospective Bmsy 
                       maxGrad_itsp      = array( NA, dim = c(nReps, pT, nS, nP ) ),          # AM max gradient component
-                      pdHess_itsp       = array( NA, dim = c(nReps, pT, nS, nP ) ) )         # AM pdHessian?
+                      pdHess_itsp       = array( NA, dim = c(nReps, pT, nS, nP ) ),          # AM pdHessian?
+                      posSDs_itsp       = array( NA, dim = c(nReps, pT, nS, nP ) ))          # AM all positive SDs?
 
 
 
@@ -1787,8 +1795,10 @@ solvePTm <- function( Bmsy, B0 )
     blob$mp$assess$retroBmsy_itsp[i,,,]       <- simObj$mp$assess$retroBmsy_tsp
     blob$mp$assess$maxGrad_itsp[i,,,]         <- simObj$mp$assess$maxGrad_tsp
     blob$mp$assess$pdHess_itsp[i,,,]          <- simObj$mp$assess$pdHess_tsp
+    blob$mp$assess$posSDs_itsp[i,,,]          <- simObj$mp$assess$posSDs_tsp
 
     if( prod(simObj$mp$assess$pdHess_tsp) == 1 | 
+        prod(simObj$mp$assess$posSDs_tsp) == 1 | 
         ctlList$mp$assess$method %in% c("idxBased","PerfectInfo") )
       blob$goodReps[i] <- TRUE
 
@@ -3308,6 +3318,7 @@ combBarrierPen <- function( x, eps,
   mp$assess$retroBmsy_tsp     <- array( NA, dim = c(pT, nS, nP ) )
   mp$assess$maxGrad_tsp       <- array( NA, dim = c(pT, nS, nP ) )
   mp$assess$pdHess_tsp        <- array( FALSE, dim = c(pT, nS, nP) )
+  mp$assess$posSDs_tsp        <- array( FALSE, dim = c(pT, nS, nP) )
 
   mp$hcr$LCP_spt              <- array( NA, dim = c(nS, nP, nT) )
   mp$hcr$UCP_spt              <- array( NA, dim = c(nS, nP, nT) )

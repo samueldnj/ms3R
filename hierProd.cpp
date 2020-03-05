@@ -649,13 +649,13 @@ Type objective_function<Type>::operator() ()
   // =========================================================== //
   
   // Variables we want SEs for
-  ADREPORT(lnB_spt);
-  ADREPORT(lnqhat_spf);
-  ADREPORT(lnMSY_sp);
-  ADREPORT(lnBinit_vec);
-  ADREPORT(lnDnT_sp);
-  ADREPORT(lnBnT_sp);
-  ADREPORT(lnU_UmsyT_sp);
+  // ADREPORT(lnB_spt);
+  // ADREPORT(lnqhat_spf);
+  // ADREPORT(lnMSY_sp);
+  // ADREPORT(lnBinit_vec);
+  // ADREPORT(lnDnT_sp);
+  // ADREPORT(lnBnT_sp);
+  // ADREPORT(lnU_UmsyT_sp);
 
   // Model dims
   REPORT(nT);
