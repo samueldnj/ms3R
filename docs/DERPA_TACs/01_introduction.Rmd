@@ -14,9 +14,11 @@ assessments, at best, are only able to implicity include
 multi-species ecological interactions in the form of 
 natural mortality rates and recruitment process errors 
 [@albertsen2017connecting], but are completely unable 
-to explicitly capture technical interactions. Ignorance 
-of technical interactions while setting TACs will 
-often lead to sub-optimal fishery outcomes [@ono2017management;
+to explicitly capture technical interactions. 
+
+Ignorance of technical interactions among species 
+while setting TACs in multi-species fisheries will often 
+lead to sub-optimal fishery outcomes [@ono2017management;
 @punt2002evaluation]. For example, under-utilisation of TAC 
 could occur when multiple technically interacting quota species 
 are caught with very different gear availability (catchability), 
@@ -27,11 +29,9 @@ create uninformative catch data, which can degrade stock assessment
 performance over successive fishing seasons, and may 
 create a reinforcing feedback loop that will lead to 
 reduced data quality in the long term. If unarrested, 
-data quality reducing feedback loops 
-would weaken the information linkage required to 
-take management actions commensurate with stock status.
-
-
+data quality reducing feedback loops could weaken the 
+information linkage required to take management 
+actions commensurate with stock status.
 
 Difficulties linking management decisions to stock 
 status are compounded when data or management resources 

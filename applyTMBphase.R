@@ -312,14 +312,14 @@
                                   sd  = sqrt(diag(sdrep$cov.fixed)),
                                   grad = as.numeric(sdrep$gradient.fixed) )
 
-        if( !posSDs )
-        {
-          notFinite <- which(!is.finite(gradTable[,3]))
+        # if( !posSDs )
+        # {
+        #   notFinite <- which(!is.finite(gradTable[,3]))
 
-          gradTable[notFinite,]
-          browser()
+        #   gradTable[notFinite,]
+        #   browser()
           
-        }
+        # }
 
 
 
@@ -332,7 +332,7 @@
       if( class( sdrep ) == "try-error" )
       {
         message("sdrep failed\n")
-        browser()
+        # browser()
       }
     }
 
