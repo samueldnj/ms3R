@@ -631,8 +631,9 @@ solvePTm <- function( Bmsy, B0 )
     newmq_spf <- mq_spf[1,,,drop = FALSE]
     newmq_sf  <- mq_sf[1,,drop = FALSE]
 
-    newmq_spf[1,,]  <- apply( X = mq_spf, FUN = mean, MARGIN = c(2,3))
-    newmq_sf[1,]    <- apply( X = mq_sf, FUN = mean, MARGIN = c(2))
+    newmq_spf[1,,]  <- exp(apply( X = log(mq_spf), FUN = mean, MARGIN = c(2,3),
+                                  na.rm = T ) )
+    newmq_sf[1,]    <- exp(apply( X = log(mq_sf), FUN = mean, MARGIN = c(2)))
 
 
     # OMq devs
@@ -677,8 +678,10 @@ solvePTm <- function( Bmsy, B0 )
       newP2_spf[1,1,newIdx]   <- P2_spf[1,1,]
     }
 
-    newmq_spf[1,1,]   <- apply( X = mq_spf, FUN = mean, MARGIN = c(3))
-    newmq_sf[1,]      <- apply( X = mq_sf, FUN = mean, MARGIN = c(2) )
+    # browser()
+
+    newmq_spf[1,1,]   <- exp(apply( X = log(mq_spf), FUN = mean, MARGIN = c(3)))
+    newmq_sf[1,]      <- exp(apply( X = log(mq_sf), FUN = mean, MARGIN = c(2) ))
 
     mq_spf  <- newmq_spf
     mq_sf   <- newmq_sf
@@ -1024,6 +1027,8 @@ solvePTm <- function( Bmsy, B0 )
                               phaseMsg = ctlList$ctl$phaseMessages,
                               maxEval = ctlList$ctl$maxEval,
                               maxIter = ctlList$ctl$maxIter )
+
+    # browser()
 
     if( !spCoastwide & !spDataPooled )
     {
@@ -1423,7 +1428,8 @@ solvePTm <- function( Bmsy, B0 )
                 PTm_sp          = PTm_sp,
                 nu_spfk         = nu_spfk,
                 P1_spf          = P1_spf,
-                P2_spf          = P2_spf )
+                P2_spf          = P2_spf,
+                estExpBio       = ifelse(ctlList$mp$assess$spEstExpBio, 1, 0) )
   
 
   sumCat_sp <- apply(X = C_spt, FUN = sum, MARGIN = c(1,2) )

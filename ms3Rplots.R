@@ -2195,6 +2195,8 @@ plotEBSBratio <- function( obj = blob )
 
         box()
 
+        abline( h = 1, lwd = .8, lty = 2 )
+
         for( f in 1:nF )
         {
           numerator   <- (1 - exp( -nu_spfk[s,p,f,3]*( depSeq - P1_spf[s,p,f]))) 
@@ -2205,7 +2207,7 @@ plotEBSBratio <- function( obj = blob )
 
           lines( x = depSeq, y = ratioSeq, lwd = 2, col = fleetCols[f] )
         }
-        abline( a = 0, b = 1, lwd = .8, lty = 2 )
+        
     }
 
   legend( x = "topleft",
@@ -2214,6 +2216,40 @@ plotEBSBratio <- function( obj = blob )
           lwd = 2, bty = "n" )
 
 } # END plotEBSBratio()
+
+# plotRetroCatchability()
+# Plot of retrospective catchability estimates for each 
+# fleet compared to the mean taken from the OM
+plotRetroCatchability <- function(  obj = blob,
+                                    iRep = 1 )
+{
+  # Get model dims
+  tMP <- obj$om$tMP
+  nT  <- obj$om$nT
+  nS  <- obj$om$nS
+  nP  <- obj$om$nP
+  nF  <- obj$om$nF
+
+  # Get model state arrays and AM fits
+  SB_spt        <- obj$om$SB_ispt[iRep,,,1:t]
+  VB_spt        <- obj$om$vB_ispft[iRep,,,2,1:t]
+  totB_spt      <- obj$om$B_ispt[iRep,,,1:t]
+  fitSB_spt     <- obj$mp$assess$retroSB_itspt[iRep,projt,,,1:t]
+  fitVB_spft    <- obj$mp$assess$retroVB_itspft[iRep,projt,,,,1:t]
+  fitq_spf      <- obj$mp$assess$retroq_itspf[iRep,,,,]
+  fitq_spft     <- obj$mp$assess$retroq_itspft[iRep,,,,,]
+
+  # Get ctlList
+  ctlList <- obj$ctlList
+  pT      <- ctlList$opMod$pT
+
+  # Get mean catchability (OM fits)
+  mq_spf      <- ctlList$opMod$histRpt$q_spf
+  mq_sf       <- array(1, dim = c(nS,nF))
+  mq_sf[,3:4] <- ctlList$opMod$histRpt$qSurv_sf
+  sdlnq_f     <- ctlList$mp$assess$spsdlnq_f
+}
+
 
 
 # plotScaledIndices()
@@ -2244,17 +2280,10 @@ plotScaledIndices <- function(  obj = blob,
   fitq_spft     <- obj$mp$assess$retroq_itspft[iRep,projt,,,,1:t]
 
   ctlList <- obj$ctlList
-
   
 
 
   fitSB_spt[fitSB_spt < 0] <- NA
-
-  # Model dims
-  tMP     <- obj$om$tMP
-  nS      <- obj$om$nS
-  nP      <- obj$om$nP 
-  nT      <- obj$om$nT
 
   C_spft   <- obj$om$C_ispft[iRep,,,,1:t]
 

@@ -237,7 +237,7 @@ calcJABBASelPars <- function( obj )
                             P2_spf  = P2_pf,
                             nu_spfk = nu_pfk )
 
-  # Now TotalAgg
+  # Now Data Pooled
   # First, borrow the sub-arrays
   nu_fk <- nu_spfk[1,1,,,drop = FALSE]
   P1_f  <- P1_spf[1,1,,drop = FALSE]

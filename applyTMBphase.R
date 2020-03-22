@@ -163,8 +163,6 @@
         phaseReports[[phase_cur]]$success <- FALSE
       }
 
-      browser()
-
       break
     }
 

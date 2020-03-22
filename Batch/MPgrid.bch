@@ -1,4 +1,4 @@
-# Batch Control File, created Thu Mar  5 21:35:39 2020 by makeBatchDesign() 
+# Batch Control File, created Sat Mar 21 21:11:59 2020 by makeBatchDesign() 
 parameter value
 #
 # Scenarios 
@@ -6,7 +6,7 @@ parameter value
 # Scenario 1 : DER_fit 
 #
 scenario$scenario1$opMod$pT 32
-scenario$scenario1$opMod$nGoodReps 10
+scenario$scenario1$opMod$nGoodReps 100
 scenario$scenario1$opMod$totReps 400
 #
 #
@@ -166,14 +166,14 @@ mp$mp5$mp$assess$spCoastwide FALSE
 mp$mp5$mp$assess$spDataPooled FALSE
 mp$mp5$mp$assess$spSingleStock FALSE
 mp$mp5$mp$assess$sptauq .1
-mp$mp5$mp$assess$spsigU .05
+mp$mp5$mp$assess$spsigU .1
 mp$mp5$mp$assess$spFleetWeights c(1.0,1.0,1.0,1.0)
 mp$mp5$mp$assess$spFleets c(1,2,3,4)
 mp$mp5$mp$assess$spShrinkqFleets c(3,4)
 mp$mp5$mp$assess$spYrFirstIdx 20
 mp$mp5$mp$assess$spLateStart FALSE
 mp$mp5$mp$assess$spsigmaProc .05
-mp$mp5$mp$assess$spsdUmsy .05
+mp$mp5$mp$assess$spsdUmsy .2
 mp$mp5$mp$assess$spCVBmsy .2
 mp$mp5$mp$assess$spsdlnq_f c(.2,.2,.2,.1)
 mp$mp5$mp$assess$sptauObs_spf .3
@@ -205,14 +205,14 @@ mp$mp6$mp$assess$spCoastwide FALSE
 mp$mp6$mp$assess$spDataPooled FALSE
 mp$mp6$mp$assess$spSingleStock FALSE
 mp$mp6$mp$assess$sptauq .1
-mp$mp6$mp$assess$spsigU .05
+mp$mp6$mp$assess$spsigU .1
 mp$mp6$mp$assess$spFleetWeights c(1.0,1.0,1.0,1.0)
 mp$mp6$mp$assess$spFleets c(1,2,3,4)
 mp$mp6$mp$assess$spShrinkqFleets c(3,4)
 mp$mp6$mp$assess$spYrFirstIdx 20
 mp$mp6$mp$assess$spLateStart FALSE
 mp$mp6$mp$assess$spsigmaProc .05
-mp$mp6$mp$assess$spsdUmsy .05
+mp$mp6$mp$assess$spsdUmsy .2
 mp$mp6$mp$assess$spCVBmsy .2
 mp$mp6$mp$assess$spsdlnq_f c(.2,.2,.2,.1)
 mp$mp6$mp$assess$sptauObs_spf .3
@@ -244,14 +244,14 @@ mp$mp7$mp$assess$spCoastwide FALSE
 mp$mp7$mp$assess$spDataPooled FALSE
 mp$mp7$mp$assess$spSingleStock FALSE
 mp$mp7$mp$assess$sptauq .1
-mp$mp7$mp$assess$spsigU .05
+mp$mp7$mp$assess$spsigU .1
 mp$mp7$mp$assess$spFleetWeights c(1.0,1.0,1.0,1.0)
 mp$mp7$mp$assess$spFleets c(1,2,3,4)
 mp$mp7$mp$assess$spShrinkqFleets c(3,4)
 mp$mp7$mp$assess$spYrFirstIdx 20
 mp$mp7$mp$assess$spLateStart FALSE
 mp$mp7$mp$assess$spsigmaProc .05
-mp$mp7$mp$assess$spsdUmsy .05
+mp$mp7$mp$assess$spsdUmsy .2
 mp$mp7$mp$assess$spCVBmsy .2
 mp$mp7$mp$assess$spsdlnq_f c(.2,.2,.2,.1)
 mp$mp7$mp$assess$sptauObs_spf .3
@@ -283,14 +283,14 @@ mp$mp8$mp$assess$spCoastwide FALSE
 mp$mp8$mp$assess$spDataPooled FALSE
 mp$mp8$mp$assess$spSingleStock FALSE
 mp$mp8$mp$assess$sptauq .1
-mp$mp8$mp$assess$spsigU .05
+mp$mp8$mp$assess$spsigU .1
 mp$mp8$mp$assess$spFleetWeights c(1.0,1.0,1.0,1.0)
 mp$mp8$mp$assess$spFleets c(1,2,3,4)
 mp$mp8$mp$assess$spShrinkqFleets c(3,4)
 mp$mp8$mp$assess$spYrFirstIdx 20
 mp$mp8$mp$assess$spLateStart FALSE
 mp$mp8$mp$assess$spsigmaProc .05
-mp$mp8$mp$assess$spsdUmsy .05
+mp$mp8$mp$assess$spsdUmsy .2
 mp$mp8$mp$assess$spCVBmsy .2
 mp$mp8$mp$assess$spsdlnq_f c(.2,.2,.2,.1)
 mp$mp8$mp$assess$sptauObs_spf .3
@@ -322,7 +322,7 @@ mp$mp9$mp$assess$spCoastwide FALSE
 mp$mp9$mp$assess$spDataPooled TRUE
 mp$mp9$mp$assess$spSingleStock FALSE
 mp$mp9$mp$assess$spPosPenFactor 1e3
-mp$mp9$mp$assess$sptauq .1
+mp$mp9$mp$assess$sptauq .2
 mp$mp9$mp$assess$spsigU .1
 mp$mp9$mp$assess$spFleetWeights c(1,1,1.0,1.0)
 mp$mp9$mp$assess$spFleets c(1,2,3,4)
@@ -337,7 +337,7 @@ mp$mp9$mp$assess$spsigmaProc .05
 mp$mp9$mp$assess$sptauqdev .1
 mp$mp9$mp$assess$spsdUmsy .05
 mp$mp9$mp$assess$spCVBmsy .2
-mp$mp9$mp$assess$spsdlnq_f c(1,1,1,1)
+mp$mp9$mp$assess$spsdlnq_f c(2,2,2,2)
 mp$mp9$mp$assess$sptauObs_spf .2
 mp$mp9$mp$assess$spInitPE 25
 mp$mp9$mp$assess$spRE c('zetaspt_vec')
@@ -357,6 +357,7 @@ mp$mp9$mp$assess$spPhztauObs 3
 mp$mp9$mp$assess$spIGtau2alpha 1
 mp$mp9$mp$assess$spIGtau2Mode 0.09
 mp$mp9$mp$assess$spSkewYieldCurves TRUE
+mp$mp9$mp$assess$spEstExpBio FALSE
 #
 # MP 10 : dataPooled_omF_SSrefPts
 #
@@ -367,7 +368,7 @@ mp$mp10$mp$assess$spCoastwide FALSE
 mp$mp10$mp$assess$spDataPooled TRUE
 mp$mp10$mp$assess$spSingleStock FALSE
 mp$mp10$mp$assess$spPosPenFactor 1e3
-mp$mp10$mp$assess$sptauq .1
+mp$mp10$mp$assess$sptauq .2
 mp$mp10$mp$assess$spsigU .1
 mp$mp10$mp$assess$spFleetWeights c(1,1,1.0,1.0)
 mp$mp10$mp$assess$spFleets c(1,2,3,4)
@@ -382,7 +383,7 @@ mp$mp10$mp$assess$spsigmaProc .05
 mp$mp10$mp$assess$sptauqdev .1
 mp$mp10$mp$assess$spsdUmsy .05
 mp$mp10$mp$assess$spCVBmsy .2
-mp$mp10$mp$assess$spsdlnq_f c(1,1,1,1)
+mp$mp10$mp$assess$spsdlnq_f c(2,2,2,2)
 mp$mp10$mp$assess$sptauObs_spf .2
 mp$mp10$mp$assess$spInitPE 25
 mp$mp10$mp$assess$spRE c('zetaspt_vec')
@@ -402,6 +403,7 @@ mp$mp10$mp$assess$spPhztauObs 3
 mp$mp10$mp$assess$spIGtau2alpha 1
 mp$mp10$mp$assess$spIGtau2Mode 0.09
 mp$mp10$mp$assess$spSkewYieldCurves TRUE
+mp$mp10$mp$assess$spEstExpBio FALSE
 #
 # MP 11 : dataPooled_estF_MSrefPts
 #
@@ -412,7 +414,7 @@ mp$mp11$mp$assess$spCoastwide FALSE
 mp$mp11$mp$assess$spDataPooled TRUE
 mp$mp11$mp$assess$spSingleStock FALSE
 mp$mp11$mp$assess$spPosPenFactor 1e3
-mp$mp11$mp$assess$sptauq .1
+mp$mp11$mp$assess$sptauq .2
 mp$mp11$mp$assess$spsigU .1
 mp$mp11$mp$assess$spFleetWeights c(1,1,1.0,1.0)
 mp$mp11$mp$assess$spFleets c(1,2,3,4)
@@ -427,7 +429,7 @@ mp$mp11$mp$assess$spsigmaProc .05
 mp$mp11$mp$assess$sptauqdev .1
 mp$mp11$mp$assess$spsdUmsy .05
 mp$mp11$mp$assess$spCVBmsy .2
-mp$mp11$mp$assess$spsdlnq_f c(1,1,1,1)
+mp$mp11$mp$assess$spsdlnq_f c(2,2,2,2)
 mp$mp11$mp$assess$sptauObs_spf .2
 mp$mp11$mp$assess$spInitPE 25
 mp$mp11$mp$assess$spRE c('zetaspt_vec')
@@ -447,6 +449,7 @@ mp$mp11$mp$assess$spPhztauObs 3
 mp$mp11$mp$assess$spIGtau2alpha 1
 mp$mp11$mp$assess$spIGtau2Mode 0.09
 mp$mp11$mp$assess$spSkewYieldCurves TRUE
+mp$mp11$mp$assess$spEstExpBio FALSE
 #
 # MP 12 : dataPooled_omF_MSrefPts
 #
@@ -457,7 +460,7 @@ mp$mp12$mp$assess$spCoastwide FALSE
 mp$mp12$mp$assess$spDataPooled TRUE
 mp$mp12$mp$assess$spSingleStock FALSE
 mp$mp12$mp$assess$spPosPenFactor 1e3
-mp$mp12$mp$assess$sptauq .1
+mp$mp12$mp$assess$sptauq .2
 mp$mp12$mp$assess$spsigU .1
 mp$mp12$mp$assess$spFleetWeights c(1,1,1.0,1.0)
 mp$mp12$mp$assess$spFleets c(1,2,3,4)
@@ -472,7 +475,7 @@ mp$mp12$mp$assess$spsigmaProc .05
 mp$mp12$mp$assess$sptauqdev .1
 mp$mp12$mp$assess$spsdUmsy .05
 mp$mp12$mp$assess$spCVBmsy .2
-mp$mp12$mp$assess$spsdlnq_f c(1,1,1,1)
+mp$mp12$mp$assess$spsdlnq_f c(2,2,2,2)
 mp$mp12$mp$assess$sptauObs_spf .2
 mp$mp12$mp$assess$spInitPE 25
 mp$mp12$mp$assess$spRE c('zetaspt_vec')
@@ -492,6 +495,7 @@ mp$mp12$mp$assess$spPhztauObs 3
 mp$mp12$mp$assess$spIGtau2alpha 1
 mp$mp12$mp$assess$spIGtau2Mode 0.09
 mp$mp12$mp$assess$spSkewYieldCurves TRUE
+mp$mp12$mp$assess$spEstExpBio FALSE
 #
 # MP 13 : coastwide_estF_SSrefPts
 #

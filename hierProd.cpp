@@ -110,6 +110,7 @@ Type objective_function<Type>::operator() ()
   DATA_ARRAY(nu_spfk);                  // Jabba-Select nu parameters
   DATA_ARRAY(P1_spf);                   // Jabba-Select P1 parameters
   DATA_ARRAY(P2_spf);                   // Jabba-Select P2 parameters
+  DATA_INTEGER(estExpBio);              // Jabba-Select swtich ON == 1 / OFF == 0
 
   /* ========== parameter section ==========*/
   // Leading Parameters
@@ -387,13 +388,18 @@ Type objective_function<Type>::operator() ()
 
       for( int f = 0; f < nF; f ++ )
       {
-        Type BratNum = (1 - exp( -nu_spfk(s,p,f,2) * ( D_spt(s,p,initT_sp(s,p)) - P1_spf(s,p,f)) ));
-        Type BratDen = (1 - exp( -nu_spfk(s,p,f,2) * ( P2_spf(s,p,f) - P1_spf(s,p,f)) ));
+        vB_spft(s,p,f,initT_sp(s,p)) = B_spt(s,p,initT_sp(s,p));
 
-        vB_spft(s,p,f,initT_sp(s,p)) = B_spt(s,p,initT_sp(s,p)) * (   nu_spfk(s,p,f,0) + 
-                                            ( nu_spfk(s,p,f,1) - nu_spfk(s,p,f,0)) * 
-                                              BratNum / BratDen 
-                                          );
+        if( estExpBio == 1 )
+        {
+          Type BratNum = (1 - exp( -nu_spfk(s,p,f,2) * ( D_spt(s,p,initT_sp(s,p)) - P1_spf(s,p,f)) ));
+          Type BratDen = (1 - exp( -nu_spfk(s,p,f,2) * ( P2_spf(s,p,f) - P1_spf(s,p,f)) ));
+
+          vB_spft(s,p,f,initT_sp(s,p)) *=   (   nu_spfk(s,p,f,0) + 
+                                              ( nu_spfk(s,p,f,1) - nu_spfk(s,p,f,0)) * 
+                                                BratNum / BratDen 
+                                            );
+        }
       }
 
       for( int t = initT_sp(s,p) + 1; t < nT + 1; t++ )
@@ -416,14 +422,18 @@ Type objective_function<Type>::operator() ()
 
         for( int f = 0; f < nF; f++ )
         {
+          vB_spft(s,p,f,t) = B_spt(s,p,t);
 
-          Type BratNum = (1 - exp( -nu_spfk(s,p,f,2) * ( D_spt(s,p,t) - P1_spf(s,p,f)) ));
-          Type BratDen = (1 - exp( -nu_spfk(s,p,f,2) * ( P2_spf(s,p,f) - P1_spf(s,p,f)) ));
+          if( estExpBio == 1 )
+          {
+            Type BratNum = (1 - exp( -nu_spfk(s,p,f,2) * ( D_spt(s,p,t) - P1_spf(s,p,f)) ));
+            Type BratDen = (1 - exp( -nu_spfk(s,p,f,2) * ( P2_spf(s,p,f) - P1_spf(s,p,f)) ));
 
-          vB_spft(s,p,f,t) = B_spt(s,p,t) * (   nu_spfk(s,p,f,0) + 
-                                              ( nu_spfk(s,p,f,1) - nu_spfk(s,p,f,0)) * 
-                                                BratNum / BratDen 
-                                            );
+            vB_spft(s,p,f,t) = B_spt(s,p,t) * (   nu_spfk(s,p,f,0) + 
+                                                ( nu_spfk(s,p,f,1) - nu_spfk(s,p,f,0)) * 
+                                                  BratNum / BratDen 
+                                              );
+          }
         }
 
         lnB_spt(s,p,t) = log(B_spt(s,p,t));
