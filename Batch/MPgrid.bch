@@ -1,4 +1,4 @@
-# Batch Control File, created Sat Mar 21 21:11:59 2020 by makeBatchDesign() 
+# Batch Control File, created Sun Mar 22 02:16:34 2020 by makeBatchDesign() 
 parameter value
 #
 # Scenarios 
@@ -28,7 +28,7 @@ mp$mp1$mp$assess$spCondMLEobsErrFleets NULL
 mp$mp1$mp$assess$spsigmaProc .05
 mp$mp1$mp$assess$spsdUmsy .05
 mp$mp1$mp$assess$spCVBmsy .1
-mp$mp1$mp$assess$spsdlnq_f c(.5,.5,.2,.2)
+mp$mp1$mp$assess$spsdlnq_f c(.25,.25,.2,.2)
 mp$mp1$mp$assess$sptauObs_spf .3
 mp$mp1$mp$assess$spInitPE 25
 mp$mp1$mp$assess$spRE c('zetaspt_vec')
@@ -64,7 +64,7 @@ mp$mp2$mp$assess$spCondMLEobsErrFleets NULL
 mp$mp2$mp$assess$spsigmaProc .05
 mp$mp2$mp$assess$spsdUmsy .05
 mp$mp2$mp$assess$spCVBmsy .1
-mp$mp2$mp$assess$spsdlnq_f c(.5,.5,.2,.2)
+mp$mp2$mp$assess$spsdlnq_f c(.25,.25,.2,.2)
 mp$mp2$mp$assess$sptauObs_spf .3
 mp$mp2$mp$assess$spInitPE 25
 mp$mp2$mp$assess$spRE c('zetaspt_vec')
@@ -100,7 +100,7 @@ mp$mp3$mp$assess$spCondMLEobsErrFleets NULL
 mp$mp3$mp$assess$spsigmaProc .05
 mp$mp3$mp$assess$spsdUmsy .05
 mp$mp3$mp$assess$spCVBmsy .1
-mp$mp3$mp$assess$spsdlnq_f c(.5,.5,.2,.2)
+mp$mp3$mp$assess$spsdlnq_f c(.25,.25,.2,.2)
 mp$mp3$mp$assess$sptauObs_spf .3
 mp$mp3$mp$assess$spInitPE 25
 mp$mp3$mp$assess$spRE c('zetaspt_vec')
@@ -136,7 +136,7 @@ mp$mp4$mp$assess$spCondMLEobsErrFleets NULL
 mp$mp4$mp$assess$spsigmaProc .05
 mp$mp4$mp$assess$spsdUmsy .05
 mp$mp4$mp$assess$spCVBmsy .1
-mp$mp4$mp$assess$spsdlnq_f c(.5,.5,.2,.2)
+mp$mp4$mp$assess$spsdlnq_f c(.25,.25,.2,.2)
 mp$mp4$mp$assess$sptauObs_spf .3
 mp$mp4$mp$assess$spInitPE 25
 mp$mp4$mp$assess$spRE c('zetaspt_vec')
