@@ -1,4 +1,4 @@
-# Batch Control File, created Sun Mar 22 02:16:34 2020 by makeBatchDesign() 
+# Batch Control File, created Sun Mar 22 02:19:24 2020 by makeBatchDesign() 
 parameter value
 #
 # Scenarios 
@@ -6,8 +6,8 @@ parameter value
 # Scenario 1 : DER_fit 
 #
 scenario$scenario1$opMod$pT 32
-scenario$scenario1$opMod$nGoodReps 100
-scenario$scenario1$opMod$totReps 400
+scenario$scenario1$ctl$nGoodReps 100
+scenario$scenario1$ctl$totReps 400
 #
 #
 #
