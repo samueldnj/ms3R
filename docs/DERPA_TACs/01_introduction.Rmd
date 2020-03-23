@@ -78,7 +78,7 @@ complexity [@punt2011among; @jiao2016integrating;
 In this paper, we simulated a spatially structured, 
 multi-species flatfish fishery, and tested the performance 
 of multiple management procedures that were based on assessment 
-methods that often used to deal with data limitations in 
+methods that are often used to deal with data limitations in 
 multi-species fisheries. We conditioned our simulated fishery 
 on the complex of Dover, English, and Rock soles in British Columbia, 
 Canada [*Pleuronectidae spp*]. These three species 
@@ -88,13 +88,15 @@ the same multi-species trawl survey. While time series
 of catch and commercial CPUE exist for all species and 
 areas since the 1950s, all fishery independent observation 
 series are quite noisy and some are very short, making this 
-complex a good candidate for data limited stock assessment 
-methods. Assessment methods we tested included data-pooling 
-across spatial strata, across multiple species within a 
-stratum, or total aggregation, as well as hierarchical multi-species 
-and multi-stock models that used multi-level shrinkage priors 
-to share information on productivity and survey catchability 
-parameters among replicates [@johnson2018evaluating]. Procedure 
+complex a good candidate for the application of data-limited 
+stock assessment methods. We tested both single-stock and 
+hierarchical multi-stock surplus production assessment models 
+[@johnson2018evaluating], with skewed yield curves to match 
+simulated age-structured populations based on on the 
+JABBA-Select model [@winker2018jabba; @winker2020jabba]. 
+We also tested data aggregation methods, including across spatial 
+strata (coastwide models), across multiple species within a 
+stratum (data-pooled), or total aggregation. Management procedure 
 performance was measured as absolute or relative loss in catch and 
 biomass compared to the outcome of simulations where an 
 omniscient manager is maximising total system yield 
@@ -103,22 +105,15 @@ in our simulated fishery system, we derived a commercial
 catchability ratio between fishing effort and mortality
 for each species/stock combination, and allowed future
 fishing effort to increase until at least one TAC was fully
-utilised, which represents a fully integrated output 
-control fishery with technical interactions, as is 
-the case in British Columbia. Total allowable catches 
-were set as constant removal rates based on either 
-multi-species optimal harvest rates, derived from 
-adding single-species yield curves with respect
-to effort [@mueter2006using], or traditional 
-single-species optimal harvest rates. 
-
-Background on how we use empirical MS yield
-curves to determine potential harvest control
-rules for our MS fishery.
-New references:
-  @punt2020multispecies
-  @winker2018jabba
-  @winker2020jabba
+utilised, representing a fully integrated output 
+control fishery with technical interactions, as in 
+British Columbia's trawl fishery. Total allowable catches 
+were set as constant removal rates based on either multi-species 
+optimal harvest rates, derived from adding single-species 
+yield curves with respect to effort [@mueter2006using; 
+@punt2020multispecies], or traditional single-species 
+optimal harvest rates derived from the operating model 
+yield curves. 
 
 
 

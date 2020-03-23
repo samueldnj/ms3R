@@ -33,17 +33,20 @@ Sensitivity:
 
 Limitations:
 1. Informative priors were necessary for stability
-of MP
+of some MPs
 2. Addition of  biomass and CPUE indices instead 
 of re-calculation under coastwide and data-pooled MPs
 4. Effort dynamics: simplified, would require more empirical
 work for an application - e.g. landed value is assumed equal
+among fish (not far from the truth anyways)
 5. 
 
 Further work:
 - While considering technical interactions, is it possible 
-to tune all stocks to a nominated level? Probably not
-- 
+to tune all stocks to a nominated level? Probably not.
+- Addition of economic yield (@punt2020multispecies)
+- Investigation of how to better include EB/SB ratios
+for data-pooled MS complexes [@winker2020jabba]
 
 
 

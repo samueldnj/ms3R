@@ -34,7 +34,11 @@ lightly exploited, with full commercial exploitation
 beginning only in the 1970s. In contrast, English and rock 
 sole fisheries have been very active in the Hecate Strait
 for the whole historical time series, with fishing activity 
-in other areas more variable over time. 
+in other areas more variable over time (plots).
+
+- Stock status and reference points as estimated
+by hierSCAL (table)
+
 
 
 
@@ -133,6 +137,30 @@ for research purposes. Under coastwide assessments,
 each survey (pooled or separate) was considered as a 
 separate index of the same population.
 
+We extended our surplus production stock assessment model 
+to account for differences between the operating model
+dynamics and the assessment model assumptions about
+yield curve shape and ratios of exploitable biomass
+to spawning biomass. We followed the JABBBA-Select
+formulation for biomass assessments to add both
+features [@winker2020jabba]. Skew in the operating 
+model yield curves was added to all AMs by switching to
+a Pella-Tomlinson formulation [@pella1969generalized], 
+and the difference between exploitable biomass and 
+spawning biomass was added by using the equilibrium 
+model developed for the JABBA-Select model 
+[@winker2020jabba]. We used the skewed yield curve
+for all model formulations, including data aggregated
+methods, where we re-derived the ratio between unfished
+and optimal biomass in each case. The exploitable
+and spawning biomass ratio estimates were used in all cases
+except the data-pooling, spatially disaggregated 
+assessment (3 in above list), under which the 
+estimates introduced a persistent bias in the fits
+to stock indices. Details of our derivation
+of skew and biomass ratio parameters are given in 
+Appendix B.
+
 At each time step $t$, the AM estimated production model 
 equilibria $B_{MSY}$ and $U_{MSY}$, and an expected 
 biomass estimate $\hat{B}_{t+1}$ for the following 
@@ -154,7 +182,8 @@ U_{t+1} = \left\{ \begin{array}{ll}
 \end{equation}
 Where $\hat{B}_{MSY}$, $\hat{U}_{MSY}$, and $\hat{B}_{t+1}$  
 were estimated by the assessment model either for 
-a individual species or stocks, or a data-pooled complex.
+an individual species, individual stocks, or a 
+data-pooled complex.
 
 Total allowable catch (TAC) was then set as the product
 of target harvest rate and projected biomass
@@ -167,36 +196,21 @@ to the effort allocation model. In other cases when data were
 pooled or stock structure was ignored, we defined rules
 for allocating TAC among areas and species.
 
-For coastwide assessments all three stock
-area survey series were used, so TAC was apportioned 
-according to the relative survey catchability estimated
-by the assessment model, i.e.
-\begin{equation}
-TAC_{p,t+1} = \frac{\hat{q}_p}{ \sum_{p'} \hat{q}_{p'} } TAC_{t+1}. 
-\end{equation}
-This reflects the assumption that survey indices
-are relative, or minimum, trawlable biomass estimates,
-and catchability coefficients are then an indicator
-of the proportion of total coastwide biomass available 
-to the survey in each area. We normalise by the total
-catchability coefficient as we do not expect
-that they will sum to 1, indicating that some fish 
-remain invulnerable to the survey, either by being 
-higher in the water column, or in non-trawlable habitat.
-
-For splitting TAC within an area when data has been pooled,
-we split them according to the relative contribution of each
-species to the pooled data. For example, if the pooled biomass 
+For splitting TACs within an area or across spatial
+strata when data has been pooled, we split them according to 
+the relative contribution of each individual index to the 
+pooled data. For example, if the pooled biomass 
 index for stock area $p$ in time step $t$ was the sum of species
 specific indices in the same area, i.e,
 \begin{equation}
 I_{p,t} = \sum_s I_{s,p,t},
 \end{equation}
-then the TAC for species $s$ is simply
+then the TAC for species $s$ is apportioned as
 \[
 TAC_{s,p,t+1} = \frac{I_{s,p,t}}{I_{p,t}} TAC_{p,t+1}.
 \]
-
+The analogous apportionment holds for all data aggregation
+MPs.
 
 ### Fishing effort, fishing mortality, and optimal yield
 
@@ -289,6 +303,8 @@ DER complex. Generation time was calculated as the
 average age at maturity of the female spawning population 
 in the absence of fishing [@seber1997estimation].
 
+DEFINE THE FOUR MPs somewhere!!
+
 We tested our 20 MPs against a single operating model 
 scenario conditioned by the maximum likelihood estimates
 of OM assessment. For all DER stocks, the main differences
@@ -308,7 +324,11 @@ in years where the conditioning assessment was unable to
 estimate process errors due to a lack of age composition
 data. 
 
+
+
 ### OM scenarios?? MAY TAKE OUT
+
+There are already 20 sims (as defined above), so
 
 Survey CV scenarios:
 1. Current $\tau_{s,p,f}$ value from conditioning;
@@ -416,23 +436,28 @@ effort in a short period of time, as this would require significant
 capital investment or a large increase in human resources. 
 Similarly, in practice harvesters are reluctant to allow catch 
 to increase by more than 10% - 20% per year (**REACH OUT TO
-TRAWL FOR INPUT/POSSIBLE CITATION HERE**). **Tuning criteria?**
+TRAWL FOR INPUT/POSSIBLE CITATION HERE**). Similarly,
+there are job-security implications for large sudden drops in
+fishing effort. **Tuning criteria?**
 
 We used a cubic spline of effort in each area to reduce
 the number of free parameters in the optimisation. For each
 area, 9 knot points were distributed across the full 40 year
-projection, making them spaced by 5 years. Effort splines
-were constrained to be between 0 and 50 units, by simply
+projection, making them spaced by 5 years. We padded
+the omniscient manager simulations by an extra eight
+years over the stochastic simulations to avoid any
+possible end effects of the spline entering the 
+performance metric calculations. Effort splines
+were constrained to be between 0 and 50 units, by
 replacing any value outside that range with the closest
-value inside the range (i.e. negative values by zero,
+value inside the range (i.e. negative values by *zero*,
 large values by 50).
-
 
 We ran the omniscient manager simulation for every random
 seed that was used in the stochastic MP simulations. By doing so, 
 we assured that an omniscient manager simulation was available
 for every set of observation and process errors a stochastic MP 
-was exposed to. 
+was exposed to.
 
 
 ### Performance metrics

@@ -1,4 +1,4 @@
- # Batch File
+# Batch File
 parameter value
 #
 ## Scenarios
@@ -10,15 +10,6 @@ scenario$scenario1$ctl$nGoodReps 400
 scenario$scenario1$ctl$omni TRUE
 scenario$scenario1$opMod$pT 40
 scenario$scenario1$mp$omni$nKnots 9
-#
-## Scenario 2 : DER_base
-##
-#scenario$scenario2$ctl$scenarioName 'DER_base_noProcErr'
-#scenario$scenario2$ctl$nGoodReps 400
-#scenario$scenario2$ctl$omni TRUE
-#scenario$scenario2$ctl$noProcErr TRUE
-#scenario$scenario2$opMod$pT 40
-#scenario$scenario2$mp$omni$nKnots 9
 #
 #
 ## Management Procedures
