@@ -366,6 +366,23 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   # Save proportion of TAC for use in retro SB plots
   hcr$propTAC_spt[,,t] <- propTAC_sp
 
+  # Apply smoother on TACs
+  if( !is.null(ctlList$mp$hcr$maxDeltaTACup) )
+  {
+    # Determine which TACs are more than maxDeltaTAC
+    # above last year
+    maxDeltaTACup  <- ctlList$mp$hcr$maxDeltaTACup
+    currTAC_sp     <- hcr$TAC_spt[,,t]
+    lastTAC_sp     <- hcr$TAC_spt[,,t-1]
+    diffTAC_sp     <- currTAC_sp - lastTAC_sp
+    DeltaTACup_sp  <- diffTAC / hcr$TAC_spt[,,t-1]
+    smoothIdx <- which( DeltaTACup_sp > maxDeltaTACup )
+
+    # Apply smoother
+    currTAC_sp[smoothIdx] <- 1.2 * lastTAC_sp[smoothIdx]
+    hcr$TAC_spt[,,t] <- currTAC_sp
+  }
+
   # Now put all the lists we modified back into obj
   obj$mp$hcr    <- hcr
   obj$mp$assess <- assess

@@ -70,6 +70,7 @@ mp$hcr$Bref "Bmsy"
 mp$hcr$Fref "Umsy"
 mp$hcr$LCP .4
 mp$hcr$UCP .6
+mp$hcr$maxDeltaTACup .2
 mp$omni$nKnots 9
 mp$omni$maxF 1.0
 mp$omni$maxE 10
