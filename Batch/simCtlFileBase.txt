@@ -72,6 +72,7 @@ mp$hcr$UCP .6
 mp$omni$nKnots 9
 mp$omni$maxF 1.0
 mp$omni$maxE 120
+mp$omni$minE 0
 mp$omni$maxAAV .25
 mp$omni$maxRelEffDiff .2
 mp$omni$maxRelCatDiff .3
