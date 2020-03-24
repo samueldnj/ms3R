@@ -62,16 +62,17 @@ mp$mp3$mp$omni$effDiffWt 1.0
 mp$mp3$mp$omni$initCatDiffWt .0
 mp$mp3$mp$omni$initEffDiffWt 1.0
 #
-# MP 4 : omni_totCat1_effDiff1_initEffDiff1_closed3
+# MP 4 : omni_totCat1_effDiff1_initEffDiff1_histMinEff
 #
-mp$mp4$ctl$mpName 'omni_totCat1_effDiff1_initEffDiff1_closed3'
+mp$mp4$ctl$mpName 'omni_totCat1_effDiff1_initEffDiff1_histMinEff'
+mp$mp4$mp$omni$minE "hist"
 mp$mp4$mp$omni$avgCatWt 0.
 mp$mp4$mp$omni$totCatWt 1.0
 mp$mp4$mp$omni$sumCatWt .0
 mp$mp4$mp$omni$hiDepBmsyWt .0
 mp$mp4$mp$omni$loDepBmsyWt .0
 mp$mp4$mp$omni$probDepWt 0.0
-mp$mp4$mp$omni$closedWt 3
+mp$mp4$mp$omni$closedWt 0
 mp$mp4$mp$omni$AAVWt 0
 mp$mp4$mp$omni$catDiffWt 0
 mp$mp4$mp$omni$effDiffWt 1.0

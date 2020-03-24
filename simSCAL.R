@@ -1915,6 +1915,7 @@ solvePTm <- function( Bmsy, B0 )
     # Some omni control pars
     maxF        <- mp$omni$maxF
     maxE        <- mp$omni$maxE
+    minE        <- mp$omni$minE
     parMult     <- mp$omni$expParMult
     Fmsy_sp     <- obj$rp$FmsyRefPts$Fmsy_sp
     loDepBmsy   <- mp$omni$loDepBmsy
@@ -2027,13 +2028,18 @@ solvePTm <- function( Bmsy, B0 )
           splineE <- spline( x = x, y = knotE_pk[p,], n = projInt)$y
           splineE <- splineE * obj$rp$EmsyMSRefPts$EmsyMS_p[p]
 
-          # Correct for under and over efforts
-          splineE[splineE < 0] <- 0
+          # Correct for under and over efforts, limit
+          # lowest effort to be the minimum over the
+          # historical period
+          if( minE == "hist" )
+            splineE[splineE < 0] <- min(obj$om$E_pft[p,2,1:(tMP-1)])/obj$rp$EmsyMSRefPts$EmsyMS_p[p]
+          else 
+            splineE[splineE < 0] <- minE
+          
           splineE[splineE > maxE] <- maxE
 
           # Assign to projection
           obj$om$E_pft[p,2,tMP:nT] <- parMult * splineE
-
 
           for( s in 1:nS )
             obj$om$F_spft[s,p,2,tMP:nT] <- obj$om$E_pft[p,2,tMP:nT] * om$qF_spft[s,p,2,tMP - 1]
