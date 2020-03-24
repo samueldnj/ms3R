@@ -2,7 +2,8 @@
 
 ```{r loadInfoFiles, echo = FALSE, include = FALSE, warning = FALSE}
 # Now read in all the info files
-readBatchInfo(batchDir = projDir)
+info.df <- readBatchInfo(batchDir = projDir)
+
 
 ```
 

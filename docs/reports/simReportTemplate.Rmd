@@ -213,12 +213,11 @@ plotScaledIndices(  obj = blob,
 ```
 
 
-
-
 ```{r, plotAMresids, echo = FALSE, message = FALSE, fig.cap = AMidxResidsCap }
-plotAMIdxResids(  obj = blob,
-                  iRep = randReplicate,
-                  t = tMP )
+if(!blob$ctlList$ctl$omni)
+  plotAMIdxResids(  obj = blob,
+                    iRep = randReplicate,
+                    t = tMP )
 ```
 
 
