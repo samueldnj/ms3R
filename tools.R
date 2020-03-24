@@ -114,12 +114,17 @@
 # Makes a .html report of the simulation
 # showing basic performance plots
 # and tables
-.makeBatchReport <- function( batchFolder = "" )
+.makeBatchReport <- function( batchFolder = "",
+                              prefix = "" )
 {
   simFolder <- here::here("Outputs",batchFolder)
 
   # Create parameter list for rendering the document
-  params <- list( batchDir = simFolder )
+  params <- list( batchDir = simFolder,
+                  groupFolder = batchFolder,
+                  prefix = prefix  )
+
+
   # Make an output file name
   outFile <- paste( "batchReport.html", sep = "")
   outFolder <- file.path(simFolder,"batchReports")
@@ -153,6 +158,8 @@
   params <- list( batchDir = simFolder,
                   groupFolder = batchFolder,
                   prefix = prefix )
+
+  browser()
   # Make an output file name
   outFile <- paste( "batchLossReport.html", sep = "")
   outFolder <- file.path(simFolder,"batchReports")

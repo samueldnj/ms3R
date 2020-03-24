@@ -46,6 +46,9 @@ toc: false
 fontsize: 12pt
 lineno: true
 csl-refs: true
+params:
+  projDir: "~/Work/code/models/stockAssessment/multispecies/ms3R/Outputs/JSel_Short"
+  baseline: "sim_parBatomniRuns_short_EmsyMult3"
 numbersections: false
 appendix: false
 output: 
@@ -118,6 +121,12 @@ opts_chunk$set(
 options(xtable.comment = FALSE)
 options(kableExtra.latex.load_packages = FALSE)
 options(knitr.kable.NA = '')
+
+projDir <- params$projDir
+
+source(here::here("tools.R"))
+source(here::here("ms3Rplots.R"))
+source(here::here("stats.R"))
 ```
 
 ```{r load-libraries, cache=FALSE}

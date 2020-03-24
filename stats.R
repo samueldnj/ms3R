@@ -19,7 +19,7 @@
 # on relative and absolute scale
 calcLoss <- function( sim         = 1,
                       baseline    = "sim_parBatomniRuns_short_EmsyMult3",
-                      groupFolder = "ms3R_stochasticRuns",
+                      groupFolder = "JSel_shortGrid",
                       lossVars    = c("C_ispt","SB_ispt"),
                       output      = TRUE )
 {

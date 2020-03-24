@@ -26,6 +26,8 @@ header-includes:
 always_allow_html: yes
 params:
   batchDir: "~/Work/code/models/stockAssessment/multispecies/ms3R/Outputs/"
+  groupFolder: "longGrid"
+  prefix: "MPgrid"
 output: 
   pdf_document:
     keep_tex: true
@@ -74,8 +76,6 @@ library( dplyr )
 library( stringr )
 library( tidyverse )
 library( here )
-library( ggridges )
-library( ggsidekick )
 
 knitr::opts_knit$set( fig.pos = 'p',
                       out.width = '100%', dpi=300, 
@@ -90,8 +90,13 @@ source(here("tools.R"))
 source(here("stats.R"))
 source(here("refPts.R"))
 
+batchDir    <- params$batchDir
+prefix      <- params$prefix
+groupFolder <- params$groupFolder
+
 # Count the number of fits in the batch directory
-info.df <- readBatchInfo(params$batchDir)
+info.df <- readBatchInfo( params$batchDir) %>%
+            filter( grepl(params$prefix, simLabel ) )
 
 
 # Loop over the batch sims, and load their
@@ -102,9 +107,10 @@ batchBlobs <- vector(mode = "list", length = nSims )
 for(simIdx in 1:nSims)
 {
   # Recover Rdata file name
-  simFolderFiles <- list.files( info.df$path[simIdx] )
+  localPath <- file.path(batchDir,info.df$simLabel[simIdx])
+  simFolderFiles <- list.files( localPath )
   simFile <- simFolderFiles[grepl(".RData", simFolderFiles)]
-  simPath <- file.path(info.df$path[simIdx],simFile)
+  simPath <- file.path(localPath,paste(info.df$simLabel[simIdx],".RData",sep=""))
 
   # Load sim object
   load(simPath)

@@ -1,5 +1,11 @@
 # Results
 
+```{r loadInfoFiles, echo = FALSE, include = FALSE, warning = FALSE}
+# Now read in all the info files
+readBatchInfo(batchDir = projDir)
+
+```
+
 ## Omniscient manager simulations and multispecies equilibria
 
 We found that the median biomass of each species 

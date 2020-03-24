@@ -1,4 +1,4 @@
-# Batch Control File, created Thu Mar  5 21:35:34 2020 by makeBatchDesign() 
+# Batch Control File, created Mon Mar 23 17:08:27 2020 by makeBatchDesign() 
 parameter value
 #
 # Scenarios 
@@ -7,7 +7,7 @@ parameter value
 #
 scenario$scenario1$ctl$scenarioName 'DERfit_0.5obsErr'
 scenario$scenario1$opMod$pT 32
-scenario$scenario1$ctl$nGoodReps 10
+scenario$scenario1$ctl$nGoodReps 100
 scenario$scenario1$ctl$totReps 400
 scenario$scenario1$opMod$projObsErrMult 0.5
 #
@@ -15,7 +15,7 @@ scenario$scenario1$opMod$projObsErrMult 0.5
 #
 scenario$scenario2$ctl$scenarioName 'DERfit_1obsErr'
 scenario$scenario2$opMod$pT 32
-scenario$scenario2$ctl$nGoodReps 10
+scenario$scenario2$ctl$nGoodReps 100
 scenario$scenario2$ctl$totReps 400
 scenario$scenario2$opMod$projObsErrMult 1
 #
@@ -23,7 +23,7 @@ scenario$scenario2$opMod$projObsErrMult 1
 #
 scenario$scenario3$ctl$scenarioName 'DERfit_2obsErr'
 scenario$scenario3$opMod$pT 32
-scenario$scenario3$ctl$nGoodReps 10
+scenario$scenario3$ctl$nGoodReps 100
 scenario$scenario3$ctl$totReps 400
 scenario$scenario3$opMod$projObsErrMult 2
 #
@@ -44,11 +44,13 @@ mp$mp1$mp$assess$spTVqFleets NULL
 mp$mp1$mp$assess$spCondMLEqFleets NULL
 mp$mp1$mp$assess$spCondMLEobsErrFleets NULL
 mp$mp1$mp$assess$spsigmaProc .05
+mp$mp1$mp$assess$spsdUmsy .05
 mp$mp1$mp$assess$spCVBmsy .1
-mp$mp1$mp$assess$spsdlnq_f c(.5,.5,.2,.2)
+mp$mp1$mp$assess$spsdlnq_f c(.25,.25,.2,.2)
 mp$mp1$mp$assess$sptauObs_spf .3
 mp$mp1$mp$assess$spInitPE 25
 mp$mp1$mp$assess$spRE c('zetaspt_vec')
+mp$mp1$mp$assess$spPhzUmsy 3
 mp$mp1$mp$assess$spPhzepslnUmsy_s -5
 mp$mp1$mp$assess$spPhzepslnUmsy_sp -7
 mp$mp1$mp$assess$spPhzdeltalnq_spf -6
@@ -63,7 +65,6 @@ mp$mp1$mp$assess$spPhzSigmaProc -3
 mp$mp1$mp$assess$spPhztauObs 3
 mp$mp1$mp$assess$spIGtau2alpha 1
 mp$mp1$mp$assess$spIGtau2Mode 0.09
-mp$mp1$mp$assess$spFixUmsy TRUE
 mp$mp1$mp$assess$spSkewYieldCurves TRUE
 #
 # MP 2 : singleStock_omF_MSrefPts
@@ -79,11 +80,13 @@ mp$mp2$mp$assess$spTVqFleets NULL
 mp$mp2$mp$assess$spCondMLEqFleets NULL
 mp$mp2$mp$assess$spCondMLEobsErrFleets NULL
 mp$mp2$mp$assess$spsigmaProc .05
+mp$mp2$mp$assess$spsdUmsy .05
 mp$mp2$mp$assess$spCVBmsy .1
-mp$mp2$mp$assess$spsdlnq_f c(.5,.5,.2,.2)
+mp$mp2$mp$assess$spsdlnq_f c(.25,.25,.2,.2)
 mp$mp2$mp$assess$sptauObs_spf .3
 mp$mp2$mp$assess$spInitPE 25
 mp$mp2$mp$assess$spRE c('zetaspt_vec')
+mp$mp2$mp$assess$spPhzUmsy 3
 mp$mp2$mp$assess$spPhzepslnUmsy_s -5
 mp$mp2$mp$assess$spPhzepslnUmsy_sp -7
 mp$mp2$mp$assess$spPhzdeltalnq_spf -6
@@ -98,7 +101,6 @@ mp$mp2$mp$assess$spPhzSigmaProc -3
 mp$mp2$mp$assess$spPhztauObs 3
 mp$mp2$mp$assess$spIGtau2alpha 1
 mp$mp2$mp$assess$spIGtau2Mode 0.09
-mp$mp2$mp$assess$spFixUmsy TRUE
 mp$mp2$mp$assess$spSkewYieldCurves TRUE
 #
 # MP 3 : hierMultiStock_omF_SSrefPts
@@ -138,7 +140,6 @@ mp$mp3$mp$assess$spPhzSigmaProc -3
 mp$mp3$mp$assess$spPhztauObs 1
 mp$mp3$mp$assess$spIGtau2alpha 1
 mp$mp3$mp$assess$spIGtau2Mode 0.09
-mp$mp3$mp$assess$spFixUmsy TRUE
 mp$mp3$mp$assess$spSkewYieldCurves TRUE
 #
 # MP 4 : hierMultiStock_omF_MSrefPts
@@ -178,7 +179,6 @@ mp$mp4$mp$assess$spPhzSigmaProc -3
 mp$mp4$mp$assess$spPhztauObs 1
 mp$mp4$mp$assess$spIGtau2alpha 1
 mp$mp4$mp$assess$spIGtau2Mode 0.09
-mp$mp4$mp$assess$spFixUmsy TRUE
 mp$mp4$mp$assess$spSkewYieldCurves TRUE
 #
 # MP 5 : dataPooled_omF_SSrefPts
@@ -190,8 +190,8 @@ mp$mp5$mp$assess$spCoastwide FALSE
 mp$mp5$mp$assess$spDataPooled TRUE
 mp$mp5$mp$assess$spSingleStock FALSE
 mp$mp5$mp$assess$spPosPenFactor 1e3
-mp$mp5$mp$assess$sptauq .1
-mp$mp5$mp$assess$spsigU .2
+mp$mp5$mp$assess$sptauq .2
+mp$mp5$mp$assess$spsigU .1
 mp$mp5$mp$assess$spFleetWeights c(1,1,1.0,1.0)
 mp$mp5$mp$assess$spFleets c(1,2,3,4)
 mp$mp5$mp$assess$spShrinkqFleets c(3,4)
@@ -203,9 +203,9 @@ mp$mp5$mp$assess$spSolveInitBio FALSE
 mp$mp5$mp$assess$spLateStart FALSE
 mp$mp5$mp$assess$spsigmaProc .05
 mp$mp5$mp$assess$sptauqdev .1
-mp$mp5$mp$assess$spsdUmsy .1
+mp$mp5$mp$assess$spsdUmsy .05
 mp$mp5$mp$assess$spCVBmsy .2
-mp$mp5$mp$assess$spsdlnq_f c(1,1,1,1)
+mp$mp5$mp$assess$spsdlnq_f c(2,2,2,2)
 mp$mp5$mp$assess$sptauObs_spf .2
 mp$mp5$mp$assess$spInitPE 25
 mp$mp5$mp$assess$spRE c('zetaspt_vec')
@@ -224,8 +224,8 @@ mp$mp5$mp$assess$spPhzSigmaProc -3
 mp$mp5$mp$assess$spPhztauObs 3
 mp$mp5$mp$assess$spIGtau2alpha 1
 mp$mp5$mp$assess$spIGtau2Mode 0.09
-mp$mp5$mp$assess$spFixUmsy TRUE
 mp$mp5$mp$assess$spSkewYieldCurves TRUE
+mp$mp5$mp$assess$spEstExpBio FALSE
 #
 # MP 6 : dataPooled_omF_MSrefPts
 #
@@ -236,8 +236,8 @@ mp$mp6$mp$assess$spCoastwide FALSE
 mp$mp6$mp$assess$spDataPooled TRUE
 mp$mp6$mp$assess$spSingleStock FALSE
 mp$mp6$mp$assess$spPosPenFactor 1e3
-mp$mp6$mp$assess$sptauq .1
-mp$mp6$mp$assess$spsigU .2
+mp$mp6$mp$assess$sptauq .2
+mp$mp6$mp$assess$spsigU .1
 mp$mp6$mp$assess$spFleetWeights c(1,1,1.0,1.0)
 mp$mp6$mp$assess$spFleets c(1,2,3,4)
 mp$mp6$mp$assess$spShrinkqFleets c(3,4)
@@ -249,9 +249,9 @@ mp$mp6$mp$assess$spSolveInitBio FALSE
 mp$mp6$mp$assess$spLateStart FALSE
 mp$mp6$mp$assess$spsigmaProc .05
 mp$mp6$mp$assess$sptauqdev .1
-mp$mp6$mp$assess$spsdUmsy .1
+mp$mp6$mp$assess$spsdUmsy .05
 mp$mp6$mp$assess$spCVBmsy .2
-mp$mp6$mp$assess$spsdlnq_f c(1,1,1,1)
+mp$mp6$mp$assess$spsdlnq_f c(2,2,2,2)
 mp$mp6$mp$assess$sptauObs_spf .2
 mp$mp6$mp$assess$spInitPE 25
 mp$mp6$mp$assess$spRE c('zetaspt_vec')
@@ -270,8 +270,8 @@ mp$mp6$mp$assess$spPhzSigmaProc -3
 mp$mp6$mp$assess$spPhztauObs 3
 mp$mp6$mp$assess$spIGtau2alpha 1
 mp$mp6$mp$assess$spIGtau2Mode 0.09
-mp$mp6$mp$assess$spFixUmsy TRUE
 mp$mp6$mp$assess$spSkewYieldCurves TRUE
+mp$mp6$mp$assess$spEstExpBio FALSE
 #
 # MP 7 : coastwide_omF_SSrefPts
 #
@@ -316,7 +316,6 @@ mp$mp7$mp$assess$spPhzSigmaProc -3
 mp$mp7$mp$assess$spPhztauObs 3
 mp$mp7$mp$assess$spIGtau2alpha 1
 mp$mp7$mp$assess$spIGtau2Mode 0.09
-mp$mp7$mp$assess$spFixUmsy TRUE
 mp$mp7$mp$assess$spSkewYieldCurves TRUE
 #
 # MP 8 : coastwide_omF_MSrefPts
@@ -362,7 +361,6 @@ mp$mp8$mp$assess$spPhzSigmaProc -3
 mp$mp8$mp$assess$spPhztauObs 3
 mp$mp8$mp$assess$spIGtau2alpha 1
 mp$mp8$mp$assess$spIGtau2Mode 0.09
-mp$mp8$mp$assess$spFixUmsy TRUE
 mp$mp8$mp$assess$spSkewYieldCurves TRUE
 #
 # MP 9 : totalAgg_omF_SSrefPts
@@ -375,7 +373,7 @@ mp$mp9$mp$assess$spDataPooled TRUE
 mp$mp9$mp$assess$spSingleStock FALSE
 mp$mp9$mp$assess$spPosPenFactor 1e3
 mp$mp9$mp$assess$sptauq .1
-mp$mp9$mp$assess$spsigU .2
+mp$mp9$mp$assess$spsigU .1
 mp$mp9$mp$assess$spFleetWeights c(.5,.5,1.0,1.0)
 mp$mp9$mp$assess$spFleets c(1,2,3,4)
 mp$mp9$mp$assess$spShrinkqFleets c(3,4)
@@ -387,7 +385,7 @@ mp$mp9$mp$assess$spSolveInitBio FALSE
 mp$mp9$mp$assess$spLateStart FALSE
 mp$mp9$mp$assess$spsigmaProc .05
 mp$mp9$mp$assess$sptauqdev .1
-mp$mp9$mp$assess$spsdUmsy .1
+mp$mp9$mp$assess$spsdUmsy .05
 mp$mp9$mp$assess$spCVBmsy .2
 mp$mp9$mp$assess$spsdlnq_f c(1,1,1,1)
 mp$mp9$mp$assess$sptauObs_spf .2
@@ -408,7 +406,6 @@ mp$mp9$mp$assess$spPhzSigmaProc -3
 mp$mp9$mp$assess$spPhztauObs 3
 mp$mp9$mp$assess$spIGtau2alpha 1
 mp$mp9$mp$assess$spIGtau2Mode 0.09
-mp$mp9$mp$assess$spFixUmsy TRUE
 mp$mp9$mp$assess$spSkewYieldCurves TRUE
 #
 # MP 10 : totalAgg_omF_MSrefPts
@@ -421,7 +418,7 @@ mp$mp10$mp$assess$spDataPooled TRUE
 mp$mp10$mp$assess$spSingleStock FALSE
 mp$mp10$mp$assess$spPosPenFactor 1e3
 mp$mp10$mp$assess$sptauq .1
-mp$mp10$mp$assess$spsigU .2
+mp$mp10$mp$assess$spsigU .1
 mp$mp10$mp$assess$spFleetWeights c(.5,.5,1.0,1.0)
 mp$mp10$mp$assess$spFleets c(1,2,3,4)
 mp$mp10$mp$assess$spShrinkqFleets c(3,4)
@@ -433,7 +430,7 @@ mp$mp10$mp$assess$spSolveInitBio FALSE
 mp$mp10$mp$assess$spLateStart FALSE
 mp$mp10$mp$assess$spsigmaProc .05
 mp$mp10$mp$assess$sptauqdev .1
-mp$mp10$mp$assess$spsdUmsy .1
+mp$mp10$mp$assess$spsdUmsy .05
 mp$mp10$mp$assess$spCVBmsy .2
 mp$mp10$mp$assess$spsdlnq_f c(1,1,1,1)
 mp$mp10$mp$assess$sptauObs_spf .2
@@ -454,7 +451,6 @@ mp$mp10$mp$assess$spPhzSigmaProc -3
 mp$mp10$mp$assess$spPhztauObs 3
 mp$mp10$mp$assess$spIGtau2alpha 1
 mp$mp10$mp$assess$spIGtau2Mode 0.09
-mp$mp10$mp$assess$spFixUmsy TRUE
 mp$mp10$mp$assess$spSkewYieldCurves TRUE
 #
 #
