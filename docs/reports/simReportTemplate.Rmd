@@ -207,9 +207,10 @@ plotRetroSBagg(obj = blob, iRep = randReplicate)
 
 ## Model fits in first year
 ```{r, plotScaledIndices, echo = FALSE, message = FALSE, fig.cap = scaledIndicesCap }
-plotScaledIndices(  obj = blob,
-                    iRep = randReplicate,
-                    t = tMP )
+if(!blob$ctlList$ctl$omni)
+  plotScaledIndices(  obj = blob,
+                      iRep = randReplicate,
+                      t = tMP )
 ```
 
 
@@ -222,7 +223,8 @@ if(!blob$ctlList$ctl$omni)
 
 
 ```{r, plotJabbaModel, echo = FALSE, message = FALSE, fig.cap = JabbaSelModelCap }
-plotEBSBratio(  obj = blob )
+if( !is.null(blob$ctlList$mp$assess$spSkewYieldCurves) )
+  plotEBSBratio(  obj = blob )
 ```
 
 

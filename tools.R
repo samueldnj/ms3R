@@ -71,7 +71,8 @@
 # Makes a .html report of the simulation
 # showing basic performance plots
 # and tables
-.makeSimReport <- function( simNum, groupFolder = "" )
+.makeSimReport <- function( simNum, groupFolder = "",
+                            tidy = TRUE )
 {
   simFolder <- here::here("Outputs",groupFolder)
 
@@ -102,12 +103,14 @@
                       output_file = outFile,
                       output_dir = simFolderPath,
                       params = params,
+                      clean = tidy,
                       envir = new.env(),
                       output_format = "bookdown::html_document2" )
 
   # remove temporary files
   dataReportFiles <- "simReport_files"
-  unlink(file.path(simFolderPath,dataReportFiles), recursive = TRUE)
+  if( tidy )
+    unlink(file.path(simFolderPath,dataReportFiles), recursive = TRUE)
 } # END .makeSimReport()
 
 # .makeBatchReport()
@@ -159,7 +162,6 @@
                   groupFolder = batchFolder,
                   prefix = prefix )
 
-  browser()
   # Make an output file name
   outFile <- paste( "batchLossReport.html", sep = "")
   outFolder <- file.path(simFolder,"batchReports")

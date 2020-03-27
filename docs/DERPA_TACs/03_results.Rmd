@@ -2,20 +2,48 @@
 
 ```{r loadInfoFiles, echo = FALSE, include = FALSE, warning = FALSE}
 # Now read in all the info files
-info.df <- readBatchInfo(batchDir = projDir)
+info.df <- readBatchInfo(batchDir = projDir) %>%
+      mutate( blobPath = "", 
+              perfTabPath = "", 
+              lossBlobPath = "" )
+# Update paths for each RData file and perf 
+# table file
+for( simIdx in 1:nrow(info.df))
+{
+  simLabel <- info.df$simLabel[simIdx]
+
+  info.df$blobPath[simIdx]     <- file.path(projDir, simLabel, paste(simLabel,".RData",sep = "") )
+  info.df$perfTabPath[simIdx]  <- file.path(projDir, simLabel, "simPerfStats.csv" )
+  info.df$lossBlobPath[simIdx] <- file.path(projDir, simLabel, "loss.RData" )
+}
 
 
 ```
 
 ## Omniscient manager simulations and multispecies equilibria
 
+```{r loadOmni, echo = FALSE, include = FALSE, warning = FALSE}
+omniInfo <- info.df %>% 
+              filter( grepl( params$baseline, simLabel) )
+
+# load performance table
+omniPerfTab <- read.csv(omniInfo$perfTabPath)
+
+
+```
+
 We found that the median biomass of each species 
 under the omniscient manager was close to the equilibrium 
 biomass associated with the multispecies maximum 
-sustainable yield in each area [figure]. In each area, as 
-predicted by the equilibrium calculations, the optimal effort 
-for the complex results in overfishing of the Dover sole
-stocks.
+sustainable yield in each area [figure]. Median
+biomass, catch, and fishing mortality reach the equilbrium
+soon after a transition period of about 20 years. During
+the transitionary period, effort is slowly ramped up from
+the level at the end of the historical period to a 
+stationary distribution around each stock area's $E_{MSY}$.
+In each area, as predicted by the equilibrium calculations, 
+the optimal effort for the complex results in overfishing 
+of the Dover sole stocks. 
 
 Despite the tendency of the manager to increase fishing
 mortality rates to above the single species $F_{MSY}$
@@ -23,7 +51,7 @@ for all Dover sole stocks, very few simulations actually push
 Dover sole into an overfished state. For all stocks of all 
 species, the probability of being below 40% of single species
 $B_{MSY}$ is at most 1% (TABLE), while probability of being
-above 80% of $B_{MSY}$ is at least 54%. 
+above 80% of $B_{MSY}$ is at least 53%. 
 
 Tendency to reduce effort to very low in first few years
 for some replicates, despite penalty in objective 

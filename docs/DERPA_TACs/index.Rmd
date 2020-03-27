@@ -47,8 +47,9 @@ fontsize: 12pt
 lineno: true
 csl-refs: true
 params:
-  projDir: "~/Work/code/models/stockAssessment/multispecies/ms3R/Outputs/JSel_Short"
+  groupFolder: "JSel_shortGrid"
   baseline: "sim_parBatomniRuns_short_EmsyMult3"
+  history: "fit_26022020233355"
 numbersections: false
 appendix: false
 output: 
@@ -122,11 +123,17 @@ options(xtable.comment = FALSE)
 options(kableExtra.latex.load_packages = FALSE)
 options(knitr.kable.NA = '')
 
-projDir <- params$projDir
+projDir <- here::here("Outputs",params$groupFolder)
+
 
 source(here::here("tools.R"))
 source(here::here("ms3Rplots.R"))
 source(here::here("stats.R"))
+
+# Get history path
+histFolder <- params$history
+histPath <- here::here("history",histFolder)
+
 ```
 
 ```{r load-libraries, cache=FALSE}
@@ -138,4 +145,6 @@ library(MASS)
 library(chemometrics)
 library(mvtnorm)
 ```
+
+
 

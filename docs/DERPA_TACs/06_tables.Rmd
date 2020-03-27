@@ -1,4 +1,35 @@
+\newpage
 # Tables
+
+```{r loadInfoFiles-tables, echo = FALSE, include = FALSE, warning = FALSE}
+# Now read in all the info files
+info.df <- readBatchInfo(batchDir = projDir) %>%
+      mutate( blobPath = "", 
+              perfTabPath = "", 
+              lossBlobPath = "" )
+# Update paths for each RData file and perf 
+# table file
+for( simIdx in 1:nrow(info.df))
+{
+  simLabel <- info.df$simLabel[simIdx]
+
+  info.df$blobPath[simIdx]     <- file.path(projDir, simLabel, paste(simLabel,".RData",sep = "") )
+  info.df$perfTabPath[simIdx]  <- file.path(projDir, simLabel, "simPerfStats.csv" )
+  info.df$lossBlobPath[simIdx] <- file.path(projDir, simLabel, "loss.RData" )
+}
+
+
+```
+
+```{r loadOmni-tables, echo = FALSE, include = FALSE, warning = FALSE}
+omniInfo <- info.df %>% 
+              filter( grepl( params$baseline, simLabel) )
+
+# load performance table
+omniPerfTab <- read.csv(omniInfo$perfTabPath)
+
+
+```
 
 
 1. Table of stock status and reference points from hierSCAL
@@ -8,3 +39,37 @@
 3. Table of omniscient manager performance
 
 4. Tables of loss
+
+```{r tableCaps, echo = FALSE, include = FALSE, warning = FALSE }
+refPtsOMTabCap <- ""
+
+expDesignTabCap <- ""
+
+omniPerfTabCap <- "Biomass and catch summary statistics for all nine DER
+complex management units under the omniscient manager simulations."
+
+lossTabCap <- ""
+
+```
+
+
+```{r omniPerfTab, echo = FALSE, warning = FALSE}
+omniPerfTab <- omniPerfTab %>%
+                dplyr::select(  Species = species,
+                                Stock = stock, 
+                                "pBtGt.4Bmsy",
+                                "PBtGt.8Bmsy",
+                                pBtGtBmsy,
+                                pCtGtMSY,
+                                pFtGtFmsy,
+                                avgCatch,
+                                AAV )
+
+
+kable(  omniPerfTab, escape = FALSE, 
+        caption = omniPerfTabCap, booktabs = T,
+        align = rep("c",ncol(omniPerfTab))) %>%
+  kable_styling(latex_options = c("striped", "scale_down","hold_position"),
+                bootstrap_options = c("striped", "hover"))
+
+```
