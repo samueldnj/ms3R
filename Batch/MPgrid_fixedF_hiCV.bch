@@ -7,7 +7,7 @@ parameter value
 #
 scenario$scenario1$ctl$scenarioName 'DERfit_2obsErr'
 scenario$scenario1$opMod$pT 32
-scenario$scenario1$ctl$nGoodReps 100
+scenario$scenario1$ctl$nGoodReps 10
 scenario$scenario1$ctl$totReps 400
 scenario$scenario1$opMod$projObsErrMult 1.5
 #

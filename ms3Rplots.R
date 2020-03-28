@@ -10,6 +10,75 @@
 #
 # <><><><><><><><><><><><><><><><><><><><><><><><><><><>
 
+plotBatchConvergenceRate <- function( groupFolder = "diffCV_fixedF_shortGrid",
+                                      prefix = "MPgrid" )
+{
+  # First, read info files from the relevant
+  # sims
+  simFolderList <- list.dirs(here::here("Outputs",groupFolder))
+  simFolderList <- simFolderList[grepl(prefix, simFolderList)]
+
+
+  info.df <-  readBatchInfo( batchDir = here::here("Outputs",groupFolder) ) %>%
+                filter( grepl( prefix, simLabel ))
+
+  # Break up MP names into factor levels
+  # MP labels are AM_Fsrce_eqbm
+  splitMP <- function(  mpLab, 
+                        breaks = "_",
+                        factorNames = c("AM","Fsrce","eqbm") )
+  {
+    splitMP <- stringr::str_split(mpLab, breaks)[[1]]
+
+    outList <- vector(  mode = "list", 
+                        length = length(splitMP) )
+    names(outList) <- factorNames
+    for( k in 1:length(splitMP))
+      outList[[k]] <- splitMP[k]
+
+    outList
+  }
+
+  MPfactors <- lapply( X = info.df$mp, FUN = splitMP )
+  MPfactors <- do.call(rbind, MPfactors)
+
+  # Read in the performance tables
+  mpTable <- cbind( info.df, MPfactors ) %>%
+              mutate( perfPath = here::here("Outputs",groupFolder,simLabel,"simPerfStats.csv") )
+
+  
+  perfTableList <- lapply(  X = mpTable$perfPath, 
+                            FUN = read.csv,
+                            header = TRUE,
+                            stringsAsFactors = FALSE )
+
+  names( perfTableList ) <- mpTable$simLabel
+
+  # Summarise the perf tables into convergence rates
+  summariseTable <- function( table )
+  {
+    table <- table %>%
+              group_by(simLabel) %>%
+              summarise(  obsCVmult = mean(projObsErrMult),
+                          minConv   = min(pGoodReps),
+                          maxConv   = max(pGoodReps),
+                          meanConv  = mean(pGoodReps) )
+
+    table
+  }
+
+  # Summarise and make table
+  perfTableSummList <- lapply(  X = perfTableList, 
+                                FUN = summariseTable )
+
+  convRateTable <- do.call(rbind, perfTableSummList )
+
+  mpTable <- cbind( mpTable, convRateTable )
+
+
+
+}
+
 # plotBatchLossDists()
 # Multi-panel plot of relative and absolute
 # loss under a batch of MPs for all stock/species
@@ -2248,6 +2317,8 @@ plotRetroCatchability <- function(  obj = blob,
   mq_sf       <- array(1, dim = c(nS,nF))
   mq_sf[,3:4] <- ctlList$opMod$histRpt$qSurv_sf
   sdlnq_f     <- ctlList$mp$assess$spsdlnq_f
+
+
 }
 
 

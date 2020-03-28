@@ -7,7 +7,7 @@ parameter value
 #
 scenario$scenario1$ctl$scenarioName 'DERfit_0.5obsErr'
 scenario$scenario1$opMod$pT 32
-scenario$scenario1$ctl$nGoodReps 100
+scenario$scenario1$ctl$nGoodReps 10
 scenario$scenario1$ctl$totReps 400
 scenario$scenario1$opMod$projObsErrMult 0.5
 #
@@ -15,7 +15,7 @@ scenario$scenario1$opMod$projObsErrMult 0.5
 #
 scenario$scenario2$ctl$scenarioName 'DERfit_1obsErr'
 scenario$scenario2$opMod$pT 32
-scenario$scenario2$ctl$nGoodReps 100
+scenario$scenario2$ctl$nGoodReps 10
 scenario$scenario2$ctl$totReps 400
 scenario$scenario2$opMod$projObsErrMult 1
 #
@@ -23,7 +23,7 @@ scenario$scenario2$opMod$projObsErrMult 1
 #
 scenario$scenario3$ctl$scenarioName 'DERfit_2obsErr'
 scenario$scenario3$opMod$pT 32
-scenario$scenario3$ctl$nGoodReps 100
+scenario$scenario3$ctl$nGoodReps 10
 scenario$scenario3$ctl$totReps 400
 scenario$scenario3$opMod$projObsErrMult 2
 #

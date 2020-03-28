@@ -50,16 +50,27 @@ mortality rates to above the single species $F_{MSY}$
 for all Dover sole stocks, very few simulations actually push 
 Dover sole into an overfished state. For all stocks of all 
 species, the probability of being below 40% of single species
-$B_{MSY}$ is at most 1% (TABLE), while probability of being
-above 80% of $B_{MSY}$ is at least 53%. 
+$B_{MSY}$ is at most 1% , while probability of being
+above 80% of $B_{MSY}$ is at least 53% (Table 1). 
 
-Tendency to reduce effort to very low in first few years
-for some replicates, despite penalty in objective 
-function -- check sims??
+Although the flatfish stocks we are modeling are in an overall
+healthy state and behave more like developing fisheries, 
+there are some cases where the omniscient manager reduced
+fishing to historic low levels (Figure X), leading to some years
+where catch was below the minimum observed level (Table Y). Low fishing effort
+was required in some replicates and years to protect the 
+spawning stock and ensure production in later time steps where 
+recruitment process error deviations were sustained at low 
+levels. We attempted bounding effort below by the minimum 
+observed historical effort to avoid simulations where 
+effort was economically unviable, but this
+increased the probability of catch being below the historical
+minimum for each stock than a lower bound of 0 effort.
 
 
 ## MP performance
 
+### Convergence Rates
 
 ### Yield loss
 

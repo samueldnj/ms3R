@@ -1,4 +1,4 @@
-\newpage
+\clearpage
 # Figures
 
 1. Figure of historical period spawning biomass
@@ -60,7 +60,7 @@ figPath <- file.path(histPath,"plots/plotSBspt.png")
 knitr::include_graphics(figPath)
 ```
 
-\newpage
+\clearpage
 
 
 ```{r omniBtCtTulips, echo = FALSE, warning = FALSE, fig.cap = omniBtCtTulipsCap }
@@ -68,7 +68,7 @@ figPath <- file.path(projDir,params$baseline,"simReport_files/figure-html/plotTu
 knitr::include_graphics(figPath)
 ```
 
-\newpage
+\clearpage
 
 ```{r omniEffTulips, echo = FALSE, warning = FALSE, fig.cap = omniEffTulipsCap }
 figPath <- file.path(projDir,params$baseline,"simReport_files/figure-html/plotTulipEffort-1.png")

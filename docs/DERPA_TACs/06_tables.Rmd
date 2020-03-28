@@ -1,4 +1,4 @@
-\newpage
+\clearpage
 # Tables
 
 ```{r loadInfoFiles-tables, echo = FALSE, include = FALSE, warning = FALSE}
@@ -73,3 +73,5 @@ kable(  omniPerfTab, escape = FALSE,
                 bootstrap_options = c("striped", "hover"))
 
 ```
+
+\clearpage

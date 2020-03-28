@@ -150,6 +150,7 @@ calcLoss <- function( sim         = 1,
 } # END calcLoss()
 
 
+
 makeLossTable <- function(  sim = 1, 
                             groupFolder = "shortGrid",
                             save = TRUE )
@@ -388,88 +389,91 @@ makeStatTable <- function( sims = 1, folder = "" )
   Umsy_sp   <- rp$FmsyRefPts$Umsy_sp
   MSY_sp    <- rp$FmsyRefPts$YeqFmsy_sp
 
-  # Calculate depletion wrt Bmsy
-  SB_ispt   <- om$SB_ispt[allConvReps,,,,drop = FALSE]
-  C_ispt    <- om$C_ispt[allConvReps,,,,drop = FALSE]
-  TAC_ispt  <- mp$hcr$TAC_ispt[allConvReps,,,,drop = FALSE]
-  TACu_ispt <- C_ispt / TAC_ispt
-  F_ispt    <- om$F_ispft[allConvReps,,,2,]
-  
-  # Calculate probability that Bt above LRP
-  pBtGt.4Bmsy_sp <- .calcStatsProportion( TS_ispt = SB_ispt,
+  if( nGoodReps > 0 )
+  { 
+
+    # Calculate depletion wrt Bmsy
+    SB_ispt   <- om$SB_ispt[allConvReps,,,,drop = FALSE]
+    C_ispt    <- om$C_ispt[allConvReps,,,,drop = FALSE]
+    TAC_ispt  <- mp$hcr$TAC_ispt[allConvReps,,,,drop = FALSE]
+    TACu_ispt <- C_ispt / TAC_ispt
+    F_ispt    <- om$F_ispft[allConvReps,,,2,]
+    
+    # Calculate probability that Bt above LRP
+    pBtGt.4Bmsy_sp <- .calcStatsProportion( TS_ispt = SB_ispt,
+                                            ref_sp = Bmsy_sp,
+                                            tdx = tMP:nT,
+                                            prop = .4,
+                                            nS = nS,
+                                            nP = nP )
+    # In a healthy state (Bt > .8Bmsy)
+    pBtGt.8Bmsy_sp <- .calcStatsProportion( TS_ispt = SB_ispt,
+                                            ref_sp = Bmsy_sp,
+                                            tdx = tMP:nT,
+                                            prop = .8,
+                                            nS = nS,
+                                            nP = nP )
+
+    # Above Bmsy
+    pBtGtBmsy_sp <- .calcStatsProportion( TS_ispt = SB_ispt,
                                           ref_sp = Bmsy_sp,
                                           tdx = tMP:nT,
-                                          prop = .4,
+                                          prop = 1.0,
                                           nS = nS,
-                                          nP = nP )
-  # In a healthy state (Bt > .8Bmsy)
-  pBtGt.8Bmsy_sp <- .calcStatsProportion( TS_ispt = SB_ispt,
-                                          ref_sp = Bmsy_sp,
+                                          nP = nP )  
+
+    # Overfishing is occuring (Ft > Fmsy)
+    pFtGtFmsy_sp <- .calcStatsProportion( TS_ispt = F_ispt,
+                                          ref_sp = Fmsy_sp,
                                           tdx = tMP:nT,
-                                          prop = .8,
+                                          prop = 1,
                                           nS = nS,
                                           nP = nP )
 
-  # Above Bmsy
-  pBtGtBmsy_sp <- .calcStatsProportion( TS_ispt = SB_ispt,
-                                        ref_sp = Bmsy_sp,
-                                        tdx = tMP:nT,
-                                        prop = 1.0,
-                                        nS = nS,
-                                        nP = nP )  
-
-  # Overfishing is occuring (Ft > Fmsy)
-  pFtGtFmsy_sp <- .calcStatsProportion( TS_ispt = F_ispt,
-                                        ref_sp = Fmsy_sp,
-                                        tdx = tMP:nT,
-                                        prop = 1,
-                                        nS = nS,
-                                        nP = nP )
-
-  # Overfishing is occuring (Ct > MSY)
-  pCtGtMSY_sp <- .calcStatsProportion(  TS_ispt = C_ispt,
-                                        ref_sp = MSY_sp,
-                                        tdx = tMP:nT,
-                                        prop = 1,
-                                        nS = nS,
-                                        nP = nP )
+    # Overfishing is occuring (Ct > MSY)
+    pCtGtMSY_sp <- .calcStatsProportion(  TS_ispt = C_ispt,
+                                          ref_sp = MSY_sp,
+                                          tdx = tMP:nT,
+                                          prop = 1,
+                                          nS = nS,
+                                          nP = nP )
 
 
-  # Average catch and TAC utilisation
-  Cbar_sp     <- apply( X = C_ispt[,,,tMP:nT], FUN = mean, MARGIN = c(2,3), na.rm = T)
-  TACubar_sp  <- apply( X = TACu_ispt[,,,tMP:nT], FUN = mean, MARGIN = c(2,3), na.rm = T)
+    # Average catch and TAC utilisation
+    Cbar_sp     <- apply( X = C_ispt[,,,tMP:nT], FUN = mean, MARGIN = c(2,3), na.rm = T)
+    TACubar_sp  <- apply( X = TACu_ispt[,,,tMP:nT], FUN = mean, MARGIN = c(2,3), na.rm = T)
 
-  # Catch variability
-  AAV_sp      <- .calcStatsAAV( C_ispt = C_ispt,
-                                tdx = tMP:nT,
-                                qProbs = c(0.5),
-                                margin = c(2,3) )
+    # Catch variability
+    AAV_sp      <- .calcStatsAAV( C_ispt = C_ispt,
+                                  tdx = tMP:nT,
+                                  qProbs = c(0.5),
+                                  margin = c(2,3) )
 
-  for( s in 1:nS )
-    for(p in 1:nP )
-    {
-      
+    for( s in 1:nS )
+      for(p in 1:nP )
+      {
+        
 
-      rowIdx <- (s-1) * nP + p
+        rowIdx <- (s-1) * nP + p
 
-      statTable[rowIdx, "species"]        <- speciesNames[s]
-      statTable[rowIdx, "stock"]          <- stockNames[p]
-      statTable[rowIdx, "medProbPDH_sp"]  <- medProbPDH_sp[s,p]
+        statTable[rowIdx, "species"]        <- speciesNames[s]
+        statTable[rowIdx, "stock"]          <- stockNames[p]
+        statTable[rowIdx, "medProbPDH_sp"]  <- medProbPDH_sp[s,p]
 
-      # Conservation performance
-      statTable[rowIdx,"pBtGt.4Bmsy"]     <- round(pBtGt.4Bmsy_sp[s,p],2)
-      statTable[rowIdx,"PBtGt.8Bmsy"]     <- round(pBtGt.8Bmsy_sp[s,p],2)
-      statTable[rowIdx,"pBtGtBmsy"]       <- round(pBtGtBmsy_sp[s,p],2)
-      statTable[rowIdx,"pCtGtMSY"]        <- round(pCtGtMSY_sp[s,p],2)
-      statTable[rowIdx,"pFtGtFmsy"]       <- round(pFtGtFmsy_sp[s,p],2)
+        # Conservation performance
+        statTable[rowIdx,"pBtGt.4Bmsy"]     <- round(pBtGt.4Bmsy_sp[s,p],2)
+        statTable[rowIdx,"PBtGt.8Bmsy"]     <- round(pBtGt.8Bmsy_sp[s,p],2)
+        statTable[rowIdx,"pBtGtBmsy"]       <- round(pBtGtBmsy_sp[s,p],2)
+        statTable[rowIdx,"pCtGtMSY"]        <- round(pCtGtMSY_sp[s,p],2)
+        statTable[rowIdx,"pFtGtFmsy"]       <- round(pFtGtFmsy_sp[s,p],2)
 
-      # Catch statistics
-      statTable[rowIdx,"avgCatch"]        <- round(Cbar_sp[s,p],2)
-      statTable[rowIdx,"AAV"]             <- round(AAV_sp[s,p],2)
-      statTable[rowIdx,"avgTACu"]         <- round(TACubar_sp[s,p],2)
+        # Catch statistics
+        statTable[rowIdx,"avgCatch"]        <- round(Cbar_sp[s,p],2)
+        statTable[rowIdx,"AAV"]             <- round(AAV_sp[s,p],2)
+        statTable[rowIdx,"avgTACu"]         <- round(TACubar_sp[s,p],2)
 
-    }
-
+      }
+  }
 
   statTable
 } # END .simPerfStats()

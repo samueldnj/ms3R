@@ -16,6 +16,8 @@ Biomass and management parameter estimates were then used
 to set TACs, and if data were pooled, TACs were split among
 stocks and species in proportion with survey observations.
 
+
+
 Main takeaway: which performed best/was most stable under
 changes in obs error variances?
 
@@ -47,6 +49,7 @@ to tune all stocks to a nominated level? Probably not.
 - Addition of economic yield (@punt2020multispecies)
 - Investigation of how to better include EB/SB ratios
 for data-pooled MS complexes [@winker2020jabba]
+
 
 
 
