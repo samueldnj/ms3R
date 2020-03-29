@@ -32,6 +32,9 @@ omniPerfTab <- read.csv(omniInfo$perfTabPath)
 
 ```
 
+- Description of MS equilibrium yields, plots of yield 
+curves
+
 We found that the median biomass of each species 
 under the omniscient manager was close to the equilibrium 
 biomass associated with the multispecies maximum 
@@ -72,11 +75,12 @@ minimum for each stock than a lower bound of 0 effort.
 
 ### Convergence Rates
 
+
+
 ### Yield loss
 
 
 ### Biomass loss
-
 
 
 ## Sensitivity to prior distributions

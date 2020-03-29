@@ -11,7 +11,12 @@
 # <><><><><><><><><><><><><><><><><><><><><><><><><><><>
 
 plotBatchConvergenceRate <- function( groupFolder = "diffCV_fixedF_shortGrid",
-                                      prefix = "MPgrid" )
+                                      prefix = "MPgrid",
+                                      AMlabs = c( singleStock = "singleStock",
+                                                  hierMultiStock = "hierMultiStock",
+                                                  dataPooled = "dataPooled",
+                                                  coastwide = "coastwide",
+                                                  totalAgg = "totalAgg" ) )
 {
   # First, read info files from the relevant
   # sims
@@ -73,7 +78,61 @@ plotBatchConvergenceRate <- function( groupFolder = "diffCV_fixedF_shortGrid",
 
   convRateTable <- do.call(rbind, perfTableSummList )
 
-  mpTable <- cbind( mpTable, convRateTable )
+  browser()
+
+  mpTable <- mpTable %>% left_join( convRateTable, 
+                                    by = "simLabel" )
+
+  CVmults <- unique(mpTable$obsCVmult)
+  CVmults <- CVmults[order(CVmults)]
+
+  AMs       <- names(AMlabs)
+  AMcols    <- RColorBrewer::brewer.pal(length(AMs), "Set2")
+  AMjitter  <- seq( from = -.3, to = .3, length.out = length(AMs) )
+
+  AMwidth <- AMjitter[2] - AMjitter[1]
+
+  # Now set up plotting area
+  plot( x = c(0,length(CVmults) + 1), y = c(0,1),
+        xlab = "", ylab = "", axes=FALSE,
+        type = "n" )
+    axis( side = 1, at = 1:length(CVmults),
+          labels = CVmults )
+    axis( side = 2, las = 1  )
+    box()
+    for( aIdx in 1:length(AMs) )
+    {
+      amLab <- AMs[aIdx]
+      SStable <- mpTable %>% filter( AM == amLab,
+                                      grepl("SS", eqbm) ) %>%
+                              dplyr::select( obsCVmult,
+                                              meanConv )
+
+      SStable <- SStable[order(SStable$obsCVmult),]
+
+      MStable <- mpTable %>% filter( AM == amLab,
+                                      grepl("MS", eqbm) ) %>%
+                              dplyr::select( obsCVmult,
+                                              meanConv )
+      MStable <- MStable[order(MStable$obsCVmult),]
+
+      rect( xleft = 1:3 + AMjitter[aIdx] - AMwidth/2,
+            xright = 1:3 + AMjitter[aIdx],
+            ybottom = 0,
+            ytop = SStable$meanConv,
+            border = "black",
+            col = AMcols[aIdx] )
+
+      rect( xleft = 1:3 + AMjitter[aIdx],
+            xright = 1:3 + AMjitter[aIdx] + AMwidth/2,
+            ybottom = 0,
+            ytop = MStable$meanConv,
+            border = "black",
+            col = AMcols[aIdx] )
+      
+
+      
+    }
 
 
 

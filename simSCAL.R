@@ -214,6 +214,8 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   # we don't have M information
   hcr$TAC_spt[,,t] <- hcr$targetF_spt[,,t] * projVB_sp
 
+
+
   propTAC_sp <- array(1, dim = c(nS,nP) )
 
   if( ctlList$mp$assess$spDataPooled & ctlList$mp$assess$spCoastwide )
@@ -248,6 +250,25 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
 
     hcr$TAC_spt[,,t] <- hcr$TAC_spt[,,t] * propTAC_sp
   }
+
+  # Apply smoother on TACs
+  if( !is.null(ctlList$mp$hcr$maxDeltaTACup) )
+  {
+    # Determine which TACs are more than maxDeltaTAC
+    # above last year
+    maxDeltaTACup  <- ctlList$mp$hcr$maxDeltaTACup
+    currTAC_sp     <- hcr$TAC_spt[,,t]
+    lastTAC_sp     <- hcr$TAC_spt[,,t-1]
+    diffTAC_sp     <- currTAC_sp - lastTAC_sp
+    DeltaTACup_sp  <- diffTAC_sp / hcr$TAC_spt[,,t-1]
+    deltaDiff_sp   <- DeltaTACup_sp - maxDeltaTACup
+    smoothIdx <- which( deltaDiff_sp > 0 )
+
+    # Apply smoother
+    currTAC_sp[smoothIdx] <- (1 + maxDeltaTACup) * lastTAC_sp[smoothIdx]
+    hcr$TAC_spt[,,t] <- currTAC_sp
+  }
+
 
   # Save proportion of TAC for use in retro SB plots
   hcr$propTAC_spt[,,t] <- propTAC_sp
@@ -375,11 +396,11 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     currTAC_sp     <- hcr$TAC_spt[,,t]
     lastTAC_sp     <- hcr$TAC_spt[,,t-1]
     diffTAC_sp     <- currTAC_sp - lastTAC_sp
-    DeltaTACup_sp  <- diffTAC / hcr$TAC_spt[,,t-1]
+    DeltaTACup_sp  <- diffTAC_sp / hcr$TAC_spt[,,t-1]
     smoothIdx <- which( DeltaTACup_sp > maxDeltaTACup )
 
     # Apply smoother
-    currTAC_sp[smoothIdx] <- 1.2 * lastTAC_sp[smoothIdx]
+    currTAC_sp[smoothIdx] <- (1 + maxDeltaTACup) * lastTAC_sp[smoothIdx]
     hcr$TAC_spt[,,t] <- currTAC_sp
   }
 
@@ -3064,6 +3085,9 @@ combBarrierPen <- function( x, eps,
   obj$om$sel_axspft[,,,,,histdx]  <- repObj$sel_axspft
   obj$om$sel_lspft[,,,,histdx]    <- aperm(repObj$sel_lfspt,c(1,3,4,2,5))
 
+  obj$mp$hcr$TAC_spft[,,,histdx]  <- obj$om$C_spft[,,,histdx]
+  obj$mp$hcr$TAC_spt[,,histdx]    <- obj$om$C_spt[,,histdx]
+
   # If unstandardised commercial CPUE is provided,
   # then read it in and replace report object
   if( !is.null(ctlList$opMod$commCPUEdata) )
@@ -3549,6 +3573,9 @@ combBarrierPen <- function( x, eps,
       }
 
     R_spt[,,t] <- R0_sp
+
+
+    # Fill TAC history as catch history
 
   }
 

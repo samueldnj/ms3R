@@ -38,7 +38,8 @@ is concentrated  for those species, with fishing
 activity in QCS and WCVI areas more variable 
 over time (Figure 1, rows 2 and 3).
 
-- Stock status and reference points as estimated
+- Stock status, reference points,
+data series observation error CVs as estimated
 by hierSCAL (table)
 
 
@@ -351,7 +352,6 @@ If we do the survey CV scenarios, then we should restrict
 the MP options to 10. (5 AMs, and 2 Fs)
 
 Synoptic Survey observation error standard deviation scenarios:
-1. 0.25 times?
 2. 0.5 times current SD: $\tau_{s,p,f,proj} = 0.5 \cdot \tau_{s,p,f}$;
 3. Current $\tau_{s,p,f}$ value from conditioning;
 4. 1.5 times current SD: $\tau_{s,p,f,proj} = 2 \cdot \tau_{s,p,f}$;
@@ -363,11 +363,12 @@ years of the projection. Ramping the observation errors
 simulated a slow increase or decrease in scientific investment,
 rather than an all at once improvement. We used an upper limit
 of 1.5 times the OM value in our scenarios because the average
-OM observation error SD across all stocks was around $0.3$ (CHECK), 
-which is already somewhat uninformative, and in preliminary
-simulations we found that the convergence rate of
-single-stock and hierarchical multi-stock assessment 
-model configurations became unacceptably low.
+OM observation error SD across all stocks was around $0.5$ for 
+the synoptic survey, which is already very uninformative, 
+and in preliminary simulations we found that the 
+convergence rate of single-stock and hierarchical 
+multi-stock assessment model configurations 
+became much lower when.
 
 
 

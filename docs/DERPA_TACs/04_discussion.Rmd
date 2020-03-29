@@ -22,7 +22,9 @@ Main takeaway: which performed best/was most stable under
 changes in obs error variances?
 
 Second takeaway: TAC utilisation issue? Optimal biomass
-under Fmsy_MS
+under Fmsy_MS? Need to drop fishing to historic lows
+in some replicates highlights that development is not
+necessarily a bonanza...
 
 This indicates that,
 under the omniscient manager's effort allocations, all stocks 
