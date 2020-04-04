@@ -397,7 +397,8 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     lastTAC_sp     <- hcr$TAC_spt[,,t-1]
     diffTAC_sp     <- currTAC_sp - lastTAC_sp
     DeltaTACup_sp  <- diffTAC_sp / hcr$TAC_spt[,,t-1]
-    smoothIdx <- which( DeltaTACup_sp > maxDeltaTACup )
+    deltaDiff_sp   <- DeltaTACup_sp - maxDeltaTACup
+    smoothIdx <- which( deltaDiff_sp > 0 )
 
     # Apply smoother
     currTAC_sp[smoothIdx] <- (1 + maxDeltaTACup) * lastTAC_sp[smoothIdx]

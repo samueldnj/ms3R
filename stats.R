@@ -18,8 +18,8 @@
 # By default, calculates biomass and catch loss
 # on relative and absolute scale
 calcLoss <- function( sim         = 1,
-                      baseline    = "sim_parBatomniRuns_short_EmsyMult3",
-                      groupFolder = "JSel_shortGrid",
+                      baseline    = "sim_parBatomniRuns_Long3",
+                      groupFolder = "diffCV_newObsCV_short",
                       lossVars    = c("C_ispt","SB_ispt"),
                       output      = TRUE )
 {

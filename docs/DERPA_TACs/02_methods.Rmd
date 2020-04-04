@@ -57,10 +57,9 @@ area was allocated so that no catch exceeded the TAC for
 any species in that area, but at least one species' 
 TAC was fully utilised in each area.
 
-Our closed loop simulations applied the 
-management procedure iteratively in the 
-following 5 steps over the $T$ 
-years of the projection:
+Our closed loop simulations applied the management 
+procedure iteratively in the following 5 steps 
+over the $T$ years of the projection:
 
 1. Apply an assessment method to determine stock
 status of the full 9 stock complex, either using data pooling,
@@ -125,6 +124,13 @@ species.
 
 
 ### Management Procedures
+
+We tested ten management procedures in total,
+which were made up of a factorial combination
+of five assessment models and two target
+harvest rates (Table X). Assessment models and
+target harvest rates are defined in the following
+sections.
 
 ### Surplus production stock assessment models
 
@@ -305,13 +311,14 @@ and upper bound on the management risk.
 
 ## Simulation experiments and performance
 
-For the main experiment, we ran a total of $20$ 
-simulations, made up of fully factorial combinations 
-of the five management procedures and four harvest control
-rule settings. We ran 100 replicates of each OM/MP, 
-each initialised with a unique random seed, thereby integrating 
-over all stochastic processes. To eliminate the
-effect of random variation between simulations, 
+For the simulation experiments, we ran a total of $30$
+simulations, made up of ten factorial combinations 
+of the five assessment models and two harvest control
+rule settings, and three operating model observation
+error variance scenarios. We ran 100 replicates of each OM/MP
+combination, each initialised with a unique random seed, 
+thereby integrating over all stochastic processes. To eliminate 
+the effect of random variation between simulations, 
 each simulation was initialised with the same set
 of 100 random seeds. We ran extra replicates until the 
 sample size of 100 was reached when AMs failed to
@@ -322,8 +329,6 @@ the species with the longest generation time in the
 DER complex. Generation time was calculated as the 
 average age at maturity of the female spawning population 
 in the absence of fishing [@seber1997estimation].
-
-DEFINE THE FOUR MPs somewhere!!
 
 We tested our 20 MPs against a single operating model 
 scenario conditioned by the maximum likelihood estimates
@@ -348,8 +353,6 @@ data.
 
 ### OM scenarios?? MAY TAKE OUT
 
-If we do the survey CV scenarios, then we should restrict
-the MP options to 10. (5 AMs, and 2 Fs)
 
 Synoptic Survey observation error standard deviation scenarios:
 2. 0.5 times current SD: $\tau_{s,p,f,proj} = 0.5 \cdot \tau_{s,p,f}$;
@@ -521,14 +524,14 @@ the loss functions generate a distribution of biomass and
 catch loss, which we compare for performance of each 
 stochastic MP.
 
-We also used the proportion of simulations in which the
+<!-- We also used the proportion of simulations in which the
 assessment model converged as a performance metric. Convergence
 rate measures the ability of each model configuration to provide
 usable stock assessments at a particular level of data
 quality. Indeed, as outlined above, as data quality reduced 
 (i.e., observation error variances increased), we found that 
 single-stock and hierarchical multi-stock models failed to 
-converge on some stocks more often.  
+converge on some stocks more often.   -->
 
 
 ### Sensitivity runs

@@ -10,8 +10,8 @@
 #
 # <><><><><><><><><><><><><><><><><><><><><><><><><><><>
 
-plotBatchConvergenceRate <- function( groupFolder = "diffCV_fixedF_shortGrid",
-                                      prefix = "MPgrid",
+plotBatchConvergenceRate <- function( groupFolder = "diffCV_newObsCV_short",
+                                      prefix = "diffCV",
                                       AMlabs = c( singleStock = "singleStock",
                                                   hierMultiStock = "hierMultiStock",
                                                   dataPooled = "dataPooled",
@@ -143,8 +143,8 @@ plotBatchConvergenceRate <- function( groupFolder = "diffCV_fixedF_shortGrid",
 # loss under a batch of MPs for all stock/species
 # combinations, including data-pooled and 
 # coast-wide aggregations.
-plotBatchLossDists <- function( groupFolder = "longGrid",
-                                prefix = "MPgrid",
+plotBatchLossDists <- function( groupFolder = "diffCV_fixedF_longGrid",
+                                prefix = "sim_parBatfixedF",
                                 lossType = "rel",
                                 var = "C_ispt",
                                 period = 62:72,
@@ -152,6 +152,7 @@ plotBatchLossDists <- function( groupFolder = "longGrid",
 {
   # First, read info files from the relevant
   # sims
+  
   simFolderList <- list.dirs(here::here("Outputs",groupFolder))
   simFolderList <- simFolderList[grepl(prefix, simFolderList)]
 
@@ -186,6 +187,8 @@ plotBatchLossDists <- function( groupFolder = "longGrid",
 
     outList
   }
+
+
 
   for( lIdx in 1:length(infoFiles) )
   {
@@ -273,7 +276,7 @@ plotBatchLossDists <- function( groupFolder = "longGrid",
 
   totLossQuantiles_qmsp <- apply( X = totLossArray_misp,
                                   FUN = quantile,
-                                  probs = c(0.025, 0.5, 0.975),
+                                  probs = c(0.25, 0.5, 0.75),
                                   MARGIN = c(1,3,4) )
 
   

@@ -74,10 +74,11 @@ minimum for each stock than a lower bound of 0 effort.
 ## MP performance
 
 ### Convergence Rates
-
+ - No longer an issue given the discovered error
 
 
 ### Yield loss
+
 
 
 ### Biomass loss
