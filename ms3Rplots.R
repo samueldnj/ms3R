@@ -3520,7 +3520,7 @@ diagCondition <- function(  repObj  = totRep,
 
   # Biomass RE
   plotRE_spt( repObj = repObj, omObj = ms3Obj$om, 
-              AMseries = "SB_spt", 
+              AMseries = "SB_pt", 
               OMseries = "SB_ispt", 
               iRep )
   mtext( side = 3, text = "SB_spt", line = 0, font = 2)
@@ -3528,15 +3528,16 @@ diagCondition <- function(  repObj  = totRep,
   # Recruitment
   plotRE_spt( repObj = repObj, 
               omObj = ms3Obj$om, 
-              AMseries = "R_spt",
+              AMseries = "R_pt",
               OMseries = "R_ispt", 
               iRep )
   mtext( side = 3, text = "R_spt", line = 0, font = 2)  
 
   # Recruitment errors
   plotRE_spt( repObj = repObj, 
-              omObj = ms3Obj$errors, 
-              AMseries = "omegaR_spt",
+              omObj = ms3Obj$om$errors, 
+              nS = 1,
+              AMseries = "omegaR_pt",
               OMseries = "omegaR_ispt", 
               iRep )
   mtext( side = 3, text = expression(omega[R]), line = 0, font = 2)  
@@ -3544,7 +3545,7 @@ diagCondition <- function(  repObj  = totRep,
   # Catch
   plotRE_spft(  repObj = repObj, 
                 omObj = ms3Obj$om, 
-                AMseries = "C_spft",
+                AMseries = "C_pgt",
                 OMseries = "C_ispft", 
                 iRep )
   mtext( side = 3, text = expression(C[spft]), line = 0, font = 2)    
@@ -3552,7 +3553,7 @@ diagCondition <- function(  repObj  = totRep,
   # F
   plotRE_spft(  repObj = repObj, 
                 omObj = ms3Obj$om, 
-                AMseries = "F_spft",
+                AMseries = "F_pgt",
                 OMseries = "F_ispft", 
                 iRep )
   mtext( side = 3, text = expression(F[spft]), line = 0, font = 2) 
@@ -3583,21 +3584,22 @@ calcREdist <- function( est, true, marg,
 
 }
 
-plotRE_spt <- function( repObj, omObj, 
+plotRE_spt <- function( repObj, omObj, nS = 1,
                         AMseries = "SB_spt",
-                        OMseries = "SB_ispt", iRep )
+                        OMseries = "SB_ispt", iRep = 1 )
 {
-  nS <- repObj$nS
+
   nP <- repObj$nP
   nT <- repObj$nT
 
+  true_spt  <- array(NA, dim = c(nS,nP,nT))
+  est_spt   <- array(NA, dim = c(nS,nP,nT))
 
-
-  true_spt <- repObj[[AMseries]]
-  est_spt  <- omObj[[OMseries]][iRep,,,]
+  true_spt[1:nS,,]        <- repObj[[AMseries]][,1:nT,drop = FALSE]
+  est_spt[1:nS,1:nP,1:nT] <- omObj[[OMseries]][iRep,1:nS,1:nP,1:nT]
 
   re_qspt  <- calcREdist( true = true_spt,
-                          est  = est_spt[,,1:nT],
+                          est  = est_spt,
                           marg = c(1,2,3) )
 
   specCols <- RColorBrewer::brewer.pal(n = nS, "Dark2")
@@ -3629,17 +3631,26 @@ plotRE_spt <- function( repObj, omObj,
     abline( h = 0, lty = 3, lwd = .8 )
 }
 
-plotRE_spft <- function( repObj, omObj, series = "C_spft", iRep )
+plotRE_spft <- function(  repObj, omObj, 
+                          OMseries = "C_spft",
+                          AMseries = "C_pgt",
+                          iRep = 1, nS = 1 )
 {
-  nS <- repObj$nS
+  browser()
   nP <- repObj$nP
   nT <- repObj$nT
+  nF <- repObj$nG
 
-  true_spft <- repObj[[AMseries]]
-  est_spft  <- omObj[[OMseries]][iRep,,,,]
+
+  true_spft  <- array(NA, dim = c(nS,nP,nF,nT))
+  est_spft   <- array(NA, dim = c(nS,nP,nF,nT))
+
+  true_spft[1:nS,,,]            <- repObj[[AMseries]][,,1:nT,drop = FALSE]
+  est_spft[1:nS,1:nP,1:nF,1:nT] <- omObj[[OMseries]][iRep,1:nS,1:nP,1:nF,1:nT]
+
 
   re_qspt  <- calcREdist( true = true_spft,
-                            est  = est_spft[,,,1:nT],
+                            est  = est_spft,
                             marg = c(1,2,4) )
 
   specCols <- RColorBrewer::brewer.pal(n = nS, "Dark2")
@@ -3679,11 +3690,11 @@ plotRE_axspt <- function( repObj, omObj, series = "N_axspt", iRep )
   nT <- repObj$nT
 
   true_axspt <- repObj[[AMseries]]
-  est_axspt  <- omObj[[OMseries]][iRep,,,,,]
+  est_axspt  <- omObj[[OMseries]][iRep,,,1:nS,,]
 
   re_qspt  <- calcREdist( true = true_axspt,
-                            est  = est_axspt[,,,,1:nT],
-                            marg = c(3:5) )
+                            est  = est_axspt[,,1:nT],
+                            marg = c(1,2,3) )
 
   specCols <- RColorBrewer::brewer.pal(n = nS, "Dark2")
   stockLty <- 1:nP
