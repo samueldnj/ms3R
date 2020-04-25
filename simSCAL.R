@@ -79,7 +79,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   # Recover historical indices and set 
   # to TRUE
   histdx <- 1:(tMP-1)
-  I_spft <- obj$mp$data$I_spft[,,,histdx]
+  I_spft <- obj$mp$data$I_spft[,,,histdx,drop = FALSE]
 
   # Now, for the future we want to be a bit more selective
   nIdx <- length(idxOn)
@@ -196,7 +196,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   # Use the last two years of data in Synoptic
   # and calculate mean over time to get
   # splitting weights
-  rctMeanI_sp <- apply( X = I_spft[,,4,(t-2):(t-1)],
+  rctMeanI_sp <- apply( X = I_spft[,,5,(t-2):(t-1),drop = FALSE],
                         FUN = mean,
                         MARGIN = c(1,2), na.rm = T )
 
@@ -314,7 +314,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   # Use the last two years of data in Synoptic
   # and calculate mean over time to get
   # splitting weights
-  rctMeanI_sp <- apply( X = I_spft[,,4,(t-2):(t-1)],
+  rctMeanI_sp <- apply( X = I_spft[,,5,(t-2):(t-1),drop = FALSE],
                         FUN = mean,
                         MARGIN = c(1,2), na.rm = T )
 
@@ -1641,6 +1641,7 @@ solvePTm <- function( Bmsy, B0 )
 {
 
   ctlList <- obj$ctlList
+  opMod   <- ctlList$opMod
 
   # Get model dimensions - refactor
   # so that this is done outside of the
@@ -1754,10 +1755,15 @@ solvePTm <- function( Bmsy, B0 )
 
     # Condition history of simulation model
     # and draw random errors for projection
-    simObj <- .condMS3pop( simObj )
+    if( opMod$condModel == "hierSCAL")
+      simObj <- .condMS3pop( simObj )
+    if( opMod$condModel == "SISCA" )
+      simObj <- .condMS3pop_SISCA( simObj )
 
     # Calculate effort dynamics parameters
-    simObj <- .calcHistEffortDynamics( simObj )
+    if( opMod$condModel == "hierSCAL" & opMod$effortMod == "dynModel" )
+      simObj <- .calcHistEffortDynamics( simObj )
+    
     # Calcualate times for observations
     simObj <- .calcTimes( simObj )
 
@@ -3052,7 +3058,7 @@ combBarrierPen <- function( x, eps,
   obj$om$w_pf[, whichFleets] <- w_pf
 
   return(obj)
-}
+} # END .calcHistEffortDynamics()
 
 
 # .condMS3pop()
@@ -3077,9 +3083,10 @@ combBarrierPen <- function( x, eps,
   tMP <- obj$om$tMP
   pT  <- ctlList$opMod$pT
 
+
   # Now, copy model fit
   histdx <- 1:(tMP - 1)
-  obj$om$F_spft[,,,histdx]        <- repObj$F_spft
+  obj$om$F_spft[,,,histdx]        <- repObj$F_spgt
   obj$om$C_spft[,,,histdx]        <- repObj$predCw_spft
   obj$om$C_spt[,,histdx]          <- apply( X = repObj$predCw_spft, FUN = sum, MARGIN = c(1,2,4) )
   obj$om$E_pft[,1:2,histdx]       <- repObj$E_pft[,1:2,]
@@ -3088,6 +3095,8 @@ combBarrierPen <- function( x, eps,
 
   obj$mp$hcr$TAC_spft[,,,histdx]  <- obj$om$C_spft[,,,histdx]
   obj$mp$hcr$TAC_spt[,,histdx]    <- obj$om$C_spt[,,histdx]
+
+  obj$om$initSurv_axsp            <- repObj$surv_axsp
 
   # If unstandardised commercial CPUE is provided,
   # then read it in and replace report object
@@ -3168,6 +3177,7 @@ combBarrierPen <- function( x, eps,
   message(" (.condMS3pop) Calculating Fmsy and Emsy reference points\n")
   
   repObj$om <- obj$om
+  repObj$condModel <- ctlList$opMod$condModel
   refPtList <- calcRefPts( repObj )
   obj$rp    <- refPtList
 
@@ -3186,7 +3196,7 @@ combBarrierPen <- function( x, eps,
   # later for TMB
   obj$mp$data$I_spft[obj$mp$data$I_spft<0] <- NA
   obj$mp$data$A_axspft[obj$mp$data$A_axspft<0] <- NA
-  obj$mp$data$L_lxspft[obj$mp$data$A_axspft<0] <- NA
+  obj$mp$data$L_lxspft[obj$mp$data$L_axspft<0] <- NA
 
   # Now calculate total catch and allocation
   tdxRecent <- (tMP - ctlList$opMod$allocYears):(tMP - 1)
@@ -3256,7 +3266,159 @@ combBarrierPen <- function( x, eps,
   return(obj)
 
 
-} # END condMS3pop()
+} # END .condMS3pop()
+
+# .condMS3pop_SISCA()
+# Conditions OM for historical period from a hierSCAL report
+# object.
+.condMS3pop_SISCA <- function( obj )
+{
+
+  ctlList <- obj$ctlList
+
+  if(!obj$ctlList$ctl$quiet)
+    message(" (.condMS3pop_SISCA) Conditioning ms3R from hierSCAL report\n")
+
+  # Get model historical period report object
+  repObj <- ctlList$opMod$histRpt
+
+  # Get model dims
+  nS  <- obj$om$nS
+  nP  <- obj$om$nP
+  nT  <- obj$om$nT
+  nF  <- obj$om$nF
+  tMP <- obj$om$tMP
+  pT  <- ctlList$opMod$pT
+
+
+  # Now, copy model fit
+  histdx <- 1:(tMP - 1)
+  obj$om$F_spft[1,,,histdx]         <- repObj$F_pgt
+  obj$om$C_spft[1,,,histdx]         <- repObj$C_pgt
+  obj$om$C_spt[1,,histdx]           <- apply( X = repObj$C_pgt, FUN = sum, MARGIN = c(1,3) )
+  obj$om$sel_axspft[,1,1,,,histdx]  <- repObj$sel_apgt
+  # obj$om$sel_lspft[,,,,histdx]      <- 
+
+  obj$mp$hcr$TAC_spft[,,,histdx]    <- obj$om$C_spft[,,,histdx]
+  obj$mp$hcr$TAC_spt[,,histdx]      <- obj$om$C_spt[,,histdx]
+
+  # REMOVED EFFORT READ IN - will be obsolete after next
+  # hierSCAL revision anyways
+  # initial survivorship
+  obj$om$initSurv_axsp[,1,1,]        <- repObj$initSurv_ap
+
+  # Now fill in future sel
+  obj$om$sel_axspft[,1,1,,,tMP:nT]  <- repObj$sel_apgt[,,,tMP-1]
+
+  # Copy index catchability
+  for( tt in histdx )
+  {
+    obj$om$q_spft[1,,,tt]       <- repObj$qhat_pg
+    obj$om$q_spf[1,,]           <- repObj$qhat_pg
+  }
+
+  # Now we have enough info to calculate reference points
+  stime <- Sys.time()
+  message(" (.condMS3pop_SISCA) Calculating Fmsy and Emsy reference points\n")
+  
+  repObj$om <- obj$om
+  repObj$condModel <- ctlList$opMod$condModel
+  refPtList <- calcRefPts( repObj )
+  obj$rp    <- refPtList
+
+  etime <- Sys.time()
+  rpTime <- round(etime - stime,2)
+  message( paste(" (.condMS3pop_SISCA) Reference point calculations completed in ", 
+                  rpTime, " seconds\n", sep = "" ) )
+
+
+  # Add historical data
+  obj$mp$data$I_spft[1,,,histdx]        <- repObj$I_pgt[,,histdx]
+  obj$mp$data$A_axspft[,1,1,,,histdx]   <- repObj$A_apgt[,,,histdx]
+
+
+  # replace negatives with NAs for plotting, can change back 
+  # later for TMB
+  obj$mp$data$I_spft[obj$mp$data$I_spft<0] <- NA
+  obj$mp$data$A_axspft[obj$mp$data$A_axspft<0] <- NA
+  # obj$mp$data$L_lxspft[obj$mp$data$L_axspft<0] <- NA
+
+  # Now calculate total catch and allocation
+  tdxRecent <- (tMP - ctlList$opMod$allocYears):(tMP - 1)
+  recentCatch_spf <- apply( X = obj$om$C_spft[,,,tdxRecent,drop = FALSE], FUN = sum, MARGIN = c(1,2,3) )
+
+  commGears <- ctlList$opMod$commGears
+
+  if( all(recentCatch_spf[,,commGears] == 0) )
+    recentCatch_spf[,,commGears] <- 1
+
+  # Loop and fill errors and allocation
+  for( s in 1:nS )
+    for( p in 1:nP )
+    {
+      if( !ctlList$ctl$noProcErr )
+        obj$errors$omegaR_spt[s,p,] <- rnorm(nT)
+
+      for( f in 1:nF )
+        obj$errors$delta_spft[s,p,f,] <- rnorm(nT)
+
+      obj$om$alloc_spf[s,p,commGears] <- recentCatch_spf[s,p,commGears] / sum( recentCatch_spf[s,p,commGears])
+
+      # Save historical proc errors, but use simulated recruitments after
+      # last estimated recruitment
+      lastIdx <- max(which(repObj$omegaR_pt[p,] != 0) )
+      obj$errors$omegaR_spt[s,p,histdx[1:lastIdx]]   <- repObj$omegaR_pt[p,1:lastIdx] 
+      if( !ctlList$ctl$noProcErr )
+        obj$errors$omegaR_spt[s,p,histdx[1:lastIdx]] + 0.5*repObj$sigmaR  # rec devs    
+    }
+
+  # Save historical errors
+  obj$errors$delta_spft[1,,,histdx]   <- repObj$z_pgt[,,histdx] # obs errors
+  for( p in 1:nP)
+    obj$errors$omegaRinit_asp[,1,p]  <- repObj$fDevs_ap[,p] # Initialisation errors
+  obj$errors$obsErrMult_spft          <- array(1, dim = c(nS,nP,nF,nT))
+
+  # Copy M_axsp forward from last year to get running
+  for( t in tMP:nT )
+    obj$om$M_axspt[,,,,t] <- obj$om$M_axspt[,,,,tMP-1]
+
+  # Adjust obs error multiplier if 
+  # projObsErrMult != 1
+  if( ctlList$opMod$projObsErrMult != 1.0 )
+  {
+    nPhaseIn        <- min(ctlList$opMod$phaseInObsErrMult,pT-1)
+
+    projObsErrMult  <- ctlList$opMod$projObsErrMult
+    for( k in 0:nPhaseIn)
+    {
+      # Calculate this step's adjustment multiplier
+      adjMult <- 1.0 + k / nPhaseIn * (projObsErrMult - 1.0)
+      obj$errors$obsErrMult_spft[,,,tMP+k] <-  adjMult * obj$errors$obsErrMult_spft[,,,tMP+k]
+    }
+    obj$errors$obsErrMult_spft[,,,(tMP+nPhaseIn):nT] <- projObsErrMult
+  }
+
+  message(" (.condMS3pop_SISCA) Running OM for historical period.\n")
+
+  # Now, initialise the population
+  for( t in 1:(tMP - 1) )
+  {
+    obj <- .ageSexOpMod( obj, t )
+  }
+
+  obj$om$speciesNames   <- dimnames(ctlList$opMod$histRpt$SB_spt)[[1]]
+  obj$om$stockNames     <- dimnames(ctlList$opMod$histRpt$SB_spt)[[2]]
+  obj$om$fleetNames     <- dimnames(ctlList$opMod$histRpt$vB_spft)[[3]]
+
+  obj$om$price_s        <- ctlList$opMod$price_s[obj$om$speciesNames]
+  obj$om$alphaU         <- ctlList$opMod$alphaU
+  obj$om$ut_50          <- ctlList$opMod$ut_50
+  obj$om$ut_95          <- ctlList$opMod$ut_95
+
+  return(obj)
+
+
+} # END condMS3pop_SISCA()
 
 
 # .initMS3pop()
@@ -3276,20 +3438,42 @@ combBarrierPen <- function( x, eps,
   # Get model dimensions
   tMP   <- repObj$nT + 1   # start of projections
   nT    <- tMP + pT - 1    # Total time period of sims
-  nX    <- repObj$nX       # Number of sex classes
-  nF    <- repObj$nF       # Number of fleets
+
   nA    <- repObj$nA       # Number of Age classs
-  nS    <- repObj$nS       # Number of species
   nP    <- repObj$nP       # Number of stocks
-  nL    <- repObj$nL       # Number of length classes
 
-  # Get species specific largest age/length classes
-  om$A_s <- repObj$A_s
-  om$L_s <- repObj$L_s
+  if(ctlList$opMod$condModel == "hierSCAL")
+  {
+    nX    <- repObj$nX       # Number of sex classes
+    nF    <- repObj$nF       # Number of fleets
+    nS    <- repObj$nS       # Number of species
+    nL    <- repObj$nL       # Number of length classes
 
-  # Get length bin aggregation info - might refine later.
-  om$lenBinWidth   <- repObj$lenBinWidth   # width of length bins
-  om$lenBinMids_l  <- repObj$lenBinMids_l  # Mid points
+    # Get species specific largest age/length classes
+    om$A_s <- repObj$A_s
+    om$L_s <- repObj$L_s
+
+    # Get length bin aggregation info - might refine later.
+    om$lenBinWidth   <- repObj$lenBinWidth   # width of length bins
+    om$lenBinMids_l  <- repObj$lenBinMids_l  # Mid points
+  }
+
+  if( ctlList$opMod$condModel == "SISCA" )
+  {
+    nP    <- repObj$nP       # Number of stocks
+    nX    <- 1               # Number of sex classes
+    nF    <- repObj$nG       # Number of fleets
+    nS    <- 1               # Number of species
+    nL    <- 1               # Number of length classes 
+
+    om$A_s <- nA
+    om$L_s <- 1
+
+    om$lenBinWidth <- 2
+    om$lenBinMids_l <- 1
+  }
+
+  
  
 
   # Set up arrays to hold simulated states
@@ -3324,29 +3508,107 @@ combBarrierPen <- function( x, eps,
   om$qF_spft    <- array(0,  dim = c(nS,nP,nF,nT) )        # catchability (tv)
 
   # Variance parameters
-  om$tauObs_spf <- repObj$tauObs_spf
-  om$sigmaR_sp  <- repObj$sigmaR_sp
+  om$tauObs_spf <- array(NA, dim = c(nS,nP,nF))
+  om$sigmaR_sp  <- array(NA, dim = c(nS,nP))
 
   # Leading bio pars
-  om$B0_sp      <- repObj$B0_sp
-  om$M_xsp      <- repObj$M_xsp
-  om$h_sp       <- repObj$h_sp
+  om$B0_sp      <- array(NA, dim = c(nS,nP))
+  om$Rinit_sp   <- array(NA, dim = c(nS,nP))
+  om$M_xsp      <- array(NA, dim = c(nX,nS,nP))
+  om$h_sp       <- array(NA, dim = c(nS,nP))
+
+  # Time varying natural mortality
+  om$M_axspt          <- array(NA, dim = c(nA,nX,nS,nP,nT))
+  om$initSurv_axsp    <- array(NA, dim = c(nA,nX,nS,nP) )
 
   # Growth model pars
-  om$L1_s       <- repObj$L1_s
-  om$A1_s       <- repObj$A1_s
-  om$L2_xsp     <- aperm(repObj$L2_spx,c(3,1,2))
-  om$A2_s       <- repObj$A2_s
-  om$vonK_xsp   <- aperm(repObj$vonK_spx,c(3,1,2))
-  om$LWa_s      <- repObj$LWa_s
-  om$LWb_s      <- repObj$LWb_s
+  om$L1_s       <- array(NA, dim = c(nS))
+  om$A1_s       <- array(NA, dim = c(nS))
+  om$L2_xsp     <- array(NA, dim = c(nX,nS,nP))
+  om$A2_s       <- array(NA, dim = c(nS))
+  om$vonK_xsp   <- array(NA, dim = c(nX,nS,nP))
+  om$LWa_s      <- array(NA, dim = c(nS))
+  om$LWb_s      <- array(NA, dim = c(nS))
 
-  # Later: write calcSchedules function
-  om$matAge_asp         <- repObj$matAge_asp
-  om$meanWtAge_axsp     <- aperm( repObj$meanWtAge_aspx,c(1,4,2,3) )
-  om$Wlen_ls            <- repObj$Wlen_ls
-  om$probLenAge_laxsp   <- aperm( repObj$probLenAge_laspx, c(1,2,5,3,4) )
-  om$lenAge_axsp        <- aperm( repObj$lenAge_aspx, c(1,4,2,3) )
+  # Weight-at-age
+  om$W_axspt     <- array(NA, dim = c(nA,nX,nS,nP,nT))
+  om$W_axspft    <- array(NA, dim = c(nA,nX,nS,nP,nF,nT))
+
+  # Historical mean weight-at-age
+  om$meanWtAge_axsp <- array(NA, dim = c(nA,nX,nS,nP))
+
+  # maturity
+  om$matAge_asp <- array(NA, dim = c(nA,nS,nP) )
+
+
+  if( ctlList$opMod$condModel == "hierSCAL" )
+  {
+    # Variance parameters
+    om$tauObs_spf <- repObj$tauObs_spf
+    om$sigmaR_sp  <- repObj$sigmaR_sp
+
+    # Leading bio pars
+    om$B0_sp      <- repObj$B0_sp
+    om$Rinit_sp   <- repObj$R0_sp
+    om$M_xsp      <- repObj$M_xsp
+    om$h_sp       <- repObj$h_sp
+
+    # Growth model pars
+    om$L1_s       <- repObj$L1_s
+    om$A1_s       <- repObj$A1_s
+    om$L2_xsp     <- aperm(repObj$L2_spx,c(3,1,2))
+    om$A2_s       <- repObj$A2_s
+    om$vonK_xsp   <- aperm(repObj$vonK_spx,c(3,1,2))
+    om$LWa_s      <- repObj$LWa_s
+    om$LWb_s      <- repObj$LWb_s
+
+    # Later: write calcSchedules function
+    om$matAge_asp         <- repObj$matAge_asp
+    om$meanWtAge_axsp     <- aperm( repObj$meanWtAge_aspx,c(1,4,2,3) )
+    om$Wlen_ls            <- repObj$Wlen_ls
+    om$probLenAge_laxsp   <- aperm( repObj$probLenAge_laspx, c(1,2,5,3,4) )
+    om$lenAge_axsp        <- aperm( repObj$lenAge_aspx, c(1,4,2,3) )
+  }
+
+  if( ctlList$opMod$condModel == "SISCA" )
+  {
+    # Variance parameters
+    om$tauObs_spf[1,,]  <- repObj$tauObs_pg
+    om$sigmaR_sp[1,]    <- repObj$sigmaR
+    
+
+    # Leading bio pars
+    om$B0_sp[1,]    <- repObj$B0_p
+    om$Rinit_sp[1,] <- repObj$Rinit_p
+    om$M_xsp[1,1,]  <- repObj$M_p
+    om$h_sp[1,]     <- repObj$rSteepness_p
+
+    # Time-varying, age-structured natural mortality
+    om$M_axspt[,1,1,,1:(tMP-1)] <- repObj$M_apt[,,1:(tMP-1)]
+
+    # Growth model pars
+    om$L1_s       <- NA
+    om$A1_s       <- NA
+    om$L2_xsp     <- NA
+    om$A2_s       <- NA
+    om$vonK_xsp   <- NA
+    om$LWa_s      <- NA
+    om$LWb_s      <- NA
+
+    # Later: write calcSchedules function
+    for( p in 1:nP)
+      om$matAge_asp[,1,p]         <- repObj$mat_a
+
+    om$W_axspt[,1,1,,1:(tMP-1)]   <- repObj$W_apt[,,1:(tMP-1)]
+    om$W_axspft[,1,1,,,1:(tMP-1)] <- repObj$W_apgt[,,,1:(tMP-1)]
+    
+    om$meanWtAge_axsp[,1,1,]      <- repObj$projWt_ap
+    om$Wlen_ls                    <- NA
+    om$probLenAge_laxsp           <- NA
+    om$lenAge_axsp                <- NA
+  }
+
+  
 
   # Make data list - anything else?
   # mp list - mostly for retrospective
@@ -3388,9 +3650,9 @@ combBarrierPen <- function( x, eps,
   errors <- list()
 
   # Arrays for holding errors
-  errors$omegaR_spt <- array(0, dim = c(nS,nP,nT) )
-  errors$delta_spft <- array(0, dim = c(nS,nP,nF,nT) )
-
+  errors$omegaR_spt     <- array(0, dim = c(nS,nP,nT) )
+  errors$omegaRinit_asp <- array(0, dim = c(nA,nS,nP) )
+  errors$delta_spft     <- array(0, dim = c(nS,nP,nF,nT) )
 
 
 
@@ -3537,7 +3799,9 @@ combBarrierPen <- function( x, eps,
   
   # Biological pars
   B0_sp             <- om$B0_sp
+  Rinit_sp          <- om$Rinit_sp
   M_xsp             <- om$M_xsp
+  M_axspt           <- om$M_axspt
   h_sp              <- om$h_sp
   R0_sp             <- rp$R0_sp
   surv_axsp         <- rp$Surv_axsp
@@ -3553,6 +3817,8 @@ combBarrierPen <- function( x, eps,
   LWa_s             <- om$LWa_s
   LWb_s             <- om$LWb_s
   meanWtAge_axsp    <- om$meanWtAge_axsp
+  W_axspft          <- om$W_axspft
+  W_axspt           <- om$W_axspt
   Wlen_ls           <- om$Wlen_ls
   probLenAge_laxsp  <- om$probLenAge_laxsp
   lenAge_axsp       <- om$lenAge_axsp
@@ -3568,10 +3834,8 @@ combBarrierPen <- function( x, eps,
 
     for( s in 1:nS )
       for( p in 1:nP)
-      {
-        N_axspt[,1,s,p,t] <- surv_axsp[,1,s,p] * R0_sp[s,p] * initNmult_asp[,s,p]
-        N_axspt[,2,s,p,t] <- surv_axsp[,2,s,p] * R0_sp[s,p] * initNmult_asp[,s,p]
-      }
+        for( x in 1:nX )
+          N_axspt[,x,s,p,t] <- obj$om$initSurv_axsp[,x,s,p] * Rinit_sp[s,p] * initNmult_asp[,s,p]
 
     R_spt[,,t] <- R0_sp
 
@@ -3613,13 +3877,18 @@ combBarrierPen <- function( x, eps,
   }
 
   # Now convert into biomass and spawning biomass
-  B_axspt[,,,,t]    <- N_axspt[,,,,t] * meanWtAge_axsp
+  if( t < tMP)
+    B_axspt[,,,,t]    <- N_axspt[,,,,t] * W_axspt[,,,,t]
+  if( t >= tMP )
+    B_axspt[,,,,t]    <- N_axspt[,,,,t] * meanWtAge_axsp
+
+
   # Now compute vuln biomass
   for( f in 1:nF )
     vB_axspft[,,,,f,t] <- sel_axspft[,,,,f,t] * B_axspt[,,,,t]
 
-  vB_spft[,,,t] <- apply( X = vB_axspft[,,,,,t], FUN = sum, MARGIN = 3:5, na.rm = T )
-  B_spt[,,t]    <- apply( X = B_axspt[,,,,t], FUN = sum, MARGIN = 3:4, na.rm = T )
+  vB_spft[,,,t] <- apply( X = vB_axspft[,,,,,t,drop = FALSE], FUN = sum, MARGIN = 3:5, na.rm = T )
+  B_spt[,,t]    <- apply( X = B_axspt[,,,,t,drop = FALSE], FUN = sum, MARGIN = 3:4, na.rm = T )
 
   # Now calculate spawning biomass
   SB_asp <- matAge_asp * B_axspt[,nX,,,t]
@@ -3688,12 +3957,29 @@ combBarrierPen <- function( x, eps,
       #                         wt_axsp   = meanWtAge_axsp,
       #                         nS = nS, nP = nP, nX = nX, nF = nF  )
 
-      Flist <- .solveBaranov( C_spf       = TAC_spft[,,,t], 
-                              vB_axspf    = vB_axspft[,,,,,t],
-                              vB_spf      = vB_spft[,,,t],
-                              N_axsp      = N_axspt[,,,,t],
-                              sel_axspf   = sel_axspft[,,,,,t],
-                              M_xsp       = M_xsp,
+      # Make temporary arrays to hold stuff
+      tmpN_axsp   <- array(NA, dim = c(nA,nX,nS,nP))
+      tmpM_axsp   <- array(NA, dim = c(nA,nX,nS,nP))
+      tmpvB_axspf <- array(NA, dim = c(nA,nX,nS,nP,nF))
+      tmpC_spf    <- array(NA, dim = c(nS,nP,nF))
+      tmpvB_spf   <- array(NA, dim = c(nS,nP,nF))
+      tmpsel_axspf<- array(NA, dim = c(nA,nX,nS,nP,nF))
+
+      tmpN_axsp[1:nA,,,]    <- N_axspt[1:nA,,,,t] 
+      tmpvB_axspf[1:nA,,,,] <- vB_axspft[1:nA,,,,,t]
+      tmpC_spf[1:nS,,]      <- TAC_spft[1:nS,,,t]
+      tmpvB_spf[1:nS,,]     <- vB_spft[,,,t]   
+      tmpsel_axspf[1:nA,,,,]<- sel_axspft[,,,,,t]
+      tmpM_axsp[1:nA,,,]    <- M_axspt[,,,,t]
+
+
+
+      Flist <- .solveBaranov( C_spf       = tmpC_spf, 
+                              vB_axspf    = tmpvB_axspf,
+                              vB_spf      = tmpvB_spf,
+                              N_axsp      = tmpN_axsp,
+                              sel_axspf   = tmpsel_axspf,
+                              M_axsp      = tmpM_axsp,
                               A_s         = A_s,
                               wt_axsp     = meanWtAge_axsp,
                               nS = nS, nP = nP, nX = nX, nF = nF,
@@ -3727,8 +4013,8 @@ combBarrierPen <- function( x, eps,
     for( p in 1:nP )
     {
       # Fill Z with Ms
-      Z_axspt[1:A_s[s],1,s,p,t] <- M_xsp[1,s,p]
-      Z_axspt[1:A_s[s],2,s,p,t] <- M_xsp[2,s,p]
+      for( x in 1:nX )
+        Z_axspt[1:A_s[s],x,s,p,t] <- M_axspt[,x,s,p,t]
 
       # Now loop over fleets, ages, and sexes, add fishing mortality
       # rates and generate catch
@@ -3752,8 +4038,8 @@ combBarrierPen <- function( x, eps,
     # END s loop
 
   # Sum realised catch
-  C_spft[,,,t] <- apply( X = Cw_axspft[,,,,,t], FUN = sum, MARGIN = c(3,4,5), na.rm = T )
-  C_spt[,,t]   <- apply( X = C_spft[,,,t], FUN = sum, MARGIN = c(1,2), na.rm = T )
+  C_spft[,,,t] <- apply( X = Cw_axspft[,,,,,t,drop = FALSE], FUN = sum, MARGIN = c(3,4,5), na.rm = T )
+  C_spt[,,t]   <- apply( X = C_spft[,,,t,drop = FALSE], FUN = sum, MARGIN = c(1,2), na.rm = T )
 
   # Now generate indices - need to add a schedule later
   if( t >= tMP )
@@ -3821,7 +4107,7 @@ combBarrierPen <- function( x, eps,
                             vB_spf      = vB_spft[,,,t],
                             N_axsp      = N_axspt[,,,,t],
                             sel_axspf   = sel_axspft[,,,,,t],
-                            M_xsp       = M_xsp,
+                            M_axsp      = M_axspt[,,,,t],
                             A_s         = A_s,
                             wt_axsp     = meanWtAge_axsp,
                             nS = nS, nP = nP, nX = nX, nF = nF,
@@ -3844,13 +4130,14 @@ combBarrierPen <- function( x, eps,
   # Initialise F at C/B
   appF_spf   <- C_spf / vB_spf
 
+
   # Calculate first iteration of Z
   for( s in 1:nS )
     for( p in 1:nP )
     {
       for( x in 1:nX )
       {
-        appZ_axsp[1:A_s[s],x,s,p] <- M_xsp[x,s,p]
+        appZ_axsp[1:A_s[s],x,s,p] <- M_axsp[1:A_s[s],x,s,p]
 
         for( f in 1:nF )
           appZ_axsp[1:A_s[s],x,s,p] <- appZ_axsp[1:A_s[s],x,s,p] + appF_spf[s,p,f] * sel_axspf[1:A_s[s],x,s,p,f]

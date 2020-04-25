@@ -22,8 +22,8 @@ calcRefPts <- function( obj )
   # obj <- .calcSel_xsp(obj, fleetIdx = 2)
 
   # Calculate R0_sp
-  h_sp      <- obj$h_sp
-  B0_sp     <- obj$B0_sp
+  h_sp      <- obj$om$h_sp
+  B0_sp     <- obj$om$B0_sp
 
   # temporarily use calcPerRecruit to recalc R0
   tmp           <- .calcPerRecruit( f = 0, obj = obj )
@@ -39,23 +39,20 @@ calcRefPts <- function( obj )
 
   # Calculate reference curves
   refCurves <- .calcRefCurves( obj )
-
-  # EBSBpars
-  EBSBpars <- calcJABBASelPars(obj)
+  
 
   # First, let's just do Fmsy reference points
   FmsyRefPts <- .getFmsy_sp(  obj = obj, 
                               refCurves = refCurves )
 
-  tmpEmsyRefPts <- .getEmsy_p(  obj = obj,
-                                refCurves = refCurves$EffCurves )
+  
 
   
   obj$refPts <- list()
   obj$refPts$refCurves    <- refCurves
   obj$refPts$FmsyRefPts   <- FmsyRefPts
-  obj$refPts$EmsyRefPts   <- tmpEmsyRefPts$EmsyRefPts
-  obj$refPts$EmsyMSRefPts <- tmpEmsyRefPts$EmsyMSRefPts
+
+  
   # Get survivorship
   obj$refPts$Surv_axsp    <- tmp$Surv_axsp
   obj$refPts$ssbpr_sp     <- yprList$ssbpr_sp
@@ -64,8 +61,20 @@ calcRefPts <- function( obj )
   obj$refPts$rec.b_sp     <- obj$rec.b_sp
   obj$refPts$B0_sp        <- refCurves$Beq_spf[,,1]
 
-  # Get EBSB pars for JABBA-Select application
-  obj$refPts$EBSBpars <- EBSBpars
+  if( obj$condModel == "hierSCAL")
+  {
+    tmpEmsyRefPts <- .getEmsy_p(  obj = obj,
+                                  refCurves = refCurves$EffCurves )
+
+    obj$refPts$EmsyRefPts   <- tmpEmsyRefPts$EmsyRefPts
+    obj$refPts$EmsyMSRefPts <- tmpEmsyRefPts$EmsyMSRefPts
+
+    # Get EBSB pars for JABBA-Select application
+    EBSBpars <- calcJABBASelPars(obj)
+    obj$refPts$EBSBpars <- EBSBpars
+  }
+
+  
 
   return(obj$refPts)
 
@@ -337,32 +346,35 @@ calcJABBASelPars <- function( obj )
 # yield and recruitment as a function of input fishing mortality rates
 # inputs:   obj = list of biological parameters
 # ouputs:   refCurves = list() of reference curves (vectors)
-.calcRefCurves <- function( obj, nFs = 1000, fleetIdx = 2 )
+.calcRefCurves <- function( obj, nFs = 1000, fleetIdx = 3 )
 {
   # First, compute max F (tolerance of 1e-5)
   nT   <- dim(obj$om$qF_spft)[4]
-  maxF <- max( 10*obj$M_xsp )
-  maxE <- max( maxF / obj$om$qF_spft[,,2,nT])
+  maxF <- max( 10*obj$om$M_xsp )
+
+  if( obj$condModel == "hierSCAL")
+    maxE <- max( maxF / obj$om$qF_spft[,,2,nT])
 
   # We're going to need to fill each species' ref curves,
   # so labeling and dimensions are needed
-  nS          <- obj$nS
-  nP          <- obj$nP
-  nA          <- obj$nA
-  nX          <- obj$nX
-  sexNames    <- dimnames(obj$M_xsp)[[1]]
-  specNames   <- dimnames(obj$M_xsp)[[2]]
-  stockNames  <- dimnames(obj$M_xsp)[[3]]
+  nS          <- obj$om$nS
+  nP          <- obj$om$nP
+  nA          <- obj$om$nA
+  nX          <- obj$om$nX
+
+  specNames   <- "Herring"
+  stockNames  <- dimnames(obj$M_ap)[[2]]
   
 
-
   f <- seq( from = 0.0, to = maxF, length = nFs )
-  e <- seq( from = 0.0, to = maxE, length = nFs )
+
+  if( obj$condModel == "hierSCAL")
+    e <- seq( from = 0.0, to = maxE, length = nFs )
 
   # Create matrices to hold Recruitment reference curve, name rows and copy
   # for each of Beq, Neq and Yeq
   Req_spf      <- array( NA,  dim = c(nS, nP, nFs),
-                              dimnames = list(  species = specNames,
+                              dimnames = list(  species = "Herring",
                                                 stock = stockNames,
                                                 F = f ) )
 
@@ -390,34 +402,6 @@ calcJABBASelPars <- function( obj )
     surv_axspf[,,,,i] <- tmp$surv_axsp
   }
 
-  Req_spe      <- array( NA,  dim = c(nS, nP, nFs),
-                              dimnames = list(  species = specNames,
-                                                stock = stockNames,
-                                                F = f ) )
-
-  surv_axspe    <- array( NA, dim = c(nA,nX,nS,nP,nFs) )
-
-  Beq_spe       <- Req_spe
-  expBeq_spe    <- Req_spe
-  Yeq_spe       <- Req_spe
-  ypr_spe       <- Req_spe
-  ssbpr_spe     <- Req_spe
-  Ueq_spe       <- Req_spe
-
-  # Loop and fill
-  for( i in 1:length(e) )
-  {
-    tmp               <- .calcEquil( f = e[i], obj = obj, type = "effort" )
-    Req_spe[,,i]      <- tmp$Req_sp
-    Beq_spe[,,i]      <- tmp$Beq_sp
-    expBeq_spe[,,i]   <- tmp$expBeq_sp
-    Yeq_spe[,,i]      <- tmp$Yeq_sp
-    ypr_spe[,,i]      <- tmp$ypr_sp
-    ssbpr_spe[,,i]    <- tmp$ssbpr_sp
-    Ueq_spe[,,i]      <- tmp$Ueq_sp
-    surv_axspe[,,,,i] <- tmp$surv_axsp
-  }
-
   # Save F based ref points
   refCurves <- list()
     refCurves$F           <- f
@@ -429,19 +413,51 @@ calcJABBASelPars <- function( obj )
     refCurves$Ueq_spf     <- Yeq_spf
     refCurves$surv_axspf  <- surv_axspf
 
-  # Save E based ref points
-  refCurves$EffCurves <- list()
-    refCurves$EffCurves$E           <- e
-    refCurves$EffCurves$ypr_spe     <- ypr_spe
-    refCurves$EffCurves$Req_spe     <- Req_spe
-    refCurves$EffCurves$Beq_spe     <- Beq_spe
-    refCurves$EffCurves$expBeq_spe  <- expBeq_spe
-    refCurves$EffCurves$Yeq_spe     <- Yeq_spe
-    refCurves$EffCurves$Ueq_spe     <- Yeq_spe
-    refCurves$EffCurves$surv_axspe  <- surv_axspe    
+  if( obj$condModel == "hierSCAL")
+  {
+    Req_spe      <- array( NA,  dim = c(nS, nP, nFs),
+                                dimnames = list(  species = specNames,
+                                                  stock = stockNames,
+                                                  E = e ) )
+
+    surv_axspe    <- array( NA, dim = c(nA,nX,nS,nP,nFs) )
+
+    Beq_spe       <- Req_spe
+    expBeq_spe    <- Req_spe
+    Yeq_spe       <- Req_spe
+    ypr_spe       <- Req_spe
+    ssbpr_spe     <- Req_spe
+    Ueq_spe       <- Req_spe
+
+    # Loop and fill
+    for( i in 1:length(e) )
+    {
+      tmp               <- .calcEquil( f = e[i], obj = obj, type = "effort" )
+      Req_spe[,,i]      <- tmp$Req_sp
+      Beq_spe[,,i]      <- tmp$Beq_sp
+      expBeq_spe[,,i]   <- tmp$expBeq_sp
+      Yeq_spe[,,i]      <- tmp$Yeq_sp
+      ypr_spe[,,i]      <- tmp$ypr_sp
+      ssbpr_spe[,,i]    <- tmp$ssbpr_sp
+      Ueq_spe[,,i]      <- tmp$Ueq_sp
+      surv_axspe[,,,,i] <- tmp$surv_axsp
+    }
+
+    # Save E based ref points
+    refCurves$EffCurves <- list()
+      refCurves$EffCurves$E           <- e
+      refCurves$EffCurves$ypr_spe     <- ypr_spe
+      refCurves$EffCurves$Req_spe     <- Req_spe
+      refCurves$EffCurves$Beq_spe     <- Beq_spe
+      refCurves$EffCurves$expBeq_spe  <- expBeq_spe
+      refCurves$EffCurves$Yeq_spe     <- Yeq_spe
+      refCurves$EffCurves$Ueq_spe     <- Yeq_spe
+      refCurves$EffCurves$surv_axspe  <- surv_axspe  
+  }
+
 
   return( refCurves )
-}
+} # END .calcRefCurves
 
 # .calcEquil()
 # Calculates equilibrium Biomass, Yield and Recruitment 
@@ -452,9 +468,9 @@ calcJABBASelPars <- function( obj )
 .calcEquil <- function( f = 0, obj, type = "fmort", 
                         fleetIdx = 2 )
 {
-  nS  <- obj$nS
-  nP  <- obj$nP
-  A_s <- obj$A_s
+  nS  <- obj$om$nS
+  nP  <- obj$om$nP
+  A_s <- obj$om$A_s
 
 
   # Now calculate eqbm recruitment at given f value
@@ -538,23 +554,25 @@ calcJABBASelPars <- function( obj )
 
   # Compute eqbm spawning biomass per recruit for
   # given f and species/stock pars
-  nS    <- obj$nS
-  nP    <- obj$nP
-  A_s   <- obj$A_s
-  nA    <- obj$nA
-  nL    <- obj$nL
-  nX    <- obj$nX
-  M_xsp <- obj$M_xsp
-  nT    <- obj$nT
-  qF_sp <- obj$om$qF_spft[,,2,nT+1]
+  nS    <- obj$om$nS
+  nP    <- obj$om$nP
+  A_s   <- obj$om$A_s
+  nA    <- obj$om$nA
+  nL    <- obj$om$nL
+  nX    <- obj$om$nX
+  M_xsp <- obj$om$M_xsp
+  nT    <- obj$om$nT
+  qF_sp <- obj$om$om$qF_spft[,,fleetIdx,nT+1]
 
   # Life history schedules
-  matAge_asp        <- obj$matAge_asp
-  lenAge_axsp       <- aperm(obj$lenAge_aspx,c(1,4,2,3))
-  wtAge_axsp        <- aperm(obj$meanWtAge_aspx,c(1,4,2,3))
-  probLenAge_laspx  <- obj$probLenAge_laspx
-  selAge_axsp       <- obj$sel_axspft[,,,,fleetIdx,nT]
+  matAge_asp        <- obj$om$matAge_asp
+  wtAge_axsp        <- obj$om$meanWtAge_axsp
+  
+  # Selectivity
+  selAge_axsp           <- array(NA, dim = c(nA,nX,nS,nP))
+  selAge_axsp[1:nA,,,]  <- obj$om$sel_axspft[1:nA,,,,fleetIdx,nT]
 
+  # Fishing mortality
   fmort <- array(f, dim =c(nS,nP) )
 
   # Compute Z_asp
@@ -763,8 +781,8 @@ calcJABBASelPars <- function( obj )
 .getFmsy_sp <- function( obj, refCurves )
 {
   Fseq  <- refCurves$F
-  nS    <- obj$nS
-  nP    <- obj$nP
+  nS    <- obj$om$nS
+  nP    <- obj$om$nP
 
   .getFmsy <- function( yieldCurve, F = Fseq )
   {
@@ -840,16 +858,16 @@ calcJABBASelPars <- function( obj )
 {
   # Compute eqbm spawning biomass per recruit for
   # given f and species/stock pars
-  nS    <- obj$nS
-  nP    <- obj$nP
-  A_s   <- obj$A_s
-  nA    <- obj$nA
-  nL    <- obj$nL
-  nX    <- obj$nX
-  M_xsp <- obj$M_xsp
+  nS    <- obj$om$nS
+  nP    <- obj$om$nP
+  A_s   <- obj$om$A_s
+  nA    <- obj$om$nA
+  nL    <- obj$om$nL
+  nX    <- obj$om$nX
+  M_xsp <- obj$om$M_xsp
 
   # Life history schedules
-  matAge_asp        <- obj$matAge_asp
+  matAge_asp        <- obj$om$matAge_asp
 
   genTime_sp <- array(0, dim = c(nS,nP))
 
