@@ -3512,11 +3512,11 @@ plotAMIdxResids <- function(  obj = blob,
 # Plots that help diagnose issues with conditioning
 # between the fitted OM report, and the conditioned
 # ms3R operating model.
-diagCondition <- function(  repObj  = totRep,
-                            ms3Obj  = test,
+diagCondition <- function(  repObj  = blob$ctlList$opMod$histRpt,
+                            ms3Obj  = blob,
                             iRep    = 1 )
 {
-  par(mfrow = c(3,2), mar = c(1.5,1,1.5,1), oma = c(3,3,3,3) )
+  par(mfrow = c(3,2), mar = c(1,2,1.5,1), oma = c(3,5,3,3) )
 
   # Biomass RE
   plotRE_spt( repObj = repObj, omObj = ms3Obj$om, 
@@ -3557,6 +3557,10 @@ diagCondition <- function(  repObj  = totRep,
                 OMseries = "F_ispft", 
                 iRep )
   mtext( side = 3, text = expression(F[spft]), line = 0, font = 2) 
+
+  mtext( side = 1, outer = TRUE, text = "Time Step", font = 2, line = 2)
+  mtext( side = 2, outer = TRUE, text = "Relative error in conditioning", 
+          font = 2, line = 3 )
 
   # # Numbers at age
   # plotRE_axspt( repObj = repObj, omObj = ms3Obj$om, series = "N_iaxspt" )
@@ -3636,7 +3640,6 @@ plotRE_spft <- function(  repObj, omObj,
                           AMseries = "C_pgt",
                           iRep = 1, nS = 1 )
 {
-  browser()
   nP <- repObj$nP
   nT <- repObj$nT
   nF <- repObj$nG
