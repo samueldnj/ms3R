@@ -31,17 +31,24 @@ omniPerfTab <- read.csv(omniInfo$perfTabPath)
 
 ```
 
+```{r loadHistoryFit, echo = FALSE, include = FALSE, warning = FALSE}
+fitReport <- .loadFit(params$history)
 
-1. Table of stock status and reference points from hierSCAL
+nS <- fitReport$repOpt$nS
+nP <- fitReport$repOpt$nP
+nG <- fitReport$repOpt$nG
+
+```
+
 
 2. Table of MPs/OMs
 
-3. Table of omniscient manager performance
 
-4. Tables of loss
+4. Tables of loss? NO, we have plots
 
 ```{r tableCaps, echo = FALSE, include = FALSE, warning = FALSE }
-refPtsOMTabCap <- ""
+stockStatusTabCap <- "Stock status and reference points for all DER
+complex stocks in 2016."
 
 expDesignTabCap <- ""
 
@@ -52,6 +59,59 @@ lossTabCap <- ""
 
 ```
 
+\clearpage{}
+
+```{r stockStatusTab, echo = FALSE }
+stockStatusColNames <- c( "Species",
+                          "Stock",
+                          "B0",
+                          "Bmsy",
+                          "Umsy",
+                          "$B_{2016}$",
+                          "$B_{2016}/B_{MSY}$" )
+
+stockStatusTab <- matrix( NA, nrow = 9, ncol = length(stockStatusColNames) )
+colnames(stockStatusTab) <- stockStatusColNames
+stockStatusTab <- as.data.frame(stockStatusTab)
+
+specLabs  <- fitReport$species
+stockLabs <- fitReport$stocks
+
+B0_sp     <- fitReport$repOpt$B0_sp
+refPts    <- fitReport$repOpt$refPts$FmsyRefPts
+
+# spawning biomass series
+SB_spt    <- fitReport$repOpt$SB_spt
+D_sp2016  <- SB_spt[,,"2016"] / refPts$BeqFmsy_sp
+
+
+
+for( s in 1:nS )
+  for( p in 1:nP )
+  {
+    rIdx <- p + (s-1)*nP
+
+    stockStatusTab[rIdx,"Species"]    <- specLabs[s]
+    stockStatusTab[rIdx,"Stock"]      <- stockLabs[p]
+
+    # Pull reference points, B0
+    stockStatusTab[rIdx,"B0"]         <- round(B0_sp[s,p],2)
+    stockStatusTab[rIdx,"Bmsy"]       <- round(refPts$BeqFmsy_sp[s,p],2)
+    stockStatusTab[rIdx,"Umsy"]       <- round(refPts$Umsy_sp[s,p],2)
+    stockStatusTab[rIdx,"$B_{2016}$"] <- round(SB_spt[s,p,"2016"],2)
+    stockStatusTab[rIdx,"$B_{2016}/B_{MSY}$"] <- round(D_sp2016[s,p],2)
+
+  }
+
+kable(  stockStatusTab, escape = FALSE, 
+        caption = stockStatusTabCap, booktabs = T,
+        align = rep("c",ncol(stockStatusTab))) %>%
+  kable_styling(latex_options = c("striped", "scale_down","hold_position"),
+                bootstrap_options = c("striped", "hover"))
+
+```
+
+\clearpage{}
 
 ```{r omniPerfTab, echo = FALSE, warning = FALSE}
 omniPerfTab <- omniPerfTab %>%

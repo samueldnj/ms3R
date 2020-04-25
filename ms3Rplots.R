@@ -10,6 +10,393 @@
 #
 # <><><><><><><><><><><><><><><><><><><><><><><><><><><>
 
+
+# plotTACallocationError()
+# A multi-panel for understanding the
+# level of error in TAC allocations under 
+# aggregate MPs. Not sure of the best way
+# to look at this...
+plotTACallocationError <- function( obj = blob,
+                                    iRep = 1 )
+{
+  goodReps <- obj$goodReps
+
+  # Get biomass arrays
+  SB_ispt        <- obj$om$SB_ispt[goodReps,,,]
+  VB_ispt        <- obj$om$vB_ispft[goodReps,,,2,]
+  totB_ispt      <- obj$om$B_ispt[goodReps,,,]
+  retroSB_itspt  <- obj$mp$assess$retroSB_itspt[goodReps,,,,]
+
+  ctlList <- obj$ctlList
+
+  retroSB_itspt[retroSB_itspt < 0] <- NA
+  nReps     <- sum(goodReps)
+
+  # Model dims
+  tMP     <- obj$om$tMP
+  nS      <- obj$om$nS
+  nP      <- obj$om$nP 
+  nT      <- obj$om$nT
+
+
+
+}
+
+
+
+# Envelopes of simulated assessment errors
+plotTulipAssError <- function(  obj = blob,
+                                groupFolder = "diffCV_fixedF_longGrid",
+                                save = FALSE,
+                                proj = TRUE )
+{
+  
+  goodReps <- obj$goodReps
+
+  # Get biomass arrays
+  SB_ispt        <- obj$om$SB_ispt[goodReps,,,]
+  VB_ispt        <- obj$om$vB_ispft[goodReps,,,2,]
+  totB_ispt      <- obj$om$B_ispt[goodReps,,,]
+  retroSB_itspt  <- obj$mp$assess$retroSB_itspt[goodReps,,,,]
+
+  ctlList <- obj$ctlList
+
+  retroSB_itspt[retroSB_itspt < 0] <- NA
+  nReps     <- sum(goodReps)
+
+  # Model dims
+  tMP     <- obj$om$tMP
+  nS      <- obj$om$nS
+  nP      <- obj$om$nP 
+  nT      <- obj$om$nT
+
+
+  # Aggregate OM biomasses to match AM biomass
+  if( ctlList$mp$assess$spCoastwide )
+  {
+    newSB_ispt        <- apply( X = SB_ispt, FUN = sum, MARGIN = c(1,2,4), na.rm = T )
+    newVB_ispt        <- apply( X = VB_ispt, FUN = sum, MARGIN = c(1,2,4), na.rm = T )
+    newtotB_ispt      <- apply( X = totB_ispt, FUN = sum, MARGIN = c(1,2,4), na.rm = T )
+
+    SB_ispt    <- SB_ispt[,,1,,drop = FALSE]
+    SB_ispt[,,1,] <- newSB_ispt
+    VB_ispt    <- VB_ispt[,,1,,drop = FALSE]
+    VB_ispt[,,1,] <- newVB_ispt
+    totB_ispt  <- totB_ispt[,,1,,drop = FALSE]
+    totB_ispt[,,1,] <- newtotB_ispt     
+
+  }
+
+  if( ctlList$mp$assess$spDataPooled )
+  {
+    newSB_ispt        <- apply( X = SB_ispt, FUN = sum, MARGIN = c(1,3,4), na.rm = T )
+    newVB_ispt        <- apply( X = VB_ispt, FUN = sum, MARGIN = c(1,3,4), na.rm = T )
+    newtotB_ispt      <- apply( X = totB_ispt, FUN = sum, MARGIN = c(1,3,4), na.rm = T )
+
+    SB_ispt    <- SB_ispt[,1,,,drop = FALSE]
+    SB_ispt[,1,,] <- newSB_ispt
+    VB_ispt    <- VB_ispt[,1,,,drop = FALSE]
+    VB_ispt[,1,,] <- newVB_ispt
+    totB_ispt  <- totB_ispt[,1,,,drop = FALSE]
+    totB_ispt[,1,,] <- newtotB_ispt
+
+  }
+
+  SB_ispt[SB_ispt == 0]     <- NA
+  VB_ispt[VB_ispt == 0]     <- NA
+  totB_ispt[totB_ispt == 0] <- NA
+
+  nSS     <- dim( SB_ispt)[2]
+  nPP     <- dim( SB_ispt)[3]
+
+  speciesNames  <- obj$ctlList$opMod$species
+  stockNames    <- obj$ctlList$opMod$stock
+  fYear         <- obj$ctlList$opMod$fYear
+  pT            <- obj$ctlList$opMod$pT
+
+  if( nPP == 1 )
+    stockNames <- "Coastwide"
+
+  if( nSS == 1 )
+    speciesNames <- "Data Pooled"
+
+  stamp <- paste(obj$ctlList$ctl$scenarioName,":",obj$ctlList$ctl$mpName,sep = "")
+
+
+  assErr_ispt <- array(NA, dim = c(nReps,nSS,nPP,nT) )
+  for( s in 1:nSS )
+    for( p in 1:nPP )
+    {
+      # Use first year's assessment for the historical assessment error...
+      assErr_ispt[,s,p,1:(tMP-1)] <- (retroSB_itspt[,1,s,p,1:(tMP-1)] - SB_ispt[,s,p,1:(tMP-1)])/SB_ispt[,s,p,1:(tMP-1)]
+      for( tt in 1:pT )
+      {
+        # Now loop over projection years
+        tIdx <- tMP + tt - 1
+        assErr_ispt[,s,p,tIdx] <- (retroSB_itspt[,tt,s,p,tIdx] - SB_ispt[,s,p,tIdx])/SB_ispt[,s,p,tIdx]
+      }
+    }
+
+  if( save )
+  {
+    graphics.off()
+    filename <- paste("assessmentError.pdf")
+    outFile <- here::here("Outputs",groupFolder,obj$simLabel,filename)
+
+    pdf( outFile, width = 11, height = 8 )
+  }
+
+  assErr_qspt <- apply( X = assErr_ispt,
+                        FUN = quantile,
+                        probs = c(0.025, 0.5, 0.975),
+                        MARGIN = c(2,3,4) )
+
+  years <- seq(from = fYear, by = 1, length.out = nT )
+
+  if( proj )
+    tIdx <- (tMP - 1):nT
+  else
+    tIdx <- 1:nT
+
+  traces <- sample( 1:nReps, 3)
+
+  # Now plot
+  par(  mfcol = c(nPP, nSS ),
+        mar = c(.1,1.5,.1,1.5),
+        oma = c(3,3,2,2) )
+  for( s in 1:nSS )
+    for( p in 1:nPP )
+    {
+      plot( x = range(years[tIdx]),
+            y = range(assErr_qspt[,s,p,tIdx],na.rm = T ),
+            type = "n", xlab = "", ylab = "", axes = FALSE )
+        mfg <- par("mfg")
+        if( mfg[1] == mfg[3] )
+          axis( side = 1 )
+        
+        axis( side = 2, las = 1 )
+        if( mfg[2] == mfg[4] )
+          mtext( side = 4, text = stockNames[p], line = 1.5)
+        if( mfg[1] == 1 )
+          mtext( side = 3, text = speciesNames[s])
+        box()
+        grid()
+
+        # Plot baseline
+        polygon(  x = c(years,rev(years)),
+                  y = c(assErr_qspt[1,s,p,],rev(assErr_qspt[3,s,p,])),
+                  border = NA, col = "grey60")
+        lines( x = years, y = assErr_qspt[2,s,p,],
+                col = "black", lwd = 2)
+        for( traceIdx in traces )
+          lines(  x = years, y = assErr_ispt[traceIdx,s,p,],
+                  col = "black", lwd = .8 )
+
+        abline( h = 0, lty = 2, lwd = 1 )
+    }
+  mtext(  side = 1, text = "Year", outer = TRUE, line = 2 )
+  mtext(  side = 2, text = "Relative assessment error",
+          line = 2, outer = TRUE )
+
+  if(save)
+    dev.off()
+
+} # END plotTulipAssError
+
+# plotTulipBtCtBaseSim()
+# Overlays the biomass can catch tulips
+# from the baseline omniscient sim (black) and 
+# stochastic simulation (red) so we can see
+# how the different results are made
+plotTulipBtCtBaseSim <- function( sim = 1, 
+                                  groupFolder = "diffCV_fixedF_longGrid",
+                                  var         = "SB_ispt",
+                                  save        = FALSE,
+                                  fYear       = 1956,
+                                  proj        = TRUE )
+{
+  # Load loss reports
+  objLoss <- .loadLoss(sim = sim, groupFolder)
+
+  # Load blob, save reference points
+  .loadSim(sim = sim, groupFolder)
+
+  rp <- blob$rp[[1]]
+
+  scenName  <- blob$ctlList$ctl$scenarioName
+  mpName    <- blob$ctlList$ctl$mpName
+
+  stamp <- paste(scenName,":",mpName, sep = "")
+
+  EmsyMSRefPts <- rp$EmsyMSRefPts
+  FmsyRefPts   <- rp$FmsyRefPts
+
+
+  simFolder <- objLoss$simFolder
+
+  speciesNames    <- objLoss$speciesNames
+  stockNames      <- objLoss$stockNames
+
+  baseState_ispt  <- objLoss$baseStates[[var]]
+  simState_ispt   <- objLoss$simStates[[var]]
+
+  B0_isp          <- objLoss$baseStates[["SB_ispt"]][,,,1]
+
+
+  # Pull model dimensions
+  tMP <- objLoss$tMP
+  nT  <- objLoss$nT
+  nF  <- objLoss$nF
+  nS  <- objLoss$nS
+  nP  <- objLoss$nP
+  pT  <- objLoss$pT
+
+  if( proj )
+    tIdx <- (tMP-1):nT
+  else tIdx <- 1:nT
+
+  years <- seq( from = fYear, by = 1, length.out = nT )
+
+  nReps <- dim(simState_ispt)[1]
+  
+  traces <- sample(1:nReps, size = 3)
+
+  # BeqFmsySS_sp <- array(NA, dim =c(nS+1, nP+1))
+  # BeqEmsyMS_sp <- array(NA, dim =c(nS+1, nP+1))
+
+  # BeqFmsySS_sp[1:nS,1:nP] <- FmsyRefPts$BeqFmsy_sp
+  # BeqFmsySSS_sp[1:nS,p+1] <- apply( X = FmsyRefPts$BeqFmsy_sp, 
+  #                                   FUN =  )
+  
+  if( save )
+  {
+    graphics.off()
+    filename <- paste("baseSimTulipOverlay_",var,".pdf")
+    outFile <- file.path(simFolder,filename)
+
+    pdf( outFile, width = 11, height = 8 )
+  }
+
+  # put on depletion scale
+  if( var == "SB_ispt")
+  {
+    maxY_sp <- matrix(1, nrow = nS + 1, ncol = nP +1 )
+    yLab = expression(paste("Spawning biomass relative to unfished (", B[t]/B[0], ")",sep = ""))
+    for( p in 1:(nP+1) )  
+    {
+      
+      for( s in 1:(nS+1) )
+        for( i in 1:nReps)
+        {
+          baseState_ispt[i,s,p,]  <- baseState_ispt[i,s,p,] / B0_isp[i,s,p]
+          simState_ispt[i,s,p,]   <- simState_ispt[i,s,p,] / B0_isp[i,s,p]
+        }
+
+      maxY_sp[,p] <- max( baseState_ispt[,,p,tIdx], simState_ispt[,,p,tIdx])
+    }
+
+    
+  } else {
+    yLab    <- "Catch (kt)"
+    maxY_sp <- matrix(NA, nrow = nS+1, ncol = nP+1 )
+
+    for( s in 1:(nS+1))
+      for( p in 1:(nP+1))
+        maxY_sp[s,p] <- max( baseState_ispt[,s,p,tIdx], simState_ispt[,s,p,tIdx], na.rm = T )
+  }
+
+  baseState_qspt <- apply( X = baseState_ispt, FUN = quantile,
+                            probs = c(0.025, 0.5, 0.975 ),
+                            MARGIN = c(2,3,4) )
+
+  simState_qspt <- apply( X = simState_ispt, FUN = quantile,
+                            probs = c(0.025, 0.5, 0.975 ),
+                            MARGIN = c(2,3,4) )
+
+  par( mfcol = c((nP+1), nS+1),
+        mar = c(0.1,0.1,0.1,0.1),
+        oma = c(4,4.5,3,3) )
+
+  if( var == "C_ispt" )
+    par( mar = c(.1, 1.5, .1, 1.5) )
+
+
+  basePolyCol <- "grey50"
+  baseLineCol <- "black"
+  simPolyCol <- scales::alpha("red",.3)
+  simLineCol <- "red"
+
+  for( s in 1:(nS+1) )
+    for( p in 1:(nP+1) )
+    {
+      plot( x = range(years[tIdx]),
+            y = c(0, maxY_sp[s,p] ),
+            type = "n", xlab = "", ylab = "", axes = FALSE )
+        mfg <- par("mfg")
+        if( mfg[1] == mfg[3] )
+          axis( side = 1 )
+        if( mfg[2] == 1 )
+          axis( side = 2, las = 1 )
+        if( var == "C_ispt" & mfg[2] != 1 )
+          axis( side = 2, las = 1)
+        if( mfg[2] == mfg[4] )
+          mtext( side = 4, text = stockNames[p], line = 1.5)
+        if( mfg[1] == 1 )
+          mtext( side = 3, text = speciesNames[s])
+        box()
+        grid()
+
+        # Plot baseline
+        polygon(  x = c(years,rev(years)),
+                  y = c(baseState_qspt[1,s,p,],rev(baseState_qspt[3,s,p,])),
+                  border = NA, col = basePolyCol)
+        lines( x = years, y = baseState_qspt[2,s,p,],
+                col = baseLineCol, lwd = 2)
+        for( traceIdx in traces )
+          lines(  x = years, y = baseState_ispt[traceIdx,s,p,],
+                  col = baseLineCol, lwd = .8 )
+
+        # Plot stochastic sim
+        polygon(  x = c(years,rev(years)),
+                  y = c(simState_qspt[1,s,p,],rev(simState_qspt[3,s,p,])),
+                  border = NA, col = simPolyCol)
+        lines( x = years, y = simState_qspt[2,s,p,],
+                col = simLineCol, lwd = 2)
+        for( traceIdx in traces )
+          lines(  x = years, y = simState_ispt[traceIdx,s,p,],
+                  col = simLineCol, lwd = .8 )
+
+        # Plot some lines
+        abline( v = years[tMP], lty = 2, lwd = 1 )
+        if( s <= nS & p <= nP & var == "SB_ispt")
+        {
+          abline( h = FmsyRefPts$BeqFmsy_sp[s,p]/B0_isp[1,s,p], 
+                  lty = 3, lwd = 1 )
+          abline( h = EmsyMSRefPts$BeqEmsy_sp[s,p]/B0_isp[1,s,p], 
+                  lty = 4, lwd = 1 )
+        }
+
+
+    }
+  mtext( side = 1, text = "Year", outer = TRUE, line = 2 )
+  mtext( side = 2, text = yLab, outer = TRUE, line = 2 ) 
+
+  mtext( side = 1, text = stamp, outer = TRUE, line = 2.5,
+          adj = .85, cex = .6, col = "grey75")
+
+  if(save)
+    dev.off()
+
+}
+
+
+
+# plotBatchConvergenceRate()
+# Abandoned performance metric for simulations,
+# basically measuring the usefulness of a model
+# under lower data quality conditions - can be
+# used to set a threshold for including
+# results in the paper...
 plotBatchConvergenceRate <- function( groupFolder = "diffCV_newObsCV_short",
                                       prefix = "diffCV",
                                       AMlabs = c( singleStock = "singleStock",
@@ -78,7 +465,6 @@ plotBatchConvergenceRate <- function( groupFolder = "diffCV_newObsCV_short",
 
   convRateTable <- do.call(rbind, perfTableSummList )
 
-  browser()
 
   mpTable <- mpTable %>% left_join( convRateTable, 
                                     by = "simLabel" )
@@ -136,7 +522,284 @@ plotBatchConvergenceRate <- function( groupFolder = "diffCV_newObsCV_short",
 
 
 
+} # END plotBatchConvergenceRate()
+
+
+# plotBatchLossDists_CV()
+# Multi-panel plot of relative and absolute
+# loss under a batch of MPs for all stock/species
+# combinations, including data-pooled and 
+# coast-wide aggregations.
+plotBatchLossDists_CV <- function(  groupFolder = "diffCV_fixedF_longGrid",
+                                    prefix = "sim_parBatfixedF",
+                                    lossType = "abs",
+                                    var = "C_ispt",
+                                    period = 62:72,
+                                    lossList = NULL,
+                                    dim1 = 3,   # species (D,E,R, DP)
+                                    dim2 = 1,   # stocks (H,Q,W, CW)
+                                    qProbs = c(.05,.5,.95),
+                                    refPts = "MSrefPts" )
+{
+  # First, read info files from the relevant
+  # sims
+  
+  simFolderList <- list.dirs(here::here("Outputs",groupFolder),recursive = FALSE)
+  simFolderList <- simFolderList[grepl(prefix, simFolderList)]
+
+  infoFiles     <- lapply(  X = file.path(simFolderList,"infoFile.txt"),
+                            FUN = lisread )
+
+
+  if( lossType == "rel" )
+  {
+    lossArrayName <- "totRelLoss_isp"
+    yLab <- "Total Relative Loss"
+  }
+
+  if( lossType == "abs" )
+  {
+    lossArrayName <- "totAbsLoss_isp"
+    yLab <- "Total Absolute Loss (kt)"
+  }
+
+  # Break up MP names into factor levels
+  # MP labels are AM_Fsrce_eqbm
+  splitMP <- function(  mpLab, 
+                        breaks = "_",
+                        factorNames = c("AM","Fsrce","eqbm") )
+  {
+    splitMP <- stringr::str_split(mpLab, breaks)[[1]]
+
+    outList <- vector(  mode = "list", 
+                        length = length(splitMP) )
+    names(outList) <- factorNames
+    for( k in 1:length(splitMP))
+      outList[[k]] <- splitMP[k]
+
+    outList
+  }
+
+
+
+  for( lIdx in 1:length(infoFiles) )
+  {
+    infoFiles[[lIdx]] <- c(infoFiles[[lIdx]], splitMP(infoFiles[[lIdx]]$mp))
+    infoFiles[[lIdx]] <- as.data.frame(infoFiles[[lIdx]])
+  }
+
+  info.df <- do.call(rbind, infoFiles) %>% 
+              mutate_if(is.factor, as.character)
+
+  if( !is.null(refPts) )
+    info.df <- info.df %>% filter( eqbm == refPts )
+
+
+
+
+  splitCVmult <- function( scenName )
+  {
+    splitUnderscore <- stringr::str_split( scenName, "_" )[[1]][2]
+
+    splitObsErr     <- stringr::str_split( splitUnderscore, "obsErr")[[1]][1]
+
+    CV <- as.numeric(splitObsErr)
+
+    CV
+  }
+
+  info.df<- info.df %>%
+              mutate( CVmult = sapply( X = scenario, FUN = splitCVmult) )
+
+
+  # Load loss files, place in a list
+  simFolderNames  <- info.df$simLabel
+  if( is.null(lossList) )
+  {
+    lossList        <- lapply(  X = simFolderNames,
+                                FUN = .loadLoss,
+                                folder = groupFolder )
+    names(lossList) <- simFolderNames
+  }
+  
+
+  # Calculate total loss for variable/period
+  totLossList  <- lapply( X = lossList,
+                          FUN = calcTotalLossPeriod,
+                          var = var, period = period )
+  names(totLossList) <- names(lossList)
+
+
+  nS  <- lossList[[1]]$nS
+  nP  <- lossList[[1]]$nP
+  nT  <- lossList[[1]]$nT
+  tMP <- lossList[[1]]$tMP
+  pT  <- lossList[[1]]$pT
+
+  # Get number of MPs
+  nSims <- length(lossList)
+
+
+  AMs       <- unique(info.df$AM)
+  Fsources  <- unique(info.df$Fsrce)
+  eqbm      <- unique(info.df$eqbm)
+  MPs       <- unique(info.df$mp)
+  CVs       <- unique(info.df$CVmult)
+  CVs       <- CVs[order(CVs)]
+
+  nAM       <- length(AMs)
+  nSrce     <- length(Fsources)
+  nEqbm     <- length(eqbm)
+  nMP       <- length(MPs)
+
+
+
+  # Some axis labels and translations from
+  # simple axis label to info file AM name
+  AMcodes <- c( SS = 1,
+                MS = 2,
+                DP = 3,
+                CW = 4,
+                TA = 5 )
+
+  AMdictionary <- c(  singleStock     = "SS",
+                      hierMultiStock  = "MS",
+                      dataPooled      = "DP",
+                      coastwide       = "CW",
+                      totalAgg        = "TA" )
+
+  AMcols          <- RColorBrewer::brewer.pal(nAM, "Dark2")
+  names(AMcols)   <- names(AMdictionary)
+  eqbmPCH  <- 15 + 1:nEqbm
+  names(eqbmPCH) <- eqbm
+  FsrceLTY   <- 1:nSrce
+  names(FsrceLTY)  <- Fsources
+
+
+  MPgrid <- list( AMs = names(AMdictionary),
+                  Fsrce = Fsources,
+                  eqbm = eqbm )
+
+  MPgrid <- expand.grid(MPgrid)
+
+
+  xJitter <- seq(from = -.4, to = .4, length.out = nMP )
+
+
+  nReps         <- dim(lossList[[1]]$lossRel[[var]])[1]
+  speciesNames  <- lossList[[1]]$speciesNames
+  stockNames    <- lossList[[1]]$stockNames
+
+  # Make an array to hold loss function values
+  totLossArray_misp <- array(NA,  dim = c(nSims, nReps, nS+1, nP+1 ),
+                                  dimnames = list(  simID = info.df$simLabel,
+                                                    rep = 1:nReps,
+                                                    species = speciesNames,
+                                                    stock = stockNames ) )
+
+  for( k in 1:nSims )
+  {
+    simID <- info.df$simLabel[k]
+    totLossArray_misp[k,,,] <- totLossList[[simID]][[lossArrayName]] 
+  }
+
+  totLossQuantiles_qmsp <- apply( X = totLossArray_misp,
+                                  FUN = quantile,
+                                  probs = qProbs,
+                                  MARGIN = c(1,3,4) )
+
+  # Start plotting windows
+  nSpec   <- length(dim1)
+  nStock  <- length(dim2) 
+
+  par(  mfrow = c(nSpec,nStock),
+        mar = c(0.2,1.5,.2,1),
+        oma = c(3,3,3,3) )
+
+  for( sIdx in 1:nSpec )
+    for( pIdx in 1:nStock )
+    {
+      s <- dim1[sIdx]
+      p <- dim2[pIdx]
+
+      lossRange <- max(abs(range(totLossQuantiles_qmsp[,,s,p])))
+
+      plot( y = c(0,lossRange), x = c(0.5,3.5),
+            type = "n", axes = FALSE  )
+        
+        mfg <- par("mfg")
+        if( mfg[1] == mfg[3])
+          axis( side = 1, at = 1:length(CVs), labels = CVs )
+
+        axis( side = 2, las = 1 )
+
+        if( mfg[1] == 1 )
+          mtext( side = 3, text = speciesNames[s], font = 2, line = 1 )
+
+        if( mfg[2] == mfg[4] )
+          mtext( side = 4, text = stockNames[p], font = 2, line = 1 )
+
+        grid()
+        box()
+        
+        jitIdx <- 0
+        for( amIdx in 1:nAM )
+          for( eqIdx in 1:nEqbm )
+          {
+            jitIdx <- jitIdx + 1
+            AMid    <- names(AMdictionary)[amIdx]
+            eqbmID  <- eqbm[eqIdx]
+            
+            subInfo <- info.df %>%
+                        filter( AM    == AMid,
+                                eqbm  == eqbmID ) %>%
+                        arrange( CVmult )
+            
+            simLabels <- subInfo$simLabel
+            
+            FsrceID <- subInfo$Fsrce[1]
+            AMcode  <- AMdictionary[amIdx]
+
+            MPlab <- paste( AMid, FsrceID, eqbmID, sep = "_")
+
+            points( x = 1:3 + xJitter[jitIdx],
+                    y = totLossQuantiles_qmsp[2,simLabels,s,p],
+                    pch = eqbmPCH[eqbmID],
+                    col = AMcols[AMid], cex = 1.5 )
+            # lines(  x = 1:3 + xJitter[jitIdx],
+            #         y = totLossQuantiles_qmsp[2,simLabels,s,p],
+            #         lty = 1, lwd = .8, col = AMcols[AMid] )
+
+            segments( y0 = totLossQuantiles_qmsp[1,simLabels,s,p],
+                      y1 = totLossQuantiles_qmsp[3,simLabels,s,p],
+                      x0 = 1:3 + xJitter[jitIdx],
+                      lty = FsrceLTY[FsrceID],
+                      col = AMcols[AMid], lwd = 2  )
+
+            abline( v = 1:2 + .5,
+                    col = "black", lty = 2, lwd = 3 )
+
+
+          }
+
+      }
+
+
+  legend( x       = "bottomright",
+          bty     = "n",
+          legend  = c(AMdictionary,eqbm),
+          pch     = c(rep(NA,5),eqbmPCH),
+          lty     = c(rep(1,5),NA,NA),
+          col     = c(AMcols,"black","black"),
+          lwd     = 2 )
+
+
+  mtext( side = 2, outer = TRUE, text = yLab, line = 2 )
+  mtext( side = 1, outer = TRUE, text = "Observation Error SD multiplier ", line = 2 )
+
+  
 }
+
 
 # plotBatchLossDists()
 # Multi-panel plot of relative and absolute
@@ -500,16 +1163,19 @@ plotLossTulip <- function(  sim = 1,
   years   <- seq(from = fYear, by = 1, length.out = nT)
 
   if( save )
+  { 
+    graphics.off()
     pdf( file = file.path(simFolder,paste(lossType,var,"LossEnvelopes.pdf",sep = "_")),
           width = 11, height = 8.5 )
+  }
 
   # Plot window - just for loss right now
   par(  mfcol = c(nS + 1, nP + 1),
         mar = c(.5,.5,.5,.5),
         oma = c(3,3,3,3) )
 
-  speciesNames  <- c(blob$om$speciesNames,"data-pooled")
-  stockNames    <- c(blob$om$stockNames,"coast-wide")
+  speciesNames  <- c(objLoss$speciesNames,"data-pooled")
+  stockNames    <- c(objLoss$stockNames,"coast-wide")
 
   loss_qspt <- apply( X = loss_ispt, FUN = quantile,
                       probs = c(0.025, 0.5, 0.975),
@@ -567,6 +1233,76 @@ plotLossTulip <- function(  sim = 1,
 
 } # END plotLoss()
 
+plotSSvsMSrefPts <- function( obj = blob )
+{
+  # Pull reference points and curves
+  rp            <- obj$rp[[1]]
+  refCurves     <- rp$refCurves
+  EmsyRefPts    <- rp$EmsyRefPts
+  EmsyMSRefPts  <- rp$EmsyMSRefPts
+  FmsyRefPts    <- rp$FmsyRefPts
+
+  nP  <- obj$om$nP
+  nS  <- obj$om$nS
+  tMP <- obj$om$tMP
+  nT  <- obj$om$nT
+
+  # Pull qF
+  qF_sp       <- blob$om$qF_ispft[1,,,2,nT]
+  
+  speciesNames <- blob$om$speciesNames
+  stockNames   <- blob$om$stockNames
+
+  # Want to compare Umsy and Bmsy between
+  # multi-stock and single-stock models
+  BmsySS_sp <- FmsyRefPts$BeqFmsy_sp
+  BmsyMS_sp <- EmsyMSRefPts$BeqEmsy_sp
+
+  UmsySS_sp <- FmsyRefPts$Umsy_sp
+  UmsyMS_sp <- EmsyMSRefPts$Umsy_sp  
+
+  B0_sp     <- obj$ctlList$opMod$histRpt$B0_sp
+
+  speciesCols <- RColorBrewer::brewer.pal(n = nS, "Set2")
+
+  cols_sp   <- matrix(  speciesCols, nrow = nS, ncol = nP,
+                        byrow = FALSE )
+  pch_sp    <- matrix(  21:23, nrow = nS, ncol = nP, 
+                        byrow = TRUE )
+
+
+  par(  mfrow = c(1,2),
+        mar = c(1.5,4,0,0),
+        oma = c(2,1,1,1) )
+
+  # First plot Umsy
+  plot( x = c(0,max(UmsySS_sp, UmsyMS_sp) ),
+        y = c(0,max(UmsySS_sp, UmsyMS_sp) ),
+        type = "n", 
+        xlab = "", 
+        ylab = "", las = 1 )
+    mtext(side =1, text = "Single-species Umsy", line = 2 )
+    mtext(side =2, text = "Multi-species Umsy", line = 3 )
+    points( x = UmsySS_sp, y = UmsyMS_sp,
+            cex = 3 * B0_sp / max(B0_sp),
+            bg = cols_sp, pch = pch_sp )
+    abline( a = 0, b = 1, lty = 2 )
+
+  # First plot Umsy
+  plot( x = c(0,max(BmsySS_sp, BmsyMS_sp) ),
+        y = c(0,max(BmsySS_sp, BmsyMS_sp) ),
+        type = "n", las = 1,
+        xlab = "", 
+        ylab = "" )
+    mtext(side =1, text = "Single-species Bmsy", line = 2 )
+    mtext(side =2, text = "Multi-species Bmsy", line = 2 )
+    points( x = BmsySS_sp, y = BmsyMS_sp,
+            cex = 3 * B0_sp / max(B0_sp),
+            bg = cols_sp, pch = pch_sp )
+    abline( a = 0, b = 1, lty = 2 )
+
+
+} # END plotSSvsMSrefPts
 
 
 # plotEffYieldCurves()
@@ -667,7 +1403,7 @@ plotEffYieldCurves <- function( obj = blob )
                     MSYMS_p = MSYMS_p,
                     MSYSS_sp = MSYSS_sp,
                     MSYMS_sp = MSYMS_sp )
-}
+} # END plotEffYieldCurves()
 
 # plotEmpYieldCurves
 # Function to plot median simuated yield 
@@ -1608,7 +2344,8 @@ plotTulipTACu <- function( obj = blob, nTrace = 3 )
 plotTulipBt <- function(  obj = blob, nTrace = 3,
                           dep = FALSE,
                           ref = "B0",
-                          Ct  = FALSE )
+                          Ct  = FALSE,
+                          leg = TRUE )
 {
   goodReps <- obj$goodReps
 
@@ -1689,9 +2426,11 @@ plotTulipBt <- function(  obj = blob, nTrace = 3,
 
   traces <- sample( 1:nReps, size = min(nTrace,nReps)  )
 
+  stamp <- paste(blob$ctlList$ctl$scenarioName,":",blob$ctlList$ctl$mpName,sep = "")
+
   par(  mfcol = c(nP,nS), 
         mar = c(1,1.5,1,1.5),
-        oma = c(3,3,3,3) )
+        oma = c(4,3,3,3) )
 
 
   for(s in 1:nS)
@@ -1740,8 +2479,8 @@ plotTulipBt <- function(  obj = blob, nTrace = 3,
       abline( h = BmsySS_sp[s,p], lty = 3, col = "darkgreen", lwd = 2)
       abline( h = BmsyMS_sp[s,p], lty = 3, col = "steelblue", lwd = 2)
 
-      if( mfg[1] == 1 & mfg[2] == 1 )
-        legend( x = "bottomleft", bty = "n",
+      if( mfg[1] == 1 & mfg[2] == 1 & leg )
+        legend( x = "topright", bty = "n",
                 legend = c( "Median Spawning Biomass", 
                             "Central 95%",
                             "Replicate Traces",
@@ -1760,6 +2499,9 @@ plotTulipBt <- function(  obj = blob, nTrace = 3,
 
   mtext( side = 1, outer = TRUE, text = "Year",
           line = 2, font = 2)
+
+  mtext(  outer = TRUE, side = 1, adj = .8, line = 3, cex = .6,
+            text = stamp, col = "grey60" )
 }
 
 # plotTulipEffort_p()
@@ -2211,11 +2953,13 @@ plotRetroSBagg <- function( obj = blob, iRep = 1, Ct = TRUE )
   if( nSS == 1 )
     speciesNames <- "Data Pooled"
 
+  stamp <- paste(blob$ctlList$ctl$scenarioName,":",blob$ctlList$ctl$mpName,":",iRep,sep = "")
+
   yrs <- seq( from = fYear, by = 1, length.out = nT)
 
   par(  mfcol = c(nPP,nSS), 
         mar = c(1,1.5,1,1.5),
-        oma = c(3,3,3,3) )
+        oma = c(4,3,3,3) )
   for(s in 1:nSS)
     for( p in 1:nPP )
     {
@@ -2261,6 +3005,11 @@ plotRetroSBagg <- function( obj = blob, iRep = 1, Ct = TRUE )
   
       abline( v = yrs[tMP] - 0.5, lty = 2, lwd = 0.5 )
     }
+  mtext( side = 1, text = "Year", outer = TRUE, line = 2, font = 2)
+  mtext( side = 2, text = "Spawning Biomass, TAC, and Catch (kt)", 
+          outer = TRUE, line = 2, font = 2)
+  mtext(  outer = TRUE, side = 1, adj = .8, line = 3, cex = .6,
+            text = stamp, col = "grey60" )
 
 }
 

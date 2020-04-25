@@ -3,12 +3,12 @@
 ## British Columbia's flatfish fishery
 
 British Columbia's complex of right-eyed flounders is 
-a spatially diverse and interacting group. While the
+a spatially diverse, technically interacting group. While the
 there are several right-eyed flounders in BC waters, we 
 will focus only on Dover sole (*Microstomus pacficus*), 
 English sole (*Parophrys vetulus*), and southern rock sole 
-(*Lepidopsetta bilineata*), which we refer to as rock sole 
-here. Taken together, we denote the Dover, English and rock sole 
+(*Lepidopsetta bilineata*), which we hereafter refer to as rock 
+sole. Taken together, we denote the Dover, English and rock sole 
 multi-stock complex as the DER complex. We chose the DER complex
 as it is managed as part of the BC groundfish fishery, all three 
 species have the same management unit boundaries, and are
@@ -18,30 +18,35 @@ bottom trawl fleet.
 The DER complex is managed in three spatially distinct stock
 areas, which line up with aggregates of BC groundfish management
 areas, which are themselves made up of groups of Pacific Fishery
-Management Areas [@PRIFMP2015]. From North to South, the first extends 
-from Dixon Entrance, north of Haida Gwaii, south through 
-Hecate Strait; we refer to it as the Hecate Strait/Haida 
+Management Areas [@PRIFMP2015]. From North to South, the first 
+stock area extends from Dixon Entrance, north of Haida Gwaii, 
+south through Hecate Strait; we refer to it as the Hecate Strait/Haida 
 Gwaii (HSHG) stock, and it corresponds to BC groundfish 
 area 5CDE. The second stock area is Queen Charlotte Sound 
 (QCS), or BC groundfish area 5AB. Finally, the third
 area extends along the West Coast of Vancouver Island (WCVI) 
 from its northern tip down to the entrance to Juan de Fuca Strait,
-and corresponds to BC groundfish area 3CD.
+and corresponds to BC groundfish area 3CD. [ADD MAP]
 
 All species in the DER complex have experienced exploitation
-since before 1956 (Figure 1). At that time, Dover sole was only 
+since at least 1956 (Figure 1). At that time, Dover sole was only 
 lightly exploited, with full commercial exploitation
 beginning only in the 1970s (Fig. 1, first column). 
 In contrast, English and rock sole fisheries have been 
 very active in the HSHG area, where the largest biomass 
-is concentrated  for those species, with fishing 
-activity in QCS and WCVI areas more variable 
+is concentrated for those species. English and rock sole
+fishing activity in QCS and WCVI areas is more variable 
 over time (Figure 1, rows 2 and 3).
 
-- Stock status, reference points,
-data series observation error CVs as estimated
-by hierSCAL (table)
-
+Despite a long history of explotitation, and in some cases
+recovery from near collapse, most DER complex stocks were 
+in state more like developing fisheries in 2016 [REF].
+All DER complex stocks were in a healthy state, with
+current spawning biomasses above 80% of $B_{MSY}$, and 
+all but three cases at or above $B_{MSY}$ (Table 1). 
+Moreover, some stocks were actively recovering from their
+historic low biomasses, like English sole in HSHG, and 
+Rock sole in HSHG and WCVI.
 
 
 
@@ -100,6 +105,53 @@ trawl survey catchability, and selectivity-at-length
 parameters. We refer readers to Appendix A for a more 
 detailed exposition.
 
+#### Fishing effort, fishing mortality, and optimal yield
+
+We allocated maximum fishing effort to each area. 
+Maximum effort was defined as the amount required to
+fully utilise the TAC of at least one species, 
+but never exceed any of the three species' TACs. 
+Effort was then supplied to the operating model to
+generate realised fishing mortality among
+species and stock areas as
+\begin{equation}
+F_{s,p,f,t} = \bar{q}^{(F)}_{s,p,f} * E_{p,f,t},
+\end{equation}
+where $\bar{q}^{(F)}_{s,p,f}$ is the 
+ratio of estimated fishing mortality rates to 
+fishing effort in the last year of the conditioning 
+assessment. Historical fishing effort was estimated by taking 
+the average ratio
+\begin{equation}
+E_{p,f,t} = \bar{\frac{C_{s,p,f,t}}{I'_{s,p,f,t}}}
+\end{equation}
+where $I'_{s,p,f,t}$ is unstandardized commercial
+CPUE (in kg/hour), and $C_{s,p,f,t}$ is the total 
+catch in kt. We averaged this ratio over species within a stock area to 
+account for years in which there were missing CPUE
+observations (**WHY NOT TAKE MAX?? WHAT ABOUT SMOOTHING??
+CHECK UNITS, COULD PROBABLY DO WITH A PLOT**).
+
+We chose to use maximum effort over an effort dynamics
+model because of (i) its simplicity and (ii) its similarity 
+to other MSE simulations for BC fisheries. We considered 
+including an effort dynamics model to allocate a pool 
+of effort over the three areas [@hilborn1987general;
+@walters1999multispecies], but determined that this was
+not necessary for determining the management performance 
+of the multiple assessment models that we are testing.
+Furthermore, although the BC groundfish fishery balances
+the utilisation of many more than three TACs in practice,
+avoiding fully utilising TACs to account for future bycatch,
+we found that the maxmium effort model effectively 
+simulated the TAC under-utilisations for two species 
+out of the three. Finally, BC sablefish, herring, and
+outside yelloweye rockfish use full TAC utilisation 
+in their management simulations
+[@cox2019evaluating;**INSERT HERRING and OYE CSAS HERE**],
+under the assumption that full TAC utilisation provides
+and upper bound on the management risk.
+
 We defined a multi-species maximum sustainable yield 
 $MSY_{MS,p}$ for each area $p$ by using the relationship 
 between trawl fishing effort and species-specific 
@@ -122,17 +174,22 @@ equilibria [@mueter2006using], but explicitly includes
 the differential catchability of technically interacting 
 species.
 
-
 ### Management Procedures
 
 We tested ten management procedures in total,
 which were made up of a factorial combination
-of five assessment models and two target
-harvest rates (Table X). Assessment models and
+of five surplus production stock assessment models
+and two target harvest rates (Table X). Assessment models and
 target harvest rates are defined in the following
-sections.
+sections. We chose to restrict
+ourselves to this small set, as this would
+allow us to focus on the management performance
+of the range of models and the two harvest rates 
+under different data quality scenarios, rather than 
+the interaction between the assessment model and 
+other management procedure components.
 
-### Surplus production stock assessment models
+#### Surplus production stock assessment models
 
 Management procedures determined stock
 status using a flexible process-error surplus 
@@ -205,16 +262,25 @@ biomass estimate $\hat{B}_{t+1}$ for the following
 time step.
 
 
-### Harvest control rule
+#### Harvest control rule
 
 To set catch limits for a given stock, or data-pooled complex,
 we applied a constant target harvest rate. We tested two
-harvest rates, which were either the single species $U_{MSY,SS}$,
+harvest rates, which were either the single-species $U_{MSY,SS}$,
 or multi-species $U_{MSY,MS}$ optimal harvest rates derived 
 from operating model equilibrium yield curves. We computed
 optimal harvest rates for data-pooled or coast-wide assessment 
 model structures by summing the optimal yield $MSY$ and 
-biomass $B_{MSY}$ values 
+exploitable biomass $B_{MSY}$ values of the component 
+stocks, e.g. for a data pooled complex in the HSHG stock area,
+the multi-species optimal harvest rate was calculated as
+\begin{equation}
+U_{MSY,HSHG,MS} = \frac{\sum_{s} MSY_{s,HSHG,MS} }{ \sum_{s} B_{MSY,s,HSHG,MS} },
+\end{equation}
+where $MSY_{s,HSHG,MS}$ is the optimal yield for species $s$
+in the HSHG stock area from the multi-species effort-yield
+curve defined in section X above, and $B_{MSY,s,HSHG,MS}$ is
+the equilibrium spawning biomass that produces $MSY_{s,HSHG,MS}$.
 
 <!-- ramped precuationary harvest control 
 rule, following Canadian federal policy [@DFO2006A-Harvest-Strat]:
@@ -237,15 +303,17 @@ of target harvest rate and projected biomass
 TAC_{t+1} = U \cdot \hat{B}_{t+1},.
 \end{equation}
 where $U$ is the optimal harvest rate for either the 
-single-species or multi-species equilibrium yield curves.
-In situations where the assessment model scale matched
-the operating model scale, then TACs were passed directly
-to the effort allocation model. In other cases when data were
-pooled or stock structure was ignored, we defined rules
-for allocating TAC among areas and species. 
+single-species or multi-species equilibrium yield curves,
+and stock aggregation level. In management procedures where 
+the assessment model estimated biomass for each individual 
+stock (i.e. single-stock and hierarchical multi-stock AMs), 
+then TACs were passed directly to the effort allocation 
+model. In the remaining procedures where data were pooled or 
+stock structure was ignored, we allocated the pooled TAC 
+among areas and species.  **DELTA TAC UP**
 
 For splitting TACs within an area or across spatial
-strata when data has been pooled, we split them according to 
+strata when data had been pooled, we split them according to 
 the relative contribution of each individual index to the 
 pooled data. For example, if the pooled biomass 
 index for stock area $p$ in time step $t$ was the sum of species
@@ -259,54 +327,6 @@ TAC_{s,p,t+1} = \frac{I_{s,p,t}}{I_{p,t}} TAC_{p,t+1}.
 \]
 The analogous apportionment holds for all data aggregation
 MPs.
-
-### Fishing effort, fishing mortality, and optimal yield
-
-We allocated maximum fishing effort to each area. 
-Maximum effort was defined as the amount required to
-fully utilise the TAC of at least one species, 
-but never exceed any of the three species' TACs. 
-Effort was then supplied to the operating model to
-generate realised fishing mortality among
-species and stock areas as
-\begin{equation}
-F_{s,p,f,t} = \bar{q}^{(F)}_{s,p,f} * E_{p,f,t},
-\end{equation}
-where $\bar{q}^{(F)}_{s,p,f}$ is the 
-ratio of estimated fishing mortality rates to 
-fishing effort in the last year of the conditioning 
-assessment. Historical fishing effort was estimated by taking 
-the average ratio
-\begin{equation}
-E_{p,f,t} = \bar{\frac{C_{s,p,f,t}}{I'_{s,p,f,t}}}
-\end{equation}
-where $I'_{s,p,f,t}$ is unstandardized commercial
-CPUE (in kg/hour), and $C_{s,p,f,t}$ is the total 
-catch in kt. We averaged this ratio over species within a stock area to 
-account for years in which there were missing CPUE
-observations (**WHY NOT TAKE MAX?? WHAT ABOUT SMOOTHING??
-CHECK UNITS, COULD PROBABLY DO WITH A PLOT**).
-
-We chose to use maximum effort over an effort dynamics
-model because of (i) its simplicity and (ii) its similarity 
-to other MSE simulations for BC fisheries. We considered 
-including an effort dynamics model to allocate a pool 
-of effort over the three areas [@hilborn1987general;
-@walters1999multispecies], but determined that this was
-not necessary for determining the management performance 
-of the multiple assessment models that we are testing.
-Furthermore, although the BC groundfish fishery balances
-the utilisation of many more than three TACs in practice,
-avoiding fully utilising TACs to account for future bycatch,
-we found that the maxmium effort model effectively 
-simulated the TAC under-utilisations for two species 
-out of the three. Finally, BC sablefish, herring, and
-outside yelloweye rockfish use full TAC utilisation 
-in their management simulations
-[@cox2019evaluating;**INSERT HERRING and OYE CSAS HERE**],
-under the assumption that full TAC utilisation provides
-and upper bound on the management risk.
-
 
 
 ## Simulation experiments and performance
@@ -351,13 +371,13 @@ data.
 
 
 
-### OM scenarios?? MAY TAKE OUT
-
+### Operating model data quality scenarios
 
 Synoptic Survey observation error standard deviation scenarios:
-2. 0.5 times current SD: $\tau_{s,p,f,proj} = 0.5 \cdot \tau_{s,p,f}$;
-3. Current $\tau_{s,p,f}$ value from conditioning;
-4. 1.5 times current SD: $\tau_{s,p,f,proj} = 2 \cdot \tau_{s,p,f}$;
+
+1. half of current SD: $\tau_{s,p,f,proj} = 0.5 \cdot \tau_{s,p,f}$;
+2. current $\tau_{s,p,f}$ value from conditioning;
+3. twice current SD: $\tau_{s,p,f,proj} = 2 \cdot \tau_{s,p,f}$;
 
 In each scenario, we ramped the simulated Synoptic survey
 biomass index observation error standard deviation from 
@@ -365,29 +385,15 @@ the historical estimate to the new value over the first 5
 years of the projection. Ramping the observation errors
 simulated a slow increase or decrease in scientific investment,
 rather than an all at once improvement. We used an upper limit
-of 1.5 times the OM value in our scenarios because the average
-OM observation error SD across all stocks was around $0.5$ for 
-the synoptic survey, which is already very uninformative, 
-and in preliminary simulations we found that the 
-convergence rate of single-stock and hierarchical 
-multi-stock assessment model configurations 
-became much lower when.
+of twice the historical OM standard deviation in our scenarios 
+because the average OM observation error SD across all 
+stocks was around $0.5$ for the synoptic survey, which was 
+already somewhat uninformative, and in preliminary 
+simulations we found that the convergence of 
+single-stock and hierarchical multi-stock assessment 
+model configurations became much lower when Synoptic
+trawl survey standard deviations were increased any higher.
 
-
-
-### Management procedures
-
-We tested ten MPs, which were factorial combinations
-of the five assessment model configurations outlined above,
-and the two target harvest rates, corresponding
-to optimal yield when considering a single-species or
-the multi-species complex in each area. We chose to restrict
-ourselves to this small set, as this would
-allow us to focus on the management performance
-of the range of models and the two harvest rates 
-under different data quality scenarios, rather than 
-the interaction between the assessment model and 
-other management procedure components.
 
 ### Omniscient manager simulations
 
@@ -502,14 +508,18 @@ was exposed to.
 ### Performance metrics
 
 
+**Consider removing relative loss from the metrics, as
+the rankings of MPs are the same under both, and more concrete
+to talk about loss in absolute terms**
+
 We measured the performance of the stochastic MPs by comparing
 the realised catch and biomass trajectories to those
 of the omniscient manager simulations. For each random
 seed, the relative and absolute loss of catch and biomass
 was calculated as [@walters1998evaluation]:
 \begin{align}
-L_{abs} &= \sum_{t} | X_{t,MP} - X_{t,omni} |, \\
-L_{rel} &= \sum_{t} |X_{t,MP} - X_{t,omni}|/X_{t,omni}, 
+L_{abs} &= \sum_{t = T_1}^{T_2} | X_{t,MP} - X_{t,omni} |, \\
+L_{rel} &= \sum_{t = T_1}^{T_2} | X_{t,MP} - X_{t,omni}|/X_{t,omni}, 
 \end{align}
 where the $X_{t,MP}$ values are either catch or spawning
 biomass series from the MP runs or the omniscient manager
@@ -517,12 +527,17 @@ simulation. Each loss function was calculated on the
 appropriate scale for the MP; that is, the single stock 
 and full multi-stock MPs calculate loss for all 9 stocks, 
 while the data pooled and coastwide MPs calculate loss on 
-the aggregate level. Using the appropriate scale
-avoids consideration of the TAC allocation method in
-the MP performance. When repeated over all random seed values, 
+the aggregate level. When repeated over all random seed values, 
 the loss functions generate a distribution of biomass and 
 catch loss, which we compare for performance of each 
 stochastic MP.
+
+We calculated loss functions for the ten projection year
+period $T_1 = 2026$ to $T_2 = 2035$. We chose a time period 
+in the middle of the projection period because loss in the 
+earlier time periods is optimistically biased. The bias comes
+from the the TAC smoother that restricts TACs from 
+increasing by more than 20% in each year.
 
 <!-- We also used the proportion of simulations in which the
 assessment model converged as a performance metric. Convergence
@@ -534,7 +549,7 @@ single-stock and hierarchical multi-stock models failed to
 converge on some stocks more often.   -->
 
 
-### Sensitivity runs
+## Sensitivity runs
 
 Given the need for informative prior distributions to stabilise
 the assessment model behaviour in simulations, we also

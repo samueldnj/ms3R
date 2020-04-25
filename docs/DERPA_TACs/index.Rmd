@@ -1,5 +1,5 @@
 ---  
-title: "Evaluating of data-limited multi-species fisheries management using data-pooling and hierarchical stock assessment models to set catch limits."
+title: "Evaluating data-limited methods for setting TACs in data-limited spatially structured multi-species fisheries: lumping, splitting, or something in between?"
 author: 
   - Samuel D. N. Johnson (corresponding)
   - Sean P. Cox
@@ -27,15 +27,27 @@ abstract:
     fishery independent observations or limited biologica data, or the 
     structure of the management decision is mismatched to the spatial structure of the system, 
     exemplified by aggregating multiple spatial stocks or species into one management unit. In
-    those situations, assessments may either 
+    those situations, assessments will usually estimate an average productivity for the 
+    complex, leading to underfishing for some members, and overfishing for others.
     In this paper, we simulate a spatially structured, multi-species flatfish fishery, and
     test the performance of multiple management procedures that are based on assessment methods 
     often used to deal with data limitations in multi-species fisheries, including 
     data-pooling across spatial strata or across multiple species. Procedure performance
-    is measured as absolute or relative loss in catch and biomass compared to the outcome 
-    of omniscient manager simulations. To include technical interactions in our management system,
-    we defined harvest control rules that used the equilibrum fishing mortality rates 
-    derived from omniscient manager simulations. We found that..."
+    is measured as absolute loss in catch and biomass compared to the outcome 
+    of omniscient manager simulations where the objective was to maximise
+    complex yield. To include technical interactions in our management system,
+    we defined harvest control rules that used the optimal equilibrum fishing effort 
+    derived from the omniscient manager simulations. We found that the performance
+    of a management procedure relative to omniscient management was largely
+    dependent on whether the most catchable (or choke) species in each 
+    area had TACs set to an optimal level. If the choke species has the 
+    'optimal' TAC, and the other species in the complex had TACs that 
+    would overfish, then the entire complex would be managed closer to 
+    the levels of the omniscient manager. If the choke species TAC was 
+    set too high, then the outcomes would be to generally overfish the
+    complex, and similarly, if the choke species TAC was set too low
+    then TACs would be left underfished for the complex.
+    "
 date: \today
 bibliography: /Users/sdnjohnson/Work/Library/library.bib
 natbib: true
@@ -47,9 +59,9 @@ fontsize: 12pt
 lineno: true
 csl-refs: true
 params:
-  groupFolder: "JSel_shortGrid"
-  baseline: "sim_parBatomniRuns_short_EmsyMult3"
-  history: "fit_26022020233355"
+  groupFolder: "diffCV_fixedF_longGrid"
+  baseline: "sim_parBatomniRuns_Long3"
+  history: "fit_28032020144113"
 numbersections: false
 appendix: false
 output: 
@@ -86,7 +98,7 @@ library(knitr)
 if (is_latex_output()) {
   knitr_figs_dir <- "knitr-figs-pdf"
   knitr_cache_dir <- "knitr-cache-pdf"
-  fig_out_type <- "png"
+  fig_out_type <- "pdf"
   kable_format <- "latex"
 } else {
   knitr_figs_dir <- "knitr-figs-docx"
@@ -95,7 +107,7 @@ if (is_latex_output()) {
   kable_format <- "pandoc"
 }
 fig_asp <- 0.618
-fig_width <- 9
+fig_width <- 6
 fig_out_width <- "6in"
 fig_dpi <- 180
 fig_align <- "center"

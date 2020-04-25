@@ -20,7 +20,33 @@ for( simIdx in 1:nrow(info.df))
 
 ```
 
-## Omniscient manager simulations and multispecies equilibria
+## Multi-species complex equilibria
+
+We found that the optimal harvest rate and spawning-stock biomass 
+from the multi-species complex yield curves followed a similar
+pattern across the three stock areas (Figure 2). In all areas, 
+the optimal fishing effort for the area led to a slightly higher 
+optimal harvest rate for Dover sole when compared to the 
+single-species optima. In contrast, both English and rock sole 
+had slightly lower optimal harvest rates than their single-species 
+optima. In the HSHG area, where all three species had the 
+highest biomasses, the multi-species optimal effort lay close 
+to the single-species optimal effort, meaning that there was
+very little foregone yield for each species in order
+to maximise the total complex yield. In contrast, the other 
+two areas each had a species yield curve with a peak that 
+was very far to the right of the peaks of the other two curves, 
+indicating the much lower catchability scalar between 
+effort and fishing mortality for English sole in QCS, 
+and rock sole in WCVI. Although English (QCS) and rock (WCVI) soles 
+are proportionally further under-exploited under the multi-species 
+optimal effort than the least catchable species (rock sole) in HSHG, 
+the yield lost to under-exploitation is trivial given the absolute 
+size of each is an order of magnitude smaller than the larger
+stocks in those areas.
+
+
+## Omniscient Manager Performance
 
 ```{r loadOmni, echo = FALSE, include = FALSE, warning = FALSE}
 omniInfo <- info.df %>% 
@@ -32,56 +58,211 @@ omniPerfTab <- read.csv(omniInfo$perfTabPath)
 
 ```
 
-- Description of MS equilibrium yields, plots of yield 
-curves
+
 
 We found that the median biomass of each species 
 under the omniscient manager was close to the equilibrium 
 biomass associated with the multispecies maximum 
-sustainable yield in each area [figure]. Median
-biomass, catch, and fishing mortality reach the equilbrium
+sustainable yield in each area [Figure 3, blue dashed line]. 
+Median biomass, catch, and fishing mortality reach the equilbrium
 soon after a transition period of about 20 years. During
 the transitionary period, effort is slowly ramped up from
 the level at the end of the historical period to a 
-stationary distribution around each stock area's $E_{MSY}$.
-In each area, as predicted by the equilibrium calculations, 
-the optimal effort for the complex results in overfishing 
-of the Dover sole stocks. 
+stationary distribution around each stock area's $E_{MSY}$
+[Figure 4 - ADD]. In each area, as predicted by the 
+equilibrium calculations, the optimal effort for the 
+complex results in a slight overfishing of the Dover sole 
+stocks. 
 
 Despite the tendency of the manager to increase fishing
 mortality rates to above the single species $F_{MSY}$
 for all Dover sole stocks, very few simulations actually push 
 Dover sole into an overfished state. For all stocks of all 
 species, the probability of being below 40% of single species
-$B_{MSY}$ is at most 1% , while probability of being
-above 80% of $B_{MSY}$ is at least 53% (Table 1). 
+$B_{MSY}$ is at most 6% , while probability of being
+above 80% of $B_{MSY}$ is at least 53% (Table 2). 
 
-Although the flatfish stocks we are modeling are in an overall
-healthy state and behave more like developing fisheries, 
+Although the flatfish stocks we modeled are in an overall
+healthy state and behave like developing fisheries, 
 there are some cases where the omniscient manager reduced
-fishing to historic low levels (Figure X), leading to some years
-where catch was below the minimum observed level (Table Y). Low fishing effort
-was required in some replicates and years to protect the 
-spawning stock and ensure production in later time steps where 
-recruitment process error deviations were sustained at low 
-levels. We attempted bounding effort below by the minimum 
-observed historical effort to avoid simulations where 
-effort was economically unviable, but this
+fishing effort to historic low levels early in the projection 
+period (Figure 4). These historic low efforts led to some years
+where catch was below the minimum observed level (Table 2 - ADD). 
+Low fishing effort was required in some replicates and years 
+to protect the spawning stock and ensure production in 
+later time steps where recruitment process error deviations 
+were sustained at low levels. We attempted bounding effort 
+below by the minimum observed historical effort to avoid 
+simulations where effort was economically unviable, but this
 increased the probability of catch being below the historical
-minimum for each stock than a lower bound of 0 effort.
+minimum for each stock than the simulations we are presenting
+with a lower bound of 0 effort.
 
 
-## MP performance
+## Management Procedure performance
 
-### Convergence Rates
- - No longer an issue given the discovered error
+Mangement Procedure performance is outlined below. We first
+discuss the yield loss distributions for the 30 simulations,
+then the spawning biomass loss distributions. Given the highly
+factorial nature of the experiments, we explain the main results
+using a few key examples in the main body of the text, but refer
+readers to the online supplement for the full set of plots 
+comparing stochastic simulations to the omniscient manager
+scenarios.
+
 
 
 ### Yield loss
+
+We found that the single-stock assessment methods had 
+the lowest median loss across all stock areas, species, 
+and aggregation levels under all three CV scenarios (Figure 6). 
+As CVs increased, the single-stock method's catch loss was also
+fairly stable, going from a median value of around 5 kt
+for the whole coast-wide DER complex at a CV multiplier of
+0.5 to a median around 12 kt at a multiplier of 2.0. In
+contrast, the largest jump was observed under the 
+Total Aggregation management procedures, which 
+jumped from around 7 kt median loss to around 28 kt median 
+loss.
+
+The superior performance of single stock methods under 
+absolute loss is caused in part by system dynamics
+compensating for large assessment errors. Specifically, 
+the single-stock assessments for five English and rock sole
+stocks (all but HSHG rock sole) were positively biased
+for large parts of the projection period, which in
+turn produced unsustainably high TACs (Figure 6). 
+Despite the high TACs, all five stocks with large assessment 
+errors were actually fished at much closer to the optimal 
+level, which happened when when TACs for more catchable 
+stocks were fully caught (Figure 7). The key 
+quality that made the choking off a net benefit (reduced
+loss) was that the more catchable stocks (Dover and rock soles) 
+had smaller assessment errors (Figure 8, Dover sole in
+all three areas, and HSHG rock sole), and so the TACs were 
+for those species were set based on harvest rates that were closer 
+to the optimal yield for the complex. 
+
+There was not a large difference in median loss values
+between single-species ($F_{MSY}$) and multi-species ($E_{MSY}$)
+harvest rates for most MPs and scenarios. Those MPs with
+median catch loss values outside of the interquartile range of 
+the other MPs with the same AM structure were data-pooled and 
+hierarchical multi-stock MPs for WCVI rock sole, under the 
+0.5obsErr and 1.0obsErr scenarios, respectively (Figure 5, 
+WCVI rock sole). For the data-pooled MPs, the higher catch loss 
+is from a persistent positive assessment error in the data-pooled
+assessments (Figure). Because the multi-species harvest rates derived
+from optimal effort $E_{MSY}$ are lower than the single-species
+$U_{MSY}$ rates for WCVI rock sole, this leads to a higher 
+catch loss when TACs are apportioned among species in the WCVI
+area [Maybe compare relative TACs over time for WCVI DP]. 
+For the hierarchical multi-stock MPs, the difference 
+is more subtle but based on a similar phenomenon: 
+assessment errors were very similar between target HRs, but 
+lower target harvest rates led to a lower median loss 
+(figure - maybe compare the three HRs, omni vs the SS/MS 
+target HRs). Although these differences are large relative 
+to the other MPs for this particular stock, the scale is very small in
+an absolute sense, given the integration of losses over
+a ten year period, and the small size of the WCVI rock sole stock
+relative to the larger stocks in the complex.
+As a result, the aggregate losses which include WCVI
+rock sole are more similar between target harvest rates 
+(Figure 5, WCVI data-pooled and coast-wide rock sole).
+
+As observation error standard deviations increased, most 
+MPs had higher catch loss, with two exceptions. Data pooled MPs 
+for HSHG and WCVI rock sole stocks actually reduced catch
+loss between 0.5obsErr and 1.0obsErr scenarios (Figure 5,
+HSHG and WCVI rock sole). For these two stocks, assessment
+errors are smaller under the 1.0obsErr scenario (overlay
+plot with both scenarios' assessment errors), which
+led to stock-specific TACs being set closer to the 
+optimal level. [overlay plot??]
+**CHECK ON ALLOCATION UNDER THE obsErr SCENARIOS,
+the following is hypothetical at this stage**
+The second factor is the allocation rule, which allocates
+TACs to member stocks in a data-pooled stock area in 
+proportion to their indices. Under lower observation
+error standard deviations indices are less variable
+so TACs are more dependent on the relative sizes
+of the stocks and the synoptic survey trawl efficiency
+valess... while under higher CVs the indices are more 
+variable... will have to look at the plots...
+
+
+***OUTLINE BELOW***
+
+- Data pooling is the worst at low CVs, while total aggregation
+is the worst at high CVs. Hypothesis: it's an interaction
+of two things (i) variances add, so more aggregation
+adds more variance, and (ii) TAC allocation method
+is sensitive to higher CVs
+- At 0.5 and 1.0 CV multiples, there is very little separation of 
+any MPs. It's only when CVs get out to 2.0 times 
+that we start to see the separation. 
+- WCVI Rock sole bucks the trend: DP AMs with SS HRs tend do do 
+uniformly badly across the 3 CV levels, with perhaps a small
+improvement in median loss. On the other hand, the MS HRs
+tend to degrade as expected with increasing CVs. Similar effect 
+seen in HSHG Rock, and in the coastwide loss.
+- Hierarchical multi-stock method's loss bridges between single-stock
+and aggregation methods. For example, at low CVs the hierarchical
+method tends to do about the same as the ssingle stock methods, but loss
+increases more than the SS method with higher CVs. In general, the
+HMS method ranks about the same across sspecies, stocks, and aggregation
+levels, but at 2.0 CV multiples, HMS is closer to SS for WCVI,
+closer to DP in HSHG, and around the middle in QCS. Overall, because
+the HSHG stocks are the most populous, the HMS method has median loss
+close to the DP method.
+- When considering deviations from the optimal yield, ignoring stock 
+structure and pooling at a coast-wide level was not advisable as
+data quality is degraded. Both the CW and TA methods had the highest
+loss, with similar median values for all species, stocks, and aggregation
+levels.
+
+
 
 
 
 ### Biomass loss
 
+Figures 7 and 8
+
+As in yield loss, harvest rates did not a make significant difference
+to median biomass loss.
+
+Single stock methods still do better - (perhaps it is tuned to well to 
+higher CVs)?
+
+Less uniform ranking of AMs. In QCS and HSHG, HMS model tends to
+have the highest loss at low CVs, then comes in to second lowest loss
+at high CVs - stability of method as information is removed? In WCS,
+some methods have lower biomass loss as CVs increase.
+
+Interestingly, very little difference between MPs for loss in WCVI,
+except CW and TA are very bad at higher CVs.
+
+Again, not advisable to ignore spatial stock structure as data
+quality reduces.
+
+Need to look at simulation envelopes to understand the nature of
+the loss - often underfishing, esp. as CVs increase.
+
+
+Seems like SS does better on catch and biomass loss, but has
+the tendency for large assessment errors. Although in this case
+this is mitigated by the technical interactions in the system, where 
+the most catchable (Dover sole) TACs get filled first and they happen 
+to be set to a better level, this is system dependent. Indeed, 
+a change in catchability due to switching the target species, or 
+an underyling regime shift, could suddenly make it easier to fulfil
+TACs that are set too high by a . 
+
+
 
 ## Sensitivity to prior distributions
+
+

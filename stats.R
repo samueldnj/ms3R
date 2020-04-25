@@ -19,7 +19,7 @@
 # on relative and absolute scale
 calcLoss <- function( sim         = 1,
                       baseline    = "sim_parBatomniRuns_Long3",
-                      groupFolder = "diffCV_newObsCV_short",
+                      groupFolder = "diffCV_fixedF_longGrid",
                       lossVars    = c("C_ispt","SB_ispt"),
                       output      = TRUE )
 {
@@ -139,6 +139,7 @@ calcLoss <- function( sim         = 1,
                     nS            = nS, 
                     nP            = nP, 
                     pT            = pT,
+                    obsCVmult     = lossSim$ctlList$opMod$projObsErrMult,
                     simFolder     = simFolder  )
 
 
@@ -168,6 +169,8 @@ makeLossTable <- function(  sim = 1,
   nP              <- objLoss$nP 
   pT              <- objLoss$pT
   simFolder       <- objLoss$simFolder
+  obsCVmult       <- objLoss$obsCVmult
+
 
 
 
@@ -177,6 +180,7 @@ makeLossTable <- function(  sim = 1,
                           "mp",
                           "species",
                           "stock",
+                          "obsCVmult",
                           "relLossCat_short",
                           "relLossCat_med",
                           "relLossCat_long",
@@ -197,6 +201,7 @@ makeLossTable <- function(  sim = 1,
   lossTable$sim       <- objLoss$sim
   lossTable$scenario  <- objLoss$scenario
   lossTable$mp        <- objLoss$mp
+  lossTable$obsCVmult <- obsCVmult
 
   
   lossCat_shortTerm  <- calcTotalLossPeriod(objLoss,"C_ispt", period = tMP:(tMP+10))
