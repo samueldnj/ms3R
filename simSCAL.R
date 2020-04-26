@@ -74,33 +74,41 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   idxOn   <- obj$ctlList$mp$data$idxOn
   obsInt  <- obj$ctlList$mp$data$obsInt_i
 
-  # Start with a FALSE array
-  idxOn_spft <- array( FALSE, dim = c(nS,nP,nF,nT) )
+  # Start with a FALSE array, add pooled data dimension
+  idxOn_spft <- array( FALSE, dim = c(nS+1,nP+1,nF,nT) )
   # Recover historical indices and set 
   # to TRUE
   histdx <- 1:(tMP-1)
   I_spft <- obj$mp$data$I_spft[,,,histdx]
 
-  # Now, for the future we want to be a bit more selective
-  nIdx <- length(idxOn)
-  for( i in 1:nIdx )
-  {
-    fIdx <- idxOn[i]
-    for( s in 1:nS )
-      for( p in 1:nP )
+  for( s in 1:nS )
+    for( p in 1:nP )
+      for( fIdx in 1:nF )
       {
         histOn <- which(!is.na(I_spft[s,p,fIdx,]))
         if( length(histOn) == 0 )
           next
 
-        lastObs <- max(histOn)
-        if(obsInt[i] == 1)
-          lastObs <- tMP
+        idxOn_spft[s,p,fIdx,histOn] <- TRUE
 
-        newObs <- seq( from = lastObs, to = nT, by = obsInt[i] )
-        idxOn_spft[s,p,fIdx,c(histOn,newObs)] <- TRUE
+        # Now generate new data for the future
+        if( fIdx %in% idxOn )
+        {
+          i <- which( idxOn == fIdx )
+
+          lastObs <- max(histOn)
+          if(obsInt[i] == 1)
+            lastObs <- tMP
+
+          newObs <- seq( from = lastObs, to = nT, by = obsInt[i] )
+          idxOn_spft[s,p,fIdx,newObs] <- TRUE
+        }
       }
-  }
+
+  # Now fill the pooled data dimensions
+  idxOn_spft[s+1,1:nP,,]  <- as.logical( apply( X = idxOn_spft[1:nS,1:nP,,], FUN = sum, MARGIN = c(2,3,4) ) )
+  idxOn_spft[1:nS,p+1,,]  <- as.logical( apply( X = idxOn_spft[1:nS,1:nP,,], FUN = sum, MARGIN = c(1,3,4) ) )
+  idxOn_spft[s+1,p+1,,]   <- as.logical( apply( X = idxOn_spft[1:nS,1:nP,,], FUN = sum, MARGIN = c(3,4)   ) )
 
   obj$mp$assess$assessOn_t  <- assessOn
   obj$mp$data$idxOn_spft    <- idxOn_spft
@@ -196,7 +204,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   # Use the last two years of data in Synoptic
   # and calculate mean over time to get
   # splitting weights
-  rctMeanI_sp <- apply( X = I_spft[,,4,(t-2):(t-1)],
+  rctMeanI_sp <- apply( X = I_spft[1:nS,1:nP,4,(t-2):(t-1)],
                         FUN = mean,
                         MARGIN = c(1,2), na.rm = T )
 
@@ -218,7 +226,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
 
   propTAC_sp <- array(1, dim = c(nS,nP) )
 
-  if( ctlList$mp$assess$spDataPooled & ctlList$mp$assess$spCoastwide )
+  if( ctlList$mp$data$speciesPooling & ctlList$mp$data$spatialPooling )
   {
     # Calc proportion of TAC for each species
     propTAC_s  <- rctMeanI_s / sum(rctMeanI_s)
@@ -231,7 +239,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     hcr$TAC_spt[,,t] <- hcr$TAC_spt[,,t] * propTAC_sp
   }
 
-  if( ctlList$mp$assess$spCoastwide & !ctlList$mp$assess$spDataPooled )
+  if( ctlList$mp$data$spatialPooling & !ctlList$mp$data$speciesPooling )
   {
     # Distribute among stocks
     propTAC_sp <- rctMeanI_sp
@@ -241,7 +249,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     hcr$TAC_spt[,,t] <- hcr$TAC_spt[,,t] * propTAC_sp
   }
 
-  if( ctlList$mp$assess$spDataPooled & !ctlList$mp$assess$spCoastwide )
+  if( ctlList$mp$data$speciesPooling & !ctlList$mp$data$spatialPooling )
   {
     # Distribute among species
     propTAC_sp <- rctMeanI_sp
@@ -314,7 +322,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   # Use the last two years of data in Synoptic
   # and calculate mean over time to get
   # splitting weights
-  rctMeanI_sp <- apply( X = I_spft[,,4,(t-2):(t-1)],
+  rctMeanI_sp <- apply( X = I_spft[1:nS,1:nP,4,(t-2):(t-1)],
                         FUN = mean,
                         MARGIN = c(1,2), na.rm = T )
 
@@ -351,7 +359,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
 
   propTAC_sp <- array(1, dim = c(nS,nP) )
 
-  if( ctlList$mp$assess$spDataPooled & ctlList$mp$assess$spCoastwide )
+  if( ctlList$mp$data$speciesPooling & ctlList$mp$data$spatialPooling )
   {
     # Calc proportion of TAC for each species
     propTAC_s  <- rctMeanI_s / sum(rctMeanI_s)
@@ -364,7 +372,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     hcr$TAC_spt[,,t] <- hcr$TAC_spt[,,t] * propTAC_sp
   }
 
-  if( ctlList$mp$assess$spCoastwide & !ctlList$mp$assess$spDataPooled )
+  if( ctlList$mp$data$spatialPooling & !ctlList$mp$data$speciesPooling )
   {
     # Distribute among stocks
     propTAC_sp <- rctMeanI_sp
@@ -374,7 +382,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     hcr$TAC_spt[,,t] <- hcr$TAC_spt[,,t] * propTAC_sp
   }
 
-  if( ctlList$mp$assess$spDataPooled & !ctlList$mp$assess$spCoastwide )
+  if( ctlList$mp$data$speciesPooling & !ctlList$mp$data$spatialPooling )
   {
     # Distribute among species
     propTAC_sp <- rctMeanI_sp
@@ -557,42 +565,26 @@ solvePTm <- function( Bmsy, B0 )
 
   # Get data for fitting - biomass indices and catch
   spFleetIdx  <- ctlList$mp$assess$spFleets
-  I_spft      <- obj$mp$data$I_spft[,,spFleetIdx,1:(t-1)]
+
+  # Pull observations and catch
+  I_spft      <- obj$mp$data$I_spft[1:nS,1:nP,spFleetIdx,1:(t-1)]
   C_spft      <- obj$om$C_spft[,,,(1:t-1)]
   C_spt       <- apply( X = C_spft, FUN = sum, 
                         MARGIN = c(1,2,4), na.rm = T )
 
-  if( ctlList$mp$assess$spYrFirstIdx > 1 )
-    I_spft[,,,1:ctlList$mp$assess$spYrFirstIdx ] <- -1
-
-  # Switches for different model
-  # complex structures
-  spCoastwide     <- ctlList$mp$assess$spCoastwide
-  spDataPooled    <- ctlList$mp$assess$spDataPooled
-  spSingleStock   <- ctlList$mp$assess$spSingleStock
-  spFixUmsy       <- ctlList$mp$assess$spFixUmsy
-  spOMqDevs       <- ctlList$mp$assess$spOMqDevs
-
-  oldFleet <- NULL
-  oldStock <- NULL
-
-  # get EBSB pars
   nu_spfk <- EBSBpars$stockSpec$nu_spfk
   P1_spf  <- EBSBpars$stockSpec$P1_spf
   P2_spf  <- EBSBpars$stockSpec$P2_spf
 
-  # Coastwide version ( nP' == 1)
-  if( spCoastwide )
+  spatialPooling <-  ctlList$mp$data$spatialPooling
+  speciesPooling <-  ctlList$mp$data$speciesPooling
+
+  # Spatial Pooling
+  if( ctlList$mp$data$spatialPooling )
   {
-    # Turn stock/area dimension of
-    # surveys into more fleets
-    newI_spft   <- array(NA, dim = c(nS,1,nF*nP,t-1) )
-    newnu_spfk  <- array(NA, dim = c(nS,1,nF*nP,3) )
-    newP1_spf   <- array(NA, dim = c(nS,1,nF*nP) )
-    newP2_spf   <- array(NA, dim = c(nS,1,nF*nP) )
-    newmq_spf   <- array(NA, dim = c(nS,1,nF*nP) )
-    newmq_sf    <- array(NA, dim = c(nS,nF*nP) )
-    newsdq_f    <- array(NA, dim = c(nF*nP) )
+    I_spft      <- obj$mp$data$I_spft[1:nS,nP+1,spFleetIdx,1:(t-1),drop = FALSE]
+    C_spt       <- array(NA, dim = c(nS,1,t-1))
+    C_spt[,1,]  <- apply( X = C_spft, FUN = sum, MARGIN = c(1,4) )
 
     # Need to rearrange the EBSB model
     # fleet indices here.
@@ -601,138 +593,47 @@ solvePTm <- function( Bmsy, B0 )
     P1_spf  <- EBSBpars$coastWide$P1_spf
     P2_spf  <- EBSBpars$coastWide$P2_spf
 
-
-    oldFleet <- rep(0,nF*nP)
-    oldStock <- rep(0,nF*nP)
-
-    # Record new fleet indices
-    newFleetIndices <- 1:(nF*nP)
-
-    # Loop and spread indices out as separate fleets
-    for( s in 1:nS )
-    {
-      for( p in 1:nP )
-      {
-        newIdx <- (p-1)*nF + 1:nF
-        oldFleet[newIdx] <- 1:nF
-        oldStock[newIdx] <- p
-        
-        newI_spft[s,1,newIdx,]  <- I_spft[s,p,,]
-        newnu_spfk[s,1,newIdx,] <- nu_spfk[s,1,,]
-        newP1_spf[s,1,newIdx]   <- P1_spf[s,1,]
-        newP2_spf[s,1,newIdx]   <- P2_spf[s,1,]
-        newmq_spf[s,1,newIdx]   <- mq_spf[s,1,]
-        newmq_sf[s,newIdx]      <- mq_sf[s,]
-
-        newsdq_f[ newIdx ]      <- sdlnq_f
-      }
-    }
-
-    I_spft  <- newI_spft
-    mq_spf  <- newmq_spf
-    mq_sf   <- newmq_sf
-    nu_spfk <- newnu_spfk
-    P1_spf  <- newP1_spf
-    P2_spf  <- newP2_spf
-    sdlnq_f <- newsdq_f
-
-    # Add catch across stocks
-    newC_spt <- C_spt[,1,,drop = FALSE]
-    newC_spt[,1,] <- apply( X = C_spt, FUN = sum,
-                            MARGIN = c(1,3) )
-    C_spt <- newC_spt
-  } 
-
-  # Data pooled version (nS' == 1)
-  if( spDataPooled )
+  }
+  # Species Pooling
+  if( ctlList$mp$data$speciesPooling )
   {
-    # Add indices across species
-    # within stocks
-    newI_spft <- I_spft[1,,,,drop = FALSE]
-    I_spft[I_spft < 0] <- NA
+    I_spft      <- obj$mp$data$I_spft[nS+1,1:nP,spFleetIdx,1:(t-1),drop = FALSE]
+    C_spt       <- array(NA, dim = c(1,nP,t-1))
+    C_spt[1,,]  <- apply( X = C_spft, FUN = sum, MARGIN = c(2,4) )
 
     nu_spfk <- EBSBpars$dataPooled$nu_spfk
     P1_spf  <- EBSBpars$dataPooled$P1_spf
     P2_spf  <- EBSBpars$dataPooled$P2_spf
 
-    # Sum CPUE and biomass indices
-    newI_spft[1,,,] <- apply( X = I_spft,
-                              FUN = sum,
-                              MARGIN = c(2,3,4),
-                              na.rm = T )
-    newI_spft[newI_spft == 0 ]  <- -1
-    newI_spft[is.na(newI_spft)] <- -1
-
-    I_spft <- newI_spft
-
-    # Take mean of catchability values across species
-    # for prior means
-    newmq_spf <- mq_spf[1,,,drop = FALSE]
-    newmq_sf  <- mq_sf[1,,drop = FALSE]
-
-    newmq_spf[1,,]  <- exp(apply( X = log(mq_spf), FUN = mean, MARGIN = c(2,3),
-                                  na.rm = T ) )
-    newmq_sf[1,]    <- exp(apply( X = log(mq_sf), FUN = mean, MARGIN = c(2)))
-
-
-    # OMq devs
-    newomqDevs_spft <- omqDevs_spft[1,,,,drop = FALSE]
-    newomqDevs_spft[1,,,] <- apply( X = omqDevs_spft,
-                                    FUN = mean,
-                                    MARGIN = c(2,3,4),
-                                    na.rm = T )
-
-    omqDevs_spft <- newomqDevs_spft
-
-
-
-    # Add catches across species
-    # within stocks
-    newC_spt <- C_spt[1,,,drop = FALSE]
-    newC_spt[1,,] <- apply( X = C_spt, FUN = sum,
-                            MARGIN = c(2,3) )
-
-    C_spt <- newC_spt
   }
-
-  if( spCoastwide & spDataPooled )
+  # Total Aggregation
+  if( ctlList$mp$data$speciesPooling & ctlList$mp$data$spatialPooling )
   {
+    I_spft      <- obj$mp$data$I_spft[nS+1,nP+1,spFleetIdx,1:(t-1),drop = FALSE]
+    C_spt       <- array(NA, dim = c(1,1,t-1))
+    C_spt[1,1,] <- apply( X = C_spft, FUN = sum, MARGIN = c(4) )
+
     nu_spfk <- EBSBpars$totalAgg$nu_spfk
     P1_spf  <- EBSBpars$totalAgg$P1_spf
     P2_spf  <- EBSBpars$totalAgg$P2_spf
-
-    newnu_spfk  <- array(NA, dim = c(1,1,nF*nP,3) )
-    newP1_spf   <- array(NA, dim = c(1,1,nF*nP) )
-    newP2_spf   <- array(NA, dim = c(1,1,nF*nP) )
-    newmq_spf   <- array(NA, dim = c(1,1,nF*nP) )
-    newmq_sf    <- array(NA, dim = c(1,nF*nP) )
-
-    for( p in 1:nP )
-    {
-      newIdx <- (p-1)*nF + 1:nF
-      oldFleet[newIdx] <- 1:nF
-      
-      newnu_spfk[1,1,newIdx,] <- nu_spfk[1,1,,]
-      newP1_spf[1,1,newIdx]   <- P1_spf[1,1,]
-      newP2_spf[1,1,newIdx]   <- P2_spf[1,1,]
-    }
-
-    # browser()
-
-    newmq_spf[1,1,]   <- exp(apply( X = log(mq_spf), FUN = mean, MARGIN = c(3)))
-    newmq_sf[1,]      <- exp(apply( X = log(mq_sf), FUN = mean, MARGIN = c(2) ))
-
-    mq_spf  <- newmq_spf
-    mq_sf   <- newmq_sf
-    nu_spfk <- newnu_spfk
-    P1_spf  <- newP1_spf
-    P2_spf  <- newP2_spf
-
   }
 
-  nSS <- dim(C_spt)[1]
-  nPP <- dim(C_spt)[2]
-  nFF <- dim(I_spft)[3]
+  nSS <- dim(I_spft)[1]
+  nPP <- dim(I_spft)[2]
+
+  oldStock <- 1:nPP
+  oldFleet <- 1:nF
+
+
+  if( ctlList$mp$assess$spYrFirstIdx > 1 )
+    I_spft[,,,1:ctlList$mp$assess$spYrFirstIdx ] <- -1
+
+  # Switches for different model
+  # complex structures
+  spSingleStock   <- ctlList$mp$assess$spSingleStock
+  spFixUmsy       <- ctlList$mp$assess$spFixUmsy
+  spOMqDevs       <- ctlList$mp$assess$spOMqDevs
+
 
   # Single stock version (no hierarchical method)
   if( spSingleStock | (nSS == 1 & nPP == 1) )
@@ -754,7 +655,7 @@ solvePTm <- function( Bmsy, B0 )
           PTm_sp <- omPTm_sp[s,p,drop = FALSE]
         }
 
-        if( spCoastwide & spDataPooled )
+        if( speciesPooling & spatialPooling )
         {
           mBmsy_sp        <- BeqSS_sp[1,1,drop = FALSE]
           mBmsy_sp[1,1]   <- sum(BeqSS_sp)
@@ -785,8 +686,8 @@ solvePTm <- function( Bmsy, B0 )
                                           mq_sf  = mq_sf,
                                           sdlnq_f = sdlnq_f,
                                           omqDevs_spft = omqDevs_spft,
-                                          oldStock = oldStock,
-                                          oldFleet = oldFleet,
+                                          oldStock = NULL,
+                                          oldFleet = NULL,
                                           fixUmsy = spFixUmsy,
                                           importQdevs = spOMqDevs )
 
@@ -836,12 +737,12 @@ solvePTm <- function( Bmsy, B0 )
         if(spSingleStock)
         {
           obj$mp$assess$retroSB_tspt[pt,s,p,1:t]    <- amObj$repOpt$B_spt[1,1,]
-          for( f in 1:nFF )
+          for( f in 1:nF )
           {
-            obj$mp$assess$retroVB_tspft[pt,s,p,f,1:t]                 <- amObj$repOpt$vB_spft[1,1,f,]
-            obj$mp$assess$retroq_tspf[pt,s,p,spFleetIdx[f]]           <- amObj$repOpt$qhat_spf[1,1,f]
-            obj$mp$assess$retroq_tspft[pt,s,p,spFleetIdx[f],1:(t-1)]  <- amObj$repOpt$qhat_spft[1,1,f,1:(t-1)]
-            obj$mp$assess$retrotauObs_tspf[pt,s,p,spFleetIdx[f]]      <- amObj$repOpt$tau_spf[1,1,f]
+            obj$mp$assess$retroVB_tspft[pt,s,p,f,1:t]     <- amObj$repOpt$vB_spft[1,1,f,]
+            obj$mp$assess$retroq_tspf[pt,s,p,f]           <- amObj$repOpt$qhat_spf[1,1,f]
+            obj$mp$assess$retroq_tspft[pt,s,p,f,1:(t-1)]  <- amObj$repOpt$qhat_spft[1,1,f,1:(t-1)]
+            obj$mp$assess$retrotauObs_tspf[pt,s,p,f]      <- amObj$repOpt$tau_spf[1,1,f]
           }
           obj$mp$assess$retroUmsy_tsp[pt,s,p] <- amObj$repOpt$Umsy_sp
           obj$mp$assess$retroBmsy_tsp[pt,s,p] <- amObj$repOpt$Bmsy_sp
@@ -873,22 +774,18 @@ solvePTm <- function( Bmsy, B0 )
           obj$mp$assess$maxGrad_tsp[pt,s,p] <- amObj$maxGrad
         }
 
-        if( spCoastwide & spDataPooled )
+        if( speciesPooling & spatialPooling )
         {
           for( s in 1:nS )
           {
-            # Stock specific observations are spread into extra fleets 
-            # in the coastwide aggregation, so no need to place this 
-            # next part in a stock loop
-            for( f in 1:nFF )
-            {
-              oldFleetIdx <- oldFleet[f]
-              oldStockIdx <- oldStock[f]
-              obj$mp$assess$retroVB_tspft[pt,s,oldStockIdx,oldFleetIdx,1:t]                 <- amObj$repOpt$vB_spft[1,1,f,]
-              obj$mp$assess$retroq_tspf[pt,s,oldStockIdx,spFleetIdx[oldFleetIdx]]           <- amObj$repOpt$qhat_spf[1,1,f] 
-              obj$mp$assess$retroq_tspft[pt,s,oldStockIdx,spFleetIdx[oldFleetIdx],1:(t-1)]  <- amObj$repOpt$qhat_spft[1,1,f,1:(t-1)]
-              obj$mp$assess$retrotauObs_tspf[pt,s,oldStockIdx,spFleetIdx[oldFleetIdx]]      <- amObj$repOpt$tau_spf[1,1,f]
-            }
+            for( p in 1:nP)
+              for( f in 1:nF )
+              {
+                obj$mp$assess$retroVB_tspft[pt,s,p,f,1:t]     <- amObj$repOpt$vB_spft[1,1,f,]
+                obj$mp$assess$retroq_tspf[pt,s,p,f]           <- amObj$repOpt$qhat_spf[1,1,f] 
+                obj$mp$assess$retroq_tspft[pt,s,p,f,1:(t-1)]  <- amObj$repOpt$qhat_spft[1,1,f,1:(t-1)]
+                obj$mp$assess$retrotauObs_tspf[pt,s,p,f]      <- amObj$repOpt$tau_spf[1,1,f]
+              }
             # retro SB has to be in a loop because it's a ts, no guarantee
             # that the entries will enter in the right way (OK, there's a guarantee
             # but I never remember the orientation)
@@ -942,7 +839,7 @@ solvePTm <- function( Bmsy, B0 )
     PTm_sp <- omPTm_sp
 
     # Add Bmsy across stocks if coastwide
-    if( spCoastwide )
+    if( spatialPooling )
     {
       mBmsy_sp_new      <- mBmsy_sp[,1,drop = FALSE]
       mBmsy_sp_new[,1]  <- apply( X = BeqSS_sp, FUN = sum, MARGIN = 1)
@@ -960,7 +857,7 @@ solvePTm <- function( Bmsy, B0 )
       }
     }
 
-    if( spDataPooled )
+    if( speciesPooling )
     {
       mBmsy_sp_new <- mBmsy_sp[1,,drop = FALSE]
       mBmsy_sp_new[1,] <- apply( X = BeqSS_sp, FUN = sum, MARGIN = 2 )
@@ -992,8 +889,8 @@ solvePTm <- function( Bmsy, B0 )
                                       mq_sf  = mq_sf,
                                       sdlnq_f = sdlnq_f,
                                       omqDevs_spft = omqDevs_spft,
-                                      oldStock = oldStock,
-                                      oldFleet = oldFleet,
+                                      oldStock = NULL,
+                                      oldFleet = NULL,
                                       fixUmsy = spFixUmsy,
                                       importQdevs = spOMqDevs)
 
@@ -1069,16 +966,16 @@ solvePTm <- function( Bmsy, B0 )
 
     # browser()
 
-    if( !spCoastwide & !spDataPooled )
+    if( !spatialPooling & !speciesPooling )
     {
       # Save biomass
       obj$mp$assess$retroSB_tspt[pt,1:nSS,1:nPP,1:t]    <- amObj$repOpt$B_spt
-      for( f in 1:nFF )
+      for( f in 1:nF )
       {
-        obj$mp$assess$retroVB_tspft[pt,1:nSS,1:nPP,f,1:t]                 <- amObj$repOpt$vB_spft[,,f,]
-        obj$mp$assess$retroq_tspf[pt,1:nSS,1:nPP,spFleetIdx[f]]           <- amObj$repOpt$qhat_spf[,,f]
-        obj$mp$assess$retroq_tspft[pt,1:nSS,1:nPP,spFleetIdx[f],1:(t-1)]  <- amObj$repOpt$qhat_spft[1:nSS,1:nPP,f,1:(t-1)]
-        obj$mp$assess$retrotauObs_tspf[pt,1:nSS,1:nPP,spFleetIdx[f]]      <- amObj$repOpt$tau_spf[,,f]
+        obj$mp$assess$retroVB_tspft[pt,1:nSS,1:nPP,f,1:t]     <- amObj$repOpt$vB_spft[,,f,]
+        obj$mp$assess$retroq_tspf[pt,1:nSS,1:nPP,f]           <- amObj$repOpt$qhat_spf[,,f]
+        obj$mp$assess$retroq_tspft[pt,1:nSS,1:nPP,f,1:(t-1)]  <- amObj$repOpt$qhat_spft[1:nSS,1:nPP,f,1:(t-1)]
+        obj$mp$assess$retrotauObs_tspf[pt,1:nSS,1:nPP,f]      <- amObj$repOpt$tau_spf[,,f]
       }
 
       obj$mp$assess$retroUmsy_tsp[pt,1:nSS,1:nPP] <- amObj$repOpt$Umsy_sp
@@ -1111,21 +1008,20 @@ solvePTm <- function( Bmsy, B0 )
       obj$mp$assess$maxGrad_tsp[pt,1:nSS,1:nPP] <- amObj$maxGrad
     }
 
-    if( spCoastwide )
+    if( spatialPooling )
     {
       # Save retro biomass
       for( p in 1:nP )
-        obj$mp$assess$retroSB_tspt[pt,1:nSS,p,1:t]    <- amObj$repOpt$B_spt[1:nSS,1,1:t]
-
-      # Save retro exp. biomass and catchability
-      for( f in 1:nFF )
       {
-        oldFleetIdx <- oldFleet[f]
-        oldStockIdx <- oldStock[f]
-        obj$mp$assess$retroVB_tspft[pt,1:nSS,oldStockIdx,oldFleetIdx,1:t]                 <- amObj$repOpt$vB_spft[1:nSS,1,f,1:t]
-        obj$mp$assess$retroq_tspf[pt,1:nSS,oldStockIdx,spFleetIdx[oldFleetIdx]]           <- amObj$repOpt$qhat_spf[1:nSS,1,f]
-        obj$mp$assess$retroq_tspft[pt,1:nSS,oldStockIdx,spFleetIdx[oldFleetIdx],1:(t-1)]  <- amObj$repOpt$qhat_spft[1:nSS,1,f,1:(t-1)]
-        obj$mp$assess$retrotauObs_tspf[pt,1:nSS,oldStockIdx,spFleetIdx[oldFleetIdx]]      <- amObj$repOpt$tau_spf[1:nSS,1,f]
+        obj$mp$assess$retroSB_tspt[pt,1:nSS,p,1:t]    <- amObj$repOpt$B_spt[1:nSS,1,1:t]
+        # Save retro exp. biomass and catchability
+        for( f in 1:nF )
+        {
+          obj$mp$assess$retroVB_tspft[pt,1:nSS,p,f,1:t]     <- amObj$repOpt$vB_spft[1:nSS,1,f,1:t]
+          obj$mp$assess$retroq_tspf[pt,1:nSS,p,f]           <- amObj$repOpt$qhat_spf[1:nSS,1,f]
+          obj$mp$assess$retroq_tspft[pt,1:nSS,p,f,1:(t-1)]  <- amObj$repOpt$qhat_spft[1:nSS,1,f,1:(t-1)]
+          obj$mp$assess$retrotauObs_tspf[pt,1:nSS,p,f]      <- amObj$repOpt$tau_spf[1:nSS,1,f]
+        }
       }
 
       # Now reference points
@@ -1163,21 +1059,21 @@ solvePTm <- function( Bmsy, B0 )
       obj$mp$assess$maxGrad_tsp[pt,1:nSS,] <- amObj$maxGrad
     }
 
-    if( spDataPooled )
+    if( speciesPooling )
     {
       # Save retro biomass
       for( s in 1:nS )
         obj$mp$assess$retroSB_tspt[pt,s,1:nP,1:t]    <- amObj$repOpt$B_spt[1,1:nPP,1:t]
 
       # Save retro exp. biomass and catchability
-      for( f in 1:nFF )
+      for( f in 1:nF )
       {
         for( s in 1:nS )
         {
-          obj$mp$assess$retroVB_tspft[pt,s,1:nP,f,1:t]                <- amObj$repOpt$B_spt[1,1:nP,1:t]
-          obj$mp$assess$retroq_tspf[pt,s,1:nP,spFleetIdx[f]]          <- amObj$repOpt$qhat_spf[1,1:nP,f]
-          obj$mp$assess$retroq_tspft[pt,s,1:nP,spFleetIdx[f],1:(t-1)] <- amObj$repOpt$qhat_spft[1,1:nP,f,1:(t-1)]
-          obj$mp$assess$retrotauObs_tspf[pt,s,1:nP,spFleetIdx[f]]     <- amObj$repOpt$tau_spf[1,1:nP,f]
+          obj$mp$assess$retroVB_tspft[pt,s,1:nP,f,1:t]    <- amObj$repOpt$B_spt[1,1:nP,1:t]
+          obj$mp$assess$retroq_tspf[pt,s,1:nP,f]          <- amObj$repOpt$qhat_spf[1,1:nP,f]
+          obj$mp$assess$retroq_tspft[pt,s,1:nP,f,1:(t-1)] <- amObj$repOpt$qhat_spft[1,1:nP,f,1:(t-1)]
+          obj$mp$assess$retrotauObs_tspf[pt,s,1:nP,f]     <- amObj$repOpt$tau_spf[1,1:nP,f]
         }
         
       }
@@ -1299,6 +1195,9 @@ solvePTm <- function( Bmsy, B0 )
 
       if( initPE_sp[s,p] <= tFirstIdx )
         initPE_sp[s,p] <- tFirstIdx # No need to adjust for zero indexing, since first PE is after first obs 
+
+      if( initPE_sp[s,p] <= tFirstIdx & ctlList$mp$assess$spSolveInitBio )
+        initPE_sp[s,p] <- tFirstIdx + 1 # No need to adjust for zero indexing, since first PE is after first obs 
     }
 
   initBioCode_sp <-  array(0,dim = c(nSS,nPP))
@@ -1319,44 +1218,21 @@ solvePTm <- function( Bmsy, B0 )
 
   # Add something for when fleets are spread (coastwide)
   condMLEq_f <- rep(0, nF)
-  if( !is.null(oldFleet) )
-  {
-    oldCondMLEqFleets <- ctlList$mp$assess$spCondMLEqFleets - min(ctlList$mp$assess$spFleets) + 1
-    condMLEq_f[oldFleet %in% oldCondMLEqFleets] <- 1
-  } else  
-    condMLEq_f[ctlList$mp$assess$spCondMLEqFleets - min(ctlList$mp$assess$spFleets) + 1] <- 1
-
+  condMLEq_f[ctlList$mp$assess$spCondMLEqFleets] <- 1
 
   fleetWeights_f <- ctlList$mp$assess$spFleetWeights
-  if( !is.null(oldFleet) )
-  {
-    fleetWeights_f <- fleetWeights_f[oldFleet]
-
-  }
 
   condMLEobsErr_f <- rep(0,nF)
-  if( !is.null(oldFleet) )
-  {
-    oldCondMLEobsErrFleets <- ctlList$mp$assess$spCondMLEobsErrFleets - min(ctlList$mp$assess$spFleets) + 1
-    condMLEobsErr_f[oldFleet %in% oldCondMLEobsErrFleets] <- 1
-  } else  
-    condMLEobsErr_f[ctlList$mp$assess$spCondMLEobsErrFleets - min(ctlList$mp$assess$spFleets) + 1] <- 1
+  condMLEobsErr_f[ctlList$mp$assess$spCondMLEobsErrFleets - min(ctlList$mp$assess$spFleets) + 1] <- 1
 
 
   # Shrink q?
-  shrinkq_f  <- rep(0, nF)
-  if( !is.null(oldFleet))
-  {
-    oldShrinkqFleets <- ctlList$mp$assess$spShrinkqFleets - min(ctlList$mp$assess$spFleets) + 1
-    shrinkq_f[oldFleet %in% oldShrinkqFleets] <- 1
-  } else
-    shrinkq_f[ctlList$mp$assess$spShrinkqFleets - min(ctlList$mp$assess$spFleets) + 1] <- 1
+  shrinkq_f  <- rep(0, nF) 
+  shrinkq_f[ctlList$mp$assess$spShrinkqFleets - min(ctlList$mp$assess$spFleets) + 1] <- 1
 
   # Time-varying q?
   tvq_f       <- rep(0,nF)
-  if(!is.null(oldFleet))
-    tvq_f[oldFleet %in% ctlList$mp$assess$spTVqFleets] <- 1
-  else tvq_f[ctlList$mp$assess$spTVqFleets] <- 1  
+  tvq_f[ctlList$mp$assess$spTVqFleets] <- 1  
 
   calcIndex_spf <- array(0, dim = c(nSS,nPP,nF) )
   stockq_spf    <- array(0, dim = c(nSS,nPP,nF) )
@@ -1508,6 +1384,9 @@ solvePTm <- function( Bmsy, B0 )
                 sigmaProcMult_sp  = array(1, dim = c(nSS,nPP)),
                 logit_gammaYr     = 0,
                 omqDevs_spft      = omqDevs_spft )
+
+
+
 
   # Save
   tmbLists <- list( data = data,
@@ -1669,6 +1548,7 @@ solvePTm <- function( Bmsy, B0 )
               C_ispft   = array( NA, dim = c(nReps, nS, nP, nF, nT) ),  # Catch by fleet (kt)
               C_ispt    = array( NA, dim = c(nReps, nS, nP, nT) ),      # Total catch (kt)
               F_ispft   = array( NA, dim = c(nReps, nS, nP, nF, nT) ),  # Fishing Mort
+              I_ispft   = array( NA, dim = c(nReps, nS+1, nP+1, nF, nT) ),  # Indices (without error)
               E_ipft    = array( NA, dim = c(nReps, nP, nF, nT) ),      # Fishing effort
               q_ispft   = array( NA, dim = c(nReps, nS, nP, nF, nT) ),  # Catchability
               qF_ispft  = array( NA, dim = c(nReps, nS, nP, nF, nT) ),  # F/E
@@ -1676,14 +1556,14 @@ solvePTm <- function( Bmsy, B0 )
             )
 
   om$errors  <- list( omegaR_ispt = array( NA, dim = c(nReps, nS, nP, nT) ),    # Rec Proc Errors
-                      delta_ispft = array( NA, dim = c(nReps, nS, nP, nF, nT) ) # Idx obs errors
+                      delta_ispft = array( NA, dim = c(nReps, nS+1, nP+1, nF, nT) ) # Idx obs errors
                     )
 
   ## ADD AGE/LENGTH SAMPLING ERRORS ## 
 
   mp <- list( data = NULL, assess = NULL, hcr = NULL )
 
-  mp$data <- list( I_ispft = array( NA, dim = c(nReps, nS, nP, nF, nT ) ) )    # Biomass indices
+  mp$data <- list( I_ispft = array( NA, dim = c(nReps, nS+1, nP+1, nF, nT ) ) )    # Biomass indices
   ## ADD AGES AND LENGTH DATA ##
 
   mp$assess <- list(  retroR_itspt      = array( NA, dim = c(nReps, pT, nS, nP, nT ) ),      # retroR
@@ -1759,7 +1639,7 @@ solvePTm <- function( Bmsy, B0 )
     # Calculate effort dynamics parameters
     simObj <- .calcHistEffortDynamics( simObj )
     # Calcualate times for observations
-    simObj <- .calcTimes( simObj )
+    
 
 
     if( ctlList$ctl$omni | ctlList$ctl$perfConF )
@@ -1805,6 +1685,7 @@ solvePTm <- function( Bmsy, B0 )
     blob$om$C_ispft[i,,,,]    <- simObj$om$C_spft
     blob$om$C_ispt[i,,,]      <- simObj$om$C_spt
     blob$om$F_ispft[i,,,,]    <- simObj$om$F_spft
+    blob$om$I_ispft[i,,,,]    <- simObj$om$I_spft
     blob$om$E_ipft[i,,,]      <- simObj$om$E_pft
     blob$om$q_ispft[i,,,,]    <- simObj$om$q_spft
     blob$om$qF_ispft[i,,,,]   <- simObj$om$qF_spft
@@ -3178,7 +3059,8 @@ combBarrierPen <- function( x, eps,
 
 
   # Add historical data
-  obj$mp$data$I_spft[,,,histdx]      <- repObj$I_spft
+  obj$mp$data$I_spft[1:nS,1:nP,,histdx] <- repObj$I_spft
+  obj$om$I_spft[1:nS,1:nP,,histdx]      <- repObj$I_spft
   obj$mp$data$A_axspft[,,,,,histdx]  <- aperm( repObj$age_aspftx, c(1,6,2:5) )
   obj$mp$data$L_lxspft[,,,,,histdx]  <- aperm( repObj$len_lspftx, c(1,6,2:5) )
 
@@ -3198,26 +3080,34 @@ combBarrierPen <- function( x, eps,
   for( s in 1:nS )
     for( p in 1:nP )
     {
+      obj$errors$delta_spft[s,p,,] <- rnorm(nF*nT)
+
       if( !ctlList$ctl$noProcErr )
         obj$errors$omegaR_spt[s,p,] <- rnorm(nT)
 
-      for( f in 1:nF )
-        obj$errors$delta_spft[s,p,f,] <- rnorm(nT)
-
-      obj$om$alloc_spf[s,p,commGears] <- recentCatch_spf[s,p,commGears] / sum( recentCatch_spf[s,p,commGears])
-
       # Save historical proc errors, but use simulated recruitments after
       # last estimated recruitment
-      lastIdx <- max(which(repObj$omegaR_spt[s,p,] != 0) )
-      obj$errors$omegaR_spt[s,p,histdx[1:lastIdx]]   <- repObj$omegaR_spt[s,p,1:lastIdx] 
+      lastDevIdx <- max(which(repObj$omegaR_spt[s,p,] != 0) )
+
+      obj$errors$omegaR_spt[s,p,histdx[1:lastDevIdx]]   <- repObj$omegaR_spt[s,p,1:lastDevIdx] 
+      
       if( !ctlList$ctl$noProcErr )
-        obj$errors$omegaR_spt[s,p,histdx[1:lastIdx]] + 0.5*repObj$sigmaR_sp[s,p]  # rec devs    
+          obj$errors$omegaR_spt[s,p,histdx[1:lastDevIdx]] + 0.5*repObj$sigmaR_sp[s,p]  # rec devs    
+
+      obj$om$alloc_spf[s,p,commGears] <- recentCatch_spf[s,p,commGears] / sum( recentCatch_spf[s,p,commGears])
     }
 
+  obj$errors$omegaRinit_asp         <- repObj$omegaRinit_asp # Initialisation errors
+  
+  obj$errors$delta_spft[nS+1,1:nP,,] <- rnorm(nT * nP * nF)
+  obj$errors$delta_spft[1:(nS+1),nP+1,,] <- rnorm(nT * (nS + 1)*nF)
 
   # Save historical errors
-  obj$errors$delta_spft[,,,histdx]  <- repObj$residCPUE_spft # obs errors
-  obj$errors$omegaRinit_asp         <- repObj$omegaRinit_asp # Initialisation errors
+  if( ctlList$mp$data$source == "cond")
+    obj$errors$delta_spft[1:nS,1:nP,,histdx]  <- repObj$residCPUE_spft # obs errors
+   
+  
+  # Then add obsErrorMultiplier for future precision scenarios
   obj$errors$obsErrMult_spft        <- array(1, dim = c(nS,nP,nF,nT))
 
   # Adjust obs error multiplier if 
@@ -3235,6 +3125,8 @@ combBarrierPen <- function( x, eps,
     }
     obj$errors$obsErrMult_spft[,,,(tMP+nPhaseIn):nT] <- projObsErrMult
   }
+
+  obj <- .calcTimes( obj )
 
   message(" (.condMS3pop) Running OM for historical period.\n")
 
@@ -3312,6 +3204,7 @@ combBarrierPen <- function( x, eps,
   om$sel_axspf  <- array(0,  dim = c(nA,nX,nS,nP,nF) )     # sel at age
   om$sel_lspf   <- array(0,  dim = c(nL,nS,nP,nF) )        # sel at len
   om$F_spft     <- array(NA,  dim = c(nS,nP,nF,nT) )       # Fishing mortality
+  om$I_spft     <- array(NA,  dim = c(nS+1,nP+1,nF,nT) )   # Observations without error
   om$E_pft      <- array(NA,  dim = c(nP,nF,nT) )          # Fishing effort
   om$alloc_spf  <- array(0,  dim = c(nS,nP,nF))            # Catch allocation
   om$Rev_spft   <- array(NA, dim = c(nS,nP,nF,nT) )        # Fleet revenue
@@ -3357,8 +3250,8 @@ combBarrierPen <- function( x, eps,
   mp$data <- list()
 
   # Data list
-  mp$data$I_spft    <- array( NA, dim = c(nS,nP,nF,nT) )
-  mp$data$A_axspft  <- array( NA, dim = c(nA,nX,nS,nP,nF,nT) ) 
+  mp$data$I_spft    <- array( NA, dim = c(nS+1,nP+1,nF,nT) )      # Add a pooled data dimension
+  mp$data$A_axspft  <- array( NA, dim = c(nA,nX,nS,nP,nF,nT) )    
   mp$data$L_lxspft  <- array( NA, dim = c(nL,nX+1,nS,nP,nF,nT) ) 
 
   # assessment list
@@ -3388,8 +3281,9 @@ combBarrierPen <- function( x, eps,
   errors <- list()
 
   # Arrays for holding errors
-  errors$omegaR_spt <- array(0, dim = c(nS,nP,nT) )
-  errors$delta_spft <- array(0, dim = c(nS,nP,nF,nT) )
+  errors$omegaR_spt       <- array(0, dim = c(nS,nP,nT) )
+  errors$omegaRinit_asp   <- array(0, dim = c(nA,nS,nP) )
+  errors$delta_spft       <- array(0, dim = c(nS+1,nP+1,nF,nT) )
 
 
 
@@ -3475,12 +3369,14 @@ combBarrierPen <- function( x, eps,
 .ageSexOpMod <- function( obj, t )
 {
   # Pull om
-  om    <- obj$om
-  rp    <- obj$rp
-  data  <- obj$mp$data
-  err   <- obj$errors
-  hcr   <- obj$mp$hcr
-  opMod <- obj$ctlList$opMod
+  om      <- obj$om
+  rp      <- obj$rp
+  data    <- obj$mp$data
+  err     <- obj$errors
+  hcr     <- obj$mp$hcr
+  mp      <- obj$mp
+  opMod   <- obj$ctlList$opMod
+  ctlList <- obj$ctlList
 
   # Get model dimensions, and state variables
   tMP               <- om$tMP
@@ -3533,7 +3429,10 @@ combBarrierPen <- function( x, eps,
   q_spf             <- om$q_spf
 
   # Biomass indices
-  I_spft            <- data$I_spft
+  Ierr_spft         <- data$I_spft
+  Iperf_spft        <- om$I_spft
+
+
   
   # Biological pars
   B0_sp             <- om$B0_sp
@@ -3755,21 +3654,130 @@ combBarrierPen <- function( x, eps,
   C_spft[,,,t] <- apply( X = Cw_axspft[,,,,,t], FUN = sum, MARGIN = c(3,4,5), na.rm = T )
   C_spt[,,t]   <- apply( X = C_spft[,,,t], FUN = sum, MARGIN = c(1,2), na.rm = T )
 
-  # Now generate indices - need to add a schedule later
-  if( t >= tMP )
+  # Now generate indices - if we are in the projection
+  # or data is being overwritten by the OM
+  if( t >= tMP | ctlList$mp$data$source == "OM" )
   {
-    # Get the indices that we're still collecting
-    idxOn_spft <- obj$ctlList$mp$data$idxOn_spft
+    # Get the indices that we're still collecting in the future
+    idxOn_spf <- obj$ctlList$mp$data$idxOn_spft[,,,t]
 
     # Calculate and save
-    for( s in 1:nS )
-      for( p in 1:nP )
-      {
-        idxOn <- obj$mp$data$idxOn_spft[s,p,,t]
-        tau <- om$tauObs_spf[s,p,idxOn] * err$obsErrMult_spft[s,p,idxOn,t]
-        I_spft[s,p,idxOn,t] <- q_spft[s,p,idxOn,t] * vB_spft[s,p,idxOn,t] * exp(tau * err$delta_spft[s,p,idxOn,t] - 0.5 * tau^2)
-      }
+    for( f in 1:nF)
+    {
+      # First, the species/stock specific observations
+      for( s in 1:nS )
+        for( p in 1:nP )
+        {
+          idxOn <- obj$mp$data$idxOn_spft[s,p,f,t]
+          if( !idxOn )
+            next
+          # Compute precision
+          tau <- om$tauObs_spf[s,p,f] * err$obsErrMult_spft[s,p,f,t]
+
+          # relative biomass survey
+          if( ctlList$mp$data$idxType[f] == 1)
+            Iperf_spft[s,p,f,t] <- q_spft[s,p,f,t] * vB_spft[s,p,f,t]
+
+          # CPUE
+          if( ctlList$mp$data$idxType[f] == 2 )
+            Iperf_spft[s,p,f,t] <- C_spft[s,p,f,t] / E_pft[p,f,t] 
+
+          # Save true observations and those with error
+          Ierr_spft[s,p,f,t] <- Iperf_spft[s,p,f,t] * exp(tau * err$delta_spft[s,p,f,t] - 0.5 * tau^2)
+        } 
+    }
   }
+
+  # Now make aggregates
+  tauObs_spf  <- om$tauObs_spf * err$obsErrMult_spft[s,p,f,t]
+  idxOn_spf   <- obj$mp$data$idxOn_spft[,,,t]
+  # Species Pooling
+  if( ctlList$mp$data$speciesPooling & !ctlList$mp$data$spatialPooling  )
+  {
+    for( f in 1:nF)
+    {
+      for(p in 1:nP )
+      {
+        tauObs_spf[tauObs_spf == 0] <- NA
+        tau <- mean(tauObs_spf[,p,f],na.rm = TRUE)
+        if( ctlList$mp$data$idxType[f] == 1 )
+          Iperf_spft[nS+1,p,f,t] <- sum( q_spft[,p,f,t] * vB_spft[,p,f,t] * idxOn_spf[,p,f], na.rm = T )
+
+        if( ctlList$mp$data$idxType[f] == 2 )
+        {
+          Iperf_spft[nS+1,p,f,t] <- max(idxOn_spf[,p,f]) * sum( C_spft[,p,f,t] ) 
+          if( Iperf_spft[nS+1,p,f,t] > 0 )
+            Iperf_spft[nS+1,p,f,t] <- Iperf_spft[nS+1,p,f,t] / min(1e-6,E_pft[p,f,t]) / 1e3
+        }
+
+        # Add error
+        Ierr_spft[nS+1,p,f,t] <- Iperf_spft[nS+1,p,f,t] * exp( tau * err$delta_spft[nS+1,p,f,t] - 0.5 * tau^2)
+
+      }
+    }
+
+    if(any(is.nan(Iperf_spft)))
+      browser()
+  }
+
+  # Spatial Pooling
+  if( ctlList$mp$data$spatialPooling & !ctlList$mp$data$speciesPooling )
+  {
+    for( f in 1:nF)
+    {
+      for( s in 1:nS )
+      {
+        tauObs_spf[tauObs_spf == 0] <- NA
+        tau <- mean(tauObs_spf[s,,f],na.rm = TRUE)
+        
+        if( ctlList$mp$data$idxType[f] == 1 )
+          Iperf_spft[s,nP + 1,f,t] <- sum( q_spft[s,,f,t] * vB_spft[s,,f,t] * idxOn_spf[s,,f], na.rm = T )
+
+        if( ctlList$mp$data$idxType[f] == 2 )
+        {
+          Iperf_spft[s,nP+1,f,t] <- max(idxOn_spf[s,,f]) * sum(  C_spft[s,,f,t] ) 
+          if(Iperf_spft[s,nP+1,f,t] > 0) 
+            Iperf_spft[s,nP+1,f,t] <- Iperf_spft[s,nP+1,f,t] / min(1e-6,sum( E_pft[,f,t], na.rm = TRUE )) / 1e3
+        }
+
+        Ierr_spft[s,nP+1,f,t] <- Iperf_spft[s,nP+1,f,t] * exp( tau * err$delta_spft[s,nP+1,f,t] - 0.5 * tau^2)
+
+
+      }
+    }
+
+    if(any(is.nan(Iperf_spft)))
+      browser()
+  }
+
+  # Total aggregation
+  if( ctlList$mp$data$spatialPooling & ctlList$mp$data$speciesPooling )
+  {
+
+    for( f in 1:nF)
+    {
+      tauObs_spf[tauObs_spf == 0] <- NA
+      tau <- mean(tauObs_spf[,,f],na.rm = TRUE)
+
+      if( ctlList$mp$data$idxType[f] == 1 )
+        Iperf_spft[nS+1,nP + 1,f,t] <- sum( q_spft[,,f,t] * vB_spft[,,f,t] * idxOn_spf[1:nS,1:nP,f], na.rm = T )
+
+      if( ctlList$mp$data$idxType[f] == 2 )
+      {
+        Iperf_spft[nS+1,nP+1,f,t] <- max(idxOn_spf[,,f]) * sum( C_spft[,,f,t] ) 
+        if( Iperf_spft[nS+1,nP+1,f,t] > 0 )
+          Iperf_spft[nS+1,nP+1,f,t] <- Iperf_spft[nS+1,nP+1,f,t] / sum( E_pft[,f,t], na.rm = TRUE ) / 1e3
+      }
+
+      Ierr_spft[nS+1,nP+1,f,t] <- Iperf_spft[nS+1,nP+1,f,t] * exp( tau * err$delta_spft[nS+1,nP+1,f,t] - 0.5 * tau^2)
+    }
+
+    if(any(is.nan(Iperf_spft)))
+      browser()
+  }
+
+  Iperf_spft[Iperf_spft == 0] <- NA
+  Ierr_spft[Ierr_spft == 0] <- NA
 
 
   # put all the state arrays back into OM
@@ -3806,7 +3814,9 @@ combBarrierPen <- function( x, eps,
   qF_spft           -> obj$om$qF_spft
 
   # Biomass indices
-  I_spft            -> obj$mp$data$I_spft
+  Iperf_spft        -> obj$om$I_spft
+  Ierr_spft         -> obj$mp$data$I_spft
+
 
   return( obj )
 } # END ageSexOpMod()

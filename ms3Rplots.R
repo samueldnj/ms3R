@@ -72,7 +72,7 @@ plotTulipAssError <- function(  obj = blob,
 
 
   # Aggregate OM biomasses to match AM biomass
-  if( ctlList$mp$assess$spCoastwide )
+  if( ctlList$mp$data$spatialPooling )
   {
     newSB_ispt        <- apply( X = SB_ispt, FUN = sum, MARGIN = c(1,2,4), na.rm = T )
     newVB_ispt        <- apply( X = VB_ispt, FUN = sum, MARGIN = c(1,2,4), na.rm = T )
@@ -87,7 +87,7 @@ plotTulipAssError <- function(  obj = blob,
 
   }
 
-  if( ctlList$mp$assess$spDataPooled )
+  if( ctlList$mp$data$speciesPooling )
   {
     newSB_ispt        <- apply( X = SB_ispt, FUN = sum, MARGIN = c(1,3,4), na.rm = T )
     newVB_ispt        <- apply( X = VB_ispt, FUN = sum, MARGIN = c(1,3,4), na.rm = T )
@@ -2426,7 +2426,7 @@ plotTulipBt <- function(  obj = blob, nTrace = 3,
 
   traces <- sample( 1:nReps, size = min(nTrace,nReps)  )
 
-  stamp <- paste(blob$ctlList$ctl$scenarioName,":",blob$ctlList$ctl$mpName,sep = "")
+  stamp <- paste(obj$ctlList$ctl$scenarioName,":",obj$ctlList$ctl$mpName,sep = "")
 
   par(  mfcol = c(nP,nS), 
         mar = c(1,1.5,1,1.5),
@@ -2881,7 +2881,7 @@ plotRetroSBagg <- function( obj = blob, iRep = 1, Ct = TRUE )
   TAC_spt  <- apply(X = TAC_spft, FUN = sum, MARGIN = c(1,2,4))
 
   # Aggregate OM biomasses to match AM biomass
-  if( ctlList$mp$assess$spCoastwide )
+  if( ctlList$mp$data$spatialPooling )
   {
     newSB_spt        <- apply( X = SB_spt, FUN = sum, MARGIN = c(1,3), na.rm = T )
     newVB_spt        <- apply( X = VB_spt, FUN = sum, MARGIN = c(1,3), na.rm = T )
@@ -2908,7 +2908,7 @@ plotRetroSBagg <- function( obj = blob, iRep = 1, Ct = TRUE )
 
   }
 
-  if( ctlList$mp$assess$spDataPooled )
+  if( ctlList$mp$data$speciesPooling )
   {
     newSB_spt        <- apply( X = SB_spt, FUN = sum, MARGIN = c(2,3), na.rm = T )
     newVB_spt        <- apply( X = VB_spt, FUN = sum, MARGIN = c(2,3), na.rm = T )
@@ -2953,7 +2953,7 @@ plotRetroSBagg <- function( obj = blob, iRep = 1, Ct = TRUE )
   if( nSS == 1 )
     speciesNames <- "Data Pooled"
 
-  stamp <- paste(blob$ctlList$ctl$scenarioName,":",blob$ctlList$ctl$mpName,":",iRep,sep = "")
+  stamp <- paste(obj$ctlList$ctl$scenarioName,":",obj$ctlList$ctl$mpName,":",iRep,sep = "")
 
   yrs <- seq( from = fYear, by = 1, length.out = nT)
 
@@ -3181,7 +3181,7 @@ plotScaledIndices <- function(  obj = blob,
     I_spft[,,,tFirstIdx] <- NA
 
   # Aggregate OM biomasses to match AM biomass
-  if( ctlList$mp$assess$spCoastwide )
+  if( ctlList$mp$data$spatialPooling & !ctlList$mp$data$speciesPooling )
   {
     newSB_spt        <- apply( X = SB_spt, FUN = sum, MARGIN = c(1,3), na.rm = T )
     newVB_spt        <- apply( X = VB_spt, FUN = sum, MARGIN = c(1,3), na.rm = T )
@@ -3197,19 +3197,19 @@ plotScaledIndices <- function(  obj = blob,
     sumC_spt          <- C_spft[,1,1,,drop = FALSE]
     sumC_spt[,1,1,]   <- apply(X = C_spft, FUN = sum, MARGIN = c(1,4))
     newC_spt          <- array(NA, dim = c(nS,1,t))
+
+    I_spft <- I_spft[1:nS,1+nP,,,drop = FALSE]
     
     newC_spt[,1,]     <- sumC_spt[,1,1,]
     C_spt             <- newC_spt
 
   }
 
-  if( ctlList$mp$assess$spDataPooled )
+  if( ctlList$mp$data$speciesPooling &  !ctlList$mp$data$spatialPooling )
   {
     newSB_spt        <- apply( X = SB_spt, FUN = sum, MARGIN = c(2,3), na.rm = T )
     newVB_spt        <- apply( X = VB_spt, FUN = sum, MARGIN = c(2,3), na.rm = T )
     newtotB_spt      <- apply( X = totB_spt, FUN = sum, MARGIN = c(2,3), na.rm = T )
-
-    newI_spft        <- apply( X = I_spft, FUN = sum, MARGIN = c(2,3,4), na.rm = T )
 
     SB_spt    <- SB_spt[1,,,drop = FALSE]
     SB_spt[1,,] <- newSB_spt
@@ -3218,17 +3218,39 @@ plotScaledIndices <- function(  obj = blob,
     totB_spt  <- totB_spt[1,,,drop = FALSE]
     totB_spt[1,,] <- newtotB_spt
 
-    I_spft <- I_spft[1, , , , drop= FALSE]
-    I_spft[1,,,] <- newI_spft
-    I_spft[I_spft <= 0] <- NA
+    I_spft <- I_spft[1+nS,1:nP,,, drop= FALSE]
 
     sumC_spt          <- C_spft[1,,1,,drop = FALSE]
     sumC_spt[1,,1,]   <- apply(X = C_spft, FUN = sum, MARGIN = c(2,4))
-    newC_spt          <- array(NA, dim = c(1,nP,t))
+    newC_spt          <- array(NA, dim = c(1,1,t))
     newC_spt[1,,]     <- sumC_spt[1,,1,]
     C_spt             <- newC_spt
 
   }
+
+  if( ctlList$mp$data$speciesPooling &  ctlList$mp$data$spatialPooling )
+  {
+    newSB_spt        <- apply( X = SB_spt, FUN = sum, MARGIN = c(3), na.rm = T )
+    newVB_spt        <- apply( X = VB_spt, FUN = sum, MARGIN = c(3), na.rm = T )
+    newtotB_spt      <- apply( X = totB_spt, FUN = sum, MARGIN = c(3), na.rm = T )
+
+    SB_spt    <- SB_spt[1,1,,drop = FALSE]
+    SB_spt[1,1,] <- newSB_spt
+    VB_spt    <- VB_spt[1,1,,drop = FALSE]
+    VB_spt[1,1,] <- newVB_spt
+    totB_spt  <- totB_spt[1,1,,drop = FALSE]
+    totB_spt[1,1,] <- newtotB_spt
+
+    I_spft <- I_spft[1+nS,1+nP,,, drop= FALSE]
+
+    sumC_spt          <- C_spft[1,1,1,,drop = FALSE]
+    sumC_spt[1,1,1,]  <- apply(X = C_spft, FUN = sum, MARGIN = c(4))
+    newC_spt          <- array(NA, dim = c(1,1,t))
+    newC_spt[1,1,]    <- sumC_spt[1,1,1,]
+    C_spt             <- newC_spt
+
+  }
+
 
   
   fleetPCH  <- 20 + 1:nF
@@ -3247,7 +3269,7 @@ plotScaledIndices <- function(  obj = blob,
 
   scaledIdx_spft <- array( NA, dim = c(nSS, nP, nF, t ) )
   for( s in 1:nSS )
-    for( p in 1:nP )
+    for( p in 1:nPP )
       for( f in 1:nF )
       {
         if( f %in% spTVqFleets)
@@ -3266,10 +3288,10 @@ plotScaledIndices <- function(  obj = blob,
   pT            <- obj$ctlList$opMod$pT
 
   if( nPP == 1 )
-    stockNames <- "Coastwide"
+    stockNames <- "Spatially Pooled"
 
   if( nSS == 1 )
-    speciesNames <- "Data Pooled"
+    speciesNames <- "DER Complex"
 
   yrs <- seq( from = fYear, by = 1, length.out = t)
   ppJitter <- seq(from = -.3, to = .3, length.out = nP )
@@ -3306,24 +3328,9 @@ plotScaledIndices <- function(  obj = blob,
       lines( x = yrs, y = fitSB_spt[s,p,], col = "grey60", lwd = 1 )
 
       for( f in 1:nF )
-      {
-        # Plot scaled indices
-        if( nP > nPP )
-          for( pp in 1:nP )
-          {
-            if( f > 1 )
-            points( x = yrs+ppJitter[pp], y = scaledIdx_spft[s,pp,f,],
-                    pch = fleetPCH[f], bg = fleetBG[f],
-                    cex = .8, col = stockCol[pp] )
-          }
-        if( nP == nPP) 
-        {
-          points( x = yrs, y = scaledIdx_spft[s,p,f,],
-                  pch = fleetPCH[f], bg = fleetBG[f],
-                  cex = 1.3, col = stockCol[p] )
-        }
-        
-      }
+        points( x = yrs, y = scaledIdx_spft[s,p,f,],
+                pch = fleetPCH[f], bg = fleetBG[f],
+                cex = 1.3, col = stockCol[p] )
       
       if( Ct )
       {
@@ -3370,6 +3377,8 @@ plotAMIdxResids <- function(  obj = blob,
   fitq_spft     <- obj$mp$assess$retroq_itspft[iRep,projt,,,,1:t]
   tauObs_spf    <- obj$mp$assess$retrotauObs_itspf[iRep,projt,,,]
 
+  tauObs_spf[is.na(tauObs_spf)] <- 0
+
   ctlList <- obj$ctlList
 
   fitSB_spt[fitSB_spt < 0] <- NA
@@ -3384,32 +3393,36 @@ plotAMIdxResids <- function(  obj = blob,
 
   # Now pull indices
   I_spft <- obj$mp$data$I_ispft[iRep,,,,1:t]
-  I_spft[I_spft < 0] <- NA
+  I_spft[I_spft <= 0] <- NA
 
   nSS <- nS
   nPP <- nP
 
   # Aggregate OM biomasses to match AM biomass
-  if( ctlList$mp$assess$spCoastwide )
+  if( ctlList$mp$data$spatialPooling & !ctlList$mp$data$speciesPooling )
   {
-    nPP <- 1
+    nPP    <- 1
+    I_spft <- I_spft[1:nS,nP+1,,,drop = FALSE]
   }
 
-  if( ctlList$mp$assess$spDataPooled )
+  if( ctlList$mp$data$speciesPooling & !ctlList$mp$data$spatialPooling  )
   {
     nSS <- 1
-    newI_spft        <- apply( X = I_spft, FUN = sum, MARGIN = c(2,3,4), na.rm = T )
-
-    I_spft <- I_spft[1, , , , drop= FALSE]
-    I_spft[1,,,] <- newI_spft
-    I_spft[I_spft <= 0] <- NA
-
+    I_spft <- I_spft[1+nS,1:nP,,,drop = FALSE] 
   }
 
-  stdResids_spft <- array( NA, dim = c(nSS, nP, nF, t) )
+  if( ctlList$mp$data$speciesPooling & ctlList$mp$data$spatialPooling )
+  {
+    nSS <- 1
+    nPP <- 1
+    I_spft <- I_spft[1+nS,1+nP,,,drop = FALSE] 
+  }
+
+
+  stdResids_spft <- array( NA, dim = c(nSS, nPP, nF, t) )
 
   for( s in 1:nSS )
-    for( p in 1:nP )
+    for( p in 1:nPP )
       for( f in 1:nF )
       {
         if( tauObs_spf[s,p,f] > 0 )
@@ -3444,13 +3457,12 @@ plotAMIdxResids <- function(  obj = blob,
 
   ppJitter <- seq( from = -.3, to = .3, length.out = nP )
 
-  par(  mfcol = c(nP,nSS), 
+  par(  mfcol = c(nPP,nSS), 
         mar = c(1,1.5,1,1.5),
         oma = c(3,3,3,3) )
   for(s in 1:nSS)
-    for( p in 1:nP )
+    for( p in 1:nPP )
     {
-
       maxResid <- max(abs(stdResids_spft[s,p,,]),na.rm = T)
       plot( x = range(yrs),
             y = range(-maxResid,maxResid),
