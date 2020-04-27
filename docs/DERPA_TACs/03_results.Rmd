@@ -111,6 +111,11 @@ comparing stochastic simulations to the omniscient manager
 scenarios.
 
 
+When replicates included time steps where assessment models would 
+not converge (largely due to data quality issues)
+we increased the number of replicates until we reached
+100 replicates where simulated assessment models 
+converged for all time steps.
 
 ### Yield loss
 
@@ -250,16 +255,6 @@ quality reduces.
 
 Need to look at simulation envelopes to understand the nature of
 the loss - often underfishing, esp. as CVs increase.
-
-
-Seems like SS does better on catch and biomass loss, but has
-the tendency for large assessment errors. Although in this case
-this is mitigated by the technical interactions in the system, where 
-the most catchable (Dover sole) TACs get filled first and they happen 
-to be set to a better level, this is system dependent. Indeed, 
-a change in catchability due to switching the target species, or 
-an underyling regime shift, could suddenly make it easier to fulfil
-TACs that are set too high by a . 
 
 
 

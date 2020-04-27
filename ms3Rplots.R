@@ -3466,7 +3466,6 @@ plotAMIdxResids <- function(  obj = blob,
   for(s in 1:nSS)
     for( p in 1:nPP )
     {
-      browser()
       maxResid <- max(abs(stdResids_spft[s,p,,]),na.rm = T)
       plot( x = range(yrs),
             y = range(-maxResid,maxResid),
