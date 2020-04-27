@@ -677,42 +677,42 @@ solvePTm <- function( Bmsy, B0 )
         }
 
         # Add Bmsy across stocks if coastwide
-      if( spatialPooling & !speciesPooling & spSingleStock )
-      {
-        mBmsy_sp_new      <- mBmsy_sp[,1,drop = FALSE]
-        mBmsy_sp_new[,1]  <- apply( X = BeqSS_sp, FUN = sum, MARGIN = 1)
+      # if( spatialPooling & !speciesPooling & spSingleStock )
+      # {
+      #   mBmsy_sp_new      <- mBmsy_sp[,1,drop = FALSE]
+      #   mBmsy_sp_new[,1]  <- apply( X = BeqSS_sp, FUN = sum, MARGIN = 1)
 
-        mBmsy_sp <- mBmsy_sp_new
+      #   mBmsy_sp <- mBmsy_sp_new
 
-        PTm_sp <- omPTm_sp[,1,drop = FALSE] 
+      #   PTm_sp <- omPTm_sp[,1,drop = FALSE] 
 
-        for( s in 1:nS )
-        {
-          omFref_sp[s,] <- sum(Yeq_sp[s,]) / sum(Beq_sp[s,])
-          omUmsy_sp[s,] <- sum(YeqSS_sp[s,]) / sum(expBeqSS_sp[s,])
-          if( ctlList$mp$assess$spSkewYieldCurves )
-            PTm_sp[s,]    <- solvePTm( Bmsy = sum(BeqSS_sp[s,]), B0 = sum(B0_sp[s,]) )
-        }
+      #   for( s in 1:nS )
+      #   {
+      #     omFref_sp[s,] <- sum(Yeq_sp[s,]) / sum(Beq_sp[s,])
+      #     omUmsy_sp[s,] <- sum(YeqSS_sp[s,]) / sum(expBeqSS_sp[s,])
+      #     if( ctlList$mp$assess$spSkewYieldCurves )
+      #       PTm_sp[s,]    <- solvePTm( Bmsy = sum(BeqSS_sp[s,]), B0 = sum(B0_sp[s,]) )
+      #   }
 
-        
-      }
+      #   browser()
+      # }
 
-      if( speciesPooling & !spatialPooling & spSingleStock )
-      {
-        mBmsy_sp_new <- mBmsy_sp[1,,drop = FALSE]
-        mBmsy_sp_new[1,] <- apply( X = BeqSS_sp, FUN = sum, MARGIN = 2 )
+      # if( speciesPooling & !spatialPooling & spSingleStock )
+      # {
+      #   mBmsy_sp_new <- mBmsy_sp[1,,drop = FALSE]
+      #   mBmsy_sp_new[1,] <- apply( X = BeqSS_sp, FUN = sum, MARGIN = 2 )
 
-        mBmsy_sp <- mBmsy_sp_new
-        PTm_sp <- omPTm_sp[1,,drop = FALSE] 
+      #   mBmsy_sp <- mBmsy_sp_new
+      #   PTm_sp <- omPTm_sp[1,,drop = FALSE] 
 
-        for( p in 1:nP )
-        {
-          omFref_sp[,p] <- sum(Yeq_sp[,p]) / sum(Beq_sp[,p])
-          omUmsy_sp[,p] <- sum(YeqSS_sp[,p]) / sum(expBeqSS_sp[,p])
-          if( ctlList$mp$assess$spSkewYieldCurves )
-            PTm_sp[,p]    <- solvePTm( Bmsy = sum(BeqSS_sp[,p]), B0 = sum(B0_sp[,p]) )
-        }
-      }
+      #   for( p in 1:nP )
+      #   {
+      #     omFref_sp[,p] <- sum(Yeq_sp[,p]) / sum(Beq_sp[,p])
+      #     omUmsy_sp[,p] <- sum(YeqSS_sp[,p]) / sum(expBeqSS_sp[,p])
+      #     if( ctlList$mp$assess$spSkewYieldCurves )
+      #       PTm_sp[,p]    <- solvePTm( Bmsy = sum(BeqSS_sp[,p]), B0 = sum(B0_sp[,p]) )
+      #   }
+      # }
 
 
 
