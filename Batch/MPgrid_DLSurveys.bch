@@ -1,4 +1,4 @@
-# Batch Control File, created Sun Apr 26 23:51:09 2020 by makeBatchDesign() 
+# Batch Control File, created Mon Apr 27 00:54:53 2020 by makeBatchDesign() 
 parameter value
 #
 # Scenarios 
@@ -115,9 +115,9 @@ mp$mp2$mp$assess$spIGtau2alpha 1
 mp$mp2$mp$assess$spIGtau2Mode 0.25
 mp$mp2$mp$assess$spSkewYieldCurves TRUE
 #
-# MP 3 : dataPooled_omF_MSrefPts
+# MP 3 : speciesPooling_omF_MSrefPts
 #
-mp$mp3$ctl$mpName 'dataPooled_omF_MSrefPts'
+mp$mp3$ctl$mpName 'speciesPooling_omF_MSrefPts'
 mp$mp3$mp$hcr$Fsource 'om'
 mp$mp3$mp$hcr$refPtType 'MS'
 mp$mp3$mp$data$spatialPooling FALSE
@@ -161,9 +161,9 @@ mp$mp3$mp$assess$spIGtau2Mode 0.25
 mp$mp3$mp$assess$spSkewYieldCurves TRUE
 mp$mp3$mp$assess$spEstExpBio FALSE
 #
-# MP 4 : coastwide_omF_MSrefPts
+# MP 4 : spatialPooling_omF_MSrefPts
 #
-mp$mp4$ctl$mpName 'coastwide_omF_MSrefPts'
+mp$mp4$ctl$mpName 'spatialPooling_omF_MSrefPts'
 mp$mp4$mp$hcr$Fsource 'om'
 mp$mp4$mp$hcr$refPtType 'MS'
 mp$mp4$mp$data$spatialPooling TRUE
