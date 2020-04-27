@@ -28,8 +28,8 @@ scenario$scenario3$opMod$pT 32
 scenario$scenario3$ctl$nGoodReps 10
 scenario$scenario3$ctl$totReps 400
 scenario$scenario3$mp$assess$spFleets c(3,4)
-scenario$scenario2$mp$assess$spLateStart TRUE
-scenario$scenario2$mp$assess$spPhzlnBinit 2
+scenario$scenario3$mp$assess$spLateStart TRUE
+scenario$scenario3$mp$assess$spPhzlnBinit 2
 #
 # Scenario 4 : 'DERfit_SsIdx'
 #
@@ -38,8 +38,8 @@ scenario$scenario4$opMod$pT 32
 scenario$scenario4$ctl$nGoodReps 10
 scenario$scenario4$ctl$totReps 400
 scenario$scenario4$mp$assess$spFleets c(4)
-scenario$scenario2$mp$assess$spLateStart TRUE
-scenario$scenario2$mp$assess$spPhzlnBinit 2
+scenario$scenario4$mp$assess$spLateStart TRUE
+scenario$scenario4$mp$assess$spPhzlnBinit 2
 #
 #
 #
