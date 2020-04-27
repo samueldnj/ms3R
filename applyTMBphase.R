@@ -118,6 +118,8 @@
 
     }
 
+
+
     # if(phase_cur == maxPhase)
       # browser()
 
@@ -134,6 +136,7 @@
                       iter.max = maxIter  )
 
     repInit <- obj$report()
+
 
     startPar <- obj$par
 

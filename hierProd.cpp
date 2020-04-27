@@ -116,12 +116,12 @@ Type objective_function<Type>::operator() ()
   // Leading Parameters
   PARAMETER_ARRAY(lnBmsy_sp);           // Biomass at MSY
   PARAMETER(lnUmsy);                    // Optimal complex exploitation rate
-  PARAMETER_VECTOR(lnqFreespf_vec);     // species/stock/fleet catchability for freely estimated fleets (usually commercial)
-  PARAMETER_VECTOR(lnqShrinksf_vec);    // fleet/species mean catchability for fleets that use a shrinkage prior
+  PARAMETER_ARRAY(lnqFree_spf);         // species/stock/fleet catchability for freely estimated fleets (usually commercial)
+  PARAMETER_ARRAY(lnqShrink_sf);        // fleet/species mean catchability for fleets that use a shrinkage prior
   PARAMETER_VECTOR(lntauspf_vec);       // survey obs error var
   PARAMETER_VECTOR(lnBinit_vec);        // Non-equilibrium initial biomass - vector so not all stocks need it
   // Priors
-  PARAMETER_VECTOR(deltalnqspf_vec);    // deviation for stock catchability w/in a species/survey
+  PARAMETER_ARRAY(deltalnq_spf);        // deviation for stock catchability w/in a species/survey
   PARAMETER_VECTOR(lntauq_s);           // survey catchability sd among stocks w/in a species
   PARAMETER_VECTOR(tvlnqDevs_vec);      // Time-varying catchability devs
   PARAMETER(lntautvqDev);               // TV q SD
@@ -171,11 +171,12 @@ Type objective_function<Type>::operator() ()
   
   // Prior hyperpars
   // Catchability
+  // array<Type>       qFree_spf(nS,nP,nF);
+  // array<Type>       qShrink_sf(nS,nF);
   array<Type>       q_spf(nS,nP,nF);
   array<Type>       lnqdev_spft(nS,nP,nF,nT);
   array<Type>       qhat_spf(nS,nP,nF);
   array<Type>       qhat_spft(nS,nP,nF,nT);
-  array<Type>       deltalnq_spf(nS,nP,nF);
   array<Type>       lnq_sf(nS,nF);
   array<Type>       lnq_spf(nS,nP,nF);
   vector<Type>      tauq_s(nS);
@@ -183,11 +184,10 @@ Type objective_function<Type>::operator() ()
   vector<Type>      lnq_f(nF);
 
   lnq_f.setZero();
-  q_spf.setZero();
+  q_spf.fill(1);
   lnqdev_spft.setZero();
-  qhat_spf.setZero();
+  qhat_spf.fill(1);
   qhat_spft.fill(1.0);
-  deltalnq_spf.setZero();
   lnq_sf.setZero();
   lnq_spf.setZero();
   tauq_s.setZero();
@@ -213,12 +213,9 @@ Type objective_function<Type>::operator() ()
   Type tautvqDev = exp(lntautvqDev);
   
   int tauVecIdx = 0;
-  int deltalnqVecIdx = 0;
   int qDevVecIdx = 0;
   int BinitvecIdx = 0;
-  int qShrinkIdx_f = 0;
-  int qShrinkIdx_sf = 0;
-  int qFreeIdx = 0;
+
   
 
   
@@ -233,8 +230,7 @@ Type objective_function<Type>::operator() ()
       // Now fill in speces/fleet level catchability pars
       if( shrinkq_f(f) == 1 & speciesq_sf(s,f) == 1 )
       {
-        lnq_sf(s,f) = lnqShrinksf_vec(qShrinkIdx_sf);
-        qShrinkIdx_sf++;
+        lnq_sf(s,f) = lnqShrink_sf(s,f);
       }
     }
 
@@ -262,12 +258,6 @@ Type objective_function<Type>::operator() ()
           tau_spf(s,p,f) = exp(lntauspf_vec(tauVecIdx));
           tauVecIdx++;
         }
-        // Fill stock specific q devs
-        if( stockq_spf(s,p,f) == 1 & condMLEq_f(f) == 0 )
-        {
-          deltalnq_spf(s,p,f) = deltalnqspf_vec(deltalnqVecIdx);
-          deltalnqVecIdx++;
-        }
         // Make stock specific survey qs using devs
         if( shrinkq_f(f) == 1 & condMLEq_f(f) == 0 )
         {
@@ -276,8 +266,7 @@ Type objective_function<Type>::operator() ()
         // Now use free catchability if wanted
         if( shrinkq_f(f) == 0 & condMLEq_f(f) == 0 )
         {
-          lnq_spf(s,p,f)  = lnqFreespf_vec(qFreeIdx);
-          qFreeIdx++; 
+          lnq_spf(s,p,f)  = lnqFree_spf(s,p,f);
         }
 
         if( tvq_f(f) == 1 )
@@ -491,7 +480,7 @@ Type objective_function<Type>::operator() ()
         {
           // compute conditional MLE q from observation
           // Single stock model
-          if( shrinkq_f(f) == 0 | nP == 1 | stockq_spf(s,p,f) == 0 ) 
+          if( shrinkq_f(f) == 0 | nP == 1 | speciesq_sf(s,f) == 0 ) 
             lnqhat_spf(s,p,f) = zSum_spf(s,p,f) / validObs_spf(s,p,f);
 
           // Multi-stock model
@@ -571,7 +560,13 @@ Type objective_function<Type>::operator() ()
   if( lnqPriorCode == 1 )
   {
     if(nP > 1)
-      nlpq -= dnorm( deltalnqspf_vec, Type(0), Type(1), true).sum();
+    {
+      for( int s = 0; s < nS; s++ ) 
+        for( int p = 0; p < nP; p++)
+          for( int f = 0; f < nF; f++)
+            if( shrinkq_f(f) == 1 & calcIndex_spf(s,p,f) == 1 )
+              nlpq -= dnorm( deltalnq_spf(s,p,f), Type(0), Type(1), true);
+    }
     
   }
 
@@ -723,8 +718,8 @@ Type objective_function<Type>::operator() ()
   REPORT(Umsy_s);
   REPORT(DnT_sp);
   REPORT(U_Umsy_spt);
-  REPORT(qShrinkIdx_sf);
-  REPORT(deltalnqspf_vec);
+  REPORT(deltalnq_spf);
+  REPORT(condMLEq_f);
   REPORT(tauq_s);
 
   // Skew in production function

@@ -567,7 +567,8 @@ solvePTm <- function( Bmsy, B0 )
   spFleetIdx  <- ctlList$mp$assess$spFleets
 
   # Pull observations and catch
-  I_spft      <- obj$mp$data$I_spft[1:nS,1:nP,spFleetIdx,1:(t-1)]
+  I_spft      <- obj$mp$data$I_spft[1:nS,1:nP,,1:(t-1)]
+  I_spft[,,-spFleetIdx,] <- -1
   C_spft      <- obj$om$C_spft[,,,(1:t-1)]
   C_spt       <- apply( X = C_spft, FUN = sum, 
                         MARGIN = c(1,2,4), na.rm = T )
@@ -694,8 +695,8 @@ solvePTm <- function( Bmsy, B0 )
         # Set some phases - 
         # if no phase is set then pars not
         # estimated
-        phases <- list( lnqShrinksf_vec = ctlList$mp$assess$spPhzlnqShrink,
-                        lnqFreespf_vec  = ctlList$mp$assess$spPhzlnqFree,
+        phases <- list( lnqShrink_sf    = ctlList$mp$assess$spPhzlnqShrink,
+                        lnqFree_spf     = ctlList$mp$assess$spPhzlnqFree,
                         tvlnqDevs_vec   = ctlList$mp$assess$spPhzTVq,
                         lntauspf_vec    = ctlList$mp$assess$spPhztauObs,
                         lnBmsy_sp       = ctlList$mp$assess$spPhzBmsy,
@@ -725,7 +726,7 @@ solvePTm <- function( Bmsy, B0 )
                                   silent = !ctlList$ctl$optimOutput,
                                   calcSD = TRUE,
                                   maxPhase = NULL,
-                                  base_map = list(),
+                                  base_map = tmbLists$map,
                                   maxEval = ctlList$ctl$maxEval,
                                   maxIter = ctlList$ctl$maxIter,
                                   phaseMsg = ctlList$ctl$phaseMessages )
@@ -901,8 +902,8 @@ solvePTm <- function( Bmsy, B0 )
     # Need to put in phases that are responsive to changes in
     # the fleet structure...
 
-    phases <- list( lnqShrinksf_vec = ctlList$mp$assess$spPhzlnqShrink,
-                    lnqFreespf_vec  = ctlList$mp$assess$spPhzlnqFree,
+    phases <- list( lnqShrink_sf    = ctlList$mp$assess$spPhzlnqShrink,
+                    lnqFree_spf     = ctlList$mp$assess$spPhzlnqFree,
                     tvlnqDevs_vec   = ctlList$mp$assess$spPhzTVq,
                     lntauspf_vec    = ctlList$mp$assess$spPhztauObs,
                     lnBmsy_sp       = ctlList$mp$assess$spPhzBmsy,
@@ -918,8 +919,8 @@ solvePTm <- function( Bmsy, B0 )
     
     if( nPP > 1 )
     {
-      phases$deltalnqspf_vec  <- ctlList$mp$assess$spPhzdeltalnq_spf
-      phases$epslnUmsy_sp     <- ctlList$mp$assess$spPhzepslnUmsy_sp
+      phases$deltalnq_spf  <- ctlList$mp$assess$spPhzdeltalnq_spf
+      phases$epslnUmsy_sp  <- ctlList$mp$assess$spPhzepslnUmsy_sp
     }
 
     # If totally fixing Umsy at OM reference
@@ -934,7 +935,7 @@ solvePTm <- function( Bmsy, B0 )
       phases$tvlnqDevs_vec <- -1
 
     if( is.null(ctlList$mp$assess$spShrinkqFleets) | nPP == 1 )
-      phases$deltalnqspf_vec <- -1
+      phases$deltalnq_spf <- -1
 
 
     if( ctlList$mp$assess$spSolveInitBio )
@@ -959,7 +960,7 @@ solvePTm <- function( Bmsy, B0 )
                               silent = !ctlList$ctl$optimOutput,
                               calcSD = TRUE,
                               maxPhase = NULL,
-                              base_map = list(),
+                              base_map = tmbLists$map,
                               phaseMsg = ctlList$ctl$phaseMessages,
                               maxEval = ctlList$ctl$maxEval,
                               maxIter = ctlList$ctl$maxIter )
@@ -1302,6 +1303,9 @@ solvePTm <- function( Bmsy, B0 )
   nShrinkq    <- sum(speciesq_sf)
   nFreeq      <- length(which(shrinkq_f == 0 & condMLEq_f == 0 & fleetq_f == 1))
 
+
+
+
   # "Learn to fish" persistent change in q - not currently implemented
   # in this AM
   # logisticq_spf <- array(0, dim = c(nSS,nPP,nF))
@@ -1351,11 +1355,11 @@ solvePTm <- function( Bmsy, B0 )
 
   pars <- list( lnBmsy_sp         = log(sumCat_sp),
                 lnUmsy            = mlnUmsy,
-                lnqFreespf_vec    = rep(0, max(nSS*nPP*nFreeq,1)),
-                lnqShrinksf_vec   = rep(0, max(1,nShrinkq)),
+                lnqFree_spf       = array(0,dim = c(nSS,nPP,nF)),
+                lnqShrink_sf      = array(0,dim = c(nSS,nF)),
                 lntauspf_vec      = rep(log(ctlList$mp$assess$sptauObs_spf), sum(estObsErr_spf)),
                 lnBinit_vec       = lnBinit_vec,
-                deltalnqspf_vec   = rep(0,max(1,sum(stockq_spf))),
+                deltalnq_spf      = array(0, dim = c(nSS,nPP,nF)),
                 lntauq_s          = rep(log(ctlList$mp$assess$sptauq),nSS),
                 tvlnqDevs_vec     = rep(0,max(1,nqDevs + sum(tvq_f) * nSS * nPP )),
                 lntautvqDev       = log(ctlList$mp$assess$sptauqdev),
@@ -1386,11 +1390,29 @@ solvePTm <- function( Bmsy, B0 )
                 omqDevs_spft      = omqDevs_spft )
 
 
+  
+  qFreeMap <- array( 1:(nSS*nPP*nF), dim = c(nSS,nPP,nF) )
+  qFreeMap[,,(shrinkq_f == 1 & condMLEq_f == 0)] <- NA
+  qFreeMap[,,ctlList$mp$assess$spFleetWeights == 0] <- NA
+
+
+  deltalnqMap <- array( nSS*nPP*nF + 1:(nSS*nPP*nF), dim = c(nSS,nPP,nF) )
+  deltalnqMap[stockq_spf == 0] <- NA
+  deltalnqMap[,,ctlList$mp$assess$spFleetWeights == 0] <- NA
+
+  lnqShrinkMap <- array( 2*nSS*nPP*nF + 1:(nSS*nF), dim = c(nSS,nF) )
+  lnqShrinkMap[speciesq_sf == 0] <- NA
+  lnqShrinkMap[,ctlList$mp$assess$spFleetWeights == 0] <- NA
+
+  baseMap <- list(  lnqFree_spf   = factor(qFreeMap),
+                    lnqShrink_sf  = factor(lnqShrinkMap),
+                    deltalnq_spf  = factor(deltalnqMap) )
 
 
   # Save
   tmbLists <- list( data = data,
-                    pars = pars )
+                    pars = pars,
+                    map  = baseMap )
 
 
   return( tmbLists )

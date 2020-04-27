@@ -18,8 +18,6 @@ mp$assess$method "hierProd"
 mp$assess$idxPoints 3
 mp$assess$idxScalar 1
 mp$assess$idxFleets 4
-mp$assess$spCoastwide FALSE
-mp$assess$spDataPooled FALSE
 mp$assess$spSingleStock FALSE
 mp$assess$spPosPenFactor 1e3
 mp$assess$sptauq .1
@@ -61,7 +59,11 @@ mp$assess$spOMqDevs FALSE
 mp$assess$spSkewYieldCurves TRUE
 mp$assess$spEstExpBio TRUE
 mp$data$idxOn c(4)
-mp$data$obsInt_i rep(2,3)
+mp$data$obsInt_i c(2)
+mp$data$spatialPooling FALSE
+mp$data$speciesPooling FALSE
+mp$data$idxType c(2,2,1,1)
+mp$data$source "OM"
 mp$hcr$refPtType "SS"
 mp$hcr$Fsource "om"
 mp$hcr$type "conF"
