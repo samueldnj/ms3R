@@ -1,4 +1,4 @@
-# Batch Control File, created Mon Apr 27 00:54:53 2020 by makeBatchDesign() 
+# Batch Control File, created Mon Apr 27 00:55:53 2020 by makeBatchDesign() 
 parameter value
 #
 # Scenarios 
@@ -122,7 +122,7 @@ mp$mp3$mp$hcr$Fsource 'om'
 mp$mp3$mp$hcr$refPtType 'MS'
 mp$mp3$mp$data$spatialPooling FALSE
 mp$mp3$mp$data$speciesPooling TRUE
-mp$mp3$mp$assess$spSingleStock TRUE
+mp$mp3$mp$assess$spSingleStock FALSE
 mp$mp3$mp$assess$spPosPenFactor 1e3
 mp$mp3$mp$assess$sptauq .2
 mp$mp3$mp$assess$spsigU .1
@@ -168,7 +168,7 @@ mp$mp4$mp$hcr$Fsource 'om'
 mp$mp4$mp$hcr$refPtType 'MS'
 mp$mp4$mp$data$spatialPooling TRUE
 mp$mp4$mp$data$speciesPooling FALSE
-mp$mp4$mp$assess$spSingleStock TRUE
+mp$mp4$mp$assess$spSingleStock FALSE
 mp$mp4$mp$assess$spPosPenFactor 1e3
 mp$mp4$mp$assess$sptauq .05
 mp$mp4$mp$assess$spsigU .05
@@ -213,7 +213,7 @@ mp$mp5$mp$hcr$Fsource 'om'
 mp$mp5$mp$hcr$refPtType 'MS'
 mp$mp5$mp$data$spatialPooling TRUE
 mp$mp5$mp$data$speciesPooling TRUE
-mp$mp5$mp$assess$spSingleStock TRUE
+mp$mp5$mp$assess$spSingleStock FALSE
 mp$mp5$mp$assess$spPosPenFactor 1e3
 mp$mp5$mp$assess$sptauq .1
 mp$mp5$mp$assess$spsigU .1
