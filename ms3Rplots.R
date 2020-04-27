@@ -3162,7 +3162,7 @@ plotScaledIndices <- function(  obj = blob,
   fitq_spft     <- obj$mp$assess$retroq_itspft[iRep,projt,,,,1:t]
 
   ctlList <- obj$ctlList
-  
+  spFleets <- ctlList$mp$assess$spFleets
 
 
   fitSB_spt[fitSB_spt < 0] <- NA
@@ -3173,6 +3173,7 @@ plotScaledIndices <- function(  obj = blob,
 
   # Now pull indices
   I_spft <- obj$mp$data$I_ispft[iRep,,,,1:t]
+  I_spft[,,-spFleets,] <- -1
   I_spft[I_spft < 0] <- NA
 
   tFirstIdx <- ctlList$mp$assess$spYrFirstIdx
@@ -3384,6 +3385,7 @@ plotAMIdxResids <- function(  obj = blob,
   fitSB_spt[fitSB_spt < 0] <- NA
 
   spTVqFleets <- ctlList$mp$assess$spTVqFleets
+  spFleets    <- ctlList$mp$assess$spFleets
 
   # Model dims
   tMP     <- obj$om$tMP
@@ -3393,6 +3395,7 @@ plotAMIdxResids <- function(  obj = blob,
 
   # Now pull indices
   I_spft <- obj$mp$data$I_ispft[iRep,,,,1:t]
+  I_spft[,,-spFleets,] <- -1
   I_spft[I_spft <= 0] <- NA
 
   nSS <- nS
@@ -3423,7 +3426,7 @@ plotAMIdxResids <- function(  obj = blob,
 
   for( s in 1:nSS )
     for( p in 1:nPP )
-      for( f in 1:nF )
+      for( f in spFleets )
       {
         if( tauObs_spf[s,p,f] > 0 )
         {
@@ -3463,6 +3466,7 @@ plotAMIdxResids <- function(  obj = blob,
   for(s in 1:nSS)
     for( p in 1:nPP )
     {
+      browser()
       maxResid <- max(abs(stdResids_spft[s,p,,]),na.rm = T)
       plot( x = range(yrs),
             y = range(-maxResid,maxResid),

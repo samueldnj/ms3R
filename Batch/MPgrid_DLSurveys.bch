@@ -1,4 +1,4 @@
-# Batch Control File, created Mon Apr 27 00:55:53 2020 by makeBatchDesign() 
+# Batch Control File, created Mon Apr 27 09:18:11 2020 by makeBatchDesign() 
 parameter value
 #
 # Scenarios 
@@ -87,7 +87,6 @@ mp$mp2$mp$assess$spSingleStock FALSE
 mp$mp2$mp$assess$sptauq .1
 mp$mp2$mp$assess$spsigU .1
 mp$mp2$mp$assess$spFleetWeights c(1.0,1.0,1.0,1.0)
-mp$mp2$mp$assess$spFleets c(1,2,3,4)
 mp$mp2$mp$assess$spShrinkqFleets c(3,4)
 mp$mp2$mp$assess$spYrFirstIdx 20
 mp$mp2$mp$assess$spLateStart FALSE
@@ -127,7 +126,6 @@ mp$mp3$mp$assess$spPosPenFactor 1e3
 mp$mp3$mp$assess$sptauq .2
 mp$mp3$mp$assess$spsigU .1
 mp$mp3$mp$assess$spFleetWeights c(1,1,1.0,1.0)
-mp$mp3$mp$assess$spFleets c(1,2,3,4)
 mp$mp3$mp$assess$spShrinkqFleets c(3,4)
 mp$mp3$mp$assess$spYrFirstIdx 20
 mp$mp3$mp$assess$spTVqFleets NULL
@@ -173,7 +171,6 @@ mp$mp4$mp$assess$spPosPenFactor 1e3
 mp$mp4$mp$assess$sptauq .05
 mp$mp4$mp$assess$spsigU .05
 mp$mp4$mp$assess$spFleetWeights c(1,1,1.0,1.0)
-mp$mp4$mp$assess$spFleets c(1,2,3,4)
 mp$mp4$mp$assess$spShrinkqFleets c(3,4)
 mp$mp4$mp$assess$spYrFirstIdx 20
 mp$mp4$mp$assess$spTVqFleets NULL
@@ -218,7 +215,6 @@ mp$mp5$mp$assess$spPosPenFactor 1e3
 mp$mp5$mp$assess$sptauq .1
 mp$mp5$mp$assess$spsigU .1
 mp$mp5$mp$assess$spFleetWeights c(.5,.5,1.0,1.0)
-mp$mp5$mp$assess$spFleets c(1,2,3,4)
 mp$mp5$mp$assess$spShrinkqFleets c(3,4)
 mp$mp5$mp$assess$spYrFirstIdx 20
 mp$mp5$mp$assess$spTVqFleets NULL

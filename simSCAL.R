@@ -1242,11 +1242,11 @@ solvePTm <- function( Bmsy, B0 )
       if( initPE_sp[s,p] <= initT_sp[s,p] )
         initPE_sp[s,p] <- initT_sp[s,p] + 1
 
-      if( initPE_sp[s,p] <= tFirstIdx )
-        initPE_sp[s,p] <- tFirstIdx # No need to adjust for zero indexing, since first PE is after first obs 
+      if( initPE_sp[s,p] < tFirstIdx )
+        initPE_sp[s,p] <- tFirstIdx # No need to adjust for zero indexing, since first PE is after first year 
 
       if( initPE_sp[s,p] <= tFirstIdx & ctlList$mp$assess$spSolveInitBio )
-        initPE_sp[s,p] <- tFirstIdx + 1 # No need to adjust for zero indexing, since first PE is after first obs 
+        initPE_sp[s,p] <- tFirstIdx + 1 # Adjust for zero indexing, since the first idx is being used for solution
     }
 
   initBioCode_sp <-  array(0,dim = c(nSS,nPP))
