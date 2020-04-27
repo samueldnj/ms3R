@@ -137,6 +137,8 @@
 
     repInit <- obj$report()
 
+    browser()
+
 
     startPar <- obj$par
 

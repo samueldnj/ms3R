@@ -23,7 +23,7 @@ mp$assess$spPosPenFactor 1e3
 mp$assess$sptauq .2
 mp$assess$spsigU .2
 mp$assess$spFleetWeights c(1,1,1.0,1.0)
-mp$assess$spFleets c(2,3,4)
+mp$assess$spFleets c(3,4)
 mp$assess$spShrinkqFleets c(3,4)
 mp$assess$spTVqFleets NULL
 mp$assess$spCondMLEqFleets NULL
@@ -60,7 +60,7 @@ mp$assess$spSkewYieldCurves TRUE
 mp$assess$spEstExpBio TRUE
 mp$data$idxOn c(2,4)
 mp$data$obsInt_i c(1,2)
-mp$data$spatialPooling FALSE
+mp$data$spatialPooling TRUE
 mp$data$speciesPooling FALSE
 mp$data$idxType c(2,2,1,1)
 mp$data$source "OM"

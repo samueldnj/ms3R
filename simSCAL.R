@@ -583,7 +583,7 @@ solvePTm <- function( Bmsy, B0 )
   # Spatial Pooling
   if( ctlList$mp$data$spatialPooling )
   {
-    I_spft      <- obj$mp$data$I_spft[1:nS,nP+1,spFleetIdx,1:(t-1),drop = FALSE]
+    I_spft      <- obj$mp$data$I_spft[1:nS,nP+1,,1:(t-1),drop = FALSE]
     C_spt       <- array(NA, dim = c(nS,1,t-1))
     C_spt[,1,]  <- apply( X = C_spft, FUN = sum, MARGIN = c(1,4) )
 
@@ -598,7 +598,7 @@ solvePTm <- function( Bmsy, B0 )
   # Species Pooling
   if( ctlList$mp$data$speciesPooling )
   {
-    I_spft      <- obj$mp$data$I_spft[nS+1,1:nP,spFleetIdx,1:(t-1),drop = FALSE]
+    I_spft      <- obj$mp$data$I_spft[nS+1,1:nP,,1:(t-1),drop = FALSE]
     C_spt       <- array(NA, dim = c(1,nP,t-1))
     C_spt[1,,]  <- apply( X = C_spft, FUN = sum, MARGIN = c(2,4) )
 
@@ -610,7 +610,7 @@ solvePTm <- function( Bmsy, B0 )
   # Total Aggregation
   if( ctlList$mp$data$speciesPooling & ctlList$mp$data$spatialPooling )
   {
-    I_spft      <- obj$mp$data$I_spft[nS+1,nP+1,spFleetIdx,1:(t-1),drop = FALSE]
+    I_spft      <- obj$mp$data$I_spft[nS+1,nP+1,,1:(t-1),drop = FALSE]
     C_spt       <- array(NA, dim = c(1,1,t-1))
     C_spt[1,1,] <- apply( X = C_spft, FUN = sum, MARGIN = c(4) )
 
@@ -643,8 +643,14 @@ solvePTm <- function( Bmsy, B0 )
     for( s in 1:nSS)
       for( p in 1:nPP )
       {
+        mBmsy_sp  <- refPtList$FmsyRefPts$expBeqFmsy_sp
+
+        omFref_sp <- Yeq_sp / Beq_sp
+        omUmsy_sp <- YeqSS_sp / BeqSS_sp
+
+        PTm_sp <- omPTm_sp
         
-        if(spSingleStock)
+        if(spSingleStock & !speciesPooling & !spatialPooling)
         {
           mBmsy_sp  <- BeqSS_sp[s,p,drop = FALSE]
 
@@ -669,6 +675,44 @@ solvePTm <- function( Bmsy, B0 )
           if( ctlList$mp$assess$spSkewYieldCurves )
             PTm_sp[1,1]     <- solvePTm( Bmsy = sum(BeqSS_sp), B0 = sum(B0_sp) )
         }
+
+        # Add Bmsy across stocks if coastwide
+      if( spatialPooling & !speciesPooling & spSingleStock )
+      {
+        mBmsy_sp_new      <- mBmsy_sp[,1,drop = FALSE]
+        mBmsy_sp_new[,1]  <- apply( X = BeqSS_sp, FUN = sum, MARGIN = 1)
+
+        mBmsy_sp <- mBmsy_sp_new
+
+        PTm_sp <- omPTm_sp[,1,drop = FALSE] 
+
+        for( s in 1:nS )
+        {
+          omFref_sp[s,] <- sum(Yeq_sp[s,]) / sum(Beq_sp[s,])
+          omUmsy_sp[s,] <- sum(YeqSS_sp[s,]) / sum(expBeqSS_sp[s,])
+          if( ctlList$mp$assess$spSkewYieldCurves )
+            PTm_sp[s,]    <- solvePTm( Bmsy = sum(BeqSS_sp[s,]), B0 = sum(B0_sp[s,]) )
+        }
+
+        
+      }
+
+      if( speciesPooling & !spatialPooling & spSingleStock )
+      {
+        mBmsy_sp_new <- mBmsy_sp[1,,drop = FALSE]
+        mBmsy_sp_new[1,] <- apply( X = BeqSS_sp, FUN = sum, MARGIN = 2 )
+
+        mBmsy_sp <- mBmsy_sp_new
+        PTm_sp <- omPTm_sp[1,,drop = FALSE] 
+
+        for( p in 1:nP )
+        {
+          omFref_sp[,p] <- sum(Yeq_sp[,p]) / sum(Beq_sp[,p])
+          omUmsy_sp[,p] <- sum(YeqSS_sp[,p]) / sum(expBeqSS_sp[,p])
+          if( ctlList$mp$assess$spSkewYieldCurves )
+            PTm_sp[,p]    <- solvePTm( Bmsy = sum(BeqSS_sp[,p]), B0 = sum(B0_sp[,p]) )
+        }
+      }
 
 
 
@@ -713,6 +757,10 @@ solvePTm <- function( Bmsy, B0 )
         if( spFixUmsy )
           phases$lnUmsy <- -1
 
+
+        phases$epslnUmsy_s  <- -1
+        phases$epslnUmsy_sp <- -1
+        phases$deltalnq_spf <- -1
 
         tmbLists$phases <- phases
         tmbLists$random <- ctlList$mp$assess$spRE
@@ -1224,12 +1272,12 @@ solvePTm <- function( Bmsy, B0 )
   fleetWeights_f <- ctlList$mp$assess$spFleetWeights
 
   condMLEobsErr_f <- rep(0,nF)
-  condMLEobsErr_f[ctlList$mp$assess$spCondMLEobsErrFleets - min(ctlList$mp$assess$spFleets) + 1] <- 1
+  condMLEobsErr_f[ctlList$mp$assess$spCondMLEobsErrFleets] <- 1
 
 
   # Shrink q?
   shrinkq_f  <- rep(0, nF) 
-  shrinkq_f[ctlList$mp$assess$spShrinkqFleets - min(ctlList$mp$assess$spFleets) + 1] <- 1
+  shrinkq_f[ctlList$mp$assess$spShrinkqFleets] <- 1
 
   # Time-varying q?
   tvq_f       <- rep(0,nF)
@@ -1393,16 +1441,16 @@ solvePTm <- function( Bmsy, B0 )
   
   qFreeMap <- array( 1:(nSS*nPP*nF), dim = c(nSS,nPP,nF) )
   qFreeMap[,,(shrinkq_f == 1 & condMLEq_f == 0)] <- NA
-  qFreeMap[,,ctlList$mp$assess$spFleetWeights == 0] <- NA
+  # qFreeMap[,,ctlList$mp$assess$spFleetWeights == 0] <- NA
 
 
   deltalnqMap <- array( nSS*nPP*nF + 1:(nSS*nPP*nF), dim = c(nSS,nPP,nF) )
   deltalnqMap[stockq_spf == 0] <- NA
-  deltalnqMap[,,ctlList$mp$assess$spFleetWeights == 0] <- NA
+  # deltalnqMap[,,ctlList$mp$assess$spFleetWeights == 0] <- NA
 
   lnqShrinkMap <- array( 2*nSS*nPP*nF + 1:(nSS*nF), dim = c(nSS,nF) )
   lnqShrinkMap[speciesq_sf == 0] <- NA
-  lnqShrinkMap[,ctlList$mp$assess$spFleetWeights == 0] <- NA
+  # lnqShrinkMap[,ctlList$mp$assess$spFleetWeights == 0] <- NA
 
   baseMap <- list(  lnqFree_spf   = factor(qFreeMap),
                     lnqShrink_sf  = factor(lnqShrinkMap),
@@ -3701,7 +3749,7 @@ combBarrierPen <- function( x, eps,
             Iperf_spft[s,p,f,t] <- q_spft[s,p,f,t] * vB_spft[s,p,f,t]
 
           # CPUE
-          if( ctlList$mp$data$idxType[f] == 2 )
+          if( ctlList$mp$data$idxType[f] == 2 & C_spft[s,p,f,t] > 0 )
             Iperf_spft[s,p,f,t] <- C_spft[s,p,f,t] / E_pft[p,f,t] 
 
           # Save true observations and those with error
@@ -3729,7 +3777,7 @@ combBarrierPen <- function( x, eps,
         {
           Iperf_spft[nS+1,p,f,t] <- max(idxOn_spf[,p,f]) * sum( C_spft[,p,f,t] ) 
           if( Iperf_spft[nS+1,p,f,t] > 0 )
-            Iperf_spft[nS+1,p,f,t] <- Iperf_spft[nS+1,p,f,t] / min(1e-6,E_pft[p,f,t]) / 1e3
+            Iperf_spft[nS+1,p,f,t] <- Iperf_spft[nS+1,p,f,t] / max(1e-6,E_pft[p,f,t]) / 1e3
         }
 
         # Add error
@@ -3758,8 +3806,8 @@ combBarrierPen <- function( x, eps,
         if( ctlList$mp$data$idxType[f] == 2 )
         {
           Iperf_spft[s,nP+1,f,t] <- max(idxOn_spf[s,,f]) * sum(  C_spft[s,,f,t] ) 
-          if(Iperf_spft[s,nP+1,f,t] > 0) 
-            Iperf_spft[s,nP+1,f,t] <- Iperf_spft[s,nP+1,f,t] / min(1e-6,sum( E_pft[,f,t], na.rm = TRUE )) / 1e3
+          if( Iperf_spft[s,nP+1,f,t] > 0 ) 
+            Iperf_spft[s,nP+1,f,t] <- Iperf_spft[s,nP+1,f,t] / max(1e-6,sum( E_pft[,f,t], na.rm = TRUE )) / 1e3
         }
 
         Ierr_spft[s,nP+1,f,t] <- Iperf_spft[s,nP+1,f,t] * exp( tau * err$delta_spft[s,nP+1,f,t] - 0.5 * tau^2)
@@ -3788,7 +3836,7 @@ combBarrierPen <- function( x, eps,
       {
         Iperf_spft[nS+1,nP+1,f,t] <- max(idxOn_spf[,,f]) * sum( C_spft[,,f,t] ) 
         if( Iperf_spft[nS+1,nP+1,f,t] > 0 )
-          Iperf_spft[nS+1,nP+1,f,t] <- Iperf_spft[nS+1,nP+1,f,t] / sum( E_pft[,f,t], na.rm = TRUE ) / 1e3
+          Iperf_spft[nS+1,nP+1,f,t] <- Iperf_spft[nS+1,nP+1,f,t] / max(1e-6,sum( E_pft[,f,t], na.rm = TRUE )) / 1e3
       }
 
       Ierr_spft[nS+1,nP+1,f,t] <- Iperf_spft[nS+1,nP+1,f,t] * exp( tau * err$delta_spft[nS+1,nP+1,f,t] - 0.5 * tau^2)
