@@ -143,6 +143,8 @@
     if(phaseMsg)
       cat("\nStarting optimisation for phase ", phase_cur, "\n\n")
 
+    # browser()
+
     # Try the optimisation
     opt <- try( nlminb (  start     = obj$par,
                           objective = obj$fn,

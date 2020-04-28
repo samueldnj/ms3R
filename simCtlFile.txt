@@ -3,8 +3,8 @@ parameter value
 ctl$scenarioName "DER_fit"
 ctl$mpName "fixUmsy_hierMS"
 ctl$quiet FALSE
-ctl$phaseMessages FALSE
-ctl$optimOutput FALSE
+ctl$phaseMessages TRUE
+ctl$optimOutput TRUE
 ctl$maxEval 1e4
 ctl$maxIter 1e4
 ctl$rSeed 123
@@ -24,7 +24,7 @@ mp$assess$sptauq .2
 mp$assess$spsigU .2
 mp$assess$spFleetWeights c(1,1,1.0,1.0)
 mp$assess$spFleets c(3,4)
-mp$assess$spShrinkqFleets c(3,4)
+mp$assess$spShrinkqFleets NULL
 mp$assess$spTVqFleets NULL
 mp$assess$spCondMLEqFleets NULL
 mp$assess$spCondMLEobsErrFleets NULL
@@ -33,7 +33,7 @@ mp$assess$spLateStart FALSE
 mp$assess$spYrFirstIdx 15
 mp$assess$spsigmaProc .05
 mp$assess$sptauqdev .01
-mp$assess$spsdUmsy .4
+mp$assess$spsdUmsy .2
 mp$assess$spCVBmsy .2
 mp$assess$spsdlnq_f c(1,1,1,1)
 mp$assess$sptauObs_spf .3

@@ -677,42 +677,37 @@ solvePTm <- function( Bmsy, B0 )
         }
 
         # Add Bmsy across stocks if coastwide
-      # if( spatialPooling & !speciesPooling & spSingleStock )
-      # {
-      #   mBmsy_sp_new      <- mBmsy_sp[,1,drop = FALSE]
-      #   mBmsy_sp_new[,1]  <- apply( X = BeqSS_sp, FUN = sum, MARGIN = 1)
+        if( spatialPooling & !speciesPooling & spSingleStock )
+        {
+          mBmsy_sp          <- BeqSS_sp[1,1,drop = FALSE]
+          mBmsy_sp[1,1]     <- sum(BeqSS_sp[s,])
 
-      #   mBmsy_sp <- mBmsy_sp_new
+          PTm_sp <- omPTm_sp[,1,drop = FALSE] 
 
-      #   PTm_sp <- omPTm_sp[,1,drop = FALSE] 
+          omFref_sp       <- array(sum(Yeq_sp[s,]) / sum(Beq_sp[s,]), dim = c(1,1))
+          omUmsy_sp       <- array(sum(YeqSS_sp[s,]) / sum(expBeqSS_sp[s,]), dim = c(1,1))          
 
-      #   for( s in 1:nS )
-      #   {
-      #     omFref_sp[s,] <- sum(Yeq_sp[s,]) / sum(Beq_sp[s,])
-      #     omUmsy_sp[s,] <- sum(YeqSS_sp[s,]) / sum(expBeqSS_sp[s,])
-      #     if( ctlList$mp$assess$spSkewYieldCurves )
-      #       PTm_sp[s,]    <- solvePTm( Bmsy = sum(BeqSS_sp[s,]), B0 = sum(B0_sp[s,]) )
-      #   }
+          PTm_sp          <- omPTm_sp[1,1,drop = FALSE]
+          if( ctlList$mp$assess$spSkewYieldCurves )
+            PTm_sp[1,1]    <- solvePTm( Bmsy = sum(BeqSS_sp[s,]), B0 = sum(B0_sp[s,]) )
+          
+        }
 
-      #   browser()
-      # }
+        # Add Bmsy across species if species pooling
+        if( speciesPooling & !spatialPooling & spSingleStock )
+        {
+          mBmsy_sp          <- BeqSS_sp[1,1,drop = FALSE]
+          mBmsy_sp[1,1]     <- sum(BeqSS_sp[,p])
 
-      # if( speciesPooling & !spatialPooling & spSingleStock )
-      # {
-      #   mBmsy_sp_new <- mBmsy_sp[1,,drop = FALSE]
-      #   mBmsy_sp_new[1,] <- apply( X = BeqSS_sp, FUN = sum, MARGIN = 2 )
+          
+          PTm_sp <- omPTm_sp[1,1,drop = FALSE] 
 
-      #   mBmsy_sp <- mBmsy_sp_new
-      #   PTm_sp <- omPTm_sp[1,,drop = FALSE] 
+          omFref_sp       <- array(sum(Yeq_sp[,p]) / sum(Beq_sp[,p]), dim = c(1,1))
+          omUmsy_sp       <- array(sum(YeqSS_sp[,p]) / sum(expBeqSS_sp[,p]), dim = c(1,1))          
 
-      #   for( p in 1:nP )
-      #   {
-      #     omFref_sp[,p] <- sum(Yeq_sp[,p]) / sum(Beq_sp[,p])
-      #     omUmsy_sp[,p] <- sum(YeqSS_sp[,p]) / sum(expBeqSS_sp[,p])
-      #     if( ctlList$mp$assess$spSkewYieldCurves )
-      #       PTm_sp[,p]    <- solvePTm( Bmsy = sum(BeqSS_sp[,p]), B0 = sum(B0_sp[,p]) )
-      #   }
-      # }
+          if( ctlList$mp$assess$spSkewYieldCurves )
+            PTm_sp[1,1]    <- solvePTm( Bmsy = sum(BeqSS_sp[,p]), B0 = sum(B0_sp[,p]) )
+        }
 
 
 
@@ -783,7 +778,7 @@ solvePTm <- function( Bmsy, B0 )
         # under coastwide models
 
         # Save biomass
-        if(spSingleStock)
+        if(spSingleStock & !speciesPooling & !spatialPooling)
         {
           obj$mp$assess$retroSB_tspt[pt,s,p,1:t]    <- amObj$repOpt$B_spt[1,1,]
           for( f in 1:nF )
@@ -823,23 +818,116 @@ solvePTm <- function( Bmsy, B0 )
           obj$mp$assess$maxGrad_tsp[pt,s,p] <- amObj$maxGrad
         }
 
+        if( spSingleStock & speciesPooling & !spatialPooling )
+        {
+          for( ss in 1:nS)
+          {
+            obj$mp$assess$retroSB_tspt[pt,ss,p,1:t]    <- amObj$repOpt$B_spt[1,1,]
+          
+            for( f in 1:nF )
+            {
+              obj$mp$assess$retroVB_tspft[pt,ss,p,f,1:t]     <- amObj$repOpt$vB_spft[1,1,f,]
+              obj$mp$assess$retroq_tspf[pt,ss,p,f]           <- amObj$repOpt$qhat_spf[1,1,f]
+              obj$mp$assess$retroq_tspft[pt,ss,p,f,1:(t-1)]  <- amObj$repOpt$qhat_spft[1,1,f,1:(t-1)]
+              obj$mp$assess$retrotauObs_tspf[pt,ss,p,f]      <- amObj$repOpt$tau_spf[1,1,f]
+            }
+          }
+          obj$mp$assess$retroUmsy_tsp[pt,,p] <- amObj$repOpt$Umsy_sp
+          obj$mp$assess$retroBmsy_tsp[pt,,p] <- amObj$repOpt$Bmsy_sp
+        
+
+          if( ctlList$mp$hcr$Fsource == "est")
+          {
+            if( ctlList$mp$hcr$Fref == "Umsy" )
+              obj$mp$hcr$Fref_spt[,p,t]      <- amObj$repOpt$Umsy_sp
+
+            if( ctlList$mp$hcr$Fref == "Fmsy" )
+              obj$mp$hcr$Fref_spt[,p,t]      <- amObj$repOpt$Umsy_sp
+          }
+
+          if( ctlList$mp$hcr$Fsource == "om" )
+          {
+            obj$mp$hcr$Fref_spt[,p,t]      <- omFref_sp
+          } 
+
+          if( ctlList$mp$hcr$Bref == "Bmsy" )
+            obj$mp$hcr$Bref_spt[,p,t]      <- amObj$repOpt$Bmsy_sp  
+
+          if( ctlList$mp$hcr$Bref == "B0" )
+            obj$mp$hcr$Bref_spt[,p,t]      <- amObj$repOpt$B0_sp
+
+
+          # Save convergence info
+          obj$mp$assess$pdHess_tsp[pt,,p]  <- amObj$pdHess
+          obj$mp$assess$posSDs_tsp[pt,,p]  <- amObj$posSDs
+          obj$mp$assess$maxGrad_tsp[pt,,p] <- amObj$maxGrad
+          
+        }
+
+        if( spatialPooling & !speciesPooling & spSingleStock )
+        {
+          for( pp in 1:nP)
+          {
+            obj$mp$assess$retroSB_tspt[pt,s,pp,1:t]    <- amObj$repOpt$B_spt[1,1,]
+          
+            for( f in 1:nF )
+            {
+              obj$mp$assess$retroVB_tspft[pt,s,pp,f,1:t]     <- amObj$repOpt$vB_spft[1,1,f,]
+              obj$mp$assess$retroq_tspf[pt,s,pp,f]           <- amObj$repOpt$qhat_spf[1,1,f]
+              obj$mp$assess$retroq_tspft[pt,s,pp,f,1:(t-1)]  <- amObj$repOpt$qhat_spft[1,1,f,1:(t-1)]
+              obj$mp$assess$retrotauObs_tspf[pt,s,pp,f]      <- amObj$repOpt$tau_spf[1,1,f]
+            }
+            
+
+          }
+          obj$mp$assess$retroUmsy_tsp[pt,s,] <- amObj$repOpt$Umsy_sp
+          obj$mp$assess$retroBmsy_tsp[pt,s,] <- amObj$repOpt$Bmsy_sp
+
+          if( ctlList$mp$hcr$Fsource == "est")
+          {
+            if( ctlList$mp$hcr$Fref == "Umsy" )
+              obj$mp$hcr$Fref_spt[s,,t]      <- amObj$repOpt$Umsy_sp
+
+            if( ctlList$mp$hcr$Fref == "Fmsy" )
+              obj$mp$hcr$Fref_spt[s,,t]      <- amObj$repOpt$Umsy_sp
+          }
+
+          if( ctlList$mp$hcr$Fsource == "om" )
+          {
+            obj$mp$hcr$Fref_spt[s,,t]      <- omFref_sp
+          } 
+
+          if( ctlList$mp$hcr$Bref == "Bmsy" )
+            obj$mp$hcr$Bref_spt[s,,t]      <- amObj$repOpt$Bmsy_sp  
+
+          if( ctlList$mp$hcr$Bref == "B0" )
+            obj$mp$hcr$Bref_spt[s,,t]      <- amObj$repOpt$B0_sp
+
+
+          # Save convergence info
+          obj$mp$assess$pdHess_tsp[pt,s,]  <- amObj$pdHess
+          obj$mp$assess$posSDs_tsp[pt,s,]  <- amObj$posSDs
+          obj$mp$assess$maxGrad_tsp[pt,s,] <- amObj$maxGrad
+          
+        }
+
         if( speciesPooling & spatialPooling )
         {
-          for( s in 1:nS )
+          for( ss in 1:nS )
           {
-            for( p in 1:nP)
+            for( pp in 1:nP)
               for( f in 1:nF )
               {
-                obj$mp$assess$retroVB_tspft[pt,s,p,f,1:t]     <- amObj$repOpt$vB_spft[1,1,f,]
-                obj$mp$assess$retroq_tspf[pt,s,p,f]           <- amObj$repOpt$qhat_spf[1,1,f] 
-                obj$mp$assess$retroq_tspft[pt,s,p,f,1:(t-1)]  <- amObj$repOpt$qhat_spft[1,1,f,1:(t-1)]
-                obj$mp$assess$retrotauObs_tspf[pt,s,p,f]      <- amObj$repOpt$tau_spf[1,1,f]
+                obj$mp$assess$retroVB_tspft[pt,ss,pp,f,1:t]     <- amObj$repOpt$vB_spft[1,1,f,]
+                obj$mp$assess$retroq_tspf[pt,ss,pp,f]           <- amObj$repOpt$qhat_spf[1,1,f] 
+                obj$mp$assess$retroq_tspft[pt,ss,pp,f,1:(t-1)]  <- amObj$repOpt$qhat_spft[1,1,f,1:(t-1)]
+                obj$mp$assess$retrotauObs_tspf[pt,ss,pp,f]      <- amObj$repOpt$tau_spf[1,1,f]
               }
             # retro SB has to be in a loop because it's a ts, no guarantee
             # that the entries will enter in the right way (OK, there's a guarantee
             # but I never remember the orientation)
             for( p in 1:nP )
-              obj$mp$assess$retroSB_tspt[pt,s,p,1:t]    <- amObj$repOpt$B_spt[1,1,1:t]
+              obj$mp$assess$retroSB_tspt[pt,ss,pp,1:t]    <- amObj$repOpt$B_spt[1,1,1:t]
               
             
           }

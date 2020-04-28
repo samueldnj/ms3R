@@ -1,4 +1,4 @@
-# Batch Control File, created Mon Apr 27 09:18:11 2020 by makeBatchDesign() 
+# Batch Control File, created Mon Apr 27 20:47:41 2020 by makeBatchDesign() 
 parameter value
 #
 # Scenarios 
@@ -18,8 +18,6 @@ scenario$scenario2$opMod$pT 32
 scenario$scenario2$ctl$nGoodReps 10
 scenario$scenario2$ctl$totReps 400
 scenario$scenario2$mp$assess$spFleets c(2,3,4)
-scenario$scenario2$mp$assess$spLateStart TRUE
-scenario$scenario2$mp$assess$spPhzlnBinit 2
 #
 # Scenario 3 : 'DERfit_AsSsIdx'
 #
@@ -28,8 +26,6 @@ scenario$scenario3$opMod$pT 32
 scenario$scenario3$ctl$nGoodReps 10
 scenario$scenario3$ctl$totReps 400
 scenario$scenario3$mp$assess$spFleets c(3,4)
-scenario$scenario3$mp$assess$spLateStart TRUE
-scenario$scenario3$mp$assess$spPhzlnBinit 2
 #
 # Scenario 4 : 'DERfit_SsIdx'
 #
@@ -38,8 +34,6 @@ scenario$scenario4$opMod$pT 32
 scenario$scenario4$ctl$nGoodReps 10
 scenario$scenario4$ctl$totReps 400
 scenario$scenario4$mp$assess$spFleets c(4)
-scenario$scenario4$mp$assess$spLateStart TRUE
-scenario$scenario4$mp$assess$spPhzlnBinit 2
 #
 #
 #
@@ -55,11 +49,12 @@ mp$mp1$mp$data$speciesPooling FALSE
 mp$mp1$mp$assess$spSingleStock TRUE
 mp$mp1$mp$assess$spYrFirstIdx 20
 mp$mp1$mp$assess$spTVqFleets NULL
+mp$mp1$mp$assess$spShrinkqFleets NULL
 mp$mp1$mp$assess$spCondMLEqFleets NULL
 mp$mp1$mp$assess$spCondMLEobsErrFleets NULL
 mp$mp1$mp$assess$spFleetWeights c(1.0,1.0,1.0,1.0)
 mp$mp1$mp$assess$spsigmaProc .05
-mp$mp1$mp$assess$spsdUmsy .4
+mp$mp1$mp$assess$spsdUmsy .2
 mp$mp1$mp$assess$spCVBmsy .2
 mp$mp1$mp$assess$spsdlnq_f c(1,1,1,1)
 mp$mp1$mp$assess$sptauObs_spf .3
@@ -127,12 +122,12 @@ mp$mp3$mp$hcr$Fsource 'om'
 mp$mp3$mp$hcr$refPtType 'MS'
 mp$mp3$mp$data$spatialPooling FALSE
 mp$mp3$mp$data$speciesPooling TRUE
-mp$mp3$mp$assess$spSingleStock FALSE
+mp$mp3$mp$assess$spSingleStock TRUE
 mp$mp3$mp$assess$spPosPenFactor 1e3
 mp$mp3$mp$assess$sptauq .2
 mp$mp3$mp$assess$spsigU .1
 mp$mp3$mp$assess$spFleetWeights c(1,1,1.0,1.0)
-mp$mp3$mp$assess$spShrinkqFleets c(3,4)
+mp$mp3$mp$assess$spShrinkqFleets NULL
 mp$mp3$mp$assess$spYrFirstIdx 20
 mp$mp3$mp$assess$spTVqFleets NULL
 mp$mp3$mp$assess$spCondMLEqFleets NULL
@@ -177,7 +172,7 @@ mp$mp4$mp$assess$spPosPenFactor 1e3
 mp$mp4$mp$assess$sptauq .05
 mp$mp4$mp$assess$spsigU .05
 mp$mp4$mp$assess$spFleetWeights c(1,1,1.0,1.0)
-mp$mp4$mp$assess$spShrinkqFleets c(3,4)
+mp$mp4$mp$assess$spShrinkqFleets NULL
 mp$mp4$mp$assess$spYrFirstIdx 20
 mp$mp4$mp$assess$spTVqFleets NULL
 mp$mp4$mp$assess$spCondMLEqFleets NULL
@@ -221,7 +216,7 @@ mp$mp5$mp$assess$spPosPenFactor 1e3
 mp$mp5$mp$assess$sptauq .1
 mp$mp5$mp$assess$spsigU .1
 mp$mp5$mp$assess$spFleetWeights c(.5,.5,1.0,1.0)
-mp$mp5$mp$assess$spShrinkqFleets c(3,4)
+mp$mp5$mp$assess$spShrinkqFleets NULL
 mp$mp5$mp$assess$spYrFirstIdx 20
 mp$mp5$mp$assess$spTVqFleets NULL
 mp$mp5$mp$assess$spCondMLEqFleets NULL
