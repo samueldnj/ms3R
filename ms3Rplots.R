@@ -3195,13 +3195,12 @@ plotScaledIndices <- function(  obj = blob,
     totB_spt  <- totB_spt[,1,,drop = FALSE]
     totB_spt[,1,] <- newtotB_spt
 
-    sumC_spt          <- C_spft[,1,1,,drop = FALSE]
-    sumC_spt[,1,1,]   <- apply(X = C_spft, FUN = sum, MARGIN = c(1,4))
-    newC_spt          <- array(NA, dim = c(nS,1,t))
-
     I_spft <- I_spft[1:nS,1+nP,,,drop = FALSE]
+
+    sumC_spt          <- apply(X = C_spft, FUN = sum, MARGIN = c(1,4))
+    newC_spt          <- array(NA, dim = c(nS,1,t))
     
-    newC_spt[,1,]     <- sumC_spt[,1,1,]
+    newC_spt[,1,]     <- sumC_spt
     C_spt             <- newC_spt
 
   }
@@ -3221,10 +3220,9 @@ plotScaledIndices <- function(  obj = blob,
 
     I_spft <- I_spft[1+nS,1:nP,,, drop= FALSE]
 
-    sumC_spt          <- C_spft[1,,1,,drop = FALSE]
-    sumC_spt[1,,1,]   <- apply(X = C_spft, FUN = sum, MARGIN = c(2,4))
-    newC_spt          <- array(NA, dim = c(1,1,t))
-    newC_spt[1,,]     <- sumC_spt[1,,1,]
+    sumC_spt          <- apply(X = C_spft, FUN = sum, MARGIN = c(2,4))
+    newC_spt          <- array(NA, dim = c(1,nP,t))
+    newC_spt[1,,]     <- sumC_spt
     C_spt             <- newC_spt
 
   }
@@ -3244,10 +3242,9 @@ plotScaledIndices <- function(  obj = blob,
 
     I_spft <- I_spft[1+nS,1+nP,,, drop= FALSE]
 
-    sumC_spt          <- C_spft[1,1,1,,drop = FALSE]
-    sumC_spt[1,1,1,]  <- apply(X = C_spft, FUN = sum, MARGIN = c(4))
+    sumC_spt          <- apply(X = C_spft, FUN = sum, MARGIN = c(4))
     newC_spt          <- array(NA, dim = c(1,1,t))
-    newC_spt[1,1,]    <- sumC_spt[1,1,1,]
+    newC_spt[1,1,]    <- sumC_spt
     C_spt             <- newC_spt
 
   }
@@ -3495,8 +3492,27 @@ plotAMIdxResids <- function(  obj = blob,
                 cex = 1.3 )
         nonNA <- which(!is.na(stdResids_spft[s,p,f,]))
         if( length(nonNA) > 0 )
-          lines(  loess.smooth(  x = yrs[nonNA], y = stdResids_spft[s,p,f,nonNA]), 
-                  lwd = 2, col = fleetBG[f] )
+        {
+          yVal <- stdResids_spft[s,p,f,nonNA]
+          xVal <- yrs[nonNA]
+
+
+
+          dat <- data.frame(x = xVal, y = yVal )
+          regLine <- lm( y~x, data = dat )
+
+          pVal <- round(summary(regLine)$coefficients[2,4],3)
+
+          pLabel <- paste("p = ", pVal, sep = "")
+
+          dat <- dat %>%
+                  mutate( regLine = predict.lm(regLine, newdata = dat) )
+
+
+          lines( x = dat$x, y = dat$regLine, col = fleetBG[f], lwd = 2 )
+          text( x = dat$x[1], y = 1.2*dat$y[1], label = pLabel, col = fleetBG[f], font = 2 )
+
+        }
       }
       abline( h = 0, lty = 2)
       
