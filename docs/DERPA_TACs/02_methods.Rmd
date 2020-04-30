@@ -2,18 +2,21 @@
 
 ## British Columbia's flatfish fishery
 
-British Columbia's complex of right-eyed flounders is 
-a spatially diverse, technically interacting group. While the
-there are several right-eyed flounders in BC waters, we 
-will focus only on Dover sole (*Microstomus pacficus*), 
-English sole (*Parophrys vetulus*), and southern rock sole 
-(*Lepidopsetta bilineata*), which we hereafter refer to as rock 
+British Columbia's multi-species complex of 
+right-eyed flounders is a technically interacting 
+group of flatfishes managed across the whole
+BC coast. Although there are several right-eyed 
+flounders in BC waters, we focus on Dover sole 
+(*Microstomus pacficus*), English sole 
+(*Parophrys vetulus*), and southern rock sole (*Lepidopsetta 
+bilineata*), which we refer to hereafter as rock 
 sole. Taken together, we denote the Dover, English and rock sole 
-multi-stock complex as the DER complex. We chose the DER complex
-as it is managed as part of the BC groundfish fishery, all three 
-species have the same management unit boundaries, and are
-targeted at different times of the year by the same commercial
-bottom trawl fleet. 
+multi-stock complex as the DER complex. We chose this DER complex
+because harvesting is managed as part of the BC 
+multi-species groundfish fishery, all three species have 
+the same management unit boundaries, and individual
+species are targeted at different times of the year by 
+the same commercial bottom trawl fleet. 
 
 The DER complex is managed in three spatially distinct stock
 areas, which line up with aggregates of BC groundfish management
@@ -28,14 +31,15 @@ area extends along the West Coast of Vancouver Island (WCVI)
 from its northern tip down to the entrance to Juan de Fuca Strait,
 and corresponds to BC groundfish area 3CD. [ADD MAP]
 
-All species in the DER complex have experienced exploitation
-since at least 1956 (Figure 1). At that time, Dover sole was only 
+Although the DER complex has been exploited since 
+at least 1956, at that time Dover sole was only 
 lightly exploited, with full commercial exploitation
 beginning only in the 1970s (Fig. 1, first column). 
 In contrast, English and rock sole fisheries have been 
-very active in the HSHG area, where the largest biomass 
-is concentrated for those species. English and rock sole
-fishing activity in QCS and WCVI areas is more variable 
+very active since 1956 in the HSHG area since, where the 
+largest biomass is concentrated for both species. In 
+contrast English and rock sole fishing activity 
+in QCS and WCVI areas is more variable 
 over time (Figure 1, rows 2 and 3).
 
 Despite a long history of explotitation, and in some cases
@@ -53,35 +57,46 @@ Rock sole in HSHG and WCVI.
 ## Simulation model framework
 
 Our simulation framework had an operating
-model component and management procedure component. The
-stochastic operating model simulated the responses of a 
-spatially stratified multi-species complex of fishes to 
-trawl fleet fishing effort in each of the three stock areas. 
-Total fishing effort was not restricted, but the effort in each  
-area was allocated so that no catch exceeded the TAC for 
-any species in that area, but at least one species' 
-TAC was fully utilised in each area.
+model component and an assessment model component. The
+stochastic operating model simulated population dynamics 
+of a spatially stratified, multi-species flatfish complex
+in response to a multi-species trawl fisher in each of 
+the three stock areas. Although total fishing effort 
+was not restricted across the entire complex, effort 
+in each individual area was allocated such that
+no species-/area-specific catch exceeded the 
+species-/area-specific TAC. Within an area,
+fishing effort was allowed to increase until at least
+one species-/area-specific TAC was fully caught.
 
-Our closed loop simulations applied the management 
-procedure iteratively in the following 5 steps 
-over the $T$ years of the projection:
+Closed-loop feedback simulations projected
+population dynamics for all 9 stocks forward
+in time for $T = 32$ years, with simulated 
+assessments, harvest decisions, and catch
+being taken annually from 2017 - 2048. 
+The following four steps summarise the 
+closed-loop simulation procedure for each
+projection year $t$:
 
-1. Apply an assessment method to determine stock
-status of the full 9 stock complex, either using data pooling,
-hierarchical assessments, or single-stock assessments; 
-2. Apply a harvest control rule to determine
-total allowable catch, and then allocate TAC 
-among species if using a data-pooling method;
-3. Allocate effort to fully realise at least
-one TAC in each stock area;
-4. Generate realised catches from effort with
-updated catch rates;
-5. Update stochastic population dynamics and
-generate new observation data.
+1. Update stochastic population dynamics and
+generate new catch $C_{s,p,t}$ from effort, 
+and new observation data $I_{s,p,f,t}$ 
+(table ref), aggregate obsservation data 
+if using a data-pooled method;
+2. Apply an assessment model to determine the
+spawning biomass $\hat{B}_{s,p,t}$;
+3. Apply a harvest rate to generate a total
+allowable catch: 
+$TAC_{s,p,t} = U_{s,p,t} \cdot \hat{B}_{s,p,t}$;
+4. Allocate effort to fully realise at least
+one TAC in each stock area (tabref for Baranov}:
+$E_{p,f,t} = \min_{s} \{ E_{s,p,f,t} ~|~ C_{s,p,f,t} = TAC_{s,p,f,t} \}$;
 
-Each set of $T$ projection years was repeated
-100 times to integrate over observation errors 
-and recruitment process errors. When replicates
+
+
+Each simulation consisting of $T = 32$ projection years was 
+repeated 100 times to integrate over stochasticity
+in recruitment and relative abundance observations. When replicates
 included time steps where assessment models would 
 not converge (largely due to data quality issues)
 we increased the number of replicates until we reached
@@ -174,7 +189,7 @@ equilibria [@mueter2006using], but explicitly includes
 the differential catchability of technically interacting 
 species.
 
-### Management Procedures
+### Assessment models
 
 We tested ten management procedures in total,
 which were made up of a factorial combination
@@ -262,7 +277,7 @@ biomass estimate $\hat{B}_{t+1}$ for the following
 time step.
 
 
-#### Harvest control rule
+#### Harvest rule
 
 To set catch limits for a given stock, or data-pooled complex,
 we applied a constant target harvest rate. We tested two

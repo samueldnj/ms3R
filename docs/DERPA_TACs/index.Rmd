@@ -1,5 +1,5 @@
 ---  
-title: "Evaluating data-limited methods for setting TACs in data-limited spatially structured multi-species fisheries: lumping, splitting, or something in between?"
+title: "Do hierarchical assessment methods improve management performance in multi-species, data-limited fisheries?"
 author: 
   - Samuel D. N. Johnson (corresponding)
   - Sean P. Cox
@@ -12,42 +12,41 @@ email:
   - samuelj@sfu.ca
   - spcox@sfu.ca
 abstract: 
-    "Management decisions in multi-species fisheries are often made on a single-species
-    and single-stock basis, with TACs often set by considering the output of 
-    a single-species stock assessment model. Single-species assessment methods, at best, 
-    only implicitly include multi-species interactions through natural mortality and 
-    recruitment process errors, which are not suitable for capturing technical interactions 
-    between multiple species and fishing gear. Ignorance of technical interactions when 
-    setting TACs will often lead to sub-optimal fishery outcomes, such as under-utilised TACs from choke
-    effects in output-controlled fisheries. In turn, these sub-optimal outcomes may
-    degrade the information linkage between stock-status and management decisions
-    by lowering the statistical power of catch data, reducing the efficacy
-    of stock assessment models. These issues are further compounded in situations where 
-    data or management resources are limited, exemplified by short time-series of 
-    fishery independent observations or limited biologica data, or the 
-    structure of the management decision is mismatched to the spatial structure of the system, 
-    exemplified by aggregating multiple spatial stocks or species into one management unit. In
-    those situations, assessments will usually estimate an average productivity for the 
-    complex, leading to underfishing for some members, and overfishing for others.
-    In this paper, we simulate a spatially structured, multi-species flatfish fishery, and
-    test the performance of multiple management procedures that are based on assessment methods 
-    often used to deal with data limitations in multi-species fisheries, including 
-    data-pooling across spatial strata or across multiple species. Procedure performance
-    is measured as absolute loss in catch and biomass compared to the outcome 
-    of omniscient manager simulations where the objective was to maximise
-    complex yield. To include technical interactions in our management system,
-    we defined harvest control rules that used the optimal equilibrum fishing effort 
-    derived from the omniscient manager simulations. We found that the performance
-    of a management procedure relative to omniscient management was largely
-    dependent on whether the most catchable (or choke) species in each 
-    area had TACs set to an optimal level. If the choke species has the 
-    'optimal' TAC, and the other species in the complex had TACs that 
-    would overfish, then the entire complex would be managed closer to 
-    the levels of the omniscient manager. If the choke species TAC was 
-    set too high, then the outcomes would be to generally overfish the
-    complex, and similarly, if the choke species TAC was set too low
-    then TACs would be left underfished for the complex.
-    "
+    "The majority of harvest decisions in developed multi-species 
+    fisheries are made on a single-species/single-stock basis, given 
+    the output of a single-species stock assessment model. Single-species
+    harvest decisions are more difficult to make in fisheries
+    where single-species assessments are impossible to perform due to
+    data-limitations, involving *inter alia* short time series of
+    fishery independent observations, poor catch monitoring, limited
+    biological data, and structural mismatching of harvest decisions
+    to the spatial structure of the system. In this paper, we asked if
+    using hierarchical, data-limited stock assessment methods to set
+    harvest levels improved management performance in data-limited, 
+    multi-species fisheries. To investigate, we simulated a multi-species
+    flatfish fishery, based on a complex of three technically 
+    interacting right-eyed flounders fished in three spatial 
+    management areas off the coast of British Columbia, Canada. 
+    We tested five surplus production 
+    stock assessment models to set harvest levels, including 
+    single-species assessments and hierarchical multi-species 
+    assessments, and methods that pooled data across species 
+    and spatial strata. Each assessment method was tested under 
+    four data scenarios, which successively excluded  
+    biomass indices to reduce data quantity. 
+    Assessment model estimates of biomass were used to set 
+    catches for each management based on an optimal harvest
+    rate derived from multi-species reference points that
+    explicitly include technical interactions, and 
+    TACs were allocated according to relative survey biomass under 
+    data-pooled assessments. Performance of the assessment models
+    was measured by comparing catch outcomes against a simulated
+    'omniscient manager' who is able to see future process errors
+    and adjust annual fishing effort to optimise system yield. 
+    
+
+    Performance - still dependent on choke species? How do
+    the alternative methods rank out?"
 date: \today
 bibliography: /Users/sdnjohnson/Work/Library/library.bib
 natbib: true
@@ -92,6 +91,44 @@ output:
     df_print: kable
     reference_docx: /Users/sdnjohnson/Work/write/templates/docx/basic.docx
 ---
+
+<!-- 
+  From old abstract:
+    Single-species assessment methods, at best, 
+    only implicitly include multi-species interactions through natural mortality and 
+    recruitment process errors, which are not suitable for capturing technical interactions 
+    between multiple species and fishing gear. Ignorance of technical interactions when 
+    setting TACs will often lead to sub-optimal fishery outcomes, such as under-utilised TACs from choke
+    effects in output-controlled fisheries. In turn, these sub-optimal outcomes may
+    degrade the information linkage between stock-status and management decisions
+    by lowering the statistical power of catch data, reducing the efficacy
+    of stock assessment models. These issues are further compounded in situations where 
+    data or management resources are limited, exemplified by short time-series of 
+    fishery independent observations or limited biologica data, or the 
+    structure of the management decision is mismatched to the spatial structure of the system, 
+    exemplified by aggregating multiple spatial stocks or species into one management unit. In
+    those situations, assessments will usually estimate an average productivity for the 
+    complex, leading to underfishing for some members, and overfishing for others.
+    In this paper, we simulate a spatially structured, multi-species flatfish fishery, and
+    test the performance of multiple management procedures that are based on assessment methods 
+    often used to deal with data limitations in multi-species fisheries, including 
+    data-pooling across spatial strata or across multiple species. Procedure performance
+    is measured as absolute loss in catch and biomass compared to the outcome 
+    of omniscient manager simulations where the objective was to maximise
+    complex yield. To include technical interactions in our management system,
+    we defined harvest control rules that used the optimal equilibrum fishing effort 
+    derived from the omniscient manager simulations. We found that the performance
+    of a management procedure relative to omniscient management was largely
+    dependent on whether the most catchable (or choke) species in each 
+    area had TACs set to an optimal level. If the choke species has the 
+    'optimal' TAC, and the other species in the complex had TACs that 
+    would overfish, then the entire complex would be managed closer to 
+    the levels of the omniscient manager. If the choke species TAC was 
+    set too high, then the outcomes would be to generally overfish the
+    complex, and similarly, if the choke species TAC was set too low
+    then TACs would be left underfished for the complex.
+ -->
+
 
 ```{r setup, echo=FALSE, cache=FALSE, message=FALSE, results='hide', warning=FALSE}
 library(knitr)
