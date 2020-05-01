@@ -106,9 +106,9 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
       }
 
   # Now fill the pooled data dimensions
-  idxOn_spft[s+1,1:nP,,]  <- as.logical( apply( X = idxOn_spft[1:nS,1:nP,,], FUN = sum, MARGIN = c(2,3,4) ) )
-  idxOn_spft[1:nS,p+1,,]  <- as.logical( apply( X = idxOn_spft[1:nS,1:nP,,], FUN = sum, MARGIN = c(1,3,4) ) )
-  idxOn_spft[s+1,p+1,,]   <- as.logical( apply( X = idxOn_spft[1:nS,1:nP,,], FUN = sum, MARGIN = c(3,4)   ) )
+  idxOn_spft[s+1,1:nP,,]  <- as.logical( apply( X = idxOn_spft[1:nS,1:nP,,,drop = FALSE], FUN = sum, MARGIN = c(2,3,4) ) )
+  idxOn_spft[1:nS,p+1,,]  <- as.logical( apply( X = idxOn_spft[1:nS,1:nP,,,drop = FALSE], FUN = sum, MARGIN = c(1,3,4) ) )
+  idxOn_spft[s+1,p+1,,]   <- as.logical( apply( X = idxOn_spft[1:nS,1:nP,,,drop = FALSE], FUN = sum, MARGIN = c(3,4)   ) )
 
   obj$mp$assess$assessOn_t  <- assessOn
   obj$mp$data$idxOn_spft    <- idxOn_spft
@@ -3260,7 +3260,7 @@ combBarrierPen <- function( x, eps,
       obj$errors$omegaR_spt[s,p,histdx[1:lastDevIdx]]   <- repObj$omegaR_spt[s,p,1:lastDevIdx] 
       
       if( !ctlList$ctl$noProcErr )
-          obj$errors$omegaR_spt[s,p,histdx[1:lastDevIdx]] + 0.5*repObj$sigmaR_sp[s,p]  # rec devs    
+        obj$errors$omegaR_spt[s,p,histdx[1:lastDevIdx]] <- obj$errors$omegaR_spt[s,p,histdx[1:lastDevIdx]] + 0.5*repObj$sigmaR_sp[s,p]  # rec devs    
 
       obj$om$alloc_spf[s,p,commGears] <- recentCatch_spf[s,p,commGears] / sum( recentCatch_spf[s,p,commGears])
     }
@@ -3383,8 +3383,8 @@ combBarrierPen <- function( x, eps,
 
 
   # Add historical data
-  obj$mp$data$I_spft[1,,,histdx]        <- repObj$I_pgt[,,histdx]
-  obj$mp$data$A_axspft[,1,1,,,histdx]   <- repObj$A_apgt[,,,histdx]
+  obj$mp$data$I_spft[1,1:nP,,histdx]        <- repObj$I_pgt[1:nP,,histdx]
+  obj$mp$data$A_axspft[,1,1,1:nP,,histdx]   <- repObj$A_apgt[,1:nP,,histdx]
 
 
   # replace negatives with NAs for plotting, can change back 
@@ -3418,8 +3418,9 @@ combBarrierPen <- function( x, eps,
       # last estimated recruitment
       lastIdx <- max(which(repObj$omegaR_pt[p,] != 0) )
       obj$errors$omegaR_spt[s,p,histdx[1:lastIdx]]   <- repObj$omegaR_pt[p,1:lastIdx] 
+      
       if( !ctlList$ctl$noProcErr )
-        obj$errors$omegaR_spt[s,p,histdx[1:lastIdx]] + 0.5*repObj$sigmaR  # rec devs    
+        obj$errors$omegaR_spt[s,p,histdx[1:lastIdx]] <- obj$errors$omegaR_spt[s,p,histdx[1:lastIdx]] + 0.5*repObj$sigmaR  # rec devs    
     }
 
   # Save historical errors
@@ -3449,6 +3450,8 @@ combBarrierPen <- function( x, eps,
   }
 
   message(" (.condMS3pop_SISCA) Running OM for historical period.\n")
+
+  obj <- .calcTimes( obj )
 
   # Now, initialise the population
   for( t in 1:(tMP - 1) )
@@ -3527,12 +3530,13 @@ combBarrierPen <- function( x, eps,
  
 
   # Set up arrays to hold simulated states
-  om$B_axspt <- array(0,  dim = c(nA,nX,nS,nP,nT) )  # Biomass at age (total)
-  om$N_axspt <- array(0,  dim = c(nA,nX,nS,nP,nT) )  # Numbers at age
-  om$SB_spt  <- array(0,  dim = c(nS,nP,nT) )        # Spawning biomass
-  om$B_spt   <- array(0,  dim = c(nS,nP,nT) )        # Spawning biomass
-  om$R_spt   <- array(0,  dim = c(nS,nP,nT) )        # Recruitment
-  om$Z_axspt <- array(0,  dim = c(nA,nX,nS,nP,nT) )  # Total mortality
+  om$B_axspt    <- array(0,  dim = c(nA,nX,nS,nP,nT) )  # Biomass at age (total)
+  om$N_axspt    <- array(0,  dim = c(nA,nX,nS,nP,nT) )  # Numbers at age
+  om$endN_axspt <- array(0,  dim = c(nA,nX,nS,nP,nT) )  # Numbers at age (at end of time step)
+  om$SB_spt     <- array(0,  dim = c(nS,nP,nT) )        # Spawning biomass
+  om$B_spt      <- array(0,  dim = c(nS,nP,nT) )        # Spawning biomass
+  om$R_spt      <- array(0,  dim = c(nS,nP,nT) )        # Recruitment
+  om$Z_axspt    <- array(0,  dim = c(nA,nX,nS,nP,nT) )  # Total mortality
 
   # Catch, fishing mort, vuln bio, selectivity
   om$C_spft     <- array(NA,  dim = c(nS,nP,nF,nT) )       # Total catch by fleet in kt
@@ -3631,7 +3635,7 @@ combBarrierPen <- function( x, eps,
     # Leading bio pars
     om$B0_sp[1,]    <- repObj$B0_p
     om$Rinit_sp[1,] <- repObj$Rinit_p
-    om$M_xsp[1,1,]  <- repObj$M_p
+    om$M_xsp[1,1,]  <- repObj$meanM_p
     om$h_sp[1,]     <- repObj$rSteepness_p
 
     # Time-varying, age-structured natural mortality
@@ -3650,10 +3654,20 @@ combBarrierPen <- function( x, eps,
     for( p in 1:nP)
       om$matAge_asp[,1,p]         <- repObj$mat_a
 
+    # Population weight at age etc
     om$W_axspt[,1,1,,1:(tMP-1)]   <- repObj$W_apt[,,1:(tMP-1)]
+    om$W_axspt[,1,1,,tMP:nT]      <- repObj$projWt_ap
+    # Fleet weight-at-age etc.
     om$W_axspft[,1,1,,,1:(tMP-1)] <- repObj$W_apgt[,,,1:(tMP-1)]
+    om$W_axspft[,1,1,,,tMP:nT]    <- aperm(repObj$projWt_agp,c(1,3,2))
     
-    om$meanWtAge_axsp[,1,1,]      <- repObj$projWt_ap
+    # Get mean weight-at-age for reference point calcs
+    om$meanWtAge_axsp[,1,1,]      <- repObj$meanWt_ap
+
+    # Get spawn timing and fleet timing
+    om$spawnTiming                <- repObj$spawnTiming
+    om$fleetTiming_f              <- repObj$fleetTiming_g
+
     om$Wlen_ls                    <- NA
     om$probLenAge_laxsp           <- NA
     om$lenAge_axsp                <- NA
@@ -3816,6 +3830,7 @@ combBarrierPen <- function( x, eps,
   # State vars
   B_axspt           <- om$B_axspt
   N_axspt           <- om$N_axspt
+  endN_axspt        <- om$endN_axspt
   R_spt             <- om$R_spt
   SB_spt            <- om$SB_spt
   B_spt             <- om$B_spt
@@ -3880,6 +3895,13 @@ combBarrierPen <- function( x, eps,
   lenAge_axsp       <- om$lenAge_axsp
   matAge_asp        <- om$matAge_asp
 
+  # Fleet and spawn timing
+  fleetTiming_f     <- om$fleetTiming_f
+  spawnTiming       <- om$spawnTiming
+
+  # Create a container to hold 
+  # spawnN_aspx (for better array dim matching later)
+  spawnN_axsp       <- array(0, dim = c(nA,nS,nP,nX) )
 
   # Initialise population
   if( t == 1 )
@@ -3893,10 +3915,7 @@ combBarrierPen <- function( x, eps,
         for( x in 1:nX )
           N_axspt[,x,s,p,t] <- obj$om$initSurv_axsp[,x,s,p] * Rinit_sp[s,p] * initNmult_asp[,s,p]
 
-    R_spt[,,t] <- R0_sp
-
-
-    # Fill TAC history as catch history
+    R_spt[,,t] <- Rinit_sp * obj$om$initSurv_axsp[1,1,s,p] * initNmult_asp[1,s,p]
 
   }
 
@@ -3914,184 +3933,234 @@ combBarrierPen <- function( x, eps,
             R_spt[s,p,t] <- reca_sp[s,p] * SB_spt[s,p,t-1] / (1 + recb_sp[s,p] * SB_spt[s,p,t-1])
             
             if( !obj$ctlList$ctl$noProcErr )
-              R_spt[s,p,t] <- R_spt[s,p,t] * exp( om$sigmaR_sp[s,p] * err$omegaR_spt[s,p,t] - 0.5*om$sigmaR_sp[s,p]^2) 
+              R_spt[s,p,t] <- R_spt[s,p,t] * exp( om$sigmaR_sp[s,p] * err$omegaR_spt[s,p,t-1] - 0.5*om$sigmaR_sp[s,p]^2) 
 
             N_axspt[a,,s,p,t] <- R_spt[s,p,t]
           }
           # Apply mortality           
           if( a > 1 )
           {
-            N_axspt[a,,s,p,t] <- N_axspt[a-1,,s,p,t-1] * exp( - Z_axspt[a-1,,s,p,t-1])
+            N_axspt[a,,s,p,t] <- endN_axspt[a-1,,s,p,t-1]
           }
           # Plus group
           if( a == A_s[s] )
           {
-            N_axspt[a,,s,p,t] <- N_axspt[a,,s,p,t] + N_axspt[a,,s,p,t-1] * exp( -Z_axspt[a,,s,p,t-1])
+            N_axspt[a,,s,p,t] <- N_axspt[a,,s,p,t] + endN_axspt[a,,s,p,t-1]
           }
 
         }
   }
 
-  # Now convert into biomass and spawning biomass
-  if( t < tMP)
-    B_axspt[,,,,t]    <- N_axspt[,,,,t] * W_axspt[,,,,t]
-  if( t >= tMP )
-    B_axspt[,,,,t]    <- N_axspt[,,,,t] * meanWtAge_axsp
+  # Now convert into biomass at the beginning of the time step
+  B_axspt[,,,,t]    <- N_axspt[,,,,t] * W_axspt[,,,,t]
 
-
-  # Now compute vuln biomass
-  for( f in 1:nF )
-    vB_axspft[,,,,f,t] <- sel_axspft[,,,,f,t] * B_axspt[,,,,t]
-
-  vB_spft[,,,t] <- apply( X = vB_axspft[,,,,,t,drop = FALSE], FUN = sum, MARGIN = 3:5, na.rm = T )
+  # Compute total biomass at beginning of time step
   B_spt[,,t]    <- apply( X = B_axspt[,,,,t,drop = FALSE], FUN = sum, MARGIN = 3:4, na.rm = T )
 
-  # Now calculate spawning biomass
-  SB_asp <- matAge_asp * B_axspt[,nX,,,t]
-  SB_spt[,,t] <- apply(X = SB_asp, FUN = sum, MARGIN = c(2,3), na.rm = T )
 
   # Now calculate effort for each area (for closed loop sim)
-  if( t >= tMP & all(is.na(F_spft[,,,t])) )
+  if( ctlList$opMod$Ftype == "cts" )
   {
-    if( opMod$effortMod == "Max" )
+    # Now compute vuln biomass
+    for( f in 1:nF )
+      vB_axspft[,,,,f,t] <- sel_axspft[,,,,f,t] * B_axspt[,,,,t]
+
+    vB_spft[,,,t] <- apply( X = vB_axspft[,,,,,t,drop = FALSE], FUN = sum, MARGIN = 3:5, na.rm = T )
+    
+
+    if( t >= tMP & all(is.na(F_spft[,,,t])) )
     {
-      effortMod <- .solveMaxEffort( TAC_spf   = TAC_spft[,,,t], 
-                                    vB_spf    = vB_spft[,,,t],
-                                    qF_spf    = qF_spft[,,,t],
-                                    vB_axspf  = vB_axspft[,,,,,t],
-                                    sel_axspf = sel_axspft[,,,,,t],
-                                    N_axsp    = N_axspt[,,,,t],
-                                    M_xsp     = M_xsp,
-                                    A_s       = A_s,
-                                    wt_axsp   = meanWtAge_axsp,
-                                    lastE_pf  = E_pft[,,t-1],
-                                    nS = nS, nP = nP, nX = nX, nF = nF )
-
-       E_pft[,,t]     <- effortMod$E_pf
-      # Rev_spft[,,,t] <- effortMod$rev_spf
-
-      # Convert to F
-      for( s in 1:nS )
-        F_spft[s,,,t] <- E_pft[,,t] * qF_spft[s,,,t]
-    }
-
-
-    if( opMod$effortMod == "dynModel" )
-    {
-      effortMod <- .solveProjEffortDynamics(  TAC_spf   = TAC_spft[,,,t], 
-                                              vB_spf    = vB_spft[,,,t],
-                                              qF_spf    = qF_spft[,,,t],
-                                              # vB_axspf  = vB_axspft[,,,,,t],
-                                              # sel_axspf = sel_axspft[,,,,,t],
-                                              # N_axsp    = N_axspt[,,,,t],
-                                              # M_xsp     = M_xsp,
-                                              # A_s       = A_s,
-                                              # wt_axsp   = meanWtAge_axsp,
-                                              price_s   = om$price_s,
-                                              alphaU    = om$alphaU,
-                                              ut_50     = om$ut_50,
-                                              ut_95     = om$ut_95,
-                                              w_pf      = om$w_pf,
-                                              nS = nS, nP = nP, nX = nX, nF = nF  )
-      E_pft[,,t]     <- effortMod$E_pf
-      Rev_spft[,,,t] <- effortMod$rev_spf
-
-      # Convert to F
-      for( s in 1:nS )
-        F_spft[s,,,t] <- E_pft[,,t] * qF_spft[s,,,t]
-    }
-
-    if( opMod$effortMod == "targeting" )
-    {
-      # F_spft[,,,t] <- .mfPA(  C_spf     = TAC_spft[,,,t], 
-      #                         vB_axspf  = vB_axspft[,,,,,t],
-      #                         vB_spf    = vB_spft[,,,t],
-      #                         N_axsp    = N_axspt[,,,,t],
-      #                         sel_axspf = sel_axspft[,,,,,t],
-      #                         M_xsp     = M_xsp,
-      #                         A_s       = A_s,
-      #                         wt_axsp   = meanWtAge_axsp,
-      #                         nS = nS, nP = nP, nX = nX, nF = nF  )
-
-      # Make temporary arrays to hold stuff
-      tmpN_axsp   <- array(NA, dim = c(nA,nX,nS,nP))
-      tmpM_axsp   <- array(NA, dim = c(nA,nX,nS,nP))
-      tmpvB_axspf <- array(NA, dim = c(nA,nX,nS,nP,nF))
-      tmpC_spf    <- array(NA, dim = c(nS,nP,nF))
-      tmpvB_spf   <- array(NA, dim = c(nS,nP,nF))
-      tmpsel_axspf<- array(NA, dim = c(nA,nX,nS,nP,nF))
-
-      tmpN_axsp[1:nA,,,]    <- N_axspt[1:nA,,,,t] 
-      tmpvB_axspf[1:nA,,,,] <- vB_axspft[1:nA,,,,,t]
-      tmpC_spf[1:nS,,]      <- TAC_spft[1:nS,,,t]
-      tmpvB_spf[1:nS,,]     <- vB_spft[,,,t]   
-      tmpsel_axspf[1:nA,,,,]<- sel_axspft[,,,,,t]
-      tmpM_axsp[1:nA,,,]    <- M_axspt[,,,,t]
-
-
-
-      Flist <- .solveBaranov( C_spf       = tmpC_spf, 
-                              vB_axspf    = tmpvB_axspf,
-                              vB_spf      = tmpvB_spf,
-                              N_axsp      = tmpN_axsp,
-                              sel_axspf   = tmpsel_axspf,
-                              M_axsp      = tmpM_axsp,
-                              A_s         = A_s,
-                              wt_axsp     = meanWtAge_axsp,
-                              nS = nS, nP = nP, nX = nX, nF = nF,
-                              nIter       = opMod$baranovIter,
-                              baranovStep = opMod$baranovStep  )
-
-      F_spft[,,,t] <- Flist$F_spf
-    }
-   
-
-  } # END F approximation
-
-  # if( t == nT-5 )
-  # {
-
-  #   inputF <- obj$ctlList$mp$omni$inputF
-
-  #   whichF <- which.min(abs(rp$refCurves$F - inputF))
-
-  #   rpSurv_axsp <- rp$refCurves$surv_axspf[,,,,whichF]
-
-  #   currentSurv_axsp <- N_axspt[,,,,t]
-  #   for( s in 1:nS )
-  #     for( p in 1:nP )
-  #       currentSurv_axsp[,,s,p] <- currentSurv_axsp[,,s,p] / R_spt[s,p,t]
-
-  # }
-
-  # Now generate Z
-  for( s in 1:nS )
-    for( p in 1:nP )
-    {
-      # Fill Z with Ms
-      for( x in 1:nX )
-        Z_axspt[1:A_s[s],x,s,p,t] <- M_axspt[,x,s,p,t]
-
-      # Now loop over fleets, ages, and sexes, add fishing mortality
-      # rates and generate catch
-      for( f in 1:nF )
+      if( opMod$effortMod == "Max" )
       {
-        Z_axspt[,,s,p,t] <- Z_axspt[,,s,p,t] + sel_axspft[,,s,p,f,t] * F_spft[s,p,f,t]
+        effortMod <- .solveMaxEffort( TAC_spf   = TAC_spft[,,,t], 
+                                      vB_spf    = vB_spft[,,,t],
+                                      qF_spf    = qF_spft[,,,t],
+                                      vB_axspf  = vB_axspft[,,,,,t],
+                                      sel_axspf = sel_axspft[,,,,,t],
+                                      N_axsp    = N_axspt[,,,,t],
+                                      M_xsp     = M_xsp,
+                                      A_s       = A_s,
+                                      wt_axsp   = meanWtAge_axsp,
+                                      lastE_pf  = E_pft[,,t-1],
+                                      nS = nS, nP = nP, nX = nX, nF = nF )
 
-        # Now generate catch
-        for( a in 1:A_s[s] )
+         E_pft[,,t]     <- effortMod$E_pf
+        # Rev_spft[,,,t] <- effortMod$rev_spf
+
+        # Convert to F
+        for( s in 1:nS )
+          F_spft[s,,,t] <- E_pft[,,t] * qF_spft[s,,,t]
+      }
+
+
+      if( opMod$effortMod == "dynModel" )
+      {
+        effortMod <- .solveProjEffortDynamics(  TAC_spf   = TAC_spft[,,,t], 
+                                                vB_spf    = vB_spft[,,,t],
+                                                qF_spf    = qF_spft[,,,t],
+                                                # vB_axspf  = vB_axspft[,,,,,t],
+                                                # sel_axspf = sel_axspft[,,,,,t],
+                                                # N_axsp    = N_axspt[,,,,t],
+                                                # M_xsp     = M_xsp,
+                                                # A_s       = A_s,
+                                                # wt_axsp   = meanWtAge_axsp,
+                                                price_s   = om$price_s,
+                                                alphaU    = om$alphaU,
+                                                ut_50     = om$ut_50,
+                                                ut_95     = om$ut_95,
+                                                w_pf      = om$w_pf,
+                                                nS = nS, nP = nP, nX = nX, nF = nF  )
+        E_pft[,,t]     <- effortMod$E_pf
+        Rev_spft[,,,t] <- effortMod$rev_spf
+
+        # Convert to F
+        for( s in 1:nS )
+          F_spft[s,,,t] <- E_pft[,,t] * qF_spft[s,,,t]
+      }
+
+      if( opMod$effortMod == "targeting" )
+      {
+        # F_spft[,,,t] <- .mfPA(  C_spf     = TAC_spft[,,,t], 
+        #                         vB_axspf  = vB_axspft[,,,,,t],
+        #                         vB_spf    = vB_spft[,,,t],
+        #                         N_axsp    = N_axspt[,,,,t],
+        #                         sel_axspf = sel_axspft[,,,,,t],
+        #                         M_xsp     = M_xsp,
+        #                         A_s       = A_s,
+        #                         wt_axsp   = meanWtAge_axsp,
+        #                         nS = nS, nP = nP, nX = nX, nF = nF  )
+
+        # Make temporary arrays to hold stuff
+        tmpN_axsp   <- array(NA, dim = c(nA,nX,nS,nP))
+        tmpM_axsp   <- array(NA, dim = c(nA,nX,nS,nP))
+        tmpvB_axspf <- array(NA, dim = c(nA,nX,nS,nP,nF))
+        tmpC_spf    <- array(NA, dim = c(nS,nP,nF))
+        tmpvB_spf   <- array(NA, dim = c(nS,nP,nF))
+        tmpsel_axspf<- array(NA, dim = c(nA,nX,nS,nP,nF))
+
+        tmpN_axsp[1:nA,,,]    <- N_axspt[1:nA,,,,t] 
+        tmpvB_axspf[1:nA,,,,] <- vB_axspft[1:nA,,,,,t]
+        tmpC_spf[1:nS,,]      <- TAC_spft[1:nS,,,t]
+        tmpvB_spf[1:nS,,]     <- vB_spft[,,,t]   
+        tmpsel_axspf[1:nA,,,,]<- sel_axspft[,,,,,t]
+        tmpM_axsp[1:nA,,,]    <- M_axspt[,,,,t]
+
+
+
+        Flist <- .solveBaranov( C_spf       = tmpC_spf, 
+                                vB_axspf    = tmpvB_axspf,
+                                vB_spf      = tmpvB_spf,
+                                N_axsp      = tmpN_axsp,
+                                sel_axspf   = tmpsel_axspf,
+                                M_axsp      = tmpM_axsp,
+                                A_s         = A_s,
+                                wt_axsp     = meanWtAge_axsp,
+                                nS = nS, nP = nP, nX = nX, nF = nF,
+                                nIter       = opMod$baranovIter,
+                                baranovStep = opMod$baranovStep  )
+
+        F_spft[,,,t] <- Flist$F_spf
+      }
+     
+
+    } # END F approximation
+
+    # Now generate Z
+    for( s in 1:nS )
+      for( p in 1:nP )
+      {
+        # Fill Z with Ms
+        for( x in 1:nX )
+          Z_axspt[1:A_s[s],x,s,p,t] <- M_axspt[,x,s,p,t]
+
+        # Now loop over fleets, ages, and sexes, add fishing mortality
+        # rates and generate catch
+        for( f in 1:nF )
         {
-          for( x in 1:nX )
+          Z_axspt[,,s,p,t] <- Z_axspt[,,s,p,t] + sel_axspft[,,s,p,f,t] * F_spft[s,p,f,t]
+
+          # Now generate catch
+          for( a in 1:A_s[s] )
           {
-            Cw_axspft[a,x,s,p,f,t]  <- (1 - exp( - Z_axspt[a,x,s,p,t])) * vB_axspft[a,x,s,p,f,t] * F_spft[s,p,f,t] / Z_axspt[a,x,s,p,t]
-            C_axspft[a,x,s,p,f,t]   <- Cw_axspft[a,x,s,p,f,t] / meanWtAge_axsp[a,x,s,p]
-            C_spft[s,p,f,t]         <- C_spft[s,p,f,t] + sum(Cw_axspft[a,x,s,p,f,t],na.rm = T)
+            for( x in 1:nX )
+            {
+              Cw_axspft[a,x,s,p,f,t]  <- (1 - exp( - Z_axspt[a,x,s,p,t])) * vB_axspft[a,x,s,p,f,t] * F_spft[s,p,f,t] / Z_axspt[a,x,s,p,t]
+              C_axspft[a,x,s,p,f,t]   <- Cw_axspft[a,x,s,p,f,t] / meanWtAge_axsp[a,x,s,p]
+              C_spft[s,p,f,t]         <- C_spft[s,p,f,t] + sum(Cw_axspft[a,x,s,p,f,t],na.rm = T)
+            }
           }
-        }
-        
-      } # END f loop        
-    } # END p loop
-    # END s loop
+          
+        } # END f loop        
+      } # END p loop
+      # END s loop
+    
+    # Calculate numbers at-age for the end of the time step
+    endN_axspt[,,,,t] <- N_axspt[,,,,t] * exp( - Z_axspt[,,,,t] )
+
+    # Calculate numbers-at-age for spawning time
+    spawnN_axsp[1:nA,,,]  <- N_axspt[,,,,t] * exp( - spawnTiming * Z_axspt[,,,,t] )
+
+  }
+
+  # Discrete removals
+  if( ctlList$opMod$Ftype == "disc" )
+  {
+    # Need to apply a function that will step through
+    # fleet timings, calculate removals of individuals at age
+    # by splitting TAC in proportion to vulnerable biomass
+    # at age, then removing them.
+
+    tmpM_axsp   <- array(NA, dim = c(nA,nX,nS,nP))
+    tmpW_axspf  <- array(NA, dim = c(nA,nX,nS,nP,nF))
+
+    tmpM_axsp[1:nA,,,]    <- M_axspt[,,,,t]
+    tmpW_axspf[1:nA,,,,]  <- W_axspft[,,,,,t]
+
+    discRemList <- applyDiscreteFisheries(  N_axsp          = N_axspt[,,,,t],
+                                            sel_axspf       = sel_axspft[,,,,,t],
+                                            W_axspf         = tmpW_axspf,
+                                            fleetTiming_f   = fleetTiming_f,
+                                            spawnTiming     = spawnTiming,
+                                            M_axsp          = tmpM_axsp,
+                                            TAC_spf         = TAC_spft[,,,t],
+                                            nA = nA, nX = nX, nS = nS, nP = nP, nF = nF )
+
+    # discRemList contains:
+    #   - vuln biomass/numbers at the fleet timing
+    #   - Catch at age in numbers and biomass
+    #   - Spawn timing numbers at age
+    #   - Exploitation rates, reported as Fs
+    #   - end of time-step number at age (might do this for both cts and disc)
+
+    # Pull vulnerable numbers and biomass at age
+    vN_axspf          <- discRemList$vN_axspf
+    vB_axspft[,,,,,t] <- discRemList$vB_axspf
+
+    # Compute vulnerable biomass from what's returned,
+    # and calculate exploitation rate
+    vB_spft[,,,t] <- apply( X = vB_axspft[,,,,,t,drop = FALSE], FUN = sum, MARGIN = 3:5, na.rm = T )
+    F_spft[,,,t]  <- TAC_spft[,,,t] / vB_spft[,,,t]
+
+    # Pull spawn timing numbers at age
+    spawnN_axsp[1:nA,,,] <- discRemList$spawnN_axsp
+
+    # Pull end of time-step numbers
+    endN_axspt[,,,,t] <- discRemList$endN_axsp
+
+    if( any(endN_axspt[,,,,t] < 0) )
+      browser()
+
+    # Pull catch at age in biomass and numbers
+    Cw_axspft[,,,,,t] <- discRemList$Cw_axspf
+    C_axspft[,,,,,t]  <- discRemList$C_axspf
+
+  }
+
+  # Now calculate spawning biomass
+  SB_asp <- matAge_asp * spawnN_axsp[,nX,,] * W_axspt[,nX,,,t]
+  SB_spt[,,t] <- apply(X = SB_asp, FUN = sum, MARGIN = c(2,3), na.rm = T )
+
+  # browser()
 
   # Sum realised catch
   C_spft[,,,t] <- apply( X = Cw_axspft[,,,,,t,drop = FALSE], FUN = sum, MARGIN = c(3,4,5), na.rm = T )
@@ -4125,6 +4194,10 @@ combBarrierPen <- function( x, eps,
           if( ctlList$mp$data$idxType[f] == 2 & C_spft[s,p,f,t] > 0 )
             Iperf_spft[s,p,f,t] <- C_spft[s,p,f,t] / E_pft[p,f,t] 
 
+          # Spawn survey
+          if( ctlList$mp$data$idxType[f] == 3)
+            Iperf_spft[s,p,f,t] <- q_spft[s,p,f,t] * SB_spt[s,p,t]
+
           # Save true observations and those with error
           Ierr_spft[s,p,f,t] <- Iperf_spft[s,p,f,t] * exp(tau * err$delta_spft[s,p,f,t] - 0.5 * tau^2)
         } 
@@ -4143,15 +4216,23 @@ combBarrierPen <- function( x, eps,
       {
         tauObs_spf[tauObs_spf == 0] <- NA
         tau <- mean(tauObs_spf[,p,f],na.rm = TRUE)
+        # Vuln bio
         if( ctlList$mp$data$idxType[f] == 1 )
           Iperf_spft[nS+1,p,f,t] <- sum( q_spft[,p,f,t] * vB_spft[,p,f,t] * idxOn_spf[,p,f], na.rm = T )
 
+        # CPUE
         if( ctlList$mp$data$idxType[f] == 2 )
         {
           Iperf_spft[nS+1,p,f,t] <- max(idxOn_spf[,p,f]) * sum( C_spft[,p,f,t] ) 
           if( Iperf_spft[nS+1,p,f,t] > 0 )
             Iperf_spft[nS+1,p,f,t] <- Iperf_spft[nS+1,p,f,t] / max(1e-6,E_pft[p,f,t]) / 1e3
         }
+
+        # Spawn survey
+        if( ctlList$mp$data$idxType[f] == 3 )
+        {
+          Iperf_spft[nS+1,p,f,t] <- sum( q_spft[,p,f,t] * SB_spt[,p,t] * idxOn_spf[,p,f], na.rm = T )
+        }        
 
         # Add error
         Ierr_spft[nS+1,p,f,t] <- Iperf_spft[nS+1,p,f,t] * exp( tau * err$delta_spft[nS+1,p,f,t] - 0.5 * tau^2)
@@ -4173,15 +4254,22 @@ combBarrierPen <- function( x, eps,
         tauObs_spf[tauObs_spf == 0] <- NA
         tau <- mean(tauObs_spf[s,,f],na.rm = TRUE)
         
+        # Vuln bio
         if( ctlList$mp$data$idxType[f] == 1 )
           Iperf_spft[s,nP + 1,f,t] <- sum( q_spft[s,,f,t] * vB_spft[s,,f,t] * idxOn_spf[s,,f], na.rm = T )
 
+        # CPUE
         if( ctlList$mp$data$idxType[f] == 2 )
         {
           Iperf_spft[s,nP+1,f,t] <- max(idxOn_spf[s,,f]) * sum(  C_spft[s,,f,t] ) 
           if( Iperf_spft[s,nP+1,f,t] > 0 ) 
             Iperf_spft[s,nP+1,f,t] <- Iperf_spft[s,nP+1,f,t] / max(1e-6,sum( E_pft[,f,t], na.rm = TRUE )) / 1e3
         }
+
+        # Spawn survey
+        if( ctlList$mp$data$idxType[f] == 3 )
+          Iperf_spft[s,nP + 1,f,t] <- sum( q_spft[s,,f,t] * SB_spt[s,,t] * idxOn_spf[s,,f], na.rm = T )
+
 
         Ierr_spft[s,nP+1,f,t] <- Iperf_spft[s,nP+1,f,t] * exp( tau * err$delta_spft[s,nP+1,f,t] - 0.5 * tau^2)
 
@@ -4202,15 +4290,21 @@ combBarrierPen <- function( x, eps,
       tauObs_spf[tauObs_spf == 0] <- NA
       tau <- mean(tauObs_spf[,,f],na.rm = TRUE)
 
+      # Vuln bio
       if( ctlList$mp$data$idxType[f] == 1 )
         Iperf_spft[nS+1,nP + 1,f,t] <- sum( q_spft[,,f,t] * vB_spft[,,f,t] * idxOn_spf[1:nS,1:nP,f], na.rm = T )
 
+      # CPUE
       if( ctlList$mp$data$idxType[f] == 2 )
       {
         Iperf_spft[nS+1,nP+1,f,t] <- max(idxOn_spf[,,f]) * sum( C_spft[,,f,t] ) 
         if( Iperf_spft[nS+1,nP+1,f,t] > 0 )
           Iperf_spft[nS+1,nP+1,f,t] <- Iperf_spft[nS+1,nP+1,f,t] / max(1e-6,sum( E_pft[,f,t], na.rm = TRUE )) / 1e3
       }
+
+      # Spawn survey
+      if( ctlList$mp$data$idxType[f] == 3 )
+        Iperf_spft[nS+1,nP + 1,f,t] <- sum( q_spft[,,f,t] * SB_spt[,,t] * idxOn_spf[1:nS,1:nP,f], na.rm = T )
 
       Ierr_spft[nS+1,nP+1,f,t] <- Iperf_spft[nS+1,nP+1,f,t] * exp( tau * err$delta_spft[nS+1,nP+1,f,t] - 0.5 * tau^2)
     }
@@ -4227,6 +4321,7 @@ combBarrierPen <- function( x, eps,
   # State vars
   B_axspt           -> obj$om$B_axspt
   N_axspt           -> obj$om$N_axspt
+  endN_axspt        -> obj$om$endN_axspt
   R_spt             -> obj$om$R_spt
   SB_spt            -> obj$om$SB_spt
   B_spt             -> obj$om$B_spt
@@ -4263,6 +4358,155 @@ combBarrierPen <- function( x, eps,
 
   return( obj )
 } # END ageSexOpMod()
+
+# applyDiscreteFisheries()
+# An alternative removals model to the 
+# Baranov catch equation. Steps through fisheries
+# in order
+applyDiscreteFisheries <- function( N_axsp,
+                                    sel_axspf,
+                                    W_axspf,
+                                    fleetTiming_f,
+                                    spawnTiming,
+                                    M_axsp,
+                                    TAC_spf,
+                                    nA, nX, nS, nP, nF )
+{
+  # First, order fleetTiming
+  fleetOrder <- order(fleetTiming_f)
+
+  # Initialise lastFleetTime at 0
+  lastFleetTime <- 0
+
+  tmpN_axsp <- array(0, dim = c(nA,nX,nS,nP) )
+  s_axspf   <- array(0, dim = c(nA,nX,nS,nP,nF) )
+  C_spf     <- array(0, dim = c(nS,nP,nF))
+
+
+  # Arrays to hold states at different times
+  endN_axsp     <- array( 0, dim = dim(tmpN_axsp) )
+  vN_axspf      <- array( 0, dim = dim(s_axspf) )
+  vB_axspf      <- array( 0, dim = dim(s_axspf) )
+  pvB_axspf     <- array( 0, dim = dim(s_axspf) )
+  Cw_axspf      <- array( 0, dim = dim(s_axspf) )
+  C_axspf       <- array( 0, dim = dim(s_axspf) )
+  spawnN_axsp   <- array( 0, dim = dim(tmpN_axsp) )
+  F_spf         <- array( 0, dim = dim(C_spf) )
+
+  # Create a temporary N_axsp to hold successive
+  # numbers at each fractional time step
+  tmpN_axsp[1:nA,,,]    <- N_axsp
+  s_axspf[1:nA,,,,]     <- sel_axspf
+  C_spf[1:nS,,]         <- TAC_spf
+
+  # First, check if spawn timing goes first
+  if( spawnTiming <= fleetTiming_f[fleetOrder[1]] )
+  {
+    spawnN_axsp <- calcDiscSpawnN(  lastFleetTime = lastFleetTime,
+                                    spawnTiming = spawnTiming,
+                                    currN_axsp = tmpN_axsp,
+                                    M_axsp = M_axsp )
+
+    lastFleetTime <- spawnTiming
+    tmpN_axsp   <- spawnN_axsp
+  }
+
+  # Then loop over fleets, check on spawn timing
+  # in each loop
+  for( oIdx in 1:length(fleetOrder) )
+  {
+    fIdx <- fleetOrder[oIdx]
+    nextFleetTime <- fleetTiming_f[fIdx]
+
+    # Calculate spawning numbers
+    if( spawnTiming > lastFleetTime & spawnTiming <= nextFleetTime )
+    {
+      spawnN_axsp <- calcDiscSpawnN(  lastFleetTime = lastFleetTime,
+                                      spawnTiming = spawnTiming,
+                                      currN_axsp = tmpN_axsp,
+                                      M_axsp = M_axsp )
+
+      lastFleetTime <- spawnTiming
+      tmpN_axsp   <- spawnN_axsp
+    }
+
+    # Now calculate fishery numbers
+    fracM <- nextFleetTime - lastFleetTime
+    # Deplete by natural mortality
+    tmpN_axsp <- tmpN_axsp * exp(-fracM * M_axsp)
+
+    # Calculate vulnerable numbers at age
+    vN_axspf[,,,,fIdx] <- tmpN_axsp * s_axspf[,,,,fIdx]
+
+    # Calculate vulnerable biomass at age
+    vB_axspf[,,,,fIdx] <- vN_axspf[,,,,fIdx] * W_axspf[,,,,fIdx]
+
+    if( C_spf[,,fIdx] > 0 )
+    { 
+      # Compute proportion of biomass at age
+      # for catch distribution across age classes
+      for( s in 1:nS )
+        for( p in 1:nP)
+        {
+          pvB_axspf[,,s,p,fIdx] <- vB_axspf[,,s,p,fIdx] / sum(vB_axspf[,,s,p,fIdx],na.rm = T)
+          Cw_axspf[,,s,p,fIdx]  <- C_spf[s,p,fIdx] * pvB_axspf[,,s,p,fIdx]
+        }
+
+      # Compute catch-at-age in numbers
+      C_axspf[,,,,fIdx] <- Cw_axspf[,,,,fIdx] / W_axspf[,,,,fIdx]
+      
+      # Remove from general population, update lastFleetTime
+      tmpN_axsp[1:nA,,,] <- tmpN_axsp[1:nA,,,] - C_axspf[,,,,fIdx]
+    }
+    lastFleetTime <- fleetTiming_f[fIdx]
+
+    # FIRST HACK
+    tmpN_axsp[tmpN_axsp < 0] <- 1e-3
+  }
+
+  if( spawnTiming > lastFleetTime )
+  {
+    spawnN_axsp <- calcDiscSpawnN(  lastFleetTime = lastFleetTime,
+                                    spawnTiming = spawnTiming,
+                                    currN_axsp = tmpN_axsp,
+                                    M_axsp = M_axsp )
+
+    lastFleetTime <- spawnTiming
+    tmpN_axsp   <- spawnN_axsp 
+  }
+
+  # Then compute endN by applying last bit of M
+  fracM     <- 1 - lastFleetTime
+  endN_axsp <- tmpN_axsp * exp(-fracM*M_axsp)
+
+
+  # Return model states
+  outList <- list(  endN_axsp   = endN_axsp,
+                    vN_axspf    = vN_axspf,
+                    vB_axspf    = vB_axspf,
+                    Cw_axspf    = Cw_axspf,
+                    C_axspf     = C_axspf,
+                    spawnN_axsp = spawnN_axsp )
+
+  outList
+
+} # END applyDiscreteFisheries
+
+# calcDiscSpawnN()
+# Calculates numbers at age at spawn timing
+# under the discrete fisheries model
+calcDiscSpawnN <- function(   lastFleetTime,
+                              spawnTiming,
+                              currN_axsp,
+                              M_axsp )
+{
+  fracM <- spawnTiming - lastFleetTime
+
+  spawnN_axsp <- currN_axsp * exp(-fracM * M_axsp)
+  
+  return(spawnN_axsp)
+
+} # END calcDiscSpawnN()
 
 
 # .solveBaranov()

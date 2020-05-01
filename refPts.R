@@ -554,19 +554,22 @@ calcJABBASelPars <- function( obj )
 
   # Compute eqbm spawning biomass per recruit for
   # given f and species/stock pars
-  nS    <- obj$om$nS
-  nP    <- obj$om$nP
-  A_s   <- obj$om$A_s
-  nA    <- obj$om$nA
-  nL    <- obj$om$nL
-  nX    <- obj$om$nX
-  M_xsp <- obj$om$M_xsp
-  nT    <- obj$om$nT
-  qF_sp <- obj$om$om$qF_spft[,,fleetIdx,nT+1]
+  nS      <- obj$om$nS
+  nP      <- obj$om$nP
+  A_s     <- obj$om$A_s
+  nA      <- obj$om$nA
+  nL      <- obj$om$nL
+  nX      <- obj$om$nX
+  M_xsp   <- obj$om$M_xsp
+  nT      <- obj$om$nT
+  qF_sp   <- obj$om$om$qF_spft[,,fleetIdx,nT+1]
 
   # Life history schedules
   matAge_asp        <- obj$om$matAge_asp
   wtAge_axsp        <- obj$om$meanWtAge_axsp
+
+  # Spawn timing
+  spawnTiming       <- obj$om$spawnTiming
   
   # Selectivity
   selAge_axsp           <- array(NA, dim = c(nA,nX,nS,nP))
@@ -606,7 +609,7 @@ calcJABBASelPars <- function( obj )
   for( s in 1:nS )
     for( p in 1:nP)
     {
-      ssbpr_asp[,s,p]  <- Surv_axsp[,nX,s,p] * wtAge_axsp[,nX,s,p] * matAge_asp[,s,p]
+      ssbpr_asp[,s,p]  <- Surv_axsp[,nX,s,p] * exp(-spawnTiming * M_xsp[nX,s,p]) * wtAge_axsp[,nX,s,p] * matAge_asp[,s,p]
       for( x in 1:nX )
       {
         C_axsp[,x,s,p]    <- Surv_axsp[,x,s,p] * wtAge_axsp[,x,s,p] * 
