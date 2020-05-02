@@ -111,7 +111,7 @@ opMod$ut_50 .85
 opMod$ut_95 .75
 opMod$effortMod "targeting"
 opMod$pT 3
-opMod$histFile "fit_22042020124124"
+opMod$histFile "fit_01052020202840"
 opMod$price_s c(Dover=1.33,English=1.37,Rock=1.65,Petrale=3.22,Arrowtooth=0.37)
 opMod$projObsErrMult 1.0
 opMod$phaseInObsErrMult 6

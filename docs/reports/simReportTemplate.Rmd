@@ -222,11 +222,11 @@ if(!blob$ctlList$ctl$omni)
 ```
 
 
-```{r, plotJabbaModel, echo = FALSE, message = FALSE, fig.cap = JabbaSelModelCap }
+<!-- ```{r, plotJabbaModel, echo = FALSE, message = FALSE, fig.cap = JabbaSelModelCap }
 if( !is.null(blob$ctlList$mp$assess$spSkewYieldCurves) )
   plotEBSBratio(  obj = blob )
 ```
-
+ -->
 
 
 # Performance
@@ -266,6 +266,10 @@ if(blob$ctlList$ctl$omni)
   cat(childDoc)
 }
 
+```
+
+```{r diagCondition, echo = FALSE, message = FALSE}
+diagCondition()
 ```
 
 

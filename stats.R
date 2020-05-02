@@ -334,14 +334,22 @@ makeStatTable <- function( sims = 1, folder = "" )
   nReps   <- ctlList$ctl$nReps
 
   # Species and stock labels
+
   speciesNames  <- opMod$species
   stockNames    <- opMod$stocks
   fYear         <- opMod$fYear
 
+  speciesNames  <- "HG Herring"
+  stockNames    <- "Agg"
+
+
   # get the replicate numbers for succesful fits (PD Hessians) in
   # MPs
   allConvReps <- obj$goodReps
-  pdHess_itsp <- mp$assess$pdHess_itsp[allConvReps,,,]
+  nGoodReps   <- sum(allConvReps)
+  pdHess_itsp <- array(NA, dim = c(nGoodReps,pT,nS,nP))
+  # Fill
+  pdHess_itsp[1:nGoodReps,,,] <- mp$assess$pdHess_itsp[allConvReps,,,]
   
 
   # Calculat probability of a good replicate (all PD hessians)
@@ -401,8 +409,10 @@ makeStatTable <- function( sims = 1, folder = "" )
     SB_ispt   <- om$SB_ispt[allConvReps,,,,drop = FALSE]
     C_ispt    <- om$C_ispt[allConvReps,,,,drop = FALSE]
     TAC_ispt  <- mp$hcr$TAC_ispt[allConvReps,,,,drop = FALSE]
-    TACu_ispt <- C_ispt / TAC_ispt
-    F_ispt    <- om$F_ispft[allConvReps,,,2,]
+    TACu_ispt <- C_ispt
+    TACu_ispt[,1:nS,,] <- C_ispt[,1:nS,,] / TAC_ispt[,1:nS,,]
+    F_ispt    <- array(NA, dim = c(nGoodReps,nS,nP,nT))
+    F_ispt[,1:nS,,] <- om$F_ispft[allConvReps,,,2,]
     
     # Calculate probability that Bt above LRP
     pBtGt.4Bmsy_sp <- .calcStatsProportion( TS_ispt = SB_ispt,
@@ -445,8 +455,8 @@ makeStatTable <- function( sims = 1, folder = "" )
 
 
     # Average catch and TAC utilisation
-    Cbar_sp     <- apply( X = C_ispt[,,,tMP:nT], FUN = mean, MARGIN = c(2,3), na.rm = T)
-    TACubar_sp  <- apply( X = TACu_ispt[,,,tMP:nT], FUN = mean, MARGIN = c(2,3), na.rm = T)
+    Cbar_sp     <- apply( X = C_ispt[,,,tMP:nT,drop = FALSE], FUN = mean, MARGIN = c(2,3), na.rm = T)
+    TACubar_sp  <- apply( X = TACu_ispt[,,,tMP:nT,drop = FALSE], FUN = mean, MARGIN = c(2,3), na.rm = T)
 
     # Catch variability
     AAV_sp      <- .calcStatsAAV( C_ispt = C_ispt,
@@ -496,7 +506,7 @@ makeStatTable <- function( sims = 1, folder = "" )
 {
 
   # Reduce to time period
-  TS_ispt <- TS_ispt[,,,tdx]
+  TS_ispt <- TS_ispt[,,,tdx,drop = FALSE]
 
   Quotient_ispt <- array(NA, dim = dim(TS_ispt) )
 
@@ -522,7 +532,7 @@ makeStatTable <- function( sims = 1, folder = "" )
                             qProbs = c(0.025,0.5,0.975),
                             margin = c(2,3) )
 {
-  C_ispt <- C_ispt[,,,tdx]
+  C_ispt <- C_ispt[,,,tdx,drop = FALSE]
   # Append margin
   marg <- c(1,margin)
   # Add over margins, in case we are looking
