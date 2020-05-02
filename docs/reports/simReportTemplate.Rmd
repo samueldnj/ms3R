@@ -269,7 +269,9 @@ if(blob$ctlList$ctl$omni)
 ```
 
 ```{r diagCondition, echo = FALSE, message = FALSE}
-diagCondition()
+diagCondition(  repObj  = blob$ctlList$opMod$histRpt,
+                ms3Obj  = blob,
+                iRep    = 1 )
 ```
 
 

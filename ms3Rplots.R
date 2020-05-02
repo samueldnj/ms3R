@@ -3289,7 +3289,7 @@ plotScaledIndices <- function(  obj = blob,
 
 
   fleetNames <- c("reduction","seineRoe","gillnet","surf","dive","SOK")
-  
+
   if( nPP == 1 )
     stockNames <- "Spatially Pooled"
 
@@ -3655,6 +3655,12 @@ plotRE_spt <- function( repObj, omObj, nS = 1,
 
   true_spt[1:nS,,]        <- repObj[[AMseries]][,1:nT,drop = FALSE]
   est_spt[1:nS,1:nP,1:nT] <- omObj[[OMseries]][iRep,1:nS,1:nP,1:nT]
+
+  if( OMseries == "omegaR_ispt" )
+  {
+    sigmaR <- repObj$sigmaR
+    est_spt[1:nS,1:nP,1:nT] <- est_spt[1:nS,1:nP,1:nT] - 0.5 * sigmaR
+  }
 
   re_qspt  <- calcREdist( true = true_spt,
                           est  = est_spt,

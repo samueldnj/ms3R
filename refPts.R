@@ -609,10 +609,10 @@ calcJABBASelPars <- function( obj )
   for( s in 1:nS )
     for( p in 1:nP)
     {
-      ssbpr_asp[,s,p]  <- Surv_axsp[,nX,s,p] * exp(-spawnTiming * M_xsp[nX,s,p]) * wtAge_axsp[,nX,s,p] * matAge_asp[,s,p]
+      ssbpr_asp[,s,p]  <- Surv_axsp[,nX,s,p] * exp(-spawnTiming * Z_axsp[,nX,s,p]) * wtAge_axsp[,nX,s,p] * matAge_asp[,s,p]
       for( x in 1:nX )
       {
-        C_axsp[,x,s,p]    <- Surv_axsp[,x,s,p] * wtAge_axsp[,x,s,p] * 
+        C_axsp[,x,s,p]    <- Surv_axsp[,x,s,p] * wtAge_axsp[,x,s,p] * exp(-spawnTiming * Z_axsp[,nX,s,p]) *
                               selAge_axsp[,x,s,p] * fmort[s,p] * 
                               (1 - exp(-Z_axsp[,x,s,p]))/Z_axsp[,x,s,p]
 
