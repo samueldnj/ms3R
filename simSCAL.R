@@ -3417,7 +3417,7 @@ combBarrierPen <- function( x, eps,
       # Save historical proc errors, but use simulated recruitments after
       # last estimated recruitment
       lastIdx <- max(which(repObj$omegaR_pt[p,] != 0) )
-      obj$errors$omegaR_spt[s,p,histdx[1:lastIdx]]   <- repObj$omegaR_pt[p,1:lastIdx] 
+      obj$errors$omegaR_spt[s,p,histdx[1:lastIdx]]   <- repObj$omegaR_pt[p,1:lastIdx]
       
       if( !ctlList$ctl$noProcErr )
         obj$errors$omegaR_spt[s,p,histdx[1:lastIdx]] <- obj$errors$omegaR_spt[s,p,histdx[1:lastIdx]] + 0.5*repObj$sigmaR  # rec devs    
@@ -3908,14 +3908,14 @@ combBarrierPen <- function( x, eps,
   {
     # Pull initial N multiplier in case
     # of non-eq init
-    initNmult_asp <- exp(err$omegaRinit_asp)
+    
 
     for( s in 1:nS )
       for( p in 1:nP)
         for( x in 1:nX )
-          N_axspt[,x,s,p,t] <- obj$om$initSurv_axsp[,x,s,p] * Rinit_sp[s,p] * initNmult_asp[,s,p]
+          N_axspt[,x,s,p,t] <- obj$om$initSurv_axsp[,x,s,p] * Rinit_sp[s,p] * exp(om$sigmaR_sp[s,p] * err$omegaRinit_asp[,s,p])
 
-    R_spt[,,t] <- Rinit_sp * obj$om$initSurv_axsp[1,1,s,p] * initNmult_asp[1,s,p]
+    R_spt[,,t] <- Rinit_sp * obj$om$initSurv_axsp[1,1,s,p] * exp(om$sigmaR_sp[s,p] * err$omegaRinit_asp[1,s,p])
 
   }
 
@@ -3933,7 +3933,7 @@ combBarrierPen <- function( x, eps,
             R_spt[s,p,t] <- reca_sp[s,p] * SB_spt[s,p,t-1] / (1 + recb_sp[s,p] * SB_spt[s,p,t-1])
             
             if( !obj$ctlList$ctl$noProcErr )
-              R_spt[s,p,t] <- R_spt[s,p,t] * exp( om$sigmaR_sp[s,p] * err$omegaR_spt[s,p,t-1] - 0.5*om$sigmaR_sp[s,p]^2) 
+              R_spt[s,p,t] <- R_spt[s,p,t] * exp( om$sigmaR_sp[s,p] * err$omegaR_spt[s,p,t] - 0.5*om$sigmaR_sp[s,p]^2) 
 
             N_axspt[a,,s,p,t] <- R_spt[s,p,t]
           }

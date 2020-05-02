@@ -2187,7 +2187,7 @@ plotTulipF <- function( obj = blob, nTrace = 3 )
   Fmsy_sp <- obj$rp[[1]]$FmsyRefPts$Fmsy_sp
     
   # Fishing mortality series
-  F_ispft <- obj$om$F_ispft[goodReps,,,,]
+  F_ispft <- obj$om$F_ispft[goodReps,,,,,drop = FALSE]
 
   # Fishing mortality envelopes
   F_qspft <- apply(  X = F_ispft, FUN = quantile,
@@ -2359,9 +2359,12 @@ plotTulipBt <- function(  obj = blob, nTrace = 3,
   nReps   <- dim(SB_ispt)[1]
 
   # Get reference points
-  B0_sp     <- obj$ctlList$opMod$histRpt$B0_sp
-  BmsySS_sp <- obj$rp[[1]]$FmsyRefPts$BeqFmsy_sp
-  BmsyMS_sp <- obj$rp[[1]]$EmsyMSRefPts$BeqEmsy_sp
+  B0_sp     <- array(NA, dim = c(nS,nP))
+  BmsySS_sp <- array(NA, dim = c(nS,nP))
+  BmsyMS_sp <- array(NA, dim = c(nS,nP))
+
+  B0_sp[1:nS,]     <- obj$ctlList$opMod$histRpt$B0_p
+  BmsySS_sp[1:nS,] <- obj$rp[[1]]$FmsyRefPts$BeqFmsy_sp
 
   speciesNames  <- obj$om$speciesNames
   stockNames    <- obj$om$stockNames
@@ -2376,12 +2379,12 @@ plotTulipBt <- function(  obj = blob, nTrace = 3,
       for( s in 1:nS )
         for( p in 1:nP )
         {
+
           SB_ispt[,s,p,] <- SB_ispt[,s,p,] / B0_sp[s,p]
           C_ispt[,s,p,]  <- C_ispt[,s,p,] / B0_sp[s,p]
 
         }
       BmsySS_sp <- BmsySS_sp / B0_sp
-      BmsyMS_sp <- BmsyMS_sp / B0_sp
       B0_sp     <- B0_sp / B0_sp
 
 
@@ -2398,7 +2401,6 @@ plotTulipBt <- function(  obj = blob, nTrace = 3,
 
       B0_sp     <- B0_sp / Bmsy_sp
       BmsySS_sp <- BmsySS_sp / Bmsy_sp
-      BmsyMS_sp <- BmsyMS_sp / Bmsy_sp
       
     }
   }
@@ -2477,7 +2479,6 @@ plotTulipBt <- function(  obj = blob, nTrace = 3,
       abline( v = yrs[tMP], col = "grey30", lty = 3 )
       abline( h = B0_sp[s,p], lty = 2, col = "grey50", lwd = 2  )
       abline( h = BmsySS_sp[s,p], lty = 3, col = "darkgreen", lwd = 2)
-      abline( h = BmsyMS_sp[s,p], lty = 3, col = "steelblue", lwd = 2)
 
       if( mfg[1] == 1 & mfg[2] == 1 & leg )
         legend( x = "topright", bty = "n",
@@ -2485,10 +2486,9 @@ plotTulipBt <- function(  obj = blob, nTrace = 3,
                             "Central 95%",
                             "Replicate Traces",
                             "Unfished",
-                            expression(B[MSY,MS]),
-                            expression(B[MSY,SS])),
+                            expression(B[MSY,MS])),
                 col = c(  "black", "grey65", "black",
-                          "grey50", "darkgreen","steelblue" ),
+                          "grey50", "darkgreen" ),
                 pch = c(NA,15, NA, NA, NA,NA),
                 lty = c(1, NA, 1, 2, 3, 3),
                 lwd = c(3, NA, .8, 2, 2, 2 ) )
@@ -2858,41 +2858,50 @@ plotRetroSB <- function( obj = blob, iRep = 1 )
 plotRetroSBagg <- function( obj = blob, iRep = 1, Ct = TRUE )
 {
   # Get biomass arrays
-  SB_spt        <- obj$om$SB_ispt[iRep,,,]
-  VB_spt        <- obj$om$vB_ispft[iRep,,,2,]
-  totB_spt      <- obj$om$B_ispt[iRep,,,]
-  retroSB_tspt  <- obj$mp$assess$retroSB_itspt[iRep,,,,]
-
-  ctlList <- obj$ctlList
-
-  retroSB_tspt[retroSB_tspt < 0] <- NA
-
   # Model dims
   tMP     <- obj$om$tMP
   nS      <- obj$om$nS
   nP      <- obj$om$nP 
   nT      <- obj$om$nT
+  nF      <- obj$om$nF
+  pT      <- obj$ctlList$opMod$pT
+
+  SB_spt        <- array(NA, dim = c(nS,nP,nT))
+  VB_spt        <- array(NA, dim = c(nS,nP,nT))
+  retroSB_tspt  <- array(NA, dim = c(pT,nS,nP,nT))
 
 
-  C_spft   <- obj$om$C_ispft[iRep,,,,]
-  TAC_spft <- obj$mp$hcr$TAC_ispft[iRep,,,,]
+  SB_spt[1:nS,,]        <- obj$om$SB_ispt[iRep,1:nS,,]
+  VB_spt[1:nS,,]        <- obj$om$vB_ispft[iRep,1:nS,,2,]
+  retroSB_tspt[1:pT,,,] <- obj$mp$assess$retroSB_itspt[iRep,1:pT,,,]
 
-  C_spt    <- apply(X = C_spft, FUN = sum, MARGIN = c(1,2,4))
-  TAC_spt  <- apply(X = TAC_spft, FUN = sum, MARGIN = c(1,2,4))
+  ctlList <- obj$ctlList
+
+  retroSB_tspt[retroSB_tspt < 0] <- NA
+
+
+  C_spft   <- array(NA, dim = c(nS,nP,nF,nT))
+  TAC_spft <- array(NA, dim = c(nS,nP,nF,nT))
+
+  C_spt    <- array(NA, dim = c(nS,nP,nT))
+  TAC_spt  <- array(NA, dim = c(nS,nP,nT))
+
+  C_spft[1:nS,,,]   <- obj$om$C_ispft[iRep,,,,]
+  TAC_spft[1:nS,,,] <- obj$mp$hcr$TAC_ispft[iRep,,,,]
+
+  C_spt[1:nS,,]    <- apply(X = C_spft, FUN = sum, MARGIN = c(1,2,4))
+  TAC_spt[1:nS,,]  <- apply(X = TAC_spft, FUN = sum, MARGIN = c(1,2,4))
 
   # Aggregate OM biomasses to match AM biomass
   if( ctlList$mp$data$spatialPooling )
   {
     newSB_spt        <- apply( X = SB_spt, FUN = sum, MARGIN = c(1,3), na.rm = T )
     newVB_spt        <- apply( X = VB_spt, FUN = sum, MARGIN = c(1,3), na.rm = T )
-    newtotB_spt      <- apply( X = totB_spt, FUN = sum, MARGIN = c(1,3), na.rm = T )
 
     SB_spt    <- SB_spt[,1,,drop = FALSE]
     SB_spt[,1,] <- newSB_spt
     VB_spt    <- VB_spt[,1,,drop = FALSE]
     VB_spt[,1,] <- newVB_spt
-    totB_spt  <- totB_spt[,1,,drop = FALSE]
-    totB_spt[,1,] <- newtotB_spt
 
     sumC_spt          <- C_spft[,1,1,,drop = FALSE]
     sumC_spt[,1,1,]   <- apply(X = C_spft, FUN = sum, MARGIN = c(1,4))
@@ -2912,14 +2921,11 @@ plotRetroSBagg <- function( obj = blob, iRep = 1, Ct = TRUE )
   {
     newSB_spt        <- apply( X = SB_spt, FUN = sum, MARGIN = c(2,3), na.rm = T )
     newVB_spt        <- apply( X = VB_spt, FUN = sum, MARGIN = c(2,3), na.rm = T )
-    newtotB_spt      <- apply( X = totB_spt, FUN = sum, MARGIN = c(2,3), na.rm = T )
 
     SB_spt    <- SB_spt[1,,,drop = FALSE]
     SB_spt[1,,] <- newSB_spt
     VB_spt    <- VB_spt[1,,,drop = FALSE]
     VB_spt[1,,] <- newVB_spt
-    totB_spt  <- totB_spt[1,,,drop = FALSE]
-    totB_spt[1,,] <- newtotB_spt
 
     sumC_spt          <- C_spft[1,,1,,drop = FALSE]
     sumC_spt[1,,1,]   <- apply(X = C_spft, FUN = sum, MARGIN = c(2,4))
@@ -2937,7 +2943,6 @@ plotRetroSBagg <- function( obj = blob, iRep = 1, Ct = TRUE )
 
   SB_spt[SB_spt == 0]     <- NA
   VB_spt[VB_spt == 0]     <- NA
-  totB_spt[totB_spt == 0] <- NA
 
   nSS     <- dim( SB_spt)[1]
   nPP     <- dim( SB_spt)[2]
@@ -2964,7 +2969,7 @@ plotRetroSBagg <- function( obj = blob, iRep = 1, Ct = TRUE )
     for( p in 1:nPP )
     {
       plot( x = range(yrs),
-            y = c(0,1.2*max(totB_spt[s,p,],VB_spt[s,p,],SB_spt[s,p,],na.rm = T) ),
+            y = c(0,1.2*max(VB_spt[s,p,],SB_spt[s,p,],na.rm = T) ),
             type = "n", axes = F )
 
       mfg <- par("mfg")
@@ -2983,13 +2988,6 @@ plotRetroSBagg <- function( obj = blob, iRep = 1, Ct = TRUE )
       }
       box()
       grid()
-      lines( x = yrs, y = SB_spt[s,p,], col = "red", lwd = 3 )
-      lines( x = yrs, y = VB_spt[s,p,], col = "grey40", lwd = 2, lty = 3 )
-      lines( x = yrs, y = totB_spt[s,p,], col = "black", lwd = 2 )
-      for( tt in 1:pT )
-      {
-        lines( x = yrs, y = retroSB_tspt[tt,s,p,], col = "grey60", lwd = 1 )
-      }
       if( Ct )
       {
         # Plot actual catch
@@ -3002,6 +3000,13 @@ plotRetroSBagg <- function( obj = blob, iRep = 1, Ct = TRUE )
               border = "black" )
 
       }
+      lines( x = yrs, y = SB_spt[s,p,], col = "red", lwd = 3 )
+      lines( x = yrs, y = VB_spt[s,p,], col = "grey40", lwd = 2, lty = 3 )
+      for( tt in 1:pT )
+      {
+        lines( x = yrs, y = retroSB_tspt[tt,s,p,], col = "grey60", lwd = 1 )
+      }
+      
   
       abline( v = yrs[tMP] - 0.5, lty = 2, lwd = 0.5 )
     }
@@ -3152,14 +3157,22 @@ plotScaledIndices <- function(  obj = blob,
   # Calculate the projection time step
   projt <- t - tMP + 1
 
-  # Get biomass arrays
-  SB_spt        <- obj$om$SB_ispt[iRep,,,1:t]
-  VB_spt        <- obj$om$vB_ispft[iRep,,,2,1:t]
-  totB_spt      <- obj$om$B_ispt[iRep,,,1:t]
-  fitSB_spt     <- obj$mp$assess$retroSB_itspt[iRep,projt,,,1:t]
-  fitVB_spft    <- obj$mp$assess$retroVB_itspft[iRep,projt,,,,1:t]
-  fitq_spf      <- obj$mp$assess$retroq_itspf[iRep,projt,,,]
-  fitq_spft     <- obj$mp$assess$retroq_itspft[iRep,projt,,,,1:t]
+  SB_spt        <- array(NA, dim = c(nS,nP,t))
+  VB_spt        <- array(NA, dim = c(nS,nP,t))
+  fitSB_spt     <- array(NA, dim = c(nS,nP,t))
+  fitVB_spft    <- array(NA, dim = c(nS,nP,nF,t))
+  fitq_spf      <- array(NA, dim = c(nS,nP,nF))
+  fitq_spft     <- array(NA, dim = c(nS,nP,nF,t))
+  C_spft        <- array(NA, dim = c(nS,nP,nF,t))
+  C_spt         <- array(NA, dim = c(nS,nP,t))
+
+  # Get biomass arrays and catchabilities
+  SB_spt[1:nS,,]        <- obj$om$SB_ispt[iRep,1:nS,,1:t]
+  VB_spt[1:nS,,]        <- obj$om$vB_ispft[iRep,,,2,1:t]
+  fitSB_spt[1:nS,,]     <- obj$mp$assess$retroSB_itspt[iRep,projt,,,1:t]
+  fitVB_spft[1:nS,,,]   <- obj$mp$assess$retroVB_itspft[iRep,projt,,,,1:t]
+  fitq_spf[1:nS,,]      <- obj$mp$assess$retroq_itspf[iRep,projt,,,]
+  fitq_spft[1:nS,,,]    <- obj$mp$assess$retroq_itspft[iRep,projt,,,,1:t]
 
   ctlList <- obj$ctlList
   spFleets <- ctlList$mp$assess$spFleets
@@ -3167,9 +3180,8 @@ plotScaledIndices <- function(  obj = blob,
 
   fitSB_spt[fitSB_spt < 0] <- NA
 
-  C_spft   <- obj$om$C_ispft[iRep,,,,1:t]
-
-  C_spt    <- apply(X = C_spft, FUN = sum, MARGIN = c(1,2,4))
+  C_spft[1:nS,,,]   <- obj$om$C_ispft[iRep,,,,1:t]
+  C_spt[1:nS,,]     <- apply(X = C_spft, FUN = sum, MARGIN = c(1,2,4))
 
   # Now pull indices
   I_spft <- obj$mp$data$I_ispft[iRep,,,,1:t]
@@ -3186,14 +3198,11 @@ plotScaledIndices <- function(  obj = blob,
   {
     newSB_spt        <- apply( X = SB_spt, FUN = sum, MARGIN = c(1,3), na.rm = T )
     newVB_spt        <- apply( X = VB_spt, FUN = sum, MARGIN = c(1,3), na.rm = T )
-    newtotB_spt      <- apply( X = totB_spt, FUN = sum, MARGIN = c(1,3), na.rm = T )        
 
     SB_spt    <- SB_spt[,1,,drop = FALSE]
     SB_spt[,1,] <- newSB_spt
     VB_spt    <- VB_spt[,1,,drop = FALSE]
     VB_spt[,1,] <- newVB_spt
-    totB_spt  <- totB_spt[,1,,drop = FALSE]
-    totB_spt[,1,] <- newtotB_spt
 
     I_spft <- I_spft[1:nS,1+nP,,,drop = FALSE]
 
@@ -3209,14 +3218,11 @@ plotScaledIndices <- function(  obj = blob,
   {
     newSB_spt        <- apply( X = SB_spt, FUN = sum, MARGIN = c(2,3), na.rm = T )
     newVB_spt        <- apply( X = VB_spt, FUN = sum, MARGIN = c(2,3), na.rm = T )
-    newtotB_spt      <- apply( X = totB_spt, FUN = sum, MARGIN = c(2,3), na.rm = T )
 
     SB_spt    <- SB_spt[1,,,drop = FALSE]
     SB_spt[1,,] <- newSB_spt
     VB_spt    <- VB_spt[1,,,drop = FALSE]
     VB_spt[1,,] <- newVB_spt
-    totB_spt  <- totB_spt[1,,,drop = FALSE]
-    totB_spt[1,,] <- newtotB_spt
 
     I_spft <- I_spft[1+nS,1:nP,,, drop= FALSE]
 
@@ -3231,14 +3237,11 @@ plotScaledIndices <- function(  obj = blob,
   {
     newSB_spt        <- apply( X = SB_spt, FUN = sum, MARGIN = c(3), na.rm = T )
     newVB_spt        <- apply( X = VB_spt, FUN = sum, MARGIN = c(3), na.rm = T )
-    newtotB_spt      <- apply( X = totB_spt, FUN = sum, MARGIN = c(3), na.rm = T )
 
     SB_spt    <- SB_spt[1,1,,drop = FALSE]
     SB_spt[1,1,] <- newSB_spt
     VB_spt    <- VB_spt[1,1,,drop = FALSE]
     VB_spt[1,1,] <- newVB_spt
-    totB_spt  <- totB_spt[1,1,,drop = FALSE]
-    totB_spt[1,1,] <- newtotB_spt
 
     I_spft <- I_spft[1+nS,1+nP,,, drop= FALSE]
 
@@ -3260,7 +3263,6 @@ plotScaledIndices <- function(  obj = blob,
 
   SB_spt[SB_spt == 0]     <- NA
   VB_spt[VB_spt == 0]     <- NA
-  totB_spt[totB_spt == 0] <- NA
 
   nSS     <- dim( SB_spt)[1]
   nPP     <- dim( SB_spt)[2]
@@ -3285,6 +3287,9 @@ plotScaledIndices <- function(  obj = blob,
   fYear         <- obj$ctlList$opMod$fYear
   pT            <- obj$ctlList$opMod$pT
 
+
+  fleetNames <- c("reduction","seineRoe","gillnet","surf","dive","SOK")
+  
   if( nPP == 1 )
     stockNames <- "Spatially Pooled"
 
@@ -3301,7 +3306,7 @@ plotScaledIndices <- function(  obj = blob,
     for( p in 1:nPP )
     {
       plot( x = range(yrs),
-            y = c(0,max(totB_spt[s,p,],VB_spt[s,p,],SB_spt[s,p,],na.rm = T) ),
+            y = c(0,max(VB_spt[s,p,],SB_spt[s,p,],na.rm = T) ),
             type = "n", axes = F )
 
       mfg <- par("mfg")
@@ -3320,16 +3325,7 @@ plotScaledIndices <- function(  obj = blob,
       }
       box()
       grid()
-      lines( x = yrs, y = SB_spt[s,p,], col = "red", lwd = 3 )
-      lines( x = yrs, y = VB_spt[s,p,], col = "grey40", lwd = 2, lty = 3 )
-      lines( x = yrs, y = totB_spt[s,p,], col = "black", lwd = 2 )
-      lines( x = yrs, y = fitSB_spt[s,p,], col = "grey60", lwd = 1 )
 
-      for( f in 1:nF )
-        points( x = yrs, y = scaledIdx_spft[s,p,f,],
-                pch = fleetPCH[f], bg = fleetBG[f],
-                cex = 1.3, col = stockCol[p] )
-      
       if( Ct )
       {
         # Plot actual catch
@@ -3338,6 +3334,17 @@ plotScaledIndices <- function(  obj = blob,
               border = NA )
 
       }
+
+      lines( x = yrs, y = SB_spt[s,p,], col = "red", lwd = 3 )
+      lines( x = yrs, y = VB_spt[s,p,], col = "grey40", lwd = 2, lty = 3 )
+      lines( x = yrs, y = fitSB_spt[s,p,], col = "grey60", lwd = 1 )
+
+      for( f in 1:nF )
+        points( x = yrs, y = scaledIdx_spft[s,p,f,],
+                pch = fleetPCH[f], bg = fleetBG[f],
+                cex = 1.3, col = stockCol[p] )
+      
+      
   
       abline( v = yrs[tMP] - 0.5, lty = 2, lwd = 0.5 )
     }
@@ -3365,15 +3372,27 @@ plotAMIdxResids <- function(  obj = blob,
   # Calculate the projection time step
   projt <- t - tMP + 1
 
+  SB_spt        <- array(NA, dim = c(nS,nP,t))
+  VB_spt        <- array(NA, dim = c(nS,nP,t))
+  fitSB_spt     <- array(NA, dim = c(nS,nP,t))
+  fitVB_spft    <- array(NA, dim = c(nS,nP,nF,t))
+  fitq_spf      <- array(NA, dim = c(nS,nP,nF))
+  fitq_spft     <- array(NA, dim = c(nS,nP,nF,t))
+  I_spft        <- array(NA, dim = c(nS,nP,nF,t))
+  tauObs_spf    <- array(NA, dim = c(nS,nP,nF))
+
   # Get biomass arrays
-  SB_spt        <- obj$om$SB_ispt[iRep,,,1:t]
-  VB_spt        <- obj$om$vB_ispft[iRep,,,2,1:t]
-  totB_spt      <- obj$om$B_ispt[iRep,,,1:t]
-  fitSB_spt     <- obj$mp$assess$retroSB_itspt[iRep,projt,,,1:t]
-  fitVB_spft    <- obj$mp$assess$retroVB_itspft[iRep,projt,,,,1:t]
-  fitq_spf      <- obj$mp$assess$retroq_itspf[iRep,projt,,,]
-  fitq_spft     <- obj$mp$assess$retroq_itspft[iRep,projt,,,,1:t]
-  tauObs_spf    <- obj$mp$assess$retrotauObs_itspf[iRep,projt,,,]
+  SB_spt[1:nS,,1:t]     <- obj$om$SB_ispt[iRep,,,1:t]
+  VB_spt[1:nS,,1:t]     <- obj$om$vB_ispft[iRep,,,2,1:t]
+  fitSB_spt[1:nS,,1:t]  <- obj$mp$assess$retroSB_itspt[iRep,projt,,,1:t]
+  fitVB_spft[1:nS,,,1:t]<- obj$mp$assess$retroVB_itspft[iRep,projt,,,,1:t]
+  fitq_spf[1:nS,,]      <- obj$mp$assess$retroq_itspf[iRep,projt,,,]
+  fitq_spft[1:nS,,,1:t] <- obj$mp$assess$retroq_itspft[iRep,projt,,,,1:t]
+  
+  tauObs_spf[1:nS,,]    <- obj$mp$assess$retrotauObs_itspf[iRep,projt,,,]
+
+  if( all( is.na(tauObs_spf)) )
+    tauObs_spf[1:nS,,] <- 1
 
   tauObs_spf[is.na(tauObs_spf)] <- 0
 
@@ -3391,8 +3410,7 @@ plotAMIdxResids <- function(  obj = blob,
   nT      <- obj$om$nT
 
   # Now pull indices
-  I_spft <- obj$mp$data$I_ispft[iRep,,,,1:t]
-  I_spft[,,-spFleets,] <- -1
+  I_spft[1:nS,1:nP,,1:t] <- obj$mp$data$I_ispft[iRep,1:nS,1:nP,,1:t]
   I_spft[I_spft <= 0] <- NA
 
   nSS <- nS
@@ -3449,6 +3467,8 @@ plotAMIdxResids <- function(  obj = blob,
   fYear         <- obj$ctlList$opMod$fYear
   pT            <- obj$ctlList$opMod$pT
 
+  # HACK - need to import fleetnames
+  fleetNames <- c("reduction","seineRoe","gillnet","surf","dive","SOK")
 
   if( nSS == 1 )
     speciesNames <- "Data Pooled"
@@ -3463,7 +3483,10 @@ plotAMIdxResids <- function(  obj = blob,
   for(s in 1:nSS)
     for( p in 1:nPP )
     {
-      maxResid <- max(abs(stdResids_spft[s,p,,]),na.rm = T)
+      if( any(!is.na(stdResids_spft[s,p,,])))
+        maxResid <- max(abs(stdResids_spft[s,p,,]),na.rm = T)
+      else maxResid <- 1
+
       plot( x = range(yrs),
             y = range(-maxResid,maxResid),
             type = "n", axes = F )
