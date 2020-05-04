@@ -1,4 +1,4 @@
-# Batch Control File, created Mon May  4 13:26:49 2020 by makeBatchDesign() 
+# Batch Control File, created Mon May  4 13:29:28 2020 by makeBatchDesign() 
 parameter value
 #
 # Scenarios 
@@ -54,9 +54,9 @@ mp$mp1$mp$assess$spCondMLEqFleets NULL
 mp$mp1$mp$assess$spCondMLEobsErrFleets NULL
 mp$mp1$mp$assess$spFleetWeights c(1.0,1.0,1.0,1.0)
 mp$mp1$mp$assess$spsigmaProc .05
-mp$mp1$mp$assess$spsdUmsy .2
-mp$mp1$mp$assess$spCVBmsy .2
-mp$mp1$mp$assess$spsdlnq_f c(1,1,1,1)
+mp$mp1$mp$assess$spsdUmsy .1
+mp$mp1$mp$assess$spCVBmsy .1
+mp$mp1$mp$assess$spsdlnq_f c(.5,.5,.5,.5)
 mp$mp1$mp$assess$sptauObs_spf .3
 mp$mp1$mp$assess$spInitPE 25
 mp$mp1$mp$assess$spRE c('zetaspt_vec')
@@ -92,7 +92,7 @@ mp$mp2$mp$assess$spShrinkqFleets c(3,4)
 mp$mp2$mp$assess$spYrFirstIdx 20
 mp$mp2$mp$assess$spLateStart TRUE
 mp$mp2$mp$assess$spsigmaProc .05
-mp$mp2$mp$assess$spsdUmsy .4
+mp$mp2$mp$assess$spsdUmsy .2
 mp$mp2$mp$assess$spCVBmsy .2
 mp$mp2$mp$assess$spsdlnq_f c(1,1,1,1)
 mp$mp2$mp$assess$sptauObs_spf .3
