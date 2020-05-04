@@ -619,8 +619,8 @@ solvePTm <- function( Bmsy, B0 )
     P2_spf  <- EBSBpars$totalAgg$P2_spf
   }
 
-  nSS <- dim(I_spft)[1]
-  nPP <- dim(I_spft)[2]
+  nSS <- min(dim(I_spft)[1],nS)
+  nPP <- min(dim(I_spft)[2],nP)
 
   oldStock <- 1:nPP
   oldFleet <- 1:nF
@@ -977,7 +977,7 @@ solvePTm <- function( Bmsy, B0 )
     PTm_sp <- omPTm_sp
 
     # Add Bmsy across stocks if coastwide
-    if( spatialPooling )
+    if( spatialPooling &  !speciesPooling )
     {
       mBmsy_sp_new      <- mBmsy_sp[,1,drop = FALSE]
       mBmsy_sp_new[,1]  <- apply( X = BeqSS_sp, FUN = sum, MARGIN = 1)
@@ -995,7 +995,7 @@ solvePTm <- function( Bmsy, B0 )
       }
     }
 
-    if( speciesPooling )
+    if( speciesPooling & !spatialPooling )
     {
       mBmsy_sp_new <- mBmsy_sp[1,,drop = FALSE]
       mBmsy_sp_new[1,] <- apply( X = BeqSS_sp, FUN = sum, MARGIN = 2 )
@@ -1012,9 +1012,8 @@ solvePTm <- function( Bmsy, B0 )
       }
     }
 
-
     tmbLists <- .makeDatParHierProd(  C_spt, 
-                                      I_spft,
+                                      I_spft[1:nSS,1:nPP,,,drop = FALSE],
                                       ctlList,
                                       mlnUmsy = mlnUmsy_SS,
                                       lnUmsy_sp = log(omUmsy_sp),
