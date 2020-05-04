@@ -1,15 +1,15 @@
 # simCtlFile.txt, saved to ms3R root working directory
 parameter value
-ctl$scenarioName "DER_fit"
-ctl$mpName "fixUmsy_hierMS"
+ctl$scenarioName "DER_fit_AsSs"
+ctl$mpName "SS_lateStart"
 ctl$quiet FALSE
-ctl$phaseMessages TRUE
-ctl$optimOutput TRUE
+ctl$phaseMessages FALSE
+ctl$optimOutput FALSE
 ctl$maxEval 1e4
 ctl$maxIter 1e4
 ctl$rSeed 123
 ctl$totReps 400
-ctl$nGoodReps 3
+ctl$nGoodReps 10
 ctl$omni FALSE
 ctl$perfConF FALSE
 ctl$noProcErr FALSE
@@ -20,11 +20,11 @@ mp$assess$idxScalar 1
 mp$assess$idxFleets 4
 mp$assess$spSingleStock TRUE
 mp$assess$spPosPenFactor 1e3
-mp$assess$sptauq .2
+mp$assess$sptauq .4
 mp$assess$spsigU .2
 mp$assess$spFleetWeights c(1,1,1.0,1.0)
 mp$assess$spFleets c(3,4)
-mp$assess$spShrinkqFleets NULL
+mp$assess$spShrinkqFleets c(4)
 mp$assess$spTVqFleets NULL
 mp$assess$spCondMLEqFleets NULL
 mp$assess$spCondMLEobsErrFleets NULL
@@ -33,8 +33,8 @@ mp$assess$spLateStart FALSE
 mp$assess$spYrFirstIdx 15
 mp$assess$spsigmaProc .05
 mp$assess$sptauqdev .01
-mp$assess$spsdUmsy .2
-mp$assess$spCVBmsy .2
+mp$assess$spsdUmsy .4
+mp$assess$spCVBmsy .4
 mp$assess$spsdlnq_f c(1,1,1,1)
 mp$assess$sptauObs_spf .3
 mp$assess$spInitPE 42
@@ -45,7 +45,7 @@ mp$assess$spPhzepslnUmsy_sp 7
 mp$assess$spPhzdeltalnq_spf 6
 mp$assess$spPhzdeltalnq_sf 4
 mp$assess$spPhzBmsy 2
-mp$assess$spPhzlnBinit -2
+mp$assess$spPhzlnBinit 2
 mp$assess$spPhzlnqShrink 1
 mp$assess$spPhzlnqFree 1
 mp$assess$spPhzTVq 1
@@ -58,7 +58,7 @@ mp$assess$spFixUmsy FALSE
 mp$assess$spOMqDevs FALSE
 mp$assess$spSkewYieldCurves TRUE
 mp$assess$spEstExpBio TRUE
-mp$data$idxOn c(2,4)
+mp$data$idxOn c(4)
 mp$data$obsInt_i c(1,2)
 mp$data$spatialPooling TRUE
 mp$data$speciesPooling FALSE

@@ -1,4 +1,4 @@
-# Batch Control File, created Mon Apr 27 20:47:41 2020 by makeBatchDesign() 
+# Batch Control File, created Mon May  4 13:26:49 2020 by makeBatchDesign() 
 parameter value
 #
 # Scenarios 
@@ -66,7 +66,7 @@ mp$mp1$mp$assess$spPhzepslnUmsy_sp -7
 mp$mp1$mp$assess$spPhzdeltalnq_spf -6
 mp$mp1$mp$assess$spPhzdeltalnq_sf -4
 mp$mp1$mp$assess$spPhzBmsy 1
-mp$mp1$mp$assess$spPhzlnBinit -2
+mp$mp1$mp$assess$spPhzlnBinit 2
 mp$mp1$mp$assess$spPhzlnqShrink 1
 mp$mp1$mp$assess$spPhzlnqFree 1
 mp$mp1$mp$assess$spPhzTVq 1
@@ -85,12 +85,12 @@ mp$mp2$mp$hcr$refPtType 'MS'
 mp$mp2$mp$data$spatialPooling FALSE
 mp$mp2$mp$data$speciesPooling FALSE
 mp$mp2$mp$assess$spSingleStock FALSE
-mp$mp2$mp$assess$sptauq .1
-mp$mp2$mp$assess$spsigU .1
+mp$mp2$mp$assess$sptauq .2
+mp$mp2$mp$assess$spsigU .2
 mp$mp2$mp$assess$spFleetWeights c(1.0,1.0,1.0,1.0)
 mp$mp2$mp$assess$spShrinkqFleets c(3,4)
 mp$mp2$mp$assess$spYrFirstIdx 20
-mp$mp2$mp$assess$spLateStart FALSE
+mp$mp2$mp$assess$spLateStart TRUE
 mp$mp2$mp$assess$spsigmaProc .05
 mp$mp2$mp$assess$spsdUmsy .4
 mp$mp2$mp$assess$spCVBmsy .2
@@ -104,7 +104,7 @@ mp$mp2$mp$assess$spPhzepslnUmsy_sp 8
 mp$mp2$mp$assess$spPhzdeltalnq_spf 7
 mp$mp2$mp$assess$spPhzdeltalnq_sf 5
 mp$mp2$mp$assess$spPhzBmsy 2
-mp$mp2$mp$assess$spPhzlnBinit -2
+mp$mp2$mp$assess$spPhzlnBinit 2
 mp$mp2$mp$assess$spPhzlnqShrink 1
 mp$mp2$mp$assess$spPhzlnqFree 1
 mp$mp2$mp$assess$spPhzTVq 1
@@ -124,8 +124,6 @@ mp$mp3$mp$data$spatialPooling FALSE
 mp$mp3$mp$data$speciesPooling TRUE
 mp$mp3$mp$assess$spSingleStock TRUE
 mp$mp3$mp$assess$spPosPenFactor 1e3
-mp$mp3$mp$assess$sptauq .2
-mp$mp3$mp$assess$spsigU .1
 mp$mp3$mp$assess$spFleetWeights c(1,1,1.0,1.0)
 mp$mp3$mp$assess$spShrinkqFleets NULL
 mp$mp3$mp$assess$spYrFirstIdx 20
@@ -158,7 +156,7 @@ mp$mp3$mp$assess$spPhztauObs 3
 mp$mp3$mp$assess$spIGtau2alpha 1
 mp$mp3$mp$assess$spIGtau2Mode 0.25
 mp$mp3$mp$assess$spSkewYieldCurves TRUE
-mp$mp3$mp$assess$spEstExpBio FALSE
+mp$mp3$mp$assess$spEstExpBio TRUE
 #
 # MP 4 : spatialPooling_omF_MSrefPts
 #
@@ -211,7 +209,7 @@ mp$mp5$mp$hcr$Fsource 'om'
 mp$mp5$mp$hcr$refPtType 'MS'
 mp$mp5$mp$data$spatialPooling TRUE
 mp$mp5$mp$data$speciesPooling TRUE
-mp$mp5$mp$assess$spSingleStock FALSE
+mp$mp5$mp$assess$spSingleStock TRUE
 mp$mp5$mp$assess$spPosPenFactor 1e3
 mp$mp5$mp$assess$sptauq .1
 mp$mp5$mp$assess$spsigU .1

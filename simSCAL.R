@@ -567,7 +567,7 @@ solvePTm <- function( Bmsy, B0 )
   spFleetIdx  <- ctlList$mp$assess$spFleets
 
   # Pull observations and catch
-  I_spft      <- obj$mp$data$I_spft[1:nS,1:nP,,1:(t-1)]
+  I_spft      <- obj$mp$data$I_spft[1:(nS+1),1:(nP+1),,1:(t-1)]
   I_spft[,,-spFleetIdx,] <- -1
   C_spft      <- obj$om$C_spft[,,,(1:t-1)]
   C_spt       <- apply( X = C_spft, FUN = sum, 
@@ -583,7 +583,7 @@ solvePTm <- function( Bmsy, B0 )
   # Spatial Pooling
   if( ctlList$mp$data$spatialPooling )
   {
-    I_spft      <- obj$mp$data$I_spft[1:nS,nP+1,,1:(t-1),drop = FALSE]
+    I_spft      <- I_spft[1:nS,nP+1,,1:(t-1),drop = FALSE]
     C_spt       <- array(NA, dim = c(nS,1,t-1))
     C_spt[,1,]  <- apply( X = C_spft, FUN = sum, MARGIN = c(1,4) )
 
@@ -598,7 +598,7 @@ solvePTm <- function( Bmsy, B0 )
   # Species Pooling
   if( ctlList$mp$data$speciesPooling )
   {
-    I_spft      <- obj$mp$data$I_spft[nS+1,1:nP,,1:(t-1),drop = FALSE]
+    I_spft      <- I_spft[nS+1,1:nP,,1:(t-1),drop = FALSE]
     C_spt       <- array(NA, dim = c(1,nP,t-1))
     C_spt[1,,]  <- apply( X = C_spft, FUN = sum, MARGIN = c(2,4) )
 
@@ -610,7 +610,7 @@ solvePTm <- function( Bmsy, B0 )
   # Total Aggregation
   if( ctlList$mp$data$speciesPooling & ctlList$mp$data$spatialPooling )
   {
-    I_spft      <- obj$mp$data$I_spft[nS+1,nP+1,,1:(t-1),drop = FALSE]
+    I_spft      <- I_spft[nS+1,nP+1,,1:(t-1),drop = FALSE]
     C_spt       <- array(NA, dim = c(1,1,t-1))
     C_spt[1,1,] <- apply( X = C_spft, FUN = sum, MARGIN = c(4) )
 
@@ -634,6 +634,9 @@ solvePTm <- function( Bmsy, B0 )
   spSingleStock   <- ctlList$mp$assess$spSingleStock
   spFixUmsy       <- ctlList$mp$assess$spFixUmsy
   spOMqDevs       <- ctlList$mp$assess$spOMqDevs
+
+
+  I_spft[is.na(I_spft)] <- -1
 
 
   # Single stock version (no hierarchical method)
@@ -708,8 +711,6 @@ solvePTm <- function( Bmsy, B0 )
           if( ctlList$mp$assess$spSkewYieldCurves )
             PTm_sp[1,1]    <- solvePTm( Bmsy = sum(BeqSS_sp[,p]), B0 = sum(B0_sp[,p]) )
         }
-
-
 
         # Make lists for TMB AD function
         tmbLists <- .makeDatParHierProd(  C_spt[s,p,,drop = FALSE], 
@@ -1514,7 +1515,7 @@ solvePTm <- function( Bmsy, B0 )
                 mBmsy_sp          = mBmsy_sp,
                 sdBmsy_sp         = mBmsy_sp*ctlList$mp$assess$spCVBmsy,
                 mBinit_sp         = mBmsy_sp/2,
-                sdBinit_sp        = mBmsy_sp,
+                sdBinit_sp        = (mBmsy_sp/2)*ctlList$mp$assess$spCVBmsy,
                 tau2IGa_f         = rep(IGtau2alpha,nF),
                 tau2IGb_f         = rep(IGtau2beta,nF),
                 sigma2IG          = c(1,.02),

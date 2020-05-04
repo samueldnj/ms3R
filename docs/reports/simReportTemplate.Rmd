@@ -108,7 +108,9 @@ goodRepIdx  <- which(goodReps)
 
 # Draw a random replicate for plotting
 set.seed(123)
-randReplicate <- sample(goodRepIdx, size = 1)
+randReplicate <- 1
+if( nGoodReps > 0 )
+  randReplicate <- sample(goodRepIdx, size = 1)
 
 ```
 
@@ -121,6 +123,8 @@ Model Hypothesis: `r blob$ctlList$ctl$mpName`
 Species complex: `r blob$ctlList$data$species`
 
 Stock areas: `r blob$ctlList$data$stocks`
+
+Number of good replicates: `r nGoodReps`
 
 
 
@@ -175,26 +179,30 @@ for each fleet (colours)."
 ## Spawning Biomass
 
 ```{r, plotTulipBtCt, echo = FALSE, message = FALSE, fig.cap = SBsptCaption }
-plotTulipBt( obj = blob, dep = TRUE, Ct = TRUE )
+if( nGoodReps >= 1)
+  plotTulipBt( obj = blob, dep = TRUE, Ct = TRUE )
 ```
 
 ## TAC utilisation
 
 ```{r, plotTulipTACu, echo = FALSE, message = FALSE, fig.cap = TACuCaption }
-plotTulipTACu( obj = blob, nTrace = 3 )
+if( nGoodReps >= 1)
+  plotTulipTACu( obj = blob, nTrace = 3 )
 ```
 
 ## Fishing mortality
 
 ```{r, plotTulipF, echo = FALSE, message = FALSE, fig.cap = EffTulipCaption }
-plotTulipF( obj = blob )
+if( nGoodReps >= 1)
+  plotTulipF( obj = blob )
 ```
 
 
 ## Effort allocation
 
 ```{r, plotTulipEffort, echo = FALSE, message = FALSE, fig.cap = FTulipCaption }
-plotTulipEffort_p( obj = blob )
+if( nGoodReps >= 1)
+  plotTulipEffort_p( obj = blob )
 ```
 
 # Example replicates
@@ -233,7 +241,7 @@ if( !is.null(blob$ctlList$mp$assess$spSkewYieldCurves) )
 
 ## Stats table
 
-```{r, phaseTable, echo = FALSE }
+```{r, simPerfStats, echo = FALSE }
 
 statTable <- .simPerfStats( obj = blob )
 
@@ -254,7 +262,10 @@ if(   !(blob$ctlList$ctl$omni | blob$ctlList$ctl$perfConF)  &
 
   cat(paste("## ", "Convergence diagnostics\n",sep = ""))
 
-  plotConvStats( obj = blob )
+  if( nGoodReps > 0)
+    plotConvStats( obj = blob )
+  else
+    cat("**NO CONVERGENT REPLICATES**\n")
 }
 ```
 

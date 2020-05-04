@@ -34,10 +34,6 @@
   # Save blob
   save(blob,file = file.path(path,paste(folder,".RData",sep="")))
 
-
-  # Make html sim report
-  .makeSimReport( simNum = folder, groupFolder = "" )
-
   # Create a quick to read info file for the sim folder
   .makeInfoFile(blob)
 
@@ -64,6 +60,12 @@
   cat(  "# <End File>", sep = "", 
         file = file.path(path,"simCtlFile.txt"),
         append = TRUE)
+
+
+  # Make html sim report
+  .makeSimReport( simNum = folder, groupFolder = "" )
+
+  message("Simulation complete!")
   
 } # END .saveBlob
 

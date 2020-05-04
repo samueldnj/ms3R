@@ -397,13 +397,17 @@ plotTulipBtCtBaseSim <- function( sim = 1,
 # under lower data quality conditions - can be
 # used to set a threshold for including
 # results in the paper...
-plotBatchConvergenceRate <- function( groupFolder = "diffCV_newObsCV_short",
-                                      prefix = "diffCV",
+plotBatchConvergenceRate <- function( groupFolder = "DLSurveys",
+                                      prefix = "DLSurveys_LateStart",
                                       AMlabs = c( singleStock = "singleStock",
                                                   hierMultiStock = "hierMultiStock",
-                                                  dataPooled = "dataPooled",
-                                                  coastwide = "coastwide",
-                                                  totalAgg = "totalAgg" ) )
+                                                  speciesPooling = "speciesPooling",
+                                                  spatialPooling = "spatialPooling",
+                                                  totalAgg = "totalAgg" ),
+                                      scenLabs = c( HMAS  = "DERfit_HcMcAsSsIdx",
+                                                    MAS   = "DERfit_McAsSsIdx",
+                                                    AS    = "DERfit_AsSsIdx",
+                                                    S     = "DERfit_SsIdx" ) )
 {
   # First, read info files from the relevant
   # sims
@@ -451,10 +455,10 @@ plotBatchConvergenceRate <- function( groupFolder = "diffCV_newObsCV_short",
   {
     table <- table %>%
               group_by(simLabel) %>%
-              summarise(  obsCVmult = mean(projObsErrMult),
-                          minConv   = min(pGoodReps),
-                          maxConv   = max(pGoodReps),
-                          meanConv  = mean(pGoodReps) )
+              summarise(  obsCVmult = mean(projObsErrMult,na.rm = T ),
+                          minConv   = min(pGoodReps,na.rm = T),
+                          maxConv   = max(pGoodReps,na.rm = T),
+                          meanConv  = mean(pGoodReps,na.rm = T) )
 
     table
   }
@@ -472,6 +476,8 @@ plotBatchConvergenceRate <- function( groupFolder = "diffCV_newObsCV_short",
   CVmults <- unique(mpTable$obsCVmult)
   CVmults <- CVmults[order(CVmults)]
 
+  scenarios   <- unique(mpTable$scenario)
+
   AMs       <- names(AMlabs)
   AMcols    <- RColorBrewer::brewer.pal(length(AMs), "Set2")
   AMjitter  <- seq( from = -.3, to = .3, length.out = length(AMs) )
@@ -479,11 +485,11 @@ plotBatchConvergenceRate <- function( groupFolder = "diffCV_newObsCV_short",
   AMwidth <- AMjitter[2] - AMjitter[1]
 
   # Now set up plotting area
-  plot( x = c(0,length(CVmults) + 1), y = c(0,1),
+  plot( x = c(0,length(scenarios) + 1), y = c(0,1),
         xlab = "", ylab = "", axes=FALSE,
         type = "n" )
-    axis( side = 1, at = 1:length(CVmults),
-          labels = CVmults )
+    axis( side = 1, at = 1:length(scenLabs),
+          labels = names(scenLabs) )
     axis( side = 2, las = 1  )
     box()
     for( aIdx in 1:length(AMs) )
@@ -491,30 +497,32 @@ plotBatchConvergenceRate <- function( groupFolder = "diffCV_newObsCV_short",
       amLab <- AMs[aIdx]
       SStable <- mpTable %>% filter( AM == amLab,
                                       grepl("SS", eqbm) ) %>%
-                              dplyr::select( obsCVmult,
+                              dplyr::select( scenario,
                                               meanConv )
 
-      SStable <- SStable[order(SStable$obsCVmult),]
 
       MStable <- mpTable %>% filter( AM == amLab,
                                       grepl("MS", eqbm) ) %>%
-                              dplyr::select( obsCVmult,
+                              dplyr::select( scenario,
                                               meanConv )
-      MStable <- MStable[order(MStable$obsCVmult),]
 
-      rect( xleft = 1:3 + AMjitter[aIdx] - AMwidth/2,
-            xright = 1:3 + AMjitter[aIdx],
-            ybottom = 0,
-            ytop = SStable$meanConv,
-            border = "black",
-            col = AMcols[aIdx] )
-
-      rect( xleft = 1:3 + AMjitter[aIdx],
-            xright = 1:3 + AMjitter[aIdx] + AMwidth/2,
-            ybottom = 0,
-            ytop = MStable$meanConv,
-            border = "black",
-            col = AMcols[aIdx] )
+      for( sIdx in 1:length(scenLabs) )
+      {
+        if( nrow(SStable) > 0)
+          rect( xleft = sIdx + AMjitter[aIdx] - AMwidth/2,
+                xright = sIdx + AMjitter[aIdx],
+                ybottom = 0,
+                ytop = SStable[SStable$scenario == scenLabs[sIdx], ]$meanConv,
+                border = "black",
+                col = AMcols[aIdx] )
+        if( nrow(MStable) > 0 )
+          rect( xleft = sIdx + AMjitter[aIdx],
+                xright = sIdx + AMjitter[aIdx] + AMwidth/2,
+                ybottom = 0,
+                ytop = MStable[MStable$scenario == scenLabs[sIdx], ]$meanConv,
+                border = "black",
+                col = AMcols[aIdx] )
+      }
       
 
       
@@ -536,8 +544,8 @@ plotBatchLossDists_CV <- function(  groupFolder = "diffCV_fixedF_longGrid",
                                     var = "C_ispt",
                                     period = 62:72,
                                     lossList = NULL,
-                                    dim1 = 3,   # species (D,E,R, DP)
-                                    dim2 = 1,   # stocks (H,Q,W, CW)
+                                    dim1 = 1:4,   # species (D,E,R, DP)
+                                    dim2 = 1:4,   # stocks (H,Q,W, CW)
                                     qProbs = c(.05,.5,.95),
                                     refPts = "MSrefPts" )
 {
@@ -722,7 +730,7 @@ plotBatchLossDists_CV <- function(  groupFolder = "diffCV_fixedF_longGrid",
       s <- dim1[sIdx]
       p <- dim2[pIdx]
 
-      lossRange <- max(abs(range(totLossQuantiles_qmsp[,,s,p])))
+      lossRange <- max(abs(range(totLossQuantiles_qmsp[,,s,p],na.rm = T)))
 
       plot( y = c(0,lossRange), x = c(0.5,3.5),
             type = "n", axes = FALSE  )
@@ -762,6 +770,8 @@ plotBatchLossDists_CV <- function(  groupFolder = "diffCV_fixedF_longGrid",
 
             MPlab <- paste( AMid, FsrceID, eqbmID, sep = "_")
 
+            browser()
+
             points( x = 1:3 + xJitter[jitIdx],
                     y = totLossQuantiles_qmsp[2,simLabels,s,p],
                     pch = eqbmPCH[eqbmID],
@@ -796,6 +806,287 @@ plotBatchLossDists_CV <- function(  groupFolder = "diffCV_fixedF_longGrid",
 
   mtext( side = 2, outer = TRUE, text = yLab, line = 2 )
   mtext( side = 1, outer = TRUE, text = "Observation Error SD multiplier ", line = 2 )
+
+  
+}
+
+# plotBatchLossDists_CV()
+# Multi-panel plot of relative and absolute
+# loss under a batch of MPs for all stock/species
+# combinations, including data-pooled and 
+# coast-wide aggregations.
+plotBatchLossDists_Scenario <- function(  groupFolder = "DLSurveys",
+                                          prefix = "DLSurveys_LateStart",
+                                          lossType = "abs",
+                                          var = "C_ispt",
+                                          period = 62:72,
+                                          lossList = NULL,
+                                          dim1 = 1:4,   # species (D,E,R, DP)
+                                          dim2 = 1:4,   # stocks (H,Q,W, CW)
+                                          qProbs = c(.05,.5,.95),
+                                          refPts = "MSrefPts",
+                                          AMlabs = c( SS = "singleStock",
+                                                      HMS = "hierMultiStock",
+                                                      SpePool = "speciesPooling",
+                                                      SpaPool = "spatialPooling",
+                                                      TA = "totalAgg" ),
+                                          scenLabs = c( HMAS  = "DERfit_HcMcAsSsIdx",
+                                                        MAS   = "DERfit_McAsSsIdx",
+                                                        AS    = "DERfit_AsSsIdx",
+                                                        S     = "DERfit_SsIdx" )  )
+{
+  # First, read info files from the relevant
+  # sims
+  
+  simFolderList <- list.dirs(here::here("Outputs",groupFolder),recursive = FALSE)
+  simFolderList <- simFolderList[grepl(prefix, simFolderList)]
+
+  infoFiles     <- lapply(  X = file.path(simFolderList,"infoFile.txt"),
+                            FUN = lisread )
+
+
+  if( lossType == "rel" )
+  {
+    lossArrayName <- "totRelLoss_isp"
+    yLab <- "Total Relative Loss"
+  }
+
+  if( lossType == "abs" )
+  {
+    lossArrayName <- "totAbsLoss_isp"
+    yLab <- "Total Absolute Loss (kt)"
+  }
+
+  # Break up MP names into factor levels
+  # MP labels are AM_Fsrce_eqbm
+  splitMP <- function(  mpLab, 
+                        breaks = "_",
+                        factorNames = c("AM","Fsrce","eqbm") )
+  {
+    splitMP <- stringr::str_split(mpLab, breaks)[[1]]
+
+    outList <- vector(  mode = "list", 
+                        length = length(splitMP) )
+    names(outList) <- factorNames
+    for( k in 1:length(splitMP))
+      outList[[k]] <- splitMP[k]
+
+    outList
+  }
+
+
+
+  for( lIdx in 1:length(infoFiles) )
+  {
+    infoFiles[[lIdx]] <- c(infoFiles[[lIdx]], splitMP(infoFiles[[lIdx]]$mp))
+    infoFiles[[lIdx]] <- as.data.frame(infoFiles[[lIdx]])
+  }
+
+  info.df <- do.call(rbind, infoFiles) %>% 
+              mutate_if(is.factor, as.character)
+
+  if( !is.null(refPts) )
+    info.df <- info.df %>% filter( eqbm == refPts )
+
+
+  # Load loss files, place in a list
+  simFolderNames  <- info.df$simLabel
+  if( is.null(lossList) )
+  {
+    lossList        <- lapply(  X = simFolderNames,
+                                FUN = .loadLoss,
+                                folder = groupFolder )
+    names(lossList) <- simFolderNames
+  }
+  
+
+  # Calculate total loss for variable/period
+  totLossList  <- lapply( X = lossList,
+                          FUN = calcTotalLossPeriod,
+                          var = var, period = period )
+  names(totLossList) <- names(lossList)
+
+
+  nS  <- lossList[[1]]$nS
+  nP  <- lossList[[1]]$nP
+  nT  <- lossList[[1]]$nT
+  tMP <- lossList[[1]]$tMP
+  pT  <- lossList[[1]]$pT
+
+  # Get number of MPs
+  nSims <- length(lossList)
+
+
+  AMs       <- unique(info.df$AM)
+  Fsources  <- unique(info.df$Fsrce)
+  eqbm      <- unique(info.df$eqbm)
+  MPs       <- unique(info.df$mp)
+  scenarios <- unique(info.df$scenario)
+
+  nAM       <- length(AMs)
+  nSrce     <- length(Fsources)
+  nEqbm     <- length(eqbm)
+  nMP       <- length(MPs)
+  nScen     <- length(scenarios)
+
+
+
+  # Some axis labels and translations from
+  # simple axis label to info file AM name
+  AMcodes <- c( SS = 1,
+                HMS = 2,
+                SpePool = 3,
+                SpaPool = 4,
+                TA = 5 )
+
+  AMdictionary <- AMlabs
+
+  AMcols          <- RColorBrewer::brewer.pal(nAM, "Dark2")
+  names(AMcols)   <- names(AMdictionary)
+  eqbmPCH  <- 15 + 1:nEqbm
+  names(eqbmPCH) <- eqbm
+  FsrceLTY   <- 1:nSrce
+  names(FsrceLTY)  <- Fsources
+
+
+  MPgrid <- list( AMs = names(AMdictionary),
+                  Fsrce = Fsources,
+                  eqbm = eqbm )
+
+  MPgrid <- expand.grid(MPgrid)
+
+
+  xJitter <- seq(from = -.4, to = .4, length.out = nMP )
+
+
+  nReps         <- dim(lossList[[1]]$lossRel[[var]])[1]
+  speciesNames  <- lossList[[1]]$speciesNames
+  stockNames    <- lossList[[1]]$stockNames
+
+  speciesNames[nS+1]  <- "SpeciesPooled"
+  stockNames[nP+1]    <- "SpatialPooled"
+
+  # Make an array to hold loss function values
+  totLossArray_misp <- array(NA,  dim = c(nSims, nReps, nS+1, nP+1 ),
+                                  dimnames = list(  simID = info.df$simLabel,
+                                                    rep = 1:nReps,
+                                                    species = speciesNames,
+                                                    stock = stockNames ) )
+
+  for( k in 1:nSims )
+  {
+    simID <- info.df$simLabel[k]
+    simLoss <- totLossList[[simID]][[lossArrayName]] 
+
+    if( dim(simLoss)[1] == 0 )
+      next
+
+    totLossArray_misp[simID,1:dim(simLoss)[1],,] <- simLoss[1:dim(simLoss)[1],,]
+  }
+
+  totLossQuantiles_qmsp <- apply( X = totLossArray_misp,
+                                  FUN = quantile,
+                                  probs = qProbs,
+                                  MARGIN = c(1,3,4),
+                                  na.rm = TRUE )
+
+
+  # Start plotting windows
+  nSpec   <- length(dim1)
+  nStock  <- length(dim2) 
+
+  par(  mfcol = c(nSpec,nStock),
+        mar = c(0.2,1.5,.2,1),
+        oma = c(3,3,3,3) )
+
+  for( sIdx in 1:nSpec )
+    for( pIdx in 1:nStock )
+    {
+      s <- dim1[sIdx]
+      p <- dim2[pIdx]
+
+      lossRange <- max(abs(range(totLossQuantiles_qmsp[,,s,p],na.rm = TRUE)))
+
+      if( lossRange == Inf)
+        lossRange <- 1
+
+      plot( y = c(0,lossRange), x = c(0.5,nScen + .5),
+            type = "n", axes = FALSE  )
+        
+        mfg <- par("mfg")
+        if( mfg[1] == mfg[3])
+          axis( side = 1, at = 1:nScen, labels = names(scenLabs) )
+
+        axis( side = 2, las = 1 )
+
+        if( mfg[1] == 1 )
+          mtext( side = 3, text = speciesNames[s], font = 2, line = 1 )
+
+        if( mfg[2] == mfg[4] )
+          mtext( side = 4, text = stockNames[p], font = 2, line = 1 )
+
+        grid()
+        box()
+        
+        jitIdx <- 0
+        for( amIdx in 1:nAM )
+          for( eqIdx in 1:nEqbm )
+          {
+            jitIdx <- jitIdx + 1
+            AMid    <- AMdictionary[amIdx]
+            eqbmID  <- eqbm[eqIdx]
+            
+            subInfo <- info.df %>%
+                        filter( AM    == AMid,
+                                eqbm  == eqbmID ) 
+            
+            simLabels <- subInfo$simLabel
+            
+            FsrceID <- subInfo$Fsrce[1]
+            AMcode  <- AMdictionary[amIdx]
+
+            MPlab <- paste( AMid, FsrceID, eqbmID, sep = "_")
+
+            for( scenIdx in 1:nScen )
+            {
+
+              thisSimLabel <- subInfo[subInfo$scenario == scenLabs[scenIdx],]$simLabel
+
+              points( x = scenIdx + xJitter[jitIdx],
+                      y = totLossQuantiles_qmsp[2,thisSimLabel,s,p],
+                      pch = eqbmPCH[eqbmID],
+                      col = AMcols[names(AMid)], cex = 1.5 )
+              # lines(  x = 1:3 + xJitter[jitIdx],
+              #         y = totLossQuantiles_qmsp[2,thisSimLabel,s,p],
+              #         lty = 1, lwd = .8, col = AMcols[AMid] )
+
+              segments( y0 = totLossQuantiles_qmsp[1,thisSimLabel,s,p],
+                        y1 = totLossQuantiles_qmsp[3,thisSimLabel,s,p],
+                        x0 = scenIdx + xJitter[jitIdx],
+                        lty = FsrceLTY[FsrceID],
+                        col = AMcols[names(AMid)], lwd = 2  )
+            }
+
+          }
+
+        abline( v = 1:(nScen-1) + .5,
+                col = "black", lty = 2, lwd = 3 )
+
+
+      }
+
+
+  legend( x       = "bottomright",
+          bty     = "n",
+          legend  = c(names(AMdictionary),eqbm),
+          pch     = c(rep(NA,5),eqbmPCH),
+          lty     = c(rep(1,5),NA,NA),
+          col     = c(AMcols,"black","black"),
+          lwd     = 2 )
+
+
+  mtext( side = 2, outer = TRUE, text = yLab, line = 2 )
+  mtext( side = 1, outer = TRUE, text = "Data Scenario", line = 2 )
 
   
 }
@@ -3464,6 +3755,8 @@ plotAMIdxResids <- function(  obj = blob,
     for( p in 1:nPP )
     {
       maxResid <- max(abs(stdResids_spft[s,p,,]),na.rm = T)
+      if(!is.finite(maxResid))
+        maxResid <- 1
       plot( x = range(yrs),
             y = range(-maxResid,maxResid),
             type = "n", axes = F )

@@ -298,14 +298,26 @@ calcBatchTable <- function( batchFolder = "" )
 
 # makeStatTable()
 # Wrapper for 
-makeStatTable <- function( sims = 1, folder = "" )
+makeStatTable <- function(  sim = 1, folder = "",
+                            save = FALSE )
 {
   # First, load blob
   source("tools.R")
 
-  .loadSim(sims, folder = folder)
+  .loadSim(sim, folder = folder)
 
   statTable <- .simPerfStats( obj = blob )
+
+  simFolder <- statTable$simLabel[1]
+
+  if( save )
+  {
+    outFile <- here::here("Outputs",folder,simFolder,"simPerfStats.csv")
+
+    write.csv(statTable, file = outFile)
+
+    message(paste("Stat table saved to ", outFile,"\n", sep ="" ) )
+  }
 
   statTable
 } # END makeStatTable()
