@@ -581,7 +581,7 @@ solvePTm <- function( Bmsy, B0 )
   speciesPooling <-  ctlList$mp$data$speciesPooling
 
   # Spatial Pooling
-  if( ctlList$mp$data$spatialPooling )
+  if( ctlList$mp$data$spatialPooling & !ctlList$mp$data$speciesPooling )
   {
     I_spft      <- I_spft[1:nS,nP+1,,1:(t-1),drop = FALSE]
     C_spt       <- array(NA, dim = c(nS,1,t-1))
@@ -596,7 +596,7 @@ solvePTm <- function( Bmsy, B0 )
 
   }
   # Species Pooling
-  if( ctlList$mp$data$speciesPooling )
+  if( ctlList$mp$data$speciesPooling & !ctlList$mp$data$spatialPooling )
   {
     I_spft      <- I_spft[nS+1,1:nP,,1:(t-1),drop = FALSE]
     C_spt       <- array(NA, dim = c(1,nP,t-1))
