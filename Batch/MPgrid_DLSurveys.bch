@@ -1,4 +1,4 @@
-# Batch Control File, created Tue May  5 00:17:39 2020 by makeBatchDesign() 
+# Batch Control File, created Tue May  5 00:18:05 2020 by makeBatchDesign() 
 parameter value
 #
 # Scenarios 
@@ -97,7 +97,7 @@ mp$mp2$mp$assess$spYrFirstIdx 1
 mp$mp2$mp$assess$spsigmaProc .05
 mp$mp2$mp$assess$spsdUmsy .4
 mp$mp2$mp$assess$spCVBmsy .2
-mp$mp2$mp$assess$spsdlnq_f c(.5,.5,.25,.25)
+mp$mp2$mp$assess$spsdlnq_f c(1,1,.5,.5)
 mp$mp2$mp$assess$sptauObs_spf .3
 mp$mp2$mp$assess$spInitPE 25
 mp$mp2$mp$assess$spRE c('zetaspt_vec')
