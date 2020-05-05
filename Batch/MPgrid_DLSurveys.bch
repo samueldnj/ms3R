@@ -1,4 +1,4 @@
-# Batch Control File, created Mon May  4 13:29:28 2020 by makeBatchDesign() 
+# Batch Control File, created Mon May  4 21:52:32 2020 by makeBatchDesign() 
 parameter value
 #
 # Scenarios 
@@ -8,32 +8,36 @@ parameter value
 scenario$scenario1$ctl$scenarioName 'DERfit_HcMcAsSsIdx'
 scenario$scenario1$opMod$pT 32
 scenario$scenario1$ctl$nGoodReps 10
-scenario$scenario1$ctl$totReps 400
+scenario$scenario1$ctl$totReps 40
 scenario$scenario1$mp$assess$spFleets c(1,2,3,4)
+scenario$scenario1$mp$assess$spLateStart FALSE
 #
 # Scenario 2 : 'DERfit_McAsSsIdx'
 #
 scenario$scenario2$ctl$scenarioName 'DERfit_McAsSsIdx'
 scenario$scenario2$opMod$pT 32
 scenario$scenario2$ctl$nGoodReps 10
-scenario$scenario2$ctl$totReps 400
+scenario$scenario2$ctl$totReps 40
 scenario$scenario2$mp$assess$spFleets c(2,3,4)
+scenario$scenario2$mp$assess$spLateStart FALSE
 #
-# Scenario 3 : 'DERfit_AsSsIdx'
+# Scenario 3 : 'DERfit_McSsIdx'
 #
-scenario$scenario3$ctl$scenarioName 'DERfit_AsSsIdx'
+scenario$scenario3$ctl$scenarioName 'DERfit_McSsIdx'
 scenario$scenario3$opMod$pT 32
 scenario$scenario3$ctl$nGoodReps 10
-scenario$scenario3$ctl$totReps 400
-scenario$scenario3$mp$assess$spFleets c(3,4)
+scenario$scenario3$ctl$totReps 40
+scenario$scenario3$mp$assess$spFleets c(2,4)
+scenario$scenario3$mp$assess$spLateStart FALSE
 #
-# Scenario 4 : 'DERfit_SsIdx'
+# Scenario 4 : 'DERfit_AsSsIdx'
 #
-scenario$scenario4$ctl$scenarioName 'DERfit_SsIdx'
+scenario$scenario4$ctl$scenarioName 'DERfit_AsSsIdx'
 scenario$scenario4$opMod$pT 32
 scenario$scenario4$ctl$nGoodReps 10
-scenario$scenario4$ctl$totReps 400
-scenario$scenario4$mp$assess$spFleets c(4)
+scenario$scenario4$ctl$totReps 40
+scenario$scenario4$mp$assess$spFleets c(3,4)
+scenario$scenario4$mp$assess$spLateStart FALSE
 #
 #
 #
@@ -54,9 +58,9 @@ mp$mp1$mp$assess$spCondMLEqFleets NULL
 mp$mp1$mp$assess$spCondMLEobsErrFleets NULL
 mp$mp1$mp$assess$spFleetWeights c(1.0,1.0,1.0,1.0)
 mp$mp1$mp$assess$spsigmaProc .05
-mp$mp1$mp$assess$spsdUmsy .1
-mp$mp1$mp$assess$spCVBmsy .1
-mp$mp1$mp$assess$spsdlnq_f c(.5,.5,.5,.5)
+mp$mp1$mp$assess$spsdUmsy .4
+mp$mp1$mp$assess$spCVBmsy .2
+mp$mp1$mp$assess$spsdlnq_f c(.5,.5,.25,.25)
 mp$mp1$mp$assess$sptauObs_spf .3
 mp$mp1$mp$assess$spInitPE 25
 mp$mp1$mp$assess$spRE c('zetaspt_vec')
@@ -67,7 +71,7 @@ mp$mp1$mp$assess$spPhzdeltalnq_spf -6
 mp$mp1$mp$assess$spPhzdeltalnq_sf -4
 mp$mp1$mp$assess$spPhzBmsy 1
 mp$mp1$mp$assess$spPhzlnBinit 2
-mp$mp1$mp$assess$spPhzlnqShrink 1
+mp$mp1$mp$assess$spPhzlnqShrink -1
 mp$mp1$mp$assess$spPhzlnqFree 1
 mp$mp1$mp$assess$spPhzTVq 1
 mp$mp1$mp$assess$spPhzProcErr -4
@@ -85,16 +89,16 @@ mp$mp2$mp$hcr$refPtType 'MS'
 mp$mp2$mp$data$spatialPooling FALSE
 mp$mp2$mp$data$speciesPooling FALSE
 mp$mp2$mp$assess$spSingleStock FALSE
-mp$mp2$mp$assess$sptauq .2
-mp$mp2$mp$assess$spsigU .2
+mp$mp2$mp$assess$sptauq .05
+mp$mp2$mp$assess$spsigU .05
 mp$mp2$mp$assess$spFleetWeights c(1.0,1.0,1.0,1.0)
 mp$mp2$mp$assess$spShrinkqFleets c(3,4)
+mp$mp2$mp$assess$spLateStart FALSE
 mp$mp2$mp$assess$spYrFirstIdx 20
-mp$mp2$mp$assess$spLateStart TRUE
 mp$mp2$mp$assess$spsigmaProc .05
-mp$mp2$mp$assess$spsdUmsy .2
+mp$mp2$mp$assess$spsdUmsy .4
 mp$mp2$mp$assess$spCVBmsy .2
-mp$mp2$mp$assess$spsdlnq_f c(1,1,1,1)
+mp$mp2$mp$assess$spsdlnq_f c(.5,.5,.25,.25)
 mp$mp2$mp$assess$sptauObs_spf .3
 mp$mp2$mp$assess$spInitPE 25
 mp$mp2$mp$assess$spRE c('zetaspt_vec')
@@ -141,12 +145,12 @@ mp$mp3$mp$assess$sptauObs_spf .2
 mp$mp3$mp$assess$spInitPE 25
 mp$mp3$mp$assess$spRE c('zetaspt_vec')
 mp$mp3$mp$assess$spPhzUmsy 3
-mp$mp3$mp$assess$spPhzepslnUmsy_s 6
-mp$mp3$mp$assess$spPhzepslnUmsy_sp 8
-mp$mp3$mp$assess$spPhzdeltalnq_spf 7
-mp$mp3$mp$assess$spPhzdeltalnq_sf 5
+mp$mp3$mp$assess$spPhzepslnUmsy_s -6
+mp$mp3$mp$assess$spPhzepslnUmsy_sp -8
+mp$mp3$mp$assess$spPhzdeltalnq_spf -7
+mp$mp3$mp$assess$spPhzdeltalnq_sf -5
 mp$mp3$mp$assess$spPhzBmsy 2
-mp$mp3$mp$assess$spPhzlnBinit -2
+mp$mp3$mp$assess$spPhzlnBinit 2
 mp$mp3$mp$assess$spPhzlnqShrink 1
 mp$mp3$mp$assess$spPhzlnqFree 1
 mp$mp3$mp$assess$spPhzTVq 1
@@ -167,8 +171,6 @@ mp$mp4$mp$data$spatialPooling TRUE
 mp$mp4$mp$data$speciesPooling FALSE
 mp$mp4$mp$assess$spSingleStock FALSE
 mp$mp4$mp$assess$spPosPenFactor 1e3
-mp$mp4$mp$assess$sptauq .05
-mp$mp4$mp$assess$spsigU .05
 mp$mp4$mp$assess$spFleetWeights c(1,1,1.0,1.0)
 mp$mp4$mp$assess$spShrinkqFleets NULL
 mp$mp4$mp$assess$spYrFirstIdx 20
@@ -185,13 +187,13 @@ mp$mp4$mp$assess$spsdlnq_f c(1,1,1,1)
 mp$mp4$mp$assess$sptauObs_spf .2
 mp$mp4$mp$assess$spInitPE 25
 mp$mp4$mp$assess$spRE c('zetaspt_vec')
+mp$mp4$mp$assess$spPhzepslnUmsy_s -6
+mp$mp4$mp$assess$spPhzepslnUmsy_sp -8
+mp$mp4$mp$assess$spPhzdeltalnq_spf -7
+mp$mp4$mp$assess$spPhzdeltalnq_sf -5
 mp$mp4$mp$assess$spPhzUmsy 3
-mp$mp4$mp$assess$spPhzepslnUmsy_s 6
-mp$mp4$mp$assess$spPhzepslnUmsy_sp 8
-mp$mp4$mp$assess$spPhzdeltalnq_spf 7
-mp$mp4$mp$assess$spPhzdeltalnq_sf 5
 mp$mp4$mp$assess$spPhzBmsy 2
-mp$mp4$mp$assess$spPhzlnBinit -2
+mp$mp4$mp$assess$spPhzlnBinit 2
 mp$mp4$mp$assess$spPhzlnqShrink 1
 mp$mp4$mp$assess$spPhzlnqFree 1
 mp$mp4$mp$assess$spPhzTVq 1
@@ -211,9 +213,7 @@ mp$mp5$mp$data$spatialPooling TRUE
 mp$mp5$mp$data$speciesPooling TRUE
 mp$mp5$mp$assess$spSingleStock TRUE
 mp$mp5$mp$assess$spPosPenFactor 1e3
-mp$mp5$mp$assess$sptauq .1
-mp$mp5$mp$assess$spsigU .1
-mp$mp5$mp$assess$spFleetWeights c(.5,.5,1.0,1.0)
+mp$mp5$mp$assess$spFleetWeights c(1,1,1.0,1.0)
 mp$mp5$mp$assess$spShrinkqFleets NULL
 mp$mp5$mp$assess$spYrFirstIdx 20
 mp$mp5$mp$assess$spTVqFleets NULL
@@ -230,12 +230,12 @@ mp$mp5$mp$assess$sptauObs_spf .2
 mp$mp5$mp$assess$spInitPE 25
 mp$mp5$mp$assess$spRE c('zetaspt_vec')
 mp$mp5$mp$assess$spPhzUmsy 3
-mp$mp5$mp$assess$spPhzepslnUmsy_s 6
-mp$mp5$mp$assess$spPhzepslnUmsy_sp 8
-mp$mp5$mp$assess$spPhzdeltalnq_spf 7
-mp$mp5$mp$assess$spPhzdeltalnq_sf 5
+mp$mp5$mp$assess$spPhzepslnUmsy_s -6
+mp$mp5$mp$assess$spPhzepslnUmsy_sp -8
+mp$mp5$mp$assess$spPhzdeltalnq_spf -7
+mp$mp5$mp$assess$spPhzdeltalnq_sf -5
 mp$mp5$mp$assess$spPhzBmsy 2
-mp$mp5$mp$assess$spPhzlnBinit -2
+mp$mp5$mp$assess$spPhzlnBinit 2
 mp$mp5$mp$assess$spPhzlnqShrink 1
 mp$mp5$mp$assess$spPhzlnqFree 1
 mp$mp5$mp$assess$spPhzTVq 1

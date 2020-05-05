@@ -3164,7 +3164,6 @@ plotRetroSBagg <- function( obj = blob, iRep = 1, Ct = TRUE )
   nP      <- obj$om$nP 
   nT      <- obj$om$nT
 
-
   C_spft   <- obj$om$C_ispft[iRep,,,,]
   TAC_spft <- obj$mp$hcr$TAC_ispft[iRep,,,,]
 

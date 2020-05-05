@@ -753,6 +753,9 @@ solvePTm <- function( Bmsy, B0 )
         if( spFixUmsy )
           phases$lnUmsy <- -1
 
+        if( !ctlList$mp$assess$spLateStart )
+          phases$lnBinit_vec <- -1
+
 
         phases$epslnUmsy_s  <- -1
         phases$epslnUmsy_sp <- -1
@@ -917,6 +920,7 @@ solvePTm <- function( Bmsy, B0 )
           for( ss in 1:nS )
           {
             for( pp in 1:nP)
+            {
               for( f in 1:nF )
               {
                 obj$mp$assess$retroVB_tspft[pt,ss,pp,f,1:t]     <- amObj$repOpt$vB_spft[1,1,f,]
@@ -924,11 +928,12 @@ solvePTm <- function( Bmsy, B0 )
                 obj$mp$assess$retroq_tspft[pt,ss,pp,f,1:(t-1)]  <- amObj$repOpt$qhat_spft[1,1,f,1:(t-1)]
                 obj$mp$assess$retrotauObs_tspf[pt,ss,pp,f]      <- amObj$repOpt$tau_spf[1,1,f]
               }
-            # retro SB has to be in a loop because it's a ts, no guarantee
-            # that the entries will enter in the right way (OK, there's a guarantee
-            # but I never remember the orientation)
-            for( p in 1:nP )
+              # retro SB has to be in a loop because it's a ts, no guarantee
+              # that the entries will enter in the right way (OK, there's a guarantee
+              # but I never remember the orientation)
+            
               obj$mp$assess$retroSB_tspt[pt,ss,pp,1:t]    <- amObj$repOpt$B_spt[1,1,1:t]
+            }
               
             
           }
@@ -1066,6 +1071,9 @@ solvePTm <- function( Bmsy, B0 )
       phases$epslnUmsy_s  <- -1
       phases$epslnUmsy_sp <- -1
     }
+
+    if( !ctlList$mp$assess$spLateStart )
+      phases$lnBinit_vec <- -1
 
     if( is.null(ctlList$mp$assess$spTVqFleets) | spOMqDevs )
       phases$tvlnqDevs_vec <- -1
@@ -1356,16 +1364,18 @@ solvePTm <- function( Bmsy, B0 )
   # Add something for when fleets are spread (coastwide)
   condMLEq_f <- rep(0, nF)
   condMLEq_f[ctlList$mp$assess$spCondMLEqFleets] <- 1
+  condMLEq_f[-ctlList$mp$assess$spFleets] <- 0
 
   fleetWeights_f <- ctlList$mp$assess$spFleetWeights
 
   condMLEobsErr_f <- rep(0,nF)
   condMLEobsErr_f[ctlList$mp$assess$spCondMLEobsErrFleets] <- 1
-
+  condMLEobsErr_f[-ctlList$mp$assess$spFleets] <- 0
 
   # Shrink q?
   shrinkq_f  <- rep(0, nF) 
   shrinkq_f[ctlList$mp$assess$spShrinkqFleets] <- 1
+  shrinkq_f[-ctlList$mp$assess$spFleets] <- 0
 
   # Time-varying q?
   tvq_f       <- rep(0,nF)
@@ -1514,7 +1524,7 @@ solvePTm <- function( Bmsy, B0 )
                 mBmsy_sp          = mBmsy_sp,
                 sdBmsy_sp         = mBmsy_sp*ctlList$mp$assess$spCVBmsy,
                 mBinit_sp         = mBmsy_sp/2,
-                sdBinit_sp        = (mBmsy_sp/2)*ctlList$mp$assess$spCVBmsy,
+                sdBinit_sp        = (mBmsy_sp/2),
                 tau2IGa_f         = rep(IGtau2alpha,nF),
                 tau2IGb_f         = rep(IGtau2beta,nF),
                 sigma2IG          = c(1,.02),
