@@ -1,4 +1,4 @@
-# Batch Control File, created Mon May  4 22:09:01 2020 by makeBatchDesign() 
+# Batch Control File, created Mon May  4 22:10:35 2020 by makeBatchDesign() 
 parameter value
 #
 # Scenarios 
@@ -93,7 +93,6 @@ mp$mp2$mp$assess$sptauq .05
 mp$mp2$mp$assess$spsigU .05
 mp$mp2$mp$assess$spFleetWeights c(1.0,1.0,1.0,1.0)
 mp$mp2$mp$assess$spShrinkqFleets c(3,4)
-mp$mp2$mp$assess$spLateStart FALSE
 mp$mp2$mp$assess$spYrFirstIdx 1
 mp$mp2$mp$assess$spsigmaProc .05
 mp$mp2$mp$assess$spsdUmsy .4
