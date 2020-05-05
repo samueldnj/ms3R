@@ -823,7 +823,7 @@ plotBatchLossDists_Scenario <- function(  groupFolder = "DLSurveys",
                                           lossList = NULL,
                                           dim1 = 1:4,   # species (D,E,R, DP)
                                           dim2 = 1:4,   # stocks (H,Q,W, CW)
-                                          qProbs = c(.05,.5,.95),
+                                          qProbs = c(.25,.5,.75),
                                           refPts = "MSrefPts",
                                           AMlabs = c( SS = "singleStock",
                                                       HMS = "hierMultiStock",
@@ -832,8 +832,8 @@ plotBatchLossDists_Scenario <- function(  groupFolder = "DLSurveys",
                                                       TA = "totalAgg" ),
                                           scenLabs = c( HMAS  = "DERfit_HcMcAsSsIdx",
                                                         MAS   = "DERfit_McAsSsIdx",
-                                                        AS    = "DERfit_AsSsIdx",
-                                                        S     = "DERfit_SsIdx" )  )
+                                                        MS    = "DERfit_McSsIdx",
+                                                        AS    = "DERfit_AsSsIdx" )  )
 {
   # First, read info files from the relevant
   # sims

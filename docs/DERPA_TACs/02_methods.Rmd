@@ -60,7 +60,7 @@ Our simulation framework had an operating
 model component and an assessment model component. The
 stochastic operating model simulated population dynamics 
 of a spatially stratified, multi-species flatfish complex
-in response to a multi-species trawl fisher in each of 
+in response to a multi-species trawl fishery in each of 
 the three stock areas. Although total fishing effort 
 was not restricted across the entire complex, effort 
 in each individual area was allocated such that
@@ -83,22 +83,23 @@ generate new catch $C_{s,p,t}$ from effort,
 and new observation data $I_{s,p,f,t}$ 
 (table ref), aggregate obsservation data 
 if using a data-pooled method;
-2. Apply an assessment model to determine the
-spawning biomass $\hat{B}_{s,p,t}$;
+2. Apply an assessment model to estimate the
+spawning biomass for the following year 
+$\hat{B}_{s,p,t+1}$;
 3. Apply a harvest rate to generate a total
 allowable catch: 
-$TAC_{s,p,t} = U_{s,p,t} \cdot \hat{B}_{s,p,t}$;
+$TAC_{s,p,t+1} = U_{s,p} \cdot \hat{B}_{s,p,t+1}$;
 4. Allocate effort to fully realise at least
 one TAC in each stock area (tabref for Baranov}:
-$E_{p,f,t} = \min_{s} \{ E_{s,p,f,t} ~|~ C_{s,p,f,t} = TAC_{s,p,f,t} \}$;
+$E_{p,f,t+1} = \min_{s} \{ E_{s,p,f,t+1} ~|~ C_{s,p,f,t+1} = TAC_{s,p,f,t+1} \}$;
 
 
 
 Each simulation consisting of $T = 32$ projection years was 
 repeated 100 times to integrate over stochasticity
-in recruitment and relative abundance observations. When replicates
-included time steps where assessment models would 
-not converge (largely due to data quality issues)
+in recruitment and relative abundance observations. 
+When replicates included time steps where assessment models 
+would not converge (largely due to data quality issues)
 we increased the number of replicates until we reached
 100 replicates where simulated assessment models 
 converged for all time steps.

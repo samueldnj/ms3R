@@ -1,7 +1,6 @@
 # Introduction
 
 
-
 The majority of harvest decisions in developed multi-species 
 fisheries are made on a single-species/single-stock basis. 
 Single-species harvest decisions often ignore the fact
@@ -18,7 +17,7 @@ leading to one species quota being filled faster than the others
 and creating a choke point in the management system 
 [@baudron2015adverse].
 
-Difficulties setting harvest rates are 
+Difficulties setting optimal harvest rates are 
 compounded in data-limited fisheries, where data or
 financial resources are insufficient to extend 
 single-species stock assessments [@Carruthers2014Evaluating]. 
