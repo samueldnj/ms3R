@@ -1707,11 +1707,13 @@ solvePTm <- function( Bmsy, B0 )
               C_ispft   = array( NA, dim = c(nReps, nS, nP, nF, nT) ),  # Catch by fleet (kt)
               C_ispt    = array( NA, dim = c(nReps, nS, nP, nT) ),      # Total catch (kt)
               F_ispft   = array( NA, dim = c(nReps, nS, nP, nF, nT) ),  # Fishing Mort
+              P_ispft   = array( NA, dim = c(nReps, nS, nP, nF, nT ) ),  # Ponded fish in biomass units
               I_ispft   = array( NA, dim = c(nReps, nS+1, nP+1, nF, nT) ),  # Indices (without error)
               E_ipft    = array( NA, dim = c(nReps, nP, nF, nT) ),      # Fishing effort
               q_ispft   = array( NA, dim = c(nReps, nS, nP, nF, nT) ),  # Catchability
               qF_ispft  = array( NA, dim = c(nReps, nS, nP, nF, nT) ),  # F/E
-              Rev_ispft = array( NA, dim = c(nReps, nS, nP, nF, nT ) )  # Revenue 
+              Rev_ispft = array( NA, dim = c(nReps, nS, nP, nF, nT ) ), # Revenue 
+              psi_ispft = array( NA, dim = c(nReps, nS, nP, nF, nT) )   # SOK conversion rate              
             )
 
   om$errors  <- list( omegaR_ispt = array( NA, dim = c(nReps, nS, nP, nT) ),    # Rec Proc Errors
@@ -1854,6 +1856,8 @@ solvePTm <- function( Bmsy, B0 )
     blob$om$q_ispft[i,,,,]    <- simObj$om$q_spft
     blob$om$qF_ispft[i,,,,]   <- simObj$om$qF_spft
     blob$om$Rev_ispft[i,,,,]  <- simObj$om$Rev_spft
+    blob$om$P_ispft[i,,,,]    <- simObj$om$P_spft
+    blob$om$psi_ispft[i,,,,]  <- simObj$om$psi_spft
 
     # Errors - maybe update simObj structure to match blob here
     blob$om$errors$omegaR_ispt[i,,,]  <- simObj$errors$omegaR_spt
@@ -3449,6 +3453,19 @@ combBarrierPen <- function( x, eps,
     obj$errors$obsErrMult_spft[,,,(tMP+nPhaseIn):nT] <- projObsErrMult
   }
 
+  # Add ponded fish and SOK conversion factor
+  sokFleets <- which(obj$om$fleetType_f == 2)
+
+  for( fIdx in sokFleets )
+  {
+    for( p in 1:nP)
+    {
+      browser()
+      obj$om$P_spft[,p,fIdx,histdx]   <- repObj$pondC_pgt[p,fIdx,histdx]
+      obj$om$psi_spft[,p,fIdx,histdx] <- repObj$psi_t[histdx]
+    }
+  }
+
   message(" (.condMS3pop_SISCA) Running OM for historical period.\n")
 
   obj <- .calcTimes( obj )
@@ -3462,6 +3479,8 @@ combBarrierPen <- function( x, eps,
   obj$om$speciesNames   <- dimnames(ctlList$opMod$histRpt$SB_spt)[[1]]
   obj$om$stockNames     <- dimnames(ctlList$opMod$histRpt$SB_spt)[[2]]
   obj$om$fleetNames     <- dimnames(ctlList$opMod$histRpt$vB_spft)[[3]]
+
+  
 
   obj$om$price_s        <- ctlList$opMod$price_s[obj$om$speciesNames]
   obj$om$alphaU         <- ctlList$opMod$alphaU
@@ -3539,7 +3558,10 @@ combBarrierPen <- function( x, eps,
   om$Z_axspt    <- array(0,  dim = c(nA,nX,nS,nP,nT) )  # Total mortality
 
   # Catch, fishing mort, vuln bio, selectivity
-  om$C_spft     <- array(NA,  dim = c(nS,nP,nF,nT) )       # Total catch by fleet in kt
+  om$C_spft     <- array(NA,  dim = c(nS,nP,nF,nT) )        # Total catch by fleet in kt
+  om$P_spft     <- array(0,  dim = c(nS,nP,nF,nT) )         # Total ponded fish by fleet in kt
+  om$psi_spft   <- array(0,  dim = c(nS,nP,nF,nT) )         # Conversion from ponded biomass to SOK
+  om$P_axspft   <- array(0,  dim = c(nA,nX,nS,nP,nF,nT) )   # Total ponded fish at age (numbers)
   om$C_spt      <- array(NA,  dim = c(nS,nP,nT) )          # Total catch in kt
   om$C_axspft   <- array(0,  dim = c(nA,nX,nS,nP,nF,nT) )  # Numbers
   om$Cw_axspft  <- array(0,  dim = c(nA,nX,nS,nP,nF,nT) )  # Weight
@@ -3637,6 +3659,7 @@ combBarrierPen <- function( x, eps,
     om$Rinit_sp[1,] <- repObj$Rinit_p
     om$M_xsp[1,1,]  <- repObj$meanM_p
     om$h_sp[1,]     <- repObj$rSteepness_p
+    om$postPondM    <- repObj$postPondM
 
     # Time-varying, age-structured natural mortality
     om$M_axspt[,1,1,,1:(tMP-1)] <- repObj$M_apt[,,1:(tMP-1)]
@@ -3667,6 +3690,7 @@ combBarrierPen <- function( x, eps,
     # Get spawn timing and fleet timing
     om$spawnTiming                <- repObj$spawnTiming
     om$fleetTiming_f              <- repObj$fleetTiming_g
+    om$fleetType_f                <- repObj$fleetType_g
 
     om$Wlen_ls                    <- NA
     om$probLenAge_laxsp           <- NA
@@ -3897,7 +3921,12 @@ combBarrierPen <- function( x, eps,
 
   # Fleet and spawn timing
   fleetTiming_f     <- om$fleetTiming_f
+  fleetType_f       <- om$fleetType_f
   spawnTiming       <- om$spawnTiming
+
+  # SOK stuff
+  P_spft            <- om$P_spft
+  postPondM         <- om$postPondM
 
   # Create a container to hold 
   # spawnN_aspx (for better array dim matching later)
@@ -4110,19 +4139,72 @@ combBarrierPen <- function( x, eps,
     # by splitting TAC in proportion to vulnerable biomass
     # at age, then removing them.
 
-    tmpM_axsp   <- array(NA, dim = c(nA,nX,nS,nP))
-    tmpW_axspf  <- array(NA, dim = c(nA,nX,nS,nP,nF))
+    tmpM_axsp     <- array(NA, dim = c(nA,nX,nS,nP))
+    tmpN_axsp     <- array(NA, dim = c(nA,nX,nS,nP))
+    tmpsel_axspf  <- array(NA, dim = c(nA,nX,nS,nP,nF))
+    tmpW_axspf    <- array(NA, dim = c(nA,nX,nS,nP,nF))
+    tmpP_spf      <- array(NA, dim = c(nS,nP,nF))
 
-    tmpM_axsp[1:nA,,,]    <- M_axspt[,,,,t]
-    tmpW_axspf[1:nA,,,,]  <- W_axspft[,,,,,t]
 
-    discRemList <- applyDiscreteFisheries(  N_axsp          = N_axspt[,,,,t],
+    tmpM_axsp[1:nA,,,]      <- M_axspt[,,,,t]
+    tmpW_axspf[1:nA,,,,]    <- W_axspft[,,,,,t]
+    tmpN_axsp[1:nA,,,]      <- N_axspt[,,,,t]
+    tmpsel_axspf[1:nA,,,,]  <- sel_axspft[,,,,,t]
+    tmpP_spf[1:nS,,]        <- P_spft[,,,t]
+
+    sokFleets <- which(fleetType_f == 2)
+
+    if( t >= tMP & any(fleetType_f == 2) )
+    {
+      # Convert SOK TAC to ponded fish (if there is a TAC)
+      
+      for( fIdx in sokFleets)
+      {
+        if( all(TAC_spft[,,fIdx,] == 0) )
+          next
+        # Temporary arrays to protect against
+        # dropped dims
+        tmpN_axsp    <- array(NA, dim = c(nA,nX,nS,nP))
+        tmpsel_axsp  <- array(NA, dim = c(nA,nX,nS,nP))
+        tmpW_axsp    <- array(NA, dim = c(nA,nX,nS,nP))
+
+        tmpN_axsp[1:nA,,,]    <- N_axspt[,,,,t]
+        tmpsel_axsp[1:nA,,,]  <- sel_axspft[,,,,fIdx,t]
+        tmpW_axsp[1:nA,,,,]   <- W_axspft[,,,,fIdx,t]
+
+        SOKconvList <- calcSOKpsi(  N_axsp    = tmpN_axsp,
+                                    sel_axsp  = tmpsel_axsp,
+                                    mat_asp   = matAge_asp,
+                                    pFem = .5,
+                                    fec = 200,
+                                    initF = 0.01,
+                                    pEff = .5,
+                                    gamma = 0.02,
+                                    W_axsp = tmpW_axsp,
+                                    nA = nA,
+                                    nX = nX,
+                                    nS = nS,
+                                    nP = nP  )
+      
+        psi_sp     <- SOKconvList$psi_sp
+        propMat_sp <- SOKconvList$propMat_sp
+
+
+        P_spft[,,fIdx,t] <- TAC_spf[,,fIdx] / psi_sp
+      }
+    }
+
+    # Now apply discrete fisheries
+    discRemList <- applyDiscreteFisheries(  N_axsp          = tmpN_axsp,
                                             sel_axspf       = sel_axspft[,,,,,t],
                                             W_axspf         = tmpW_axspf,
                                             fleetTiming_f   = fleetTiming_f,
+                                            fleetType_f     = fleetType_f,
                                             spawnTiming     = spawnTiming,
                                             M_axsp          = tmpM_axsp,
                                             TAC_spf         = TAC_spft[,,,t],
+                                            P_spf           = tmpP_spf,
+                                            postPondM       = postPondM,
                                             nA = nA, nX = nX, nS = nS, nP = nP, nF = nF )
 
     # discRemList contains:
@@ -4140,6 +4222,8 @@ combBarrierPen <- function( x, eps,
     # and calculate exploitation rate
     vB_spft[,,,t] <- apply( X = vB_axspft[,,,,,t,drop = FALSE], FUN = sum, MARGIN = 3:5, na.rm = T )
     F_spft[,,,t]  <- TAC_spft[,,,t] / vB_spft[,,,t]
+
+    F_spft[,,sokFleets,t] <- tmpP_spf[,,sokFleets] * (1 - exp(-postPondM)) / vB_spft[,,sokFleets,t]
 
     # Pull spawn timing numbers at age
     spawnN_axsp[1:nA,,,] <- discRemList$spawnN_axsp
@@ -4355,6 +4439,9 @@ combBarrierPen <- function( x, eps,
   Iperf_spft        -> obj$om$I_spft
   Ierr_spft         -> obj$mp$data$I_spft
 
+  # SOK stuff
+  P_spft            -> om$P_spft
+
 
   return( obj )
 } # END ageSexOpMod()
@@ -4367,9 +4454,12 @@ applyDiscreteFisheries <- function( N_axsp,
                                     sel_axspf,
                                     W_axspf,
                                     fleetTiming_f,
+                                    fleetType_f,
                                     spawnTiming,
                                     M_axsp,
                                     TAC_spf,
+                                    P_spf,
+                                    postPondM,
                                     nA, nX, nS, nP, nF )
 {
   # First, order fleetTiming
@@ -4398,6 +4488,9 @@ applyDiscreteFisheries <- function( N_axsp,
   tmpN_axsp[1:nA,,,]    <- N_axsp
   s_axspf[1:nA,,,,]     <- sel_axspf
   C_spf[1:nS,,]         <- TAC_spf
+
+  # Overwrite TAC with ponded fish for SOK fleets
+  C_spf[1:nS,,fleetType_f == 2] <- P_spf[,,fleetType_f == 2]
 
   # First, check if spawn timing goes first
   if( spawnTiming <= fleetTiming_f[fleetOrder[1]] )
@@ -4479,6 +4572,11 @@ applyDiscreteFisheries <- function( N_axsp,
   fracM     <- 1 - lastFleetTime
   endN_axsp <- tmpN_axsp * exp(-fracM*M_axsp)
 
+  # Add ponded fish at age reduced by post-ponding M
+  sokFleets <- which(fleetType_f == 2)
+  for( fIdx in sokFleets )
+    endN_axsp[1:nA,,,] <- endN_axsp[1:nA,,,] + C_axspf[1:nA,,,,fIdx] * exp(-postPondM)
+
 
   # Return model states
   outList <- list(  endN_axsp   = endN_axsp,
@@ -4508,6 +4606,56 @@ calcDiscSpawnN <- function(   lastFleetTime,
 
 } # END calcDiscSpawnN()
 
+
+# convertSOK()
+# Converts landed SOK to ponded fish for
+# accurate fishery removals. 
+calcSOKpsi <- function( N_axsp,
+                        sel_axsp,
+                        mat_a,
+                        pFem = .5,
+                        fec = 200,
+                        initF = 0.01,
+                        pEff = .5,
+                        gamma = 0.02,
+                        W_axsp,
+                        nA,nX,nS,nP  )
+{
+  # First, we need to estimate proportion
+  # mature
+
+  # Total mortality
+  Z_axsp        <- array(0, dim = dim(sel_axsp))
+  pondC_axsp    <- array(0, dim = dim(sel_axsp))
+
+  tmpBmat_axsp  <- array(0, dim = dim(sel_axsp))
+  tmpB_axsp     <- array(0, dim = dim(sel_axsp))
+
+  # tmp ponded fish for pMat calc
+  Z_axsp[,,,1:nP] <- sel_axsp[,,,1:nP] * initF
+  pondC_axsp[,,,1:nP] <- (1 - exp(-Z_axsp[,,,1:nP])) * N_axsp[,,,1:nP] * sel_axsp[,,,1:nP] * initF/Z_axsp[,,,1:nP]
+
+  for( a in 1:nA )
+  {
+    tmpBmat_axsp[a,,,]  <- pondC_axsp[a,,,] * mat_a(a) * W_axsp[a,,,]
+    tmpB_axsp[a,,,]     <- pondC_axsp[a,,,] * W_axsp[a,,,]
+  }
+
+  tmpBmat_sp <- apply( X = tmpBmat_axsp[,nX,,,drop = FALSE], FUN = sum, MARGIN = c(3,4) )
+  tmpB_sp    <- apply( X = tmpBmat_axsp[,,,,drop =FALSE], FUN = sum, MARGIN = c(3,4) )
+
+  # Finally, proportion mature
+  propMat_sp <- tmpBmat_sp / tmpB_sp
+
+  # Then we calculate psi
+  psi_sp <- pEff * pFem * gamma * fec * propMat_sp;
+
+
+  outList <- list(  propMat_sp = propMat_sp,
+                    psi_sp     = psi_sp )
+
+  return(outList)
+} # END convertSOK()
 
 # .solveBaranov()
 # Generalised Newton-Rhapson solver or the Baranov
