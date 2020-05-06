@@ -63,7 +63,7 @@ mp$data$obsInt_i c(2)
 mp$data$spatialPooling FALSE
 mp$data$speciesPooling FALSE
 mp$data$idxType c(2,2,1,1)
-mp$data$source "OM"
+mp$data$source "cond"
 mp$hcr$refPtType "SS"
 mp$hcr$Fsource "om"
 mp$hcr$type "conF"
