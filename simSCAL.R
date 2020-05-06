@@ -3269,6 +3269,13 @@ combBarrierPen <- function( x, eps,
       obj$om$alloc_spf[s,p,commGears] <- recentCatch_spf[s,p,commGears] / sum( recentCatch_spf[s,p,commGears])
     }
 
+
+  # Replace NaNs with 0s when the recent history has no catch
+  obj$om$alloc_spf[is.nan(obj$om$alloc_spf)] <- 0
+
+  # We will need to modify how the MP is run
+  # later anyway.
+
   obj$errors$omegaRinit_asp         <- repObj$omegaRinit_asp # Initialisation errors
   
   obj$errors$delta_spft[nS+1,1:nP,,] <- rnorm(nT * nP * nF)
@@ -3418,6 +3425,9 @@ combBarrierPen <- function( x, eps,
 
       obj$om$alloc_spf[s,p,commGears] <- recentCatch_spf[s,p,commGears] / sum( recentCatch_spf[s,p,commGears])
 
+      if(!is.null(obj$ctlList$opMod$projAlloc_f))
+        obj$om$alloc_spf[s,p,] <- obj$ctlList$opMod$projAlloc_f
+
       # Save historical proc errors, but use simulated recruitments after
       # last estimated recruitment
       lastIdx <- max(which(repObj$omegaR_pt[p,] != 0) )
@@ -3427,8 +3437,11 @@ combBarrierPen <- function( x, eps,
         obj$errors$omegaR_spt[s,p,histdx[1:lastIdx]] <- obj$errors$omegaR_spt[s,p,histdx[1:lastIdx]] + 0.5*repObj$sigmaR  # rec devs    
     }
 
+  # Replace NaNs with 0s when the recent history has no catch
+  obj$om$alloc_spf[is.nan(obj$om$alloc_spf)] <- 0
+
   # Save historical errors
-  obj$errors$delta_spft[1,,,histdx]   <- repObj$z_pgt[,,histdx] # obs errors
+  obj$errors$delta_spft[1,1:nP,,histdx]   <- repObj$z_pgt[1:nP,,histdx,drop = FALSE] # obs errors
   for( p in 1:nP)
     obj$errors$omegaRinit_asp[,1,p]  <- repObj$fDevs_ap[,p] # Initialisation errors
   obj$errors$obsErrMult_spft          <- array(1, dim = c(nS,nP,nF,nT))
@@ -3460,7 +3473,6 @@ combBarrierPen <- function( x, eps,
   {
     for( p in 1:nP)
     {
-      browser()
       obj$om$P_spft[,p,fIdx,histdx]   <- repObj$pondC_pgt[p,fIdx,histdx]
       obj$om$psi_spft[,p,fIdx,histdx] <- repObj$psi_t[histdx]
     }
@@ -3930,7 +3942,8 @@ combBarrierPen <- function( x, eps,
 
   # Create a container to hold 
   # spawnN_aspx (for better array dim matching later)
-  spawnN_axsp       <- array(0, dim = c(nA,nS,nP,nX) )
+  spawnN_axsp       <- array(0, dim = c(nA,nX,nS,nP) )
+
 
   # Initialise population
   if( t == 1 )
@@ -4160,8 +4173,9 @@ combBarrierPen <- function( x, eps,
       
       for( fIdx in sokFleets)
       {
-        if( all(TAC_spft[,,fIdx,] == 0) )
+        if( all(TAC_spft[,,fIdx,t] == 0) )
           next
+
         # Temporary arrays to protect against
         # dropped dims
         tmpN_axsp    <- array(NA, dim = c(nA,nX,nS,nP))
@@ -4241,7 +4255,8 @@ combBarrierPen <- function( x, eps,
   }
 
   # Now calculate spawning biomass
-  SB_asp <- matAge_asp * spawnN_axsp[,nX,,] * W_axspt[,nX,,,t]
+  SB_asp <- array(NA, dim = c(nA,nS,nP))
+  SB_asp[1:nA,1:nS,1:nP] <- matAge_asp[1:nA,1:nS,1:nP] * spawnN_axsp[1:nA,nX,1:nS,1:nP] * W_axspt[1:nA,nX,1:nS,1:nP,t]
   SB_spt[,,t] <- apply(X = SB_asp, FUN = sum, MARGIN = c(2,3), na.rm = T )
 
   # browser()
@@ -4289,7 +4304,7 @@ combBarrierPen <- function( x, eps,
   }
 
   # Now make aggregates
-  tauObs_spf  <- om$tauObs_spf * err$obsErrMult_spft[s,p,f,t]
+  tauObs_spf  <- om$tauObs_spf[1:nS,1:nP,] * err$obsErrMult_spft[1:nS,1:nP,,t]
   idxOn_spf   <- obj$mp$data$idxOn_spft[,,,t]
   # Species Pooling
   if( ctlList$mp$data$speciesPooling & !ctlList$mp$data$spatialPooling  )
@@ -4529,12 +4544,12 @@ applyDiscreteFisheries <- function( N_axsp,
     tmpN_axsp <- tmpN_axsp * exp(-fracM * M_axsp)
 
     # Calculate vulnerable numbers at age
-    vN_axspf[,,,,fIdx] <- tmpN_axsp * s_axspf[,,,,fIdx]
+    vN_axspf[,,,,fIdx] <- tmpN_axsp[1:nA,1:nX,1:nS,1:nP] * s_axspf[1:nA,1:nX,1:nS,1:nP,fIdx]
 
     # Calculate vulnerable biomass at age
     vB_axspf[,,,,fIdx] <- vN_axspf[,,,,fIdx] * W_axspf[,,,,fIdx]
 
-    if( C_spf[,,fIdx] > 0 )
+    if( any(C_spf[,,fIdx] > 0 ) )
     { 
       # Compute proportion of biomass at age
       # for catch distribution across age classes
@@ -4612,7 +4627,7 @@ calcDiscSpawnN <- function(   lastFleetTime,
 # accurate fishery removals. 
 calcSOKpsi <- function( N_axsp,
                         sel_axsp,
-                        mat_a,
+                        mat_asp,
                         pFem = .5,
                         fec = 200,
                         initF = 0.01,
@@ -4636,10 +4651,11 @@ calcSOKpsi <- function( N_axsp,
   pondC_axsp[,,,1:nP] <- (1 - exp(-Z_axsp[,,,1:nP])) * N_axsp[,,,1:nP] * sel_axsp[,,,1:nP] * initF/Z_axsp[,,,1:nP]
 
   for( a in 1:nA )
-  {
-    tmpBmat_axsp[a,,,]  <- pondC_axsp[a,,,] * mat_a(a) * W_axsp[a,,,]
-    tmpB_axsp[a,,,]     <- pondC_axsp[a,,,] * W_axsp[a,,,]
-  }
+    for( x in 1:nX)
+    {
+      tmpBmat_axsp[a,,,]  <- pondC_axsp[a,,,] * mat_asp[a,,] * W_axsp[a,,,]
+      tmpB_axsp[a,,,]     <- pondC_axsp[a,,,] * W_axsp[a,,,]
+    }
 
   tmpBmat_sp <- apply( X = tmpBmat_axsp[,nX,,,drop = FALSE], FUN = sum, MARGIN = c(3,4) )
   tmpB_sp    <- apply( X = tmpBmat_axsp[,,,,drop =FALSE], FUN = sum, MARGIN = c(3,4) )
