@@ -3275,7 +3275,7 @@ combBarrierPen <- function( x, eps,
     obj$errors$delta_spft[1:nS,1:nP,,histdx]  <- repObj$residCPUE_spft # obs errors
    
   
-  # Then add obsErrorMultiplier for future precision scenarios
+  # Then add obsErrorMultiplier for different precision scenarios
   obj$errors$obsErrMult_spft        <- array(1, dim = c(nS,nP,nF,nT))
 
   # Adjust obs error multiplier if 
@@ -3385,7 +3385,7 @@ combBarrierPen <- function( x, eps,
   om$qF_spft    <- array(0,  dim = c(nS,nP,nF,nT) )        # catchability (tv)
 
   # Variance parameters
-  om$tauObs_spf <- repObj$tauObs_spf
+  om$tauObs_spf <- repObj$tauObs_spf * ctlList$opMod$obsErrMult
   om$sigmaR_sp  <- repObj$sigmaR_sp
 
   # Leading bio pars

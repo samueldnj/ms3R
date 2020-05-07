@@ -11,38 +11,6 @@
 # <><><><><><><><><><><><><><><><><><><><><><><><><><><>
 
 
-# plotTACallocationError()
-# A multi-panel for understanding the
-# level of error in TAC allocations under 
-# aggregate MPs. Not sure of the best way
-# to look at this...
-plotTACallocationError <- function( obj = blob,
-                                    iRep = 1 )
-{
-  goodReps <- obj$goodReps
-
-  # Get biomass arrays
-  SB_ispt        <- obj$om$SB_ispt[goodReps,,,]
-  VB_ispt        <- obj$om$vB_ispft[goodReps,,,2,]
-  totB_ispt      <- obj$om$B_ispt[goodReps,,,]
-  retroSB_itspt  <- obj$mp$assess$retroSB_itspt[goodReps,,,,]
-
-  ctlList <- obj$ctlList
-
-  retroSB_itspt[retroSB_itspt < 0] <- NA
-  nReps     <- sum(goodReps)
-
-  # Model dims
-  tMP     <- obj$om$tMP
-  nS      <- obj$om$nS
-  nP      <- obj$om$nP 
-  nT      <- obj$om$nT
-
-
-
-}
-
-
 
 # Envelopes of simulated assessment errors
 plotTulipAssError <- function(  obj = blob,
@@ -397,8 +365,8 @@ plotTulipBtCtBaseSim <- function( sim = 1,
 # under lower data quality conditions - can be
 # used to set a threshold for including
 # results in the paper...
-plotBatchConvergenceRate <- function( groupFolder = "DLSurveys",
-                                      prefix = "DLSurveys_LateStart",
+plotBatchConvergenceRate <- function( groupFolder = "DLSurveys5_LateStart",
+                                      prefix = "DLSurveys",
                                       AMlabs = c( singleStock = "singleStock",
                                                   hierMultiStock = "hierMultiStock",
                                                   speciesPooling = "speciesPooling",
@@ -407,13 +375,13 @@ plotBatchConvergenceRate <- function( groupFolder = "DLSurveys",
                                       scenLabs = c( HMAS  = "DERfit_HcMcAsSsIdx",
                                                     MAS   = "DERfit_McAsSsIdx",
                                                     AS    = "DERfit_AsSsIdx",
-                                                    S     = "DERfit_SsIdx" ) )
+                                                    MS    = "DERfit_McSsIdx" ) )
 {
   # First, read info files from the relevant
   # sims
-  simFolderList <- list.dirs(here::here("Outputs",groupFolder))
-  simFolderList <- simFolderList[grepl(prefix, simFolderList)]
-
+  browser()
+  simFolderList <- list.dirs( here::here("Outputs",groupFolder),
+                              recursive = FALSE, full.names = FALSE)
 
   info.df <-  readBatchInfo( batchDir = here::here("Outputs",groupFolder) ) %>%
                 filter( grepl( prefix, simLabel ))
@@ -815,8 +783,8 @@ plotBatchLossDists_CV <- function(  groupFolder = "diffCV_fixedF_longGrid",
 # loss under a batch of MPs for all stock/species
 # combinations, including data-pooled and 
 # coast-wide aggregations.
-plotBatchLossDists_Scenario <- function(  groupFolder = "DLSurveys",
-                                          prefix = "DLSurveys_LateStart",
+plotBatchLossDists_Scenario <- function(  groupFolder = "DLSurveys5_LateStart",
+                                          prefix = "DLSurveys5_LateStart",
                                           lossType = "abs",
                                           var = "C_ispt",
                                           period = 62:72,
@@ -838,10 +806,12 @@ plotBatchLossDists_Scenario <- function(  groupFolder = "DLSurveys",
   # First, read info files from the relevant
   # sims
   
-  simFolderList <- list.dirs(here::here("Outputs",groupFolder),recursive = FALSE)
+  simFolderList <- list.dirs( here::here("Outputs",groupFolder),
+                              recursive = FALSE, full.names = FALSE)
+
   simFolderList <- simFolderList[grepl(prefix, simFolderList)]
 
-  infoFiles     <- lapply(  X = file.path(simFolderList,"infoFile.txt"),
+  infoFiles     <- lapply(  X = here::here("Outputs",groupFolder,simFolderList,"infoFile.txt"),
                             FUN = lisread )
 
 
@@ -857,6 +827,7 @@ plotBatchLossDists_Scenario <- function(  groupFolder = "DLSurveys",
     yLab <- "Total Absolute Loss (kt)"
   }
 
+  browser()
   # Break up MP names into factor levels
   # MP labels are AM_Fsrce_eqbm
   splitMP <- function(  mpLab, 
@@ -881,6 +852,8 @@ plotBatchLossDists_Scenario <- function(  groupFolder = "DLSurveys",
     infoFiles[[lIdx]] <- c(infoFiles[[lIdx]], splitMP(infoFiles[[lIdx]]$mp))
     infoFiles[[lIdx]] <- as.data.frame(infoFiles[[lIdx]])
   }
+
+  browser()
 
   info.df <- do.call(rbind, infoFiles) %>% 
               mutate_if(is.factor, as.character)
