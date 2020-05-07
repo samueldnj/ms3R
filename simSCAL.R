@@ -3822,39 +3822,38 @@ combBarrierPen <- function( x, eps,
   C_spft[,,,t] <- apply( X = Cw_axspft[,,,,,t], FUN = sum, MARGIN = c(3,4,5), na.rm = T )
   C_spt[,,t]   <- apply( X = C_spft[,,,t], FUN = sum, MARGIN = c(1,2), na.rm = T )
 
-  # Now generate indices - if we are in the projection
-  # or data is being overwritten by the OM
-  if( t >= tMP | ctlList$mp$data$source == "OM" )
+  # Now generate indices 
+  # if( t >= tMP | ctlList$mp$data$source == "OM" )
+  # {
+  # Get the indices that we're still collecting in the future
+  idxOn_spf <- obj$ctlList$mp$data$idxOn_spft[,,,t]
+
+  # Calculate and save
+  for( f in 1:nF)
   {
-    # Get the indices that we're still collecting in the future
-    idxOn_spf <- obj$ctlList$mp$data$idxOn_spft[,,,t]
+    # First, the species/stock specific observations
+    for( s in 1:nS )
+      for( p in 1:nP )
+      {
+        idxOn <- obj$mp$data$idxOn_spft[s,p,f,t]
+        if( !idxOn )
+          next
+        # Compute precision
+        tau <- om$tauObs_spf[s,p,f] * err$obsErrMult_spft[s,p,f,t]
 
-    # Calculate and save
-    for( f in 1:nF)
-    {
-      # First, the species/stock specific observations
-      for( s in 1:nS )
-        for( p in 1:nP )
-        {
-          idxOn <- obj$mp$data$idxOn_spft[s,p,f,t]
-          if( !idxOn )
-            next
-          # Compute precision
-          tau <- om$tauObs_spf[s,p,f] * err$obsErrMult_spft[s,p,f,t]
+        # relative biomass survey
+        if( ctlList$mp$data$idxType[f] == 1)
+          Iperf_spft[s,p,f,t] <- q_spft[s,p,f,t] * vB_spft[s,p,f,t]
 
-          # relative biomass survey
-          if( ctlList$mp$data$idxType[f] == 1)
-            Iperf_spft[s,p,f,t] <- q_spft[s,p,f,t] * vB_spft[s,p,f,t]
+        # CPUE
+        if( ctlList$mp$data$idxType[f] == 2 & C_spft[s,p,f,t] > 0 )
+          Iperf_spft[s,p,f,t] <- C_spft[s,p,f,t] / E_pft[p,f,t] 
 
-          # CPUE
-          if( ctlList$mp$data$idxType[f] == 2 & C_spft[s,p,f,t] > 0 )
-            Iperf_spft[s,p,f,t] <- C_spft[s,p,f,t] / E_pft[p,f,t] 
-
-          # Save true observations and those with error
-          Ierr_spft[s,p,f,t] <- Iperf_spft[s,p,f,t] * exp(tau * err$delta_spft[s,p,f,t] - 0.5 * tau^2)
-        } 
-    }
+        # Save true observations and those with error
+        Ierr_spft[s,p,f,t] <- Iperf_spft[s,p,f,t] * exp(tau * err$delta_spft[s,p,f,t] - 0.5 * tau^2)
+      } 
   }
+  # }
 
   # Now make aggregates
   tauObs_spf  <- om$tauObs_spf * err$obsErrMult_spft[s,p,f,t]

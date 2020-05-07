@@ -2,20 +2,28 @@
 
 
 The majority of harvest decisions in developed multi-species 
-fisheries are made on a single-species/single-stock basis. 
+fisheries are made on a single-species/single-stock basis,
+given the output of a single-species stock assessment model. 
 Single-species harvest decisions often ignore the fact
 that fishing is inherently non-selective, and therefore
-in most cases results the simultaneous catch of multiple
-species, which are said to have technical interactions
-[@punt2002evaluation]. Ignorance of technical interactions 
-among species while setting TACs in multi-species fisheries will often 
-lead to sub-optimal fishery outcomes [@ono2017management;
-@punt2011calculating]. For example, under-utilisation of TAC 
-could occur when multiple technically interacting quota species 
-are caught with very different gear availability (catchability), 
-leading to one species quota being filled faster than the others 
-and creating a choke point in the management system 
-[@baudron2015adverse].
+in most cases, non-selective fishing effort results in 
+the simultaneous catch of multiple species, which are 
+then said to have technical interactions [@punt2002evaluation].
+Ignorance of technical interactions among species while 
+setting total allowable catches (TACs) in multi-species 
+fisheries will often lead to sub-optimal fishery outcomes 
+[@ono2017management; @punt2011calculating]. For example, 
+under-utilisation of TAC could occur when technically 
+interacting quota species are caught 
+at different rates (i.e., catchability) by a common gear, 
+or have different productivity levels, leading to a choke
+constraint in which one species quota is filled before  
+the others [@baudron2015adverse]. Choke constraints are 
+generally considered negative outcomes for 
+multi-species fishery performance, as they reduce 
+harvester profitability as quota for choke species 
+becomes rare and valuable for access to fishing grounds
+[@mortensen2018identifying].
 
 Difficulties setting optimal harvest rates are 
 compounded in data-limited fisheries, where data or
@@ -47,8 +55,8 @@ on limited data under simulation self-tests than single-stock
 methods, it is unclear if hierarchical stock assessment
 methods lead to better management outcomes than single-stock
 or data-pooled methods. Most research on stock assessment
-and harvest strategy performance in multi-stock and multi-species 
-fisheries has been focused on mismatches between the spatial 
+and harvest performance in multi-stock and multi-species 
+fisheries focuses on mismatches between the spatial 
 scales of harvest decision and the true underlying stock
 dynamics [@benson2015evaluating; @punt2018estimates], or on the 
 comparative performance when considering technical interactions 
@@ -62,40 +70,41 @@ complexity [@punt2011among; @jiao2016integrating;
 
 In this paper, we investigated if hierarchical 
 stock assessment models improved management performance
-in a multi-species, data-limited fishery with technical
-interactions. Our study system was modeled on a complex 
-of Dover sole, English sole, and southern rock sole - 
-three species of right-eyed flounders (*Pleuronectidae 
-spp.*) fished off the coast of British Columbia, Canada, 
-in three management areas. These three species co-occur 
-along the BC coast, are caught together in directed trawl 
-fisheries, and are surveyed by the same multi-species trawl 
-survey. While time series of catch and commercial CPUE exist 
-for all species and areas since the 1950s, all fishery 
-independent observation series are quite noisy and some 
-are very short, making this complex a good candidate for 
-the application of data-limited stock assessment methods.
+in a multi-species, data-limited fishery. Our study system 
+was modeled on a complex of Dover sole, English sole, and 
+southern rock sole - three species of right-eyed flounders 
+(*Pleuronectidae spp.*) fished off the coast of British 
+Columbia, Canada, in three management areas. These three 
+species co-occur along the BC coast, are caught together in 
+directed trawl fisheries, and are surveyed by the same 
+multi-species trawl survey. While time series of catch 
+and commercial CPUE exist for all species and areas since 
+the 1950s, all fishery independent observation series are 
+quite noisy and some are very short, making this complex 
+a good candidate for the application of data-limited 
+stock assessment methods.
 
 We used closed-loop simulation to test management
 performance when harvest decisions were made based 
-on outputs from five alternative assessment model 
+on biomass estimates from five alternative assessment model 
 structures, under four data scenarios. Assessment models 
-included single-stock methods,
-hierarchical multi-stock methods, and three 
-data-pooling methods: spatial aggregation (across management 
-units), species aggregation (within a management unit), 
-and total aggregation (both species and spatial). 
+included single-stock methods, hierarchical multi-stock 
+methods, and three data-pooling methods: spatial 
+aggregation (across management units), species 
+aggregation (within a management unit), and total 
+aggregation (both species and spatial). 
 Data-pooled harvest decisions were allocated among 
 species and stocks relative to their most recent 
 fishery-independent survey biomass index. Data scenarios
-successively moved from the longest set of time series
-of biomass indices, to only the most recent (and shortest) 
-fishery indepent index. Performance of each assessment model 
-was measured as absolute and relative loss in catch compared
-to the catch that was taken under harvest decisions made 
-by a simulated omniscient manager, who can see future 
-recruitments and adjust annual effort to maximise total 
-complex yield [@walters1998evaluation;@walters2004fisheries].
+successively reduced the total length of the available
+biomass indices, removing data series until only 
+recent fishery indepent indices were used. Performance of 
+each assessment model was measured as absolute  
+loss in catch compared to the catch that was taken under 
+harvest decisions made by a simulated omniscient manager, 
+who can see future recruitments and adjust annual effort 
+to maximise total complex yield [@walters1998evaluation;
+@walters2004fisheries].
 
 
 

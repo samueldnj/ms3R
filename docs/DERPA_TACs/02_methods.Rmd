@@ -44,25 +44,24 @@ over time (Figure 1, rows 2 and 3).
 
 Despite a long history of explotitation, and in some cases
 recovery from near collapse, most DER complex stocks were 
-in state more like developing fisheries in 2016 [REF].
-All DER complex stocks were in a healthy state, with
-current spawning biomasses above 80% of $B_{MSY}$, and 
-all but three cases at or above $B_{MSY}$ (Table 1). 
+in a relatively health state by 2016, with current spawning
+biomasses above 80% of $B_{MSY}$, and all but three cases 
+at or above $B_{MSY}$ (Table 1). 
 Moreover, some stocks were actively recovering from their
 historic low biomasses, like English sole in HSHG, and 
 Rock sole in HSHG and WCVI.
 
 
 
-## Simulation model framework
+## Closed loop simulation framework
 
-Our simulation framework had an operating
+Our simulation framework had a stochastic operating
 model component and an assessment model component. The
-stochastic operating model simulated population dynamics 
+operating model simulated population dynamics 
 of a spatially stratified, multi-species flatfish complex
 in response to a multi-species trawl fishery in each of 
 the three stock areas. Although total fishing effort 
-was not restricted across the entire complex, effort 
+was not restricted across the entire area, effort 
 in each individual area was allocated such that
 no species-/area-specific catch exceeded the 
 species-/area-specific TAC. Within an area,
@@ -71,9 +70,9 @@ one species-/area-specific TAC was fully caught.
 
 Closed-loop feedback simulations projected
 population dynamics for all 9 stocks forward
-in time for $T = 32$ years, with simulated 
+in time for $T = 32$ years, with annual simulated 
 assessments, harvest decisions, and catch
-being taken annually from 2017 - 2048. 
+removed from the population from 2017 - 2048. 
 The following four steps summarise the 
 closed-loop simulation procedure for each
 projection year $t$:
@@ -94,191 +93,167 @@ one TAC in each stock area (tabref for Baranov}:
 $E_{p,f,t+1} = \min_{s} \{ E_{s,p,f,t+1} ~|~ C_{s,p,f,t+1} = TAC_{s,p,f,t+1} \}$;
 
 
-
 Each simulation consisting of $T = 32$ projection years was 
 repeated 100 times to integrate over stochasticity
 in recruitment and relative abundance observations. 
-When replicates included time steps where assessment models 
-would not converge (largely due to data quality issues)
-we increased the number of replicates until we reached
-100 replicates where simulated assessment models 
-converged for all time steps.
 
 ### Operating Model
 
-The operating model (OM) component was a multi-species,
-multi-stock age- and sex-structured population dynamics model 
-(Appendix A). We conditioned the OM by fitting it as 
-a stock assessment model to commercial and survey data
-for the DER complex, including commercial catch, CPUE,
-and catch-at-age/length, and fishery independent survey 
-biomass indices, and survey catch-at-age/length. Given 
-the low volume of biological data from recent time 
-periods, we used a hierarchical multi-species and multi-stock
-assessment model formulation with shrinkage priors on 
-natural mortality, stock-recruitment steepness, 
-trawl survey catchability, and selectivity-at-length 
-parameters. We refer readers to Appendix A for a more 
-detailed exposition.
+The operating model (OM) was a multi-species,
+multi-stock age- and sex-structured population 
+dynamics model (Johnson and Cox, in prep). Population 
+model parameters were estimated by fitting a hierarchical
+age-structured model to data from the
+real DER complex (Johnson and Cox in prep).
 
-#### Fishing effort, fishing mortality, and optimal yield
+#### Fishing mortality, fishing effort, and multi-species maximum yield
 
-We allocated maximum fishing effort to each area. 
-Maximum effort was defined as the amount required to
-fully utilise the TAC of at least one species, 
-but never exceed any of the three species' TACs. 
-Effort was then supplied to the operating model to
-generate realised fishing mortality among
-species and stock areas as
+Fishing mortality for individual stocks was 
+driven by a single commercial trawl fishing
+effort in each area. Commercial effort
+was scaled to species-specific fishing 
+mortality using 
+
+Multi-species maximum yield for each area
+depends on productivity and catchability 
+of each individual species in the area 
+[@punt2011calculating; Johnson and Cox in prep]. 
+We defined multi-species MSY for stock-area $p$ as
 \begin{equation}
-F_{s,p,f,t} = \bar{q}^{(F)}_{s,p,f} * E_{p,f,t},
+MSY_{MS,p} = \max_{E} Y_{MS} 
+    \left E, q_{1,p}, q_{2,p}, q_{3,p}, Q_p \right),
 \end{equation}
-where $\bar{q}^{(F)}_{s,p,f}$ is the 
-ratio of estimated fishing mortality rates to 
-fishing effort in the last year of the conditioning 
-assessment. Historical fishing effort was estimated by taking 
-the average ratio
+where $E_p$ is the total commercial trawl 
+fishing effort in area $p$, $q_{s,p}$ is the 
+commerical trawl catchability coefficient scaling
+fishing effort to fishing mortality for species $s$ 
+in area $p$, and $Q_p$ is a matrix
+of life-history parameters for all DER complex species
+in area $p$. The function $Y_{MS}$
+is the total multi-species yield in area $p$ as 
+a function of fishing effort $E_p$, which is
+defined as the sum of species-specific equilibrium
+yields
 \begin{equation}
-E_{p,f,t} = \bar{\frac{C_{s,p,f,t}}{I'_{s,p,f,t}}}
+Y_{MS,p} \left(E_p, q_{1,p}, q_{2,p}, q_{3,p}, Q_p \right)
+ = \sum^3_{s=1} Y_{SS,s,p} (E_p, q_{s,p}, Q_{s,p} ),
 \end{equation}
-where $I'_{s,p,f,t}$ is unstandardized commercial
-CPUE (in kg/hour), and $C_{s,p,f,t}$ is the total 
-catch in kt. We averaged this ratio over species within a stock area to 
-account for years in which there were missing CPUE
-observations (**WHY NOT TAKE MAX?? WHAT ABOUT SMOOTHING??
-CHECK UNITS, COULD PROBABLY DO WITH A PLOT**).
+where $Q_{s,p}$ is the slice of matrix $Q_p$ 
+containing life history paramteers for 
+species $s$, and the function $Y_{SS,s,p}$ 
+is the traditional single-species yield curve
+but as a function of effort and not fishing
+mortality.
 
-We chose to use maximum effort over an effort dynamics
-model because of (i) its simplicity and (ii) its similarity 
-to other MSE simulations for BC fisheries. We considered 
-including an effort dynamics model to allocate a pool 
-of effort over the three areas [@hilborn1987general;
-@walters1999multispecies], but determined that this was
-not necessary for determining the management performance 
-of the multiple assessment models that we are testing.
-Furthermore, although the BC groundfish fishery balances
-the utilisation of many more than three TACs in practice,
-avoiding fully utilising TACs to account for future bycatch,
-we found that the maxmium effort model effectively 
-simulated the TAC under-utilisations for two species 
-out of the three. Finally, BC sablefish, herring, and
-outside yelloweye rockfish use full TAC utilisation 
-in their management simulations
-[@cox2019evaluating;**INSERT HERRING and OYE CSAS HERE**],
-under the assumption that full TAC utilisation provides
-and upper bound on the management risk.
 
-We defined a multi-species maximum sustainable yield 
-$MSY_{MS,p}$ for each area $p$ by using the relationship 
-between trawl fishing effort and species-specific 
-fishing mortality rates. For a given value of trawl 
-fishing effort $E$, we computed a complex yield curve
-by summing the yield curves of all three flatfishes 
-in the area at the corresponding fishing mortality rates
-\begin{equation}
-Y_{MS,p} (E) = \sum_{s} Y_{s,p} (q^{(F)}_{s,p} E),
-\end{equation}
-where $Y_{MS,p}$ is the complex yield curve for stock
-area $p$ with respect to trawl effort, and $Y_{s,p}$ is the
-species specific yield curve for stock area $p$ with
-respect to fishing mortality. The optimal trawl effort
-$E_{MSY,p}$ was then derived as the solution 
-to ${dY_{MS,p}}/{dE} = 0$, with corresponding 
-equilibrium yield $Y_{MS,p}(E_{MSY,p})$. Our method
-is similar to other approaches to defining multi-species 
-equilibria [@mueter2006using], but explicitly includes
-the differential catchability of technically interacting 
-species.
 
-### Assessment models
+### Assessment models and data generation
 
-We tested ten management procedures in total,
-which were made up of a factorial combination
-of five surplus production stock assessment models
-and two target harvest rates (Table X). Assessment models and
-target harvest rates are defined in the following
-sections. We chose to restrict
-ourselves to this small set, as this would
-allow us to focus on the management performance
-of the range of models and the two harvest rates 
-under different data quality scenarios, rather than 
-the interaction between the assessment model and 
-other management procedure components.
+Assessment models and the simulated assessment
+data are defined in the following sections. 
 
 #### Surplus production stock assessment models
 
-Management procedures determined stock
-status using a flexible process-error surplus 
-production model. The flexibility allowed the
-same model to be used for all assessment complex
-configurations, ranging from data-pooled single
-stock assessments with no shrinkage priors to hierarchical
-multi-species and multi-stock assessments. We defined this
-model in Template Model Builder, extending
-a model from our previous research [@kristensen2015tmb;
-@johnson2018evaluating]. For hierarchical model formulations, 
-we applied shrinkage priors to survey catchability 
-and intrinsic growth rate (Appendix B). In total,
-five model configurations were defined:
-
-1. Hierarchical multi-stock (9 stocks, sharing info)
-2. Single-stock (9 stocks, independent)
-3. Hierarchical coastwide (3 species)
-4. Hierarchical data-pooled (3 stocks)
-5. Data-pooled coastwide (1 stock)
-
-
-Data was pooled by simple summation of both
-catch and biomass indices across species within
-each area. This reflects that each species' survey 
-biomass index was an estimate of trawlable biomass, 
-so the pooled index was an estimate of trawlable
-complex biomass available to the survey. We also
-summed the CPUE observations for the commercial
-trawl fleets, under the assumption that the same
-trawl effort was used to calculate the unstandardised
-CPUE observations (i.e. the CPUE series had the same
-denominators); however, this assumption was inaccurate 
-as the species-specific CPUE had species-specific effort
-derived from the fishing sets that caught each species, 
-and not all fishing sets catch all three species. Ignoring 
-the inaccuracy biased the data-pooled CPUE and introduced
-more variability, which we decided was acceptable
-for research purposes. Under coastwide assessments, 
-each survey (pooled or separate) was considered as a 
-separate index of the same population.
-
-We extended our surplus production stock assessment model 
-to account for differences between the operating model
-dynamics and the assessment model assumptions about
-yield curve shape and ratios of exploitable biomass
-to spawning biomass. We followed the JABBBA-Select
-formulation for biomass assessments to add both
-features [@winker2020jabba]. Skew in the operating 
-model yield curves was added to all AMs by switching to
-a Pella-Tomlinson formulation [@pella1969generalized], 
-and the difference between exploitable biomass and 
-spawning biomass was added by using the equilibrium 
-model developed for the JABBA-Select model 
-[@winker2020jabba]. We used the skewed yield curve
-for all model formulations, including data aggregated
-methods, where we re-derived the ratio between unfished
-and optimal biomass in each case. The exploitable
-and spawning biomass ratio estimates were used in all cases
-except the data-pooling, spatially disaggregated 
-assessment (3 in above list), under which the 
-estimates introduced a persistent bias in the fits
-to stock indices. Details of our derivation
-of skew and biomass ratio parameters are given in 
-Appendix B.
-
-At each time step $t$, the AM estimated production model 
-equilibria $B_{MSY}$ and $U_{MSY}$, and an expected 
+At each time step $t$, the assessment models
+were used to estimate an expected 
 biomass estimate $\hat{B}_{t+1}$ for the following 
 time step.
 
+Simulated annual asssessments were used to
+estimated harvestable biomass via
+a state-space Schaefer production model
+[@schaefer1957some; @punt2002evaluation]. We extended the
+@johnson2018evaluating hierarchical state-space
+model to allow all assessment complex configurations,
+ranging from data-pooled single-stock assessments
+with no hierarchical structure, to a full
+hierarchical multi-species and multi-stock
+assessment. We defined the state-space
+Schaefer model in Template Model Builder 
+[@kristensen2015tmb]. For hierarchical model formulations, 
+we applied shrinkage priors to survey catchability 
+and intrinsic growth rate (Appendix). 
 
-#### Harvest rule
+We further modified our original surplus production 
+stock assessment model better approximate the
+biomass-yield relationship and ratios of exploitable
+biomass to spawning biomass underlying the 
+age-/sex-structured model [@pella1969generalized;
+@winker2020jabba]. Details of our modifications are
+in the appendix.
+
+In total, five model configurations were defined:
+
+1. Total aggregation (1 stock)
+2. Species Pooling (3 stocks)
+3. Spatial Pooling (3 species)
+4. Single-stock (9 stocks, independent)
+5. Hierarchical multi-stock (9 stocks, sharing info)
+
+
+#### Data generation for AMs
+
+Time series of catch and biomass indices
+were generated for fitting the simulated
+assessment models. Catch-per-unit-of-effort
+(CPUE) indices were generated from the 
+commercial fleets from 1976 - 1995 
+(historical) and 1995 - 2016 (modern), 
+and survey trawlable biomass indices were
+generated for the Hecate Strait assemblage
+survey from 1984 - 2002, and in the Synoptic
+survey from 2003 - 2048. We outline the
+biomass index data generation methods for 
+stock specific AMs and data-pooled AMs below.
+
+Biomass indices for individual stocks depended
+on the nature of the index. Commercial
+CPUE indices were defined as
+\begin{equation}
+I_{s,p,f,t} = \frac{C_{s,p,f,t}}{E_{p,f,t}},
+\end{equation}
+where $C_{s,p,f,t}$ was commercial landings
+by fleet $f$ of species $s$ from area $p$ at time
+$t$, and $E_{p,f,t}$ was commercial fishing
+effort expened in area $p$ by fleet $f$ at
+time $t$, with both catch and effort required
+to be positive. Survey biomass indices
+were scaled from survey
+
+
+Catch data were pooled by summation, and 
+the index data depended on the nature
+of the index. For Assemblage and Synoptic 
+survey biomasss indices, pooled indices 
+without observation error were defined as
+\begin{align} 
+I^{pooled}_{s,f,t}  & = \sum_{p} I(I_{s,p,f,t} > 0) \cdot q_{s,p,f} \cdot B_{s,p,f,t}, \\
+I^{pooled}_{p,f,t}  & = \sum_{s} I(I_{s,p,f,t} > 0) \cdot q_{s,p,f} \cdot B_{s,p,f,t}, \\
+I^{pooled}_{f,t}    & = \sum_{s,p} I(I_{s,p,f,t} > 0) \cdot q_{s,p,f} \cdot B_{s,p,f,t},
+\end{align}
+where $I^{pooled}_{s,f,t}$ is the spatially
+pooled index for species $s$, $I^{pooled}_{p,f,t}$ 
+is a species pooled index for area $p$, 
+$I^{pooled}_{f,t}$ is the totally aggregated 
+index, and $I(I_{s,p,f,t} > 0)$ is the indicator
+function that takes value $1$ when the index
+from fleet $f$ for species $s$ in stock area $p$
+existed and 0 when it didn't (i.e. the survey
+leg in area $p$ was running that year). For
+indices from commercial fleets, we defined
+the pooled catch-per-unit-of effort (CPUE) index
+as
+\begin{align} 
+I^{pooled}_{s,f,t}  & = \frac{\sum_{p} C_{s,p,f,t}}{\sum_{p} E_{p,f,t} }, \\
+I^{pooled}_{p,f,t}  & = \frac{\sum_{s} C_{s,p,f,t}}{ E_{p,f,t} }, \\
+I^{pooled}_{f,t}    & = \frac{\sum_{s,p} C_{s,p,f,t}}{ \sum_{p} E_{p,f,t} },
+\end{align}
+
+
+#### Target harvest rates
+
+We used a constant target harvest rate for each species, 
+which was derived from the multi-species maximum yield. 
 
 To set catch limits for a given stock, or data-pooled complex,
 we applied a constant target harvest rate. We tested two
@@ -345,14 +320,82 @@ The analogous apportionment holds for all data aggregation
 MPs.
 
 
+
+
+<!-- We allocated maximum fishing effort to each area. 
+Maximum effort was defined as the amount required to
+fully utilise the TAC of at least one species, 
+but never exceed any of the three species' TACs. 
+Effort was then supplied to the operating model to
+generate realised fishing mortality among
+species and stock areas as
+\begin{equation}
+F_{s,p,f,t} = \bar{q}^{(F)}_{s,p,f} * E_{p,f,t},
+\end{equation}
+where $\bar{q}^{(F)}_{s,p,f}$ is the 
+ratio of estimated fishing mortality rates to 
+fishing effort in the last year of the conditioning 
+assessment. Historical fishing effort was estimated by taking 
+the average ratio
+\begin{equation}
+E_{p,f,t} = \bar{\frac{C_{s,p,f,t}}{I'_{s,p,f,t}}}
+\end{equation}
+where $I'_{s,p,f,t}$ is unstandardized commercial
+CPUE (in kg/hour), and $C_{s,p,f,t}$ is the total 
+catch in kt. We averaged this ratio over species within a stock area to 
+account for years in which there were missing CPUE
+observations (**WHY NOT TAKE MAX?? WHAT ABOUT SMOOTHING??
+CHECK UNITS, COULD PROBABLY DO WITH A PLOT**). -->
+
+We chose to use maximum effort over an effort dynamics
+model because of (i) its simplicity and (ii) its similarity 
+to other MSE simulations for BC fisheries. We considered 
+including an effort dynamics model to allocate a pool 
+of effort over the three areas [@hilborn1987general;
+@walters1999multispecies], but determined that this was
+not necessary for determining the management performance 
+of the multiple assessment models that we are testing.
+Furthermore, although the BC groundfish fishery balances
+the utilisation of many more than three TACs in practice,
+and avoids fully utilising TACs to guarantee access
+to fishing grounds in the presence of future bycatch,
+we found that the maxmium effort model effectively 
+simulated the TAC under-utilisations for two species 
+out of the three.
+
+<!-- We defined a multi-species maximum sustainable yield 
+$MSY_{MS,p}$ for each area $p$ by using the relationship 
+between trawl fishing effort and species-specific 
+fishing mortality rates. For a given value of trawl 
+fishing effort $E$, we computed a complex yield curve
+by summing the yield curves of all three flatfishes 
+in the area at the corresponding fishing mortality rates
+\begin{equation}
+Y_{MS,p} (E) = \sum_{s} Y_{s,p} (q^{(F)}_{s,p} E),
+\end{equation}
+where $Y_{MS,p}$ is the complex yield curve for stock
+area $p$ with respect to trawl effort, and $Y_{s,p}$ is the
+species specific yield curve for stock area $p$ with
+respect to fishing mortality. The optimal trawl effort
+$E_{MSY,p}$ was then derived as the solution 
+to ${dY_{MS,p}}/{dE} = 0$, with corresponding 
+equilibrium yield $Y_{MS,p}(E_{MSY,p})$. Our method
+is similar to other approaches to defining multi-species 
+equilibria [@mueter2006using], but explicitly includes
+the differential catchability of technically interacting 
+species. -->
+
+
+
+
+
 ## Simulation experiments and performance
 
-For the simulation experiments, we ran a total of $30$
-simulations, made up of ten factorial combinations 
-of the five assessment models and two harvest control
-rule settings, and three operating model observation
-error variance scenarios. We ran 100 replicates of each OM/MP
-combination, each initialised with a unique random seed, 
+For the simulation experiments, we ran a total of $20$
+simulations, made up of five assessment models and 
+four operating model data scenarios. We ran 100 replicates 
+of each OM/MP combination, each initialised with a 
+unique random seed, 
 thereby integrating over all stochastic processes. To eliminate 
 the effect of random variation between simulations, 
 each simulation was initialised with the same set

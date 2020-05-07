@@ -20,30 +20,22 @@ for( simIdx in 1:nrow(info.df))
 
 ```
 
-## Multi-species complex equilibria
+When replicates included time steps where assessment models 
+would not converge (largely due to data quality issues)
+we increased the number of replicates until we reached
+100 replicates where simulated assessment models 
+converged for all time steps.
 
-We found that the optimal harvest rate and spawning-stock biomass 
-from the multi-species complex yield curves followed a similar
-pattern across the three stock areas (Figure 2). In all areas, 
-the optimal fishing effort for the area led to a slightly higher 
-optimal harvest rate for Dover sole when compared to the 
-single-species optima. In contrast, both English and rock sole 
-had slightly lower optimal harvest rates than their single-species 
-optima. In the HSHG area, where all three species had the 
-highest biomasses, the multi-species optimal effort lay close 
-to the single-species optimal effort, meaning that there was
-very little foregone yield for each species in order
-to maximise the total complex yield. In contrast, the other 
-two areas each had a species yield curve with a peak that 
-was very far to the right of the peaks of the other two curves, 
-indicating the much lower catchability scalar between 
-effort and fishing mortality for English sole in QCS, 
-and rock sole in WCVI. Although English (QCS) and rock (WCVI) soles 
-are proportionally further under-exploited under the multi-species 
-optimal effort than the least catchable species (rock sole) in HSHG, 
-the yield lost to under-exploitation is trivial given the absolute 
-size of each is an order of magnitude smaller than the larger
-stocks in those areas.
+From methods: does this still apply???
+We used the skewed yield curve
+for all model formulations, including data aggregated
+methods, where we re-derived the ratio between unfished
+and optimal biomass in each case. The exploitable
+and spawning biomass ratio estimates were used in all cases
+except the data-pooling, spatially disaggregated 
+assessment (3 in above list), under which the 
+estimates introduced a persistent bias in the fits
+to stock indices.
 
 
 ## Omniscient Manager Performance
