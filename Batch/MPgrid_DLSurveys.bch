@@ -1,4 +1,4 @@
-# Batch Control File, created Thu May  7 14:25:37 2020 by makeBatchDesign() 
+# Batch Control File, created Fri May  8 13:36:21 2020 by makeBatchDesign() 
 parameter value
 #
 # Scenarios 
@@ -7,8 +7,8 @@ parameter value
 #
 scenario$scenario1$ctl$scenarioName 'DERfit_HcMcAsSsIdx'
 scenario$scenario1$opMod$pT 32
-scenario$scenario1$ctl$nGoodReps 10
-scenario$scenario1$ctl$totReps 40
+scenario$scenario1$ctl$nGoodReps 100
+scenario$scenario1$ctl$totReps 140
 scenario$scenario1$mp$assess$spFleets c(1,2,3,4)
 scenario$scenario1$mp$assess$spLateStart FALSE
 #
@@ -16,8 +16,8 @@ scenario$scenario1$mp$assess$spLateStart FALSE
 #
 scenario$scenario2$ctl$scenarioName 'DERfit_McAsSsIdx'
 scenario$scenario2$opMod$pT 32
-scenario$scenario2$ctl$nGoodReps 10
-scenario$scenario2$ctl$totReps 40
+scenario$scenario2$ctl$nGoodReps 100
+scenario$scenario2$ctl$totReps 140
 scenario$scenario2$mp$assess$spFleets c(2,3,4)
 scenario$scenario2$mp$assess$spLateStart TRUE
 #
@@ -25,8 +25,8 @@ scenario$scenario2$mp$assess$spLateStart TRUE
 #
 scenario$scenario3$ctl$scenarioName 'DERfit_McSsIdx'
 scenario$scenario3$opMod$pT 32
-scenario$scenario3$ctl$nGoodReps 10
-scenario$scenario3$ctl$totReps 40
+scenario$scenario3$ctl$nGoodReps 100
+scenario$scenario3$ctl$totReps 140
 scenario$scenario3$mp$assess$spFleets c(2,4)
 scenario$scenario3$mp$assess$spLateStart TRUE
 #
@@ -34,8 +34,8 @@ scenario$scenario3$mp$assess$spLateStart TRUE
 #
 scenario$scenario4$ctl$scenarioName 'DERfit_AsSsIdx'
 scenario$scenario4$opMod$pT 32
-scenario$scenario4$ctl$nGoodReps 10
-scenario$scenario4$ctl$totReps 40
+scenario$scenario4$ctl$nGoodReps 100
+scenario$scenario4$ctl$totReps 140
 scenario$scenario4$mp$assess$spFleets c(3,4)
 scenario$scenario4$mp$assess$spLateStart TRUE
 #
