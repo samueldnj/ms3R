@@ -20,5 +20,5 @@ source("batchTools.R")
 source("stats.R")
 
 
-TMB::compile("hierProd.cpp")
-dyn.load(dynlib("hierProd"))
+# TMB::compile("hierProd.cpp")
+# dyn.load(dynlib("hierProd"))

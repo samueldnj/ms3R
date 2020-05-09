@@ -9,7 +9,11 @@
 # Author: SDN Johnson
 # Date: July 25, 2019
 #
-# Last Update: Nov 13, 2019
+# Last Update: B Doherty, May 7 2020
+#
+# TO DO:
+# - should Bmin in .calcHCR_ccRule() be compared to I_spt[s,p,t-1] or I_spt[s,p,t], I think it is I_spt[s,p,t] but this is NA for first projection year right now
+# - replace NAs with zeros for histroical Index in Lou
 #
 # <><><><><><><><><><><><><><><><><><><><><><><><><><><>
 
@@ -45,8 +49,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
 
 # calcObsTimes()
 # Creates a schedule for survey indices and
-# assessments based on control file
-# settings
+# assessments based on control file settings
 # inputs:   obj: simObj created in mgmtProc
 # outputs:  obj: simObj with schedules attached
 .calcTimes <- function( obj )
@@ -133,6 +136,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
 
   # 1. Extract operating model and management procedure objects
   ctlList <- obj$ctlList
+  psi <- ctlList$mp$hcr$psi
 
   rp <- obj$rp      # reference points
   om <- obj$om      # operating model
@@ -146,19 +150,27 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   # 2. Perform stock assessment
   obj  <- .callProcedureAM( obj, t )
 
-
-  # 3. Determine stock status and set catch limit
+  # 3. Determine stock status and apply HCR to ser catch limit
   if( ctlList$mp$hcr$type == "ramped")
     obj  <- .applyPrecHCR( obj, t )
 
   if( ctlList$mp$hcr$type == "conF" )
     obj  <- .applyConstantF( obj, t )
 
+
+  if( ctlList$mp$hcr$type == "conC" )
+    obj  <- .calcHCR_ccRule( obj, t )
+
   # Now spread catch among allocation
   for( s in 1:nS )
     for( p in 1:nP )
     {
       obj$mp$hcr$TAC_spft[s,p,,t]    <- obj$mp$hcr$TAC_spt[s,p,t] * obj$om$alloc_spf[s,p,]
+
+      # TAC above represents total mortality for each gear type. The OM reads in SOK landed product from the TAC object so we need to convert TAC for spawn on kelp fishery from assumed dead ponded fish, based on DFO assumption of 65% mortality (Schweigert et al. 2018), to SOK product
+      totalPondedFish <- obj$mp$hcr$TAC_spft[s,p,6,t]/0.65
+
+      obj$mp$hcr$TAC_spft[s,p,6,t] <- totalPondedFish*psi # convert to SOK product
     }
 
   # 4. Update simulated population
@@ -168,6 +180,232 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   return(obj)
 
 } # END .updatePop()
+
+#-------------------------------------------------------------------------------#
+#--                   Harvest Control Rule Functions                          --#
+#-------------------------------------------------------------------------------#
+
+# .calcHCR_ccRule()      
+# Purpose:        harvest control rule to generate the quota
+# Parameters:     obj=list containing all variables and parameters
+#                 necessary to compute the quota
+# Requires:       global variable Bmin = initial value for lowest biomass
+# Returns:        the quota=catch
+# Source:         modfied from .calcHCR_ccRule, S.P. Cox
+.calcHCR_ccRule <- function( obj, t )
+{
+
+  # Private function to find the minimum biomass over past 10 years
+  # from which the stock has recovered.  
+  find_min <- function(x)
+  {
+    # Goal: find the minumum value of x that has been "recovered" from.
+    # In other words, find the smallest datapoint x[t] such that x[t] < x[t+1].
+    # If NA is returned, then no such point has been found.
+
+    # remove NAs
+    x <- na.omit(x)
+  
+    if( length(x) == 1 ) return(NA)
+  
+    # propose first datapoint as current minimum
+    min_curr <- x[1]
+  
+    # find another datapoint that is less than the current minimum
+    # and also has a subsequent datapoint that is smaller than itself
+    if( length(x)>2 ) {
+      for( i in 2:(length(x)-1) ) {
+        if( x[i]<min_curr && x[i]<x[i+1] ) min_curr <- x[i]
+      }
+    }
+    # if the current minimum is still the first datapoint,
+    # check the subsequent point
+    if( min_curr==x[1] && x[1]>x[2] ) min_curr <- NA
+    if(!is.na(min_curr)){
+      if(min_curr==0) {
+        min_curr <- 0.05
+      }
+    }
+    min_curr
+  }
+
+  hcr     <- obj$mp$hcr
+  ctlList <- obj$ctlList
+  assess  <- obj$mp$assess
+
+  # Pull reference points
+  refPtList   <- obj$rp
+  refPtType   <- ctlList$mp$hcr$refPtType
+
+  # calculate projection time
+  tMP <- obj$om$tMP
+  pt  <- t - tMP + 1
+
+  # Get HCR quantities
+  # Uref_sp <- hcr$Uref_spt[,,t]
+
+  Uref_sp <- obj$rp$FmsyRefPts$Umsy_sp
+
+  # calculate projection time
+  tMP <- obj$om$tMP
+  pt  <- t - tMP + 1
+
+  # Model dims
+  nS  <- obj$om$nS # number of species
+  nP  <- obj$om$nP # of stocks/areas
+  nF  <- obj$om$nF # number of fleet
+  nT  <- obj$om$nT # number of years
+
+  # Stock status
+  projSB_sp   <- assess$retroSB_tspt[pt,,,t] 
+  projVB_sp   <- assess$retroVB_tspft[pt,,,2,t] 
+
+  # Pull data
+  I_spft <- obj$mp$data$I_spft
+  C_spt  <- obj$om$C_spt
+  idxF   <- obj$mp
+
+  # Use the last two years of data in Spawn surface Survey
+  # and calculate mean over time to get splitting weights
+  rctMeanI_sp <- apply( X = I_spft[,,5,(t-2):(t-1),drop = FALSE],
+                        FUN = mean,
+                        MARGIN = c(1,2), na.rm = T )
+
+  # Calculate total recent mean index for a species
+  rctMeanI_s <- apply( X = rctMeanI_sp, FUN = sum, MARGIN = 1, na.rm=T)
+
+  # Biomass over previous ten years
+  I_spt <- I_spft[,,5,] # 5 is fleet ID for dive survey
+  if( t > 10 ) 
+    B10_spt <- I_spt[1:nS,1:nP,(t-10):(t-1),drop=F] + C_spt[,,(t-10):(t-1), drop=F]
+  else         
+    B10_spt <- I_spt[1:nS,1:nP,1:(t-1),drop=F] + C_spt[,,1:(t-1),drop=F]
+
+  # Proposed Bmin for each species and stock area
+  Bmin_sp <- array(dim=c(nS,nP))
+
+  for (s in 1:nS) # species loop
+    for (p in 1:nP) # stock loop  
+        Bmin_sp[s,p] <- find_min(B10_spt[s,p,])    
+
+
+  # spatialPooling=TRUE - MP for aggregated stocks (i.e. larger area)
+  # speciesPooling=TRUE - MP for aggregated species (i.e. mixed fishery)
+
+  # Spatial MP for stocks and separate MP for each species
+  if( !ctlList$mp$data$spatialPooling & !ctlList$mp$data$speciesPooling )
+  {
+
+    for ( s in 1:nS )
+    {  
+      for (p in 1:nP)
+      {
+        if( I_spt[s,p,t-1] > Bmin_sp[s,p] ) {
+            hcr$TAC_spt[s,p,t] <- Uref_sp[s,p]*(I_spt[s,p,t-1]+C_spt[s,p,t-1])
+        } else {
+            hcr$TAC_spt[s,p,t] <- 0
+          }
+      }
+      
+      # Calculate proportion of TAC for saving in hcr object
+      propTAC_sp <- hcr$TAC_spt[s,,t]/sum(hcr$TAC_spt[s,,t])
+
+    }      
+  }
+
+  # Aggregate MP for stocks and separate MP for each species
+  if( ctlList$mp$data$spatialPooling & !ctlList$mp$data$speciesPooling )
+  {
+    # If using aggregate MP, assign constant catch according to total   Bmin and split based on weighting from indices
+    
+    # Aggregate spawn index biomass, this will need to be adjusted for other survey types (e.g. CPUE)
+    B10_t <- apply(X = B10_spt, FUN = sum, MARGIN = 3, na.rm=T)
+    Bmin <- find_min(B10_t)
+    Bmin_p <- Bmin*rctMeanI_s/sum(rctMeanI_s)
+
+    propTAC_sp <- rctMeanI_sp[1:nS,1:nP, drop=FALSE]
+    Uref_s     <- vector(length=nS, 'numeric')
+    for ( s in 1:nS )
+    {  
+        # Calculate proportion of biomass by area from index
+        propTAC_sp[s,] <- propTAC_sp[s,] / rctMeanI_s[s]
+
+        # Use index-weighted average for harvest rate
+        Uref_s[s] <- sum(propTAC_sp[s,]*Uref_sp[s,])
+
+        if( I_spt[s,nP+1,t-1] > Bmin_p) {
+            aggregateTAC <- Uref_s[s]*(I_spt[s,p,t-1]+C_spt[s,p,t-1])
+        } else {
+            aggregateTAC <- 0
+          }
+
+      # apportion TAC
+      hcr$TAC_spt[s,p,t] <- aggregateTAC*propTAC_sp[s,]
+    }  
+
+  }
+
+
+  # Aggregate MP for stocks and aggregate MP for each species
+  if( ctlList$mp$data$spatialPooling & ctlList$mp$data$speciesPooling )
+  {
+    browser(cat('Aggregate MP for species pooling not yet implemented'))
+  }
+
+
+
+  # Spatial MP for stocks and aggregate MP for each species
+  if( !ctlList$mp$data$spatialPooling & ctlList$mp$data$speciesPooling )
+  {
+    browser(cat('Spatial MP for species pooling not yet implemented'))
+  }
+
+  # Apply smoother on TACs
+  if( !is.null(ctlList$mp$hcr$maxDeltaTACup) )
+  {
+    # Determine which TACs are more than maxDeltaTAC
+    # above last year
+    maxDeltaTACup  <- ctlList$mp$hcr$maxDeltaTACup
+    currTAC_sp     <- hcr$TAC_spt[,,t] %>% matrix(byrow=TRUE, nrow=nS,ncol=nP)
+    lastTAC_sp     <- hcr$TAC_spt[,,t-1] %>% matrix(byrow=TRUE, nrow=nS,ncol=nP)
+
+
+    # if last years TAC =0, then find last non-zero TAC
+    if(any(lastTAC_sp==0) )
+    { 
+      for(s in 1:nS)
+      {  
+        pIdx <- which(lastTAC_sp[s,]==0)
+        for( p in pIdx)
+        {
+          tac <- hcr$TAC_spt[s,p,1:t-1]
+          tac <- tac[tac>0]
+          lastTAC_sp[s,p] <- tac[length(tac)]
+        }
+      }    
+    }    
+
+    diffTAC_sp     <- currTAC_sp - lastTAC_sp
+    DeltaTACup_sp  <- diffTAC_sp / lastTAC_sp 
+    deltaDiff_sp   <- DeltaTACup_sp - maxDeltaTACup
+    smoothIdx <- which( deltaDiff_sp > 0 )
+
+    # Apply smoother
+    currTAC_sp[smoothIdx] <- (1 + maxDeltaTACup) * lastTAC_sp[smoothIdx]
+    hcr$TAC_spt[,,t] <- currTAC_sp
+  }
+
+
+  # Save proportion of TAC for use in retro SB plots
+  hcr$propTAC_spt[,,t] <- propTAC_sp
+
+  # Now put all the lists we modified back into obj
+  obj$mp$hcr    <- hcr
+  obj$mp$assess <- assess
+
+  return(obj)
+
+}  # END .calcHCR_ccRule()
 
 
 # .applyConstantF()
@@ -199,11 +437,10 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   projVB_sp   <- assess$retroVB_tspft[pt,,,2,t] 
 
   # Pull data
-  I_spft <- obj$mp$data$I_spft
+  I_spft <- obj$mp$data$I_spft 
 
   # Use the last two years of data in Spawn Survey
-  # and calculate mean over time to get
-  # splitting weights
+  # and calculate mean over time to get weights for allocating catch
   rctMeanI_sp <- apply( X = I_spft[,,5,(t-2):(t-1),drop = FALSE],
                         FUN = mean,
                         MARGIN = c(1,2), na.rm = T )
@@ -421,6 +658,9 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
 } # END .applyPrecHCR
 
 
+#-------------------------------------------------------------------------------#
+#--                   Asessment functions                                     --#
+#-------------------------------------------------------------------------------#
 
 # .callProcedureAM()
 # Generic function to call estimation
@@ -440,7 +680,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   if( methodID == "idxBased")
     obj <- .AM_idxBased( obj, t)
 
-  if( methodID == "PerfectInfo" )
+  if( methodID == "perfectInfo" )
     obj <- .AM_perfectInfo(obj,t)
 
   if( methodID == "hierProd" )
@@ -528,9 +768,9 @@ solvePTm <- function( Bmsy, B0 )
   mlnUmsy_SS <- log(sum(YeqSS_sp) / sum(BeqSS_sp))
 
   # Get complex dims
-  nS  <- obj$om$nS
-  nP  <- obj$om$nP
-  nF  <- obj$om$nF
+  nS  <- obj$om$nS # of species
+  nP  <- obj$om$nP # of stocks/areas
+  nF  <- obj$om$nF # of fleets
   tMP <- obj$om$tMP
 
   # PT m parameter for skew in yield curves
@@ -1805,8 +2045,6 @@ solvePTm <- function( Bmsy, B0 )
       simObj <- .calcHistEffortDynamics( simObj )
     
     # Calcualate times for observations
-    
-
 
     if( ctlList$ctl$omni | ctlList$ctl$perfConF )
     {
@@ -1891,9 +2129,10 @@ solvePTm <- function( Bmsy, B0 )
     blob$mp$assess$pdHess_itsp[i,,,]          <- simObj$mp$assess$pdHess_tsp
     blob$mp$assess$posSDs_itsp[i,,,]          <- simObj$mp$assess$posSDs_tsp
 
+
     if( prod(simObj$mp$assess$pdHess_tsp) == 1 | 
         prod(simObj$mp$assess$posSDs_tsp) == 1 | 
-        ctlList$mp$assess$method %in% c("idxBased","PerfectInfo") )
+        ctlList$mp$assess$method %in% c("idxBased","perfectInfo") )
       blob$goodReps[i] <- TRUE
 
     if( ctlList$ctl$omni | ctlList$ctl$perfConF )
@@ -3105,7 +3344,7 @@ combBarrierPen <- function( x, eps,
 
 
 # .condMS3pop()
-# Conditions OM for historical period from a hierSCAL report
+# Conditions OM for historical period from a hierSCAL or SISCA report
 # object.
 .condMS3pop <- function( obj )
 {
@@ -3229,7 +3468,6 @@ combBarrierPen <- function( x, eps,
   message( paste(" (.condMS3pop) Reference point calculations completed in ", 
                   rpTime, " seconds\n", sep = "" ) )
 
-
   # Add historical data
   obj$mp$data$I_spft[1:nS,1:nP,,histdx] <- repObj$I_spft
   obj$om$I_spft[1:nS,1:nP,,histdx]      <- repObj$I_spft
@@ -3241,6 +3479,8 @@ combBarrierPen <- function( x, eps,
   obj$mp$data$I_spft[obj$mp$data$I_spft<0] <- NA
   obj$mp$data$A_axspft[obj$mp$data$A_axspft<0] <- NA
   obj$mp$data$L_lxspft[obj$mp$data$L_axspft<0] <- NA
+
+
 
   # Now calculate total catch and allocation
   tdxRecent <- (tMP - ctlList$opMod$allocYears):(tMP - 1)
@@ -3338,7 +3578,7 @@ combBarrierPen <- function( x, eps,
   ctlList <- obj$ctlList
 
   if(!obj$ctlList$ctl$quiet)
-    message(" (.condMS3pop_SISCA) Conditioning ms3R from hierSCAL report\n")
+    message(" (.condMS3pop_SISCA) Conditioning ms3R from SISCA report\n")
 
   # Get model historical period report object
   repObj <- ctlList$opMod$histRpt
@@ -3397,7 +3637,6 @@ combBarrierPen <- function( x, eps,
   obj$mp$data$I_spft[1,1:nP,,histdx]        <- repObj$I_pgt[1:nP,,histdx]
   obj$mp$data$A_axspft[,1,1,1:nP,,histdx]   <- repObj$A_apgt[,1:nP,,histdx]
 
-
   # replace negatives with NAs for plotting, can change back 
   # later for TMB
   obj$mp$data$I_spft[obj$mp$data$I_spft<0] <- NA
@@ -3405,15 +3644,47 @@ combBarrierPen <- function( x, eps,
   # obj$mp$data$L_lxspft[obj$mp$data$L_axspft<0] <- NA
 
   # Now calculate total catch and allocation
-  tdxRecent <- (tMP - ctlList$opMod$allocYears):(tMP - 1)
-  recentCatch_spf <- apply( X = obj$om$C_spft[,,,tdxRecent,drop = FALSE], FUN = sum, MARGIN = c(1,2,3) )
 
-  commGears <- ctlList$opMod$commGears
+  
+  # Allocate according to historical catch by area
+  # recentCatch_spf <- apply( X = obj$om$C_spft[,,,tdxRecent,drop = FALSE], FUN = sum, MARGIN = c(1,2,3) )
 
-  if( all(recentCatch_spf[,,commGears] == 0) )
-    recentCatch_spf[,,commGears] <- 1
 
-  # Loop and fill errors and allocation
+
+  # Allocate according to historical catch for all areas
+  if(!is.null(obj$ctlList$opMod$projAlloc_f))
+    for(s in 1:nS)
+      for( p in 1:nP )
+        obj$om$alloc_spf[s,p,] <- obj$ctlList$opMod$projAlloc_f
+
+  if(is.null(obj$ctlList$opMod$projAlloc_f))
+  {
+    
+    # Determin last 20 years when fishery was open
+    recentCatch_t <- apply( X = obj$om$C_spft, FUN = sum, MARGIN = c(4) )
+
+    openIdx   <- which(recentCatch_t>0)
+    tdxRecent <- openIdx[(length(openIdx) - ctlList$opMod$allocYears+1):length(openIdx)] 
+
+    commGears <- ctlList$opMod$commGears
+
+    # Estimate mortality from closed ponded SOK fish and add to historical catch array
+    histC_pft <-  obj$om$C_spft[1,,,histdx]
+    histC_pft[,6,] <- repObj$pondC_pgt[,6,]*0.65
+
+    # caculate catch for tdxRecent years for allocating catch in projections
+    histCatch_f <- apply( X = histC_pft[,,tdxRecent,drop=F], FUN = sum, MARGIN = c(2))
+
+    if( all(histCatch_f[commGears] == 0) )
+      histCatch_f[commGears] <- 1
+
+    for(s in 1:nS)
+      for( p in 1:nP )
+        obj$om$alloc_spf[s,p,commGears] <- histCatch_f[commGears] / sum(histCatch_f[commGears])
+
+  }
+
+  # Loop and fill errors 
   for( s in 1:nS )
     for( p in 1:nP )
     {
@@ -3422,11 +3693,6 @@ combBarrierPen <- function( x, eps,
 
       for( f in 1:nF )
         obj$errors$delta_spft[s,p,f,] <- rnorm(nT)
-
-      obj$om$alloc_spf[s,p,commGears] <- recentCatch_spf[s,p,commGears] / sum( recentCatch_spf[s,p,commGears])
-
-      if(!is.null(obj$ctlList$opMod$projAlloc_f))
-        obj$om$alloc_spf[s,p,] <- obj$ctlList$opMod$projAlloc_f
 
       # Save historical proc errors, but use simulated recruitments after
       # last estimated recruitment
@@ -3558,8 +3824,6 @@ combBarrierPen <- function( x, eps,
   }
 
   
- 
-
   # Set up arrays to hold simulated states
   om$B_axspt    <- array(0,  dim = c(nA,nX,nS,nP,nT) )  # Biomass at age (total)
   om$N_axspt    <- array(0,  dim = c(nA,nX,nS,nP,nT) )  # Numbers at age
@@ -3570,10 +3834,10 @@ combBarrierPen <- function( x, eps,
   om$Z_axspt    <- array(0,  dim = c(nA,nX,nS,nP,nT) )  # Total mortality
 
   # Catch, fishing mort, vuln bio, selectivity
-  om$C_spft     <- array(NA,  dim = c(nS,nP,nF,nT) )        # Total catch by fleet in kt
-  om$P_spft     <- array(0,  dim = c(nS,nP,nF,nT) )         # Total ponded fish by fleet in kt
-  om$psi_spft   <- array(0,  dim = c(nS,nP,nF,nT) )         # Conversion from ponded biomass to SOK
-  om$P_axspft   <- array(0,  dim = c(nA,nX,nS,nP,nF,nT) )   # Total ponded fish at age (numbers)
+  om$C_spft     <- array(NA,  dim = c(nS,nP,nF,nT) )       # Total catch by fleet in kt
+  om$P_spft     <- array(0,  dim = c(nS,nP,nF,nT) )        # Total ponded fish by fleet in kt
+  om$psi_spft   <- array(0,  dim = c(nS,nP,nF,nT) )        # Conversion from ponded biomass to SOK
+  om$P_axspft   <- array(0,  dim = c(nA,nX,nS,nP,nF,nT) )  # Total ponded fish at age (numbers)
   om$C_spt      <- array(NA,  dim = c(nS,nP,nT) )          # Total catch in kt
   om$C_axspft   <- array(0,  dim = c(nA,nX,nS,nP,nF,nT) )  # Numbers
   om$Cw_axspft  <- array(0,  dim = c(nA,nX,nS,nP,nF,nT) )  # Weight
@@ -4306,6 +4570,7 @@ combBarrierPen <- function( x, eps,
   # Now make aggregates
   tauObs_spf  <- om$tauObs_spf[1:nS,1:nP,] * err$obsErrMult_spft[1:nS,1:nP,,t]
   idxOn_spf   <- obj$mp$data$idxOn_spft[,,,t]
+  
   # Species Pooling
   if( ctlList$mp$data$speciesPooling & !ctlList$mp$data$spatialPooling  )
   {
@@ -4350,6 +4615,9 @@ combBarrierPen <- function( x, eps,
     {
       for( s in 1:nS )
       {
+        
+        browser(cat('pool historical indices'))
+
         tauObs_spf[tauObs_spf == 0] <- NA
         tau <- mean(tauObs_spf[s,,f],na.rm = TRUE)
         

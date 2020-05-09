@@ -65,7 +65,7 @@
         file = file.path(path,"simCtlFile.txt"),
         append = TRUE)
   
-} # END .saveBlob
+} # END .saveBlob()
 
 # .makeSimReport()
 # Makes a .html report of the simulation
