@@ -17,8 +17,8 @@
 # loss values compared to a nominated baseline sim.
 # By default, calculates biomass and catch loss
 # on relative and absolute scale
-calcLoss <- function( sim         = 1,
-                      baseline    = "sim_parBatomniRuns_Long3",
+calcLoss <- function( sim         = 11,
+                      baseline    = "sim_OmniRun_Long",
                       groupFolder = "diffCV_fixedF_longGrid",
                       lossVars    = c("C_ispt","SB_ispt"),
                       output      = TRUE )
@@ -31,9 +31,8 @@ calcLoss <- function( sim         = 1,
   lossSim <- blob
 
   # figure out which reps we want
-  goodReps  <- blob$goodReps
-  nReps     <- sum(goodReps)
-  totReps   <- dim(lossSim$om$SB_ispt)[1]
+  goodReps_isp    <- blob$goodReps_isp
+  totReps         <- dim(lossSim$om$SB_ispt)[1]
 
   # Now load the baseline (omniscient manager)
   .loadSim( sim = baseline, folder = groupFolder )
@@ -73,8 +72,8 @@ calcLoss <- function( sim         = 1,
   for( varIdx in 1:length(lossVars) )
   {
     # Clean arrays for base and sim states
-    baseState_ispt <- array(NA, dim = c(nReps,nS+1,nP+1,nT),
-                                dimnames = list(  rep = which(goodReps),
+    baseState_ispt <- array(NA, dim = c(totReps,nS+1,nP+1,nT),
+                                dimnames = list(  rep = 1:totReps,
                                                   species = speciesNames,
                                                   stock   = stockNames,
                                                   tdx     = 1:nT ) )
@@ -84,7 +83,7 @@ calcLoss <- function( sim         = 1,
     var <- lossVars[varIdx]
 
     # Copy base and sim for individual stocks/species
-    simReps <- (1:totReps)[goodReps]
+    simReps <- (1:totReps)
     baseState_ispt[,1:nS,1:nP,] <- baseSim$om[[var]][simReps,,,1:nT]
     simState_ispt[,1:nS,1:nP,]  <- lossSim$om[[var]][simReps,,,1:nT]
 
@@ -126,6 +125,7 @@ calcLoss <- function( sim         = 1,
   }
 
   outList <- list(  simID         = lossSim$folder,
+                    goodReps_isp  = goodReps_isp,
                     speciesNames  = speciesNames,
                     stockNames    = stockNames,
                     fYear         = lossSim$ctlList$opMod$fYear,
@@ -133,6 +133,7 @@ calcLoss <- function( sim         = 1,
                     baseStates    = baseLineStates,
                     lossRaw       = lossRaw,
                     lossRel       = lossRel,
+                    retroB_itspt  = lossSim$retroB_itspt,
                     tMP           = tMP,
                     nT            = nT, 
                     nF            = nF, 
@@ -352,13 +353,16 @@ makeStatTable <- function(  sim = 1, folder = "",
 
   # get the replicate numbers for succesful fits (PD Hessians) in
   # MPs
-  allConvReps <- obj$goodReps
-  pdHess_itsp <- mp$assess$pdHess_itsp[allConvReps,,,]
+  allConvReps_isp <- obj$goodReps_isp
+  pdHess_itsp     <- mp$assess$pdHess_itsp
   
+  # Get max number of reps
+  maxReps <- obj$nSim  
 
-  # Calculat probability of a good replicate (all PD hessians)
-  nGoodReps <- sum(allConvReps)
-  pGoodReps <- signif(nGoodReps/obj$nSim,2)
+  # Calculate probability of a good replicate (all PD hessians)
+  nGoodReps_sp <- apply(X = allConvReps_isp, FUN = sum, MARGIN =c(2,3))
+  pGoodReps_sp <- signif(nGoodReps_sp/maxReps,2)
+  maxGoodReps <- max(nGoodReps_sp)
 
   # And the median over replicates of the probability of a 
   # PD Hessian over time
@@ -376,7 +380,7 @@ makeStatTable <- function(  sim = 1, folder = "",
                   "scenario","mp",
                   "species","stock",
                   "projObsErrMult",
-                  "nGoodReps", "medProbPDH_sp","pGoodReps",
+                  "nGoodReps","pGoodReps", "medProbPDH_sp",
                   "pBtGt.4Bmsy", "PBtGt.8Bmsy",
                   "pBtGtBmsy",
                   "pCtGtMSY", "pFtGtFmsy",
@@ -392,8 +396,6 @@ makeStatTable <- function(  sim = 1, folder = "",
   statTable[,"simLabel"]        <- simLabel
   statTable[,"scenario"]        <- ctlList$ctl$scenarioName
   statTable[,"mp"]              <- ctlList$ctl$mpName
-  statTable[,"nGoodReps"]       <- nGoodReps
-  statTable[,"pGoodReps"]       <- pGoodReps
   statTable[,"projObsErrMult"]  <- opMod$projObsErrMult
 
   # Need to start layering in performance metrics
@@ -406,15 +408,14 @@ makeStatTable <- function(  sim = 1, folder = "",
   Umsy_sp   <- rp$FmsyRefPts$Umsy_sp
   MSY_sp    <- rp$FmsyRefPts$YeqFmsy_sp
 
-  if( nGoodReps > 0 )
+  if( any(nGoodReps_sp) > 0 )
   { 
-
     # Calculate depletion wrt Bmsy
-    SB_ispt   <- om$SB_ispt[allConvReps,,,,drop = FALSE]
-    C_ispt    <- om$C_ispt[allConvReps,,,,drop = FALSE]
-    TAC_ispt  <- mp$hcr$TAC_ispt[allConvReps,,,,drop = FALSE]
+    SB_ispt   <- om$SB_ispt[1:maxGoodReps,,,,drop = FALSE]
+    C_ispt    <- om$C_ispt[1:maxGoodReps,,,,drop = FALSE]
+    TAC_ispt  <- mp$hcr$TAC_ispt[1:maxGoodReps,,,,drop = FALSE]
     TACu_ispt <- C_ispt / TAC_ispt
-    F_ispt    <- om$F_ispft[allConvReps,,,2,]
+    F_ispt    <- om$F_ispft[1:maxGoodReps,,,2,]
     
     # Calculate probability that Bt above LRP
     pBtGt.4Bmsy_sp <- .calcStatsProportion( TS_ispt = SB_ispt,
@@ -477,6 +478,9 @@ makeStatTable <- function(  sim = 1, folder = "",
         statTable[rowIdx, "stock"]          <- stockNames[p]
         statTable[rowIdx, "medProbPDH_sp"]  <- medProbPDH_sp[s,p]
 
+        statTable[rowIdx, "nGoodReps"]      <- nGoodReps_sp[s,p]
+        statTable[rowIdx, "pGoodReps"]      <- pGoodReps_sp[s,p]
+
         # Conservation performance
         statTable[rowIdx,"pBtGt.4Bmsy"]     <- round(pBtGt.4Bmsy_sp[s,p],2)
         statTable[rowIdx,"PBtGt.8Bmsy"]     <- round(pBtGt.8Bmsy_sp[s,p],2)
@@ -520,7 +524,7 @@ makeStatTable <- function(  sim = 1, folder = "",
   # Set an indicator array
   Ind_ispt <- Quotient_ispt > prop
 
-  probGtDep_sp <- apply( X = Ind_ispt, FUN = mean, MARGIN = c(2,3) )
+  probGtDep_sp <- apply( X = Ind_ispt, FUN = mean, MARGIN = c(2,3), na.rm = T )
       
   return( probGtDep_sp )
 } # END .calcStatsProportion

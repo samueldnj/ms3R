@@ -90,9 +90,9 @@ on biomass estimates from five alternative assessment model
 structures, under four data scenarios. Assessment models 
 included single-stock methods, hierarchical multi-stock 
 methods, and three data-pooling methods: spatial 
-aggregation (across management units), species 
-aggregation (within a management unit), and total 
-aggregation (both species and spatial). 
+pooling (across management units), species 
+pooling (within a management unit), and total 
+aggregation (both species and spatial pooling). 
 Data-pooled harvest decisions were allocated among 
 species and stocks relative to their most recent 
 fishery-independent survey biomass index. Data scenarios

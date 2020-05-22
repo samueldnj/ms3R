@@ -671,7 +671,7 @@ solvePTm <- function( Bmsy, B0 )
           mBmsy_sp[1,1]   <- sum(BeqSS_sp)
 
           omFref_sp       <- array(sum(Yeq_sp) / sum(Beq_sp), dim = c(1,1))
-          omUmsy_sp       <- array(sum(YeqSS_sp) / sum(expBeqSS_sp), dim = c(1,1))
+          omUmsy_sp       <- array(sum(YeqSS_sp) / sum(BeqSS_sp), dim = c(1,1))
 
           PTm_sp          <- omPTm_sp[1,1,drop = FALSE]
           # Solve for total agg yield curve skew
@@ -688,7 +688,7 @@ solvePTm <- function( Bmsy, B0 )
           PTm_sp <- omPTm_sp[,1,drop = FALSE] 
 
           omFref_sp       <- array(sum(Yeq_sp[s,]) / sum(Beq_sp[s,]), dim = c(1,1))
-          omUmsy_sp       <- array(sum(YeqSS_sp[s,]) / sum(expBeqSS_sp[s,]), dim = c(1,1))          
+          omUmsy_sp       <- array(sum(YeqSS_sp[s,]) / sum(BeqSS_sp[s,]), dim = c(1,1))          
 
           PTm_sp          <- omPTm_sp[1,1,drop = FALSE]
           if( ctlList$mp$assess$spSkewYieldCurves )
@@ -706,7 +706,7 @@ solvePTm <- function( Bmsy, B0 )
           PTm_sp <- omPTm_sp[1,1,drop = FALSE] 
 
           omFref_sp       <- array(sum(Yeq_sp[,p]) / sum(Beq_sp[,p]), dim = c(1,1))
-          omUmsy_sp       <- array(sum(YeqSS_sp[,p]) / sum(expBeqSS_sp[,p]), dim = c(1,1))          
+          omUmsy_sp       <- array(sum(YeqSS_sp[,p]) / sum(BeqSS_sp[,p]), dim = c(1,1))          
 
           if( ctlList$mp$assess$spSkewYieldCurves )
             PTm_sp[1,1]    <- solvePTm( Bmsy = sum(BeqSS_sp[,p]), B0 = sum(B0_sp[,p]) )
@@ -994,7 +994,7 @@ solvePTm <- function( Bmsy, B0 )
       for( s in 1:nS )
       {
         omFref_sp[s,] <- sum(Yeq_sp[s,]) / sum(Beq_sp[s,])
-        omUmsy_sp[s,] <- sum(YeqSS_sp[s,]) / sum(expBeqSS_sp[s,])
+        omUmsy_sp[s,] <- sum(YeqSS_sp[s,]) / sum(BeqSS_sp[s,])
         if( ctlList$mp$assess$spSkewYieldCurves )
           PTm_sp[s,]    <- solvePTm( Bmsy = sum(BeqSS_sp[s,]), B0 = sum(B0_sp[s,]) )
       }
@@ -1011,7 +1011,7 @@ solvePTm <- function( Bmsy, B0 )
       for( p in 1:nP )
       {
         omFref_sp[,p] <- sum(Yeq_sp[,p]) / sum(Beq_sp[,p])
-        omUmsy_sp[,p] <- sum(YeqSS_sp[,p]) / sum(expBeqSS_sp[,p])
+        omUmsy_sp[,p] <- sum(YeqSS_sp[,p]) / sum(BeqSS_sp[,p])
         if( ctlList$mp$assess$spSkewYieldCurves )
           PTm_sp[,p]    <- solvePTm( Bmsy = sum(BeqSS_sp[,p]), B0 = sum(B0_sp[,p]) )
       }
@@ -1761,7 +1761,7 @@ solvePTm <- function( Bmsy, B0 )
   blob <- list( om = om, mp = mp, ctlList = ctlList,
                 rp = vector(mode = "list", length = nReps) )
 
-  blob$goodReps       <- rep(FALSE, nReps )
+  blob$goodReps_isp <- array(FALSE, dim = c(nReps,nS,nP) )
 
   blob$omniObjFun <- list(  objFun_i            = array( NA, dim = nReps),
                             objFun_isp          = array( NA, dim = c(nReps,nS,nP)),
@@ -1891,14 +1891,25 @@ solvePTm <- function( Bmsy, B0 )
     blob$mp$assess$pdHess_itsp[i,,,]          <- simObj$mp$assess$pdHess_tsp
     blob$mp$assess$posSDs_itsp[i,,,]          <- simObj$mp$assess$posSDs_tsp
 
-    if( prod(simObj$mp$assess$pdHess_tsp) == 1 | 
-        prod(simObj$mp$assess$posSDs_tsp) == 1 | 
-        ctlList$mp$assess$method %in% c("idxBased","PerfectInfo") )
-      blob$goodReps[i] <- TRUE
+    # Determine if a good replicate
+    probPosSD_sp  <- apply( X = simObj$mp$assess$posSDs_tsp, FUN = mean, MARGIN = c(2,3))
+    probPDHess_sp <- apply( X = simObj$mp$assess$pdHess_tsp, FUN = mean, MARGIN = c(2,3))
+
+    if(ctlList$mp$assess$method %in% c("idxBased","PerfectInfo"))
+    {
+      blob$goodReps_isp[i,,] <- TRUE
+    } else{
+      for( s in 1:nS )
+        for( p in 1:nP )
+          if( ( probPosSD_sp[s,p] >= .95 & probPDHess_sp[s,p] >= .95 ) )
+          {
+            blob$goodReps_isp[i,s,p] <- TRUE 
+          }
+    }
 
     if( ctlList$ctl$omni | ctlList$ctl$perfConF )
     {
-      blob$goodReps[i] <- TRUE
+      blob$goodReps_isp[i,,] <- TRUE
 
       blob$omniObjFun$objFun_isp[i,,]         <- simObj$objFun_sp
       blob$omniObjFun$objFun_i[i]             <- simObj$objFun       
@@ -1925,13 +1936,15 @@ solvePTm <- function( Bmsy, B0 )
 
     message( " (.mgmtProc) Completed replicate ", i, " of ", nReps, ".\n", sep = "")
 
-    if( sum(blob$goodReps) == ctlList$ctl$nGoodReps )
+    doneGoodReps_sp <- apply( X = blob$goodReps_isp, FUN = sum, MARGIN = c(2,3))
+
+    if( all( doneGoodReps_sp >= ctlList$ctl$nGoodReps ) )
     {
       message(  " (.mgmtProc) Completed ",  ctlList$ctl$nGoodReps, 
                 " replicates with all convergent AMs, ending simulation.\n", sep = "")
       break
     } else {
-      finishedGood <- sum(blob$goodReps)
+      finishedGood <- max(doneGoodReps_sp)
       message( " (.mgmtProc) Completed ", finishedGood, " of ", ctlList$ctl$nGoodReps, 
                 " replicates with all convergent AMs.")
     }
@@ -2765,11 +2778,30 @@ combBarrierPen <- function( x, eps,
                               wt_axsp   = meanWtAge_axsp,
                               nS = nS, nP = nP, nX = nX, nF = nF )
 {
-  # First, we need to get whichFleets
-  TAC_f <- apply( X = TAC_spf, FUN = sum, MARGIN = 3 )
+
+  TAC_f <- apply(X = TAC_spf, FUN = sum, MARGIN = 3)
   whichFleets <- which(TAC_f > 0)
+  # First, solve Baranov equation
+  
+  # baranovSol <- .solveBaranov(  C_spf       = TAC_spf, 
+  #                               vB_axspf    = vB_axspf,
+  #                               vB_spf      = vB_spf,
+  #                               N_axsp      = N_axsp,
+  #                               sel_axspf   = sel_axspf,
+  #                               M_xsp       = M_xsp,
+  #                               A_s         = A_s,
+  #                               wt_axsp     = wt_axsp,
+  #                               nS = nS, nP = nP, nX = nX, nF = nF,
+  #                               nIter       = 10,
+  #                               baranovStep = 0.2  )
 
 
+  # targetedF_spf <- baranovSol$F_spf
+  # targetedE_spf <- targetedF_spf/qF_spf
+  # targetedE_spf[targetedF_spf == 0] <- 0
+
+  # targE_pf <- apply( X = targetedE_spf, FUN = min, MARGIN = c(2,3))
+  # E_pf <- targE_pf
 
   # Now loop over areas and slowly increase effort
   # in each area until the TAC of one species is met
@@ -2789,10 +2821,10 @@ combBarrierPen <- function( x, eps,
 
       while( checkCatDiff )
       {
-
         # Solve for the effort using the TAC and 
         solveE_s <- -1/qF_spf[,p,f] * log( 1 - catRem_s / (vB_spf[,p,f] - C_spf[,p,f]))
-        propE <- propE + 0.8*min(solveE_s,na.rm = T)
+
+        propE <- propE + 0.8*min(solveE_s[solveE_s > 0],na.rm = T)
 
         propF_s <- propE * qF_spf[,p,f]
 
@@ -2821,7 +2853,7 @@ combBarrierPen <- function( x, eps,
 
         }
 
-        if( any(catRem_s < 0 ) )
+        while( any(catRem_s < 0 ) )
         {
           # Put in routine to wind back E a little
           propE <- 0.9 * propE
@@ -2853,9 +2885,11 @@ combBarrierPen <- function( x, eps,
         
 
       }
+      
       E_pf[p,f] <- propE
     }
   }
+
 
   out <- list( E_pf = E_pf )
 
@@ -3709,8 +3743,11 @@ combBarrierPen <- function( x, eps,
                                     lastE_pf  = E_pft[,,t-1],
                                     nS = nS, nP = nP, nX = nX, nF = nF )
 
-       E_pft[,,t]     <- effortMod$E_pf
+      E_pft[,,t]     <- effortMod$E_pf
+      if( any(E_pft[,,t] < 0))
+        browser()
       # Rev_spft[,,,t] <- effortMod$rev_spf
+
 
       # Convert to F
       for( s in 1:nS )
@@ -4166,7 +4203,5 @@ combBarrierPen <- function( x, eps,
 
   appF_spf
 } # END .mfPA()
-
-
 
 

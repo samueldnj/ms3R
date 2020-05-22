@@ -11,21 +11,210 @@
 # <><><><><><><><><><><><><><><><><><><><><><><><><><><>
 
 
+# rmtext()
+# Refactored procedure to plot right hand inner
+# margin mtext with the bottom towards the middle
+# of the plot
+rmtext <- function( line = 1, 
+                    txt = "Sample", 
+                    font = 1,
+                    cex = 1,
+                    outer = FALSE,
+                    yadj = .5)
+{
+  corners <- par("usr") #Gets the four corners of plot area (x1, x2, y1, y2)
+  if( outer )
+    par(xpd = NA) #Draw outside the figure region
+  if( !outer )
+    par(xpd = TRUE)
+  text( x = corners[2]+line, 
+        y = yadj * sum(corners[3:4]), 
+        labels = txt, srt = 270,
+        font = font, cex = cex )
+  par(xpd = FALSE)
+} # END rmtext()
+
+
+# plotRetroBio_Scenario()
+# A sample plot of assessment performance
+# for each AM type within a scenario.
+# Requires 5 completed simulation objects.
+plotRetroBio_Scenario <- function(  groupFolder = "DLSurveys7_.5tau_Long",
+                                    iRep = 1,
+                                    scenName = "DERfit_HcMcAsSsIdx",
+                                    prefix = "DLSurveys",
+                                    species = "Dover",
+                                    stock = "HSHG" )
+{
+  # First, read info files from the relevant
+  # sims
+  simFolderList <- list.dirs( here::here("Outputs",groupFolder),
+                              recursive = FALSE, full.names = FALSE)
+
+  info.df <-  readBatchInfo( batchDir = here::here("Outputs",groupFolder) ) %>%
+                filter( grepl( prefix, simLabel ),
+                        scenario == scenName )
+
+  # Break up MP names into factor levels
+  # MP labels are AM_Fsrce_eqbm
+  splitMP <- function(  mpLab, 
+                        breaks = "_",
+                        factorNames = c("AM","Fsrce","eqbm") )
+  {
+    splitMP <- stringr::str_split(mpLab, breaks)[[1]]
+
+    outList <- vector(  mode = "list", 
+                        length = length(splitMP) )
+    names(outList) <- factorNames
+    for( k in 1:length(splitMP))
+      outList[[k]] <- splitMP[k]
+
+    outList
+  }
+
+  MPfactors <- lapply( X = info.df$mp, FUN = splitMP )
+  MPfactors <- do.call(rbind, MPfactors)
+
+  # Read in the performance tables
+  mpTable <- cbind( info.df, MPfactors ) %>%
+              mutate( perfPath = here::here("Outputs",groupFolder,simLabel,"simPerfStats.csv"),
+                      path = here::here("Outputs",groupFolder,simLabel) )
+
+  blobFiles <- file.path(mpTable$path,paste(mpTable$simLabel,".RData",sep = ""))
+
+  blobList <- vector(mode = "list", length = length(blobFiles))
+
+  for( k in 1:length(blobFiles) )
+  {
+    load(blobFiles[k])
+    blobList[[k]] <- blob
+    blob <- NULL
+  }
+
+  names(blobList) <- mpTable$AM
+
+  # Now pull dimensions from the blob
+  nT  <- blobList[[1]]$om$nT
+  nS  <- blobList[[1]]$om$nS
+  nP  <- blobList[[1]]$om$nP
+  pT  <- blobList[[1]]$ctlList$opMod$pT
+  tMP <- blobList[[1]]$om$tMP
+
+  speciesNames <- blobList[[1]]$om$speciesNames
+  stockNames   <- blobList[[1]]$om$stockNames
+
+  specIdx   <- which(speciesNames == species)
+  stockIdx  <- which(stockNames == stock)
+
+  # Years for plotting
+  fYear <- blobList[[1]]$ctlList$opMod$fYear
+  years <- seq( from = fYear, by = 1, length.out = nT)
+
+  # Now we want to make arrays to hold
+  # Rows/cols are: 
+  # 1. SS model fits / HSHG area, 
+  # 2. MS model fits / HSHG area,
+  # 3. Aggregate model fits / Dover SpatPooled, HSHG SpecPooled, TotalAgg
+
+  # 1. OM Biomass
+  omB_rct <- array(NA, dim = c(3,3,nT) )
+
+  # 2. Retrospective Bt fits
+  retroB_trct <- array(NA, dim = c(pT,3,3,nT) )
+
+  # Now step through blobList and recover the things we want
+  omB_rct[1,,]  <- blobList$singleStock$om$SB_ispt[iRep,,stockIdx,]
+  omB_rct[2,,]  <- blobList$hierMultiStock$om$SB_ispt[iRep,,stockIdx,]
+  omB_rct[3,1,] <- apply( X = blobList$spatialPooling$om$SB_ispt[iRep,specIdx,,], FUN = sum, MARGIN = 2)
+  omB_rct[3,2,] <- apply( X = blobList$speciesPooling$om$SB_ispt[iRep,,stockIdx,], FUN = sum, MARGIN = 2)
+  omB_rct[3,3,] <- apply( X = blobList$totalAgg$om$SB_ispt[iRep,,,], FUN = sum, MARGIN = 3)
+
+
+  retroB_trct[,1,,]  <- blobList$singleStock$mp$assess$retroSB_itspt[iRep,,,stockIdx,]
+  retroB_trct[,2,,]  <- blobList$hierMultiStock$mp$assess$retroSB_itspt[iRep,,,stockIdx,]
+  retroB_trct[,3,1,] <- blobList$spatialPooling$mp$assess$retroSB_itspt[iRep,,specIdx,1,]
+  retroB_trct[,3,2,] <- blobList$speciesPooling$mp$assess$retroSB_itspt[iRep,,1,stockIdx,]
+  retroB_trct[,3,3,] <- blobList$totalAgg$mp$assess$retroSB_itspt[iRep,,1,1,]
+
+  retroB_trct[retroB_trct <= 0] <- NA
+
+  blobList <- NULL
+  gc()
+
+  
+  rowLabs <- c("Single-stock", "Heriarchical\nmulti-stock","Pooled Data")
+  rowLines <- c(3,5,3)
+
+  stockSpecRowTitles <- paste(stock,speciesNames)
+  aggRowTitles <- c(paste(species,"Sole Pooled"), paste(stock,"Pooled"), "Total Aggregation")
+
+  plotTitles <- rbind( stockSpecRowTitles,stockSpecRowTitles,aggRowTitles)
+
+  par( mfrow = c(3,3), mar = c(.1,2,2,1), oma = c(3,3,3,4) )
+  for( rIdx in 1:3 )
+    for( cIdx in 1:3 )
+    {
+      maxBt <- max( omB_rct[rIdx,cIdx,], retroB_trct[,rIdx,cIdx,], na.rm = T)
+
+      plot( x = range(years), y = c(0,maxBt),
+            type = "n", axes = FALSE )
+      mfg <- par("mfg")
+      if( mfg[1] == mfg[3] )
+        axis( side = 1 )
+
+
+      if( mfg[2] == mfg[4] )
+        rmtext( txt = rowLabs[rIdx], 
+                line = rowLines[rIdx] + 10, 
+                font = 2, 
+                cex = 1.5,
+                outer = TRUE,
+                yadj = .5 )
+
+      mtext( side = 3, text = plotTitles[rIdx,cIdx], font = 2)
+
+      axis( side = 2, las = 1 )
+      grid()
+      box()
+      lines( x = years, y = omB_rct[rIdx,cIdx,],
+              col = "red", lty = 1, lwd = 3 )
+      for( tt in 1:pT )
+      {
+        lines( x = years, y = retroB_trct[tt,rIdx,cIdx,],
+                col = "grey60", lwd = 1 )
+      }
+      abline(v = years[tMP], lty = 2)
+  
+    }
+
+  mtext( side = 1, text = "Year", outer = TRUE, line = 2, font = 2)
+  mtext( side = 2, text = "Spawning Biomass", outer = TRUE, line = 1.5, font = 2)
+} # END plotRetroBio_Scenario()
+
 
 # Envelopes of simulated assessment errors
-plotTulipAssError <- function(  obj = blob,
-                                groupFolder = "diffCV_fixedF_longGrid",
+plotTulipAssError <- function(  obj = NULL,
+                                simNum = 1,
+                                groupFolder = "DLSurveys7_.5tau_Long",
                                 save = FALSE,
                                 proj = TRUE )
 {
-  
-  goodReps <- obj$goodReps
+
+  if( is.null(obj))
+  {
+    .loadSim( simNum, groupFolder )
+    obj <- blob
+  }
+
+  goodReps_isp <- obj$goodReps_isp
 
   # Get biomass arrays
-  SB_ispt        <- obj$om$SB_ispt[goodReps,,,]
-  VB_ispt        <- obj$om$vB_ispft[goodReps,,,2,]
-  totB_ispt      <- obj$om$B_ispt[goodReps,,,]
-  retroSB_itspt  <- obj$mp$assess$retroSB_itspt[goodReps,,,,]
+  SB_ispt        <- obj$om$SB_ispt
+  VB_ispt        <- obj$om$vB_ispft[,,,2,]
+  totB_ispt      <- obj$om$B_ispt
+  retroSB_itspt  <- obj$mp$assess$retroSB_itspt
+
+  # 
 
   ctlList <- obj$ctlList
 
@@ -117,7 +306,8 @@ plotTulipAssError <- function(  obj = blob,
   assErr_qspt <- apply( X = assErr_ispt,
                         FUN = quantile,
                         probs = c(0.025, 0.5, 0.975),
-                        MARGIN = c(2,3,4) )
+                        MARGIN = c(2,3,4),
+                        na.rm = TRUE )
 
   years <- seq(from = fYear, by = 1, length.out = nT )
 
@@ -126,7 +316,9 @@ plotTulipAssError <- function(  obj = blob,
   else
     tIdx <- 1:nT
 
-  traces <- sample( 1:nReps, 3)
+  if( nReps > 3)
+    traces <- sample( 1:nReps, 3)
+  else traces <- c()
 
   # Now plot
   par(  mfcol = c(nPP, nSS ),
@@ -379,7 +571,6 @@ plotBatchConvergenceRate <- function( groupFolder = "DLSurveys5_LateStart",
 {
   # First, read info files from the relevant
   # sims
-  browser()
   simFolderList <- list.dirs( here::here("Outputs",groupFolder),
                               recursive = FALSE, full.names = FALSE)
 
@@ -597,13 +788,14 @@ plotBatchLossDists_CV <- function(  groupFolder = "diffCV_fixedF_longGrid",
                                 folder = groupFolder )
     names(lossList) <- simFolderNames
   }
-  
+
 
   # Calculate total loss for variable/period
   totLossList  <- lapply( X = lossList,
                           FUN = calcTotalLossPeriod,
                           var = var, period = period )
   names(totLossList) <- names(lossList)
+
 
 
   nS  <- lossList[[1]]$nS
@@ -738,7 +930,6 @@ plotBatchLossDists_CV <- function(  groupFolder = "diffCV_fixedF_longGrid",
 
             MPlab <- paste( AMid, FsrceID, eqbmID, sep = "_")
 
-            browser()
 
             points( x = 1:3 + xJitter[jitIdx],
                     y = totLossQuantiles_qmsp[2,simLabels,s,p],
@@ -827,7 +1018,6 @@ plotBatchLossDists_Scenario <- function(  groupFolder = "DLSurveys5_LateStart",
     yLab <- "Total Absolute Loss (kt)"
   }
 
-  browser()
   # Break up MP names into factor levels
   # MP labels are AM_Fsrce_eqbm
   splitMP <- function(  mpLab, 
@@ -853,7 +1043,6 @@ plotBatchLossDists_Scenario <- function(  groupFolder = "DLSurveys5_LateStart",
     infoFiles[[lIdx]] <- as.data.frame(infoFiles[[lIdx]])
   }
 
-  browser()
 
   info.df <- do.call(rbind, infoFiles) %>% 
               mutate_if(is.factor, as.character)
@@ -871,7 +1060,7 @@ plotBatchLossDists_Scenario <- function(  groupFolder = "DLSurveys5_LateStart",
                                 folder = groupFolder )
     names(lossList) <- simFolderNames
   }
-  
+
 
   # Calculate total loss for variable/period
   totLossList  <- lapply( X = lossList,
@@ -930,9 +1119,19 @@ plotBatchLossDists_Scenario <- function(  groupFolder = "DLSurveys5_LateStart",
 
 
   xJitter <- seq(from = -.4, to = .4, length.out = nMP )
+  nReps <- numeric(length = nSims)
 
+  for( k in 1:nSims )
+  {
+    simID <- info.df$simLabel[k]
+    simLoss <- totLossList[[simID]][[lossArrayName]] 
+    nReps[k] <- dim(simLoss)[1]
+  }
 
-  nReps         <- dim(lossList[[1]]$lossRel[[var]])[1]
+  # Need to pull nReps and pGoodReps (just use nReps for now)
+  whichSims <- which(nReps == 100)
+
+  nReps         <- max(nReps)
   speciesNames  <- lossList[[1]]$speciesNames
   stockNames    <- lossList[[1]]$stockNames
 
@@ -946,7 +1145,7 @@ plotBatchLossDists_Scenario <- function(  groupFolder = "DLSurveys5_LateStart",
                                                     species = speciesNames,
                                                     stock = stockNames ) )
 
-  for( k in 1:nSims )
+  for( k in whichSims )
   {
     simID <- info.df$simLabel[k]
     simLoss <- totLossList[[simID]][[lossArrayName]] 
@@ -1394,7 +1593,8 @@ plotLossTulip <- function(  sim = 1,
 {
   # Load loss reports
   objLoss <- .loadLoss(sim = sim, groupFolder)
-  simFolder <- objLoss$simFolder
+  simFolderName <- basename(objLoss$simFolder)
+  simFolder <- here::here("Outputs",groupFolder,simFolderName)
 
   if(lossType == "rel" )
   {
@@ -1416,10 +1616,13 @@ plotLossTulip <- function(  sim = 1,
   nP  <- objLoss$nP
   pT  <- objLoss$pT
 
-
   nReps <- dim(loss_ispt)[1]
-  
-  traces <- sample(1:nReps, size = 3)
+
+  # Compute max number of reps
+  traces <- c()
+  if( nReps >= 3)
+    traces <- sample(1:nReps, size = 3)
+
 
   # Time steps
   fYear   <- objLoss$fYear
@@ -2330,15 +2533,28 @@ plotUtilityFunction <- function( )
 
 
 # plotConvStats()
-plotConvStats <- function( obj = blob )
+plotConvStats <- function( obj = blob, clearBadReps = FALSE )
 {
-  goodReps      <- obj$goodReps
+  nSims         <- obj$nSims
+  goodReps_isp  <- obj$goodReps_isp[1:nSims,,]
 
   # Pull max gradient value and hessian indicator
-  maxGrad_itsp  <- obj$mp$assess$maxGrad_itsp[goodReps,,,,drop = FALSE]
-  pdHess_itsp   <- obj$mp$assess$pdHess_itsp[goodReps,,,,drop = FALSE]
+  maxGrad_itsp  <- obj$mp$assess$maxGrad_itsp[1:nSims,,,,drop = FALSE]
+  pdHess_itsp   <- obj$mp$assess$pdHess_itsp[1:nSims,,,,drop = FALSE]
 
   nReps <- dim(maxGrad_itsp)[1]
+
+  if( clearBadReps )
+  {
+    for( s in 1:nS )
+      for( p in 1:nP )
+      {
+        badIdx <- which(!goodReps_isp[,s,p])
+        maxGrad_itsp[badIdx,,s,p] <- NA
+        pdHess_itsp[badIdx,,s,p] <- NA
+      }
+  }
+
 
   # Now we want to get the mean and SD
   # of these values over the replicates
@@ -2435,7 +2651,7 @@ plotConvStats <- function( obj = blob )
 
 }
 
-plotTulipF <- function( obj = blob, nTrace = 3 )
+plotTulipF <- function( obj = blob, nTrace = 3, clearBadReps = FALSE )
 {
   # Model dimensions
   tMP     <- obj$om$tMP
@@ -2445,13 +2661,24 @@ plotTulipF <- function( obj = blob, nTrace = 3 )
   nF      <- obj$om$nF
 
   # Good replicates
-  goodReps <- obj$goodReps
+  nSims         <- obj$nSims
+  goodReps_isp  <- obj$goodReps_isp[1:nSims,,]
 
   # Pull reference points
   Fmsy_sp <- obj$rp[[1]]$FmsyRefPts$Fmsy_sp
     
   # Fishing mortality series
-  F_ispft <- obj$om$F_ispft[goodReps,,,,]
+  F_ispft <- obj$om$F_ispft[1:nSims,,,,]
+
+  if(clearBadReps)
+  {
+    for( s in 1:nS )
+      for(p in 1:nP )
+      {
+        badIdx <- which(!goodReps_isp[,s,p])
+        F_ispft[badIdx,s,p,,] <- NA
+      }
+  }
 
   # Fishing mortality envelopes
   F_qspft <- apply(  X = F_ispft, FUN = quantile,
@@ -2520,7 +2747,9 @@ plotTulipF <- function( obj = blob, nTrace = 3 )
 }
 
 # TAC utilisation envelopes
-plotTulipTACu <- function( obj = blob, nTrace = 3 )
+plotTulipTACu <- function(  obj = blob, 
+                            nTrace = 3,
+                            clearBadReps = FALSE )
 {
 
   tMP     <- obj$om$tMP
@@ -2528,16 +2757,30 @@ plotTulipTACu <- function( obj = blob, nTrace = 3 )
   nP      <- obj$om$nP 
   nT      <- obj$om$nT
 
-  goodReps <- obj$goodReps
+  nSims         <- obj$nSims
+  goodReps_isp  <- obj$goodReps_isp[1:nSims,,]
   
 
   # Get catch for trawl fleet, in projections only
-  C_ispft     <- obj$om$C_ispft[goodReps,,,2,tMP:nT,drop = FALSE]
-  TAC_ispft   <- obj$mp$hcr$TAC_ispft[goodReps,,,2,tMP:nT,drop = FALSE]
+  C_ispft     <- obj$om$C_ispft[1:nSims,,,2,tMP:nT,drop = FALSE]
+  TAC_ispft   <- obj$mp$hcr$TAC_ispft[1:nSims,,,2,tMP:nT,drop = FALSE]
 
   nReps   <- dim(TAC_ispft)[1]
 
   TACu_ispft <- C_ispft / TAC_ispft
+
+  if( clearBadReps )
+  {
+    for( s in 1:nS )
+      for(p in 1:nP )
+      {
+        badIdx <- which(!goodReps_isp[,s,p])
+        TACu_ispft[badIdx,s,p,,] <- NA
+        C_ispft[badIdx,s,p,,] <- NA
+        TAC_ispft[badIdx,s,p,,] <- NA
+      }
+  }
+
 
 
   TACu_qspt <- apply( X = TACu_ispft, FUN = quantile,
@@ -2553,6 +2796,8 @@ plotTulipTACu <- function( obj = blob, nTrace = 3 )
 
   yrs <- seq( from = fYear, by = 1, length.out = nT)
   yrs <- yrs[tMP:nT]
+
+  
 
 
   traces <- sample( 1:nReps, size = min(nTrace,nReps)  )
@@ -2609,12 +2854,16 @@ plotTulipBt <- function(  obj = blob, nTrace = 3,
                           dep = FALSE,
                           ref = "B0",
                           Ct  = FALSE,
-                          leg = TRUE )
+                          leg = TRUE,
+                          clearBadReps = FALSE )
 {
-  goodReps <- obj$goodReps
+  nSims        <- obj$nSims
+  goodReps_isp <- obj$goodReps_isp[1:nSims,,]
+  
+  SB_ispt   <- obj$om$SB_ispt[1:nSims,,,,drop = FALSE]
+  C_ispt    <- obj$om$C_ispt[1:nSims,,,,drop = FALSE]
 
-  SB_ispt   <- obj$om$SB_ispt[goodReps,,,,drop = FALSE]
-  C_ispt    <- obj$om$C_ispt[goodReps,,,,drop = FALSE]
+
 
   tMP     <- obj$om$tMP
   nS      <- obj$om$nS
@@ -2665,6 +2914,17 @@ plotTulipBt <- function(  obj = blob, nTrace = 3,
       BmsyMS_sp <- BmsyMS_sp / Bmsy_sp
       
     }
+  }
+
+  if( clearBadReps )
+  {
+    for( s in 1:nS )
+      for(p in 1:nP )
+      {
+        badIdx <- which(!goodReps_isp[,s,p])
+        SB_ispt[badIdx,s,p,] <- NA
+        C_ispt[badIdx,s,p,] <- NA
+      }
   }
 
   if( !dep )
@@ -2771,13 +3031,23 @@ plotTulipBt <- function(  obj = blob, nTrace = 3,
 # plotTulipEffort_p()
 # Effort over time gridded
 # by stock area - envelopes
-plotTulipEffort_p <- function( obj = blob, nTrace = 3 )
+plotTulipEffort_p <- function( obj = blob, nTrace = 3, clearBadReps = FALSE )
 {
-  goodReps <- obj$goodReps
+  nSims         <- obj$nSims
+  goodReps_isp  <- obj$goodReps_isp[1:nSims,,]
 
-  E_ipft <- obj$om$E_ipft[goodReps,,,,drop = FALSE ]
+  E_ipft <- obj$om$E_ipft[1:nSims,,,,drop = FALSE ]
 
   E_ipft[E_ipft == 0] <- NA
+
+  if( clearBadReps )
+  {
+    for(p in 1:nP )
+    {
+      badIdx <- which(!goodReps_isp[,s,p])
+      E_ipft[badIdx,p,,] <- NA
+    }
+  }
 
   tMP     <- obj$om$tMP
   nS      <- obj$om$nS
@@ -2803,6 +3073,8 @@ plotTulipEffort_p <- function( obj = blob, nTrace = 3 )
   yrs <- seq( from = fYear, by = 1, length.out = nT)
 
   fleetCols <- RColorBrewer::brewer.pal( nF, "Dark2" )
+
+
 
   par(  mfcol = c(nP,1), 
         mar = c(1,1.5,1,1.5),
@@ -3048,8 +3320,11 @@ plotBtCt_sp <- function(  obj = blob,
 
 # plotRetroSB()
 # Retrospective plots of AM fits for a given replicate
-plotRetroSB <- function( obj = blob, iRep = 1 )
+plotRetroSB <- function(  obj = blob, iRep = 1, 
+                          totB = FALSE,
+                          TAC = FALSE )
 {
+  browser()
   # Get biomass arrays
   SB_spt        <- obj$om$SB_ispt[iRep,,,]
   VB_spt        <- obj$om$vB_ispft[iRep,,,2,]
@@ -3102,7 +3377,8 @@ plotRetroSB <- function( obj = blob, iRep = 1 )
       grid()
       lines( x = yrs, y = SB_spt[s,p,], col = "red", lwd = 3 )
       lines( x = yrs, y = VB_spt[s,p,], col = "grey40", lwd = 2, lty = 3 )
-      lines( x = yrs, y = totB_spt[s,p,], col = "black", lwd = 2 )
+      if( totB )
+        lines( x = yrs, y = totB_spt[s,p,], col = "black", lwd = 2 )
       for( tt in 1:pT )
       {
         propTAC <- propTAC_spt[s,p,tMP + tt - 1]
@@ -3119,7 +3395,10 @@ plotRetroSB <- function( obj = blob, iRep = 1 )
 # plotRetroSBagg()
 # Retrospective plots of AM fits for a given replicate
 # with biomasses aggregated to match the scale of the AM
-plotRetroSBagg <- function( obj = blob, iRep = 1, Ct = TRUE )
+plotRetroSBagg <- function( obj = blob, iRep = 1, 
+                            Ct = TRUE,
+                            totB = FALSE,
+                            TAC = TRUE )
 {
   # Get biomass arrays
   SB_spt        <- obj$om$SB_ispt[iRep,,,]
@@ -3248,7 +3527,8 @@ plotRetroSBagg <- function( obj = blob, iRep = 1, Ct = TRUE )
       grid()
       lines( x = yrs, y = SB_spt[s,p,], col = "red", lwd = 3 )
       lines( x = yrs, y = VB_spt[s,p,], col = "grey40", lwd = 2, lty = 3 )
-      lines( x = yrs, y = totB_spt[s,p,], col = "black", lwd = 2 )
+      if( totB )
+        lines( x = yrs, y = totB_spt[s,p,], col = "black", lwd = 2 )
       for( tt in 1:pT )
       {
         lines( x = yrs, y = retroSB_tspt[tt,s,p,], col = "grey60", lwd = 1 )
@@ -3260,9 +3540,10 @@ plotRetroSBagg <- function( obj = blob, iRep = 1, Ct = TRUE )
               ytop = C_spt[s,p,], ybottom = 0, col = "grey40",
               border = NA )
         # Plot a rectangle of TACs
-        rect( xleft = yrs[tMP:nT] - .3, xright = yrs[tMP:nT] + .3, 
-              ytop = TAC_spt[s,p,tMP:nT], ybottom = 0, col = NA,
-              border = "black" )
+        if( TAC )
+          rect( xleft = yrs[tMP:nT] - .3, xright = yrs[tMP:nT] + .3, 
+                ytop = TAC_spt[s,p,tMP:nT], ybottom = 0, col = NA,
+                border = "black" )
 
       }
   

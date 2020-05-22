@@ -20,23 +20,6 @@ for( simIdx in 1:nrow(info.df))
 
 ```
 
-When replicates included time steps where assessment models 
-would not converge (largely due to data quality issues)
-we increased the number of replicates until we reached
-100 replicates where simulated assessment models 
-converged for all time steps.
-
-From methods: does this still apply???
-We used the skewed yield curve
-for all model formulations, including data aggregated
-methods, where we re-derived the ratio between unfished
-and optimal biomass in each case. The exploitable
-and spawning biomass ratio estimates were used in all cases
-except the data-pooling, spatially disaggregated 
-assessment (3 in above list), under which the 
-estimates introduced a persistent bias in the fits
-to stock indices.
-
 
 ## Omniscient Manager Performance
 
@@ -50,40 +33,41 @@ omniPerfTab <- read.csv(omniInfo$perfTabPath)
 
 ```
 
-
-
-We found that the median biomass of each species 
-under the omniscient manager was close to the equilibrium 
-biomass associated with the multispecies maximum 
-sustainable yield in each area [Figure 3, blue dashed line]. 
-Median biomass, catch, and fishing mortality reach the equilbrium
-soon after a transition period of about 20 years. During
+As expected, the omniscient manager was able to
+achieve the theoretical multi-species optimal yield
+in the presence of technical interactions (Figure 3,
+blue dashed line). Median biomass, catch, and 
+fishing mortality reach the equilbrium after a 
+transition period of about 20 years. During
 the transitionary period, effort is slowly ramped up from
 the level at the end of the historical period to a 
 stationary distribution around each stock area's $E_{MSY}$
-[Figure 4 - ADD]. In each area, as predicted by the 
+(Figure 4 - add Emsy). As predicted by the 
 equilibrium calculations, the optimal effort for the 
-complex results in a slight overfishing of the Dover sole 
-stocks. 
+complex results in a slight overfishing of all Dover sole 
+stocks.
 
-Despite the tendency of the manager to increase fishing
-mortality rates to above the single species $F_{MSY}$
+Despite the tendency of the omniscient manager to increase fishing
+mortality rates above the single species $F_{MSY}$
 for all Dover sole stocks, very few simulations actually push 
-Dover sole into an overfished state. For all stocks of all 
-species, the probability of being below 40% of single species
-$B_{MSY}$ is at most 6% , while probability of being
-above 80% of $B_{MSY}$ is at least 53% (Table 2). 
+Dover sole into an overfished state because this would
+lead to lost yield over the simulation time period. 
+For all stocks of all species, the probability of being 
+below 40% of single species $B_{MSY}$ is at most 6%, 
+while probability of being above 80% of $B_{MSY}$ is at 
+least 53% (Table 2). 
 
-Although the flatfish stocks we modeled are in an overall
-healthy state and behave like developing fisheries, 
-there are some cases where the omniscient manager reduced
-fishing effort to historic low levels early in the projection 
-period (Figure 4). These historic low efforts led to some years
-where catch was below the minimum observed level (Table 2 - ADD). 
-Low fishing effort was required in some replicates and years 
-to protect the spawning stock and ensure production in 
-later time steps where recruitment process error deviations 
-were sustained at low levels. We attempted bounding effort 
+Although DER stocks begin the simulations in an overall
+healthy state, there are some cases where the omniscient manager 
+reduced fishing effort to historic low levels early in the 
+projection period (Figure 4). These historic low efforts 
+led to some years where catch was below the minimum observed 
+level (Table 2 - ADD). In these cases, anticipatory feedback
+control by the omniscient manager reduced fishing effort
+to avoid low spawning stock biomasses, thus and ensuring 
+higher production in later time steps where 
+recruitment process error deviations were 
+sustained at low levels. We attempted bounding effort 
 below by the minimum observed historical effort to avoid 
 simulations where effort was economically unviable, but this
 increased the probability of catch being below the historical
@@ -91,23 +75,29 @@ minimum for each stock than the simulations we are presenting
 with a lower bound of 0 effort.
 
 
-## Management Procedure performance
+## Assessment model performance
 
-Mangement Procedure performance is outlined below. We first
-discuss the yield loss distributions for the 30 simulations,
-then the spawning biomass loss distributions. Given the highly
-factorial nature of the experiments, we explain the main results
-using a few key examples in the main body of the text, but refer
+Given the highly factorial nature of the simulation
+experiments, we explain the main results using a few 
+key examples in the main body of the text, and refer
 readers to the online supplement for the full set of plots 
 comparing stochastic simulations to the omniscient manager
 scenarios.
 
-
 When replicates included time steps where assessment models would 
 not converge (largely due to data quality issues)
-we increased the number of replicates until we reached
+po we increased the number of replicates until we reached
 100 replicates where simulated assessment models 
-converged for all time steps.
+converged for all time steps. We excluded results from
+any OM/AM combinations where fewer than 
+75\% of the replicates had full convergence across 
+all projection time steps and stocks.
+
+### AM estimates of biomass
+
+
+
+
 
 ### Yield loss
 

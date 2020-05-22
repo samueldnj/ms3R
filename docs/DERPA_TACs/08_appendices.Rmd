@@ -77,3 +77,68 @@ cat("Insert AM table of equations here\n")
 # )
 
 ```
+
+# Appendix C: Omniscient Manager Optimisation
+
+We defined penalty functions so that inside
+the desired region the penalty was zero, but outside
+the desired region the penalty grew as a cubic function. 
+So, for example, a penalty designed to keep a measurement 
+$x$ above a the desired region boundary $\epsilon$ is of 
+the form
+\begin{equation}
+\mathcal{P}(x , \epsilon) = \left\{
+  \begin{array}{ll}
+    0 & x \geq \epsilon, \\
+    |x - \epsilon|^2 & x < epsilon. \\
+  \end{array} \right. 
+\end{equation}
+This form has a several advantages over
+simple linear penalties, or a logarithmic barrier
+penalty [@srinivasan2008tracking]. First, the cubic 
+function makes the boundary threshold $\epsilon$ a soft 
+boundary, which is able to be crossed if doing favours 
+another portion of the objective function, and because
+cubics stick closer to the $x$-axis when $|x-\epsilon| < 1$
+this boundary is softer than lower degree polynomials. Second, 
+making the penalty zero in the desirable region stops
+the objective function from favouring regions far
+from the boundaries of penalty functions, as a logarithmic
+function would, for example, favouring overly conservative
+effort series to keep biomass far from the lower depletion
+boundary. Third, the cubic form of the penalty outside
+the desired region means that the penalty function and its
+first two derivatives are continuous with $x$ (**CHECK**),
+allowing quasi-newton optimisation methods to be applied. Last,
+the cubic polynomial actually favours small excursions
+outside of the desired region when it is a net increase
+in the objective function, as cubics stick closer to the
+$x$-axis than lower degree polynomials.
+
+Each penalty function is applied with a weighting, which
+we used as tuning parameters. Tuning was required to balance
+the relative contribution of each penalty, depending
+on whether it was applied to a time series or point value,
+and also to achieve realistic time series of effort or catch.
+For example, commercial harvesters are unable to double or triple
+effort in a short period of time, as this would require significant
+capital investment or a large increase in human resources. 
+Similarly, in practice harvesters are reluctant to allow catch 
+to increase by more than 10% - 20% per year (**REACH OUT TO
+TRAWL FOR INPUT/POSSIBLE CITATION HERE**). Similarly,
+there are job-security implications for large sudden drops in
+fishing effort. **Tuning criteria?**
+
+We used a cubic spline of effort in each area to reduce
+the number of free parameters in the optimisation. For each
+area, 9 knot points were distributed across the full 40 year
+projection, making them spaced by 5 years. We padded
+the omniscient manager simulations by an extra eight
+years over the stochastic simulations to avoid any
+possible end effects of the spline entering the 
+performance metric calculations. Effort splines
+were constrained to be between 0 and 120 times the
+operating model $E_{MSY,p}$, by replacing any value 
+outside that range with the closest
+value inside the range (i.e. negative values by *zero*,
+large values by $120 E_{MSY_p}$).

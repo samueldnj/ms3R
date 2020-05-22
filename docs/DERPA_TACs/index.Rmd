@@ -58,8 +58,8 @@ fontsize: 12pt
 lineno: true
 csl-refs: true
 params:
-  groupFolder: "diffCV_fixedF_longGrid"
-  baseline: "sim_parBatomniRuns_Long3"
+  groupFolder: "DLSurveys7_.5tau_Long"
+  baseline: "sim_OmniRun_Long"
   history: "fit_28032020144113"
 numbersections: false
 appendix: false

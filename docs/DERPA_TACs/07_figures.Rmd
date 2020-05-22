@@ -2,7 +2,8 @@
 # Figures
 
 ```{r loadStuff, echo = FALSE, include = FALSE, warning = FALSE}
-.loadSim("sim_parBatfixedF_long2", folder= params$groupFolder)
+.loadSim("sim_parBatMPgrid_DLSurveys7_.5Tau_Long2", folder= params$groupFolder)
+
 
 ```
 
@@ -15,6 +16,21 @@
 
 
 ```{r figCaptions, echo = FALSE, include = FALSE, warning = FALSE }
+
+DERcplxMapCap <- "Mininum trawlable survey biomass $B_{trawl}$ estimates for DER 
+complex species on the BC coast, aggregated to a 10km square grid.
+Estimates are produced by scaling average trawl survey ($kg/m^2$) 
+density values in each grid cell by the cell's area in $m^2$. 
+Locations that do not show a coloured grid cell do not have any 
+survey blocks from which to calculate relative biomass. Survey density 
+for each grid cell is calculated from data for the Hecate Strait 
+Assemblage Survey and the BC Groundfish Trawl Synoptic Survey, stored 
+in the GFBio data base maintained at the Pacific Biological Station 
+of Fisheries and Oceans, Canada. Thick black lines delineate the major 
+statistical areas 3CD and 5ABCDE used for groundfish management BC, while
+the dashed grey lines makr out latitude and longitude, indicating the
+rotation of the coordinates to save space. The full colour figure 
+is available in the online version of the article."
 
 histStatusCap <- "Historical spawning biomass (red line) and catch (grey bars)
 for all 9 management units in the DER complex operating model. Species labels are at the top of each
@@ -119,12 +135,17 @@ of simulation's distribution."
 
 ```
 
-\blandscape{}
-
-```{r histStatus, echo = FALSE, warning = FALSE, fig.cap = histStatusCap }
-figPath <- file.path(histPath,"plots/plotSBspt.png")
+```{r stockMap, echo = FALSE, warning = FALSE, fig.cap = DERcplxMapCap }
+figPath <- file.path("./data/DERcomplexSurveyBio.pdf")
 knitr::include_graphics(figPath)
 ```
+
+\blandscape{}
+
+<!-- ```{r histStatus, echo = FALSE, warning = FALSE, fig.cap = histStatusCap }
+figPath <- file.path(histPath,"plots/plotSBspt.png")
+knitr::include_graphics(figPath)
+``` -->
 
 \clearpage
 
@@ -155,32 +176,31 @@ knitr::include_graphics(figPath)
 
 
 
-<!-- ```{r batchLoss-relCatch, echo = FALSE, warning = FALSE, fig.cap = lossCatRelCap, fig.width = 9, out.width = "9in" }
-plotBatchLossDists_CV(  groupFolder = "diffCV_fixedF_longGrid",
-                        prefix = "sim_parBatfixedF",
-                        lossType = "rel",
-                        var = "C_ispt",
-                        period = 73:82,
-                        lossList = NULL,
-                        dim1 = 1:4,   # species (D,E,R, DP)
-                        dim2 = 1:4,   # stocks (H,Q,W, CW)
-                        qProbs = c(.25,.5,.75) )
+```{r batchLoss-relCatch, echo = FALSE, warning = FALSE, fig.cap = lossCatRelCap, fig.width = 9, out.width = "9in" }
+plotBatchLossDists_Scenario(  groupFolder = "DLSurveys7_.5tau_Long",
+                              prefix = "MPgrid_DLSurveys7",
+                              lossType = "rel",
+                              var = "C_ispt",
+                              period = 73:82,
+                              lossList = NULL,
+                              dim1 = 1:4,   # species (D,E,R, DP)
+                              dim2 = 1:4,   # stocks (H,Q,W, CW)
+                              qProbs = c(.25,.5,.75) )
 
 ```
 
-
-\clearpage -->
+\clearpage
 
 ```{r batchLoss-absCatch, echo = FALSE, warning = FALSE, fig.cap = lossCatAbsCap, fig.width = 9, out.width = "9in" }
-plotBatchLossDists_CV(  groupFolder = "diffCV_fixedF_longGrid",
-                        prefix = "sim_parBatfixedF",
-                        lossType = "abs",
-                        var = "C_ispt",
-                        period = 73:82,
-                        lossList = NULL,
-                        dim1 = 1:4,   # species (D,E,R, DP)
-                        dim2 = 1:4,   # stocks (H,Q,W, CW)
-                        qProbs = c(.25,.5,.75) )
+plotBatchLossDists_Scenario(  groupFolder = "DLSurveys7_.5tau_Long",
+                              prefix = "MPgrid_DLSurveys7",
+                              lossType = "abs",
+                              var = "C_ispt",
+                              period = 73:82,
+                              lossList = NULL,
+                              dim1 = 1:4,   # species (D,E,R, DP)
+                              dim2 = 1:4,   # stocks (H,Q,W, CW)
+                              qProbs = c(.25,.5,.75) )
 
 ```
 
@@ -222,15 +242,15 @@ plotBatchLossDists_CV(  groupFolder = "diffCV_fixedF_longGrid",
 \clearpage
 
 ```{r batchLoss-absSB, echo = FALSE, warning = FALSE, fig.cap = lossBioAbsCap, fig.width = 9, out.width = "9in" }
-plotBatchLossDists_CV(  groupFolder = "diffCV_fixedF_longGrid",
-                        prefix = "sim_parBatfixedF",
-                        lossType = "abs",
-                        var = "SB_ispt",
-                        period = 73:82,
-                        lossList = NULL,
-                        dim1 = 1:4,   # species (D,E,R, DP)
-                        dim2 = 1:4,   # stocks (H,Q,W, CW)
-                        qProbs = c(.25,.5,.75) )
+plotBatchLossDists_Scenario(  groupFolder = "DLSurveys7_.5tau_Long",
+                              prefix = "MPgrid_DLSurveys7",
+                              lossType = "abs",
+                              var = "SB_ispt",
+                              period = 73:82,
+                              lossList = NULL,
+                              dim1 = 1:4,   # species (D,E,R, DP)
+                              dim2 = 1:4,   # stocks (H,Q,W, CW)
+                              qProbs = c(.25,.5,.75) )
 
 ```
 

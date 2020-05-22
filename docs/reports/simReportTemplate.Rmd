@@ -102,15 +102,17 @@ tMP     <- blob$om$tMP
 species <- blob$om$speciesNames
 stock   <- blob$om$stockNames
 
-goodReps    <- blob$goodReps
-nGoodReps   <- sum(goodReps)
-goodRepIdx  <- which(goodReps)
+goodReps_isp    <- blob$goodReps_isp
+nGoodReps_sp    <- apply(X = goodReps_isp, FUN = sum, MARGIN = c(2,3))
+allSuccessful_i <- apply(X = goodReps_isp, FUN = prod, MARGIN = 1)
+goodTraceIdx    <- which(allSuccessful_i == 1)
+
 
 # Draw a random replicate for plotting
 set.seed(123)
 randReplicate <- 1
-if( nGoodReps > 0 )
-  randReplicate <- sample(goodRepIdx, size = 1)
+if( sum(goodTraceIdx) > 0 )
+  randReplicate <- sample(goodTraceIdx, size = 1)
 
 ```
 
@@ -124,7 +126,7 @@ Species complex: `r blob$ctlList$data$species`
 
 Stock areas: `r blob$ctlList$data$stocks`
 
-Number of good replicates: `r nGoodReps`
+Min number of good replicates: `r min(nGoodReps_sp)`
 
 
 
@@ -179,21 +181,21 @@ for each fleet (colours)."
 ## Spawning Biomass
 
 ```{r, plotTulipBtCt, echo = FALSE, message = FALSE, fig.cap = SBsptCaption }
-if( nGoodReps >= 1)
+if( any(nGoodReps_sp >= 1) )
   plotTulipBt( obj = blob, dep = TRUE, Ct = TRUE )
 ```
 
 ## TAC utilisation
 
 ```{r, plotTulipTACu, echo = FALSE, message = FALSE, fig.cap = TACuCaption }
-if( nGoodReps >= 1)
+if( any(nGoodReps_sp >= 1) )
   plotTulipTACu( obj = blob, nTrace = 3 )
 ```
 
 ## Fishing mortality
 
 ```{r, plotTulipF, echo = FALSE, message = FALSE, fig.cap = EffTulipCaption }
-if( nGoodReps >= 1)
+if( any(nGoodReps_sp >= 1) )
   plotTulipF( obj = blob )
 ```
 
@@ -201,7 +203,7 @@ if( nGoodReps >= 1)
 ## Effort allocation
 
 ```{r, plotTulipEffort, echo = FALSE, message = FALSE, fig.cap = FTulipCaption }
-if( nGoodReps >= 1)
+if( any(nGoodReps_sp >= 1) )
   plotTulipEffort_p( obj = blob )
 ```
 
@@ -262,7 +264,7 @@ if(   !(blob$ctlList$ctl$omni | blob$ctlList$ctl$perfConF)  &
 
   cat(paste("## ", "Convergence diagnostics\n",sep = ""))
 
-  if( nGoodReps > 0)
+  if( any(nGoodReps_sp > 0) )
     plotConvStats( obj = blob )
   else
     cat("**NO CONVERGENT REPLICATES**\n")
