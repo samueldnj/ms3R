@@ -1944,13 +1944,15 @@ solvePTm <- function( Bmsy, B0 )
                 " replicates with all convergent AMs, ending simulation.\n", sep = "")
       break
     } else {
-      finishedGood <- max(doneGoodReps_sp)
+      finishedGood <- min(doneGoodReps_sp)
       message( " (.mgmtProc) Completed ", finishedGood, " of ", ctlList$ctl$nGoodReps, 
                 " replicates with all convergent AMs.")
     }
     # Clear memory of extraneous garbage
     gc()
+    message( " (.mgmtProc) Maximum replicate count reached, ending simulations.\n")
   } # END i loop
+  gc()
 
   blob$nSims <- i
 
@@ -2821,10 +2823,11 @@ combBarrierPen <- function( x, eps,
 
       while( checkCatDiff )
       {
-        # Solve for the effort using the TAC and 
+        # Solve for the effort using the TAC and catchability
+        browser()
         solveE_s <- -1/qF_spf[,p,f] * log( 1 - catRem_s / (vB_spf[,p,f] - C_spf[,p,f]))
 
-        propE <- propE + 0.8*min(solveE_s[solveE_s > 0],na.rm = T)
+        propE <- propE + 0.8*min(solveE_s[solveE_s >= 0],na.rm = T)
 
         propF_s <- propE * qF_spf[,p,f]
 

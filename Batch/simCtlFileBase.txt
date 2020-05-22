@@ -57,7 +57,7 @@ mp$assess$spIGtau2Mode 0.09
 mp$assess$spFixUmsy FALSE
 mp$assess$spOMqDevs FALSE
 mp$assess$spSkewYieldCurves TRUE
-mp$assess$spEstExpBio TRUE
+mp$assess$spEstExpBio FALSE
 mp$data$idxOn c(4)
 mp$data$obsInt_i c(2)
 mp$data$spatialPooling FALSE
