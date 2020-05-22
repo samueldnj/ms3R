@@ -12,14 +12,21 @@
 # <><><><><><><><><><><><><><><><><><><><><><><><><><><>
 
 
+maxWhich <- function( vector )
+{
+  idx <- max(which(vector))
+
+  idx
+}
+
 # calcLoss()
 # Loads blob and calculates yearly catch and biomass 
 # loss values compared to a nominated baseline sim.
 # By default, calculates biomass and catch loss
 # on relative and absolute scale
-calcLoss <- function( sim         = 11,
+calcLoss <- function( sim         = 2,
                       baseline    = "sim_OmniRun_Long",
-                      groupFolder = "diffCV_fixedF_longGrid",
+                      groupFolder = "DLSurveys7_.5tau",
                       lossVars    = c("C_ispt","SB_ispt"),
                       output      = TRUE )
 {
@@ -32,12 +39,18 @@ calcLoss <- function( sim         = 11,
 
   # figure out which reps we want
   goodReps_isp    <- blob$goodReps_isp
-  totReps         <- dim(lossSim$om$SB_ispt)[1]
+  maxRep_sp       <- apply(X = goodReps_isp, FUN = maxWhich, MARGIN = c(2,3))
+  totReps         <- max(maxRep_sp)
+
+
 
   # Now load the baseline (omniscient manager)
   .loadSim( sim = baseline, folder = groupFolder )
 
   baseSim <- blob
+
+  blob <- NULL
+  gc()
 
   # Model dimensions
   tMP <- lossSim$om$tMP
@@ -91,29 +104,29 @@ calcLoss <- function( sim         = 11,
     # totally aggregated
     baseState_ispt[,nS+1,nP+1,] <- apply(   X = baseSim$om[[var]][simReps,,,1:nT],
                                             FUN = sum,
-                                            MARGIN = c(1,4) )
+                                            MARGIN = c(1,4), na.rm = TRUE )
 
     simState_ispt[,nS+1,nP+1,]  <- apply(   X = lossSim$om[[var]][simReps,,,1:nT],
                                             FUN = sum,
-                                            MARGIN = c(1,4) )
+                                            MARGIN = c(1,4), na.rm = TRUE )
 
     # data-pooled
     baseState_ispt[,nS+1,1:nP,]     <- apply(   X = baseSim$om[[var]][simReps,,,1:nT],
                                             FUN = sum,
-                                            MARGIN = c(1,3,4) )
+                                            MARGIN = c(1,3,4), na.rm = TRUE )
 
     simState_ispt[,nS+1,1:nP,]      <- apply(   X = lossSim$om[[var]][simReps,,,1:nT],
                                             FUN = sum,
-                                            MARGIN = c(1,3,4) )
+                                            MARGIN = c(1,3,4), na.rm = TRUE )
     
     # coastwide
     baseState_ispt[,1:nS,nP+1,]     <- apply(   X = baseSim$om[[var]][simReps,,,1:nT],
                                             FUN = sum,
-                                            MARGIN = c(1,2,4) )
+                                            MARGIN = c(1,2,4), na.rm = TRUE )
 
     simState_ispt[,1:nS,nP+1,]      <- apply(   X = lossSim$om[[var]][simReps,,,1:nT],
                                             FUN = sum,
-                                            MARGIN = c(1,2,4) )
+                                            MARGIN = c(1,2,4), na.rm = TRUE )
 
     baseLineStates[[var]] <- baseState_ispt
     simStates[[var]]      <- simState_ispt
@@ -133,7 +146,7 @@ calcLoss <- function( sim         = 11,
                     baseStates    = baseLineStates,
                     lossRaw       = lossRaw,
                     lossRel       = lossRel,
-                    retroB_itspt  = lossSim$retroB_itspt,
+                    retroSB_itspt = lossSim$mp$assess$retroSB_itspt,
                     tMP           = tMP,
                     nT            = nT, 
                     nF            = nF, 
@@ -153,8 +166,8 @@ calcLoss <- function( sim         = 11,
 
 
 
-makeLossTable <- function(  sim = 1, 
-                            groupFolder = "shortGrid",
+makeLossTable <- function(  sim = 2, 
+                            groupFolder = "DLSurveys7_.5tau",
                             save = TRUE )
 {
   # Load loss reports

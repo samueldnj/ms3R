@@ -39,7 +39,7 @@ rmtext <- function( line = 1,
 # A sample plot of assessment performance
 # for each AM type within a scenario.
 # Requires 5 completed simulation objects.
-plotRetroBio_Scenario <- function(  groupFolder = "DLSurveys7_.5tau_Long",
+plotRetroBio_Scenario <- function(  groupFolder = "DLSurveys_.3tau",
                                     iRep = 1,
                                     scenName = "DERfit_HcMcAsSsIdx",
                                     prefix = "DLSurveys",
@@ -81,33 +81,27 @@ plotRetroBio_Scenario <- function(  groupFolder = "DLSurveys7_.5tau_Long",
                       path = here::here("Outputs",groupFolder,simLabel) )
 
   blobFiles <- file.path(mpTable$path,paste(mpTable$simLabel,".RData",sep = ""))
+  lossFiles <- file.path(mpTable$path,"loss.RData")
 
-  blobList <- vector(mode = "list", length = length(blobFiles))
+  lossList <- lapply(X = mpTable$simLabel, FUN = .loadLoss, folder=  groupFolder)
 
-  for( k in 1:length(blobFiles) )
-  {
-    load(blobFiles[k])
-    blobList[[k]] <- blob
-    blob <- NULL
-  }
-
-  names(blobList) <- mpTable$AM
+  names(lossList) <- mpTable$AM
 
   # Now pull dimensions from the blob
-  nT  <- blobList[[1]]$om$nT
-  nS  <- blobList[[1]]$om$nS
-  nP  <- blobList[[1]]$om$nP
-  pT  <- blobList[[1]]$ctlList$opMod$pT
-  tMP <- blobList[[1]]$om$tMP
+  nT  <- lossList[[1]]$nT
+  nS  <- lossList[[1]]$nS
+  nP  <- lossList[[1]]$nP
+  pT  <- dim(lossList[[1]]$retroSB_itspt)[2]
+  tMP <- lossList[[1]]$tMP
 
-  speciesNames <- blobList[[1]]$om$speciesNames
-  stockNames   <- blobList[[1]]$om$stockNames
+  speciesNames <- lossList[[1]]$speciesNames[1:3]
+  stockNames   <- lossList[[1]]$stockNames[1:3]
 
   specIdx   <- which(speciesNames == species)
   stockIdx  <- which(stockNames == stock)
 
   # Years for plotting
-  fYear <- blobList[[1]]$ctlList$opMod$fYear
+  fYear <- lossList[[1]]$fYear
   years <- seq( from = fYear, by = 1, length.out = nT)
 
   # Now we want to make arrays to hold
@@ -123,18 +117,17 @@ plotRetroBio_Scenario <- function(  groupFolder = "DLSurveys7_.5tau_Long",
   retroB_trct <- array(NA, dim = c(pT,3,3,nT) )
 
   # Now step through blobList and recover the things we want
-  omB_rct[1,,]  <- blobList$singleStock$om$SB_ispt[iRep,,stockIdx,]
-  omB_rct[2,,]  <- blobList$hierMultiStock$om$SB_ispt[iRep,,stockIdx,]
-  omB_rct[3,1,] <- apply( X = blobList$spatialPooling$om$SB_ispt[iRep,specIdx,,], FUN = sum, MARGIN = 2)
-  omB_rct[3,2,] <- apply( X = blobList$speciesPooling$om$SB_ispt[iRep,,stockIdx,], FUN = sum, MARGIN = 2)
-  omB_rct[3,3,] <- apply( X = blobList$totalAgg$om$SB_ispt[iRep,,,], FUN = sum, MARGIN = 3)
+  omB_rct[1,,]  <- lossList$singleStock$simStates$SB_ispt[iRep,1:nS,stockIdx,]
+  omB_rct[2,,]  <- lossList$hierMultiStock$simStates$SB_ispt[iRep,1:nS,stockIdx,]
+  omB_rct[3,1,] <- apply( X = lossList$spatialPooling$simStates$SB_ispt[iRep,specIdx,1:nP,], FUN = sum, MARGIN = 2)
+  omB_rct[3,2,] <- apply( X = lossList$speciesPooling$simStates$SB_ispt[iRep,1:nS,stockIdx,], FUN = sum, MARGIN = 2)
+  omB_rct[3,3,] <- apply( X = lossList$totalAgg$simStates$SB_ispt[iRep,1:nS,1:nP,], FUN = sum, MARGIN = 3)
 
-
-  retroB_trct[,1,,]  <- blobList$singleStock$mp$assess$retroSB_itspt[iRep,,,stockIdx,]
-  retroB_trct[,2,,]  <- blobList$hierMultiStock$mp$assess$retroSB_itspt[iRep,,,stockIdx,]
-  retroB_trct[,3,1,] <- blobList$spatialPooling$mp$assess$retroSB_itspt[iRep,,specIdx,1,]
-  retroB_trct[,3,2,] <- blobList$speciesPooling$mp$assess$retroSB_itspt[iRep,,1,stockIdx,]
-  retroB_trct[,3,3,] <- blobList$totalAgg$mp$assess$retroSB_itspt[iRep,,1,1,]
+  retroB_trct[,1,,]  <- lossList$singleStock$retroSB_itspt[iRep,,,stockIdx,]
+  retroB_trct[,2,,]  <- lossList$hierMultiStock$retroSB_itspt[iRep,,,stockIdx,]
+  retroB_trct[,3,1,] <- lossList$spatialPooling$retroSB_itspt[iRep,,specIdx,1,]
+  retroB_trct[,3,2,] <- lossList$speciesPooling$retroSB_itspt[iRep,,1,stockIdx,]
+  retroB_trct[,3,3,] <- lossList$totalAgg$retroSB_itspt[iRep,,1,1,]
 
   retroB_trct[retroB_trct <= 0] <- NA
 
@@ -147,6 +140,7 @@ plotRetroBio_Scenario <- function(  groupFolder = "DLSurveys7_.5tau_Long",
 
   stockSpecRowTitles <- paste(stock,speciesNames)
   aggRowTitles <- c(paste(species,"Sole Pooled"), paste(stock,"Pooled"), "Total Aggregation")
+
 
   plotTitles <- rbind( stockSpecRowTitles,stockSpecRowTitles,aggRowTitles)
 
@@ -193,11 +187,12 @@ plotRetroBio_Scenario <- function(  groupFolder = "DLSurveys7_.5tau_Long",
 
 
 # Envelopes of simulated assessment errors
-plotTulipAssError <- function(  obj = NULL,
-                                simNum = 1,
+plotTulipAssError <- function(  simNum = 1,
+                                obj = NULL,
                                 groupFolder = "DLSurveys7_.5tau_Long",
                                 save = FALSE,
-                                proj = TRUE )
+                                proj = TRUE,
+                                clearBadReps = FALSE )
 {
 
   if( is.null(obj))
@@ -206,7 +201,8 @@ plotTulipAssError <- function(  obj = NULL,
     obj <- blob
   }
 
-  goodReps_isp <- obj$goodReps_isp
+  goodReps_isp  <- obj$goodReps_isp
+  nReps         <- dim(goodReps_isp)[1]
 
   # Get biomass arrays
   SB_ispt        <- obj$om$SB_ispt
@@ -214,12 +210,11 @@ plotTulipAssError <- function(  obj = NULL,
   totB_ispt      <- obj$om$B_ispt
   retroSB_itspt  <- obj$mp$assess$retroSB_itspt
 
-  # 
 
   ctlList <- obj$ctlList
 
   retroSB_itspt[retroSB_itspt < 0] <- NA
-  nReps     <- sum(goodReps)
+  # nReps     <- sum(goodReps)
 
   # Model dims
   tMP     <- obj$om$tMP
@@ -272,12 +267,21 @@ plotTulipAssError <- function(  obj = NULL,
   pT            <- obj$ctlList$opMod$pT
 
   if( nPP == 1 )
-    stockNames <- "Coastwide"
+    stockNames <- "Spatial Pooled"
 
   if( nSS == 1 )
-    speciesNames <- "Data Pooled"
+    speciesNames <- "Species Pooled"
 
   stamp <- paste(obj$ctlList$ctl$scenarioName,":",obj$ctlList$ctl$mpName,sep = "")
+
+  if( clearBadReps )
+    for( s in 1:nS )
+      for( p in 1:nP )
+      {
+        badIdx <- which(!goodReps_isp[,s,p])
+        retroSB_itspt[badIdx,,s,p,] <- NA
+        SB_ispt[badIdx,s,p,] <- NA
+      }
 
 
   assErr_ispt <- array(NA, dim = c(nReps,nSS,nPP,nT) )
@@ -285,12 +289,12 @@ plotTulipAssError <- function(  obj = NULL,
     for( p in 1:nPP )
     {
       # Use first year's assessment for the historical assessment error...
-      assErr_ispt[,s,p,1:(tMP-1)] <- (retroSB_itspt[,1,s,p,1:(tMP-1)] - SB_ispt[,s,p,1:(tMP-1)])/SB_ispt[,s,p,1:(tMP-1)]
+      assErr_ispt[,s,p,1:(tMP-1)] <- (retroSB_itspt[1:nReps,1,s,p,1:(tMP-1)] - SB_ispt[1:nReps,s,p,1:(tMP-1)])/SB_ispt[1:nReps,s,p,1:(tMP-1)]
       for( tt in 1:pT )
       {
         # Now loop over projection years
         tIdx <- tMP + tt - 1
-        assErr_ispt[,s,p,tIdx] <- (retroSB_itspt[,tt,s,p,tIdx] - SB_ispt[,s,p,tIdx])/SB_ispt[,s,p,tIdx]
+        assErr_ispt[,s,p,tIdx] <- (retroSB_itspt[1:nReps,tt,s,p,tIdx] - SB_ispt[1:nReps,s,p,tIdx])/SB_ispt[1:nReps,s,p,tIdx]
       }
     }
 
@@ -373,13 +377,16 @@ plotTulipBtCtBaseSim <- function( sim = 1,
                                   var         = "SB_ispt",
                                   save        = FALSE,
                                   fYear       = 1956,
-                                  proj        = TRUE )
+                                  proj        = TRUE,
+                                  clearBadReps = FALSE )
 {
   # Load loss reports
   objLoss <- .loadLoss(sim = sim, groupFolder)
 
   # Load blob, save reference points
   .loadSim(sim = sim, groupFolder)
+
+  goodReps_isp <- blob$goodReps_isp
 
   rp <- blob$rp[[1]]
 
@@ -392,7 +399,7 @@ plotTulipBtCtBaseSim <- function( sim = 1,
   FmsyRefPts   <- rp$FmsyRefPts
 
 
-  simFolder <- objLoss$simFolder
+  simFolder <- blob$simLabel
 
   speciesNames    <- objLoss$speciesNames
   stockNames      <- objLoss$stockNames
@@ -431,8 +438,8 @@ plotTulipBtCtBaseSim <- function( sim = 1,
   if( save )
   {
     graphics.off()
-    filename <- paste("baseSimTulipOverlay_",var,".pdf")
-    outFile <- file.path(simFolder,filename)
+    filename <- paste("baseSimTulipOverlay_",var,".pdf",sep = "")
+    outFile <- file.path("./Outputs",groupFolder,simFolder,filename)
 
     pdf( outFile, width = 11, height = 8 )
   }
@@ -465,13 +472,22 @@ plotTulipBtCtBaseSim <- function( sim = 1,
         maxY_sp[s,p] <- max( baseState_ispt[,s,p,tIdx], simState_ispt[,s,p,tIdx], na.rm = T )
   }
 
+  if( clearBadReps )
+    for( s in 1:nS )
+      for( p in 1:nP )
+      {
+        badIdx <- which(!goodReps_isp[,s,p])
+        baseState_ispt[badIdx,s,p,] <- NA
+        simState_ispt[badIdx,s,p,] <- NA
+      }
+
   baseState_qspt <- apply( X = baseState_ispt, FUN = quantile,
                             probs = c(0.025, 0.5, 0.975 ),
-                            MARGIN = c(2,3,4) )
+                            MARGIN = c(2,3,4), na.rm = T )
 
   simState_qspt <- apply( X = simState_ispt, FUN = quantile,
                             probs = c(0.025, 0.5, 0.975 ),
-                            MARGIN = c(2,3,4) )
+                            MARGIN = c(2,3,4), na.rm = T )
 
   par( mfcol = c((nP+1), nS+1),
         mar = c(0.1,0.1,0.1,0.1),
@@ -1586,15 +1602,18 @@ plotTotLossDists <- function( sim = 1,
 # been calculated first, and saved
 # into the sim folder
 plotLossTulip <- function(  sim = 1, 
-                            groupFolder = "shortGrid",
-                            lossType    = "rel",
-                            var         = "SB_ispt",
-                            save        = FALSE )
+                            groupFolder   = "shortGrid",
+                            lossType      = "rel",
+                            var           = "SB_ispt",
+                            save          = FALSE,
+                            clearBadReps  = FALSE )
 {
   # Load loss reports
   objLoss <- .loadLoss(sim = sim, groupFolder)
   simFolderName <- basename(objLoss$simFolder)
   simFolder <- here::here("Outputs",groupFolder,simFolderName)
+
+  goodReps_isp <- objLoss$goodReps_isp
 
   if(lossType == "rel" )
   {
@@ -1608,6 +1627,7 @@ plotLossTulip <- function(  sim = 1,
     yLab      <- "Absolute loss (kt)"
   }
 
+
   # Pull model dimensions
   tMP <- objLoss$tMP
   nT  <- objLoss$nT
@@ -1615,6 +1635,14 @@ plotLossTulip <- function(  sim = 1,
   nS  <- objLoss$nS
   nP  <- objLoss$nP
   pT  <- objLoss$pT
+
+  if( clearBadReps )
+    for( s in 1:nS )
+      for( p in 1:nP )
+      {
+        badIdx <- which(!goodReps_isp[,s,p])
+        loss_ispt[badIdx,s,p,] <- NA
+      }
 
   nReps <- dim(loss_ispt)[1]
 
@@ -1646,7 +1674,7 @@ plotLossTulip <- function(  sim = 1,
 
   loss_qspt <- apply( X = loss_ispt, FUN = quantile,
                       probs = c(0.025, 0.5, 0.975),
-                      MARGIN = c(2,3,4) )
+                      MARGIN = c(2,3,4), na.rm = TRUE )
 
   plotYrs <- years[tdxPlot]
 
@@ -3324,7 +3352,6 @@ plotRetroSB <- function(  obj = blob, iRep = 1,
                           totB = FALSE,
                           TAC = FALSE )
 {
-  browser()
   # Get biomass arrays
   SB_spt        <- obj$om$SB_ispt[iRep,,,]
   VB_spt        <- obj$om$vB_ispft[iRep,,,2,]
@@ -3405,6 +3432,8 @@ plotRetroSBagg <- function( obj = blob, iRep = 1,
   VB_spt        <- obj$om$vB_ispft[iRep,,,2,]
   totB_spt      <- obj$om$B_ispt[iRep,,,]
   retroSB_tspt  <- obj$mp$assess$retroSB_itspt[iRep,,,,]
+
+  pdHess_tsp    <- obj$mp$assess$pdHess_itsp[iRep,,,]
 
   ctlList <- obj$ctlList
 
@@ -3531,7 +3560,11 @@ plotRetroSBagg <- function( obj = blob, iRep = 1,
         lines( x = yrs, y = totB_spt[s,p,], col = "black", lwd = 2 )
       for( tt in 1:pT )
       {
-        lines( x = yrs, y = retroSB_tspt[tt,s,p,], col = "grey60", lwd = 1 )
+        if( pdHess_tsp[tt,s,p] )
+          lineCol <- "grey60"
+        if( !pdHess_tsp[tt,s,p] )
+          lineCol <- "purple"
+        lines( x = yrs, y = retroSB_tspt[tt,s,p,], col = lineCol, lwd = 1 )
       }
       if( Ct )
       {
@@ -3684,7 +3717,8 @@ plotRetroCatchability <- function(  obj = blob,
 plotScaledIndices <- function(  obj = blob, 
                                 iRep = 1, 
                                 Ct = TRUE,
-                                t = blob$om$tMP )
+                                t = blob$om$tMP,
+                                totB = FALSE )
 {
   # Get model dims
   tMP <- obj$om$tMP
@@ -3866,7 +3900,9 @@ plotScaledIndices <- function(  obj = blob,
       grid()
       lines( x = yrs, y = SB_spt[s,p,], col = "red", lwd = 3 )
       lines( x = yrs, y = VB_spt[s,p,], col = "grey40", lwd = 2, lty = 3 )
-      lines( x = yrs, y = totB_spt[s,p,], col = "black", lwd = 2 )
+      if( totB )
+        lines( x = yrs, y = totB_spt[s,p,], col = "black", lwd = 2 )
+      
       lines( x = yrs, y = fitSB_spt[s,p,], col = "grey60", lwd = 1 )
 
       for( f in 1:nF )

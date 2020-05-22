@@ -10,6 +10,62 @@
 #
 # <><><><><><><><><><><><><><><><><><><><><><><><><><><>
 
+updateGoodReps <- function( groupFolder = "DLSurveys7_.5tau", 
+                            prefix = "MPgrid" )
+{
+  # Load batch info
+  info.df <-  readBatchInfo( batchDir = here::here("Outputs",groupFolder) ) %>%
+                filter( grepl( prefix, simLabel ) )
+  
+  # Loop and
+  nSims <- nrow(info.df)
+  for( i in 1:nSims )
+  {
+    # 1. Load simulations
+    blobFileName <- info.df$simLabel[i]
+    simFolderPath <- here::here("Outputs",groupFolder,blobFileName)
+
+    blobPath <- file.path(simFolderPath,paste(blobFileName,".RData",sep = ""))
+
+    load(blobPath)
+
+    # 2. Update goodReps structure
+    repDim  <- dim(blob$om$SB_ispt)[1]
+    totReps <- blob$nSims
+    nS      <- blob$om$nS
+    nP      <- blob$om$nP
+    nT      <- blob$om$nT
+    pT      <- blob$om$pT
+
+    probPosSD_isp  <- apply( X = blob$mp$assess$posSDs_itsp, FUN = mean, MARGIN = c(1,3,4),na.rm = TRUE)
+    probPDHess_isp <- apply( X = blob$mp$assess$pdHess_itsp, FUN = mean, MARGIN = c(1,3,4),na.rm = TRUE)
+
+    probPosSD_isp[is.nan(probPosSD_isp)] <- 0
+    probPDHess_isp[is.nan(probPosSD_isp)] <- 0
+
+    goodReps_isp <- array(FALSE, dim = c(totReps,nS,nP))
+
+    # Need the loop to preserve the array structure
+    for( j in 1:repDim)
+      for( s in 1:nS )
+        for( p in 1:nP )
+        {
+          if( ( probPosSD_isp[j,s,p] >= .95 & probPDHess_isp[j,s,p] >= .95 ) )
+          {
+            goodReps_isp[j,s,p] <- TRUE 
+          }
+        }
+
+
+    blob$goodReps_isp <- goodReps_isp
+    # 3. Save over old blob
+
+    save(blob, file = blobPath)
+  }
+
+  message("All blobs updated with new goodReps definition.")
+}
+
 # .saveBlob()
 # Saves the blob to a sim folder
 .saveBlob <- function( blob, ctlTable, outFolder )
@@ -189,6 +245,7 @@
 # a given groupFolder
 readBatchInfo <- function(batchDir = here("Outputs") )
 {
+  
   batchFitDirs <- list.dirs(batchDir,recursive = FALSE)
   batchFitDirs <- batchFitDirs[grepl(x = batchFitDirs, pattern = "sim_")]
   nFits <- length(batchFitDirs)
@@ -284,6 +341,7 @@ readBatchInfo <- function(batchDir = here("Outputs") )
 .loadLoss <- function( sim = 1, folder = "" )
 {
   simFolder <- here::here(file.path("Outputs",folder))
+
 
   # List directories in project folder, remove "." from list
   if(is.numeric(sim))
