@@ -2824,7 +2824,6 @@ combBarrierPen <- function( x, eps,
       while( checkCatDiff )
       {
         # Solve for the effort using the TAC and catchability
-        browser()
         solveE_s <- -1/qF_spf[,p,f] * log( 1 - catRem_s / (vB_spf[,p,f] - C_spf[,p,f]))
 
         propE <- propE + 0.8*min(solveE_s[solveE_s >= 0],na.rm = T)
@@ -3254,7 +3253,7 @@ combBarrierPen <- function( x, eps,
     for( p in 1:nP )
     {
       newSpeciesIdx <- sample( x = 1:nP, size = nP )
-      qF_spft[newSpeciesIdx,,,tMP:nT] <- qF_spft[1:nS,,,tMP:nT]
+      obj$om$qF_spft[newSpeciesIdx,,,tMP:nT] <- obj$om$qF_spft[1:nS,,,tMP:nT]
     }
   }
 
