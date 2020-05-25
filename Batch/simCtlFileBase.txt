@@ -111,4 +111,5 @@ opMod$pT 40
 opMod$ut_50 .85
 opMod$ut_95 .75
 opMod$commCPUEdata "history/DERPAcpue"
+opMod$switchCommCatchability FALSE
 # <End File>
