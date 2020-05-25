@@ -9,21 +9,26 @@ library(parallel)
 source("ms3R.r")
 source("makeResultPlots.R")
 
-batchControlFiles <- c( "MPgrid_DLSurveys.bch",
-                        "MPgrid_DLSurveys_Long.bch" )
+batchControlFiles <- c( "sensRuns_BmsyCV.bch",
+                        "sensRuns_UmsyCV.bch",
+                        "sensRuns_hierSD.bch",
+                        "sensRuns_switchqF.bch" )
                        
 nBatchJobs <- length( batchControlFiles )
 
 
 baseControlFiles  <- c( "simCtlFileBase.txt",
+                        "simCtlFileBase.txt",
+                        "simCtlFileBase.txt",
                         "simCtlFileBase.txt")
                         
 
-prefixes       <- c(  "DLSurveys_.3tau_Short",
-                      "DLSurveys_.3tau_Long" )
+prefixes       <- c(  "sensRuns_BmsyCV",
+                      "sensRuns_UmsyCV",
+                      "sensRuns_hierSD",
+                      "sensRuns_switchqF", )
 
-saveDirName       <- c( "DLSurveys_.3tau_Short",
-                        "DLSurveys_.3tau_Long" )
+saveDirName       <- prefixes
 
 baseLine <- c( "sim_OmniRun_Long" )
                         

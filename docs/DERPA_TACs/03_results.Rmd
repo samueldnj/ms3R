@@ -86,157 +86,265 @@ scenarios.
 
 When replicates included time steps where assessment models would 
 not converge (largely due to data quality issues)
-po we increased the number of replicates until we reached
+we increased the number of replicates until we reached
 100 replicates where simulated assessment models 
-converged for all time steps. We excluded results from
-any OM/AM combinations where fewer than 
-75\% of the replicates had full convergence across 
-all projection time steps and stocks.
+converged for at least 95\% of the projection time steps. 
+We defined convergence as a positive definite hessian, 
+matrix and a maximum gradient component less than $10^{-3}$
+in absolute value. We chose a lower threshold of 95\% 
+convergence to recognise that fitting models becomes more 
+difficult as data quality is deliberately reduced, and 
+a simulated assessment can not always be tuned like a 
+real assessment performed by an analyst, especially 
+in a highly factorial experiment such as this one. 
+Any OM/AM/stock combinations that could not reach 
+100 replicates meeting this criteria over a total 
+of 140 attempts (approximately a 70\% success 
+rate) were considered non-significant.
 
-### AM estimates of biomass
+### Annual AM estimates of biomass 
 
+The quality of assessment model biomass estimates 
+was dependent on the assessment model structure 
+and the particular stock. Hierarchical multi-stock 
+assessments tended to have a more variable 
+retrospective pattern than the single-stock and 
+data-pooled asssessment models (Figure 5, compare
+second row to first and third), indicating a higher 
+sensitivity of leading surplus production model parameters 
+to the additional data at each time step.
 
+Despite the higher retrospective variability, hierarchical
+multi-stock AM biomass trajectory estimates were more stable 
+than estimates from the single-stock AM under 
+different data scenarios. To promote better convergence, 
+stock biomassess under the single-stock and 
+hierarchical multi-stock assessment models were initialised 
+in the first year with a positive biomass index under all 
+scenarios except Comm1 (Figure 5, top and middle rows). Later 
+initialisation required an additional initial biomass model 
+parameter, which was better estimated by the hierarchical 
+multi-stock models than the single-stock models. Single-stock 
+models tended to estimate a larger and less productive stock, 
+producing an assessment with an initial steep decline
+and a flat biomass trajectory thereafter. In constrast,
+hierarchical multi-stock methods were on the correct 
+scale, albeit with an incorrect trend at times (Figure 5,
+HSHG Dover, second row).
 
+Estimates of stock biomass from aggregate AM structures
+were all very stable over the projection period. Unlike
+the single-stock and hierarchical multi-stock AMs, the extra 
+statistical power afforded by data aggregation allowed
+all aggregate models to be initialised in 1956 for all
+data scenarios. In addition, aggregate model biomass 
+series estimates had low variability in their retrospective
+patterns (Figure 5, bottom row). Under the Comm2 scenario,
+the fits to spatially pooled Dover sole and totally 
+aggregated DER complex data estimated a smaller and
+more productive stock than the underlying OM aggregates 
+in both cases (Figure 5, bottom left and right), going from 
+negatively biased during the historical period, and 
+passing to positively biased in the projection. The scale/
+productivity mismatch is due to the complexity mismatch
+between the OM and the AM, with the AM predicting
+the average productivity for the complex. In constrast,
+the fit to HSHG species pooled data (Figure 5, bottom
+middle) is fairly well matched despite the complexity
+mismatch between the OM and AM.
 
-
-### Yield loss
-
-We found that the single-stock assessment methods had 
-the lowest median loss across all stock areas, species, 
-and aggregation levels under all three CV scenarios (Figure 6). 
-As CVs increased, the single-stock method's catch loss was also
-fairly stable, going from a median value of around 5 kt
-for the whole coast-wide DER complex at a CV multiplier of
-0.5 to a median around 12 kt at a multiplier of 2.0. In
-contrast, the largest jump was observed under the 
-Total Aggregation management procedures, which 
-jumped from around 7 kt median loss to around 28 kt median 
-loss.
-
-The superior performance of single stock methods under 
-absolute loss is caused in part by system dynamics
-compensating for large assessment errors. Specifically, 
-the single-stock assessments for five English and rock sole
-stocks (all but HSHG rock sole) were positively biased
-for large parts of the projection period, which in
-turn produced unsustainably high TACs (Figure 6). 
-Despite the high TACs, all five stocks with large assessment 
-errors were actually fished at much closer to the optimal 
-level, which happened when when TACs for more catchable 
-stocks were fully caught (Figure 7). The key 
-quality that made the choking off a net benefit (reduced
-loss) was that the more catchable stocks (Dover and rock soles) 
-had smaller assessment errors (Figure 8, Dover sole in
-all three areas, and HSHG rock sole), and so the TACs were 
-for those species were set based on harvest rates that were closer 
-to the optimal yield for the complex. 
-
-There was not a large difference in median loss values
-between single-species ($F_{MSY}$) and multi-species ($E_{MSY}$)
-harvest rates for most MPs and scenarios. Those MPs with
-median catch loss values outside of the interquartile range of 
-the other MPs with the same AM structure were data-pooled and 
-hierarchical multi-stock MPs for WCVI rock sole, under the 
-0.5obsErr and 1.0obsErr scenarios, respectively (Figure 5, 
-WCVI rock sole). For the data-pooled MPs, the higher catch loss 
-is from a persistent positive assessment error in the data-pooled
-assessments (Figure). Because the multi-species harvest rates derived
-from optimal effort $E_{MSY}$ are lower than the single-species
-$U_{MSY}$ rates for WCVI rock sole, this leads to a higher 
-catch loss when TACs are apportioned among species in the WCVI
-area [Maybe compare relative TACs over time for WCVI DP]. 
-For the hierarchical multi-stock MPs, the difference 
-is more subtle but based on a similar phenomenon: 
-assessment errors were very similar between target HRs, but 
-lower target harvest rates led to a lower median loss 
-(figure - maybe compare the three HRs, omni vs the SS/MS 
-target HRs). Although these differences are large relative 
-to the other MPs for this particular stock, the scale is very small in
-an absolute sense, given the integration of losses over
-a ten year period, and the small size of the WCVI rock sole stock
-relative to the larger stocks in the complex.
-As a result, the aggregate losses which include WCVI
-rock sole are more similar between target harvest rates 
-(Figure 5, WCVI data-pooled and coast-wide rock sole).
-
-As observation error standard deviations increased, most 
-MPs had higher catch loss, with two exceptions. Data pooled MPs 
-for HSHG and WCVI rock sole stocks actually reduced catch
-loss between 0.5obsErr and 1.0obsErr scenarios (Figure 5,
-HSHG and WCVI rock sole). For these two stocks, assessment
-errors are smaller under the 1.0obsErr scenario (overlay
-plot with both scenarios' assessment errors), which
-led to stock-specific TACs being set closer to the 
-optimal level. [overlay plot??]
-**CHECK ON ALLOCATION UNDER THE obsErr SCENARIOS,
-the following is hypothetical at this stage**
-The second factor is the allocation rule, which allocates
-TACs to member stocks in a data-pooled stock area in 
-proportion to their indices. Under lower observation
-error standard deviations indices are less variable
-so TACs are more dependent on the relative sizes
-of the stocks and the synoptic survey trawl efficiency
-valess... while under higher CVs the indices are more 
-variable... will have to look at the plots...
+ - add to this with mean squared error table, which
+ is being generated
 
 
-***OUTLINE BELOW***
 
-- Data pooling is the worst at low CVs, while total aggregation
-is the worst at high CVs. Hypothesis: it's an interaction
-of two things (i) variances add, so more aggregation
-adds more variance, and (ii) TAC allocation method
-is sensitive to higher CVs
-- At 0.5 and 1.0 CV multiples, there is very little separation of 
-any MPs. It's only when CVs get out to 2.0 times 
-that we start to see the separation. 
-- WCVI Rock sole bucks the trend: DP AMs with SS HRs tend do do 
-uniformly badly across the 3 CV levels, with perhaps a small
-improvement in median loss. On the other hand, the MS HRs
-tend to degrade as expected with increasing CVs. Similar effect 
-seen in HSHG Rock, and in the coastwide loss.
-- Hierarchical multi-stock method's loss bridges between single-stock
-and aggregation methods. For example, at low CVs the hierarchical
-method tends to do about the same as the ssingle stock methods, but loss
-increases more than the SS method with higher CVs. In general, the
-HMS method ranks about the same across sspecies, stocks, and aggregation
-levels, but at 2.0 CV multiples, HMS is closer to SS for WCVI,
-closer to DP in HSHG, and around the middle in QCS. Overall, because
-the HSHG stocks are the most populous, the HMS method has median loss
-close to the DP method.
-- When considering deviations from the optimal yield, ignoring stock 
-structure and pooling at a coast-wide level was not advisable as
-data quality is degraded. Both the CW and TA methods had the highest
-loss, with similar median values for all species, stocks, and aggregation
-levels.
+### Catch loss
 
+Cumulative catch loss distributions for the hierarchical
+multi-stock and aggregate data AMs were fairly closely
+clustered for the Comm1, Comm2, and Comm3 scenarios
+for most stocks (Figure 6). Only the single-stock AM was 
+qualitatively different, but this was not always 
+the case (e.g., HSHG Dover, Figure 6). Relative
+performance of a each AM across scenarios was stock 
+dependent, with no trends of AM performance across 
+the scenarios repeated uniformly across all stocks.
+
+Average rankings make it easier to separate the
+performance of each AM under different OM scenarios,
+despite the visual clustering of loss distributions
+(Table 4). Relative rankings of each AM were the same 
+between absolute and relative catch loss functions,
+despite some quantitative differences. For the relatively
+data rich Comm1 scenario, the Species Pooling and Total 
+Aggregation AMs ranked best, never ranking below
+fourth for all stocks. As data was removed for the 
+Comm2 and Comm3 scenarios, the average ranks of 
+both Species Pooling and Total Aggregation AMs only
+slightly degraded. Indeed, the Species Pooling AM
+had the highest average rank under the Comm1 and Comm3
+scenarios, and came in second to the Hierarchical AM
+under the Comm2 scenario. The single-stock AM had 
+the worst average rank under all scenarios, with 
+its worst performance observed under the Comm2 
+scenario where it ranked 5th across all stocks.
+
+As expected, hierarchical multi-stock models ranked 
+better under the more data-poor scenarios. Under the
+Surv scenario, the hierarchical AM had the lowest 
+cumulative absolute catch loss, on average, and
+ranked in the top three AMs for all stocks. 
+As data quantity increased through the Comm2, 
+and Comm3 scenarios, the average rank of the hierarchical
+multi-stock AM degraded slightly, but still
+had an average rank that placed it in the top
+two models for both scenarios. It was only under
+the Comm1 scenario that the HMS model's average rank
+fell to fourth place, still performing above the 
+single-stock AM.
+
+The superior performance of the hierarchical
+AM under the Surv scenario is in part thanks
+to favourable technical interactions. For
+the QCS and WCVI stocks, the biomass trajectories 
+approach the biomass associated with multi-species 
+maximum yield, similar to the omniscient manager
+in the 2026 - 2035 time period; however, the
+biomass for the HSHG area is underfished with 
+respect to both single-species and multi-species
+optimal yield levels (Figure 7). The reason for this
+is that in each area, the technical interactions
+are creating a choke effect, stopping the utilisation
+of TACs that are set too high by from large positive 
+assessment errors and reducing overfishing (Figures 8,
+9, and 10). For the QCS and WCVI areas, the choke
+species (English in QCS, and Dover/Rock in WCVI) 
+happened to have almost unbiased assessments of 
+spawning biomass, which resulted in closer to optimal management 
+despite low TAC utilisation for the other species 
+(Figure 9). For the HSHG area, the choke species 
+(English sole) assessment was negatively biased, 
+so all three species go underfished, despite lower 
+relative assessment errors for Dover and Rock soles 
+(Figure 10). Furthermore, the HSHG Dover sole assessment 
+believes the TACs are appropriately scaled as the 
+AM estimates are approaching $B_{MSY,MS}$, so a 
+large perturbation along with informative data 
+will be needed to reduce bias in the biomass 
+estimates and overcome the choke effect.
+
+Outside of the HSHG area, there was little difference 
+between loss distributions for the Comm2 and Comm3 
+scenario (Figure 6). This reflects that the Assemblage 
+survey, which was included in Comm2 but not in Comm3, 
+operated in the HSHG area only. We expected that the 
+inclusion of the Assemblage survey in the Comm2 scenario 
+would help to calibrate catchabilities between the 
+modern commerical and Synoptic survey indices in HSHG, 
+which would then improve estimates outside the HSHG areas 
+through the shared prior on Synoptic survey catchability;
+however, it appears as if any such effect is subtle, 
+as the performance is qualitatively identical between
+the two scenarios.
 
 
 
 
 ### Biomass loss
 
-Figures 7 and 8
+Unlike the catch loss metric, cumulative biomass loss 
+was much more variable between AMs and scenarios 
+(Figure 11). Despite increased variability, 
+the performance of each AM was once again stock 
+dependent, with no clear trend of AM performance 
+across scenarios uniformly present for all stocks.
 
-As in yield loss, harvest rates did not a make significant difference
-to median biomass loss.
+The relative ordering of average AM ranks under 
+biomass loss within each scenario were similar 
+to the catch loss ordering. More variable performance 
+metrics meant that the rank distributions of different 
+AMs overlapped more within a scenario, leading to
+slightly more clustered average ranks under the
+biomass metric; however, the AMs still ranked
+out similarly. For example, the Hierarchical 
+Multi-Stock AM performed best under the Surv
+scenario, and the Species Pooling AM under the
+Comm1 and Comm3 scenarios. In addition, the
+single-stock method came in fourth or fifth
+according to average biomass loss rank under 
+all scenarios. 
 
-Single stock methods still do better - (perhaps it is tuned to well to 
-higher CVs)?
+Notably, the hierarchical AM ranked differently
+under biomass loss in the Comm2 scenario. This
+difference in biomass loss was because of 
+underfishing in HSHG and overfishing in QCS
+in the first 10 years of the projection (relative
+to the omnsicient manager), causing biomass to 
+be higher (HSHG) and lower (QCS) during the
+2026-2035 period than under the omnsicient 
+manager's harvest decisions, despite the very
+similar catch taken during that time (see
+online supplement for figures - ADD FIG REF).
 
-Less uniform ranking of AMs. In QCS and HSHG, HMS model tends to
-have the highest loss at low CVs, then comes in to second lowest loss
-at high CVs - stability of method as information is removed? In WCS,
-some methods have lower biomass loss as CVs increase.
 
-Interestingly, very little difference between MPs for loss in WCVI,
-except CW and TA are very bad at higher CVs.
+### Catch/Biomass trade-offs
 
-Again, not advisable to ignore spatial stock structure as data
-quality reduces.
+Catch and biomasss trade-offs behaved differently
+for different stocks, and rarely created a nice
+convex frontier. In general, single-stock methods 
+produced the smallest catch, leading to underfishing 
+of all stocks except HSHG Dover sole (Figure 12,
+green circles). Although there was no single AM 
+that always produced the highest catch, all three
+data aggregation AMs were found nearer to the top
+of the range under the Surv scenario for all stocks, 
+but not always (i.e., QCS English, HMS, Comm1).
+Note that the Single-Stock tradeoffs are identical
+for under Comm2 and Comm3 for all stocks outside HSHG.
 
-Need to look at simulation envelopes to understand the nature of
-the loss - often underfishing, esp. as CVs increase.
+In the HSHG area, the median biomass and catch 
+relative to multi-species optimal biomass and 
+yield were almost collinear and didn't 
+come close to the intersection of the reference
+lines representing the optimal states (Figure 12, 
+first row). The inability of all AMs to meet the 
+optimal state in any simulation for the HSHG area 
+reflects a difficulty in setting appropriate 
+catch in the early part of the projections 
+for the HSHG area, where catch is not increased 
+fast enough in the projection period. Lower initial 
+catch leads to less stock depletion, and the biomass 
+takes longer to equilibrate despite catch being 
+within 10\% of $MSY_{MS}$ for several MPs.
+- WHY? Check effort vs omni, DeltaTAC up is likely
+more restrictive than the total effort restriction,
+and chokes off catch increases.
+
+In the QCS area, there are two general tradeoff
+plot shapes (Figure 12, second row). The QCS English 
+sole stock has the same collinear pattern as all species 
+in the HSHG area, while Dover and Rock soles have some 
+convex curves (e.g., Comm1) or more variable shapes (Surv).
+Despite the similar collinear shape, QCS English
+sole tradeoffs pass close to the multi-species maxmium 
+yield and associated biomass, with Species Pooling and
+Hierarchical Multi-Stock AMs closest to achieving these
+outcomes. Similarly, QCS Rock sole is able to meet the
+multi-species optimal yield and biomass, again, under the
+Species Pooling and Hierarchical AMs and Surv scenario.
+
+Finally, the WCVI area is similar to QCS. WCVI Rock
+has a collinear pattern, but this time it is to
+the left of the intersection of the reference lines,
+reflecting the fact that the multi-species optimal
+management underfishes WCVI rock sole relative
+to the single-species reference points. WCVI Dover and
+English soles have a more variable pattern, with
+single-species methods underfishing, and hierarchical
+methods under Surv and Comm2 coming closest to the 
+multi-species optimal yield and biomass.
+
+
 
 
 

@@ -1,4 +1,3 @@
-\clearpage
 # Tables
 
 ```{r loadInfoFiles-tables, echo = FALSE, include = FALSE, warning = FALSE}
@@ -41,25 +40,25 @@ nG <- fitReport$repOpt$nG
 ```
 
 
-2. Table of MPs/OMs
-
-
-4. Tables of loss? NO, we have plots
 
 ```{r tableCaps, echo = FALSE, include = FALSE, warning = FALSE }
 stockStatusTabCap <- "Stock status and reference points for all DER
 complex stocks in 2016."
 
-expDesignTabCap <- ""
+expDesignTableCap <- "Summary of OM and AM factors in the experimental
+design for the simulation experiments."
+
 
 omniPerfTabCap <- "Biomass and catch summary statistics for all nine DER
 complex management units under the omniscient manager simulations."
 
-lossTabCap <- ""
+lossRankTabCap <- "Summary of rankings of each AM in each scenario 
+under relative and absolute catch and biomasss loss. Each column shows
+the rank averaged over all 9 DER complex stocks, with the maximum
+and minumum shown in parentheses."
 
 ```
 
-\clearpage{}
 
 ```{r stockStatusTab, echo = FALSE }
 stockStatusColNames <- c( "Species",
@@ -111,6 +110,44 @@ kable(  stockStatusTab, escape = FALSE,
 
 ```
 
+
+\clearpage
+
+```{r expDesignTab, echo = FALSE, warning = FALSE}
+
+options(knitr.kable.NA = "")
+
+expFactorLabelsTable <- tibble::tribble( 
+  ~Factor,     ~Description,
+  "Comm1",      "Historical and modern commercial indices,",
+  NA,           "with Assemblage and Synoptic survey indices",
+  "Comm2",      "Modern commercial index only, with",
+  NA,           "Assemblage and Synoptic survey indices",
+  "Comm2",      "Modern commercial index only, with",
+  NA,           "Synoptic survey index only",
+  "Surv",       "Assemblage and Synoptic survey indices, with",
+  NA,           "no commercial indices",
+  "TA",         "One assessment model fit to totally aggregated data",
+  NA,NA,
+  "SpaPool",    "Three independent assessments fit to spatially pooled data",
+  NA,           "for each DER complex species",
+  "SpePool",    "Three independent assessments fit to species pooled data",
+  NA,           "in each DER complex stock area",
+  "HMS",        "One joint hierarchical multi-stock assessment of",
+  NA,           "all nine DER complex stocks",
+  "SS",         "Nine independent single-stock assessments of",
+  NA,           "each DER complex stocks",)
+
+kable(  expFactorLabelsTable, escape = FALSE,
+        booktabs = TRUE,
+        caption = expDesignTableCap,
+        align = rep("l",ncol(expFactorLabelsTable))) %>%
+  kable_styling(latex_options = c("striped", "hold_position","scale_down"),
+                bootstrap_options = c("striped", "hover"))
+
+
+```
+
 \clearpage{}
 
 ```{r omniPerfTab, echo = FALSE, warning = FALSE}
@@ -132,6 +169,39 @@ kable(  omniPerfTab, escape = FALSE,
   kable_styling(latex_options = c("striped", "scale_down","hold_position"),
                 bootstrap_options = c("striped", "hover"))
 
+```
+
+
+```{r lossRankTable, echo = FALSE, warning =FALSE}
+lossRankTable <- makeLossRankTable( groupFolder = params$groupFolder,
+                                    prefix = "parBat",
+                                    period = 73:82,
+                                    clearBadReps = TRUE,
+                                    minSampSize = 10 ) %>%
+                    ungroup()
+
+# Replace Scenario names and AM names
+AMlabs <- c(  "singleStock"= "SS",
+              "hierMultiStock"= "HMS",
+              "speciesPooling"= "SpePool",
+              "spatialPooling"= "SpaPool",
+              "totalAgg" = "TA")
+scenLabs <- c(  "DERfit_HcMcAsSsIdx" = "Comm1",
+                "DERfit_McAsSsIdx" = "Comm2",
+                "DERfit_McSsIdx" = "Comm3",
+                "DERfit_AsSsIdx"  = "Surv")
+
+
+lossRankTable <- lossRankTable %>%
+                  mutate( Scenario = stringr::str_replace_all(Scenario, scenLabs),
+                          AM = str_replace_all(AM, AMlabs) )
+
+
+kable(  lossRankTable, escape = FALSE, 
+        caption = lossRankTabCap, booktabs = T,
+        align = rep("c",ncol(lossRankTable))) %>%
+  kable_styling(latex_options = c("striped", "scale_down","hold_position"),
+                bootstrap_options = c("striped", "hover"))
 ```
 
 \clearpage

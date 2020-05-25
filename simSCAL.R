@@ -3248,6 +3248,15 @@ combBarrierPen <- function( x, eps,
   obj$om$q_spft[,,,tMP:nT]        <- repObj$q_spft[,,,tMP-1]
   obj$om$qF_spft[,,,tMP:nT]       <- obj$om$qF_spft[,,,tMP-1]
 
+  if( ctlList$opMod$switchCommCatchability)
+  {
+    set.seed <- 1234
+    for( p in 1:nP )
+    {
+      newSpeciesIdx <- sample( x = 1:nP, size = nP )
+      qF_spft[newSpeciesIdx,,,tMP:nT] <- qF_spft[1:nS,,,tMP:nT]
+    }
+  }
 
   # Now we have enough info to calculate reference points
   stime <- Sys.time()

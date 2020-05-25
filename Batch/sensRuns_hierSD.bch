@@ -1,0 +1,112 @@
+# Batch Control File, created Fri May  8 13:36:21 2020 by makeBatchDesign() 
+parameter value
+#
+# Scenarios 
+#
+# Scenario 1 : 'Comm1_shrinkSD0.1'
+#
+scenario$scenario1$ctl$scenarioName 'Comm1_shrinkSD0.1'
+scenario$scenario1$opMod$pT 32
+scenario$scenario1$ctl$nGoodReps 50
+scenario$scenario1$ctl$totReps 70
+scenario$scenario1$mp$assess$spFleets c(1,2,3,4)
+scenario$scenario1$mp$assess$spLateStart FALSE
+scenario$scenario1$mp$assess$sptauq .1
+scenario$scenario1$mp$assess$spsigU .1
+#
+# Scenario 4 : 'Surv_shrinkSD0.1'
+#
+scenario$scenario2$ctl$scenarioName 'Surv_shrinkSD0.1'
+scenario$scenario2$opMod$pT 32
+scenario$scenario2$ctl$nGoodReps 50
+scenario$scenario2$ctl$totReps 70
+scenario$scenario2$mp$assess$spFleets c(3,4)
+scenario$scenario2$mp$assess$spLateStart TRUE
+scenario$scenario2$mp$assess$sptauq .1
+scenario$scenario2$mp$assess$spsigU .1
+#
+# Scenario 1 : 'Comm1_shrinkSD0.2'
+#
+scenario$scenario3$ctl$scenarioName 'Comm1_shrinkSD0.2'
+scenario$scenario3$opMod$pT 32
+scenario$scenario3$ctl$nGoodReps 50
+scenario$scenario3$ctl$totReps 70
+scenario$scenario3$mp$assess$spFleets c(1,2,3,4)
+scenario$scenario3$mp$assess$spLateStart FALSE
+scenario$scenario3$mp$assess$sptauq .2
+scenario$scenario3$mp$assess$spsigU .2
+#
+# Scenario 4 : 'Surv_shrinkSD0.2'
+#
+scenario$scenario4$ctl$scenarioName 'Surv_shrinkSD0.2'
+scenario$scenario4$opMod$pT 32
+scenario$scenario4$ctl$nGoodReps 50
+scenario$scenario4$ctl$totReps 70
+scenario$scenario4$mp$assess$spFleets c(3,4)
+scenario$scenario4$mp$assess$spLateStart TRUE
+scenario$scenario4$mp$assess$sptauq .2
+scenario$scenario4$mp$assess$spsigU .2
+#
+# Scenario 1 : 'Comm1_shrinkSD0.5'
+#
+scenario$scenario5$ctl$scenarioName 'Comm1_shrinkSD0.5'
+scenario$scenario5$opMod$pT 32
+scenario$scenario5$ctl$nGoodReps 50
+scenario$scenario5$ctl$totReps 70
+scenario$scenario5$mp$assess$spFleets c(1,2,3,4)
+scenario$scenario5$mp$assess$spLateStart FALSE
+scenario$scenario5$mp$assess$sptauq .5
+scenario$scenario5$mp$assess$spsigU .5
+#
+# Scenario 4 : 'Surv_shrinkSD0.5'
+#
+scenario$scenario6$ctl$scenarioName 'Surv_shrinkSD0.5'
+scenario$scenario6$opMod$pT 32
+scenario$scenario6$ctl$nGoodReps 50
+scenario$scenario6$ctl$totReps 70
+scenario$scenario6$mp$assess$spFleets c(3,4)
+scenario$scenario6$mp$assess$spLateStart TRUE
+scenario$scenario6$mp$assess$sptauq .5
+scenario$scenario6$mp$assess$spsigU .5
+#
+#
+#
+# Management Procedures 
+#
+# MP 2 : hierMultiStock_omF_MSrefPts
+#
+mp$mp1$ctl$mpName 'hierMultiStock_omF_MSrefPts'
+mp$mp1$mp$hcr$Fsource 'om'
+mp$mp1$mp$hcr$refPtType 'MS'
+mp$mp1$mp$data$spatialPooling FALSE
+mp$mp1$mp$data$speciesPooling FALSE
+mp$mp1$mp$assess$spSingleStock FALSE
+mp$mp1$mp$assess$sptauq .05
+mp$mp1$mp$assess$spsigU .05
+mp$mp1$mp$assess$spFleetWeights c(1.0,1.0,1.0,1.0)
+mp$mp1$mp$assess$spShrinkqFleets c(3,4)
+mp$mp1$mp$assess$spYrFirstIdx 20
+mp$mp1$mp$assess$spsigmaProc .05
+mp$mp1$mp$assess$spsdUmsy .4
+mp$mp1$mp$assess$spsdlnq_f c(1,1,.5,.5)
+mp$mp1$mp$assess$sptauObs_spf .3
+mp$mp1$mp$assess$spInitPE 25
+mp$mp1$mp$assess$spRE c('zetaspt_vec')
+mp$mp1$mp$assess$spPhzUmsy 3
+mp$mp1$mp$assess$spPhzepslnUmsy_s 6
+mp$mp1$mp$assess$spPhzepslnUmsy_sp 8
+mp$mp1$mp$assess$spPhzdeltalnq_spf 7
+mp$mp1$mp$assess$spPhzdeltalnq_sf 5
+mp$mp1$mp$assess$spPhzBmsy 2
+mp$mp1$mp$assess$spPhzlnBinit 2
+mp$mp1$mp$assess$spPhzlnqShrink 1
+mp$mp1$mp$assess$spPhzlnqFree 1
+mp$mp1$mp$assess$spPhzTVq 1
+mp$mp1$mp$assess$spPhzProcErr 4
+mp$mp1$mp$assess$spPhzSigmaProc -3
+mp$mp1$mp$assess$spPhztauObs 1
+mp$mp1$mp$assess$spIGtau2alpha 1
+mp$mp1$mp$assess$spIGtau2Mode 0.25
+mp$mp1$mp$assess$spSkewYieldCurves TRUE
+#
+# <End File> 

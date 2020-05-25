@@ -14,11 +14,11 @@ setting total allowable catches (TACs) in multi-species
 fisheries will often lead to sub-optimal fishery outcomes 
 [@ono2017management; @punt2011calculating]. For example, 
 under-utilisation of TAC could occur when technically 
-interacting quota species are caught 
-at different rates (i.e., catchability) by a common gear, 
-or have different productivity levels, leading to a choke
-constraint in which one species quota is filled before  
-the others [@baudron2015adverse]. Choke constraints are 
+interacting quota species are caught at different rates 
+(i.e., catchability) by a common gear, or have different 
+productivity levels, leading to a choke constraint in 
+which one species quota is filled before the others 
+[@baudron2015adverse]. Choke constraints are 
 generally considered negative outcomes for 
 multi-species fishery performance, as they reduce 
 harvester profitability as quota for choke species 

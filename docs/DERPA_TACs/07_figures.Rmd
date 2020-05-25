@@ -1,17 +1,10 @@
-\clearpage
 # Figures
 
 ```{r loadStuff, echo = FALSE, include = FALSE, warning = FALSE}
-.loadSim("sim_parBatMPgrid_DLSurveys7_.5Tau_Long2", folder= params$groupFolder)
+.loadSim("sim_parBatDLSurveys_.3tau_Long17", folder= params$groupFolder)
 
 
 ```
-
-1. Loss tulips for a given set of sims?
-
-4. Sample single replicate projection and AM fit (4x4)
-
-5. Sample simulation envelopes?
 
 
 
@@ -51,11 +44,11 @@ yield curves as a thick black line."
 omniBtCtTulipsCap <- "Spawning biomass depletion and relative catch 
 simulation envelopes for all nine DER complex management units from 
 the omniscient manager simulations. Median biomass is shown by the thick 
-black line, with the grey region showing 
-the central 95% of the distribution of spawning biomass, and thin black lines 
+black line, with the grey region showing the central 95\\% of the 
+distribution of spawning biomass, and thin black lines 
 showing three randomly selected simulation replicates. Catch is shown as grey 
 bars in the historical period, which represent median catch in the projection, 
-with thin vertical line segments showing the central 95% of the catch 
+with thin vertical line segments showing the central 95\\% of the catch 
 distribution. The depletion level associated with the traditional single 
 species optimal biomass $B_{MSY,SS}$ is shown as a dashed horizontal green 
 line, while the depletion level associated with our derived complex 
@@ -69,69 +62,128 @@ while the central 95% of the distribution of simulated effort is shown as
 the orange shaded region in the projection period. Single simulation 
 replicates in the projection period are shown as thinner orange lines."
 
-lossCatRelCap  <- "Distributions of total relative loss in catch 
-for the projection years 2026 to 2036 as a function of observation 
-error standard deviation multiplier used in the projection period.
-The points show the median loss under a single-species (circles) 
-and multi-species (triangles) harvest rates, while line segments 
-show the interquartile range of loss distributions. Data-pooled
-loss is calculated based on the total yield for the DER complex
-in a given stock area, and coast-wide loss is calculated 
-based on the total yield across the three stock areas."
+retroBioSampleFitCap <- "Operating model spawning stock
+biomass (red line) and retrospective assesment model 
+estimates of spawning stock biomass (grey lines) under 
+the Comm2 scenario. Panels show the single-stock (top row)
+and hierarchical multi-stock (second row) model fits to all
+species in the HSHG area, and pooled AM model fits (bottom row,
+left to right) to spatially pooled data for Dover sole, species 
+pooled data for the HSHG area, and totally aggregated data for
+the entire DER complex."
 
-lossCatAbsCap  <- "Distributions of total absolute loss in catch (kt)
-for the projection years 2026 to 2036 as a function of observation 
-error standard deviation multiplier used in the projection period. 
-The points show the median loss under a single-species (circles) 
-and multi-species (triangles) harvest rates, while line segments 
-show the interquartile range of loss distributions. Data-pooled
-loss is calculated based on the total yield for the DER complex
-in a given stock area, and coast-wide loss is calculated 
-based on the total yield of across the three stock areas."
+lossCatRelCap  <- "Distributions of cumulative relative loss in catch 
+for the projection years 2026 to 2036 under each AM and
+OM data scenario (x-axis labels). The points show the median loss, 
+while line segments show the central 90\\% of cumulative loss 
+distributions. Panels show the cumulative loss distributions by 
+species (columns) and stocks (rows). Each AM point type and 
+colour is shown in the legend at the bottom. Loss distributions
+for AMs that couldn't reach 100 replicates with satisfactory
+convergence are shown as a dashed line."
 
-lossBioRelCap  <- "Distributions of total relative loss in spawning
-biomass for the projection years 2026 to 2036 as a function of 
-observation error standard deviation multiplier used in the projection 
-period. The points show the median loss under a single-species (circles) 
-and multi-species (triangles) harvest rates, while line segments 
-show the interquartile range of loss distributions. Data-pooled
-loss is calculated based on the total spawning biomass for 
-the DER complex in a given stock area, and coast-wide loss is calculated 
-based on the total spawning biomass across the three stock areas."
+lossCatAbsCap  <- "Distributions of cumulative absolute loss in catch (kt) 
+for the projection years 2026 to 2036 under each AM and
+OM data scenario (x-axis labels). The points show the median loss, 
+while line segments show the central 90\\% of cumulative loss 
+distributions. Panels show the cumulative loss distributions by 
+species (columns) and stocks (rows). Each AM point type and 
+colour is shown in the legend at the bottom. Loss distributions
+for AMs that couldn't reach 100 replicates with satisfactory
+convergence are shown as a dashed line."
 
-lossBioAbsCap  <- "Distributions of total absolute loss in spawning
-biomass (kt)for the projection years 2026 to 2036 as a function of 
-observation error standard deviation multiplier used in the projection 
-period. The points show the median loss under a single-species (circles) 
-and multi-species (triangles) harvest rates, while line segments 
-show the interquartile range of loss distributions. Data-pooled
-loss is calculated based on the total spawning biomass for the DER complex
-in a given stock area, and coast-wide loss is calculated based on the total spawning biomass of a given species across the three
-stock areas."
+lossBioRelCap  <- "Distributions of cumulative relative loss in 
+spawning biomass for the projection years 2026 to 2036 under each AM and
+OM data scenario (x-axis labels). The points show the median loss, 
+while line segments show the central 90\\% of cumulative loss 
+distributions. Panels show the cumulative loss distributions by 
+species (columns) and stocks (rows). Each AM point type and 
+colour is shown in the legend at the bottom. Loss distributions
+for AMs that couldn't reach 100 replicates with satisfactory
+convergence are shown as a dashed line."
+
+lossBioAbsCap  <- "Distributions of cumulative absolute loss in 
+spawning biomass (kt) for the projection years 2026 to 2036 under 
+each AM and OM data scenario (x-axis labels). The points show the 
+median loss, while line segments show the central 90\\% of cumulative 
+loss  distributions. Panels show the cumulative loss distributions by 
+species (columns) and stocks (rows). Each AM point type and 
+colour is shown in the legend at the bottom. Loss distributions
+for AMs that couldn't reach 100 replicates with satisfactory
+convergence are shown as a dashed line."
+
+tulipBtCtHMSSurvCap <- "Spawning biomass depletion and relative catch 
+simulation envelopes for all nine DER complex management units when 
+assessed by the hierarchical multi-stock AM under the 
+Surv OM scenario. Median biomass is shown by the thick 
+black line, with the grey region showing the central 95\\% of the 
+distribution of spawning biomass, and thin black lines 
+showing three randomly selected simulation replicates. Catch is shown as grey 
+bars in the historical period, which represent median catch in the projection, 
+with thin vertical line segments showing the central 95\\% of the catch 
+distribution. The depletion level associated with the traditional single 
+species optimal biomass $B_{MSY,SS}$ is shown as a dashed horizontal green 
+line, while the depletion level associated with our derived complex 
+level multi-species optimal yield $B_{MSY,MS}$ is shown as a blue 
+horizontal dashed line."
 
 
-retroBioSingleRepSSLowCVCap <- "Operating model spawning stock
+retroBioSingleRepSSComm1Cap <- "Operating model spawning stock
 biomass (red line), commercial trawl vulnerable biomass (grey dotted line), 
 retrospective assesment model estimates of spawning stock 
-biomass (grey lines), and catch and TACs (grey bars) from the first simulation 
-replicate with all convergent AMs in the 0.5obssErr scenario and
-the SS\\_EmsyHR MP. Catch bars show realised catch in grey 
+biomass (thin grey/purple lines), and catch and TACs (grey bars) 
+from the first simulation replicate in the Comm1 scenario and
+under the single-stock AM. Catch bars show realised catch in grey 
 for the whole simulation period, and unfilled bars in the projection
-period show the difference between MP set TACs and realised catch."
+period show the difference between MP set TACs and realised catch.
+Purple lines show time steps where the simulate assessment model
+did not have a positive-definite hessian. Coloured circles on the
+right hand vertical axis show the biomass level associated with
+the multi-species (closed blue circle) and single-species (open
+green circle) maximum sustainable yield."
 
-TACutilisationSSLowCVCap <- "Simulation envelopes of TAC utilisation
-from the 0.5obsErr scenario with the SS\\_EmsyHR management procedure.
+
+retroBioSingleRepHMSSurvCap <- "Operating model spawning stock
+biomass (red line), commercial trawl vulnerable biomass (grey dotted line), 
+retrospective assesment model estimates of spawning stock 
+biomass (thin grey/purple lines), and catch and TACs (grey bars) 
+from the first simulation replicate in the Surv scenario and
+under the hierarchical multi-stock AM. Catch bars show realised 
+catch in grey for the whole simulation period, and unfilled bars 
+in the projection period show the difference between MP set TACs 
+and realised catch. Purple lines show time steps where the 
+simulate assessment model did not have a positive-definite 
+hessian. Coloured circles on the right hand vertical axis 
+show the biomass level associated with the multi-species 
+(closed blue circle) and single-species (open green circle) 
+maximum sustainable yield."
+
+TACutilisationSSLowCVCap <- "Simulation envelopes of TAC utilisation,
+under the hierarchical multi-stock AM and the Surv OM scenario.
 Columns are species, rows are stock areas. Heavy black lines show the 
 median TAC utilisation, with thin black lines showing 3 
 random replicates, and the grey region showing the central 95% 
 of simulation's distribution."
 
-assErrSSLowCVCap <- "Simulation envelopes of assessment model errors
-from the 0.5obsErr scenario with the SS\\_EmsyHR management procedure.
+assErrSSLowCVCap <- "Simulation envelopes of hierarchical
+multi-stock assessment model errors under the Surv OM scenario.
 Columns are species, rows are stock areas. Heavy black lines show the 
 median TAC utilisation, with thin black lines showing 3 
 random replicates, and the grey region showing the central 95% 
 of simulation's distribution."
+
+catchBioTradeoffCap <- "Tradeoff between catch and biomass 
+implied by switching between different AMs under the same
+operating model scenario. Panels are gridded by species (columns)
+and stocks (rows), with biomass scaled by stock-specific
+biomass at multi-species maximum yield $B_{MSY,MS,s,p}$ on
+the horizontal axis, and catch scaled by multi-species maximum
+yield $MSY_{MS,s,p}$ on the vertical axis, with thicker black
+dashed reference lines showing $B_{MSY,MS,s,p}$ and $MSY_{MS,s,p}$. 
+Coloured point symbols show median biomass and catch for the period
+2026 - 2025 and all replicates for different AMs, and AMs within 
+the same scenario are joined by a line, with symbols and line 
+types explained in the figure legend."
 
 ```
 
@@ -140,24 +192,19 @@ figPath <- file.path("./data/DERcomplexSurveyBio.pdf")
 knitr::include_graphics(figPath)
 ```
 
-\blandscape{}
-
-<!-- ```{r histStatus, echo = FALSE, warning = FALSE, fig.cap = histStatusCap }
-figPath <- file.path(histPath,"plots/plotSBspt.png")
-knitr::include_graphics(figPath)
-``` -->
-
 \clearpage
 
-```{r complexYieldCurves, echo = FALSE, warning = FALSE, fig.cap = yieldCurveCap}
+
+```{r complexYieldCurves, echo = FALSE, warning = FALSE, fig.cap = yieldCurveCap, fig.width = 6 }
 # Load a blob, probably just the first one
 # in the group folder
-plotEffYieldCurves(blob)
+plotEffYieldCurves(blob, maxE = 60)
 
 ```
 
 \clearpage
 
+\blandscape{}
 
 ```{r omniBtCtTulips, echo = FALSE, warning = FALSE, fig.cap = omniBtCtTulipsCap }
 figPath <- file.path(projDir,params$baseline,"simReport_files/figure-html/plotTulipBtCt-1.png")
@@ -175,41 +222,68 @@ knitr::include_graphics(figPath)
 \clearpage
 
 
+```{r retroAMfitComparison, echo = FALSE, warning = FALSE, fig.cap = retroBioSampleFitCap, fig.width = 9, out.width = "9in" }
+plotRetroBio_Scenario(  groupFolder = params$groupFolder,
+                        iRep = 1,
+                        scenName = "DERfit_McAsSsIdx",
+                        prefix = "DLSurveys",
+                        species = "Dover",
+                        stock = "HSHG" )
+```
 
-```{r batchLoss-relCatch, echo = FALSE, warning = FALSE, fig.cap = lossCatRelCap, fig.width = 9, out.width = "9in" }
-plotBatchLossDists_Scenario(  groupFolder = "DLSurveys7_.5tau_Long",
-                              prefix = "MPgrid_DLSurveys7",
+\clearpage
+
+
+<!-- ```{r batchLoss-relCatch, echo = FALSE, warning = FALSE, fig.cap = lossCatRelCap, fig.width = 9, out.width = "9in" }
+plotBatchLossDists_Scenario(  groupFolder = params$groupFolder,
+                              prefix = "parBat",
                               lossType = "rel",
                               var = "C_ispt",
                               period = 73:82,
                               lossList = NULL,
-                              dim1 = 1:4,   # species (D,E,R, DP)
-                              dim2 = 1:4,   # stocks (H,Q,W, CW)
-                              qProbs = c(.25,.5,.75) )
+                              dim1 = 1:3,   # species (D,E,R, DP)
+                              dim2 = 1:3,   # stocks (H,Q,W, CW)
+                              qProbs = c(.05,.5,.95),
+                              clearBadReps = TRUE,
+                              minSampSize = 100 )
 
-```
+``` -->
 
 \clearpage
 
 ```{r batchLoss-absCatch, echo = FALSE, warning = FALSE, fig.cap = lossCatAbsCap, fig.width = 9, out.width = "9in" }
-plotBatchLossDists_Scenario(  groupFolder = "DLSurveys7_.5tau_Long",
-                              prefix = "MPgrid_DLSurveys7",
+plotBatchLossDists_Scenario(  groupFolder = params$groupFolder,
+                              prefix = "parBat",
                               lossType = "abs",
                               var = "C_ispt",
                               period = 73:82,
                               lossList = NULL,
-                              dim1 = 1:4,   # species (D,E,R, DP)
-                              dim2 = 1:4,   # stocks (H,Q,W, CW)
-                              qProbs = c(.25,.5,.75) )
+                              dim1 = 1:3,   # species (D,E,R, DP)
+                              dim2 = 1:3,   # stocks (H,Q,W, CW)
+                              qProbs = c(.05,.5,.95),
+                              clearBadReps = TRUE,
+                              minSampSize = 100 )
 
 ```
 
 \clearpage
 
-```{r retroBioSingleRepSSLowCV, echo = FALSE, warning = FALSE, fig.cap = retroBioSingleRepSSLowCVCap, fig.width = 9, out.width = "9in" }
+```{r tulipBtCtHMSSurv, echo = FALSE, warning = FALSE, fig.cap = tulipBtCtHMSSurvCap, fig.width = 9, out.width = "9in" }
+plotTulipBt(  obj = blob, nTrace = 3,
+              dep = TRUE,
+              ref = "B0",
+              Ct  = TRUE,
+              leg = FALSE,
+              clearBadReps = TRUE )
+
+```
+
+```{r retroBioSingleRepHMSSurv, echo = FALSE, warning = FALSE, fig.cap = retroBioSingleRepHMSSurvCap, fig.width = 9, out.width = "9in" }
 plotRetroSBagg(  obj = blob, iRep = 1 )
 
 ```
+
+
 
 \clearpage
 
@@ -227,31 +301,56 @@ plotTulipAssError(  obj = blob,
 
 
 <!-- ```{r batchLoss-relSB, echo = FALSE, warning = FALSE, fig.cap = lossBioRelCap, fig.width = 9, out.width = "9in" }
-plotBatchLossDists_CV(  groupFolder = "diffCV_fixedF_longGrid",
-                        prefix = "sim_parBatfixedF",
-                        lossType = "rel",
-                        var = "SB_ispt",
-                        period = 73:82,
-                        lossList = NULL,
-                        dim1 = 1:4,   # species (D,E,R, DP)
-                        dim2 = 1:4,   # stocks (H,Q,W, CW)
-                        qProbs = c(.25,.5,.75) )
+plotBatchLossDists_Scenario(  groupFolder = params$groupFolder,
+                              prefix = "parBat",
+                              lossType = "rel",
+                              var = "SB_ispt",
+                              period = 73:82,
+                              lossList = NULL,
+                              dim1 = 1:3,   # species (D,E,R, DP)
+                              dim2 = 1:3,   # stocks (H,Q,W, CW)
+                              qProbs = c(.05,.5,.95),
+                              clearBadReps = TRUE,
+                              minSampSize = 100 )
 
 ```
  -->
 \clearpage
 
 ```{r batchLoss-absSB, echo = FALSE, warning = FALSE, fig.cap = lossBioAbsCap, fig.width = 9, out.width = "9in" }
-plotBatchLossDists_Scenario(  groupFolder = "DLSurveys7_.5tau_Long",
-                              prefix = "MPgrid_DLSurveys7",
+plotBatchLossDists_Scenario(  groupFolder = params$groupFolder,
+                              prefix = "parBat",
                               lossType = "abs",
                               var = "SB_ispt",
                               period = 73:82,
                               lossList = NULL,
-                              dim1 = 1:4,   # species (D,E,R, DP)
-                              dim2 = 1:4,   # stocks (H,Q,W, CW)
-                              qProbs = c(.25,.5,.75) )
+                              dim1 = 1:3,   # species (D,E,R, DP)
+                              dim2 = 1:3,   # stocks (H,Q,W, CW)
+                              qProbs = c(.05,.5,.95),
+                              clearBadReps = TRUE,
+                              minSampSize = 100 )
 
+```
+
+\clearpage
+
+```{r catchBioTradeoff, echo = FALSE, warning = FALSE, fig.cap = catchBioTradeoffCap, fig.width = 9, out.width = "9in"  }
+plotBatchCatchBioTradeoff(  groupFolder = params$groupFolder,
+                            prefix = "parBat",
+                            period = 73:82,
+                            lossList = NULL,
+                            qProbs = c(.025,.5,.975),
+                            refPts = "MSrefPts",
+                            AMlabs = c( SS = "singleStock",
+                                        HMS = "hierMultiStock",
+                                        SpePool = "speciesPooling",
+                                        SpaPool = "spatialPooling",
+                                        TA = "totalAgg" ),
+                            scenLabs = c( Comm1  = "DERfit_HcMcAsSsIdx",
+                                          Comm2  = "DERfit_McAsSsIdx",
+                                          Comm3  = "DERfit_McSsIdx",
+                                          Surv = "DERfit_AsSsIdx" ),
+                            minSampSize = 100  )
 ```
 
 \elandscape{}

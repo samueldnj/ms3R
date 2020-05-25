@@ -1,25 +1,41 @@
 # Discussion
 
 In this paper, we compared the management performance 
-of five alternative management procedures for use in a simulated 
-spatially diverse, data-limited, multi-species flatfish fishery. 
-We conditioned our flatfish fishery operating model on an 
-age-structured hierarchical multi-species multi-stock stock 
-assessment model, and simulated data quality by adjusting the
-amount of noise in survey observations used for management. 
-Simulated procedures then either treated stocks as independent 
-in assessments, or grouped stocks together by either pooling
-data or using a hierarchical multi-stock assessment model; all
-AMs were different configurations of the same assessment model, 
-which extended a model from previous research [@johnson2018evaluating].
-Biomass and management parameter estimates were then used 
-to set TACs, and if data were pooled, TACs were split among
-stocks and species in proportion with survey observations.
+of five alternative assessment models in a simulated 
+spatially structured, data-limited, multi-species flatfish fishery. 
+Our operating model was an age- and sex-structured population
+dynamics model based on the DER complex in British Columbia,
+Canada, and we simulated different data quality scenarios by 
+excluding different data series from surplus production
+stock assessment models used to set annual total allowable
+catches for each stock. Simulated surplus production 
+assessment models either treated stocks as independent, 
+or grouped stocks together by pooling data or 
+using a hierarchical multi-stock assessment model. Each
+assessment model forecast future biomass values set TACs 
+by applying a constant harvest rate policy, with harves rates derived
+from multi-species maximum yield incorporating technical
+interactions.
+
+All AMs were different 
+configurations of the same assessment model, which extended 
+a model from previous research [@johnson2018evaluating].
+
+Measured performance using catch and biomass loss,
+catch and biomass tradeoffs
+
+As expected, all data-limited methods (data-pooling and 
+hierarchical) outperformed the single-stock methods
+in all scenarios. In more data-rich scenarios, the 
+data-pooling AMs had the lowest biomass and catch loss
 
 
+
+TAC utilisation issue highlights two things: TACs should
+definitely consider technical interactions, and 
 
 Main takeaway: which performed best/was most stable under
-changes in obs error variances?
+changes in data series?
 
 Second takeaway: TAC utilisation issue? Optimal biomass
 under Fmsy_MS? Need to drop fishing to historic lows
@@ -44,14 +60,6 @@ that those TACs are set to the appropriate level. Technical
 interactions will then protect stocks that have large positive 
 assessment errors through lower TAC utilisation ratios.
 
-Seems like SS does better on catch and biomass loss, but has
-the tendency for large assessment errors. Although in this case
-this is mitigated by the technical interactions in the system, where 
-the most catchable (Dover sole) TACs get filled first and they happen 
-to be set to a better level, this is system dependent. Indeed, 
-a change in catchability due to switching the target species, or 
-an underyling regime shift, could suddenly make it easier to fulfil
-TACs that are set too high by a . 
 
 under the omniscient manager's effort allocations, all stocks 
 satisfy Canadian sustainable fisheries framework criteria
