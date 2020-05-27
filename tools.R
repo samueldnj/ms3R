@@ -35,14 +35,8 @@
   save(blob,file = file.path(path,paste(folder,".RData",sep="")))
 
 
-  # Make html sim report
-  .makeSimReport( simNum = folder, groupFolder = "" )
-
   # Create a quick to read info file for the sim folder
   .makeInfoFile(blob)
-
-  graphics.off()
-
 
   # Calculate and save stats table
   perfStats <- .simPerfStats(obj = blob)
@@ -64,6 +58,12 @@
   cat(  "# <End File>", sep = "", 
         file = file.path(path,"simCtlFile.txt"),
         append = TRUE)
+
+  # Make html sim report
+  .makeSimReport( simNum = folder, groupFolder = "" )
+
+  graphics.off()
+
   
 } # END .saveBlob()
 
