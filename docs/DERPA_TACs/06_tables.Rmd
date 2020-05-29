@@ -42,12 +42,12 @@ nG <- fitReport$repOpt$nG
 
 
 ```{r tableCaps, echo = FALSE, include = FALSE, warning = FALSE }
-stockStatusTabCap <- "Stock status and reference points for all DER
-complex stocks in 2016."
+stockStatusTabCap <- "Single-species MSY based reference points,
+stock status, and commercial trawl catchability scalar for all 
+DER complex stocks in 2016."
 
 expDesignTableCap <- "Summary of OM and AM factors in the experimental
 design for the simulation experiments."
-
 
 omniPerfTabCap <- "Biomass and catch summary statistics for all nine DER
 complex management units under the omniscient manager simulations."
@@ -60,6 +60,7 @@ and minumum shown in parentheses."
 ```
 
 
+
 ```{r stockStatusTab, echo = FALSE }
 stockStatusColNames <- c( "Species",
                           "Stock",
@@ -67,7 +68,8 @@ stockStatusColNames <- c( "Species",
                           "Bmsy",
                           "Umsy",
                           "$B_{2016}$",
-                          "$B_{2016}/B_{MSY}$" )
+                          "$B_{2016}/B_{MSY}$",
+                          "qF" )
 
 stockStatusTab <- matrix( NA, nrow = 9, ncol = length(stockStatusColNames) )
 colnames(stockStatusTab) <- stockStatusColNames
@@ -83,7 +85,9 @@ refPts    <- fitReport$repOpt$refPts$FmsyRefPts
 SB_spt    <- fitReport$repOpt$SB_spt
 D_sp2016  <- SB_spt[,,"2016"] / refPts$BeqFmsy_sp
 
-
+# Pull qF
+.loadSim( 2, folder = params$groupFolder)
+qF_sp      <- blob$om$qF_ispft[1,,,2,blob$om$tMP]
 
 for( s in 1:nS )
   for( p in 1:nP )
@@ -99,14 +103,30 @@ for( s in 1:nS )
     stockStatusTab[rIdx,"Umsy"]       <- round(refPts$Umsy_sp[s,p],2)
     stockStatusTab[rIdx,"$B_{2016}$"] <- round(SB_spt[s,p,"2016"],2)
     stockStatusTab[rIdx,"$B_{2016}/B_{MSY}$"] <- round(D_sp2016[s,p],2)
+    stockStatusTab[rIdx,"qF"]         <- round(qF_sp[s,p],3)
 
   }
+
+colnames(stockStatusTab) <- c(  "Species",
+                                "Stock",
+                                "$B_0$",
+                                "$B_{MSY,SS}$",
+                                "$U_{MSY,SS}$",
+                                "$B_{2016}$",
+                                "$B_{2016}/B_{MSY}$",
+                                "$q^{F}$")
+
+stockStatusTab <- stockStatusTab[,-1]
 
 kable(  stockStatusTab, escape = FALSE, 
         caption = stockStatusTabCap, booktabs = T,
         align = rep("c",ncol(stockStatusTab))) %>%
   kable_styling(latex_options = c("striped", "scale_down","hold_position"),
-                bootstrap_options = c("striped", "hover"))
+                bootstrap_options = c("striped", "hover")) %>%
+  pack_rows( "Dover sole",1,3 ) %>%
+  pack_rows( "English sole",4,6 ) %>%
+  pack_rows( "Rock sole",7,9 ) %>%
+  add_header_above(c(" " = 1, "Single-species Reference Points" = 3, "Stock Status" = 2, "Comm. Catchability" = 1 ))
 
 ```
 
@@ -138,17 +158,22 @@ expFactorLabelsTable <- tibble::tribble(
   "SS",         "Nine independent single-stock assessments of",
   NA,           "each DER complex stocks",)
 
+colnames(expFactorLabelsTable) <- c("Level","Description")
+
 kable(  expFactorLabelsTable, escape = FALSE,
         booktabs = TRUE,
         caption = expDesignTableCap,
         align = rep("l",ncol(expFactorLabelsTable))) %>%
   kable_styling(latex_options = c("striped", "hold_position","scale_down"),
-                bootstrap_options = c("striped", "hover"))
+                bootstrap_options = c("striped", "hover")) %>%
+  pack_rows("OM Data Scenario", 1, 8) %>%
+  pack_rows("AM Structure", 9, 18)
 
 
 ```
 
 \clearpage{}
+\blandscape
 
 ```{r omniPerfTab, echo = FALSE, warning = FALSE}
 omniPerfTab <- omniPerfTab %>%
@@ -162,15 +187,37 @@ omniPerfTab <- omniPerfTab %>%
                                 avgCatch,
                                 AAV )
 
+colnames(omniPerfTab) <- c( "Species",
+                            "Stock",
+                            "$P(B_{2026:2035} > .4B_{MSY,SS})$",
+                            "$P(B_{2026:2035} > .8B_{MSY,SS})$",
+                            "$P(B_{2026:2035} > B_{MSY,SS})$",
+                            "$P(C_{2026:2035} > MSY_{SS})$",
+                            "$P(F_{2026:2035} > F_{MSY,SS})$",
+                            "$\\overline{C}_{2026:2035}$",
+                            "$AAV$")
+
+
+omniPerfTab <- omniPerfTab[,-1]
 
 kable(  omniPerfTab, escape = FALSE, 
         caption = omniPerfTabCap, booktabs = T,
         align = rep("c",ncol(omniPerfTab))) %>%
   kable_styling(latex_options = c("striped", "scale_down","hold_position"),
-                bootstrap_options = c("striped", "hover"))
+                bootstrap_options = c("striped", "hover")) %>%
+  pack_rows( "Dover sole",1,3 ) %>%
+  pack_rows( "English sole",4,6 ) %>%
+  pack_rows( "Rock sole",7,9 ) %>%
+  add_header_above( c(" " = 1,
+                      "Probability of being overfished" = 3,
+                      "Probability of overfishing" = 2,
+                      "Mean catch" = 1,
+                      "Catch Variation" = 1 ) )
 
 ```
 
+\elandscape
+\clearpage
 
 ```{r lossRankTable, echo = FALSE, warning =FALSE}
 lossRankTable <- makeLossRankTable( groupFolder = params$groupFolder,
@@ -191,17 +238,24 @@ scenLabs <- c(  "DERfit_HcMcAsSsIdx" = "Comm1",
                 "DERfit_McSsIdx" = "Comm3",
                 "DERfit_AsSsIdx"  = "Surv")
 
-
 lossRankTable <- lossRankTable %>%
                   mutate( Scenario = stringr::str_replace_all(Scenario, scenLabs),
-                          AM = str_replace_all(AM, AMlabs) )
+                          AM = str_replace_all(AM, AMlabs) ) %>%
+                  dplyr::select( Scenario, AM, absCrank, absBrank ) %>%
+                  arrange(Scenario)
 
+
+colnames(lossRankTable) <- c( "Scenario","AM",
+                              "Catch Loss Rank", 
+                              "Biomass Loss Rank")
 
 kable(  lossRankTable, escape = FALSE, 
         caption = lossRankTabCap, booktabs = T,
         align = rep("c",ncol(lossRankTable))) %>%
   kable_styling(latex_options = c("striped", "scale_down","hold_position"),
-                bootstrap_options = c("striped", "hover"))
+                bootstrap_options = c("striped", "hover")) %>%
+  add_header_above( c(" " = 2,
+                      "Rank Distributions" = 2 ) )
 ```
 
 \clearpage

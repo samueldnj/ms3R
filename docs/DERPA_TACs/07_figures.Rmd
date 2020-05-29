@@ -162,14 +162,15 @@ TACutilisationSSLowCVCap <- "Simulation envelopes of TAC utilisation,
 under the hierarchical multi-stock AM and the Surv OM scenario.
 Columns are species, rows are stock areas. Heavy black lines show the 
 median TAC utilisation, with thin black lines showing 3 
-random replicates, and the grey region showing the central 95% 
+random replicates, and the grey region showing the central 95\\% 
 of simulation's distribution."
 
 assErrSSLowCVCap <- "Simulation envelopes of hierarchical
-multi-stock assessment model errors under the Surv OM scenario.
-Columns are species, rows are stock areas. Heavy black lines show the 
-median TAC utilisation, with thin black lines showing 3 
-random replicates, and the grey region showing the central 95% 
+multi-stock relative assessment model errors under the 
+Surv OM scenario. Columns are species, rows are stock areas. 
+Heavy black lines show the median relative assessment error
+in each projection year, with thin black lines showing 3 
+random replicates, and the grey region showing the central 95\\% 
 of simulation's distribution."
 
 catchBioTradeoffCap <- "Tradeoff between catch and biomass 

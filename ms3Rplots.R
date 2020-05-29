@@ -192,7 +192,7 @@ plotBatchCatchBioTradeoff <- function(  groupFolder = "DLSurveys_.3tau_Long",
   names(AMpch)  <- AMlabs
 
   # Now plot
-  par(  mfcol = c(nS,nP),
+  par(  mfcol = c(nP,nS),
         mar = c(2,2,1,1),
         oma = c(5,3.5,3,3) )
 
@@ -436,7 +436,7 @@ plotRetroBio_Scenario <- function(  groupFolder = "DLSurveys7_.5tau_Long",
 # Envelopes of simulated assessment errors
 plotTulipAssError <- function(  simNum = 1,
                                 obj = NULL,
-                                groupFolder = "DLSurveys7_.5tau_Long",
+                                groupFolder = "DLSurveys_.3tau_Long",
                                 save = FALSE,
                                 proj = TRUE,
                                 clearBadReps = FALSE )
@@ -604,6 +604,193 @@ plotTulipAssError <- function(  simNum = 1,
                   col = "black", lwd = .8 )
 
         abline( h = 0, lty = 2, lwd = 1 )
+    }
+  mtext(  side = 1, text = "Year", outer = TRUE, line = 2 )
+  mtext(  side = 2, text = "Relative assessment error",
+          line = 2, outer = TRUE )
+
+  if(save)
+    dev.off()
+
+} # END plotTulipAssError
+
+# Envelopes of simulated assessment errors
+plotTulipRE_AM <- function( simNum = 1,
+                            obj = NULL,
+                            groupFolder = "DLSurveys_.3tau_Long",
+                            save = FALSE,
+                            proj = TRUE,
+                            clearBadReps = FALSE,
+                            abs = FALSE )
+{
+
+  if( is.null(obj))
+  {
+    .loadSim( simNum, groupFolder )
+    obj <- blob
+  }
+
+  goodReps_isp  <- obj$goodReps_isp
+  nReps         <- dim(goodReps_isp)[1]
+
+  # Get biomass arrays
+  SB_ispt        <- obj$om$SB_ispt
+  VB_ispt        <- obj$om$vB_ispft[,,,2,]
+  totB_ispt      <- obj$om$B_ispt
+  retroSB_itspt  <- obj$mp$assess$retroSB_itspt
+
+
+  ctlList <- obj$ctlList
+
+  retroSB_itspt[retroSB_itspt < 0] <- NA
+  # nReps     <- sum(goodReps)
+
+  # Model dims
+  tMP     <- obj$om$tMP
+  nS      <- obj$om$nS
+  nP      <- obj$om$nP 
+  nT      <- obj$om$nT
+
+
+  # Aggregate OM biomasses to match AM biomass
+  if( ctlList$mp$data$spatialPooling )
+  {
+    newSB_ispt        <- apply( X = SB_ispt, FUN = sum, MARGIN = c(1,2,4), na.rm = T )
+    newVB_ispt        <- apply( X = VB_ispt, FUN = sum, MARGIN = c(1,2,4), na.rm = T )
+    newtotB_ispt      <- apply( X = totB_ispt, FUN = sum, MARGIN = c(1,2,4), na.rm = T )
+
+    SB_ispt    <- SB_ispt[,,1,,drop = FALSE]
+    SB_ispt[,,1,] <- newSB_ispt
+    VB_ispt    <- VB_ispt[,,1,,drop = FALSE]
+    VB_ispt[,,1,] <- newVB_ispt
+    totB_ispt  <- totB_ispt[,,1,,drop = FALSE]
+    totB_ispt[,,1,] <- newtotB_ispt     
+
+  }
+
+  if( ctlList$mp$data$speciesPooling )
+  {
+    newSB_ispt        <- apply( X = SB_ispt, FUN = sum, MARGIN = c(1,3,4), na.rm = T )
+    newVB_ispt        <- apply( X = VB_ispt, FUN = sum, MARGIN = c(1,3,4), na.rm = T )
+    newtotB_ispt      <- apply( X = totB_ispt, FUN = sum, MARGIN = c(1,3,4), na.rm = T )
+
+    SB_ispt    <- SB_ispt[,1,,,drop = FALSE]
+    SB_ispt[,1,,] <- newSB_ispt
+    VB_ispt    <- VB_ispt[,1,,,drop = FALSE]
+    VB_ispt[,1,,] <- newVB_ispt
+    totB_ispt  <- totB_ispt[,1,,,drop = FALSE]
+    totB_ispt[,1,,] <- newtotB_ispt
+
+  }
+
+  SB_ispt[SB_ispt == 0]     <- NA
+  VB_ispt[VB_ispt == 0]     <- NA
+  totB_ispt[totB_ispt == 0] <- NA
+
+  nSS     <- dim( SB_ispt)[2]
+  nPP     <- dim( SB_ispt)[3]
+
+  speciesNames  <- obj$ctlList$opMod$species
+  stockNames    <- obj$ctlList$opMod$stock
+  fYear         <- obj$ctlList$opMod$fYear
+  pT            <- obj$ctlList$opMod$pT
+
+  if( nPP == 1 )
+    stockNames <- "Spatial Pooled"
+
+  if( nSS == 1 )
+    speciesNames <- "Species Pooled"
+
+  stamp <- paste(obj$ctlList$ctl$scenarioName,":",obj$ctlList$ctl$mpName,sep = "")
+
+  if( clearBadReps )
+    for( s in 1:nS )
+      for( p in 1:nP )
+      {
+        badIdx <- which(!goodReps_isp[,s,p])
+        retroSB_itspt[badIdx,,s,p,] <- NA
+        SB_ispt[badIdx,s,p,] <- NA
+      }
+
+
+  assErr_itspt <- array(NA, dim = c(nReps,pT,nSS,nPP,nT) )
+  for( s in 1:nSS )
+    for( p in 1:nPP )
+    {
+      for( tt in 1:pT )
+      {
+        # Now loop over projection years
+        tIdx <- tMP + tt - 1
+        assErr_itspt[,tt,s,p,] <- (retroSB_itspt[1:nReps,tt,s,p,] - SB_ispt[1:nReps,s,p,])/SB_ispt[1:nReps,s,p,]
+      }
+    }
+
+  if( save )
+  {
+    graphics.off()
+    filename <- paste("assessmentError.pdf")
+    outFile <- here::here("Outputs",groupFolder,obj$simLabel,filename)
+
+    pdf( outFile, width = 11, height = 8 )
+  }
+
+  absAssErr_itspt <- abs(assErr_itspt)
+  MAREassErr_sp   <- apply( X = absAssErr_itspt, FUN = median, MARGIN = c(3,4), na.rm = T)
+  MREassErr_sp    <- apply( X = assErr_itspt, FUN = median, MARGIN = c(3,4), na.rm = T)
+
+  assErr_qspt <- apply( X = assErr_itspt,
+                        FUN = quantile,
+                        probs = c(0.025, 0.5, 0.975),
+                        MARGIN = c(3,4,5),
+                        na.rm = TRUE )
+
+
+  years <- seq(from = fYear, by = 1, length.out = nT )
+
+  if( proj )
+    tIdx <- (tMP - 1):nT
+  else
+    tIdx <- 1:nT
+
+  if( nReps > 3)
+    traces <- sample( 1:nReps, 3)
+  else traces <- c()
+
+  # Now plot
+  par(  mfcol = c(nPP, nSS ),
+        mar = c(.1,1.5,.1,1.5),
+        oma = c(3,3,2,2) )
+  for( s in 1:nSS )
+    for( p in 1:nPP )
+    {
+      plot( x = range(years[tIdx]),
+            y = range(assErr_qspt[,s,p,tIdx], MAREassErr_sp[s,p],MREassErr_sp[s,p],na.rm = T ),
+            type = "n", xlab = "", ylab = "", axes = FALSE )
+        mfg <- par("mfg")
+        if( mfg[1] == mfg[3] )
+          axis( side = 1 )
+        
+        axis( side = 2, las = 1 )
+        if( mfg[2] == mfg[4] )
+          mtext( side = 4, text = stockNames[p], line = 1.5)
+        if( mfg[1] == 1 )
+          mtext( side = 3, text = speciesNames[s])
+        box()
+        grid()
+
+        # Plot baseline
+        polygon(  x = c(years,rev(years)),
+                  y = c(assErr_qspt[1,s,p,],rev(assErr_qspt[3,s,p,])),
+                  border = NA, col = "grey60")
+        lines( x = years, y = assErr_qspt[2,s,p,],
+                col = "black", lwd = 2)
+        for( traceIdx in traces )
+          lines(  x = years, y = assErr_itspt[traceIdx,pT,s,p,],
+                  col = "black", lwd = .8 )
+
+        abline( h = 0, lty = 2, lwd = 1 )
+        abline( h = MAREassErr_sp[s,p], lty = 3, col = "red" )
+        abline( h = MREassErr_sp[s,p], lty = 3, col = "salmon" )
     }
   mtext(  side = 1, text = "Year", outer = TRUE, line = 2 )
   mtext(  side = 2, text = "Relative assessment error",
@@ -1164,7 +1351,7 @@ plotBatchLossDists_Scenario <- function(  groupFolder = "DLSurveys7_.5tau_Long",
   nSpec   <- length(dim1)
   nStock  <- length(dim2) 
 
-  par(  mfcol = c(nSpec,nStock),
+  par(  mfcol = c(nStock,nSpec),
         mar = c(0.2,1.5,.2,1),
         oma = c(6,4,3,3) )
 
@@ -1418,7 +1605,7 @@ plotBatchLossDists <- function( groupFolder = "diffCV_fixedF_longGrid",
 
   # Plot total loss for given period
   # on grid of Species/stocks
-  par(  mfcol = c(nS+1,nP+1), 
+  par(  mfcol = c(nP+1,nS+1), 
         mar = c(.2,1.5,.2,1),
         oma = c(3,3.5,3,3) )
 
@@ -1530,7 +1717,7 @@ plotTotLossDists <- function( sim = 1,
           width = 11, height = 8.5 )
 
   # Plot window - just for loss right now
-  par(  mfcol = c(nS + 1, nP + 1),
+  par(  mfcol = c(nP + 1, nS + 1),
         mar = c(.5,.5,.5,.5),
         oma = c(3,3,3,3) )
 
@@ -1653,7 +1840,7 @@ plotLossTulip <- function(  sim = 1,
   }
 
   # Plot window - just for loss right now
-  par(  mfcol = c(nS + 1, nP + 1),
+  par(  mfcol = c(nP + 1, nS + 1),
         mar = c(.5,.5,.5,.5),
         oma = c(3,3,3,3) )
 
@@ -3651,7 +3838,7 @@ plotEBSBratio <- function( obj = blob )
 
   depSeq <- seq(0,1,length.out = 100 )
 
-  par( mfcol = c(nS+1,nP+1),
+  par( mfcol = c(nP+1,nS+1),
         mar = c(.5,.5,.5,.5),
         oma = c(3,3,2,2) )
 

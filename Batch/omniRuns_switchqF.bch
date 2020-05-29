@@ -1,0 +1,34 @@
+# Batch File
+parameter value
+#
+## Scenarios
+#
+# Scenario 1 : DER_base
+#
+scenario$scenario1$ctl$scenarioName 'DER_base'
+scenario$scenario1$ctl$nGoodReps 75
+scenario$scenario1$ctl$omni TRUE
+scenario$scenario1$opMod$pT 80
+scenario$scenario1$opMod$switchCommCatchability TRUE
+scenario$scenario1$mp$omni$nKnots 17
+#
+#
+## Management Procedures
+#
+# MP 3 : omni_totCat1_effDiff1_initEffDiff1
+#
+mp$mp1$ctl$mpName 'omni_totCat1_effDiff1_initEffDiff1'
+mp$mp1$mp$omni$avgCatWt 0.
+mp$mp1$mp$omni$totCatWt 1.0
+mp$mp1$mp$omni$sumCatWt .0
+mp$mp1$mp$omni$hiDepBmsyWt .0
+mp$mp1$mp$omni$loDepBmsyWt .0
+mp$mp1$mp$omni$probDepWt 0.0
+mp$mp1$mp$omni$closedWt 0
+mp$mp1$mp$omni$AAVWt 0
+mp$mp1$mp$omni$catDiffWt 0
+mp$mp1$mp$omni$effDiffWt 1.0
+mp$mp1$mp$omni$initCatDiffWt .0
+mp$mp1$mp$omni$initEffDiffWt 1.0
+#
+# <File Ends>

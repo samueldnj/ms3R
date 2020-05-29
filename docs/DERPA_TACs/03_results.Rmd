@@ -345,9 +345,6 @@ methods under Surv and Comm2 coming closest to the
 multi-species optimal yield and biomass.
 
 
-
-
-
 ## Sensitivity to prior distributions
 
 

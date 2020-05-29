@@ -12,7 +12,7 @@
 # <><><><><><><><><><><><><><><><><><><><><><><><><><><>
 
 
-calcMSE_AMestimates <- function(  groupFolder="DLSurveys7_.5tau_Long",
+calcMSE_AMestimates <- function(  groupFolder="DLSurveys_.3tau_Long",
                                   prefix = "parBat" )
 {
   # First get info files so we can load the right 
@@ -53,21 +53,26 @@ calcMSE_AMestimates <- function(  groupFolder="DLSurveys7_.5tau_Long",
                       path = here::here("Outputs",groupFolder,simLabel) )
 
   blobFiles <- file.path(mpTable$path,paste(mpTable$simLabel,".RData",sep = ""))
+  names(blobFiles) <- mpTable$simLabel
   
   nSims <- length(blobFiles)
   retroEstList <- vector(mode ="list", length = nSims)
+  names(retroEstList) <- mpTable$simLabel
 
   for( i in 1:nSims )
   {
-    load(blobFiles[[i]])
+    # load blob
+    simID <- mpTable$simLabel[i]
+    load(blobFiles[[simID]])
 
-    retroEstList[[i]]$SB_ispt        <- blob$om$SB_ispt
-    retroEstList[[i]]$retroSB_itspt  <- blob$mp$assess$retroSB_itspt
-    retroEstList[[i]]$retroUmsy_itsp <- blob$mp$assess$retroUmsy_itsp
-    retroEstList[[i]]$retroBmsy_itsp <- blob$mp$assess$retroBmsy_itsp
-    retroEstList[[i]]$Bmsy_sp        <- blob$rp[[1]]$FmsyRefPts$BeqFmsy_sp
-    retroEstList[[i]]$YeqFmsy_sp     <- blob$rp[[1]]$FmsyRefPts$YeqFmsy_sp
-    retroEstList[[i]]$Umsy_sp        <- retroEstList[[i]]$YeqFmsy_sp / retroEstList[[i]]$Bmsy_sp
+    # Save info
+    retroEstList[[simID]]$SB_ispt        <- blob$om$SB_ispt
+    retroEstList[[simID]]$retroSB_itspt  <- blob$mp$assess$retroSB_itspt
+    retroEstList[[simID]]$retroUmsy_itsp <- blob$mp$assess$retroUmsy_itsp
+    retroEstList[[simID]]$retroBmsy_itsp <- blob$mp$assess$retroBmsy_itsp
+    retroEstList[[simID]]$Bmsy_sp        <- blob$rp[[1]]$FmsyRefPts$BeqFmsy_sp
+    retroEstList[[simID]]$YeqFmsy_sp     <- blob$rp[[1]]$FmsyRefPts$YeqFmsy_sp
+    retroEstList[[simID]]$Umsy_sp        <- retroEstList[[simID]]$YeqFmsy_sp / retroEstList[[simID]]$Bmsy_sp
 
 
     if( i == 1 )
@@ -90,115 +95,151 @@ calcMSE_AMestimates <- function(  groupFolder="DLSurveys7_.5tau_Long",
 
   
   # No go through the list and calculate errors
-  errList <- vector(mode = "list", length = nSims * nS * nP )
-  tabColNames <- c( "Scenario","AM",
+  errList <- vector(mode = "list", length = nSims )
+  names(errList) <- names(retroEstList)
+  tabColNames <- c( "simID",
+                    "Scenario","AM",
                     "Species","Stock",
-                    "MSE_Bt","MSE_Bmsy","MSE_Umsy")
+                    "MARE_Bt","MARE_Bmsy","MARE_Umsy")
   
-  mseTable <- matrix(NA, nrow = nSims, ncol = length(tabColNames))
+  mareTable <- matrix(NA, nrow = nSims * nS * nP, ncol = length(tabColNames))
   
-  colnames(mseTable) <- tabColNames
+  colnames(mareTable) <- tabColNames
   
-  mseTable <- as.data.frame(mseTable)
+  mareTable <- as.data.frame(mareTable)
+
+  # browser()
 
   rowIdx <- 1
   for( i in 1:nSims )
   {
-    errList[[i]]$mseSB_itsp   <- array(NA, dim = c(nReps,pT,nS,nP))
-    errList[[i]]$mseBmsy_itsp <- array(NA, dim = c(nReps,pT,nS,nP))
-    errList[[i]]$mseUmsy_itsp <- array(NA, dim = c(nReps,pT,nS,nP))
+    simID <- mpTable$simLabel[i]
+    errList[[simID]]$mseSB_itsp   <- array(NA, dim = c(nReps,pT,nS,nP))
+    errList[[simID]]$mseBmsy_itsp <- array(NA, dim = c(nReps,pT,nS,nP))
+    errList[[simID]]$mseUmsy_itsp <- array(NA, dim = c(nReps,pT,nS,nP))
 
-    retroSB_itspt   <- retroEstList[[i]]$retroSB_itspt
-    omSB_ispt       <- retroEstList[[i]]$SB_ispt
-    retroUmsy_itsp  <- retroEstList[[i]]$retroUmsy_itsp
-    retroBmsy_itsp  <- retroEstList[[i]]$retroBmsy_itsp
-    omUmsy_sp       <- retroEstList[[i]]$Umsy_sp
-    omBmsy_sp       <- retroEstList[[i]]$Bmsy_sp
+    errList[[simID]]$mseSB_sp   <- array(NA, dim = c(nS,nP))
+    errList[[simID]]$mseBmsy_sp <- array(NA, dim = c(nS,nP))
+    errList[[simID]]$mseUmsy_sp <- array(NA, dim = c(nS,nP))
+
+    retroSB_itspt   <- retroEstList[[simID]]$retroSB_itspt
+    omSB_ispt       <- retroEstList[[simID]]$SB_ispt
+    retroUmsy_itsp  <- retroEstList[[simID]]$retroUmsy_itsp
+    retroBmsy_itsp  <- retroEstList[[simID]]$retroBmsy_itsp
+    omUmsy_sp       <- retroEstList[[simID]]$Umsy_sp
+    omBmsy_sp       <- retroEstList[[simID]]$Bmsy_sp
+    omYeqFmsy_sp    <- retroEstList[[simID]]$YeqFmsy_sp
+
+    nSS <-  nS
+    nPP <-  nP
     for( tt in 1:pT )
     {
-      
-      errSB_ispt    <- (retroSB_itspt[,tt,,,] - omSB_ispt)
       errBmsy_isp    <- array(NA, dim = c(nReps,nS,nP))
       errUmsy_isp    <- array(NA, dim = c(nReps,nS,nP))
+      errSB_ispt     <- array(NA, dim = c(nReps,nS,nP,nT))
 
-      if( mpTable[i,"AM"] == "speciesPooling" )
+      if( mpTable[i,"AM"] %in% c("speciesPooling","totalAgg") )
       {
+        omSB_ispt_sum     <- apply( X = omSB_ispt, FUN = sum, MARGIN = c(1,3,4) )
         omBmsy_sp_sum     <- apply( X = omBmsy_sp, FUN = sum, MARGIN = c(2) )
-        omYeqFmsy_sp_sum  <- apply( X = retroEstList[[i]]$YeqFmsy_sp, FUN = sum, MARGIN = c(2) )
+        omYeqFmsy_sp_sum  <- apply( X = omYeqFmsy_sp, FUN = sum, MARGIN = c(2) )
         omUmsy_sp_sum     <- omYeqFmsy_sp_sum / omBmsy_sp_sum
 
-        for( s in 1:nS )
-        {        
-          omBmsy_sp[s,] <- omBmsy_sp_sum
-          omUmsy_sp[s,] <- omUmsy_sp_sum
-        }
+        omSB_ispt <- omSB_ispt[,1,,,drop = FALSE]
+        omBmsy_sp <- omBmsy_sp[1,,drop = FALSE]
+        omUmsy_sp <- omUmsy_sp[1,,drop = FALSE]
+        omYeqFmsy_sp <- omYeqFmsy_sp[1,,drop = FALSE]
 
+        omSB_ispt[,1,,] <- omSB_ispt_sum
+        omBmsy_sp[1,]   <- omBmsy_sp_sum
+        omUmsy_sp[1,]   <- omUmsy_sp_sum
+        omYeqFmsy_sp[1,]<- omYeqFmsy_sp_sum
+
+        
+        nSS <- 1
       }
 
-      if( mpTable[i,"AM"] == "spatialPooling" )
+      if( mpTable[i,"AM"] %in% c("spatialPooling","totalAgg") )
       {
+
+        omSB_ispt_sum     <- apply( X = omSB_ispt, FUN = sum, MARGIN = c(1,2,4) )
         omBmsy_sp_sum     <- apply( X = omBmsy_sp, FUN = sum, MARGIN = c(1) )
-        omYeqFmsy_sp_sum  <- apply( X = retroEstList[[i]]$YeqFmsy_sp, FUN = sum, MARGIN = c(1) )
+        omYeqFmsy_sp_sum  <- apply( X = omYeqFmsy_sp, FUN = sum, MARGIN = c(1) )
         omUmsy_sp_sum     <- omYeqFmsy_sp_sum / omBmsy_sp_sum
 
-        for( p in 1:nP)
-        {
-          omBmsy_sp[,p] <- omBmsy_sp_sum
-          omUmsy_sp[,p] <- omUmsy_sp_sum
-        }
+        omSB_ispt <- omSB_ispt[,,1,,drop = FALSE]
+        omBmsy_sp <- omBmsy_sp[,1,drop = FALSE]
+        omUmsy_sp <- omUmsy_sp[,1,drop = FALSE]
+        omYeqFmsy_sp <- omYeqFmsy_sp[,1,drop = FALSE]
+
+        omSB_ispt[,,1,] <- omSB_ispt_sum
+        omBmsy_sp[,1]   <- omBmsy_sp_sum
+        omUmsy_sp[,1]   <- omUmsy_sp_sum
+        omYeqFmsy_sp[,1]<- omYeqFmsy_sp_sum
+
+        nPP <- 1
       }
+
+      errSB_ispt[,1:nSS,1:nPP,]    <- abs(retroSB_itspt[,tt,1:nSS,1:nPP,] - omSB_ispt[,1:nSS,1:nPP,])/omSB_ispt[,1:nSS,1:nPP,]
+
+      # browser()
 
       # Loop and calculate error
       for( j in 1:nReps )
       {
 
-        errBmsy_isp[j,,]    <- retroBmsy_itsp[j,tt,,] - omBmsy_sp
-        errUmsy_isp[j,,]    <- retroUmsy_itsp[j,tt,,] - omUmsy_sp
+        errBmsy_isp[j,1:nSS,1:nPP]    <- abs(retroBmsy_itsp[j,tt,1:nSS,1:nPP] - omBmsy_sp[1:nSS,1:nPP])/omBmsy_sp[1:nSS,1:nPP]
+        errUmsy_isp[j,1:nSS,1:nPP]    <- abs(retroUmsy_itsp[j,tt,1:nSS,1:nPP] - omUmsy_sp[1:nSS,1:nPP])/omUmsy_sp[1:nSS,1:nPP]
       }
 
-      errList[[i]]$mseSB_itsp[,tt,,] <- apply(X = errSB_ispt^2, FUN = mean, MARGIN = c(1,2,3),na.rm = T )
-      errList[[i]]$mseBmsy_itsp[,tt,,] <- errBmsy_isp^2
-      errList[[i]]$mseUmsy_itsp[,tt,,] <- errUmsy_isp^2
+      errList[[simID]]$mseSB_itsp[,tt,1:nSS,1:nPP] <- apply(X = errSB_ispt[,1:nSS,1:nPP,,drop = FALSE], FUN = median, MARGIN = c(1,2,3),na.rm = T )
+      errList[[simID]]$mseBmsy_itsp[,tt,1:nSS,1:nPP] <- errBmsy_isp[,1:nSS,1:nPP]
+      errList[[simID]]$mseUmsy_itsp[,tt,1:nSS,1:nPP] <- errUmsy_isp[,1:nSS,1:nPP]
 
     }
 
-    errList[[i]]$mseSB_sp   <- apply( X = errList[[i]]$mseSB_itsp, FUN = mean, MARGIN = c(3,4),na.rm = T)
-    errList[[i]]$mseBmsy_sp <- apply( X = errList[[i]]$mseBmsy_itsp, FUN = mean, MARGIN = c(3,4),na.rm = T)
-    errList[[i]]$mseUmsy_sp <- apply( X = errList[[i]]$mseUmsy_itsp, FUN = mean, MARGIN = c(3,4),na.rm = T)
+    errList[[simID]]$mseSB_sp[1:nSS,1:nPP]   <- apply( X = errList[[simID]]$mseSB_itsp[,,1:nSS,1:nPP,drop = FALSE], FUN = median, MARGIN = c(3,4),na.rm = T)
+    errList[[simID]]$mseBmsy_sp[1:nSS,1:nPP] <- apply( X = errList[[simID]]$mseBmsy_itsp[,,1:nSS,1:nPP,drop = FALSE], FUN = median, MARGIN = c(3,4),na.rm = T)
+    errList[[simID]]$mseUmsy_sp[1:nSS,1:nPP] <- apply( X = errList[[simID]]$mseUmsy_itsp[,,1:nSS,1:nPP,drop = FALSE], FUN = median, MARGIN = c(3,4),na.rm = T)
 
-    mseTable[rowIdx,"Scenario"]  <- mpTable[i,"scenario"]
-    mseTable[rowIdx,"AM"]        <- mpTable[i,"AM"]
+    
 
-    for( s in 1:nS )
+    for( s in 1:nSS )
     {
-      browser()
       specLab   <- species[s]
 
       if( mpTable[i,"AM"] %in% c("speciesPooling","totalAgg") )
-        stock <- "SpeciesPooled"
+        specLab <- "SpeciesPooled"
       
-      for( p in 1:nP )
+      for( p in 1:nPP )
       {
+        mareTable[rowIdx,"simID"]     <- simID
+        mareTable[rowIdx,"Scenario"]  <- mpTable[i,"scenario"]
+        mareTable[rowIdx,"AM"]        <- mpTable[i,"AM"]
+
         stockLab <- stock[p]
 
         if( mpTable[i,"AM"] %in% c("spatialPooling","totalAgg") )
           stockLab <- "spatialPooled"
 
-        mseTable[rowIdx,"Species"]        <- species[s]
-        mseTable[rowIdx,"Stock"]          <- stock[p]
-        mseTable[rowIdx,"MSE_Bt"]         <- errList[[i]]$mseSB_sp[s,p]
-        mseTable[rowIdx,"MSE_Bmsy"]       <- errList[[i]]$mseBmsy_sp[s,p]
-        mseTable[rowIdx,"MSE_Umsy"]       <- errList[[i]]$mseUmsy_sp[s,p]
+        mareTable[rowIdx,"Species"]         <- specLab
+        mareTable[rowIdx,"Stock"]           <- stockLab
+        mareTable[rowIdx,"MARE_Bt"]         <- round(errList[[simID]]$mseSB_sp[s,p],3)
+        mareTable[rowIdx,"MARE_Bmsy"]       <- round(errList[[simID]]$mseBmsy_sp[s,p],3)
+        mareTable[rowIdx,"MARE_Umsy"]       <- round(errList[[simID]]$mseUmsy_sp[s,p],3)
 
         rowIdx <- rowIdx + 1
       }
     }
     
   }
+  # reduce to only the rows we used
+  mareTable <- mareTable[1:(rowIdx-1),] %>%
+                dplyr::arrange( Scenario, AM, Species, Stock )
+  # Write to groupFolder
+  write.csv(mareTable, file = here::here("Outputs",groupFolder,"mareTable.csv"))
 
-  write.csv(mseTable, file = here::here("Outputs",groupFolder,"mseTable.csv"))
-
-  mseTable
+  mareTable
 
 }
 
@@ -1377,6 +1418,216 @@ makeStatTable <- function(  sim = 1, folder = "",
 
 
 
+# Envelopes of simulated assessment errors
+calcREdists_AM <- function( simNum = 1,
+                            obj = NULL,
+                            groupFolder = "DLSurveys_.3tau_Long",
+                            clearBadReps = FALSE,
+                            abs = FALSE )
+{
+
+  if( is.null(obj))
+  {
+    .loadSim( simNum, groupFolder )
+    obj <- blob
+  }
+
+  goodReps_isp  <- obj$goodReps_isp
+  nReps         <- dim(goodReps_isp)[1]
+
+  # Get biomass arrays
+  SB_ispt        <- obj$om$SB_ispt
+  VB_ispt        <- obj$om$vB_ispft[,,,2,]
+  totB_ispt      <- obj$om$B_ispt
+  retroSB_itspt  <- obj$mp$assess$retroSB_itspt
+  retroUmsy_itsp <- blob$mp$assess$retroUmsy_itsp
+  retroBmsy_itsp <- blob$mp$assess$retroBmsy_itsp
+  omBmsy_sp      <- blob$rp[[1]]$FmsyRefPts$BeqFmsy_sp
+  omYeqFmsy_sp   <- blob$rp[[1]]$FmsyRefPts$YeqFmsy_sp
+  omUmsy_sp      <- omYeqFmsy_sp / omBmsy_sp
+
+
+
+  ctlList <- obj$ctlList
+
+  retroSB_itspt[retroSB_itspt < 0] <- NA
+  # nReps     <- sum(goodReps)
+
+  # Model dims
+  tMP     <- obj$om$tMP
+  nS      <- obj$om$nS
+  nP      <- obj$om$nP 
+  nT      <- obj$om$nT
+
+
+  # Aggregate OM biomasses to match AM biomass
+  if( ctlList$mp$data$spatialPooling )
+  {
+    newSB_ispt        <- apply( X = SB_ispt, FUN = sum, MARGIN = c(1,2,4), na.rm = T )
+
+    omBmsy_sp_sum     <- apply( X = omBmsy_sp, FUN = sum, MARGIN = c(1) )
+    omYeqFmsy_sp_sum  <- apply( X = omYeqFmsy_sp, FUN = sum, MARGIN = c(1) )
+    omUmsy_sp_sum     <- omYeqFmsy_sp_sum / omBmsy_sp_sum
+
+    omBmsy_sp <- omBmsy_sp[,1,drop = FALSE]
+    omUmsy_sp <- omUmsy_sp[,1,drop = FALSE]
+    omYeqFmsy_sp <- omYeqFmsy_sp[,1,drop = FALSE]
+
+    # browser()
+
+    omBmsy_sp[,1]   <- omBmsy_sp_sum
+    omUmsy_sp[,1]   <- omUmsy_sp_sum
+    omYeqFmsy_sp[,1]<- omYeqFmsy_sp_sum    
+
+    SB_ispt    <- SB_ispt[,,1,,drop = FALSE]
+    SB_ispt[,,1,] <- newSB_ispt
+
+  }
+
+  if( ctlList$mp$data$speciesPooling )
+  {
+    newSB_ispt        <- apply( X = SB_ispt, FUN = sum, MARGIN = c(1,3,4), na.rm = T )
+  
+    omBmsy_sp_sum     <- apply( X = omBmsy_sp, FUN = sum, MARGIN = c(2) )
+    omYeqFmsy_sp_sum  <- apply( X = omYeqFmsy_sp, FUN = sum, MARGIN = c(2) )
+    omUmsy_sp_sum     <- omYeqFmsy_sp_sum / omBmsy_sp_sum
+
+    omBmsy_sp <- omBmsy_sp[1,,drop = FALSE]
+    omUmsy_sp <- omUmsy_sp[1,,drop = FALSE]
+    omYeqFmsy_sp <- omYeqFmsy_sp[1,,drop = FALSE]
+    
+    omBmsy_sp[1,]   <- omBmsy_sp_sum
+    omUmsy_sp[1,]   <- omUmsy_sp_sum
+    omYeqFmsy_sp[1,]<- omYeqFmsy_sp_sum
+
+
+
+    SB_ispt    <- SB_ispt[,1,,,drop = FALSE]
+    SB_ispt[,1,,] <- newSB_ispt
+    
+  }
+
+  SB_ispt[SB_ispt == 0]     <- NA
+  
+
+  nSS     <- dim( SB_ispt)[2]
+  nPP     <- dim( SB_ispt)[3]
+
+  speciesNames  <- obj$ctlList$opMod$species
+  stockNames    <- obj$ctlList$opMod$stock
+  fYear         <- obj$ctlList$opMod$fYear
+  pT            <- obj$ctlList$opMod$pT
+  scenario      <- obj$ctlList$ctl$scenarioName
+  mp            <- obj$ctlList$ctl$mpName
+
+
+  if( nPP == 1 )
+    stockNames <- "Spatial Pooled"
+
+  if( nSS == 1 )
+    speciesNames <- "Species Pooled"
+
+  stamp <- paste(obj$ctlList$ctl$scenarioName,":",obj$ctlList$ctl$mpName,sep = "")
+
+  if( clearBadReps )
+    for( s in 1:nSS )
+      for( p in 1:nPP )
+      {
+        badIdx <- which(!goodReps_isp[,s,p])
+        retroSB_itspt[badIdx,,s,p,] <- NA
+        SB_ispt[badIdx,s,p,] <- NA
+        retroBmsy_itsp[badIdx,,s,p] <- NA
+        retroUmsy_itsp[badIdx,,s,p] <- NA
+      }
+
+
+  assErr_itspt <- array(NA, dim = c(nReps,pT,nSS,nPP,nT) )
+  BmsyErr_itsp <- array(NA, dim = c(nReps,pT,nSS,nPP) )
+  UmsyErr_itsp <- array(NA, dim = c(nReps,pT,nSS,nPP) )
+  for( s in 1:nSS )
+    for( p in 1:nPP )
+    {
+      for( tt in 1:pT )
+      {
+        # Now loop over projection years
+        assErr_itspt[,tt,s,p,] <- (retroSB_itspt[1:nReps,tt,s,p,] - SB_ispt[1:nReps,s,p,])/SB_ispt[1:nReps,s,p,]
+        BmsyErr_itsp[,tt,s,p]  <- (retroBmsy_itsp[1:nReps,tt,s,p] - omBmsy_sp[s,p])/omBmsy_sp[s,p]
+        UmsyErr_itsp[,tt,s,p]  <- (retroUmsy_itsp[1:nReps,tt,s,p] - omUmsy_sp[s,p])/omUmsy_sp[s,p]
+      }
+    }
+
+
+  absAssErr_itspt <- abs(assErr_itspt)
+  MAREassErr_sp   <- apply( X = absAssErr_itspt, FUN = median, MARGIN = c(3,4), na.rm = T)
+  MREassErr_sp    <- apply( X = assErr_itspt, FUN = median, MARGIN = c(3,4), na.rm = T)
+
+  assErr_qspt <- apply( X = assErr_itspt,
+                        FUN = quantile,
+                        probs = c(0.025, 0.5, 0.975),
+                        MARGIN = c(3,4,5),
+                        na.rm = TRUE )
+
+  absBmsyErr_itsp <- abs(BmsyErr_itsp)
+  MAREBmsyErr_sp   <- apply( X = absBmsyErr_itsp, FUN = median, MARGIN = c(3,4), na.rm = T)
+  MREBmsyErr_sp    <- apply( X = BmsyErr_itsp, FUN = median, MARGIN = c(3,4), na.rm = T)
+
+  BmsyErr_qsp <- apply( X = BmsyErr_itsp,
+                        FUN = quantile,
+                        probs = c(0.025, 0.5, 0.975),
+                        MARGIN = c(3,4),
+                        na.rm = TRUE ) 
+
+  absUmsyErr_itsp <- abs(UmsyErr_itsp)
+  MAREUmsyErr_sp   <- apply( X = absUmsyErr_itsp, FUN = median, MARGIN = c(3,4), na.rm = T)
+  MREUmsyErr_sp    <- apply( X = UmsyErr_itsp, FUN = median, MARGIN = c(3,4), na.rm = T)
+
+  UmsyErr_qsp <- apply( X = UmsyErr_itsp,
+                        FUN = quantile,
+                        probs = c(0.025, 0.5, 0.975),
+                        MARGIN = c(3,4),
+                        na.rm = TRUE )  
+  
+  # Make an output table
+  tabRows <- nSS * nPP
+  colNames <- c(  "simID",
+                  "Scenario",
+                  "AM",
+                  "Species",
+                  "Stock",
+                  "MARE_Bt",
+                  "MRE_Bt",
+                  "MARE_Bmsy",
+                  "MRE_Bmsy",
+                  "MARE_Umsy",
+                  "MRE_Umsy" )
+
+  mareTable <- matrix(NA, nrow = tabRows, ncol = length(colNames))
+  colnames(mareTable) <- colNames
+
+  mareTable <- as.data.frame(mareTable)
+
+  rowIdx <- 1
+  for( s in 1:nSS )
+    for( p in 1:nPP )
+    {
+      mareTable[rowIdx,"simID"]     <- obj$simLabel
+      mareTable[rowIdx,"Scenario"]  <- scenario
+      mareTable[rowIdx,"AM"]        <- mp
+      mareTable[rowIdx,"Species"]   <- speciesNames[s]
+      mareTable[rowIdx,"Stock"]     <- stockNames[p]
+      mareTable[rowIdx,"MARE_Bt"]   <- MAREassErr_sp[s,p]
+      mareTable[rowIdx,"MRE_Bt"]    <- MREassErr_sp[s,p]
+      mareTable[rowIdx,"MARE_Bmsy"] <- MAREBmsyErr_sp[s,p]
+      mareTable[rowIdx,"MRE_Bmsy"]  <- MREBmsyErr_sp[s,p]
+      mareTable[rowIdx,"MARE_Umsy"] <- MAREUmsyErr_sp[s,p]
+      mareTable[rowIdx,"MRE_Umsy"]  <- MREUmsyErr_sp[s,p]
+
+      rowIdx <- rowIdx + 1
+    }
+
+  return(mareTable)
+
+} # END plotTulipAssError
 
 
 

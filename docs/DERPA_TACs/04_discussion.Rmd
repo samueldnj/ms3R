@@ -17,25 +17,28 @@ by applying a constant harvest rate policy, with harves rates derived
 from multi-species maximum yield incorporating technical
 interactions.
 
-All AMs were different 
+All AMs were different
 configurations of the same assessment model, which extended 
 a model from previous research [@johnson2018evaluating].
 
 Measured performance using catch and biomass loss,
 catch and biomass tradeoffs
 
+Main takeaway: which performed best/was most stable under
+changes in data series?
+
 As expected, all data-limited methods (data-pooling and 
 hierarchical) outperformed the single-stock methods
 in all scenarios. In more data-rich scenarios, the 
 data-pooling AMs had the lowest biomass and catch loss
 
-
-
 TAC utilisation issue highlights two things: TACs should
-definitely consider technical interactions, and 
+definitely consider technical interactions, and that
+being choked out by other species does not necessarily
+mean that the choke species TAC is set too low  - it may
+be that the TAC being choked is too high.
 
-Main takeaway: which performed best/was most stable under
-changes in data series?
+
 
 Second takeaway: TAC utilisation issue? Optimal biomass
 under Fmsy_MS? Need to drop fishing to historic lows
@@ -77,7 +80,8 @@ of re-calculation under coastwide and data-pooled MPs
 4. Effort dynamics: simplified, would require more empirical
 work for an application - e.g. landed value is assumed equal
 among fish (not far from the truth anyways)
-5. 
+5. Targeting was not included
+6. 
 
 Further work:
 - While considering technical interactions, is it possible 
@@ -85,6 +89,7 @@ to tune all stocks to a nominated level? Probably not.
 - Addition of economic yield [@punt2020multispecies]
 - Investigation of how to better include EB/SB ratios
 for data-pooled MS complexes [@winker2020jabba]
+- Targeting behaviour [@punt2011calculating]
 
 
 
