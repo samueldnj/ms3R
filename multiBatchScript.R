@@ -9,28 +9,23 @@ library(parallel)
 source("ms3R.r")
 source("makeResultPlots.R")
 
-batchControlFiles <- c( "sensRuns_BmsyCV.bch",
-                        "sensRuns_UmsyCV.bch",
-                        "sensRuns_hierSD.bch",
-                        "sensRuns_switchqF.bch" )
+batchControlFiles <- c( "sensRuns_hierSD.bch",
+                        "omniRuns_switchqF.bch" )
                        
 nBatchJobs <- length( batchControlFiles )
 
 
 baseControlFiles  <- c( "simCtlFileBase.txt",
-                        "simCtlFileBase.txt",
-                        "simCtlFileBase.txt",
                         "simCtlFileBase.txt")
                         
 
-prefixes       <- c(  "sensRuns_BmsyCV",
-                      "sensRuns_UmsyCV",
-                      "sensRuns_hierSD",
-                      "sensRuns_switchqF", )
+prefixes       <- c(  "sensRuns_hierSD",
+                      "omni_switchqF", )
 
-saveDirName       <- prefixes
+saveDirName       <- c( "sensRuns_hierSD",
+                        "sensRuns_switchqF", )
 
-baseLine <- c( "sim_OmniRun_Long" )
+baseLine <- c( "sim_OmniRun_Long",NULL )
                         
 nCores  <- rep(detectCores()-1, nBatchJobs)
 
@@ -67,7 +62,10 @@ for( bIdx in 1:nBatchJobs )
 
   ourSimIndices <- which(grepl(prefixes[bIdx],outputDirList))
   
-  lapply( X = ourSimIndices, FUN = calcLoss, baseline = baseLine, groupFolder = "" )
+  if(!is.null(baseLine[bIdx]))
+    lapply( X = ourSimIndices, FUN = calcLoss, baseline = baseLine[bIdx], groupFolder = "" )
+  
+  # Tidy up memory
   gc()
 
   # Now copy fits to a subfolder location so
