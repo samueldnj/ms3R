@@ -15,7 +15,7 @@
 # Refactored procedure to plot right hand inner
 # margin mtext with the bottom towards the middle
 # of the plot
-rmtext <- function( line = 1, 
+rmtext <- function( line = .05, 
                     txt = "Sample", 
                     font = 1,
                     cex = 1,
@@ -23,13 +23,40 @@ rmtext <- function( line = 1,
                     yadj = .5)
 {
   corners <- par("usr") #Gets the four corners of plot area (x1, x2, y1, y2)
+
+  xRange <- corners[2] - corners[1]
+
+
   if( outer )
     par(xpd = NA) #Draw outside the figure region
   if( !outer )
     par(xpd = TRUE)
-  text( x = corners[2]+line, 
+  text( x = corners[2] + line*xRange, 
         y = yadj * sum(corners[3:4]), 
         labels = txt, srt = 270,
+        font = font, cex = cex )
+  par(xpd = FALSE)
+} # END rmtext()
+
+
+# Refactored procedure to make rotated
+# x axis labels on a plot
+xaxisRot <- function( at = 1:10, 
+                      labs = 1:10,
+                      font = 1,
+                      cex = 1,
+                      line = .05,
+                      rot = 60)
+{
+  corners <- par("usr") #Gets the four corners of plot area (x1, x2, y1, y2)
+
+  yRange <- corners[4] - corners[3]
+
+  par(xpd = NA)
+  text( x = at, 
+        y = corners[3] - line*yRange, 
+        labels = labs, srt = rot,
+        adj = 1,
         font = font, cex = cex )
   par(xpd = FALSE)
 } # END rmtext()
@@ -208,7 +235,7 @@ plotBatchCatchBioTradeoff <- function(  groupFolder = "DLSurveys_.3tau_Long",
           axis( side = 2, las = 1 )
 
         if( mfg[2] == mfg[4] )
-          rmtext( txt = stock[p], line = 0.5, font = 2, cex = 1.5)
+          rmtext( txt = stock[p], line = 0.05, font = 2, cex = 1.5)
         if( mfg[1] == 1 )
           mtext( side = 3, text = species[s], font = 2)
         box()
@@ -406,7 +433,7 @@ plotRetroBio_Scenario <- function(  groupFolder = "DLSurveys7_.5tau_Long",
 
       if( mfg[2] == mfg[4] )
         rmtext( txt = rowLabs[rIdx], 
-                line = rowLines[rIdx] + 10, 
+                line = .05, 
                 font = 2, 
                 cex = 1.5,
                 outer = TRUE,
@@ -1167,7 +1194,9 @@ plotBatchLossDists_Scenario <- function(  groupFolder = "DLSurveys7_.5tau_Long",
                                                         Comm3  = "DERfit_McSsIdx",
                                                         Surv = "DERfit_AsSsIdx" ),
                                           clearBadReps = FALSE,
-                                          minSampSize = 100  )
+                                          minSampSize = 100,
+                                          rotxlabs = 0,
+                                          xlab = TRUE  )
 {
   # First, read info files from the relevant
   # sims
@@ -1371,7 +1400,24 @@ plotBatchLossDists_Scenario <- function(  groupFolder = "DLSurveys7_.5tau_Long",
         
         mfg <- par("mfg")
         if( mfg[1] == mfg[3])
-          axis( side = 1, at = 1:nScen, labels = names(scenLabs) )
+        {
+          if( rotxlabs == 0 )
+            axis( side = 1, at = 1:nScen, labels = names(scenLabs) )
+          if( rotxlabs > 0)
+          {
+            axis( side = 1, at = 1:nScen, labels = NA )
+            xaxisRot( at = 1:nScen, 
+                      labs = names(scenLabs),
+                      font = 1,
+                      cex = 1,
+                      line = .05,
+                      rot = rotxlabs )
+            
+
+          }
+
+        }
+
 
         axis( side = 2, las = 1 )
 
@@ -1379,8 +1425,10 @@ plotBatchLossDists_Scenario <- function(  groupFolder = "DLSurveys7_.5tau_Long",
           mtext( side = 3, text = speciesNames[s], font = 2, line = 1 )
 
         if( mfg[2] == mfg[4] )
-          rmtext( txt = stockNames[p], font = 2, line = .5,
+        {
+          rmtext( txt = stockNames[p], font = 2, line = .05,
                   outer = TRUE, cex = 1.5 )
+        }
 
         grid()
         box()
@@ -1408,6 +1456,7 @@ plotBatchLossDists_Scenario <- function(  groupFolder = "DLSurveys7_.5tau_Long",
             {
 
               thisSimLabel <- subInfo[subInfo$scenario == scenLabs[scenIdx],]$simLabel
+
 
               points( x = scenIdx + xJitter[jitIdx],
                       y = totLossQuantiles_qmsp[2,thisSimLabel,s,p],
@@ -1438,7 +1487,8 @@ plotBatchLossDists_Scenario <- function(  groupFolder = "DLSurveys7_.5tau_Long",
       }
 
   mtext( side = 2, outer = TRUE, text = yLab, line = 2 )
-  mtext( side = 1, outer = TRUE, text = "Data Scenario", line = 2 )
+  if(xlab)
+    mtext( side = 1, outer = TRUE, text = "Data Scenario", line = 2 )
 
   par(fig=c(0, 1, 0, 1), oma=c(0, 0, 0, 0), mar=c(0, 0, 0, 0), new=TRUE)
   plot(0, 0, type='n', bty='n', xaxt='n', yaxt='n')
@@ -3748,7 +3798,7 @@ plotRetroSBagg <- function( obj = blob, iRep = 1,
         mtext( side = 3, text = speciesNames[s], font = 2, line = 0 )
       axis( side = 2, las = 1 )
       if( mfg[2] == mfg[4] )
-        rmtext( line = 4, txt = stockNames[p], cex = 1.5, font = 2)
+        rmtext( line = 05, txt = stockNames[p], cex = 1.5, font = 2)
       box()
       grid()
       if( Ct )

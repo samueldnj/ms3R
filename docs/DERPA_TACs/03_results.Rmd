@@ -47,15 +47,20 @@ equilibrium calculations, the optimal effort for the
 complex results in a slight overfishing of all Dover sole 
 stocks.
 
-Despite the tendency of the omniscient manager to increase fishing
-mortality rates above the single species $F_{MSY}$
-for all Dover sole stocks, very few simulations actually push 
-Dover sole into an overfished state because this would
-lead to lost yield over the simulation time period. 
-For all stocks of all species, the probability of being 
-below 40% of single species $B_{MSY}$ is at most 6%, 
-while probability of being above 80% of $B_{MSY}$ is at 
-least 53% (Table 2). 
+Like the theoretical optimal multi-species yield curves
+suggest, the omniscient manager tends to overfish
+Dover sole stocks relative to single-species optimal levels 
+to increase commercial access to English and Rock sole. Despite 
+the tendency of the omniscient manager to increase Dover sole 
+fishing mortality rates above the single species 
+$F_{MSY}$, very few simulations actually push Dover sole into 
+a severely overfished state, according to Canadian recommended
+limit reference depletion levels of 40\% of $B_{MSY}, implying
+that lost Dover sole yield for higher fishing efforts are not
+compensated by increased English and Rock sole yield. Indeed, 
+the probability of being below 40% of single species $B_{MSY}$ 
+is at most 9\%, which was sobserved for HSHG Dover sole only, 
+with all other stocks having probability less than 1\%.
 
 Although DER stocks begin the simulations in an overall
 healthy state, there are some cases where the omniscient manager 
@@ -80,12 +85,13 @@ with a lower bound of 0 effort.
 Given the highly factorial nature of the simulation
 experiments, we explain the main results using a few 
 key examples in the main body of the text, and refer
-readers to the online supplement for the full set of plots 
-comparing stochastic simulations to the omniscient manager
-scenarios.
+readers to the online supplement for a more complete set 
+of plots and tables of stochastic simulation dynamics,
+assessment model performance, and comparisons of 
+stochastic simulations the omniscient manager benchmark.
 
-When replicates included time steps where assessment models would 
-not converge (largely due to data quality issues)
+When replicates included time steps where assessment 
+models would not converge (largely due to data quality issues)
 we increased the number of replicates until we reached
 100 replicates where simulated assessment models 
 converged for at least 95\% of the projection time steps. 
@@ -100,7 +106,12 @@ in a highly factorial experiment such as this one.
 Any OM/AM/stock combinations that could not reach 
 100 replicates meeting this criteria over a total 
 of 140 attempts (approximately a 70\% success 
-rate) were considered non-significant.
+rate) were considered non-significant. Loss function 
+values are still calculated and reported for 
+non-significant experiments, but they are always
+ranked last in AM rankings, and non-significant 
+distributions of cumulative loss are indicated in 
+figures by dashed lines as opposed to solid lines.
 
 ### Annual AM estimates of biomass 
 
@@ -152,6 +163,8 @@ the average productivity for the complex. In constrast,
 the fit to HSHG species pooled data (Figure 5, bottom
 middle) is fairly well matched despite the complexity
 mismatch between the OM and AM.
+
+
 
  - add to this with mean squared error table, which
  is being generated
@@ -345,6 +358,76 @@ methods under Surv and Comm2 coming closest to the
 multi-species optimal yield and biomass.
 
 
-## Sensitivity to prior distributions
+## Sensitivity Analyses
+
+### Commercial catchability permutation
+
+**NOTE: Need to rerun the omni and stochastic sims for
+this, it was a gong show because my brain screwed
+up the syntax for setting a random seed** 
+
+### Assesssment model prior distributions
+
+Although catch loss was most sensitive to changes in 
+the $B_{MSY}$ prior CV under the single-stock AMs,
+no AM structure was insensitive (Figure 13). As 
+expected, catch loss usually increased with 
+the $B_{MSY}$ prior CV, but the relative size
+of the increase was stock and AM dependent. 
+Stability of single-stock and hierarchical 
+multi-stock catch loss under changes in the $B_{MSY}$ 
+prior CV was most prominent in the larger HSHG 
+stocks, which is enticing to attribute to the
+larger abolute stock size, but other large stocks
+such as QCS Rock sole and WCVI Dover sole do not
+exhibit the same stability of the single-stock 
+model. Furthermore, there were several cases
+where the single-stock AM did not reach 50
+convergent simulation replicates (e.g., Figure 13 
+QCS Rock sole, Comm1_BmsyCV0.5). In contrast, 
+the performance of several data-pooling AMs 
+degraded significantly as the $B_{MSY}$ prior CVs 
+were increased. Most notably, the spatial pooling AM
+failed to reach 50 converged simulations
+under the Comm1 scenario for CVs of .5 and
+1.0; counter-intuitively, the same AM was 
+more stable as CVs were increased under the 
+Surv scenario.
+
+The hierarchical multi-stock AM was least sensitive
+to increases in Bmsy CVs under the Surv scenario. 
+In some cases, median catch loss actually decreased
+as CVs were increased (e.g. Figure 13, HSHG Rock sole),
+and in all but one stock (HSHG Rock sole), the 
+hierarchical model had the lowest median loss under 
+a CV of 1.0. The spatial pooling AM catch loss also 
+decreased  with increasing CVs under the Surv scenario, 
+while the total aggregation and species pooling AMs
+had higher catch loss with increasing CV.
+
+Results were similar under the $U_{MSY}$ CV sensitivity
+analysis, except we observed greater stability
+of catch loss distributions (Figure 14). As with the the
+$B_{MSY}$ CV sensitivity analysis, catch loss generally
+increased with increasing CV, with catch loss from the 
+hierarchical multi-stock AM increasing the least. 
+Distributions of catch loss resulting from all AMs remained
+qualitatively identical under the Comm1 data scenario
+up to a CV of .5 (with the exception of WCVI Rock
+sole under the single-stock AM). In contrast, catch 
+loss under the Surv scenario was less stable than under 
+the Comm1 scenario, with distributions generally 
+separating slightly at a CV of 0.5. Like before,
+the hierarchical multi-stock model has the lowest median
+catch loss under the Surv scenario at all CV levels for
+all stocks except of HSHG Rock sole. This
+time, convergence was an issue for pooled data AMs
+under the Comm1 data scenario with a CV of .1, with
+WCVI species pooling, all spatial pooling, and the
+total aggregation AM failing to reach 50 convergent 
+replicates.
+
+
+
 
 

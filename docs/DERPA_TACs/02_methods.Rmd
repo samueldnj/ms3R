@@ -32,12 +32,12 @@ from its northern tip down to the entrance to Juan de Fuca Strait,
 and corresponds to BC groundfish area 3CD.
 
 All stocks had at least three indices of biomass
-over the course of the historical period. There
-were two commercial fishery dependant catch-per-
-unit-of-effort (CPUE) indices spanning 1976 - 2016, 
-split between a historical trawl fishery (1976 - 1995) 
-and a modern trawl fishery (1995 - 2016), corresponding 
-to pre-and post-implementation of an at-sea-observer 
+over the course of the historical period (Table 1). 
+There were two commercial fishery dependant catch-per-
+unit-of-effort spanning 1976 - 2016, split between a 
+historical trawl fishery (1976 - 1995) and a modern 
+trawl fishery (1995 - 2016), with the split corresponding
+to pre- and post-implementation of an at-sea-observer 
 program, as well as differences in CPUE standardisation. 
 The fishery independent trawl survey biomass indices 
 were the Hecate Strait Assemblage survey, a biennial 
@@ -84,7 +84,7 @@ one species-/area-specific TAC was fully caught.
 
 Closed-loop feedback simulations projected
 population dynamics for all nine stocks forward
-in time for $T = 32$ years, with annual simulated 
+in time for $32$ years, with annual simulated 
 assessments, harvest decisions, and catch
 removed from the population from 2017 - 2048. 
 The following four steps summarise the 
@@ -94,24 +94,25 @@ projection year $t$:
 1. Update stochastic population dynamics and
 generate new catch $C_{s,p,t}$ from effort, 
 and new observation data $I_{s,p,f,t}$ 
-(table ref), aggregate obsservation data 
+(**eqref**), aggregate observation data 
 if using a data-pooled method;
 2. Apply an assessment model to estimate the
 spawning biomass for the following year 
 $\hat{B}_{s,p,t+1}$;
 3. Apply a harvest rate to generate a total
 allowable catch: 
-$TAC_{s,p,t+1} = U_{s,p} \cdot \hat{B}_{s,p,t+1}$;
-4. Allocate effort to fully realise at least
-one TAC in each stock area (tabref for Baranov}:
-$E_{p,t+1} = \max \{ E ~|~ C_{s,p,t+1}(E) \leq TAC_{s,p,t+1} \}$,
+$TAC_{s,p,t+1} = \min \{1.2 * TAC_{s,p,t}, U_{s,p} \cdot \hat{B}_{s,p,t+1} \}$;
+(**eqref**)
+4. Allocate effort $E_{p,t+1}$ to fully realise at least
+one TAC in each stock area (**eqref**):
+$E_{p,t+1} = \max \{ E ~|~ C_{s,p,t+1}(E) \leq TAC_{s,p,t+1} \forall s \}$,
 where $C_{s,p,t+1}(E)$ is the catch of species
 $s$ when effort $E$ is applied in area $p$ in year
 $t+1$.
 
-Each simulation consisting of $T = 32$ projection years was 
+<!-- Each simulation consisting of $32$ projection years was 
 repeated 100 times to integrate over stochasticity
-in recruitment and relative abundance observations. 
+in recruitment and relative abundance observations.  -->
 
 ### Operating Model
 
@@ -131,14 +132,11 @@ mortality
 \begin{equation}
 F_{s,p,t} = q^{F}_{s,p} \cdot E_{p,t},
 \end{equation}
-where $F_{s,p,t}$ is the fishing mortality
-rate applied to species $s$ in stock-area $p$
-by fleet $f$ in year $t$, $q^{F}_{s,p}$
-is the commercial catchabiluty coefficient
-scaling trawl effort $E_{p,t}$ in area $p$ 
-to fishing mortality [Johnson and Cox, in prep];
-see Table X for the parameters used in our
-simulations.
+where $F_{s,p,t}$ is the fishing mortality rate applied 
+to species $s$ in stock-area $p$ by fleet $f$ in year 
+$t$, $q^{F}_{s,p}$ is the commercial catchability 
+coefficient scaling trawl effort $E_{p,t}$ in area $p$ 
+to fishing mortality (Table 2) [Johnson and Cox, in prep].
 
 The above effort model allows us to derive
 a multi-species maxmimum yield for the trawl
@@ -194,32 +192,31 @@ For simulated fishing in the projection time period,
 we allocated maximum fishing effort to each area. 
 Maximum effort was defined as the amount required to
 fully utilise the TAC of at least one species, 
-but never exceed any of the three species' TACs (the
-method for determining TACs is explained below). 
-We chose to use maximum effort over an effort dynamics
-model because (i) it is simpler to implement and (ii) 
-it is analogous to fully realising a single-species 
-TACs in single-species closed loop simulation/MSE. We 
-considered including an effort dynamics 
+but never exceed any of the three species' TACs,
+i.e.,
+\begin{equation}
+E_{p,t+1} = \max \{ E ~|~ C_{s,p,t+1}(E) \leq TAC_{s,p,t+1} \forall s \},
+\end{equation}
+where $C_{s,p,t+1}(E)$ is the catch of species
+$s$ when effort $E$ is applied in area $p$ in year
+$t+1$ (the method for determining TACs is explained 
+below). We chose to use maximum effort over an effort 
+dynamics model because (i) it is simpler to implement 
+and (ii) it is analogous to fully realising a 
+single-species TACs in single-species closed loop 
+simulation/MSE. We considered including an effort dynamics 
 model to allocate a pool of effort over the three areas 
-[@hilborn1987general; @walters1999multispecies] using an
-economic model, but determined that this was
-not necessary for determining the management performance 
-of the assessment models that we are testing.
-Furthermore, although the BC groundfish fishery balances
-the utilisation of many more than three TACs in practice,
-and avoids fully utilising TACs to guarantee access
-to fishing grounds in the presence of non-target species,
-we found that the maxmium effort model effectively 
-simulated the TAC under-utilisations for the DER complex.
+using an economic model [@hilborn1987general; 
+@walters1999multispecies], but determined that this was
+not necessary for understanding the relative management 
+performance of the assessment models that we are testing.
+Furthermore, the maximum effort model may be simplified
+over reality, but it did an adequate job of capturing
+choke effects observed in the real BC groundfish 
+fishery system.
 
 
 ### Surplus production stock assessment models
-
-At each time step $t$, the assessment models
-were used to estimate an expected 
-biomass estimate $\hat{B}_{t+1}$ for the following 
-time step. 
 
 At each time step $t$, simulated annual asssessments 
 were used to estimate an expected future spawning 
@@ -251,7 +248,7 @@ listed below:
 4. Single-stock (9 stocks, independent) [**SS**];
 5. Hierarchical multi-stock (9 stocks, sharing info) [**HMS**];
 
-where the number of management units is shown in 
+\noindent where the number of management units is shown in 
 parentheses, and the abbreviated AM label is
 shown in bold in square brackets. Details
 of the AM configurations are in the online
@@ -260,17 +257,16 @@ supplemental material.
 ### Data generation for AMs
 
 Time series of catch and biomass indices
-were generated for fitting the simulated
-assessment models. Catch-per-unit-of-effort
-(CPUE) indices were generated from the 
-commercial fleets from 1976 - 1995 
-(historical) and 1995 - 2016 (modern), 
-and survey trawlable biomass indices were
-generated for the Hecate Strait assemblage
-survey from 1984 - 2002, and in the Synoptic
-survey from 2003 - 2048. We outline the
-biomass index data generation methods for 
-stock specific AMs and data-pooled AMs below.
+were simulated in the historical and projection
+periods for fitting the simulated
+assessment models. With the exception of the
+Synoptic trawl survey, which is the only
+index simulated after 2016, simulated data matched
+the extents of the real DER complex biomass
+index data sources (Table 3). Standard errors
+for each data source's log-normal observation
+error distributions are given in the supplemental
+material.
 
 Biomass indices for individual stocks depended
 on the nature of the index. Assemblage and
@@ -336,7 +332,7 @@ assessment model projections of biomass.
 The proposed total allowable catch (TAC) was 
 set as the the product
 \begin{equation}
-TAC'_{s,p,t+1} =  U_{s,p} \cdot \hat{B}_{s,p,t+1} \},
+TAC'_{s,p,t+1} =  U_{s,p} \cdot \hat{B}_{s,p,t+1},
 \end{equation}
 where $U_{s,p}$ is the target harvest rate, and
 $\hat{B}_{s,p,t+1}$ is the projected year $t+1$ 
@@ -353,8 +349,26 @@ the yield and spawning biomass, respectively,
 associated with $E_{MSY,MS,p}$ for species $s$
 in area $p$. 
 
-Pooled TACs were set analagously, 
-with pooled target harvest rates applied to 
+Final TACs were determined by comparing
+the proposed TAC to the previous time-step's
+TAC. Inter-annual increases in TAC were limited to
+20\% for all individual stocks as a precautionary
+measure, i.e.,
+\begin{equation}
+TAC_{s,p,t+1} = \min \{ TAC'_{s,p,t+1},1.2 * TAC_{s,p,t}\},
+\end{equation}
+where $TAC'_{s,p,t+1}$ is the proposed TAC determined
+above, and $TAC_{s,p,t}$ is the previous year's
+TAC. The limited increase reduces overfishing as 
+a result of optimistic assessment errors, potentially 
+requiring several years of increases to realise 
+target harvest rates as set by assessment model 
+estimates. Conversely, no limit was applied to TAC 
+reductions, so that steep declines in assessment 
+biomass would lead to steep declines in catch.
+
+Pooled TACs were set analagously to the stock-specific
+case above, with pooled target harvest rates applied to 
 biomass projections from pooled assessments. For a
 spatially pooled assessment of species $s$, 
 we defined the spatially pooled target harvest 
@@ -364,44 +378,33 @@ U_{s} = \frac{\sum_p MSY_{MS,s,p}}{\sum_p B_{MSY,MS,s,p}},
 \end{equation}
 where the notation is as defined above. Species 
 pooled harvest rates and total aggregation
-harvest rates were defined similarly.
+harvest rates were defined analogously.
 
 Pooled TACs were split within an area or across
 spatial strata proportional to Synoptic trawl
 survey indices for the individual stocks. For example, 
 if the TAC for area $p$ is set by a species pooled
 assessment, then the proposed TAC for species $s$ is defined as
-\[
+\begin{equation}
 TAC'_{s,p,t+1} = \frac{\bar{I}_{s,p,2}}{\sum_{s'} \bar{I}_{s',p,2}} TAC_{p,t+1},
-\]
+\end{equation}
 where $\bar{I}_{s,p,2}$ is the 2-year running average
 of individual biomass indices from the Synoptic
 survey for species $s$ in area $p$. The 2-year average
-is used to reduce the effect of observation errors on
-the apportionment rule, and because the synoptic survey 
-alternates the legs it runs each year, so some individual
-stock indices are missing each year.
+is used because the synoptic survey alternates the legs 
+it runs each year, so some individual stock indices are 
+missing.
 
-Final TACs were determined by comparing
-the proposed TAC to the previous time-step's
-TAC. Inter-annual increases in TAC were limited to
-20\% for all individual stocks to create a 
-slow-up/fast-down TAC dynamic, i.e.,
-\begin{equation*}
-TAC_{s,p,t+1} = \min \{ TAC'_{s,p,t+1},1.2 * TAC_{s,p,t}\},
-\end{equation*}
-where $TAC'_{s,p,t+1}$ is the proposed TAC determined
-above, and $TAC_{s,p,t}$ is the previous year's
-TAC. The limited increase reduces overfishing as 
-a result of optimistic assessment errors, potentially 
-requiring several years of increases to realise 
-target harvest rates (i.e., slow-up). Conversely, 
-no limit was applied to TAC reductions, so that steep 
-declines in assessment biomass would lead to steep declines in
-catch, reducing catch to near-zero levels (i.e.,
-fast-down).
-
-
+Note that due to the maximum effort allocation model 
+described above, TACs were not likely to be completely 
+caught for all species within an area. We defined the 
+realised catch/TAC utilisation ratio as
+\begin{equation}
+\upsilon_{s,p,t} = \frac{C_{s,p,t}}{TAC_{s,p,t}},
+\end{equation}
+where $C_{s,p,t}$ is the realised catch of species
+$s$ in area $p$ at time $t$, and $TAC_{s,p,t}$ is 
+the TAC set according to the rules above.
 
 ## Simulation experiments and performance
 
@@ -411,18 +414,15 @@ scenarios. We integrated over the stochastic processess
 by running 100 random replicates of each combination. To
 eliminate the effect of random variation between combinations
 of assessments and data scenarios, each simulation was 
-initialised with the same set of 100 seeds. We ran extra 
-replicates until the sample size of 100 was reached 
-when AMs failed to converge in the closed loop simulations, 
-the rate of which was variable among AMs and data scenarios. 
-The operating model was run for two Dover sole generations
-[32 years; @seber1997estimation], which had the longest 
-generation time in the DER complex.
+initialised with the same set of 100 seeds. The operating 
+model was run for two Dover sole generations [32 years; 
+@seber1997estimation], which was the species with the 
+longest generation time in the DER complex.
 
-For all DER stocks, the main differences
-between OM replicates were in simulated survey observation 
+For all DER stocks, the main differences between OM 
+replicates were in simulated survey observation 
 errors and recruitment process error deviations during
-the projection period (2016 onwards). Operating model 
+the projection period (2017 onwards). Operating model 
 population dynamics and index data were identical among 
 replicates for each stock during the operating model 
 historical period. Until a few years before the end of 
@@ -435,7 +435,7 @@ period, and bias corrected so that asymptotic medians
 matched their expected values, i.e.,
 \begin{align}
 I_{s,p,f,t} &= q_{s,p,f} \cdot B_{s,p,f,t} \cdot \exp( \tau_{s,p,f} \cdot \delta_{s,p,f,t} - 0.5\tau^2_{s,p,f} ) \\
-R_{s,p,t}   &= \overline{R}_{s,p,t} \cdot \cdot \exp( \sigma_{s,p} \cdot \epsilon_{s,p,t} - 0.5\sigma^2_{s,p} ) 
+R_{s,p,t}   &= \overline{R}_{s,p,t} \cdot \exp( \sigma_{s,p} \cdot \epsilon_{s,p,t} - 0.5\sigma^2_{s,p} ) 
 \end{align}
 where $\tau_{s,p,f}$ is the log-normal observation error 
 standard deviation, $\delta_{s,p,f,t}$ is the annual 
@@ -464,15 +464,25 @@ survey, Synoptic survey;
 We avoided running a scenario that reduced to 
 only the Synoptic survey, because the Assemblage 
 survey only runs in the HSHG stock area, so
-the **AS** scenario was effectively Synoptic 
+the **Surv** scenario was effectively Synoptic 
 only for the 6 stocks outside of the HSHG area.
 Furthermore, we were interested in whether the survey data 
 in HSHG would help improve management performance 
 in the other two areas, as predicted in previous 
 simulation experiments [@johnson2018evaluating].
 
+**NOTE: last line above is actually an argument
+for doing a Surv1 and Surv2 scenario, and comparing
+results. What does SPC think? I think less is more
+at this point - add it to discussion**
 
-### Omniscient manager simulations
+### Performance evaluation
+
+#### Omniscient manager simulations
+
+**NOTE: move this entire section to an appendix?
+it could just be referenced by the following
+section on performance metrics**
 
 We measured our MP performance against a simulated
 omniscient manager of the fishery. An omniscient 
@@ -480,10 +490,11 @@ manager is aware of all the consequences of their
 actions, and is able to adapt the management to 
 meet given objectives [@walters1998evaluation]. We found
 that comparing to an omnisicient manager was preferable 
-to using standard MSE metrics, such as probability of avoiding
-limit depletion levels, as most stocks were in a healthy
-state (i.e. above $B_{MSY}$) and limit depletion
-levels are arbitrary.
+to using standard metrics used in management strategy
+evaluation [@punt2016management], such as the probability 
+of avoiding limit depletion levels, as most stocks were 
+in a healthy state (i.e. above $B_{MSY}$) and limit 
+depletion levels are arbitrary.
 
 We implemented the omniscient manager as an optimisation
 of future fishing effort by area, with the objective
@@ -503,10 +514,9 @@ areas being above 20% ($\mathcal{P}_{diff}$) to match
 the TAC smoother in stochastic experiments, and (ii) 
 differences greater than 10% between the last 
 year of historical effort and the first year 
-$2017$ of simulated effort ($\mathcal{P}_{init}$),
-we describe the penalty functions in detail in 
-supplementary material. Details of the penalty
-functions are supplied in the supplemental material.
+$2017$ of simulated effort ($\mathcal{P}_{init}$).
+Definitions of the penalty functions are supplied in 
+the supplemental material.
 
 We ran the omniscient manager simulation for every random
 seed that was used in the stochcastic MP simulations. By doing so, 
@@ -517,17 +527,13 @@ the effect of transient dynamics at the beginning of the
 projection, and any end effects from the end of the projection.
 
 
-### Performance metrics
-
-
 #### Cumulative loss and average rankings
-We measured AM performance under stochastic
-simulations by comparing the realised catch 
-and biomass trajectories to their respective
-optimal solutions obtained via the omniscient
-manager. For each stochastic trajectory, the total
-relative and absolute loss of catch and biomass
-was calculated as [@walters1998evaluation]:
+We measured AM performance under stochastic simulations 
+by comparing the realised catch and biomass trajectories 
+to their respective optimal solutions obtained via the 
+omniscient manager. For each stochastic trajectory, the 
+cumulative absolute loss in catch and biomass was calculated 
+as [@walters1998evaluation]:
 \begin{align}
 L_{abs,s,p} &= \sum_{t = T_1}^{T_2} \vert X_{s,p,t,sim} - X_{s,p,t,omni} \vert,
 \end{align}
@@ -536,20 +542,20 @@ or spawning biomass series for species $s$ and stock $p$
 from stochastic simulations ($sim$) or the omniscient 
 manager simulation ($omni$) simulation. When repeated 
 over all random seed values, the loss functions generate 
-a distribution of total biomass and catch loss, which 
-we compare for performance of each stochastic MP. Total 
-loss was calcualted for the ten projection year 
-period $T_1 = 2026$ to $T_2 = 2035$, chosen in the middle 
-of the projection period because loss in the 
+a distribution of cumulative biomass and catch loss, which 
+we compared for performance of each AM under the four
+data scenarios. Cumulative loss was calculated for the 
+ten year period $T_1 = 2026$ to $T_2 = 2035$, chosen in the 
+middle of the projection period because loss in the 
 earlier time periods was optimistically biased by the TAC
 smoother.
 
 Cumulative absolute loss was used to calculate the relative
 rank of each AM for each species/stock/OM scenario 
-combination (lower loss ranked higher). We then calculated 
-the average, minimum, and maximum rank of each AM 
-across species and stocks to determine the general 
-performance under each OM scenario.
+combination, where lower loss ranked higher. We then 
+calculated the average, minimum, and maximum rank of 
+each AM across species and stocks to determine the average 
+performance of each AM under each OM scenario.
 
 #### Biomass/catch trade-offs
 
@@ -561,34 +567,45 @@ $C_{s,p,t}/MSY_{MS,s,p}$, and median biomass relative
 to the biomass level at which multi-species maximum
 yield is achieved $B_{s,p,t} / B_{MSY,MS,s,p,t}$. Medians
 of each quantity were taken over all replicates, and 
-the time period $T_1 \leq t \leq T_2$. 
+the time period $2026 \leq t \leq 2035$. 
 
 
 
-## Sensitivity runs
+## Sensitivity analyses
 
-Given the need for informative prior distributions to 
-stabilise the assessment model behaviour in simulations, 
-we conducted sensitivity analyses. Sensitivity
-analyses focused on the prior distributions applied to
-the assessment model estimates of $B_{MSY}$ and $U_{MSY}$
-parameters in all AM structures, as well as the 
-hierarchical prior distribution standard deviations 
-for the $U_{MSY}$ and Synoptic catchability $q_{Syn}$
-parameters under the hierarchical multi-stock AM structure. 
-We also expected the technical interactions between species
-to have an effect on the outcomes, so devised a scenario where
-we randomly switched commercial trawl catchability scalars
-$q^{F}_{s,p}$ within an area. The factors for sensitivity 
-analyses are summarised in table 3.
+We conducted four sensitivity analyses to fixed parameters
+in our operating model and assessment models (Table 4). The
+first of these randomly permuted the operating model 
+commercial catchability parameter $q^{F}_{s,p}$ between 
+species within an area. Because the commercial catchability
+parameter determines technical interactions, we expected
+this permutation to affect the choke species within each
+area, and therefore the performance of each AM through
+different TAC utilisation ratios, and different cumulative
+loss values. We also produced a new omniscient manager 
+simulation with the same catchability permutation as 
+the sensitivity analysis for calculating loss functions.
 
-1. Bmsy/Umsy prior CV = 0.1, 0.5, 1.0
-2. HMS shrinkage prior SDs 0.1, 0.2, 0.5
-3. Switching commercial catchabilities randomly within an area
+The remaining three sensitivity analyses adjusted fixed
+prior distribution standard deviations in the assessment
+model. Several informative prior distributions were
+needed to stabilise the assessment model behaviour in 
+simulations, especially for single-stock methods
+under lower data-quality scenarios. Sensitivity
+analyses focused on the coefficients of variation 
+in prior distributions applied to the assessment model 
+estimates of $B_{MSY}$ and $U_{MSY}$ parameters in all AM 
+structures, as well as the hierarchical prior 
+distribution standard deviations for the $U_{MSY}$ 
+and Synoptic survey trawl efficiency $q$ parameters 
+under the hierarchical multi-stock AM structure. 
 
-Sensitivity run performance was measured via convergence 
-rate and total biomass and catch loss. To reduce
-computational overhead, we only ran sensitivity 
-analyses for the Comm1 and Surv scenarios, and only
-for 50 replicates.
+We measured sensitivity analysis performance via 
+cumulative absolute catch loss for all sensitivity 
+analyses. We also compared TAC utilisation ratios 
+between the main experiment and sensitivity case for 
+the commercial catchability permutation. To reduce 
+computational overhead, we only ran 50 replicates 
+under the Comm1 and Surv scenarios for all sensitivity 
+analyses.
 

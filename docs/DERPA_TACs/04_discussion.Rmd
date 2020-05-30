@@ -36,7 +36,12 @@ TAC utilisation issue highlights two things: TACs should
 definitely consider technical interactions, and that
 being choked out by other species does not necessarily
 mean that the choke species TAC is set too low  - it may
-be that the TAC being choked is too high.
+be that the TAC being choked is set too high by a positive
+assessment error. Care must be taken to avoid the latter
+situation if attempting to include technical interactions
+in a management/decision system. Targeting also
+plays a role [@branch2008matching].
+
 
 
 
@@ -44,6 +49,9 @@ Second takeaway: TAC utilisation issue? Optimal biomass
 under Fmsy_MS? Need to drop fishing to historic lows
 in some replicates highlights that development is not
 necessarily a bonanza...
+
+
+For DER model paper:
 
 The theoretical optima from the multi-species complex yield curves 
 was counter to our expectations. We expected that the optimal 

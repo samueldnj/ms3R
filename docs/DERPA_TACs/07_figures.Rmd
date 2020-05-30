@@ -186,6 +186,27 @@ Coloured point symbols show median biomass and catch for the period
 the same scenario are joined by a line, with symbols and line 
 types explained in the figure legend."
 
+
+lossCatAbsBmsyPriorSensCap  <- "Distributions of cumulative absolute 
+loss in catch biomass (kt) for the projection years 2026 to 2035 under 
+each AM for the $B_{MSY}$ Prior CV sensitivity analysis scenarios (x-axis 
+labels). The points show the median loss, while line segments show 
+the central 90\\% of cumulative loss  distributions. Panels show the cumulative loss distributions by 
+species (columns) and stocks (rows). Each AM point type and 
+colour is shown in the legend at the bottom. Loss distributions
+for AMs that couldn't reach 50 replicates with satisfactory AM
+convergence are shown as a dashed line."
+
+lossCatAbsUmsyPriorSensCap  <- "Distributions of cumulative absolute 
+loss in catch biomass (kt) for the projection years 2026 to 2035 under 
+each AM for the $U_{MSY}$ Prior CV sensitivity analysis scenarios (x-axis 
+labels). The points show the median loss, while line segments show 
+the central 90\\% of cumulative loss  distributions. Panels show the cumulative loss distributions by 
+species (columns) and stocks (rows). Each AM point type and 
+colour is shown in the legend at the bottom. Loss distributions
+for AMs that couldn't reach 50 replicates with satisfactory AM
+convergence are shown as a dashed line."
+
 ```
 
 ```{r stockMap, echo = FALSE, warning = FALSE, fig.cap = DERcplxMapCap }
@@ -354,5 +375,64 @@ plotBatchCatchBioTradeoff(  groupFolder = params$groupFolder,
                             minSampSize = 100  )
 ```
 
-\elandscape{}
+\clearpage
 
+```{r batchLoss-absC-BmsySens, echo = FALSE, warning = FALSE, fig.cap = lossCatAbsBmsyPriorSensCap, fig.width = 9, out.width = "9in" }
+plotBatchLossDists_Scenario(  groupFolder = "sensRuns_BmsyCV",
+                              prefix = "parBat",
+                              lossType = "abs",
+                              var = "C_ispt",
+                              period = 73:82,
+                              lossList = NULL,
+                              dim1 = 1:3,   # species (D,E,R, DP)
+                              dim2 = 1:3,   # stocks (H,Q,W, CW)
+                              qProbs = c(.05,.5,.95),
+                              clearBadReps = TRUE,
+                              minSampSize = 50,
+                              AMlabs = c( SS = "singleStock",
+                                          HMS = "hierMultiStock",
+                                          SpePool = "speciesPooling",
+                                          SpaPool = "spatialPooling",
+                                          TA = "totalAgg" ),
+                              scenLabs = c( Comm1_BmsyCV0.1  = "Comm1_BmsyCV0.1",
+                                            Surv_BmsyCV0.1  = "Surv_BmsyCV0.1",
+                                            Comm1_BmsyCV0.5  = "Comm1_BmsyCV0.5",
+                                            Surv_BmsyCV0.5  = "Surv_BmsyCV0.5",
+                                            Comm1_BmsyCV1.0  = "Comm1_BmsyCV1.0",
+                                            Surv_BmsyCV1.0  = "Surv_BmsyCV1.0" ),
+                              rotxlabs = 30, xlab = FALSE
+                               )
+
+```
+
+\clearpage
+
+```{r batchLoss-absC-UmsySens, echo = FALSE, warning = FALSE, fig.cap = lossCatAbsUmsyPriorSensCap, fig.width = 9, out.width = "9in" }
+plotBatchLossDists_Scenario(  groupFolder = "sensRuns_UmsyCV",
+                              prefix = "parBat",
+                              lossType = "abs",
+                              var = "C_ispt",
+                              period = 73:82,
+                              lossList = NULL,
+                              dim1 = 1:3,   # species (D,E,R, DP)
+                              dim2 = 1:3,   # stocks (H,Q,W, CW)
+                              qProbs = c(.05,.5,.95),
+                              clearBadReps = TRUE,
+                              minSampSize = 50,
+                              AMlabs = c( SS = "singleStock",
+                                          HMS = "hierMultiStock",
+                                          SpePool = "speciesPooling",
+                                          SpaPool = "spatialPooling",
+                                          TA = "totalAgg" ),
+                              scenLabs = c( Comm1_UmsyCV0.1  = "Comm1_UmsyCV0.1",
+                                            Surv_UmsyCV0.1  = "Surv_UmsyCV0.1",
+                                            Comm1_UmsyCV0.5  = "Comm1_UmsyCV0.5",
+                                            Surv_UmsyCV0.5  = "Surv_UmsyCV0.5",
+                                            Comm1_UmsyCV1.0  = "Comm1_UmsyCV1.0",
+                                            Surv_UmsyCV1.0  = "Surv_UmsyCV1.0" ),
+                              rotxlabs = 30, xlab = FALSE
+                               )
+
+```
+
+\elandscape{}

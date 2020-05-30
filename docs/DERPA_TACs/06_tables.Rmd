@@ -42,23 +42,65 @@ nG <- fitReport$repOpt$nG
 
 
 ```{r tableCaps, echo = FALSE, include = FALSE, warning = FALSE }
-stockStatusTabCap <- "Single-species MSY based reference points,
-stock status, and commercial trawl catchability scalar for all 
+dataSourceCap <- "Fishery dependent and independent indices of 
+biomass available for stock assessments of DER complex species."
+
+stockStatusTabCap <- "Unfished biomas, single-species MSY based 
+reference points $B_{MSY,SS}$ and $U_{MSY,SS}$, stock status as absolute
+biomass in 2016, depletion relative to unfished, and single-species
+$B_{MSY,SS}$, and commercial trawl catchability scalar $q^{F}$ for all 
 DER complex stocks in 2016."
 
 expDesignTableCap <- "Summary of OM and AM factors in the experimental
 design for the simulation experiments."
 
-omniPerfTabCap <- "Biomass and catch summary statistics for all nine DER
+sensRunTableCap   <- "Summary of sensitivity analyses, showing
+the total number of experiments, the factor being varied, the
+levels of that factor, and the data scenarios and AMs included
+in the analysis."
+
+omniPerfTabCap <- "Biomass and catch summaries for all nine DER
 complex management units under the omniscient manager simulations."
+
+AM_relErrorsTabCap <- "Bias and precision metrics (MRE, MARE) for assessment 
+model estimates under the Comm1 scenario. Metrics were calculated for 
+spawning stock biomass $B_t$, assessment model 
+$B_{MSY}$, and assessment model $U_{MSY}$. Operating model $B_{MSY}$
+for pooled data AMs was defined by pooling optimal biomass for
+component stock, and operating model $U_{MSY}$ was found by pooling 
+single-species maximum yield, and taking the ratio of pooled yield
+and biomass."
 
 lossRankTabCap <- "Summary of rankings of each AM in each scenario 
 under relative and absolute catch and biomasss loss. Each column shows
 the rank averaged over all 9 DER complex stocks, with the maximum
 and minumum shown in parentheses."
 
+
+
 ```
 
+
+```{r dataSources, echo = FALSE, warning = FALSE}
+
+dataSourcesTable <- tibble::tribble( 
+~Series,             ~Extent,           ~Description,
+"comm.hist",         "1976 - 1995",     "Historical period commercial CPUE",
+"comm.mod",          "1996 - 2016",     "Modern period commercial CPUE",
+"HSAss",             "1984 - 2002",     "Hecate Strait Assemblage trawl survey biomass index, biennial",
+"Syn",               "2003 - 2016",     "Multi-species Synoptic trawl survey biomass index, biennial",
+)
+
+kable(  dataSourcesTable, escape = FALSE,
+        booktabs = TRUE,
+        caption = dataSourceCap,
+        align = rep("l",ncol(dataSourcesTable))) %>%
+  kable_styling(latex_options = c("striped", "hold_position","scale_down"),
+                bootstrap_options = c("striped", "hover"))
+
+```
+
+\clearpage
 
 
 ```{r stockStatusTab, echo = FALSE }
@@ -173,6 +215,23 @@ kable(  expFactorLabelsTable, escape = FALSE,
 ```
 
 \clearpage{}
+
+```{r sensRunsTable, echo = FALSE}
+sensRunTable <- tibble::tribble( 
+    ~N,     ~Factor,                ~Levels,            ~Scenarios,     ~AMs,
+    10,     "$q^{F}$",              "Randomly switched","Comm1, Surv",  "TA, SpaPool, SpePool, HMS, SS",
+    30,     "$B_{MSY}$ prior SD",   "$0.1, 0.5, 1.0$",  "Comm1, Surv",  "TA, SpaPool, SpePool, HMS, SS",
+    30,     "$U_{MSY}$ prior SD",   "$0.1, 0.5, 1.0$",  "Comm1, Surv",  "TA, SpaPool, SpePool, HMS, SS",
+    6,      "$\\tau_q$, $\\sigma_U$", "$0.1, 0.2, .5$",   "Comm1, Surv",  "HMS", )
+
+kable(  sensRunTable, escape = FALSE,
+        booktabs = TRUE,
+        caption = sensRunTableCap,
+        align = rep("l",ncol(sensRunTable))) %>%
+  kable_styling(latex_options = c("striped", "hold_position","scale_down"),
+                bootstrap_options = c("striped", "hover")) 
+```
+
 \blandscape
 
 ```{r omniPerfTab, echo = FALSE, warning = FALSE}
@@ -217,6 +276,47 @@ kable(  omniPerfTab, escape = FALSE,
 ```
 
 \elandscape
+
+\clearpage
+
+```{r AMmareTable, echo = FALSE }
+
+mareTable <- read.csv(here::here("Outputs",params$groupFolder,"mareTable.csv"))
+
+round2 <- function(x)
+{
+  x <- round(x,2)
+  x
+}
+
+# Replace Scenario names and AM names
+AMlabs <- c(  "singleStock_omF_MSrefPts"= "SS",
+              "hierMultiStock_omF_MSrefPts"= "HMS",
+              "speciesPooling_omF_MSrefPts"= "SpePool",
+              "spatialPooling_omF_MSrefPts"= "SpaPool",
+              "totalAgg_omF_MSrefPts"= "TA")
+scenLabs <- c(  "DERfit_HcMcAsSsIdx" = "Comm1",
+                "DERfit_McAsSsIdx" = "Comm2",
+                "DERfit_McSsIdx" = "Comm3",
+                "DERfit_AsSsIdx"  = "Surv")
+
+mareTable <- mareTable %>%
+                  mutate( Scenario = stringr::str_replace_all(Scenario, scenLabs),
+                          AM = str_replace_all(AM, AMlabs) ) %>%
+                  dplyr::select( Scenario, AM, Species, Stock, MARE_Bt, MRE_Bt, MARE_Bmsy, MRE_Bmsy, MARE_Umsy, MRE_Umsy ) %>%
+                  filter( Scenario == "comm2" ) %>%
+                  arrange(Scenario, AM, Species) %>%
+                  mutate_if(is.numeric, round2 )
+
+
+kable(  mareTable, escape = FALSE, 
+        caption = AM_relErrorsTabCap, booktabs = T,
+        align = rep("c",ncol(mareTable))) %>%
+  kable_styling(latex_options = c("striped", "scale_down","hold_position"),
+                bootstrap_options = c("striped", "hover")) 
+
+```
+
 \clearpage
 
 ```{r lossRankTable, echo = FALSE, warning =FALSE}

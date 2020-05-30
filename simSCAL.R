@@ -3249,11 +3249,12 @@ combBarrierPen <- function( x, eps,
 
   if( ctlList$opMod$switchCommCatchability)
   {
-    set.seed <- 1234
+    set.seed(1234)
+    
     for( p in 1:nP )
     {
-      newSpeciesIdx <- sample( x = 1:nP, size = nP )
-      obj$om$qF_spft[newSpeciesIdx,,,tMP:nT] <- obj$om$qF_spft[1:nS,,,tMP:nT]
+      newSpeciesIdx <- sample( x = 1:nS, size = nS )
+      obj$om$qF_spft[newSpeciesIdx,p,,tMP:nT] <- obj$om$qF_spft[1:nS,p,,tMP:nT]
     }
   }
 
