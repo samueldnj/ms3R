@@ -3247,17 +3247,6 @@ combBarrierPen <- function( x, eps,
   obj$om$q_spft[,,,tMP:nT]        <- repObj$q_spft[,,,tMP-1]
   obj$om$qF_spft[,,,tMP:nT]       <- obj$om$qF_spft[,,,tMP-1]
 
-  if( ctlList$opMod$switchCommCatchability)
-  {
-    set.seed(1234)
-    
-    for( p in 1:nP )
-    {
-      newSpeciesIdx <- sample( x = 1:nS, size = nS )
-      obj$om$qF_spft[newSpeciesIdx,p,,tMP:nT] <- obj$om$qF_spft[1:nS,p,,tMP:nT]
-    }
-  }
-
   # Now we have enough info to calculate reference points
   stime <- Sys.time()
   message(" (.condMS3pop) Calculating Fmsy and Emsy reference points\n")
@@ -3343,6 +3332,17 @@ combBarrierPen <- function( x, eps,
   obj <- .calcTimes( obj )
 
   message(" (.condMS3pop) Running OM for historical period.\n")
+
+  if( ctlList$opMod$switchCommCatchability)
+  {
+    set.seed(1234)
+    
+    for( p in 1:nP )
+    {
+      newSpeciesIdx <- sample( x = 1:nS, size = nS )
+      obj$om$qF_spft[newSpeciesIdx,p,,tMP:nT] <- obj$om$qF_spft[1:nS,p,,tMP:nT]
+    }
+  }
 
   # Now, initialise the population
   for( t in 1:(tMP - 1) )
