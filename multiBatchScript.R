@@ -9,8 +9,7 @@ library(parallel)
 source("ms3R.r")
 source("makeResultPlots.R")
 
-batchControlFiles <- c( "sensRuns_hierSD.bch",
-                        "omniRuns_switchqF.bch" )
+batchControlFiles <- c( "sensRuns_switchqF.bch" )
                        
 nBatchJobs <- length( batchControlFiles )
 
@@ -19,13 +18,12 @@ baseControlFiles  <- c( "simCtlFileBase.txt",
                         "simCtlFileBase.txt")
                         
 
-prefixes       <- c(  "sensRuns_hierSD",
+prefixes       <- c(  "sensRuns_switchqF",
                       "omni_switchqF", )
 
-saveDirName       <- c( "sensRuns_hierSD",
-                        "sensRuns_switchqF", )
+saveDirName       <- c( "sensRuns_switchqF", )
 
-baseLine <- c( "sim_OmniRun_Long",NULL )
+baseLine <- c( "sim_parBatomni_switchqF",NULL )
                         
 nCores  <- rep(detectCores()-1, nBatchJobs)
 
