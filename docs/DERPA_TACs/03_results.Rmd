@@ -368,6 +368,8 @@ up the syntax for setting a random seed**
 
 ### Assesssment model prior distributions
 
+#### Prior CVs for $B_{MSY}$ and $U_{MSY}$
+
 Although catch loss was most sensitive to changes in 
 the $B_{MSY}$ prior CV under the single-stock AMs,
 no AM structure was insensitive (Figure 13). As 
@@ -426,6 +428,8 @@ under the Comm1 data scenario with a CV of .1, with
 WCVI species pooling, all spatial pooling, and the
 total aggregation AM failing to reach 50 convergent 
 replicates.
+
+
 
 
 

@@ -115,5 +115,5 @@ opMod$projObsErrMult 1.0
 opMod$obsErrMult .5
 opMod$phaseInObsErrMult 6
 opMod$commCPUEdata "history/DERPAcpue"
-opMod$switchCommCatchability FALSE
+opMod$switchCommCatchability TRUE
 # <End File>
