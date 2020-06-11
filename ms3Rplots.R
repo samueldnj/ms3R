@@ -2553,7 +2553,7 @@ plotTulipCt <- function(  obj = blob, nTrace = 3,
   nS      <- obj$om$nS
   nP      <- obj$om$nP 
   nT      <- obj$om$nT
-  nReps   <- dim(SB_ispt)[1]
+  nReps   <- dim(C_ispt)[1]
 
   speciesNames  <- obj$om$speciesNames
   stockNames    <- dimnames(obj$ctlList$opMod$histRpt$I_pgt)[[1]]

@@ -43,7 +43,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   # Save output
   .saveBlob(blob = blob, ctlTable, outFolder)
 
-  beepr::beep("complete")
+  # beepr::beep("complete")
 }
 
 
@@ -157,18 +157,160 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   if( ctlList$mp$hcr$type == "conF" )
     obj  <- .applyConstantF( obj, t )
 
-  if( ctlList$mp$hcr$type == "conC" )
+  if( ctlList$mp$hcr$type == "ccRule" )
     obj  <- .calcHCR_ccRule( obj, t )
 
+   if( ctlList$mp$hcr$type == "hgRule" )
+    obj  <- .calcHCR_hgRule( obj, t )
+
+  browser(cat('check tacAlloc_hgRule is working...\n'))
+
   # 4. Allocate catch among fleets
-  for( s in 1:nS )
-    for( p in 1:nP )    
-      obj$mp$hcr$TAC_spft[s,p,,t]    <- obj$mp$hcr$TAC_spt[s,p,t] * obj$om$alloc_spf[s,p,]
+
+
+# .tacAlloc_hgRule()      
+# Purpose:        allocate TAC to spawn on kelp fisheries first and 
+#                 re-distribute remaining catch among fleets.   
+# Parameters:     obj=list containing all variables and parameters
+#                 necessary to compute the quota
+# Returns:        obj with modified alloc_spf and TAC_spft
+# Source:         B Doherty
+.tacAlloc_hgRule <- function( obj, t)
+{
+
+  ctlList <- obj$ctlList # ctl list
+  om      <- obj$om      # operating model
+
+  TAC_p <- obj$mp$hcr$TAC_spt[,,t] # Maximum TAC for each area
+
+  nS  <- om$nS
+  nP  <- om$nP
+  nT  <- om$nT
+  nF  <- om$nF+1
+
+  closedPondAlloc <- 0.0907 # 100 short tons (90.7 t or 0.0907 kt) allocated to each closed pond
+  openPondAlloc   <- 0.0317 # 35 short tons (31.7t or 0.0317 kt) allocated to each open pond
+  minTAC_f        <- mp$hcr$minTAC_f # minimum ammount of TAC for each fleet to open
+  fishF           <- tlList$mp$hcr$fishF # fishing fleets
+
+  # Create array to hold the number of licenses for open and closed ponds
+  sokEff_pg     <- array(NA, dim=c(nP,2)) # g=1 for closed ponds, g=2 for open ponds
+  sokEff_pg[,1] <- ctlList$mp$hcr$sokClosedEff_p
+  sokEff_pg[,2] <- ctlList$mp$hcr$sokOpenEff_p
+
+  # array for fleet allocation of TAC
+  tac_pf <- array(NA, dim=c(nP,nF))
+
+  # Calculate min TAC needed for openings in each area
+  minTAC_p     <- rep(closedPondAlloc,3)
+  if(any(sokEff_pg[p,2]>=1) )
+    minTAC_p[sokEff_pg[p,2]>=1] <- openPondAlloc
+
+  # Initialise counter at 0 for number of licenses fishing
+  nSOK_pg  <- array(0, dim=c(nP,2))
+  maxSOK_g <- c(sum(sokEff_pg[,1]), sum(sokEff_pg[,2])) # max number of licenses
+
+  # Cumshewa/Selwyn: Max 1 SOK license and no commercial fisheries
+  for (p in 1:nP)
+  {
+    
+    remTAC <- TAC_p[p] # object to hold unallocated TAC
+
+    # maximum catch allocated to each license
+    maxTacSOK_g <- c(sokEff_pg[p,1]*closedPondAlloc, sokEff_pg[p,2]*openPondAlloc)
+
+    # If not enough TAC for open or closed ponds, assign zero for all fleets
+    if(TAC_p[p] < minTAC_p[p]  )
+      tac_pf[p,] <- 0
+    
+    # If enough TAC, allocate to open pond, closed pond and seine roe
+    if(TAC_p[p] >= minTAC_p[p]  ) 
+    { 
+      # allocate open ponds first
+      if(fishF[7]==1 & sokEff_pg[p,2] >0)
+      { 
+          
+        # if there is enough TAC, allocate maxTAC to all licenses
+        if(maxTacSOK_g[2] <= TAC_p[p] )
+          tac_pf[p,7] <- maxTacSOK_g[2]
+
+        # if not enough then allocate all TAC for the area
+        if(maxTacSOK_g[2] > TAC_p[p] )
+          tac_pf[p,7]  <- TAC_p[p]
+
+        # update available TAC
+        remTAC <- remTAC - tac_pf[p,7]
+
+      } # END loop allocating TAC to open ponds
+      
+      # allocate remaining TAC to closed ponds
+      if(fishF[6]==1 & sokEff_pg[p,1] >0)
+      {
+        # if there is enough TAC, allocate maxTAC to all licenses
+        if(maxTacSOK_g[1] <= remTAC )
+          tac_pf[p,6] <- maxTacSOK_g[1]
+
+        # if not enough then allocate all remaining TAC
+        if(maxTacSOK_g[2] > remTAC & remTAC > closedPondAlloc)
+          tac_pf[p,6]  <- TAC_p[p]
+
+        # if remaining TAC is not enough for one license allocate 0
+        if(maxTacSOK_g[2] > remTAC & remTAC > closedPondAlloc)
+          tac_pf[p,6]  <- 0
+
+        # update available TAC
+        remTAC <- remTAC - tac_pf[p,6]
+
+
+      } # END loop allocating TAC to closed ponds
+
+      # allocate remaining TAC to seine roe fleet
+      if(fishF[3]==1 & remTAC > minTAC_f[3] ) 
+      {
+        tac_pf[p,3] <- remTAC
+
+        # update available TAC
+        remTAC <- remTAC - tac_pf[p,6]
+
+      } # END loop allocating TAC to seine roe fleet
+
+      # assign zeros for any remaining NAs
+      tac_pf[p,][is.na(tac_pf[p,])] <- 0
+
+      # Check if tac_pf exceed allowable TAC
+      if(sum(tac_pf[p,]) >  TAC_p[p])
+        browser(cat('HCR ERROR: more catch allocated to fleets than avaiable... \n'))
+
+      # update number of licenses filled by area
+      nSOK_pg[p,1] <- tac_pf[p,6]/closedPondAlloc
+      nSOK_pg[p,2] <- tac_pf[p,7]/openPondAlloc
+
+      # Adjust allocation of ponds. If not enough TAC available for SOK Cumshewa/Selwyn (max 1 license) allocate the catch to Juan Perez/Skincuttle (max 10)
+      if(p==1)
+        for(g in 1:2)
+            sokEff_pg[2,g] <- sokEff_pg[2,g] + sokEff_pg[1,g] - nSOK_pg[1,g]
+        
+    } # END loop for allocating TAC  
+  } # END area loop    
+
+  # update tac and fleet allocation
+  obj$mp$hcr$TAC_spft[1,,,t] <- tac_pf
+  obj$mp$hcr$TAC_spt[1,,t]    <- apply(tac_pf, FUN=sum, MARGIN=1)
+
+
+} # END  .tacAlloc_hgRule
+        
+
+
+  # for( s in 1:nS )
+  #   for( p in 1:nP )    
+  #     obj$mp$hcr$TAC_spft[s,p,,t]    <- obj$mp$hcr$TAC_spt[s,p,t] * obj$om$alloc_spf[s,p,]
+
+
 
 
   # Apply SOK allocation rule and convert dead ponded fish to SOK product in TAC
   obj <- .calcAlloc_hgSOK(obj, t)
-
 
   # 5. Update simulated population
   obj <- .ageSexOpMod(obj, t)
@@ -513,7 +655,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   {
     nP    <- repObj$nP       # Number of stocks
     nX    <- 1               # Number of sex classes
-    nF    <- repObj$nG       # Number of fleets
+    nF    <- repObj$nG       # Number of fleets from SISCA
     nS    <- 1               # Number of species
     nL    <- 1               # Number of length classes 
 
@@ -574,6 +716,9 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   # Time varying natural mortality
   om$M_axspt          <- array(NA, dim = c(nA,nX,nS,nP,nT))
   om$initSurv_axsp    <- array(NA, dim = c(nA,nX,nS,nP) )
+
+  # Spawn on kelp post ponding mortality
+  om$pondM_ft   <- array(NA, dim = c(nF,nT))
 
   # Growth model pars
   om$L1_s       <- array(NA, dim = c(nS))
@@ -636,7 +781,6 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     om$Rinit_sp[1,] <- repObj$Rinit_p
     om$M_xsp[1,1,]  <- repObj$meanM_p
     om$h_sp[1,]     <- repObj$rSteepness_p
-    om$postPondM    <- repObj$postPondM
 
     # Time-varying, age-structured natural mortality
     om$M_axspt[,1,1,,1:(tMP-1)] <- repObj$M_apt[,,1:(tMP-1)]
@@ -844,7 +988,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
 
   # SOK stuff
   P_spft            <- om$P_spft
-  postPondM         <- om$postPondM
+  pondM_ft          <- om$pondM_ft
 
   # Create a container to hold 
   # spawnN_aspx (for better array dim matching later)
@@ -1099,7 +1243,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
                                     pFem = .5,
                                     fec = 200,
                                     initF = 0.01,
-                                    pEff = .5,
+                                    pEff = .35,
                                     gamma = 0.002,
                                     W_axsp = tmpW_axsp,
                                     nA = nA,
@@ -1121,7 +1265,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     }
 
 
-    # Now apply discrete fisheries
+    # Now apply discrete fisheries 
     discRemList <- applyDiscreteFisheries(  N_axsp          = tmpN_axsp,
                                             sel_axspf       = sel_axspft[,,,,,t],
                                             W_axspf         = tmpW_axspf,
@@ -1131,7 +1275,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
                                             M_axsp          = tmpM_axsp,
                                             TAC_spf         = TAC_spft[,,,t],
                                             P_spf           = tmpP_spf,
-                                            postPondM       = postPondM,
+                                            pondM_f         = pondM_ft[,t],
                                             nA = nA, nX = nX, nS = nS, nP = nP, nF = nF )
 
     # discRemList contains:
@@ -1150,7 +1294,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     vB_spft[,,,t] <- apply( X = vB_axspft[,,,,,t,drop = FALSE], FUN = sum, MARGIN = 3:5, na.rm = T )
     F_spft[,,,t]  <- TAC_spft[,,,t] / vB_spft[,,,t]
 
-    F_spft[,,sokFleets,t] <- tmpP_spf[,,sokFleets] * (1 - exp(-postPondM)) / vB_spft[,,sokFleets,t]
+    F_spft[,,sokFleets,t] <- tmpP_spf[,,sokFleets] * (1 - exp(-pondM_ft[sokFleets,t])) / vB_spft[,,sokFleets,t]
 
     # Pull spawn timing numbers at age
     spawnN_axsp[1:nA,,,] <- discRemList$spawnN_axsp
@@ -1428,8 +1572,8 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   if( sum(obj$mp$hcr$TAC_spft[,,6,t]) < 0.3 & sum(obj$mp$hcr$TAC_spt[,,t]) >= 0.3 )
   {  
     # recalculate allocation  
-    alloc_f     <- obj$om$alloc_spf[1,1,]
-    alloc_f[6] <- minSOK/sum(obj$mp$hcr$TAC_spt[,,t])
+    alloc_f      <- obj$om$alloc_spf[1,1,]
+    alloc_f[6]   <- minSOK/sum(obj$mp$hcr$TAC_spt[,,t])
     alloc_f[1:5] <- alloc_f[1:5]/sum(alloc_f[1:5])*(1-alloc_f[6])
 
     # Use this allocation for all species and stocks
@@ -1454,6 +1598,180 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   return(obj)
 
 } # END .calcAlloc_hgSOK
+
+# .calcHCR_hgRule()      
+# Purpose:        harvest control rule to generate the quota
+# Parameters:     obj=list containing all variables and parameters
+#                 necessary to compute the quota
+# Requires:       global variable Bmin = initial value for lowest biomass
+# Returns:        the quota=catch
+# Source:         B Doherty, modified from .applyPrecHCR() 
+.calcHCR_hgRule <- function( obj, t )
+{
+
+  hcr     <- obj$mp$hcr
+  ctlList <- obj$ctlList
+  assess  <- obj$mp$assess
+
+  # Pull reference points
+  refPtList   <- obj$rp
+  refPtType   <- ctlList$mp$hcr$refPtType
+
+  # calculate projection time
+  tMP <- obj$om$tMP
+  pt  <- t - tMP + 1
+
+  # Get HCR quantities
+  Uref_sp <- obj$rp$FmsyRefPts$Umsy_sp
+  Uref_sp[1,]   <- ctlList$mp$hcr$Uref_p
+
+  # Create control points
+  Bref_sp <- obj$om$B0_sp
+  hcr$LCP_spt[,,t] <- Bref_sp * ctlList$mp$hcr$LCP
+  hcr$UCP_spt[,,t] <- Bref_sp * ctlList$mp$hcr$UCP
+
+  # Model dims
+  nS  <- obj$om$nS # number of species
+  nP  <- obj$om$nP # of stocks/areas
+  nF  <- obj$om$nF # number of fleet
+  nT  <- obj$om$nT # number of years
+
+  # Pull data
+  I_spft <- obj$mp$data$I_spft
+  C_spt  <- obj$om$C_spt
+  idxF   <- obj$mp
+
+  # Stock status
+  # projSB_sp   <- assess$retroSB_tspt[pt,,,t] 
+  # projVB_sp   <- assess$retroVB_tspft[pt,,,2,t]
+  projSB_p <- I_spft[1:nS,1:nP,5,t-1] + C_spt[,,t-1]
+
+  # Use the last two years of data in Spawn surface Survey
+  # and calculate mean over time to get splitting weights
+  rctMeanI_sp <- apply( X = I_spft[,,5,(t-2):(t-1),drop = FALSE],
+                        FUN = mean,
+                        MARGIN = c(1,2), na.rm = T )
+
+  # Calculate total recent mean index for a species
+  rctMeanI_s <- apply( X = rctMeanI_sp, FUN = sum, MARGIN = 1, na.rm=T)
+
+  # Create propTAC_sp array
+  propTAC_sp <- array(NA, dim=c(nS,nP))
+
+  # Private function to calculate ramped HCR
+  calcRampedHCR <- function( B, LCP, UCP, Uref, lowUmult )
+  {
+    if( B < LCP )
+      U <- lowUmult * Uref
+    if( LCP <= B & B < UCP )
+      U <- (lowUmult + (1 - lowUmult) * (B - LCP) / (UCP - LCP)) * Uref
+    if( UCP <= B )
+      U <- Uref
+
+    U
+  }
+
+
+  # if spatialPooling=TRUE - MP for aggregated stocks (i.e. larger area)
+  # if speciesPooling=TRUE - MP for aggregated species (i.e. mixed fishery)
+
+
+
+  # Spatial MP for stocks and separate MP for each species
+  if( !ctlList$mp$data$spatialPooling & !ctlList$mp$data$speciesPooling )
+  {
+
+    for ( s in 1:nS )
+    {  
+      for (p in 1:nP)
+      {
+        
+        targU <- calcRampedHCR( B    = projSB_p[p] ,
+                                LCP  = hcr$LCP_spt[s,p,t],
+                                UCP  = hcr$UCP_spt[s,p,t],
+                                Uref = Uref_sp[s,p],
+                                lowUmult = 0)
+
+        hcr$TAC_spt[s,p,t] <- targU*projSB_p[p]
+
+        browser()
+
+      }
+      
+      # Calculate proportion of TAC for saving in hcr object
+      propTAC_sp[s,] <- hcr$TAC_spt[s,,t]/sum(hcr$TAC_spt[s,,t])
+
+    }      
+  }
+
+  # Aggregate MP for stocks and separate MP for each species
+  if( ctlList$mp$data$spatialPooling & !ctlList$mp$data$speciesPooling )
+  {
+    browser(cat('Aggregate MP for spatial pooling not yet implemented'))
+
+  }
+
+
+  # Aggregate MP for stocks and aggregate MP for each species
+  if( ctlList$mp$data$spatialPooling & ctlList$mp$data$speciesPooling )
+  {
+    browser(cat('Aggregate MP for species pooling not yet implemented'))
+  }
+
+
+
+  # Spatial MP for stocks and aggregate MP for each species
+  if( !ctlList$mp$data$spatialPooling & ctlList$mp$data$speciesPooling )
+  {
+    browser(cat('Spatial MP for species pooling not yet implemented'))
+  }
+
+  # Apply smoother on TACs
+  if( !is.null(ctlList$mp$hcr$maxDeltaTACup) )
+  {
+    # Determine which TACs are more than maxDeltaTAC
+    # above last year
+    maxDeltaTACup  <- ctlList$mp$hcr$maxDeltaTACup
+    currTAC_sp     <- hcr$TAC_spt[,,t] %>% matrix(byrow=TRUE, nrow=nS,ncol=nP)
+    lastTAC_sp     <- hcr$TAC_spt[,,t-1] %>% matrix(byrow=TRUE, nrow=nS,ncol=nP)
+
+
+    # if last years TAC =0, then find last non-zero TAC
+    if(any(lastTAC_sp==0) )
+    { 
+      for(s in 1:nS)
+      {  
+        pIdx <- which(lastTAC_sp[s,]==0)
+        for( p in pIdx)
+        {
+          tac <- hcr$TAC_spt[s,p,1:t-1]
+          tac <- tac[tac>0]
+          lastTAC_sp[s,p] <- tac[length(tac)]
+        }
+      }    
+    }    
+
+    diffTAC_sp     <- currTAC_sp - lastTAC_sp
+    DeltaTACup_sp  <- diffTAC_sp / lastTAC_sp 
+    deltaDiff_sp   <- DeltaTACup_sp - maxDeltaTACup
+    smoothIdx <- which( deltaDiff_sp > 0 )
+
+    # Apply smoother
+    currTAC_sp[smoothIdx] <- (1 + maxDeltaTACup) * lastTAC_sp[smoothIdx]
+    hcr$TAC_spt[,,t] <- currTAC_sp
+  }
+
+  # Save proportion of TAC for use in retro SB plots
+  hcr$propTAC_spt[,,t] <- propTAC_sp
+
+  # Now put all the lists we modified back into obj
+  obj$mp$hcr    <- hcr
+  obj$mp$assess <- assess
+
+  return(obj)
+
+}  # END .calcHCR_hgRule()
+
 
 # .calcHCR_ccRule()      
 # Purpose:        harvest control rule to generate the quota
@@ -1514,6 +1832,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   # Get HCR quantities
   # Uref_sp <- hcr$Uref_spt[,,t]
   Uref_sp <- obj$rp$FmsyRefPts$Umsy_sp
+  Uref_sp[1,]   <- ctlList$mp$hcr$Uref_1p
 
   # calculate projection time
   tMP <- obj$om$tMP
@@ -3583,6 +3902,33 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
 
   }  
 
+  # Post ponding M for open and closed ponding
+  for( f in 1:nF )
+  {
+    if( !(obj$om$fleetType_f[f] %in% c(2,3)) )
+      next()
+
+    # Closed pond fleets
+    if(obj$om$fleetType_f[f] ==2)
+    {
+      obj$om$pondM_ft[f,1:(tMP-1)] <- repObj$postPondM
+
+      # Draw M in projections from log-normal distribution
+      pondM <- obj$ctlList$opMod$pondMmu_f[f]
+      logSD <- obj$ctlList$opMod$pondMlogSD_f[f]
+
+      obj$om$pondM_ft[f,tMP:nT] <- exp(rnorm(pT, log(pondM), logSD))
+
+    } 
+
+    # open pond SOK fleets
+    if(obj$om$fleetType_f ==3)
+      obj$om$pondM_ft[f,] <- 0
+      
+
+  }  
+
+
   # Otherwise copy M_axsp forward from last year to get running
   if(is.null(ctlList$opMod$projM) )  
     for( t in tMP:nT )
@@ -4580,7 +4926,7 @@ applyDiscreteFisheries <- function( N_axsp,
                                     M_axsp,
                                     TAC_spf,
                                     P_spf,
-                                    postPondM,
+                                    pondM_f,
                                     nA, nX, nS, nP, nF )
 {
   # First, order fleetTiming
@@ -4696,7 +5042,7 @@ applyDiscreteFisheries <- function( N_axsp,
   # Add ponded fish at age reduced by post-ponding M
   sokFleets <- which(fleetType_f == 2)
   for( fIdx in sokFleets )
-    endN_axsp[1:nA,,,] <- endN_axsp[1:nA,,,] + C_axspf[1:nA,,,,fIdx] * exp(-postPondM)
+    endN_axsp[1:nA,,,] <- endN_axsp[1:nA,,,] + C_axspf[1:nA,,,,fIdx] * exp(-pondM_f[fIdx])
 
   # Return model states
   outList <- list(  endN_axsp   = endN_axsp,
