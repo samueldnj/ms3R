@@ -62,7 +62,7 @@ mp$data$idxOn c(5)
 mp$data$obsInt_i c(1)
 mp$data$spatialPooling FALSE
 mp$data$speciesPooling FALSE
-mp$data$idxType c(1,1,1,1,3,1)
+mp$data$idxType c(1,1,1,1,3,1,1)
 mp$data$source "cond"
 mp$hcr$refPtType "SS"
 mp$hcr$Fsource "est"
@@ -112,8 +112,8 @@ opMod$alphaU .05
 opMod$baranovIter 20
 opMod$baranovStep .5
 opMod$condModel "SISCA"
-opMod$commGears c(1:3,6)
-opMod$projAlloc_f c(0.0,0,0,0,0,1)
+opMod$commGears c(1:3,6:7)
+opMod$projAlloc_f c(0,0,0,0,0,1,0)
 opMod$Ftype "disc"
 opMod$ut_50 .85
 opMod$ut_95 .75
