@@ -340,7 +340,7 @@ makeStatTable <- function( sims = 1, folder = "" )
   fYear         <- opMod$fYear
 
   speciesNames  <- "HG Herring"
-  stockNames    <- "Agg"
+  stockNames    <- dimnames(obj$ctlList$opMod$histRpt$I_pgt)[[1]]
 
 
   # get the replicate numbers for succesful fits (PD Hessians) in
@@ -376,7 +376,7 @@ makeStatTable <- function( sims = 1, folder = "" )
                   "pBtGt.4Bmsy", "PBtGt.8Bmsy",
                   "pBtGtBmsy",
                   "pCtGtMSY", "pFtGtFmsy",
-                  "avgCatch","AAV", "avgTACu" )
+                  "avgCatch_t","AAV","avgPondedSOK_t")
 
   statTable <- matrix( NA,  ncol = length(colLabels),
                             nrow = nS * nP )
@@ -408,6 +408,7 @@ makeStatTable <- function( sims = 1, folder = "" )
     # Calculate depletion wrt Bmsy
     SB_ispt   <- om$SB_ispt[allConvReps,,,,drop = FALSE]
     C_ispt    <- om$C_ispt[allConvReps,,,,drop = FALSE]
+    P_ispft   <- om$P_ispft[allConvReps,,,,,drop = FALSE]
     TAC_ispt  <- mp$hcr$TAC_ispt[allConvReps,,,,drop = FALSE]
     TACu_ispt <- C_ispt
     TACu_ispt[,1:nS,,] <- C_ispt[,1:nS,,] / TAC_ispt[,1:nS,,]
@@ -456,6 +457,7 @@ makeStatTable <- function( sims = 1, folder = "" )
 
     # Average catch and TAC utilisation
     Cbar_sp     <- apply( X = C_ispt[,,,tMP:nT,drop = FALSE], FUN = mean, MARGIN = c(2,3), na.rm = T)
+    Pbar_sp     <- apply( X = P_ispft[,,,6,tMP:nT,drop = FALSE], FUN = mean, MARGIN = c(2,3), na.rm = T)
     TACubar_sp  <- apply( X = TACu_ispt[,,,tMP:nT,drop = FALSE], FUN = mean, MARGIN = c(2,3), na.rm = T)
 
     # Catch variability
@@ -483,9 +485,11 @@ makeStatTable <- function( sims = 1, folder = "" )
         statTable[rowIdx,"pFtGtFmsy"]       <- round(pFtGtFmsy_sp[s,p],2)
 
         # Catch statistics
-        statTable[rowIdx,"avgCatch"]        <- round(Cbar_sp[s,p],2)
+        statTable[rowIdx,"avgCatch_t"]      <- round(Cbar_sp[s,p]*1e3,1)
         statTable[rowIdx,"AAV"]             <- round(AAV_sp[s,p],2)
-        statTable[rowIdx,"avgTACu"]         <- round(TACubar_sp[s,p],2)
+        statTable[rowIdx,"avgPondedSOK_t"]  <- round(Pbar_sp[s,p]*1e3,1)
+
+        # statTable[rowIdx,"avgTACu"]       <- round(TACubar_sp[s,p],2)
 
       }
   }

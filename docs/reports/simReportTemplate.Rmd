@@ -82,6 +82,7 @@ knitr::opts_chunk$set(  fig.pos = 'p',
 
 options(warn = -1)
 
+
 source(here("ms3Rplots.R"))
 source(here("tools.R"))
 source(here("refPts.R"))
@@ -133,13 +134,15 @@ simulation replicates. Catch is shown as grey bars in the historical period, whi
 median catch in the projection, with thin vertical line segments showing the central 95%
 of the catch distribution."
 
+EffTulipCaption <- "Simulation envelopes of effort in each stock area."
+
 TACuCaption <- "Simulation envelopes of TAC utilisation. Columns are species, rows are stock 
 areas. Heavy black lines show the median TAC utilisation, with thin black lines showing 3 
 random replicates, and the grey region showing the central 95% of the distribution."
 
-EffTulipCaption <- "Simulation envelopes of effort in each stock area."
+CtTulipCaption <- "Simulation envelopes of catch. Columns are species, and rows are stock areas. Median biomass is shown by the thick black lines, with the grey region showing the central 95% of the distribution of catch, and thin black lines showing three randomly selected simulation replicates."
 
-FTulipCaption <- "Simulation envelopes of fishing mortality for each stock."
+FTulipCaption <- "Annual fleet and aggregate fishing mortality for each stock. Median aggregate fishing mortality is shown by the thick black lines, with the grey region showing the central 95%."
 
 convStatsCaption <- "Convergence diagnostics for the simulated assessment model at each projection time step.
 The left hand column shows the distribution of maximum gradient components across replicates, 
@@ -167,6 +170,10 @@ JabbaSelModelCap <- "Ratios between spawning biomass and vulnerable
 biomass ($y$ axis) at a given spawning biomass depletion ($x$ axis) 
 for each fleet (colours)."
 
+BtCtRtCap <- "Spawning Biomass (top), total catch (middle), and age-1 recruitment(bottom) for for all stock areas"
+
+BtCtRtMtCap <- "Spawning Biomass, total catch, age-1 recruitment, and mortality for age 1 and ages 2+ for all stock areas"
+
 ```
 
 
@@ -178,55 +185,58 @@ for each fleet (colours)."
 plotTulipBt( obj = blob, dep = TRUE, Ct = TRUE )
 ```
 
-## TAC utilisation
-
-```{r, plotTulipTACu, echo = FALSE, message = FALSE, fig.cap = TACuCaption }
-plotTulipTACu( obj = blob, nTrace = 3 )
+```{r, plotTulipBtCtProj, echo = FALSE, message = FALSE, fig.cap = SBsptCaption }
+plotTulipBt( obj = blob, dep = TRUE, Ct = FALSE, tMin=60 )
 ```
 
-## Fishing mortality
+
+## Catch and Fishing mortality
+
+```{r, plotTulipCt, echo = FALSE, message = FALSE, fig.cap = CtTulipCaption }
+plotTulipCt( obj = blob, tMin=60 )
+```
 
 ```{r, plotTulipF, echo = FALSE, message = FALSE, fig.cap = EffTulipCaption }
 plotTulipF( obj = blob )
 ```
 
 
-## Effort allocation
-
-```{r, plotTulipEffort, echo = FALSE, message = FALSE, fig.cap = FTulipCaption }
-plotTulipEffort_p( obj = blob )
-```
-
 # Example replicates
 
-## Retrospective biomass
+## Biomass, catch, recruitment, mortality
 
-```{r, plotRetroSB, echo = FALSE, message = FALSE, fig.cap = retroSBCaption }
+```{r, plotBtCtRt, echo = FALSE, message = FALSE, fig.cap = BtCtRtMtCap }
+plotBtCtRtMt_p( obj = blob, iRep = randReplicate )
+```
+
+
+<!-- ## Retrospective biomass -->
+
+<!--```{r, plotRetroSB, echo = FALSE, message = FALSE, fig.cap = retroSBCaption }
 plotRetroSBagg(obj = blob, iRep = randReplicate)
 ```
 
-## Model fits in first year
-```{r, plotScaledIndices, echo = FALSE, message = FALSE, fig.cap = scaledIndicesCap }
+
+<!-- ## Model fits in first year -->
+<!-- ```{r, plotScaledIndices, echo = FALSE, message = FALSE, fig.cap = scaledIndicesCap }
 if(!blob$ctlList$ctl$omni)
   plotScaledIndices(  obj = blob,
                       iRep = randReplicate,
                       t = tMP )
-```
+```-->
 
-
-```{r, plotAMresids, echo = FALSE, message = FALSE, fig.cap = AMidxResidsCap }
+<!-- ```{r, plotAMresids, echo = FALSE, message = FALSE, fig.cap = AMidxResidsCap }
 if(!blob$ctlList$ctl$omni)
-  plotAMIdxResids(  obj = blob,
-                    iRep = randReplicate,
-                    t = tMP )
-```
+plotAMIdxResids(  obj = blob,
+                  iRep = randReplicate,
+                  t = tMP )
+```-->
 
 
-<!-- ```{r, plotJabbaModel, echo = FALSE, message = FALSE, fig.cap = JabbaSelModelCap }
+<!--```{r, plotJabbaModel, echo = FALSE, message = FALSE, fig.cap = JabbaSelModelCap }
 if( !is.null(blob$ctlList$mp$assess$spSkewYieldCurves) )
   plotEBSBratio(  obj = blob )
-```
- -->
+```-->
 
 
 # Performance
@@ -249,7 +259,7 @@ kable(  statTable, escape = FALSE,
 
 ```{r, plotConvergence, echo = FALSE, message = FALSE, fig.cap = convStatsCaption, results = "as-is" }
 if(   !(blob$ctlList$ctl$omni | blob$ctlList$ctl$perfConF)  & 
-    ( !blob$ctlList$mp$assess$method %in% c("idxBased","PerfectInfo" ) ) )
+    ( !blob$ctlList$mp$assess$method %in% c("idxBased","perfectInfo" ) ) )
 {
 
   cat(paste("## ", "Convergence diagnostics\n",sep = ""))
@@ -267,6 +277,8 @@ if(blob$ctlList$ctl$omni)
 }
 
 ```
+
+# OM conditioning diagnostics
 
 ```{r diagCondition, echo = FALSE, message = FALSE}
 diagCondition(  repObj  = blob$ctlList$opMod$histRpt,

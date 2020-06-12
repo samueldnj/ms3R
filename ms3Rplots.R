@@ -2194,10 +2194,24 @@ plotTulipF <- function( obj = blob, nTrace = 3 )
                     MARGIN = c(2,3,4,5), probs = c(0.025, 0.5, 0.975),
                     na.rm = T )
 
+  # Aggregate fishing mortality
+  F_ispt <- apply(  X = F_ispft, FUN = sum,
+                    MARGIN = c(1,2,3,5),
+                    na.rm = T )
+  F_qspt <- apply(  X = F_ispt, FUN = quantile,
+                    MARGIN = c(2,3,4), probs = c(0.025, 0.5, 0.975),
+                    na.rm = T )
+
+  # fishing fleets
+  fishG  <- blob$ctlList$opMod$commGears
+  fleets <- blob$ctlList$opMod$fleets
+  fColrs <- brewer.pal(nF, 'Dark2')
+  
+
   nReps   <- dim(F_ispft)[1]
 
   speciesNames  <- obj$om$speciesNames
-  stockNames    <- obj$om$stockNames
+  stockNames    <- dimnames(obj$ctlList$opMod$histRpt$I_pgt)[[1]]
   fYear         <- obj$ctlList$opMod$fYear
 
   yrs <- seq( from = fYear, by = 1, length.out = nT)
@@ -2214,8 +2228,8 @@ plotTulipF <- function( obj = blob, nTrace = 3 )
     for( p in 1:nP )
     {
       plot( x = range(yrs),
-            y = c(0,max(F_ispft[,s,p,,], na.rm = T) ),
-            type = "n", axes = F )
+            y = c(0,max(F_qspt[,s,p,], na.rm = T) ),
+            type = "n", axes = F, ylim=c(0,max(F_qspt[,s,p,], na.rm = T) ))
 
       mfg <- par("mfg")
       if( mfg[1] == mfg[3] )
@@ -2233,18 +2247,34 @@ plotTulipF <- function( obj = blob, nTrace = 3 )
       }
       box()
       grid()
-      for( f in 1:nF )
+      
+      # plot one polygon for aggregate F
+      polygon(  x = c(yrs, rev(yrs)),
+                y = c(F_qspt[1,s,p,], rev(F_qspt[3,s,p,])),
+                col = "grey65", border = NA )
+      lines( x = yrs, y = F_qspt[2,s,p,], lwd = 2 )
+
+      # plot individual lines for each fleet
+      for( f in fishG )
       {
-        polygon(  x = c(yrs, rev(yrs)),
-                  y = c(F_qspft[1,s,p,f,], rev(F_qspft[3,s,p,f,])),
-                  col = "grey65", border = NA )
-        lines( x = yrs, y = F_qspft[2,s,p,f,], lwd = 3 )
-        for( tIdx in traces )
-          lines( x = yrs, y = F_ispft[tIdx,s,p,f,], lwd = .8 )
+        if(sum(F_qspft[2,s,p,f,])==0)
+          next()
+
+        lines( x = yrs, y = F_qspft[2,s,p,f,], col=fColrs[f], lwd = 1)
+        # for( tIdx in traces )
+        #   lines( x = yrs, y = F_ispft[tIdx,s,p,f,], lwd = .8 )
       }
 
       abline( v = yrs[tMP], col = "grey30", lty = 3 )
       abline( h = Fmsy_sp[s,p], lty = 2, lwd = 1, col = "red")
+
+      legend('topright', bty='n', cex=0.8,
+              legend=c('total F', fleets[fishG],'Fmsy'),
+              lwd=c(2, rep(1,length(fishG)),1),
+              lty=c(1, rep(1,length(fishG)),3),
+              col=c('black',fColrs[fishG],'red')
+              )
+
     }
   }
 
@@ -2256,7 +2286,7 @@ plotTulipF <- function( obj = blob, nTrace = 3 )
 }
 
 # TAC utilisation envelopes
-plotTulipTACu <- function( obj = blob, nTrace = 3 )
+plotTulipTACu <- function( obj = blob, nTrace = 3, fIdx=1 )
 {
 
   tMP     <- obj$om$tMP
@@ -2281,7 +2311,7 @@ plotTulipTACu <- function( obj = blob, nTrace = 3 )
                       na.rm = T )
 
   TACu_ispt <- array(0, dim = c(nReps,nS,nP,(nT - tMP + 1)))
-  TACu_ispt[1:nReps,,,] <- TACu_ispft[1:nReps,,,1,]
+  TACu_ispt[1:nReps,,,] <- TACu_ispft[1:nReps,,,fIdx,]
 
   speciesNames  <- obj$om$speciesNames
   stockNames    <- obj$om$stockNames
@@ -2345,7 +2375,8 @@ plotTulipBt <- function(  obj = blob, nTrace = 3,
                           dep = FALSE,
                           ref = "B0",
                           Ct  = FALSE,
-                          leg = TRUE )
+                          leg = TRUE,
+                          tMin = NULL )
 {
   goodReps <- obj$goodReps
 
@@ -2367,10 +2398,13 @@ plotTulipBt <- function(  obj = blob, nTrace = 3,
   BmsySS_sp[1:nS,] <- obj$rp[[1]]$FmsyRefPts$BeqFmsy_sp
 
   speciesNames  <- obj$om$speciesNames
-  stockNames    <- obj$om$stockNames
+  stockNames    <- dimnames(obj$ctlList$opMod$histRpt$I_pgt)[[1]]
   fYear         <- obj$ctlList$opMod$fYear
 
   yrs <- seq( from = fYear, by = 1, length.out = nT)
+
+  if(is.null(tMin))
+    tMin <-1
 
   if( dep )
   {
@@ -2439,9 +2473,9 @@ plotTulipBt <- function(  obj = blob, nTrace = 3,
   {
     for( p in 1:nP )
     {
-      plot( x = range(yrs),
-            y = c(0,max(SB_qspt[,s,p,], na.rm = T) ),
-            type = "n", axes = F )
+      plot( x = range(yrs[tMin:nT]),
+            y = c(0,max(SB_qspt[,s,p,tMin:nT], na.rm = T) ),
+            type = "n", axes = F)
 
       mfg <- par("mfg")
       if( mfg[1] == mfg[3] )
@@ -2463,6 +2497,7 @@ plotTulipBt <- function(  obj = blob, nTrace = 3,
                 y = c(SB_qspt[1,s,p,], rev(SB_qspt[3,s,p,])),
                 col = "grey65", border = NA )
       lines( x = yrs, y = SB_qspt[2,s,p,], lwd = 3 )
+
       for( tIdx in traces )
         lines( x = yrs, y = SB_ispt[tIdx,s,p,], lwd = .8 )
 
@@ -2503,6 +2538,98 @@ plotTulipBt <- function(  obj = blob, nTrace = 3,
   mtext(  outer = TRUE, side = 1, adj = .8, line = 3, cex = .6,
             text = stamp, col = "grey60" )
 }
+
+# Biomass envelopes
+plotTulipCt <- function(  obj = blob, nTrace = 3,
+                          ref = "B0",
+                          leg = TRUE,
+                          tMin = NULL )
+{
+  goodReps <- obj$goodReps
+
+  C_ispt    <- obj$om$C_ispt[goodReps,,,,drop = FALSE]
+
+  tMP     <- obj$om$tMP
+  nS      <- obj$om$nS
+  nP      <- obj$om$nP 
+  nT      <- obj$om$nT
+  nReps   <- dim(C_ispt)[1]
+
+  speciesNames  <- obj$om$speciesNames
+  stockNames    <- dimnames(obj$ctlList$opMod$histRpt$I_pgt)[[1]]
+  fYear         <- obj$ctlList$opMod$fYear
+
+  yrs <- seq( from = fYear, by = 1, length.out = nT)
+
+  if(is.null(tMin))
+    tMin <-1
+ 
+  C_qspt <- apply( X = C_ispt, FUN = quantile,
+                    MARGIN = c(2,3,4), probs = c(0.025, 0.5, 0.975),
+                    na.rm = T )
+
+  traces <- sample( 1:dim(C_ispt)[1], size = min(nTrace,nReps)  )
+
+  stamp <- paste(obj$ctlList$ctl$scenarioName,":",obj$ctlList$ctl$mpName,sep = "")
+
+  par(  mfcol = c(nP,nS), 
+        mar = c(1,1.5,1,1.5),
+        oma = c(4,3,3,3) )
+
+  for(s in 1:nS)
+  {
+    for( p in 1:nP )
+    {
+      plot( x = range(yrs[tMin:nT]),
+            y = c(0,max(C_ispt[,s,p,tMin:nT], na.rm = T) ),
+            type = "n", axes = F)
+
+      mfg <- par("mfg")
+      if( mfg[1] == mfg[3] )
+        axis( side = 1 )
+      if( mfg[1] == 1 )
+        mtext( side = 3, text = speciesNames[s], font = 2, line = 0 )
+      axis( side = 2, las = 1 )
+      if( mfg[2] == mfg[4] )
+      {
+        corners <- par("usr") #Gets the four corners of plot area (x1, x2, y1, y2)
+        par(xpd = TRUE) #Draw outside plot area
+        text(x = corners[2]+3, y = mean(corners[3:4]), stockNames[p], srt = 270,
+              font = 2, cex = 1.5 )
+        par(xpd = FALSE)
+      }
+      box()
+      grid()
+      polygon(  x = c(yrs, rev(yrs)),
+                y = c(C_qspt[1,s,p,], rev(C_qspt[3,s,p,])),
+                col = "grey65", border = NA )
+      lines( x = yrs, y = C_qspt[2,s,p,], lwd = 3 )
+
+      for( tIdx in traces )
+        lines( x = yrs, y = C_ispt[tIdx,s,p,], lwd = .8 )
+
+      abline( v = yrs[tMP], col = "grey30", lty = 3 )
+
+      if( mfg[1] == 1 & mfg[2] == 1 & leg )
+        legend( x = "topleft", bty = "n",
+                legend = c( "Median Catch (kt)", 
+                            "Central 95%",
+                            "Replicate Traces"),
+                col = c(  "black", "grey65", "black"),
+                pch = c(NA,15, NA),
+                lty = c(1, NA, 1),
+                lwd = c(3, NA, .8) )
+    }
+  }
+  mtext( side = 2, outer = TRUE, text = 'Catch (1000 t)',
+          line = 1.5, font = 2)
+
+  mtext( side = 1, outer = TRUE, text = "Year",
+          line = 2, font = 2)
+
+  mtext(  outer = TRUE, side = 1, adj = .8, line = 3, cex = .6,
+            text = stamp, col = "grey60" )
+} # END plotTulipCt()
 
 # plotTulipEffort_p()
 # Effort over time gridded
@@ -2713,6 +2840,200 @@ plotCtTACt_sp <- function(  obj = blob,
 } # END plotCtTACt_sp()
 
 
+# plotBtCtRt_p()
+# Biomass and catch plots
+# by stock for the historical
+# and projection period
+plotBtCtRt_p <- function( obj = blob, iRep = 1, sIdx=1)
+{
+  SB_ispt  <- obj$om$SB_ispt
+  B_ispt   <- obj$om$B_ispt
+  C_ispt   <- obj$om$C_ispt
+  R_ispt   <- obj$om$R_ispt
+  TAC_ispt <- obj$mp$hcr$TAC_ispt
+
+  tMP     <- obj$om$tMP
+  nS      <- obj$om$nS
+  nP      <- obj$om$nP 
+  nT      <- obj$om$nT
+
+
+  # stockNames    <- obj$om$stockNames
+  stockNames    <- dimnames(obj$ctlList$opMod$histRpt$I_pgt)[[1]]
+  fYear         <- obj$ctlList$opMod$fYear
+
+  yrs <- seq( from = fYear, by = 1, length.out = nT)
+
+  par(  mfcol = c(3,nP), 
+        mar = c(1,1.5,1,1.5), mgp=c(1,0.4,0),
+        oma = c(2,3,0,0), tck=-.01 )
+
+    for( p in 1:nP )
+    {
+      
+      # biomass plots
+      plot( x = range(yrs),
+            y = c(0,max(SB_ispt[iRep,sIdx,p,]) ),
+            type = "n", axes = T, las=1, xlab='', ylab='' )
+
+      mfg <- par("mfg")
+      if( mfg[1] == mfg[3] )
+        axis( side = 1 )
+      if( mfg[1] == 1 )
+        mtext( side = 3, text = stockNames[p], font = 2, line = 0 )
+      # axis( side = 2, las = 1 )
+
+      box()
+      grid()
+      lines( x = yrs, y = SB_ispt[iRep,sIdx,p,], col = "red", lwd = 1 )
+      abline( v = yrs[tMP] - 0.5, lty = 2, lwd = 0.5 )
+
+      # catch plots
+      plot( x = range(yrs),
+            y = c(0,max(C_ispt[iRep,sIdx,p,],na.rm=T) ),
+            type = "n", axes = T, las=1, xlab='', ylab='' )  
+      # axis( side = 2, las = 1 )
+      box()
+      grid()
+      lines( x = yrs, y = C_ispt[iRep,sIdx,p,], col = "black", lwd = 1 )
+      abline( v = yrs[tMP] - 0.5, lty = 2, lwd = 0.5 )
+
+      # recruitment plots
+      plot( x = range(yrs),
+            y = c(0,max(R_ispt[iRep,sIdx,p,]) ),
+            type = "n", axes = T, las=1, xlab='', ylab='' )
+      # axis( side = 2, las = 1 )
+      box()
+      grid()      
+      lines( x = yrs, y = R_ispt[iRep,sIdx,p,], col = "orange", lwd = 1 )
+      abline( v = yrs[tMP] - 0.5, lty = 2, lwd = 0.5 )
+
+    }
+
+  mtext( side =2, outer = TRUE, text = "Stock SB (kt), catch (kt), and age-1 recruitment (1000s)", line = 1.5)
+
+}
+
+# plotBtCtRt_p()
+# Biomass and catch plots
+# by stock for the historical
+# and projection period
+plotBtCtRtMt_p <- function( obj = blob, iRep = 1, sIdx=1)
+{
+  SB_ispt  <- obj$om$SB_ispt
+  B_ispt   <- obj$om$B_ispt
+  C_ispt   <- obj$om$C_ispt
+  R_ispt   <- obj$om$R_ispt
+  M_iaxspt <- obj$om$M_iaxspt
+
+  tMP     <- obj$om$tMP
+  nS      <- obj$om$nS
+  nP      <- obj$om$nP 
+  nT      <- obj$om$nT
+
+  # replace zeros with NAs for Mortality object
+  M_iaxspt[M_iaxspt==0]
+
+
+  # stockNames    <- obj$om$stockNames
+  stockNames    <- dimnames(obj$ctlList$opMod$histRpt$I_pgt)[[1]]
+  fYear         <- obj$ctlList$opMod$fYear
+
+  yrs <- seq( from = fYear, by = 1, length.out = nT)
+
+  par(  mfcol = c(4,nP), 
+        mar = c(1,1.5,1,1.5), mgp=c(1,0.4,0),
+        oma = c(2,3,0.5,0), tck=-.01 )
+
+    for( p in 1:nP )
+    {
+      
+      # biomass plots
+      plot( x = range(yrs),
+            y = c(0,max(SB_ispt[iRep,sIdx,p,]) ),
+            type = "n", axes = T, las=1, xlab='', ylab='' )
+
+      mfg <- par("mfg")
+      if( mfg[1] == mfg[3] )
+        axis( side = 1 )
+      if( mfg[1] == 1 )
+        mtext( side = 3, text = stockNames[p], font = 2, line = 0 )
+      # axis( side = 2, las = 1 )
+      if(p==1)
+        mtext( side = 2, text = 'Spawning Biomass (kt)', line=2.5, cex=0.8 )
+
+      box()
+      grid()
+      lines( x = yrs, y = SB_ispt[iRep,sIdx,p,], col = "red", lwd = 1 )
+      abline( v = yrs[tMP] - 0.5, lty = 2, lwd = 1 )
+      # legend('topright',bty='n', cex=0.8,
+      #        legend='SBt',lty=1, col='red')
+
+      # catch plots
+      plot( x = range(yrs),
+            y = c(0,max(C_ispt[iRep,sIdx,p,],na.rm=T) ),
+            type = "n", axes = T, las=1, xlab='', ylab='' )  
+      # axis( side = 2, las = 1 )
+      if(p==1)
+        mtext( side = 2, text = 'Catch (kt)', line=2.5, cex=0.8 )
+
+      box()
+      grid()
+      lines( x = yrs, y = C_ispt[iRep,sIdx,p,], col = "black", lwd = 1 )
+      abline( v = yrs[tMP] - 0.5, lty = 2, lwd = 1 )
+      # legend('topright',bty='n', cex=0.8,
+      #        legend='Ct',lty=1, col='black')
+
+
+
+      # recruitment plots
+      plot( x = range(yrs),
+            y = c(0,max(R_ispt[iRep,sIdx,p,]) ),
+            type = "n", axes = T, las=1, xlab='', ylab='' )
+      # axis( side = 2, las = 1 )
+      if(p==1)
+        mtext( side = 2, text = 'Recruits (1000s)', line=2.5, cex=0.8 )
+
+      box()
+      grid()      
+      lines( x = yrs, y = R_ispt[iRep,sIdx,p,], col = "orange", lwd = 1 )
+      abline( v = yrs[tMP] - 0.5, lty = 2, lwd = 1 )
+      legend('topleft',bty='n', cex=0.8,
+             legend=c('Age 1 Rt'),lty=1, col='orange')
+
+
+      # natural mortality plots
+      plot( x = range(yrs),
+            y = c(0,max(M_iaxspt[iRep,,1,sIdx,p,]) ),
+            type = "n", axes = T, las=1, xlab='', ylab='' )
+      # axis( side = 2, las = 1 )
+      if(p==1)
+        mtext( side = 2, text = 'Natural Mortality', line=2.5, cex=0.8 )
+
+      box()
+      grid()
+
+      # age1 and age2 mortality
+      M1 <- M_iaxspt[iRep,1,1,sIdx,p,]
+      M2 <- M_iaxspt[iRep,2,1,sIdx,p,]
+      M1[M1==0] <- NA
+      M2[M2==0] <- NA
+
+      lines( x = yrs, y = M1, col = "blue", lwd = 1, lty=3 )
+      lines( x = yrs, y = M2, col = "blue", lwd = 1, lty=1 )
+      abline( v = yrs[tMP] - 0.5, lty = 2, lwd = 1 )
+
+      legend('topleft',bty='n', cex=0.8,
+              legend=c('age 1 M',"age 2 M"),
+              lty=c(3,1), col='blue')
+
+    }
+
+  # mtext( side =2, outer = TRUE, text = "Stock SB (kt), catch (kt), age-1 recruitment (1000s), and natural mortality", line = 1.5)
+
+}
+
+
 # plotBtCt_sp()
 # Biomass and catch plots
 # by species/stock for the historical
@@ -2720,10 +3041,10 @@ plotCtTACt_sp <- function(  obj = blob,
 plotBtCt_sp <- function(  obj = blob,
                           iRep = 1 )
 {
-  SB_spt  <- obj$om$SB_ispt[iRep,,,]
-  B_spt   <- obj$om$B_ispt[iRep,,,]
-  C_spt   <- obj$om$C_ispt[iRep,,,]
-  TAC_spt <- obj$mp$hcr$TAC_ispt[iRep,,,]
+  SB_ispt  <- obj$om$SB_ispt
+  B_ispt   <- obj$om$B_ispt
+  C_ispt   <- obj$om$C_ispt
+  TAC_ispt <- obj$mp$hcr$TAC_ispt
 
   tMP     <- obj$om$tMP
   nS      <- obj$om$nS
@@ -2744,7 +3065,7 @@ plotBtCt_sp <- function(  obj = blob,
     for( p in 1:nP )
     {
       plot( x = range(yrs),
-            y = c(0,max(B_spt[s,p,]) ),
+            y = c(0,max(B_ispt[iRep,s,p,]) ),
             type = "n", axes = F )
 
       mfg <- par("mfg")
@@ -2764,11 +3085,11 @@ plotBtCt_sp <- function(  obj = blob,
       box()
       grid()
       rect( xleft = yrs - .3, xright = yrs + .3,
-            ybottom = 0, ytop = C_spt[s,p,], col = "grey70", border = NA )
+            ybottom = 0, ytop = C_ispt[iRep,s,p,], col = "grey70", border = NA )
       segments( x0 = yrs, x1 = yrs,
-                y0 = 0, y1 = TAC_spt[s,p,], col = "black" )
-      lines( x = yrs, y = SB_spt[s,p,], col = "red", lwd = 3 )
-      lines( x = yrs, y = B_spt[s,p,], col = "black", lwd = 2, lty = 2 )
+                y0 = 0, y1 = TAC_ispt[iRep,s,p,], col = "black" )
+      lines( x = yrs, y = SB_ispt[iRep,s,p,], col = "red", lwd = 1 )
+      lines( x = yrs, y = B_ispt[iRep,s,p,], col = "black", lwd = 1, lty = 2 )
       
 
       abline( v = yrs[tMP] - 0.5, lty = 2, lwd = 0.5 )
