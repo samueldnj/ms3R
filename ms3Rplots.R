@@ -110,7 +110,8 @@ plotBatchCatchBioTradeoff <- function(  groupFolder = "DLSurveys_.3tau_Long",
   # Read in the performance tables
   mpTable <- cbind( info.df, MPfactors ) %>%
               mutate( perfPath = here::here("Outputs",groupFolder,simLabel,"simPerfStats.csv"),
-                      path = here::here("Outputs",groupFolder,simLabel) )
+                      path = here::here("Outputs",groupFolder,simLabel) ) %>%
+              filter(scenario %in% scenLabs, AM %in% AMlabs )
 
   blobFiles <- file.path(mpTable$path,paste(mpTable$simLabel,".RData",sep = ""))
   lossFiles <- file.path(mpTable$path,"loss.RData")
@@ -123,16 +124,24 @@ plotBatchCatchBioTradeoff <- function(  groupFolder = "DLSurveys_.3tau_Long",
   # Now get reference points, any of the blobs will do
   .loadSim( mpTable$simLabel[1], groupFolder )
   rp <- blob$rp[[1]]
+  BmsySS_sp <- rp$FmsyRefPts$BeqFmsy_sp
+  MSYSS_sp  <- rp$FmsyRefPts$YeqFmsy_sp
+
+
+  BmsyMS_sp <- rp$EmsyMSRefPts$BeqEmsy_sp
+  MSYMS_sp  <- rp$EmsyMSRefPts$YeqEmsy_sp
+  
+
   if(refPts == "MSrefPts" )
   {
-    Bmsy_sp <- rp$EmsyMSRefPts$BeqEmsy_sp
-    MSY_sp  <- rp$EmsyMSRefPts$YeqEmsy_sp
+    Bmsy_sp <- BmsyMS_sp
+    MSY_sp  <- MSYMS_sp
   }
 
   if( refPts == "SSrefPts" )
   {
-    Bmsy_sp <- rp$FmsyRefPts$BeqFmsy_sp
-    MSY_sp  <- rp$FmsyRefPts$YeqFmsy_sp 
+    Bmsy_sp <- BmsySS_sp
+    MSY_sp  <- MSYSS_sp
   }
 
   scenarios <- unique(mpTable$scenario)
@@ -153,6 +162,13 @@ plotBatchCatchBioTradeoff <- function(  groupFolder = "DLSurveys_.3tau_Long",
     goodRepsList[[k]]$nReps_sp     <- apply(X = lossList[[k]]$goodReps_isp, FUN = sum, MARGIN = c(2,3) )
     names(goodRepsList)[k] <- simID
   }
+
+  # Pull omni biomass and catch from one of the
+  # lossLists
+  omniC_ispt <- lossList[[1]]$baseStates$C_ispt[1:100,,,period]
+  omniB_ispt <- lossList[[1]]$baseStates$SB_ispt[1:100,,,period]
+
+  
 
   
 
@@ -197,9 +213,25 @@ plotBatchCatchBioTradeoff <- function(  groupFolder = "DLSurveys_.3tau_Long",
 
         B_SAispt[scenID,amID,goodRepIdx,s,p,] <- lossList[[k]]$simStates$SB_ispt[goodRepIdx,s,p,] / Bmsy_sp[s,p]
         C_SAispt[scenID,amID,goodRepIdx,s,p,] <- lossList[[k]]$simStates$C_ispt[goodRepIdx,s,p,] / MSY_sp[s,p]
+
       }
 
   }
+
+  for( s in 1:nS )
+    for( p in 1:nP )
+    {
+      omniC_ispt[,s,p,] <- omniC_ispt[,s,p,] / MSY_sp[s,p]
+      omniB_ispt[,s,p,] <- omniB_ispt[,s,p,] / Bmsy_sp[s,p]
+    }
+
+  omniC_qspt <- apply( X = omniC_ispt, FUN = quantile,
+                          MARGIN = c(2,3,4), probs = qProbs)
+  omniB_qspt <- apply( X = omniB_ispt, FUN = quantile,
+                          MARGIN = c(2,3,4), probs = qProbs)
+
+  omniC_qsp <- apply( X = omniC_qspt, FUN = mean, MARGIN = c(1,2,3) )
+  omniB_qsp <- apply( X = omniB_qspt, FUN = mean, MARGIN = c(1,2,3) )
 
 
 
@@ -226,8 +258,8 @@ plotBatchCatchBioTradeoff <- function(  groupFolder = "DLSurveys_.3tau_Long",
   for( s in 1:nS )
     for( p in 1:nP )
     {
-      plot( x = range(B_qSAsp[2,,,s,p]),
-            y = range(C_qSAsp[2,,,s,p]),
+      plot( x = range(B_qSAsp[2,,,s,p],omniB_qsp[,s,p],omniC_qsp[,s,p]),
+            y = range(C_qSAsp[2,,,s,p],omniB_qsp[,s,p],omniC_qsp[,s,p]),
             type = "n", axes = FALSE )
         mfg <- par( "mfg" )
         
@@ -235,13 +267,37 @@ plotBatchCatchBioTradeoff <- function(  groupFolder = "DLSurveys_.3tau_Long",
           axis( side = 2, las = 1 )
 
         if( mfg[2] == mfg[4] )
-          rmtext( txt = stock[p], line = 0.05, font = 2, cex = 1.5)
+          rmtext( txt = stock[p], line = 0.05, font = 2, cex = 1.5,
+                  outer = TRUE )
         if( mfg[1] == 1 )
           mtext( side = 3, text = species[s], font = 2)
         box()
         grid()
-        abline( h = 1, lty = 2, lwd = 2)
-        abline( v = 1, lty = 2, lwd = 2)
+        # abline( h = 1, lty = 2, lwd = 2)
+        abline( v = .4 * BmsySS_sp[s,p]/Bmsy_sp[s,p], 
+                lty = 2, lwd = 2, col = "red")
+
+        # Cat range of omniMgr
+        segments( x0 = omniB_qsp[2,s,p],
+                  x1 = omniB_qsp[2,s,p],
+                  y0 = omniC_qsp[1,s,p],
+                  y1 = omniC_qsp[3,s,p], lwd = 2,
+                  col = "grey30" )
+
+        segments( x0 = omniB_qsp[1,s,p],
+                  x1 = omniB_qsp[3,s,p],
+                  y0 = omniC_qsp[2,s,p],
+                  y1 = omniC_qsp[2,s,p], lwd = 2,
+                  col = "grey30" )
+        
+
+        points( x = BmsySS_sp[s,p]/Bmsy_sp[s,p], y = MSYSS_sp[s,p]/MSY_sp[s,p],
+                col = "darkgreen", pch = 21, cex = 1.5,
+                lwd = 1.5 )
+
+        points( x = BmsyMS_sp[s,p]/Bmsy_sp[s,p], y = MSYMS_sp[s,p]/MSY_sp[s,p],
+                col = "steelblue", pch = 16, cex = 1.5,
+                lwd = 1.5 )      
 
 
         for( scenIdx in 1:nScen )
@@ -251,7 +307,7 @@ plotBatchCatchBioTradeoff <- function(  groupFolder = "DLSurveys_.3tau_Long",
           Bmat <- B_qSAsp[,scenID,,s,p]
           Cmat <- C_qSAsp[,scenID,,s,p]
 
-          plotOrder <- order(Cmat[2,])
+          plotOrder <- order(Bmat[2,])
 
           nConvReps_A <- nReps_SAsp[scenID,,s,p]
 
@@ -1169,12 +1225,228 @@ plotBatchConvergenceRate <- function( groupFolder = "DLSurveys5_LateStart",
 } # END plotBatchConvergenceRate()
 
 
+# plot
+plotSensBatchSummary_SAisp <- function( groupFolder = "sensRuns_BmsyCV",
+                                        prefix = "parBat",
+                                        lossType = "abs",
+                                        var = "C_ispt",
+                                        period = 73:82,
+                                        lossList = NULL,
+                                        refPts = NULL,
+                                        AMlabs = c( SS = "singleStock",
+                                                    HMS = "hierMultiStock",
+                                                    SpePool = "speciesPooling",
+                                                    SpaPool = "spatialPooling",
+                                                    TA = "totalAgg" ),
+                                        scenLabs = c( Comm1_BmsyCV0.1  = "Comm1_BmsyCV0.1",
+                                                      Surv_BmsyCV0.1  = "Surv_BmsyCV0.1",
+                                                      Comm1_BmsyCV0.5  = "Comm1_BmsyCV0.5",
+                                                      Surv_BmsyCV0.5  = "Surv_BmsyCV0.5",
+                                                      Comm1_BmsyCV1.0  = "Comm1_BmsyCV1.0",
+                                                      Surv_BmsyCV1.0  = "Surv_BmsyCV1.0" ),
+                                        clearBadReps = FALSE,
+                                        scenSplitString = "BmsyCV",
+                                        xlab = "Bmsy CV",
+                                        noPar = FALSE,
+                                        plotPts = FALSE,
+                                        printLeg = FALSE
+                                      )
+{
+  # First, make cumulative loss array
+  cumLossList <- makeCumulativeLossArray_SAisp( groupFolder = groupFolder,
+                                                  prefix = prefix,
+                                                  lossType = lossType,
+                                                  var = var,
+                                                  period = period,
+                                                  lossList = lossList,
+                                                  refPts = refPts,
+                                                  AMlabs = AMlabs,
+                                                  scenLabs = scenLabs,
+                                                  clearBadReps = clearBadReps )
+
+  cumLoss_SAisp <- cumLossList$cumLossArray_SAisp
+  if(is.null(lossList))
+    lossList      <- cumLossList$lossList
+  info.df <- cumLossList$info.df
+
+
+  # Calc median cumulative loss
+  medCumLoss_SAsp <- apply( X = cumLoss_SAisp,
+                            FUN = median, MARGIN = c(1,2,4,5),
+                            na.rm = TRUE )
+
+
+  # Can I append stuff to the data.frame? It will
+  # make regressions easier later.
+  meltedArray.df <- reshape2::melt(medCumLoss_SAsp) %>%
+                      filter( species %in% c("Dover","English","Rock"),
+                              stock %in% c("HSHG","QCS","WCVI"),
+                              scenario %in% scenLabs )
+
+  scenCpts  <- lapply(  X = meltedArray.df$scenario, FUN = splitMP,
+                        breaks = "_", factorNames = c("dataScen","CV") )
+  scenCpts  <- do.call(rbind, scenCpts) %>% as.data.frame()
+  scenCpts$scenario <- meltedArray.df$scenario
+  CVs       <- lapply(  X = scenCpts$CV, FUN = splitMP,
+                        breaks = scenSplitString, 
+                        factorNames = c("blank","CV") )
+  CVs       <-  do.call( rbind, CVs) %>% as.data.frame()
+  CVs$scenario <- scenCpts$scenario
+  scenCpts$CV  <- NULL
+
+  meltedArray.df$dataScen <- as.character(scenCpts$dataScen)
+  meltedArray.df$CV       <- as.numeric(CVs$CV)
+
+  AMcols          <- RColorBrewer::brewer.pal(length(AMlabs), "Dark2")
+  names(AMcols)   <- AMlabs
+  AMpch           <- 20 + 1:length(AMlabs)
+  names(AMpch)    <- AMlabs
+  AMlty           <- 1:length(AMlabs)
+  names(AMlty)    <- AMlabs
+
+  dataScens       <- unique(meltedArray.df$dataScen)
+  nScen           <- length(dataScens)
+  scenLty         <- 1:nScen
+
+  species         <- unique(meltedArray.df$species)
+  stock           <- unique(meltedArray.df$stock)
+
+  batchAMs        <- unique(meltedArray.df$AM)
+
+
+  nS <- length(species)
+  nP <- length(stock)
+
+  # Make lists to hold regressions
+  scenRegList       <- vector(mode = "list", length = nScen)
+
+  stockSpecRegList  <- vector(mode = "list", length = nScen)
+  
+  # Now, group and subtract mean of each species
+  # response values
+  meltedArray.df <- meltedArray.df %>%
+                    group_by( species, stock, dataScen ) %>%
+                    mutate( stdResp = (value - mean(value))/sd(value) ) %>%
+                    ungroup()
+
+  plotAMidx <- which(AMlabs %in% batchAMs)
+
+  xJitter <- 0
+  if(length(AMlabs) > 1)
+    xJitter <- seq(from = -.05, to = .05, length.out = length(AMlabs) )
+
+  if(!noPar)
+    par( mar = c(2,2,1,1), oma = c(3,3,1,1))
+
+  plot( x = c(0,1.2 * max(meltedArray.df$CV, na.rm = T) ),
+        y = range(meltedArray.df$stdResp, na.rm = T),
+        xlab = "",
+        ylab = "", axes = FALSE, type = "n" )
+    mfg <- par("mfg")
+    axis(side = 1)
+
+    if( mfg[1] == mfg[3])
+      mtext( side = 1, text = "Prior SD", outer = TRUE, line = 1)
+
+    axis( side = 2, las = 1)
+
+
+    abline( h = 0, lty = 2, lwd = 1 )
+
+    box()
+
+    for(amIdx in plotAMidx )
+    {
+      # Subset dataframe
+      subDF <- meltedArray.df %>%
+                filter( AM == AMlabs[amIdx] )
+
+      # First, plot all the points
+      if(plotPts)
+        points( x = subDF$CV + xJitter[amIdx], y = subDF$stdResp,
+                col = AMcols[AMlabs[amIdx]],
+                bg = "NA", pch = AMpch[AMlabs[amIdx]] )
+    }
+
+    for( amIdx in plotAMidx)
+    {
+
+      # Subset dataframe
+      subDF <- meltedArray.df %>%
+                filter( AM == AMlabs[amIdx] )
+      # Now loop over scenarios
+      for(scenIdx in 1:nScen)
+      {
+        scenID <- dataScens[scenIdx]
+
+        scenSubDF <- subDF %>% filter( dataScen == scenID )
+
+        # Make scenario average regressions
+        scenRegList[[scenIdx]]$lm <- lm( stdResp ~ CV, data = scenSubDF )
+
+        listIdx <- 0
+        for(s in 1:nS )
+          for(p in 1:nP )
+          {
+            listIdx <- listIdx + 1
+            specID <- species[s]
+            stockID <- stock[p]
+
+            stockSpecDF <- scenSubDF %>%
+                            filter( stock == stockID,
+                                    species == specID )
+
+            scenRegList[[scenIdx]]$stockSpecRegList <- stockSpecRegList
+            scenRegList[[scenIdx]]$stockSpecRegList[[listIdx]] <- lm( stdResp ~ CV, data = stockSpecDF )
+
+
+            # abline( reg = scenRegList[[scenIdx]]$stockSpecRegList[[listIdx]],
+            #         col = AMcols[AMlabs[amIdx]],
+            #         lty = scenLty[scenIdx], lwd = .5 )
+          }
+
+        abline( reg = scenRegList[[scenIdx]]$lm,
+                col = AMcols[AMlabs[amIdx]],
+                lty = AMlty[AMlabs[amIdx]], lwd = 2 )
+
+      }
+
+
+    }
+    if( printLeg )
+    {
+      legend( x = "topleft",
+              bty = "n",
+              legend = names(AMlabs),
+              lty = AMlty[AMlabs],
+              col = AMcols[AMlabs], 
+              lwd = 2 )
+    }
+}
+
+# Break up MP names into factor levels
+# MP labels are AM_Fsrce_eqbm
+splitMP <- function(  mpLab, 
+                      breaks = "_",
+                      factorNames = c("AM","Fsrce","eqbm") )
+{
+  splitMP <- stringr::str_split(mpLab, breaks)[[1]]
+
+  outList <- vector(  mode = "list", 
+                      length = length(splitMP) )
+  names(outList) <- factorNames
+  for( k in 1:length(splitMP))
+    outList[[k]] <- splitMP[k]
+
+  outList
+}
+
 # plotBatchLossDists_Scenario()
 # Multi-panel plot of relative and absolute
 # loss under a batch of MPs for all stock/species
 # combinations, including data-pooled and 
 # coast-wide aggregations.
-plotBatchLossDists_Scenario <- function(  groupFolder = "DLSurveys7_.5tau_Long",
+plotBatchLossDists_Scenario <- function(  groupFolder = "DLSurveys_.3tau_Long",
                                           prefix = "parBat",
                                           lossType = "abs",
                                           var = "C_ispt",
@@ -1186,17 +1458,17 @@ plotBatchLossDists_Scenario <- function(  groupFolder = "DLSurveys7_.5tau_Long",
                                           refPts = "MSrefPts",
                                           AMlabs = c( SS = "singleStock",
                                                       HMS = "hierMultiStock",
-                                                      SpePool = "speciesPooling",
-                                                      SpaPool = "spatialPooling",
+                                                      SpecPool = "speciesPooling",
+                                                      SpatPool = "spatialPooling",
                                                       TA = "totalAgg" ),
-                                          scenLabs = c( Comm1  = "DERfit_HcMcAsSsIdx",
-                                                        Comm2  = "DERfit_McAsSsIdx",
-                                                        Comm3  = "DERfit_McSsIdx",
-                                                        Surv = "DERfit_AsSsIdx" ),
+                                          scenLabs = c( Rich  = "DERfit_HcMcAsSsIdx",
+                                                        Mod  = "DERfit_McAsSsIdx",
+                                                        Poor = "DERfit_AsSsIdx" ),
                                           clearBadReps = FALSE,
                                           minSampSize = 100,
                                           rotxlabs = 0,
-                                          xlab = TRUE  )
+                                          xlab = TRUE,
+                                          vertLines = TRUE  )
 {
   # First, read info files from the relevant
   # sims
@@ -1219,7 +1491,7 @@ plotBatchLossDists_Scenario <- function(  groupFolder = "DLSurveys7_.5tau_Long",
   if( lossType == "abs" )
   {
     lossArrayName <- "totAbsLoss_isp"
-    yLab <- "Total Absolute Loss (kt)"
+    yLab <- "Cumulative Absolute Catch Loss (kt)"
   }
 
   # Break up MP names into factor levels
@@ -1248,8 +1520,11 @@ plotBatchLossDists_Scenario <- function(  groupFolder = "DLSurveys7_.5tau_Long",
   }
 
 
+
   info.df <- do.call(rbind, infoFiles) %>% 
-              mutate_if(is.factor, as.character)
+              mutate_if(is.factor, as.character) %>%
+              filter( scenario %in% scenLabs )
+
 
   if( !is.null(refPts) )
     info.df <- info.df %>% filter( eqbm == refPts )
@@ -1301,16 +1576,16 @@ plotBatchLossDists_Scenario <- function(  groupFolder = "DLSurveys7_.5tau_Long",
   # simple axis label to info file AM name
   AMcodes <- c( SS = 1,
                 HMS = 2,
-                SpePool = 3,
-                SpaPool = 4,
+                SpecPool = 3,
+                SpatPool = 4,
                 TA = 5 )
 
   AMdictionary <- AMlabs
 
-  AMcols          <- RColorBrewer::brewer.pal(nAM, "Dark2")
-  names(AMcols)   <- names(AMdictionary)
-  AMpch           <- 20 + 1:nAM
-  names(AMpch)    <- names(AMdictionary)
+  AMcols          <- RColorBrewer::brewer.pal(length(AMcodes), "Dark2")
+  names(AMcols)   <- names(AMcodes)
+  AMpch           <- 20 + 1:length(AMcodes)
+  names(AMpch)    <- names(AMcodes)
 
 
 
@@ -1322,7 +1597,9 @@ plotBatchLossDists_Scenario <- function(  groupFolder = "DLSurveys7_.5tau_Long",
   MPgrid <- expand.grid(MPgrid)
 
 
-  xJitter <- seq(from = -.4, to = .4, length.out = nMP )
+  xJitter <- seq(from = -.4, to = .4, length.out = nAM )
+  if(nAM == 1 )
+    xJitter <- 0
   nReps_k <- numeric(length = nSims)
   goodRepsList <- vector(mode = "list", length = nSims)
 
@@ -1381,7 +1658,7 @@ plotBatchLossDists_Scenario <- function(  groupFolder = "DLSurveys7_.5tau_Long",
   nStock  <- length(dim2) 
 
   par(  mfcol = c(nStock,nSpec),
-        mar = c(0.2,1.5,.2,1),
+        mar = c(0.1,1.5,.1,1.5),
         oma = c(6,4,3,3) )
 
   for( sIdx in 1:nSpec )
@@ -1396,7 +1673,7 @@ plotBatchLossDists_Scenario <- function(  groupFolder = "DLSurveys7_.5tau_Long",
         lossRange <- 1
 
       plot( y = c(0,lossRange), x = c(0.5,nScen + .5),
-            type = "n", axes = FALSE  )
+            type = "n", axes = FALSE, xaxs = "i"  )
         
         mfg <- par("mfg")
         if( mfg[1] == mfg[3])
@@ -1437,7 +1714,8 @@ plotBatchLossDists_Scenario <- function(  groupFolder = "DLSurveys7_.5tau_Long",
         for( amIdx in 1:nAM )
           for( eqIdx in 1:nEqbm )
           {
-            jitIdx <- jitIdx + 1
+            jitIdx  <- jitIdx + 1
+            AMname  <- AMlabs[amIdx]
             AMid    <- AMdictionary[amIdx]
             eqbmID  <- eqbm[eqIdx]
             
@@ -1479,14 +1757,15 @@ plotBatchLossDists_Scenario <- function(  groupFolder = "DLSurveys7_.5tau_Long",
             }
 
           }
-
-        abline( v = 1:(nScen-1) + .5,
-                col = "black", lty = 2, lwd = 3 )
+        if( vertLines)
+          abline( v = 1:(nScen-1) + .5,
+                  col = "black", lty = 1, lwd = 1.2 )
 
 
       }
 
   mtext( side = 2, outer = TRUE, text = yLab, line = 2 )
+  
   if(xlab)
     mtext( side = 1, outer = TRUE, text = "Data Scenario", line = 2 )
 
@@ -1496,10 +1775,10 @@ plotBatchLossDists_Scenario <- function(  groupFolder = "DLSurveys7_.5tau_Long",
           horiz   = TRUE,
           bty     = "n",
           legend  = c(names(AMdictionary)),
-          pch     = AMpch,
-          pt.bg   = AMcols, 
+          pch     = AMpch[names(AMdictionary)],
+          pt.bg   = AMcols[names(AMdictionary)], 
           lty     = c(rep(1,5),NA),
-          col     = c(AMcols),
+          col     = AMcols[names(AMdictionary)], 
           lwd     = 2 )
   
 }
@@ -2047,6 +2326,7 @@ plotEffYieldCurves <- function( obj = blob, maxE = NULL )
   qF_sp       <- blob$om$qF_ispft[1,,,2,nT]
   
   speciesNames <- blob$om$speciesNames
+  stockNames   <- blob$om$stockNames
 
   # Now compute MSY for SS and MS curves
   # MSY is still the same for SS, just need the effort
@@ -2078,7 +2358,7 @@ plotEffYieldCurves <- function( obj = blob, maxE = NULL )
   if(is.null(maxE))
     maxE <- Eseq[maxEval]
 
-  par( mfrow = c(3,1), mar = c(1,1,1,1), oma = c(3,4,1,1) )
+  par( mfrow = c(3,1), mar = c(.1,1,.1,1), oma = c(3,4,1,1) )
   for( p in 1:nP )
   {
 
@@ -2100,6 +2380,9 @@ plotEffYieldCurves <- function( obj = blob, maxE = NULL )
       if( mfg[1] == mfg[3])
         axis(side = 1)
 
+      rmtext( txt = stockNames[p], line = 0.02,
+              font = 2, cex = 1.5, outer = TRUE )
+
       lines(  x = Eseq, y = Yeq_pe[p,],
               col = "black", lty = 1, lwd = 3 )
 
@@ -2117,7 +2400,7 @@ plotEffYieldCurves <- function( obj = blob, maxE = NULL )
 
   }
 
-  mtext( outer = TRUE, side = 1, text = "Total Effort Index", line = 2 )
+  mtext( outer = TRUE, side = 1, text = "Commercial Trawl Effort (1000 hrs)", line = 2 )
   mtext( outer = TRUE, side = 2, text = "Equilibrium Yield (kt)", line = 2 )
 
 
@@ -3110,8 +3393,10 @@ plotTulipBt <- function(  obj = blob, nTrace = 3,
                           dep = FALSE,
                           ref = "B0",
                           Ct  = FALSE,
-                          leg = TRUE,
-                          clearBadReps = FALSE )
+                          leg = FALSE,
+                          printStamp = TRUE,
+                          clearBadReps = FALSE,
+                          objPtOffset = 3.6 )
 {
   nSims        <- obj$nSims
   goodReps_isp <- obj$goodReps_isp[1:nSims,,]
@@ -3119,6 +3404,13 @@ plotTulipBt <- function(  obj = blob, nTrace = 3,
   SB_ispt   <- obj$om$SB_ispt[1:nSims,,,,drop = FALSE]
   C_ispt    <- obj$om$C_ispt[1:nSims,,,,drop = FALSE]
 
+
+  # Pull ref pts
+  rp <- obj$rp[[1]]
+
+  # Pull Bmsy
+  BmsySS_sp <- rp$FmsyRefPts$BeqFmsy_sp
+  BmsyMS_sp <- rp$EmsyMSRefPts$BeqEmsy_sp
 
 
   tMP     <- obj$om$tMP
@@ -3209,7 +3501,7 @@ plotTulipBt <- function(  obj = blob, nTrace = 3,
   stamp <- paste(obj$ctlList$ctl$scenarioName,":",obj$ctlList$ctl$mpName,sep = "")
 
   par(  mfcol = c(nP,nS), 
-        mar = c(1,1.5,1,1.5),
+        mar = c(.1,1.5,.1,1.5),
         oma = c(4,3,3,3) )
 
 
@@ -3228,13 +3520,8 @@ plotTulipBt <- function(  obj = blob, nTrace = 3,
         mtext( side = 3, text = speciesNames[s], font = 2, line = 0 )
       axis( side = 2, las = 1 )
       if( mfg[2] == mfg[4] )
-      {
-        corners <- par("usr") #Gets the four corners of plot area (x1, x2, y1, y2)
-        par(xpd = TRUE) #Draw outside plot area
-        text(x = corners[2]+3, y = mean(corners[3:4]), stockNames[p], srt = 270,
-              font = 2, cex = 1.5 )
-        par(xpd = FALSE)
-      }
+        rmtext( txt = stockNames[p], outer = TRUE,
+                font = 2, line = 0.05, cex = 1.5 )
       box()
       grid()
       polygon(  x = c(yrs, rev(yrs)),
@@ -3253,11 +3540,17 @@ plotTulipBt <- function(  obj = blob, nTrace = 3,
                   y0 = C_qspt[1,s,p,tMP:nT], y1 = C_qspt[3,s,p,tMP:nT],
                   col = "black" )
       }
+      par(xpd = TRUE)
+        points( x = yrs[length(yrs)]+objPtOffset,
+                y = BmsyMS_sp[s,p], col = "steelblue",
+                pch = 16, cex = 1.5, lwd = 2 )
+        points( x = yrs[length(yrs)]+objPtOffset,
+                y = BmsySS_sp[s,p], col = "darkgreen",
+                pch = 1, cex = 1.5, lwd = 2)
+      par(xpd = FALSE)
 
       abline( v = yrs[tMP], col = "grey30", lty = 3 )
       abline( h = B0_sp[s,p], lty = 2, col = "grey50", lwd = 2  )
-      abline( h = BmsySS_sp[s,p], lty = 3, col = "darkgreen", lwd = 2)
-      abline( h = BmsyMS_sp[s,p], lty = 3, col = "steelblue", lwd = 2)
 
       if( mfg[1] == 1 & mfg[2] == 1 & leg )
         legend( x = "topright", bty = "n",
@@ -3279,22 +3572,28 @@ plotTulipBt <- function(  obj = blob, nTrace = 3,
 
   mtext( side = 1, outer = TRUE, text = "Year",
           line = 2, font = 2)
-
-  mtext(  outer = TRUE, side = 1, adj = .8, line = 3, cex = .6,
-            text = stamp, col = "grey60" )
+  if( printStamp )
+    mtext(  outer = TRUE, side = 1, adj = .8, line = 3, cex = .6,
+              text = stamp, col = "grey60" )
 }
 
 # plotTulipEffort_p()
 # Effort over time gridded
 # by stock area - envelopes
-plotTulipEffort_p <- function( obj = blob, nTrace = 3, clearBadReps = FALSE )
+plotTulipEffort_p <- function(  obj = blob, 
+                                nTrace = 3, 
+                                fIdx = 1:2,
+                                combineFisheries = TRUE,
+                                envelopeFleet = 2,
+                                clearBadReps = FALSE,
+                                plotEmsy = TRUE )
 {
   nSims         <- obj$nSims
   goodReps_isp  <- obj$goodReps_isp[1:nSims,,]
 
-  E_ipft <- obj$om$E_ipft[1:nSims,,,,drop = FALSE ]
+  E_ipft <- obj$om$E_ipft[1:nSims,,fIdx,,drop = FALSE ]
 
-  E_ipft[E_ipft == 0] <- NA
+  
 
   if( clearBadReps )
   {
@@ -3305,12 +3604,28 @@ plotTulipEffort_p <- function( obj = blob, nTrace = 3, clearBadReps = FALSE )
     }
   }
 
+  # Pull ref pts
+  rp <- obj$rp[[1]]
+
+  # Pull Bmsy
+  EmsyMS_p <- rp$EmsyMSRefPts$EmsyMS_p
+
+
   tMP     <- obj$om$tMP
   nS      <- obj$om$nS
   nP      <- obj$om$nP 
   nT      <- obj$om$nT
   nF      <- obj$om$nF
   nReps   <- dim(E_ipft)[1]
+
+  if( combineFisheries )
+  {
+    newE_ipft       <- array( NA, dim = c(nSims,nP,1,nT))
+    sumEff          <- apply(X = E_ipft, FUN = sum, MARGIN = c(1,2,4), na.rm = T )
+    newE_ipft[,,1,] <- sumEff
+    E_ipft <- newE_ipft
+  }
+  E_ipft[E_ipft == 0] <- NA
 
   E_qpft <- apply(  X = E_ipft, FUN = quantile,
                     MARGIN = c(2,3,4), probs = c(0.025, 0.5, 0.975),
@@ -3330,6 +3645,11 @@ plotTulipEffort_p <- function( obj = blob, nTrace = 3, clearBadReps = FALSE )
 
   fleetCols <- RColorBrewer::brewer.pal( nF, "Dark2" )
 
+  if( envelopeFleet > 0 & combineFisheries )
+    envelopeFleet <- 1
+
+  if( combineFisheries )
+    fleetCols <- "grey20"
 
 
   par(  mfcol = c(nP,1), 
@@ -3348,17 +3668,14 @@ plotTulipEffort_p <- function( obj = blob, nTrace = 3, clearBadReps = FALSE )
       axis( side = 2, las = 1 )
       if( mfg[2] == mfg[4] )
       {
-        corners <- par("usr") #Gets the four corners of plot area (x1, x2, y1, y2)
-        par(xpd = TRUE) #Draw outside plot area
-        text(x = corners[2]+2, y = mean(corners[3:4]), stockNames[p], srt = 270,
-              font = 2, cex = 1.5 )
-        par(xpd = FALSE)
+        rmtext( txt = stockNames[p], line = 0.02,
+                outer = TRUE, font = 2, cex = 1.5 )
       }
       box()
       grid()
-      for( f in 1:nF )
+      for( f in 1:dim(E_qpft)[3] )
       {
-        if(f == 2 )
+        if(f == envelopeFleet )
         {
           polygon( x = c(yrs,rev(yrs)), y = c(E_qpft[1,p,f,],rev(E_qpft[3,p,f,])), 
                   col = scales::alpha(fleetCols[f], alpha = .3), border = NA )
@@ -3368,9 +3685,14 @@ plotTulipEffort_p <- function( obj = blob, nTrace = 3, clearBadReps = FALSE )
         lines( x = yrs, y = E_qpft[2,p,f,], col = fleetCols[f], lwd = 3)
         
       }
+      par(xpd = TRUE)
+        points( x = yrs[length(yrs)]+5.5,
+                y = EmsyMS_p[p], col = "steelblue",
+                pch = 16, cex = 1.5, lwd = 2 )
+      par(xpd = FALSE)
       abline( v = yrs[tMP] - 0.5, lty = 2, lwd = 0.5 )
   }
-  mtext( side = 2, outer = TRUE, text = "Trawl Effort (fishing hours?)",
+  mtext( side = 2, outer = TRUE, text = "Commercial Trawl Effort (1000 hrs)",
           line = 2, font = 2)
 } # END plotTulipEffort_p()
 
@@ -3798,7 +4120,7 @@ plotRetroSBagg <- function( obj = blob, iRep = 1,
         mtext( side = 3, text = speciesNames[s], font = 2, line = 0 )
       axis( side = 2, las = 1 )
       if( mfg[2] == mfg[4] )
-        rmtext( line = 05, txt = stockNames[p], cex = 1.5, font = 2)
+        rmtext( line = .05, txt = stockNames[p], cex = 1.5, font = 2)
       box()
       grid()
       if( Ct )

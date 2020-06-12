@@ -10,6 +10,7 @@
 #
 # <><><><><><><><><><><><><><><><><><><><><><><><><><><>
 
+
 source("loadPackages.R")
 source("refPts.R")
 source("tools.R")
@@ -19,6 +20,7 @@ source("applyTMBphase.R")
 source("batchTools.R")
 source("stats.R")
 
+Sys.unsetenv("PKG_CXXFLAGS")
 
 TMB::compile("hierProd.cpp")
 dyn.load(dynlib("hierProd"))

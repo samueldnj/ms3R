@@ -17,15 +17,12 @@ for( simIdx in 1:nrow(info.df))
   info.df$lossBlobPath[simIdx] <- file.path(projDir, simLabel, "loss.RData" )
 }
 
-
+.loadSim( 2, folder = params$groupFolder)
 ```
 
 ```{r loadOmni-tables, echo = FALSE, include = FALSE, warning = FALSE}
-omniInfo <- info.df %>% 
-              filter( grepl( params$baseline, simLabel) )
-
 # load performance table
-omniPerfTab <- read.csv(omniInfo$perfTabPath)
+omniPerfTab <- read.csv("./data/omniPerfTable.csv", header = TRUE, stringsAsFactors = FALSE )
 
 
 ```
@@ -45,25 +42,33 @@ nG <- fitReport$repOpt$nG
 dataSourceCap <- "Fishery dependent and independent indices of 
 biomass available for stock assessments of DER complex species."
 
-stockStatusTabCap <- "Unfished biomas, single-species MSY based 
+stockStatusTabCap <- "Unfished biomas $B_0$, single-species MSY based 
 reference points $B_{MSY,SS}$ and $U_{MSY,SS}$, stock status as absolute
-biomass in 2016, depletion relative to unfished, and single-species
-$B_{MSY,SS}$, and commercial trawl catchability scalar $q^{F}$ for all 
-DER complex stocks in 2016."
+biomass in 2016 $B_{2016}$, depletion relative to single-species
+optimal biomass $B_{2016}/B_{MSY,SS}$, and commercial trawl 
+catchability scalar $q^{F}$ for all DER complex stocks in 2016."
 
-expDesignTableCap <- "Summary of OM and AM factors in the experimental
-design for the simulation experiments."
+expDesignTableCap <- "Summary of OM scenario and AM structure factors 
+in the experimental design for the simulation experiments."
+
+AMpriorTableCap <- "Prior distributions used for each assessment
+model. For single stock and hierarchical multi-stock assesssment
+models, $s_f$ is 1 for commercial indices, and 0.5 for survey
+indices."
 
 sensRunTableCap   <- "Summary of sensitivity analyses, showing
 the total number of experiments, the factor being varied, the
 levels of that factor, and the data scenarios and AMs included
 in the analysis."
 
-omniPerfTabCap <- "Biomass and catch summaries for all nine DER
-complex management units under the omniscient manager simulations."
+omniPerfTabCap <- "Probability of being overfished and experiencing
+overfishing with respect to single-species reference points, and 
+catching less than the historical miniumum during the time period
+2028 - 2037 for all nine DER complex stocks when managed by the 
+omniscient manager."
 
 AM_relErrorsTabCap <- "Bias and precision metrics (MRE, MARE) for assessment 
-model estimates under the Comm1 scenario. Metrics were calculated for 
+model estimates under the Rich data scenario. Metrics were calculated for 
 spawning stock biomass $B_t$, assessment model 
 $B_{MSY}$, and assessment model $U_{MSY}$. Operating model $B_{MSY}$
 for pooled data AMs was defined by pooling optimal biomass for
@@ -71,11 +76,11 @@ component stock, and operating model $U_{MSY}$ was found by pooling
 single-species maximum yield, and taking the ratio of pooled yield
 and biomass."
 
-lossRankTabCap <- "Summary of rankings of each AM in each scenario 
-under relative and absolute catch and biomasss loss. Each column shows
-the rank averaged over all 9 DER complex stocks, with the maximum
-and minumum shown in parentheses."
-
+lossRankTabCap <- "Summary of AM rankings with respect to cumulative
+absolute catch loss between 2026 and 2035 under each scenario. The
+rank column shows the average rank of the AMs over all species/areas,
+and the range of that distribution in parentheses. AMs are ordered by
+mean rank within a scenario."
 
 
 ```
@@ -85,10 +90,10 @@ and minumum shown in parentheses."
 
 dataSourcesTable <- tibble::tribble( 
 ~Series,             ~Extent,           ~Description,
-"comm.hist",         "1976 - 1995",     "Historical period commercial CPUE",
-"comm.mod",          "1996 - 2016",     "Modern period commercial CPUE",
-"HSAss",             "1984 - 2002",     "Hecate Strait Assemblage trawl survey biomass index, biennial",
-"Syn",               "2003 - 2016",     "Multi-species Synoptic trawl survey biomass index, biennial",
+"Historical Commercial",         "1976 - 1995",     "Historical period commercial CPUE",
+"Modern Commercial",          "1996 - 2016",     "Modern period commercial CPUE",
+"HS Assemblage",             "1984 - 2002",     "Hecate Strait Assemblage trawl survey biomass index, biennial",
+"Synoptic",               "2003 - 2016",     "Multi-species Synoptic trawl survey biomass index, biennial",
 )
 
 kable(  dataSourcesTable, escape = FALSE,
@@ -103,7 +108,7 @@ kable(  dataSourcesTable, escape = FALSE,
 \clearpage
 
 
-```{r stockStatusTab, echo = FALSE }
+```{r stockStatusTab, echo = FALSE, warning = FALSE }
 stockStatusColNames <- c( "Species",
                           "Stock",
                           "B0",
@@ -155,7 +160,7 @@ colnames(stockStatusTab) <- c(  "Species",
                                 "$B_{MSY,SS}$",
                                 "$U_{MSY,SS}$",
                                 "$B_{2016}$",
-                                "$B_{2016}/B_{MSY}$",
+                                "$B_{2016}/B_{MSY,SS}$",
                                 "$q^{F}$")
 
 stockStatusTab <- stockStatusTab[,-1]
@@ -175,29 +180,27 @@ kable(  stockStatusTab, escape = FALSE,
 
 \clearpage
 
-```{r expDesignTab, echo = FALSE, warning = FALSE}
+<!-- ```{r expDesignTab, echo = FALSE, warning = FALSE}
 
 options(knitr.kable.NA = "")
 
 expFactorLabelsTable <- tibble::tribble( 
   ~Factor,     ~Description,
-  "Comm1",      "Historical and modern commercial indices,",
+  "Rich",       "Historical and modern commercial indices,",
   NA,           "with Assemblage and Synoptic survey indices",
-  "Comm2",      "Modern commercial index only, with",
+  "Mod",      "Modern commercial index only, with",
   NA,           "Assemblage and Synoptic survey indices",
-  "Comm2",      "Modern commercial index only, with",
-  NA,           "Synoptic survey index only",
-  "Surv",       "Assemblage and Synoptic survey indices, with",
+  "Poor",       "Assemblage and Synoptic survey indices, with",
   NA,           "no commercial indices",
-  "TA",         "One assessment model fit to totally aggregated data",
+  "Total Aggregation",         "One assessment model fit to totally aggregated data",
   NA,NA,
-  "SpaPool",    "Three independent assessments fit to spatially pooled data",
+  "Spatial Pooling",    "Three independent assessments fit to spatially pooled data",
   NA,           "for each DER complex species",
-  "SpePool",    "Three independent assessments fit to species pooled data",
+  "Species Pooling",    "Three independent assessments fit to species pooled data",
   NA,           "in each DER complex stock area",
-  "HMS",        "One joint hierarchical multi-stock assessment of",
+  "Hierachical Multi-stock",        "One joint hierarchical multi-stock assessment of",
   NA,           "all nine DER complex stocks",
-  "SS",         "Nine independent single-stock assessments of",
+  "Single-stock",         "Nine independent single-stock assessments of",
   NA,           "each DER complex stocks",)
 
 colnames(expFactorLabelsTable) <- c("Level","Description")
@@ -208,9 +211,48 @@ kable(  expFactorLabelsTable, escape = FALSE,
         align = rep("l",ncol(expFactorLabelsTable))) %>%
   kable_styling(latex_options = c("striped", "hold_position","scale_down"),
                 bootstrap_options = c("striped", "hover")) %>%
-  pack_rows("OM Data Scenario", 1, 8) %>%
-  pack_rows("AM Structure", 9, 18)
+  pack_rows("OM Data Scenario", 1, 6) %>%
+  pack_rows("AM Structure", 7, 16)
 
+
+``` -->
+
+
+```{r AMpriorTab, echo = FALSE }
+
+options(knitr.kable.NA = "")
+
+AMpriorTable <- tibble::tribble( 
+  ~AM,                           ~VariableName,      ~Prior,
+  "Data-Pooled AMs",             "$B_{MSY}$",        "$B_{MSY} \\sim N(m_{B_{MSY}}, 0.2 \\cdot m_{B_{MSY}})$",
+  NA,                            "$U_{MSY}$",        "$\\log U_{MSY} \\sim N(m_{\\log U_{MSY}}, 0.4)$",
+  NA,                            "$q_{f}$",          "$\\log q_{f} \\sim N(m_{\\log q_{f}}, 1.0)$",
+  "Single-stock AM",             "$B_{MSY,s,p}$",    "$B_{MSY,s,p} \\sim N(m_{B_{MSY}}, 0.1 \\cdot m_{B_{MSY}})$",
+  NA,                            "$U_{MSY,s,p}$",    "$\\log U_{MSY,s,p} \\sim N(m_{\\log U_{MSY}}, 0.1)$",
+  NA,                            "$q_{s,p,f}$",      "$\\log q_{s,p,f} \\sim N(m_{\\log q_{s,p,f}}, s_f)$",
+  "Hierarchical Multi-stock AM", "$B_{MSY,s,p}$",    "$B_{MSY,s,p} \\sim N(m_{B_{MSY}}, 0.2 \\cdot m_{B_{MSY}})$",
+  NA,                            "$U_{MSY,s,p}$",    "$\\log U_{MSY,s,p} \\sim N(\\log \\overline{U}_{MSY,s}, \\sigma_{U_{MSY}})$",
+  NA,                            "$U_{MSY,s}$",      "$\\log \\overline{U}_{MSY,s} \\sim N(\\log \\overline{U}_{MSY}, \\sigma_{U_{MSY}})$",
+  NA,                            "$U_{MSY}$",        "$\\log \\overline{U}_{MSY} \\sim N( m_{\\log U_{MSY}}, .4)$",
+  NA,                            "$q_{s,p,f}$",      "$\\log q_{s,p,f} \\sim N(\\log \\overline{q}_{s,f}, \\tau_q)$",
+  NA,                            "$q_{s,f}$",        "$\\log \\overline{q}_{s,f} \\sim N( m_{\\log q_{s,f}}, s_f)$",
+  "Process errors",              "$\\zeta_{s,p,t}$", "$\\zeta_{s,p,t} \\sim N(0,0.05)$", )
+
+
+colnames(AMpriorTable) <- c("AM","Variable","Prior")
+
+AMpriorTable <- AMpriorTable[,-(1:2)]
+
+kable(  AMpriorTable, escape = FALSE,
+        booktabs = TRUE,
+        caption = AMpriorTableCap,
+        align = rep("l",ncol(AMpriorTable))) %>%
+  kable_styling(latex_options = c("striped", "hold_position"),
+                bootstrap_options = c("striped", "hover")) %>%
+  pack_rows("Data-pooled AMs", 1, 3) %>%
+  pack_rows("Single-stock AM", 4, 6) %>%
+  pack_rows("Hierarchical multi-stock AM", 7, 12) %>%
+  pack_rows("All AMs", 13, 13)
 
 ```
 
@@ -219,10 +261,9 @@ kable(  expFactorLabelsTable, escape = FALSE,
 ```{r sensRunsTable, echo = FALSE}
 sensRunTable <- tibble::tribble( 
     ~N,     ~Factor,                ~Levels,            ~Scenarios,     ~AMs,
-    10,     "$q^{F}$",              "Randomly switched","Comm1, Surv",  "TA, SpaPool, SpePool, HMS, SS",
-    30,     "$B_{MSY}$ prior SD",   "$0.1, 0.5, 1.0$",  "Comm1, Surv",  "TA, SpaPool, SpePool, HMS, SS",
-    30,     "$U_{MSY}$ prior SD",   "$0.1, 0.5, 1.0$",  "Comm1, Surv",  "TA, SpaPool, SpePool, HMS, SS",
-    6,      "$\\tau_q$, $\\sigma_U$", "$0.1, 0.2, .5$",   "Comm1, Surv",  "HMS", )
+    30,     "$B_{MSY}$ prior CV",   "$0.1, 0.5, 1.0$",  "Comm1, Surv",  "All",
+    30,     "$U_{MSY}$ prior SD",   "$0.1, 0.5, 1.0$",  "Comm1, Surv",  "All",
+    6,      "$\\tau_q$, $\\sigma_{U_{MSY}}$", "$0.1, 0.2, .5$",   "Comm1, Surv","Hierarchical only", )
 
 kable(  sensRunTable, escape = FALSE,
         booktabs = TRUE,
@@ -236,25 +277,23 @@ kable(  sensRunTable, escape = FALSE,
 
 ```{r omniPerfTab, echo = FALSE, warning = FALSE}
 omniPerfTab <- omniPerfTab %>%
+                mutate( "pBtLt.4Bmsy" = 1-pBtGt.4Bmsy,
+                        "pBtLt.8Bmsy" = 1-PBtGt.8Bmsy ) %>%
                 dplyr::select(  Species = species,
                                 Stock = stock, 
-                                "pBtGt.4Bmsy",
-                                "PBtGt.8Bmsy",
-                                pBtGtBmsy,
+                                "pBtLt.4Bmsy",
+                                "pBtLt.8Bmsy",
                                 pCtGtMSY,
                                 pFtGtFmsy,
-                                avgCatch,
-                                AAV )
+                                pHistLowCatch )
 
 colnames(omniPerfTab) <- c( "Species",
                             "Stock",
-                            "$P(B_{2026:2035} > .4B_{MSY,SS})$",
-                            "$P(B_{2026:2035} > .8B_{MSY,SS})$",
-                            "$P(B_{2026:2035} > B_{MSY,SS})$",
-                            "$P(C_{2026:2035} > MSY_{SS})$",
-                            "$P(F_{2026:2035} > F_{MSY,SS})$",
-                            "$\\overline{C}_{2026:2035}$",
-                            "$AAV$")
+                            "$P(B_t < .4B_{MSY,SS})$",
+                            "$P(B_t < .8B_{MSY,SS})$",
+                            "$P(C_t > MSY_{SS})$",
+                            "$P(F_t > F_{MSY,SS})$",
+                            "$P(C_t < \\min C_{1951:2016})$")
 
 
 omniPerfTab <- omniPerfTab[,-1]
@@ -268,10 +307,9 @@ kable(  omniPerfTab, escape = FALSE,
   pack_rows( "English sole",4,6 ) %>%
   pack_rows( "Rock sole",7,9 ) %>%
   add_header_above( c(" " = 1,
-                      "Probability of being overfished" = 3,
-                      "Probability of overfishing" = 2,
-                      "Mean catch" = 1,
-                      "Catch Variation" = 1 ) )
+                      "Prob. of being overfished" = 2,
+                      "Prob. of overfishing" = 2,
+                      "Prob. of low catch" = 1) )
 
 ```
 
@@ -279,7 +317,7 @@ kable(  omniPerfTab, escape = FALSE,
 
 \clearpage
 
-```{r AMmareTable, echo = FALSE }
+<!-- ```{r AMmareTable, echo = FALSE }
 
 mareTable <- read.csv(here::here("Outputs",params$groupFolder,"mareTable.csv"))
 
@@ -304,7 +342,7 @@ mareTable <- mareTable %>%
                   mutate( Scenario = stringr::str_replace_all(Scenario, scenLabs),
                           AM = str_replace_all(AM, AMlabs) ) %>%
                   dplyr::select( Scenario, AM, Species, Stock, MARE_Bt, MRE_Bt, MARE_Bmsy, MRE_Bmsy, MARE_Umsy, MRE_Umsy ) %>%
-                  filter( Scenario == "comm2" ) %>%
+                  filter( Scenario == "Comm2" ) %>%
                   arrange(Scenario, AM, Species) %>%
                   mutate_if(is.numeric, round2 )
 
@@ -317,7 +355,7 @@ kable(  mareTable, escape = FALSE,
 
 ```
 
-\clearpage
+\clearpage -->
 
 ```{r lossRankTable, echo = FALSE, warning =FALSE}
 lossRankTable <- makeLossRankTable( groupFolder = params$groupFolder,
@@ -328,34 +366,36 @@ lossRankTable <- makeLossRankTable( groupFolder = params$groupFolder,
                     ungroup()
 
 # Replace Scenario names and AM names
-AMlabs <- c(  "singleStock"= "SS",
-              "hierMultiStock"= "HMS",
-              "speciesPooling"= "SpePool",
-              "spatialPooling"= "SpaPool",
-              "totalAgg" = "TA")
-scenLabs <- c(  "DERfit_HcMcAsSsIdx" = "Comm1",
-                "DERfit_McAsSsIdx" = "Comm2",
-                "DERfit_McSsIdx" = "Comm3",
-                "DERfit_AsSsIdx"  = "Surv")
+AMlabs <- c(  "singleStock"= "Single Stock",
+              "hierMultiStock"= "Hierarchical Multi-stock",
+              "speciesPooling"= "Species Pooling",
+              "spatialPooling"= "Spatial Pooling",
+              "totalAgg" = "Total Aggregation")
+scenLabs <- c(  "DERfit_HcMcAsSsIdx" = "Rich",
+                "DERfit_McAsSsIdx" = "Mod",
+                "DERfit_AsSsIdx"  = "Poor")
 
 lossRankTable <- lossRankTable %>%
                   mutate( Scenario = stringr::str_replace_all(Scenario, scenLabs),
                           AM = str_replace_all(AM, AMlabs) ) %>%
-                  dplyr::select( Scenario, AM, absCrank, absBrank ) %>%
-                  arrange(Scenario)
+                  filter( Scenario %in% c("Rich","Mod","Poor")) %>%
+                  arrange(match(Scenario, c("Rich", "Mod", "Poor")),
+                            absCrank) %>%
+                  dplyr::select( Scenario, AM, absCrank )
+                  
 
 
 colnames(lossRankTable) <- c( "Scenario","AM",
-                              "Catch Loss Rank", 
-                              "Biomass Loss Rank")
+                              "Average Loss Rank (range)")
 
-kable(  lossRankTable, escape = FALSE, 
+kable(  lossRankTable[,-1], escape = FALSE, 
         caption = lossRankTabCap, booktabs = T,
-        align = rep("c",ncol(lossRankTable))) %>%
-  kable_styling(latex_options = c("striped", "scale_down","hold_position"),
+        align = rep("c",ncol(lossRankTable[,-1]))) %>%
+  kable_styling(latex_options = c("striped", "hold_position"),
                 bootstrap_options = c("striped", "hover")) %>%
-  add_header_above( c(" " = 2,
-                      "Rank Distributions" = 2 ) )
+  pack_rows( "Rich",1,5 ) %>%
+  pack_rows( "Mod",6,10 ) %>%
+  pack_rows( "Poor",11,15 ) 
 ```
 
 \clearpage

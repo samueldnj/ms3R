@@ -1,36 +1,93 @@
 # Discussion
 
-In this paper, we compared the management performance 
-of five alternative assessment models in a simulated 
-spatially structured, data-limited, multi-species flatfish fishery. 
-Our operating model was an age- and sex-structured population
-dynamics model based on the DER complex in British Columbia,
-Canada, and we simulated different data quality scenarios by 
-excluding different data series from surplus production
-stock assessment models used to set annual total allowable
-catches for each stock. Simulated surplus production 
-assessment models either treated stocks as independent, 
-or grouped stocks together by pooling data or 
-using a hierarchical multi-stock assessment model. Each
-assessment model forecast future biomass values set TACs 
-by applying a constant harvest rate policy, with harves rates derived
-from multi-species maximum yield incorporating technical
-interactions.
 
-All AMs were different
-configurations of the same assessment model, which extended 
-a model from previous research [@johnson2018evaluating].
+Major points from intro:
+1. Optimal harvest rates (ref pts) in multi-species fisheries
+2. Technical interactions/choke effects
+3. Data limited stock assessments
+4. Hierarchical methods
 
-Measured performance using catch and biomass loss,
-catch and biomass tradeoffs
 
-Main takeaway: which performed best/was most stable under
-changes in data series?
+## Synopsis and interpretation
 
-As expected, all data-limited methods (data-pooling and 
-hierarchical) outperformed the single-stock methods
-in all scenarios. In more data-rich scenarios, the 
-data-pooling AMs had the lowest biomass and catch loss
+
+In this paper, we demonstrated how using hierarchical stock assessment
+models to set catch limits may improve management performance in
+a data-limited, multi-species flatfish fishery. When available data 
+series were shorter (data-moderate and data-poor scenarios), catch limits 
+set based on biomass estimates from hierarchical stock assessment models 
+had lower catch loss compared to an omniscient manager's optimal reference 
+series than when catch limits were set using single-stock and data-pooling 
+models. When data series were longest (data-rich scenarios), catch-loss 
+was lowest under data-pooling assessment models, but hierarchical models 
+still outperformed single-stock models on average. Improved performance
+relative to the data-pooling AMs under lower data quality conditions
+is consistent with our previous study, where statistical performance
+of hierarchical multi-stock assessments improved with decreasing 
+data quantity and quality [@johnson2018evaluating].
+
+Our results may indicate that, even in fisheries with long time
+series of catch and effort data, hierarchical multi-stock AMs are 
+preferable over single-stock AMs. The poor performance of the single-stock 
+models in all scenarios highlights the difference between data-rich (i.e., a 
+higher quantity of data) and information-rich (i.e., data with higher statistical 
+power) fisheries. The data-rich scenario differed from data-moderate 
+and data-poor scenarios by the inclusion of a historical series of fishery 
+dependent CPUE, which was quite noisy and subject to the 
+effects of changing harvester behaviour like targeting (variable catchability), 
+and therefore, additional historical CPUE data had little effect on cumulative 
+catch loss under the single-stock models. In contrast, 
+the data-pooling procedures all performed better under the data-rich 
+scenario, as they were able to leverage additional statistical power from
+the historical CPUE by effectively increasing the sample size 
+through data aggregation. Although data aggregation was impossible
+for the hierarchical models, the results under the data-rich
+scenario indicate that shared priors at least partially compensated by
+importing information between stocks and species.
+
+We observed a dual effect of control under catch limits set by 
+the HMS models in the data-poor scenario, where uninformative
+catch series trapped assessment model estimates in
+
+ a persistent 
+negative assessment error coupled with 
+
+
+Most harvest policies are truly single-species, regardless
+of technical interactions, and despite whether they are indeed
+possible to achieve or not. We found that under the conditions
+tested, it's possible to maximise system yield while avoiding
+critically overfished levels. This may be different for other
+cases with different mixes of relative catchabilities and 
+productivities. 
+
+
+From notes:
+
+2. While we didn't explicitly calculate biomass loss (deviations
+of stock biomasses from the optimal trajectory under the omniscient
+manager), we did consider biomass in relation to a critically 
+overfished level, which may be the real issue from a conservation
+standpoint as biomass above that level is of little concern. 
+Catch performance may be acceptable given larger stock size
+to go with the lower harvest rate
+3. 
+4. Technical interactions are not the whole ball game - what did
+we mean by that? Positive and negative outcomes, highlighting that
+a choke effect might not indicate that you need to raise the choke
+species TAC to improve access to other TACs. It may be that the
+TACs for choke species are adequately scaled and are in fact
+rescuing the other species from overfishing.
+
+
+
+## Effect of data limitations
+
+
+
+
+
+
 
 TAC utilisation issue highlights two things: TACs should
 definitely consider technical interactions, and that
@@ -42,7 +99,7 @@ situation if attempting to include technical interactions
 in a management/decision system. Targeting also
 plays a role [@branch2008matching].
 
-
+@pikitch1987use
 
 
 Second takeaway: TAC utilisation issue? Optimal biomass
@@ -82,25 +139,65 @@ Sensitivity:
 
 Limitations:
 1. Informative priors were necessary for stability
-of some MPs
-2. Addition of  biomass and CPUE indices instead 
-of re-calculation under coastwide and data-pooled MPs
+of some MPs, sensitivity analysis highlights some of this
+2. In practice, modelss were not tuned
 4. Effort dynamics: simplified, would require more empirical
-work for an application - e.g. landed value is assumed equal
-among fish (not far from the truth anyways)
-5. Targeting was not included
-6. 
+work for an application - e.g. targeting was not included and
+would change relative catchabilities (@punt2011calculating; 
+@punt2020multispecies), and time-varying catchability
+would be more realistic
+5. Catch limits were set based on known optimal harvest rates,
+so the ability of the AMs to estimate species productivity was 
+not tested as part of the closed loop feedback sims. Only way
+to test this is to include the multi-species reference point
+calcs as part of the MP - not too difficult to implement, but
+would require an AM of higher complexity
+6. Allocation model was simplified, and only one of an infinite
+set of options. Understanding risk of data-pooling more deeply
+would require testing different ways to allocate pooled quota.
+7. Low recruitment errors
+8. Harvest rates were derived from BRPs including technical
+interactions but not ecological interactions or movement
+between areas. Although there is limited evidence for the
+D-E sole interactions, there may be some evidence for Rock
+sole, which would then
+9. The errors on data-pooled indices were independent
+of the errors on non-pooled indicies, which may favourably
+bias the pooled AMs results, especially if errors were
+positively correlated, leading to an increase in average
+variance.
+
 
 Further work:
 - While considering technical interactions, is it possible 
 to tune all stocks to a nominated level? Probably not.
 - Addition of economic yield [@punt2020multispecies]
-- Investigation of how to better include EB/SB ratios
+- Investigation including EB/SB ratios
 for data-pooled MS complexes [@winker2020jabba]
 - Targeting behaviour [@punt2011calculating]
+- Combining harvest control rules with multi-species
+target harvest rates, that maximise system yield (MS
+objective) while avoiding critically overfished
+states (SS objective)
 
 
+## Conclusion
+
+Closed loop feedback simulation is a valuable tool for evaluating
+risk associated with applying a fishery management strategy.
+
+e recommend that when attempting to include multiple species
+in allocating scientific resources to help make  decisions, that 
+the relative vulnerability of each stock be taken into account. 
+Those stocks that are "more available" to the fishing gear will
+have their TACs filled faster, so it is more important 
+that those TACs are set to the appropriate level. Technical
+interactions will then protect stocks that have large positive 
+assessment errors through lower TAC utilisation ratios.
 
 
-
-
+under the omniscient manager's effort allocations, all stocks 
+satisfy Canadian sustainable fisheries framework criteria
+for fishery management despite targeting a fishing
+mortality rate higher than the equilibrium 
+[@DFO2006A-Harvest-Strat].

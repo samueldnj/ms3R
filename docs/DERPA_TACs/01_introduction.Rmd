@@ -1,62 +1,129 @@
 # Introduction
 
 
-The majority of harvest decisions in developed multi-species 
-fisheries are made on a single-species/single-stock basis,
-given the output of a single-species stock assessment model. 
-Single-species harvest decisions often ignore the fact
-that fishing is inherently non-selective, and therefore
-in most cases, non-selective fishing effort results in 
-the simultaneous catch of multiple species, which are 
-then said to have technical interactions [@punt2002evaluation].
-Ignorance of technical interactions among species while 
-setting total allowable catches (TACs) in multi-species 
-fisheries will often lead to sub-optimal fishery outcomes 
-[@ono2017management; @punt2011calculating]. For example, 
-under-utilisation of TAC could occur when technically 
-interacting quota species are caught at different rates 
-(i.e., catchability) by a common gear, or have different 
-productivity levels, leading to a choke constraint in 
-which one species quota is filled before the others 
-[@baudron2015adverse]. Choke constraints are 
-generally considered negative outcomes for 
-multi-species fishery performance, as they reduce 
-harvester profitability as quota for choke species 
-becomes rare and valuable for access to fishing grounds
-[@mortensen2018identifying].
+Multi-species fisheries management attempts to balance
+the harvest levels of complex combinations of interacting
+target and non-target species that vary in abundance and
+productivity. Different species productivities imply different 
+responses to exploitation, and therefore different optimal 
+harvest rates. For an individual species, the optimal harvest 
+rate (e.g. the harvest rate associated with maximum sustainable 
+yield) is often derived from life-history characteristics via an 
+age-structured stock assessment (or similar approach), ignoring 
+potential multi-species interactions that may 
+affect individual demographic rates that determine optimal 
+harvest rates [@gislason1999single; @collie2001biological], 
+or make it impossible to simultaneously achieve the 
+optimal harvest rate for all species [@pikitch1987use]. 
+Optimal harvest rates are of limited utility on their own, 
+even if known *a priori*, as setting catch limits based on target 
+harvest rates requires an estimate of species abundance, which may
+be the output of a fisheries stock assessment model fit 
+to data in the presence of uncertainty [@hilborn1992quantitative]. 
+Taken together, the above makes multi-species fishery 
+management a complex task under the best of conditions.
 
-**NOTE: ADD @branch2008matching HERE**
+Technical interactions exist between species that co-occur 
+in non-selective fishing gear, and are a defining 
+characteristic of multi-species fisheries 
+[@pikitch1987use; @punt2002evaluation]. Despite the 
+central role of technical interactions in determining
+how multi-species fisheries management actions affect 
+species outcomes, technical interations are often ignored 
+when setting catch limits or determining target exploitation 
+rates [@ono2017management; @kempf2016msy], and the single-species 
+paradigm prevails in most developed multi-species fisheries, 
+with harvest decisions made on a single-species basis, given the 
+output of a single-species stock assessment model. 
+Catch-limits set for individual species without 
+considering technical interactions will often lead to 
+sub-optimal fishery outcomes [@ono2017management; 
+@punt2011calculating; @punt2020multispecies]. For example, 
+under-utilisation of catch-limits could occur when technically 
+interacting quota species are caught at different rates (i.e., 
+catchability) by a common gear, or have different productivity 
+levels, leading to a choke constraint in which one species 
+quota is filled before the others [@baudron2015adverse]. 
+Choke constraints are generally considered negative outcomes 
+for multi-species fishery performance, as they reduce harvester 
+profitability as quota for choke species becomes rare
+[@mortensen2018identifying], limiting access to fishing 
+grounds and potentially becoming more valuable 
+than the landed value of the choke species.
 
-Difficulties setting optimal harvest rates are 
-compounded in data-limited fisheries, where data or
-financial resources are insufficient to extend 
-single-species stock assessments [@Carruthers2014Evaluating]. 
-Data limitations or low commercial value often preclude 
-applying the best tools of modern fisheries science (e.g., 
-age-structured stock assessments, or Management Strategy 
-Evaluation) to all species in a multi-species
-fishery. Data pooling is often used to extend stock assessments to 
-complexes of multiple stocks of similar, interacting species
-of fish, where similar may be defined in a biological
-sense, or in a sense related to management unit 
-boundaries [@gaichas2012assembly]. More recently, hierarchical stock 
-assessment models are being applied to extend assessments 
-in multi-species and multi-stock complexes where better data exists 
-for some subgroup of the complex, and there are biological reasons 
-to expect biological parameters to be similar among species in
-the complex [@thorson2015giants]. For example, 
-estimates of management parameters and stock status are improved in 
-scenarios where data is of low statistical power (i.e., short 
-time series or noisy observations) when hierarchical multi-stock 
-surplus production models penalise survey catchability and intrinsic
-growth rate by shrinkage priors, compared to single-stock
-models fit to the same data [@johnson2018evaluating].
+In practice, setting catch limits to meet target harvest rates 
+for individual species in any fishery requires an estimate of 
+speciess abundance. Estimating species abundance in the presence of
+uncertainty is the central challenge of fisheries stock assessment
+[@hilborn1992quantitative], and that challenge is compounded when 
+species data are insufficient for stock assessment models to extend 
+reliable estimates of abundance. Where data limitations exist, data 
+pooling is sometimes used to extend stock assessments to complexes 
+of similar, interacting groups of fish [@appeldoorn1996model], 
+such as spatially pooling the same species across multiple 
+spatial strata, pooling multiple species of the same taxonomic 
+group within an area, or more simply lumping all data-limited 
+species in an area. In any pooled stock assessment, models 
+estimate a complex-mean productivity, and catch limits that
+are based on them will tend to overfish some species and 
+underfish others, potentially leading to collapse [@gaichas2012assembly]. 
+Hierarchical multi-species stock assessment models are a compromise 
+between problematic data-pooling and single-species approaches, 
+allowing for data sharing between multiple species within 
+a complex through hierarchical shrinkage prior distributions on 
+model parameters that represent biological similarities or 
+technical interactions [@thorson2015giants]. Shared priors
+shrink species specific parameters towards an estimated complex mean 
+value, improving model convergence for data poor species and basing 
+estimates on available data rather than strong assumptions like 
+fixed parameters or strongly informative priors [@jiao2009hierarchical; 
+@jiao2011poor; @punt2011among].
 
-Although hierarchical stock assessments perform better 
-on limited data under simulation self-tests than single-stock 
-methods, it is unclear if hierarchical stock assessment
-methods lead to better management outcomes than single-stock
-or data-pooled methods. Most research on stock assessment
+Although hierarchical stock assessments produce better
+estimates of species biomass and productivity than single-species
+methods when fit to poor-quality data [@johnson2018evaluating], 
+it is unclear whether this improved statistical performance 
+translates into better management outcomes. On the one hand,
+improving assessment model statistical performance may 
+sacrifice improved fishery outcomes, as large assessment errors 
+caused by poor quality data may improve management system knowledge 
+by increasing contrast in the data through successive rebuilding 
+events (i.e. adaptive learning) [@walters1986adaptive]. 
+On the other hand, biomass may collapse or harvesters
+may divest from the fishery due to over- or under-exploitation 
+because the adaptive learning failed to occur sufficiently 
+quickly. Improving the rate of adaptive learning may be 
+possible via hierarchical modeling of spatially replicated 
+groundfish stocks, because the shared priors may import 
+adaptive learning behaviour between areas and use them 
+to improve stock assessments in other areas 
+[@collie1991adaptive].
+
+In this paper, we investigated whether hierarchical 
+stock assessment models improved management performance
+in a simulated multi-species, data-limited fishery. The 
+simulated fishery was modeled on a complex of Dover sole, 
+English sole, and southern rock sole - three species of 
+right-eyed flounders (*Pleuronectidae spp.*) fished off the 
+coast of British Columbia, Canada, in three management areas. 
+Closed-loop feedback simulation was used to estimate fishery
+outcomes when catch limits were set based on estimates 
+of biomass from five alternative state-space surplus 
+production models under three data scenarios. Assessment 
+models were either fit to species specific data as single-species
+or hierarchical multi-species models, or fit to data pooled 
+spatially across management units, pooled across species 
+within a spatial management unit, or totally aggregated across 
+both species and spatial management units. Management 
+performance of each assessment model was measured 
+as cumulative absolute loss in catch and stock biomass, 
+measured against the simulated catch and biomass trajectories 
+generated by simulating the harvest decisions of an omniscient 
+manager, who can see future recruitments and adjust annual 
+effort to maximise total complex yield [@walters1998evaluation; 
+@walters2004fisheries]. 
+
+<!-- Most research on stock assessment
 and harvest performance in multi-stock and multi-species 
 fisheries focuses on mismatches between the spatial 
 scales of harvest decision and the true underlying stock
@@ -68,47 +135,15 @@ assessments [@ono2017management]. Further, research on
 hierarchical stock assessment procedures has been focused 
 on assessment bias under different levels of model 
 complexity [@punt2011among; @jiao2016integrating;
-@jiao2011poor; @jiao2009hierarchical; @johnson2018evaluating].
+@jiao2011poor; @jiao2009hierarchical; @johnson2018evaluating]. -->
 
-In this paper, we investigated if hierarchical 
-stock assessment models improved management performance
-in a multi-species, data-limited fishery. Our study system 
-was modeled on a complex of Dover sole, English sole, and 
-southern rock sole - three species of right-eyed flounders 
-(*Pleuronectidae spp.*) fished off the coast of British 
-Columbia, Canada, in three management areas. These three 
-species co-occur along the BC coast, are caught together in 
-directed trawl fisheries, and are surveyed by the same 
-multi-species trawl survey. While time series of catch 
-and commercial CPUE exist for all species and areas since 
-the 1950s, all fishery independent observation series are 
-quite noisy and some are very short, making this complex 
-a good candidate for the application of data-limited 
-stock assessment methods.
-
-We used closed-loop simulation to test management
-performance when harvest decisions were made based 
-on biomass estimates from five alternative assessment model 
-structures, under four data scenarios. Assessment models 
-included single-stock methods, hierarchical multi-stock 
-methods, and three data-pooling methods: spatial 
-pooling (across management units), species 
-pooling (within a management unit), and total 
-aggregation (both species and spatial pooling). 
-Data-pooled harvest decisions were allocated among 
-species and stocks relative to their most recent 
-fishery-independent survey biomass index. Data scenarios
-successively reduced the total length of the available
-biomass indices, removing data series until only 
-recent fishery indepent indices were used. Management 
-performance of each assessment model was measured as 
-cumulative absolute loss in catch and stock biomass, 
-measured against the simulated catch and biomass 
-trajectories generated by simulating the harvest
-decisions of an omniscient manager, who can see 
-future recruitments and adjust annual effort to 
-maximise total complex yield [@walters1998evaluation; 
-@walters2004fisheries].
+<!--   Data-pooled catch
+limits were allocated among species and stocks relative 
+to their most recent fishery-independent survey biomass 
+index. Data scenarios successively reduced the total length 
+of the available biomass indices, removing data series 
+until only recent fishery indepent indices were used. 
+ -->
 
 <!-- 
   From old abstract:

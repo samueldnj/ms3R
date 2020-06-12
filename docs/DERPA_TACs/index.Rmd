@@ -1,13 +1,13 @@
 ---  
 title: "Do hierarchical assessment methods improve management performance in multi-species, data-limited fisheries?"
 author: 
-  - Samuel D. N. Johnson (corresponding)
-  - Sean P. Cox
+  - Samuel D. N. Johnson^1^ (corresponding)
+  - Sean P. Cox^1^
 affil:
-  - School of Resource and Environmental Management,
-    Simon Fraser University,
-    8888 University Drive,
-    BC, Canada
+  - ^1^School of Resource and Environmental Management\
+    Simon Fraser University\
+    8888 University Drive\
+    BC, V5K 1S6, Canada
 email:
   - samuelj@sfu.ca
   - spcox@sfu.ca
@@ -27,13 +27,13 @@ abstract:
     flatfish fishery, based on a complex of three technically 
     interacting right-eyed flounders fished in three spatial 
     management areas off the coast of British Columbia, Canada. 
-    We tested five surplus production 
-    stock assessment models to set harvest levels, including 
-    single-species assessments and hierarchical multi-species 
-    assessments, and methods that pooled data across species 
-    and spatial strata. Each assessment method was tested under 
-    four data scenarios, which successively excluded  
-    biomass indices to reduce data quantity. 
+    We tested the management performance when using each of 
+    five surplus production stock assessment models to set harvest 
+    levels in a multi-species fishery, including single-stock 
+    and hierarchical multi-stock assessments, and methods that 
+    pooled data across species and spatial strata. Each assessment 
+    method was tested under four data scenarios, which successively 
+    excluded biomass indices to reduce data quantity. 
     Assessment model estimates of biomass were used to set 
     catches for each management based on an optimal harvest
     rate derived from multi-species reference points that
@@ -51,7 +51,7 @@ date: \today
 bibliography: /Users/sdnjohnson/Work/Library/library.bib
 natbib: true
 biblio-style: plainnat
-csl: /Users/sdnjohnson/Work/write/templates/csl/cjfas.csl 
+csl: ./Users/sdnjohnson/Work/write/templates/csl/styles/dependent/fisheries-research.csl 
 geometry: letterpaper
 toc: false
 fontsize: 12pt

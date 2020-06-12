@@ -4,88 +4,76 @@
 
 # Appendix A: The operating model
 
-Our operating model was based on an age- and 
-sex-structured, multi-species and multi-stock population
-dynamics model. We simulated the species and stocks
-assuming no ecological interactions or movement
-between areas. This assumption is unrealistic,
-but it is how the stocks are currenly managed
-so we decided that this was the best place to begin
-our management simulation.
+The operating model was a standard age- and sex-structured 
+operating model, with additional structure for multi-species 
+and multi-stock population dynamics. DER complex species and 
+stocks were simulated assuming no ecological interactions or 
+movement between areas. The lack of movement may be unrealistic, 
+especially for Dover Sole given their extent, but this is how 
+the the DER complex stocks are currently managed in practice. 
+The lack of ecological interactions is more realistic for Dover 
+and English soles, as although both species are benthophagus, 
+there is evidence that they belong to different feeding guilds
+[@pikitch1987use].
+
+DER complex abundance $N_{a,x,s,p,t}$ for age $a$, sex $x$, 
+species $s$ and stock $p$ at the start of year $t$ was
+given by 
+\[
+N_{a,x,s,p,t} = \left \{ \begin{array} {ll}
+                          0.5 R_{t}  & a = 1, \\
+                          N_{a-1,x,s,p,t-1} \cdot e^{-Z_{a-1,x,s,p,t-1}} & 1 < a < A, \\
+                          N_{a-1,x,s,p,t-1} \cdot e^{-Z_{a-1,x,s,p,t-1}} + N_{a,x,s,p,t-1}\cdot e^{-Z_{a,x,s,p,t-1}} & a = A,
+                          \end{array}
+                \right.
+\]
+where $R_t$ is age-1 recruitment in year $t$ and $Z_{a,x,s,p,t}$
+is the instantaneous total mortality rate with subscripts 
+defined above.
+
+Numbers-at-age were scaled to biomass-at-age by sex/species/area-
+specific weight-at-age. Weight-at-age was an allometric function
+of length-at-age
+\[
+w_{a,x,s,p} = \alpha_{x,s,p} \cdot L_{a,x,s,p}^{\beta_{x,s,p}}
+\]
+where $\alpha_{x,s,p}$ scaled between cm and kg, $\beta_{x,s,p}$
+determined the rate of allometric growth, and $L_{a,x,s,p}$ was
+the length in cm of a fish of age $a$, sex $x$, species $s$ and 
+stock $p$. Length-at-age was given by the following Schnute 
+formulation of the von-Bertalanffy growth curve [@schnute1981versatile; 
+@francis2016estimating] 
+\[
+L_{a} = \frac{L_{A_1} - (\overline{L}_{A_2} - \overline{L}_{A_1}) \cdot \left(e^{-K A_1} - e^{-K a} )}{e^{-k A_1} - e^{-k A_2} )},
+\]
+where $A_1$ and $A_2$ are well spaced reference ages, 
+$\overline{L}_{A_1}$ and $\overline{L}_{A_2}$ are the mean lengths
+in cm of fish at ages $A_1$ and $A_2$, and $k$ is the 
+growth coefficient. Note that in the growth model we dropped the sex, 
+species and stock subscripts for concision.
+
+The maturity-at-age ogive was modelled as a logistic function
+\[
+m_{a,s,p} = \frac{1}{1 + e^{-\frac{\ln 19 (a - a_{50,s,p}^{mat})}{a_{95,s,p}^{mat} - a_{50,x,s,p}^{mat}}}},
+\]
+where $m_{a,s,p}$ was the proportion of age-$a$ female fish 
+of species $s$ in stock $p$ that were mature, and $a_{50,s,p}^{mat}$ 
+and $a_{95,s,p}^{mat}$ are the ages at which 50\% and 95\% of fish 
+of age-$a$, species $s$ and stock $p$ were mature.
+
+Female spawning stock biomass was calculated as
+\[
+SSB_{s,p,t} = \sum_{a} N_{a,x',s,p,t} m_{a,s,p} w_{a,x',s,p}
+\]
 
 
+# Appendix B: Omniscient Manager Optimisation
 
-# Appendix B: Surplus production assessment model
-
-We defined our multi-species, multi-stock surplus 
-production stock assessment model as an extension 
-of a model that was the subject of a previously
-published sensitivity analysis of hierarchical
-surplus production models [@johnson2018evaluating].
-Because this model was previously published, we
-only discuss the differences between the version
-we used in this paper and version in the previous 
-publication.
-
-The full model is described in Table B1. 
-As in the equations in the main body of this paper, 
-we denote species by a subscript $s$, stock areas 
-by a subscript $p$ (population), and observation series from 
-different fleets by a subscript $f$ 
-for all equations in Table B1.
-
-The following list is all the extensions from the 
-original model to the AM used in this paper, with
-references to Table B1 in parentheses:
-
-1. An additional shrinkage prior on Umsy_sp across
-species (Equation XX)
-2. Initial biomass prior for tuning purposes (Eq. XX)
-3. All variance parameters were fixed for tuning
-simulated MP performance
-
-We fixed all variance parameters of the stock assessment 
-model during closed loop simulations. This was required
-to improve stability of the assessments during closed loop
-simulations with limited data, and also allowed us 
-to tune the performance of the management procedure.
-
-For the two time series of commercial CPUE observations, 
-we calculated the conditional maximum likelihood estimate
-of fleet catchability (eq O.2)
-
-
-
-```{r, echo = FALSE, warnings = FALSE, include = FALSE}
-# Read in table of AM equations here.
-
-cat("Insert AM table of equations here\n")
-
-# AMeqTab <- tibble::tribble(
-#   ~Eq.no,      ~Definition,
-#   "B.1",       "$B_{s,p,t_0} = \left\{\begin{array}{ll} B_{s,p,0} & t_0 = 1 \\ B_{s,p,init} & t_0 > 1 \end{array} \right.",
-#   "B.2",       "$B_{s,p,t} = (B_{s,p,t-1} + r_{s,p} \cdot B_{s,p,t-1} \cdot (1 - \frac{B_{s,p,t-1}}{B_{s,p,0}}) - C_{s,p,t-1}) e^{\zeta_{s,p,t}}",
-#   "B.3",       "$\zeta_{s,p,t} \sim N(0, \sigma_{s,p})$",
-#   "O.1",       "$I_{s,p,f,t} = q_{s,p,f} \cdot B_{s,p,t}$",
-#   "O.2",       "$\hat{q}_{s,p,f} = \frac{\sum_{t|I_{s,p,f,t} \neq 0} (I_{s,p,f,t} - B_{s,p,f,t} ) }{|\{t~|~I_{s,p,f,t} \neq 0\}|},~~ f = 1,2$",
-#   "U.1",       "$U_{MSY,s}   = \bar{U}_{MSY} \cdot e^ \epsilon_{U,s}$",
-#   "U.2",       "$U_{MSY,s,p} = \bar{U}_{MSY,s} \cdot e^ \epsilon_{(U,s),p}$",
-#   "U.3",       "$\epsilon_{U,s} \sim N(0,\sigma_{U})$",
-#   "U.4",       "$\epsilon_{(U,s),p} \sim N(0,\sigma_{U})$",
-#   "q.1",       "$q_{s,p,f} = q_{s,f} \cdot e^\delta_{q,s,p,f}$",
-#   "q.2",       "$delta_{q,s,p,f} \sim N(0,\tau_{q})$",
-# )
-
-```
-
-# Appendix C: Omniscient Manager Optimisation
-
-We defined penalty functions so that inside
-the desired region the penalty was zero, but outside
-the desired region the penalty grew as a cubic function. 
-So, for example, a penalty designed to keep a measurement 
-$x$ above a the desired region boundary $\epsilon$ is of 
-the form
+We defined penalty functions so that inside their respective 
+desired regions the penalty was zero, but outside the desired 
+region the penalty grew as a cubic function. So, for example, 
+a penalty designed to keep a measurement $x$ above a the desired 
+region boundary $\epsilon$ is of the form
 \begin{equation}
 \mathcal{P}(x , \epsilon) = \left\{
   \begin{array}{ll}
