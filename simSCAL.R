@@ -655,7 +655,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   {
     nP    <- repObj$nP       # Number of stocks
     nX    <- 1               # Number of sex classes
-    nF    <- repObj$nG       # Number of fleets from SISCA
+    nF    <- repObj$nG +1    # Number of fleets from SISCA + open pond SOK
     nS    <- 1               # Number of species
     nL    <- 1               # Number of length classes 
 
@@ -772,8 +772,8 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   if( ctlList$opMod$condModel == "SISCA" )
   {
     # Variance parameters
-    om$tauObs_spf[1,,]  <- repObj$tauObs_pg
-    om$sigmaR_sp[1,]    <- repObj$sigmaR
+    om$tauObs_spf[1,,1:6]   <- repObj$tauObs_pg
+    om$sigmaR_sp[1,]        <- repObj$sigmaR
     
 
     # Leading bio pars
@@ -802,16 +802,16 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     om$W_axspt[,1,1,,1:(tMP-1)]   <- repObj$W_apt[,,1:(tMP-1)]
     om$W_axspt[,1,1,,tMP:nT]      <- repObj$projWt_ap
     # Fleet weight-at-age etc.
-    om$W_axspft[,1,1,,,1:(tMP-1)] <- repObj$W_apgt[,,,1:(tMP-1)]
-    om$W_axspft[,1,1,,,tMP:nT]    <- aperm(repObj$projWt_agp,c(1,3,2))
+    om$W_axspft[,1,1,,1:6,1:(tMP-1)] <- repObj$W_apgt[,,,1:(tMP-1)]
+    om$W_axspft[,1,1,,1:6,tMP:nT]    <- aperm(repObj$projWt_agp,c(1,3,2))
     
     # Get mean weight-at-age for reference point calcs
     om$meanWtAge_axsp[,1,1,]      <- repObj$meanWt_ap
 
     # Get spawn timing and fleet timing
     om$spawnTiming                <- repObj$spawnTiming
-    om$fleetTiming_f              <- repObj$fleetTiming_g
-    om$fleetType_f                <- repObj$fleetType_g
+    om$fleetTiming_f              <- c(repObj$fleetTiming_g,0.97)
+    om$fleetType_f                <- c(repObj$fleetType_g,3)
 
     om$Wlen_ls                    <- NA
     om$probLenAge_laxsp           <- NA
@@ -3725,17 +3725,17 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   tMP <- obj$om$tMP
   pT  <- ctlList$opMod$pT
 
-
   # Now, copy model fit
   histdx <- 1:(tMP - 1)
-  obj$om$F_spft[1,,,histdx]         <- repObj$F_pgt
-  obj$om$C_spft[1,,,histdx]         <- repObj$C_pgt
-  obj$om$C_spt[1,,histdx]           <- apply( X = repObj$C_pgt, FUN = sum, MARGIN = c(1,3) )
-  obj$om$sel_axspft[,1,1,,,histdx]  <- repObj$sel_apgt
+  histF  <- 1:repObj$nG # number of fleets in historical time series
+  obj$om$F_spft[1,,histF,histdx]        <- repObj$F_pgt
+  obj$om$C_spft[1,,histF,histdx]        <- repObj$C_pgt
+  obj$om$C_spt[1,,histdx]               <- apply( X = repObj$C_pgt, FUN = sum, MARGIN = c(1,3) )
+  obj$om$sel_axspft[,1,1,,histF,histdx] <- repObj$sel_apgt
   # obj$om$sel_lspft[,,,,histdx]      <- 
 
-  obj$mp$hcr$TAC_spft[,,,histdx]    <- obj$om$C_spft[,,,histdx]
-  obj$mp$hcr$TAC_spt[,,histdx]      <- obj$om$C_spt[,,histdx]
+  obj$mp$hcr$TAC_spft[,,histF,histdx] <- obj$om$C_spft[,,histF,histdx]
+  obj$mp$hcr$TAC_spt[,,histdx]        <- obj$om$C_spt[,,histdx]
 
   # REMOVED EFFORT READ IN - will be obsolete after next
   # hierSCAL revision anyways
@@ -3743,13 +3743,13 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   obj$om$initSurv_axsp[,1,1,]        <- repObj$initSurv_ap
 
   # Now fill in future sel
-  obj$om$sel_axspft[,1,1,,,tMP:nT]  <- repObj$sel_apgt[,,,tMP-1]
+  obj$om$sel_axspft[,1,1,,histF,tMP:nT]  <- repObj$sel_apgt[,,,tMP-1]
 
   # Copy index catchability
   for( tt in histdx )
   {
-    obj$om$q_spft[1,,,tt]       <- repObj$qhat_pg
-    obj$om$q_spf[1,,]           <- repObj$qhat_pg
+    obj$om$q_spft[1,,histF,tt]       <- repObj$qhat_pg
+    obj$om$q_spf[1,,histF]           <- repObj$qhat_pg
   }
 
   # Now we have enough info to calculate reference points
@@ -3768,8 +3768,8 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
 
 
   # Add historical data
-  obj$mp$data$I_spft[1,1:nP,,histdx]        <- repObj$I_pgt[1:nP,,histdx]
-  obj$mp$data$A_axspft[,1,1,1:nP,,histdx]   <- repObj$A_apgt[,1:nP,,histdx]
+  obj$mp$data$I_spft[1,1:nP,histF,histdx]        <- repObj$I_pgt[1:nP,,histdx]
+  obj$mp$data$A_axspft[,1,1,1:nP,histF,histdx]   <- repObj$A_apgt[,1:nP,,histdx]
 
   # replace negatives with NAs for plotting, can change back 
   # later for TMB
@@ -3782,7 +3782,6 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   
   # Allocate according to historical catch by area
   # recentCatch_spf <- apply( X = obj$om$C_spft[,,,tdxRecent,drop = FALSE], FUN = sum, MARGIN = c(1,2,3) )
-
 
 
   # Allocate according to historical catch for all areas
@@ -3841,7 +3840,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   obj$om$alloc_spf[is.nan(obj$om$alloc_spf)] <- 0
 
   # Save historical errors
-  obj$errors$delta_spft[1,1:nP,,histdx]   <- repObj$z_pgt[1:nP,,histdx,drop = FALSE] # obs errors
+  obj$errors$delta_spft[1,1:nP,histF,histdx]   <- repObj$z_pgt[1:nP,,histdx,drop = FALSE] # obs errors
   for( p in 1:nP)
     obj$errors$omegaRinit_asp[,1,p]  <- repObj$fDevs_ap[,p] # Initialisation errors
   obj$errors$obsErrMult_spft          <- array(1, dim = c(nS,nP,nF,nT))
@@ -3905,12 +3904,14 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   # Post ponding M for open and closed ponding
   for( f in 1:nF )
   {
+    
     if( !(obj$om$fleetType_f[f] %in% c(2,3)) )
       next()
 
     # Closed pond fleets
     if(obj$om$fleetType_f[f] ==2)
-    {
+    {  
+    
       obj$om$pondM_ft[f,1:(tMP-1)] <- repObj$postPondM
 
       # Draw M in projections from log-normal distribution
@@ -3951,7 +3952,9 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   }
 
   # Add ponded fish and SOK conversion factor
-  sokFleets <- which(obj$om$fleetType_f == 2)
+  sokFleets <- which(obj$om$fleetType_f %n% c(2,3))
+
+  browser(cat('line 3957...'))
 
   for( fIdx in sokFleets )
   {
