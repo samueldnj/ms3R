@@ -42,8 +42,9 @@ scenario, as they were able to leverage additional statistical power from
 the historical CPUE by effectively increasing the sample size 
 through data aggregation. Although data aggregation was impossible
 for the hierarchical models, the results under the data-rich
-scenario indicate that shared priors at least partially compensated by
-importing information between stocks and species.
+scenario indicate that shared priors at least partially compensated 
+for low statistical power by importing information between stocks 
+and species.
 
 We observed a dual effect of control under catch limits set by 
 the HMS models in the data-poor scenario, where uninformative
@@ -78,10 +79,6 @@ a choke effect might not indicate that you need to raise the choke
 species TAC to improve access to other TACs. It may be that the
 TACs for choke species are adequately scaled and are in fact
 rescuing the other species from overfishing.
-
-
-
-## Effect of data limitations
 
 
 
