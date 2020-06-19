@@ -323,7 +323,6 @@ makeStatTable <- function( sims = 1, folder = "" )
   opMod     <- obj$ctlList$opMod
   mp        <- obj$mp
   ctlList   <- obj$ctlList
-  rp        <- obj$rp[[1]]
   
   # Control info
   nS      <- om$nS
@@ -369,14 +368,25 @@ makeStatTable <- function( sims = 1, folder = "" )
 
   # First, create a data.frame of NAs with a row for each of MRE,MARE
   colLabels <- c( "simLabel",
-                  "scenario","mp",
-                  "species","stock",
+                  "scenario",
+                  "mp",
+                  "species",
+                  "stock",
                   "projObsErrMult",
-                  "nGoodReps", "medProbPDH_sp","pGoodReps",
-                  "pBtGt.4Bmsy", "PBtGt.8Bmsy",
-                  "pBtGtBmsy",
-                  "pCtGtMSY", "pFtGtFmsy",
-                  "avgCatch_t","AAV","avgPondedSOK_t")
+                  "nGoodReps", 
+                  "medProbPDH_sp",
+                  "pGoodReps",
+                  "pBtGt.3B0", 
+                  # "PBtGt.8Bmsy",
+                  # "pBtGtBmsy",
+                  # "pCtGtMSY", 
+                  # "pFtGtFmsy",
+                  "avgCatch_t",
+                  "avgPonded_t",
+                  "avg_closedSOK",
+                  "avg_openSOK",
+                  "catchAAV",
+                  "pondAAV")
 
   statTable <- matrix( NA,  ncol = length(colLabels),
                             nrow = nS * nP )
@@ -396,75 +406,102 @@ makeStatTable <- function( sims = 1, folder = "" )
 
 
   # Pull reference points
-  B0_sp     <- opMod$histRpt$B0_sp
-  Bmsy_sp   <- rp$FmsyRefPts$BeqFmsy_sp
-  Fmsy_sp   <- rp$FmsyRefPts$Fmsy_sp
-  Umsy_sp   <- rp$FmsyRefPts$Umsy_sp
-  MSY_sp    <- rp$FmsyRefPts$YeqFmsy_sp
+  B0_isp <- array(NA, dim=c(nGoodReps,nS,nP))
+  for(i in 1:nGoodReps)
+  {
+    rp          <- obj$rp[[i]]
+    B0_isp[i,,] <- rp$B0_sp
+
+  } 
+  
+  # Bmsy_sp   <- rp$FmsyRefPts$BeqFmsy_sp
+  # Fmsy_sp   <- rp$FmsyRefPts$Fmsy_sp
+  # Umsy_sp   <- rp$FmsyRefPts$Umsy_sp
+  # MSY_sp    <- rp$FmsyRefPts$YeqFmsy_sp
 
   if( nGoodReps > 0 )
   { 
 
-    # Calculate depletion wrt Bmsy
+    # Spawning biomass and fishing mortality
     SB_ispt   <- om$SB_ispt[allConvReps,,,,drop = FALSE]
-    C_ispt    <- om$C_ispt[allConvReps,,,,drop = FALSE]
-    P_ispft   <- om$P_ispft[allConvReps,,,,,drop = FALSE]
-    TAC_ispt  <- mp$hcr$TAC_ispt[allConvReps,,,,drop = FALSE]
-    TACu_ispt <- C_ispt
-    TACu_ispt[,1:nS,,] <- C_ispt[,1:nS,,] / TAC_ispt[,1:nS,,]
     F_ispt    <- array(NA, dim = c(nGoodReps,nS,nP,nT))
     F_ispt[,1:nS,,] <- om$F_ispft[allConvReps,,,2,]
+
+    # Catch stats from fisheries
+    C_ispft <- om$C_ispft[allConvReps,,,,,drop = FALSE]
+    C_ispt  <- apply(C_ispft[,,,1:3,,drop=FALSE], FUN=sum, MARGIN=c(1,2,3,5))
+
+    # Ponded fish
+    P_ispft      <- om$P_ispft[allConvReps,,,,,drop = FALSE]
+    P_ispt       <- apply(C_ispft[,,,6:7,,drop=FALSE], FUN=sum, MARGIN=c(1,2,3,5))
+    
+    # SOK licenses
+    sokEff_ispft <- mp$hcr$sokEff_ispft [allConvReps,,,,,drop = FALSE]
+
     
     # Calculate probability that Bt above LRP
-    pBtGt.4Bmsy_sp <- .calcStatsProportion( TS_ispt = SB_ispt,
-                                            ref_sp = Bmsy_sp,
+    pBtGt.3B0_sp <- .calcStatsProportion(   TS_ispt = SB_ispt,
+                                            ref_isp = B0_isp,
                                             tdx = tMP:nT,
-                                            prop = .4,
-                                            nS = nS,
-                                            nP = nP )
-    # In a healthy state (Bt > .8Bmsy)
-    pBtGt.8Bmsy_sp <- .calcStatsProportion( TS_ispt = SB_ispt,
-                                            ref_sp = Bmsy_sp,
-                                            tdx = tMP:nT,
-                                            prop = .8,
+                                            prop = .3,
                                             nS = nS,
                                             nP = nP )
 
-    # Above Bmsy
-    pBtGtBmsy_sp <- .calcStatsProportion( TS_ispt = SB_ispt,
-                                          ref_sp = Bmsy_sp,
-                                          tdx = tMP:nT,
-                                          prop = 1.0,
-                                          nS = nS,
-                                          nP = nP )  
+    # # In a healthy state (Bt > .8Bmsy)
+    # pBtGt.8Bmsy_sp <- .calcStatsProportion( TS_ispt = SB_ispt,
+    #                                         ref_sp = Bmsy_sp,
+    #                                         tdx = tMP:nT,
+    #                                         prop = .8,
+    #                                         nS = nS,
+    #                                         nP = nP )
 
-    # Overfishing is occuring (Ft > Fmsy)
-    pFtGtFmsy_sp <- .calcStatsProportion( TS_ispt = F_ispt,
-                                          ref_sp = Fmsy_sp,
-                                          tdx = tMP:nT,
-                                          prop = 1,
-                                          nS = nS,
-                                          nP = nP )
+    # # Above Bmsy
+    # pBtGtBmsy_sp <- .calcStatsProportion( TS_ispt = SB_ispt,
+    #                                       ref_sp = Bmsy_sp,
+    #                                       tdx = tMP:nT,
+    #                                       prop = 1.0,
+    #                                       nS = nS,
+    #                                       nP = nP )  
 
-    # Overfishing is occuring (Ct > MSY)
-    pCtGtMSY_sp <- .calcStatsProportion(  TS_ispt = C_ispt,
-                                          ref_sp = MSY_sp,
-                                          tdx = tMP:nT,
-                                          prop = 1,
-                                          nS = nS,
-                                          nP = nP )
+    # # Overfishing is occuring (Ft > Fmsy)
+    # pFtGtFmsy_sp <- .calcStatsProportion( TS_ispt = F_ispt,
+    #                                       ref_sp = Fmsy_sp,
+    #                                       tdx = tMP:nT,
+    #                                       prop = 1,
+    #                                       nS = nS,
+    #                                       nP = nP )
+
+    # # Overfishing is occuring (Ct > MSY)
+    # pCtGtMSY_sp <- .calcStatsProportion(  TS_ispt = C_ispt,
+    #                                       ref_sp = MSY_sp,
+    #                                       tdx = tMP:nT,
+    #                                       prop = 1,
+    #                                       nS = nS,
+    #                                       nP = nP )
 
 
-    # Average catch and TAC utilisation
+    # Average fisheries catch, SOK ponded biomass, SOK licenses
     Cbar_sp     <- apply( X = C_ispt[,,,tMP:nT,drop = FALSE], FUN = mean, MARGIN = c(2,3), na.rm = T)
-    Pbar_sp     <- apply( X = P_ispft[,,,6,tMP:nT,drop = FALSE], FUN = mean, MARGIN = c(2,3), na.rm = T)
-    TACubar_sp  <- apply( X = TACu_ispt[,,,tMP:nT,drop = FALSE], FUN = mean, MARGIN = c(2,3), na.rm = T)
+    Pbar_sp     <- apply( X = P_ispt[,,,tMP:nT,drop = FALSE], FUN = mean, MARGIN = c(2,3), na.rm = T)
 
-    # Catch variability
-    AAV_sp      <- .calcStatsAAV( C_ispt = C_ispt,
+    cSOKbar_sp <- apply( X = sokEff_ispft[,,,6,tMP:nT,drop = FALSE], FUN = mean, MARGIN = c(2,3), na.rm = T)
+    oSOKbar_sp <- apply( X = sokEff_ispft[,,,7,tMP:nT,drop = FALSE], FUN = mean, MARGIN = c(2,3), na.rm = T)
+
+    
+    # TO DO:
+    # - add average licenses stats for closed and open ponds...
+
+    # Catch and ponding variability
+    catchAAV_sp      <- .calcStatsAAV( C_ispt = C_ispt,
                                   tdx = tMP:nT,
                                   qProbs = c(0.5),
                                   margin = c(2,3) )
+
+    pondAAV_sp      <- .calcStatsAAV( C_ispt = P_ispt,
+                                  tdx = tMP:nT,
+                                  qProbs = c(0.5),
+                                  margin = c(2,3) )
+
 
     for( s in 1:nS )
       for(p in 1:nP )
@@ -478,18 +515,22 @@ makeStatTable <- function( sims = 1, folder = "" )
         statTable[rowIdx, "medProbPDH_sp"]  <- medProbPDH_sp[s,p]
 
         # Conservation performance
-        statTable[rowIdx,"pBtGt.4Bmsy"]     <- round(pBtGt.4Bmsy_sp[s,p],2)
-        statTable[rowIdx,"PBtGt.8Bmsy"]     <- round(pBtGt.8Bmsy_sp[s,p],2)
-        statTable[rowIdx,"pBtGtBmsy"]       <- round(pBtGtBmsy_sp[s,p],2)
-        statTable[rowIdx,"pCtGtMSY"]        <- round(pCtGtMSY_sp[s,p],2)
-        statTable[rowIdx,"pFtGtFmsy"]       <- round(pFtGtFmsy_sp[s,p],2)
+        statTable[rowIdx,"pBtGt.3B0"]     <- round(pBtGt.3B0_sp[s,p],2)
+        # statTable[rowIdx,"pBtGt.4Bmsy"]     <- round(pBtGt.4Bmsy_sp[s,p],2)
+        # statTable[rowIdx,"PBtGt.8Bmsy"]     <- round(pBtGt.8Bmsy_sp[s,p],2)
+        # statTable[rowIdx,"pBtGtBmsy"]       <- round(pBtGtBmsy_sp[s,p],2)
+        # statTable[rowIdx,"pCtGtMSY"]        <- round(pCtGtMSY_sp[s,p],2)
+        # statTable[rowIdx,"pFtGtFmsy"]       <- round(pFtGtFmsy_sp[s,p],2)
 
         # Catch statistics
         statTable[rowIdx,"avgCatch_t"]      <- round(Cbar_sp[s,p]*1e3,1)
-        statTable[rowIdx,"AAV"]             <- round(AAV_sp[s,p],2)
-        statTable[rowIdx,"avgPondedSOK_t"]  <- round(Pbar_sp[s,p]*1e3,1)
+        statTable[rowIdx,"catchAAV"]        <- round(catchAAV_sp[s,p],2)
+        statTable[rowIdx,"avgPonded_t"]  <- round(Pbar_sp[s,p]*1e3,1)
+        statTable[rowIdx,"pondAAV"]         <- round(pondAAV_sp[s,p]*1e3,1)
 
-        # statTable[rowIdx,"avgTACu"]       <- round(TACubar_sp[s,p],2)
+        statTable[rowIdx,"avg_closedSOK"]   <- round(cSOKbar_sp[s,p],1)
+        statTable[rowIdx,"avg_openSOK"]     <- round(oSOKbar_sp[s,p],1)
+
 
       }
   }
@@ -502,7 +543,7 @@ makeStatTable <- function( sims = 1, folder = "" )
 # being above a certain proportion of a reference
 # level. Used for depletion and overfishing statistics.
 .calcStatsProportion <- function( TS_ispt = SB_ispt,
-                                  ref_sp = Bmsy_sp,
+                                  ref_isp = Bmsy_sp,
                                   tdx = tMP:nT,
                                   prop = .4,
                                   nS = 3,
@@ -517,7 +558,7 @@ makeStatTable <- function( sims = 1, folder = "" )
   # First, take quotient by reference
   for(s in 1:nS)
     for(p in 1:nP )
-      Quotient_ispt[,s,p,] <- TS_ispt[,s,p,] / ref_sp[s,p] 
+      Quotient_ispt[,s,p,] <- TS_ispt[,s,p,] / ref_isp[,s,p] 
 
   # Set an indicator array
   Ind_ispt <- Quotient_ispt > prop

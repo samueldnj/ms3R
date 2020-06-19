@@ -193,11 +193,16 @@ plotTulipBt( obj = blob, dep = TRUE, Ct = FALSE, tMin=60 )
 ## Catch and Fishing mortality
 
 ```{r, plotTulipCt, echo = FALSE, message = FALSE, fig.cap = CtTulipCaption }
-plotTulipCt( obj = blob, tMin=60 )
+plotTulipCt( obj = blob, tMin=60, plotFleets=TRUE )
 ```
 
 ```{r, plotTulipF, echo = FALSE, message = FALSE, fig.cap = EffTulipCaption }
 plotTulipF( obj = blob )
+
+# TO DO: change this to plot HCR
+
+
+
 ```
 
 
@@ -245,7 +250,10 @@ if( !is.null(blob$ctlList$mp$assess$spSkewYieldCurves) )
 
 ```{r, phaseTable, echo = FALSE }
 
-statTable <- .simPerfStats( obj = blob )
+statTable <- .simPerfStats( obj = blob ) %>%
+              select(stock, pBtGt.3B0, avgCatch_t:pondAAV)
+
+# statTable <- dplyr::select('stock', )
 
 kable(  statTable, escape = FALSE, 
         caption = "Performance statistics for this simulation.", booktabs = T,

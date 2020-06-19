@@ -1,7 +1,7 @@
-# simCtlFile.txt, saved to ms3R root working directory
+# job17.txt: mseR parameter file written Thu Jun 18 17:05:48 2020.
 parameter value
-ctl$scenarioName "SISCA_ranWalkM"
-ctl$mpName "cSOK+SR_0.1HR_spatialMP"
+ctl$scenarioName "ranWalkM_highPondM"
+ctl$mpName 'SR_0.1HR_spatialMP'
 ctl$quiet FALSE
 ctl$phaseMessages TRUE
 ctl$optimOutput TRUE
@@ -70,14 +70,14 @@ mp$hcr$type "hgRule"
 mp$hcr$spatial FALSE
 mp$hcr$Bref "Bmsy"
 mp$hcr$Fref "Umsy"
-mp$hcr$Uref_p c(0.1,0.1,0)
+mp$hcr$Uref_p c(0,0.1,0)
 mp$hcr$LCP .5
 mp$hcr$UCP .6
 mp$hcr$maxDeltaTACup NULL
 mp$hcr$minTAC_f c(1,0.300,0.100,0,0,0.0907,0.0317)
 mp$hcr$psi 0.066
-mp$hcr$fishF c(0,1,0,0,0,1,0)
-mp$hcr$sokClosedEff_p c(1,9,0)
+mp$hcr$fishF c(0,1,0,0,0,0,0)
+mp$hcr$sokClosedEff_p c(0,0,0)
 mp$hcr$sokOpenEff_p c(0,0,0)
 mp$omni$nKnots 9
 mp$omni$maxF 1.0
@@ -120,8 +120,8 @@ opMod$ut_95 .75
 opMod$effortMod "targeting"
 opMod$pT 15
 opMod$projM 'ranWalkTrend'
-opMod$projMtrendT 15
-opMod$pondMmu_f c(0,0,0,0,0,0.314,0)
+opMod$projMtrendT 5
+opMod$pondMmu_f c(0,0,0,0,0,1.05,0)
 opMod$pondMlogSD_f c(0,0,0,0,0,0.2,0)
 opMod$sigmaM 0.024
 opMod$gammaM 0.997
@@ -132,4 +132,3 @@ opMod$price_s c(Dover=1.33,English=1.37,Rock=1.65,Petrale=3.22,Arrowtooth=0.37)
 opMod$projObsErrMult 1.0
 opMod$phaseInObsErrMult 6
 opMod$commCPUEdata NULL
-# <End File>

@@ -1,0 +1,75 @@
+# Batch Control File, created Sun Mar 22 02:19:24 2020 by makeBatchDesign() 
+parameter value
+#
+# Scenarios 
+#
+# Scenario 1 : ranWalkM15_lowPondM
+#
+scenario$scenario1$ctl$scenarioName "ranWalkM15_lowPondM"
+scenario$scenario1$opMod$projMtrendT 15
+scenario$scenario1$opMod$pondMmu_f c(0,0,0,0,0,0.315,0)
+#
+# Scenario 2 : ranWalkM15_highPondM
+#
+scenario$scenario2$ctl$scenarioName "ranWalkM15_highPondM"
+scenario$scenario2$opMod$projMtrendT 15
+scenario$scenario2$opMod$pondMmu_f c(0,0,0,0,0,1.05,0)
+#
+# Scenario 3 : ranWalkM5_lowPondM
+#
+scenario$scenario3$ctl$scenarioName "ranWalkM5_lowPondM"
+scenario$scenario3$opMod$projMtrendT 5
+scenario$scenario3$opMod$pondMmu_f c(0,0,0,0,0,0.315,0)
+#
+# Scenario 4 : ranWalkM5_highPondM
+#
+scenario$scenario4$ctl$scenarioName "ranWalkM5_highPondM"
+scenario$scenario4$opMod$projMtrendT 5
+scenario$scenario4$opMod$pondMmu_f c(0,0,0,0,0,1.05,0)
+#
+#
+#
+# Management Procedures 
+#
+# MP 1 : cSOK_0.1HR_spatialMP
+#
+mp$mp1$ctl$mpName 'cSOK_0.1HR_spatialMP'
+mp$mp1$mp$hcr$fishF c(0,0,0,0,0,1,0)
+mp$mp1$mp$hcr$sokClosedEff_p c(1,9,0)
+mp$mp1$mp$hcr$sokOpenEff_p c(0,0,0)
+mp$mp1$mp$hcr$Uref_p c(0.1,0.1,0)
+#
+# MP 2 : SR_0.1HR_spatialMP
+#
+mp$mp2$ctl$mpName 'SR_0.1HR_spatialMP'
+mp$mp2$mp$hcr$fishF c(0,1,0,0,0,0,0)
+mp$mp2$mp$hcr$sokClosedEff_p c(0,0,0)
+mp$mp2$mp$hcr$sokOpenEff_p c(0,0,0)
+mp$mp2$mp$hcr$Uref_p c(0,0.1,0)
+#
+# MP 3 : cSOK+SR_0.1HR_spatialMP
+#
+mp$mp3$ctl$mpName 'cSOK+SR_0.1HR_spatialMP'
+mp$mp3$mp$hcr$fishF c(0,1,0,0,0,1,0)
+mp$mp3$mp$hcr$sokClosedEff_p c(1,9,0)
+mp$mp3$mp$hcr$sokOpenEff_p c(0,0,0)
+mp$mp3$mp$hcr$Uref_p c(0.1,0.1,0)
+#
+# MP 4 : oSOK_0.1HR_spatialMP
+#
+mp$mp4$ctl$mpName 'oSOK_0.1HR_spatialMP'
+mp$mp4$mp$hcr$fishF c(0,0,0,0,0,0,1)
+mp$mp4$mp$hcr$sokClosedEff_p c(0,0,0)
+mp$mp4$mp$hcr$sokOpenEff_p c(1,9,0)
+mp$mp4$mp$hcr$Uref_p c(0.1,0.1,0)
+#
+# MP 5 : NoFish
+#
+mp$mp5$ctl$mpName 'NoFish'
+mp$mp5$mp$hcr$fishF c(0,0,0,0,0,0,0)
+mp$mp5$mp$hcr$sokClosedEff_p c(0,0,0)
+mp$mp5$mp$hcr$sokOpenEff_p c(0,0,0)
+mp$mp5$mp$hcr$Uref_p c(0,0,0)
+#
+#
+# <End File> 

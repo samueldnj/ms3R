@@ -87,6 +87,8 @@ doBatchRun <- function( arg )
   # 3. Update the design data.frame somehow...
   if (is.null(batchDesign))
   {
+    browser()
+
     desPath <- file.path(getwd(),.PRJFLD,.DEFBATFLD,"batchDesign.txt")
     batchDesign <- read.csv(desPath, header=TRUE, skip=1, stringsAsFactors=FALSE)
   } 

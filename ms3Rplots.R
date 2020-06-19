@@ -2171,6 +2171,7 @@ plotConvStats <- function( obj = blob )
 
 }
 
+
 plotTulipF <- function( obj = blob, nTrace = 3 )
 {
   # Model dimensions
@@ -2203,8 +2204,8 @@ plotTulipF <- function( obj = blob, nTrace = 3 )
                     na.rm = T )
 
   # fishing fleets
-  fishG  <- blob$ctlList$opMod$commGears
-  fleets <- blob$ctlList$opMod$fleets
+  fishG  <- obj$ctlList$opMod$commGears
+  fleets <- obj$ctlList$opMod$fleets
   fColrs <- brewer.pal(nF, 'Dark2')
   
 
@@ -2219,7 +2220,7 @@ plotTulipF <- function( obj = blob, nTrace = 3 )
   traces <- sample( 1:nReps, size = min(nTrace,nReps)  )
 
   par(  mfcol = c(nP,nS), 
-        mar = c(1,1.5,1,1.5),
+        mar = c(1,1.5,1,2),
         oma = c(5,5,3,3) )
 
 
@@ -2245,6 +2246,7 @@ plotTulipF <- function( obj = blob, nTrace = 3 )
               font = 2, cex = 1.5 )
         par(xpd = FALSE)
       }
+
       box()
       grid()
       
@@ -2252,7 +2254,7 @@ plotTulipF <- function( obj = blob, nTrace = 3 )
       polygon(  x = c(yrs, rev(yrs)),
                 y = c(F_qspt[1,s,p,], rev(F_qspt[3,s,p,])),
                 col = "grey65", border = NA )
-      lines( x = yrs, y = F_qspt[2,s,p,], lwd = 2 )
+      # lines( x = yrs, y = F_qspt[2,s,p,], lwd = 2 )
 
       # plot individual lines for each fleet
       for( f in fishG )
@@ -2260,11 +2262,12 @@ plotTulipF <- function( obj = blob, nTrace = 3 )
         if(sum(F_qspft[2,s,p,f,])==0)
           next()
 
-        lines( x = yrs, y = F_qspft[2,s,p,f,], col=fColrs[f], lwd = 1)
+        lines( x = yrs, y = F_qspft[2,s,p,f,], col=fColrs[f], lwd = 1.5)
         # for( tIdx in traces )
         #   lines( x = yrs, y = F_ispft[tIdx,s,p,f,], lwd = .8 )
       }
 
+      # abline(h=0, lwd=1.5)
       abline( v = yrs[tMP], col = "grey30", lty = 3 )
       abline( h = Fmsy_sp[s,p], lty = 2, lwd = 1, col = "red")
 
@@ -2543,21 +2546,29 @@ plotTulipBt <- function(  obj = blob, nTrace = 3,
 plotTulipCt <- function(  obj = blob, nTrace = 3,
                           ref = "B0",
                           leg = TRUE,
-                          tMin = NULL )
+                          tMin = NULL,
+                          plotFleets=FALSE )
 {
   goodReps <- obj$goodReps
 
   C_ispt    <- obj$om$C_ispt[goodReps,,,,drop = FALSE]
+  C_ispft   <- obj$om$C_ispft[goodReps,,,,,drop = FALSE]
 
   tMP     <- obj$om$tMP
   nS      <- obj$om$nS
   nP      <- obj$om$nP 
   nT      <- obj$om$nT
+  nF      <- obj$om$nF
   nReps   <- dim(C_ispt)[1]
 
   speciesNames  <- obj$om$speciesNames
   stockNames    <- dimnames(obj$ctlList$opMod$histRpt$I_pgt)[[1]]
   fYear         <- obj$ctlList$opMod$fYear
+
+  # fishing fleets
+  fishG  <- obj$ctlList$opMod$commGears
+  fleets <- obj$ctlList$opMod$fleets
+  fColrs <- brewer.pal(nF, 'Dark2')
 
   yrs <- seq( from = fYear, by = 1, length.out = nT)
 
@@ -2566,6 +2577,10 @@ plotTulipCt <- function(  obj = blob, nTrace = 3,
  
   C_qspt <- apply( X = C_ispt, FUN = quantile,
                     MARGIN = c(2,3,4), probs = c(0.025, 0.5, 0.975),
+                    na.rm = T )
+
+  C_qspft <- apply( X = C_ispft, FUN = quantile,
+                    MARGIN = c(2,3,4,5), probs = c(0.025, 0.5, 0.975),
                     na.rm = T )
 
   traces <- sample( 1:dim(C_ispt)[1], size = min(nTrace,nReps)  )
@@ -2605,6 +2620,7 @@ plotTulipCt <- function(  obj = blob, nTrace = 3,
                 col = "grey65", border = NA )
       lines( x = yrs, y = C_qspt[2,s,p,], lwd = 3 )
 
+
       for( tIdx in traces )
         lines( x = yrs, y = C_ispt[tIdx,s,p,], lwd = .8 )
 
@@ -2619,6 +2635,29 @@ plotTulipCt <- function(  obj = blob, nTrace = 3,
                 pch = c(NA,15, NA),
                 lty = c(1, NA, 1),
                 lwd = c(3, NA, .8) )
+
+
+      # plot individual lines for each fleet
+      if(plotFleets)
+      {
+        for( f in fishG )
+        {
+          if(sum(C_qspft[2,s,p,f,])==0)
+            next()
+
+          lines( x = yrs, y = C_qspft[2,s,p,f,], col=fColrs[f], lwd = 1.5)
+          # for( tIdx in traces )
+          #   lines( x = yrs, y = F_ispft[tIdx,s,p,f,], lwd = .8 )
+        }
+        
+        if( mfg[1] == 1 & mfg[2] == 1 & leg )
+        legend('bottomleft', bty='n', cex=0.8,
+                legend=c(fleets[fishG]),
+                lwd=c(rep(1,length(fishG))),
+                lty=c(rep(1,length(fishG))),
+                col=c(fColrs[fishG])
+                )
+      }
     }
   }
   mtext( side = 2, outer = TRUE, text = 'Catch (1000 t)',
