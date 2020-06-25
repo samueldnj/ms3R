@@ -1,6 +1,6 @@
-# job13.txt: mseR parameter file written Thu Jun 18 17:05:48 2020.
+# job13.txt: mseR parameter file written Thu Jun 25 10:05:31 2020.
 parameter value
-ctl$scenarioName "ranWalkM_lowPondM"
+ctl$scenarioName "rw5_loPondM"
 ctl$mpName 'cSOK+SR_0.1HR_spatialMP'
 ctl$quiet FALSE
 ctl$phaseMessages TRUE

@@ -128,9 +128,14 @@ speciesNames <- blob$om$speciesNames
 stockNames   <- blob$om$stockNames
 
 # Make simulation performane stats
-batchPerfStats <- lapply( X = batchBlobs, FUN = .simPerfStats )
+batchPerfStats <- lapply( X = batchBlobs, FUN = .simPerfStats, inclAgg=TRUE )
+statTable      <- do.call(rbind, batchPerfStats)  %>%
+                  select(scenario, mp, stock, pBtGt.3B0, avgCatch_t:pondAAV) %>%
+                  arrange(scenario, -1*pBtGt.3B0, avgCatch_t, avgPonded_t)
+
 
 message("All simulation objects loaded and ready to make batch report")
+
 
 ```
 
@@ -154,26 +159,25 @@ kable(  ScenMPtable, escape = FALSE,
 ```{r, captions, include = FALSE, echo = FALSE}
 # Captions for different comparison tables
 
-complexPerfTabCap <- "Complex level performance statistics."
-omniObjFunTabCap <- "Objective function weights, values, and variables of interest for omniscient manager simulation."
-
+aggPerfTabCap <- "Aggregate level performance statistics."
+jpsPerfTabCap <- "Juan Perez/Skincuttle (Sections 021/025) level performance statistics."
+csPerfTabCap <- "Cumshewa/Selwyn (Sections 023/024) level performance statistics."
+louPerfTabCap <- "Louscoone (Section 006) level performance statistics."
 
 ```
 
 
-# Complex level performance
+# Aggregate level performance
 
-```{r, cplxPerf, echo = FALSE}
-
-cplxStats <- lapply( X = batchBlobs, FUN = .getCplxStats)
-
-cplxStatTable <- do.call(rbind, cplxStats) 
+```{r, aggPerf, echo = FALSE}
 
 
+aggStatTable <- subset(statTable, stock=='aggregate')
 
-kable(  cplxStatTable, escape = FALSE, 
-        caption = complexPerfTabCap, booktabs = T,
-        align = rep("c",ncol(cplxStatTable))) %>%
+
+kable(  aggStatTable, escape = FALSE, 
+        caption = aggPerfTabCap, booktabs = T,
+        align = rep("c",ncol(aggStatTable))) %>%
   kable_styling(latex_options = c("striped", "scale_down","hold_position"),
                 bootstrap_options = c("striped", "hover"))
 
@@ -182,19 +186,48 @@ kable(  cplxStatTable, escape = FALSE,
 
 # Individual stock performance
 
-```{r, renderScenarioChildren, echo = FALSE, results = 'asis' }
-for( s in 1:nS )
-{
-  cat(paste("## ", speciesNames[s], "\n", sep = "" ) )
-  for( p in 1:nP)
-  {
-    cat(paste("### ", stockNames[p], "\n", sep = "" ) )
+## Juan Perez/Skincuttle
 
-    childDoc <- knitr::knit_child(here::here("docs","reports","stockBatchChild.Rmd"),options = list(results = "asis"),quiet = TRUE)
+```{r, jpsPerf, echo = FALSE, results = 'asis' }
 
-    cat(childDoc)
-  }
-}
+jpsStatTable <- subset(statTable, stock=='JP/S')
+
+kable(  jpsStatTable, escape = FALSE, 
+        caption = jpsPerfTabCap, booktabs = T,
+        align = rep("c",ncol(jpsStatTable))) %>%
+  kable_styling(latex_options = c("striped", "scale_down","hold_position"),
+                bootstrap_options = c("striped", "hover"))
+
+
+
+
+```
+
+## Cumshewa/Selwyn
+
+```{r, csPerf, echo = FALSE, results = 'asis' }
+
+csStatTable  <- subset(statTable, stock=='C/S')
+
+kable(  csStatTable, escape = FALSE, 
+      caption = csPerfTabCap, booktabs = T,
+      align = rep("c",ncol(csStatTable))) %>%
+  kable_styling(latex_options = c("striped", "scale_down","hold_position"),
+              bootstrap_options = c("striped", "hover"))
+
+```
+
+## Louscoone
+
+```{r, louPerf, echo = FALSE, results = 'asis' }
+
+louStatTable  <- subset(statTable, stock=='Lou')
+
+kable(  louStatTable, escape = FALSE, 
+      caption = louPerfTabCap, booktabs = T,
+      align = rep("c",ncol(louStatTable))) %>%
+  kable_styling(latex_options = c("striped", "scale_down","hold_position"),
+              bootstrap_options = c("striped", "hover"))
 
 ```
 

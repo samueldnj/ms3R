@@ -875,54 +875,73 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   # spawnN_aspx (for better array dim matching later)
   spawnN_axsp       <- array(0, dim = c(nA,nX,nS,nP) )
 
-
-  # Initialise population
-  if( t == 1 )
+  # loop over stocks to calculate numbers for historical period
+  tInit_p <- om$tInit_p + 1
+  for(p in 1:nP)
   {
-    # Pull initial N multiplier in case
-    # of non-eq init
-    
 
-    for( s in 1:nS )
-      for( p in 1:nP)
-        for( x in 1:nX )
-          N_axspt[,x,s,p,t] <- obj$om$initSurv_axsp[,x,s,p] * Rinit_sp[s,p] * exp(om$sigmaR_sp[s,p] * err$omegaRinit_asp[,s,p])
+    # Initialise population
+    if( tInit_p[p] == t )
+    {
+      # Pull initial N multiplier in case of non-eq init
+      for( s in 1:nS )
+      {  
+          for( x in 1:nX )
+            N_axspt[,x,s,p,t] <- obj$om$initSurv_axsp[,x,s,p] * Rinit_sp[s,p] * exp(om$sigmaR_sp[s,p] * err$omegaRinit_asp[,s,p])
 
-    R_spt[,,t] <- Rinit_sp * obj$om$initSurv_axsp[1,1,s,p] * exp(om$sigmaR_sp[s,p] * err$omegaRinit_asp[1,s,p])
 
-  }
+        R_spt[s,p,t] <- Rinit_sp[s,p] * obj$om$initSurv_axsp[1,1,s,p] * exp(om$sigmaR_sp[s,p] * err$omegaRinit_asp[1,s,p])
+      }  
 
-  # Otherwise update using total mortality
-  if( t > 1 )
-  {
-    # Loop over species/pops
-    for( s in 1:nS )
-      for( p in 1:nP )
-        for( a in 1:A_s[s] )
-        {
-          # Recruitment
-          if( a == 1 )
+    }
+
+    # Otherwise update using total mortality
+    if( t > tInit_p[p] )
+    {
+      # Loop over species/pops
+      for( s in 1:nS )
+          for( a in 1:A_s[s] )
           {
-            R_spt[s,p,t] <- reca_sp[s,p] * SB_spt[s,p,t-1] / (1 + recb_sp[s,p] * SB_spt[s,p,t-1])
-            
-            if( !obj$ctlList$ctl$noProcErr )
-              R_spt[s,p,t] <- R_spt[s,p,t] * exp( om$sigmaR_sp[s,p] * err$omegaR_spt[s,p,t] - 0.5*om$sigmaR_sp[s,p]^2) 
+            # Recruitment
+            if( a == 1 )
+            {
 
-            N_axspt[a,,s,p,t] <- R_spt[s,p,t]
-          }
-          # Apply mortality           
-          if( a > 1 )
-          {
-            N_axspt[a,,s,p,t] <- endN_axspt[a-1,,s,p,t-1]
-          }
-          # Plus group
-          if( a == A_s[s] )
-          {
-            N_axspt[a,,s,p,t] <- N_axspt[a,,s,p,t] + endN_axspt[a,,s,p,t-1]
-          }
+                R_spt[s,p,t] <- reca_sp[s,p] * SB_spt[s,p,t-1] / (1 + recb_sp[s,p] * SB_spt[s,p,t-1])
+              
+              if( !obj$ctlList$ctl$noProcErr )
+                R_spt[s,p,t] <- R_spt[s,p,t] * exp( om$sigmaR_sp[s,p] * err$omegaR_spt[s,p,t] - 0.5*om$sigmaR_sp[s,p]^2) 
+                
+                 
+              # Testing for improving conditioning, fixing Rt for C/S to OM repfile values
+              if(p %in% c(1,3) & t<=tMP)
+              {
+                  R_spt[s,p,t] <- opMod$histRpt$R_pt[p,t]
+                  #cat('HACK: Line 918, fixing Rt for C/S and OM repfile values')
 
-        }
-  }
+              }  
+                
+
+              N_axspt[a,,s,p,t] <- R_spt[s,p,t]
+            }
+            # Apply mortality           
+            if( a > 1 )
+            {
+              N_axspt[a,,s,p,t] <- endN_axspt[a-1,,s,p,t-1]
+            }
+            # Plus group
+            if( a == A_s[s] )
+            {
+              N_axspt[a,,s,p,t] <- N_axspt[a,,s,p,t] + endN_axspt[a,,s,p,t-1]
+            }
+
+          }
+    }
+
+
+
+  }  
+
+
 
   # Now convert into biomass at the beginning of the time step
   B_axspt[,,,,t]    <- N_axspt[,,,,t] * W_axspt[,,,,t]
@@ -1182,7 +1201,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     # Pull end of time-step numbers
     endN_axspt[,,,,t] <- discRemList$endN_axsp
 
-    if( any(endN_axspt[,,,,t] < 0) )
+    if( any(endN_axspt[,,,,t] < 0, na.rm=T) )
       browser()
 
     # Pull catch at age in biomass and numbers
@@ -3767,6 +3786,9 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   obj$om$sel_axspft[,1,1,,histF,tMP:nT]  <- repObj$sel_apgt[,,,tMP-1]
   obj$om$sel_axspft[,1,1,,7,tMP:nT]      <- obj$om$sel_axspft[,1,1,,6,tMP:nT]
 
+  # Identify time step for initializing each population
+  obj$om$tInit_p <- repObj$tInitModel_p
+
 
   # Copy index catchability
   for( tt in histdx )
@@ -3853,8 +3875,12 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
       # Save historical proc errors, but use simulated recruitments after
       # last estimated recruitment
       lastIdx <- max(which(repObj$omegaR_pt[p,] != 0) )
-      obj$errors$omegaR_spt[s,p,histdx[1:lastIdx]]   <- repObj$omegaR_pt[p,1:lastIdx]
       
+      if(repObj$avgRcode_p[p]==1)
+        obj$errors$omegaR_spt[s,p,histdx[1:lastIdx]]   <- repObj$SRdevs_pt[p,1:lastIdx]
+      else
+        obj$errors$omegaR_spt[s,p,histdx[1:lastIdx]]   <- repObj$omegaR_pt[p,1:lastIdx]
+
       if( !ctlList$ctl$noProcErr )
         obj$errors$omegaR_spt[s,p,histdx[1:lastIdx]] <- obj$errors$omegaR_spt[s,p,histdx[1:lastIdx]] + 0.5*repObj$sigmaR  # rec devs    
     }

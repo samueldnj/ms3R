@@ -3,27 +3,27 @@ parameter value
 #
 # Scenarios 
 #
-# Scenario 1 : ranWalkM15_lowPondM
+# Scenario 1 : rw15_loPondM
 #
-scenario$scenario1$ctl$scenarioName "ranWalkM15_lowPondM"
+scenario$scenario1$ctl$scenarioName "rw15_loPondM"
 scenario$scenario1$opMod$projMtrendT 15
 scenario$scenario1$opMod$pondMmu_f c(0,0,0,0,0,0.315,0)
 #
-# Scenario 2 : ranWalkM15_highPondM
+# Scenario 2 : rw15_hiPondM
 #
-scenario$scenario2$ctl$scenarioName "ranWalkM15_highPondM"
+scenario$scenario2$ctl$scenarioName "rw15_hiPondM"
 scenario$scenario2$opMod$projMtrendT 15
 scenario$scenario2$opMod$pondMmu_f c(0,0,0,0,0,1.05,0)
 #
-# Scenario 3 : ranWalkM5_lowPondM
+# Scenario 3 : rw5_loPondM
 #
-scenario$scenario3$ctl$scenarioName "ranWalkM5_lowPondM"
+scenario$scenario3$ctl$scenarioName "rw5_loPondM"
 scenario$scenario3$opMod$projMtrendT 5
 scenario$scenario3$opMod$pondMmu_f c(0,0,0,0,0,0.315,0)
 #
-# Scenario 4 : ranWalkM5_highPondM
+# Scenario 4 : rw5_hiPondM
 #
-scenario$scenario4$ctl$scenarioName "ranWalkM5_highPondM"
+scenario$scenario4$ctl$scenarioName "rw5_hiPondM"
 scenario$scenario4$opMod$projMtrendT 5
 scenario$scenario4$opMod$pondMmu_f c(0,0,0,0,0,1.05,0)
 #

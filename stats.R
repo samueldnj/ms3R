@@ -316,7 +316,7 @@ makeStatTable <- function( sims = 1, folder = "" )
 # inputs:   sim=int indicating which simulation to compute stats for
 # outputs:  statTable=data.frame showing conservation and catch performance
 # usage:    in lapply to produce stats for a group of simulations
-.simPerfStats <- function( obj  )
+.simPerfStats <- function( obj, inclAgg=FALSE  )
 {
   # Pull sublists
   om        <- obj$om
@@ -398,10 +398,10 @@ makeStatTable <- function( sims = 1, folder = "" )
   statTable[,"simLabel"]        <- simLabel
   statTable[,"scenario"]        <- ctlList$ctl$scenarioName
   statTable[,"mp"]              <- ctlList$ctl$mpName
+  statTable[,"projObsErrMult"]  <- opMod$projObsErrMult
   statTable[,"nGoodReps"]       <- nGoodReps
   statTable[,"pGoodReps"]       <- pGoodReps
-  statTable[,"projObsErrMult"]  <- opMod$projObsErrMult
-
+  
   # Need to start layering in performance metrics
 
 
@@ -492,12 +492,12 @@ makeStatTable <- function( sims = 1, folder = "" )
     # - add average licenses stats for closed and open ponds...
 
     # Catch and ponding variability
-    catchAAV_sp      <- .calcStatsAAV( C_ispt = C_ispt,
+    catchAAV_sp      <- .calcStatsAAV_sp( C_ispt = C_ispt,
                                   tdx = tMP:nT,
                                   qProbs = c(0.5),
                                   margin = c(2,3) )
 
-    pondAAV_sp      <- .calcStatsAAV( C_ispt = P_ispt,
+    pondAAV_sp      <- .calcStatsAAV_sp( C_ispt = P_ispt,
                                   tdx = tMP:nT,
                                   qProbs = c(0.5),
                                   margin = c(2,3) )
@@ -524,19 +524,116 @@ makeStatTable <- function( sims = 1, folder = "" )
 
         # Catch statistics
         statTable[rowIdx,"avgCatch_t"]      <- round(Cbar_sp[s,p]*1e3,1)
-        statTable[rowIdx,"catchAAV"]        <- round(catchAAV_sp[s,p],2)
-        statTable[rowIdx,"avgPonded_t"]  <- round(Pbar_sp[s,p]*1e3,1)
-        statTable[rowIdx,"pondAAV"]         <- round(pondAAV_sp[s,p]*1e3,1)
+        statTable[rowIdx,"catchAAV"]        <- round(catchAAV_sp[s,p]*1e2,1)
+        statTable[rowIdx,"avgPonded_t"]     <- round(Pbar_sp[s,p]*1e3,1)
+        statTable[rowIdx,"pondAAV"]         <- round(pondAAV_sp[s,p]*1e2,1)
 
         statTable[rowIdx,"avg_closedSOK"]   <- round(cSOKbar_sp[s,p],1)
         statTable[rowIdx,"avg_openSOK"]     <- round(oSOKbar_sp[s,p],1)
 
 
       }
+
+
+    # Add row for aggregated stats across all species and stocks
+    if(inclAgg)
+    {
+      aggRow <- statTable[1,]
+
+      # Aggregate SOK licenses
+      sokEff_ispft <- mp$hcr$sokEff_ispft [allConvReps,,,,,drop = FALSE]
+
+      
+      # Calculate probability that SBt above LRP
+      SB_it <- apply(SB_ispt, MARGIN=c(1,4), FUN=sum, drop=FALSE)
+      B0_i     <- apply(B0_isp, MARGIN=1, FUN=sum)
+
+
+      pBtGt.3B0_agg <- .calcStatsProportionAgg(   TS_it = SB_it,
+                                                  ref_i = B0_i,
+                                                  tdx = tMP:nT,
+                                                  prop = .3,
+                                                  nS = 1,
+                                                  nP = 1 )
+
+      # Aggregate fisheries catch, SOK ponded biomass & SOK licenses then calcuate average across iReps and projT
+      C_it     <- apply( X = C_ispt[,,,,drop = FALSE], FUN = sum, MARGIN = c(1,4), na.rm = T)
+      P_it     <- apply( X = P_ispt[,,,,drop = FALSE], FUN = sum, MARGIN = c(1,4), na.rm = T)
+
+      cSOK_it <- apply( X = sokEff_ispft[,,,6,,drop = FALSE], FUN = sum, MARGIN = c(1,5), na.rm = T)
+      oSOK_it <- apply( X = sokEff_ispft[,,,7,,drop = FALSE], FUN = sum, MARGIN = c(1,5), na.rm = T)
+      
+      Cbar_agg     <- mean(C_it[,tMP:nT], na.rm = T)
+      Pbar_agg     <- mean(P_it[,tMP:nT], na.rm = T)
+
+      cSOKbar_agg <- mean(cSOK_it[,tMP:nT], na.rm = T)
+      oSOKbar_agg <- mean(oSOK_it[,tMP:nT], na.rm = T)
+
+      
+
+      # Catch and ponding variability
+      catchAAV_agg      <- .calcStatsAAV_agg(C_it = C_it,
+                                            tdx = tMP:nT,
+                                            qProbs = c(0.5))
+
+      pondAAV_agg      <- .calcStatsAAV_agg(C_it = P_it,
+                                            tdx = tMP:nT,
+                                            qProbs = c(0.5))
+      
+      # Fill aggregate row
+      aggRow[,"stock"]         <- 'aggregate'
+      
+      # Conservation
+      aggRow[,"pBtGt.3B0"]     <- round(pBtGt.3B0_agg,2)
+      
+      # commercial catch 
+      aggRow[,"avgCatch_t"]    <- round(Cbar_agg*1e3,1)
+      aggRow[,"catchAAV"]      <- round(catchAAV_agg*1e2,2)
+      
+      # ponded fish
+      aggRow[,"avgPonded_t"]   <- round(Pbar_agg*1e3,1)
+      aggRow[,"pondAAV"]       <- round(pondAAV_agg*1e2,1)
+
+      # number of SOK licenses
+      aggRow[,"avg_closedSOK"] <- round(cSOKbar_agg,1)
+      aggRow[,"avg_openSOK"]   <- round(oSOKbar_agg,1)
+
+      statTable <- rbind(statTable, aggRow)
+
+    }  
   }
 
   statTable
 } # END .simPerfStats()
+
+# .calcStatsProportionAgg()
+# Calculates the probability of a time series
+# being above a certain proportion of a reference
+# level. Used for depletion and overfishing statistics.
+.calcStatsProportionAgg <- function( TS_it = SB_it,
+                                  ref_i = B0_i,
+                                  tdx = tMP:nT,
+                                  prop = .4,
+                                  nS = 1,
+                                  nP = 1 )
+{
+
+  # Reduce to time period
+  TS_it <- TS_it[,tdx]
+
+  Quotient_it <- array(NA, dim = dim(TS_it) )
+
+  # First, take quotient by reference
+  Quotient_it <- TS_it / ref_i 
+
+  # Set an indicator array
+  Ind_it <- Quotient_it > prop
+
+  probGtDep_sp <- mean(Ind_it)
+      
+  return( probGtDep_sp )
+} # END .calcStatsProportionAgg
+
 
 # .calcStatsProportion()
 # Calculates the probability of a time series
@@ -568,11 +665,34 @@ makeStatTable <- function( sims = 1, folder = "" )
   return( probGtDep_sp )
 } # END .calcStatsProportion
 
-# .calcStatsAAV()
+# .calcStatsAAV_agg()
+# Calculate average annual variation in catch, measure of the variability
+# in landings for each aggregate stock/species.
+.calcStatsAAV_agg <- function(  C_it = C_it,
+                                tdx = tMP:nT,
+                                qProbs = c(0.025,0.5,0.975)
+                           )
+{
+
+  # Calculate diff
+  diffC_it        <- aperm(apply( X = C_it[,tdx], FUN = diff, MARGIN = 1, na.rm = T ))
+  absDiffC_it     <- abs(diffC_it)
+  sumAbsDiffC_i   <- apply( X = absDiffC_it, FUN = sum, MARGIN = 1, na.rm = T )
+  sumCatch_i      <- apply( X = C_it[,tdx], FUN = sum, MARGIN = 1, na.rm = T )
+
+  AAV_i           <- sumAbsDiffC_i / sumCatch_i
+  AAV_i[!is.finite(AAV_i)] <- 0
+
+  AAV_q   <- quantile(AAV_i,probs = qProbs )
+
+} # END calcStatsAAV_agg
+
+
+# .calcStatsAAV_sp()
 # Calculate average annual variation
 # in catch, measure of the variability
 # in landings for each stock/species.
-.calcStatsAAV <- function(  C_ispt = C_ispt,
+.calcStatsAAV_sp <- function(  C_ispt = C_ispt,
                             tdx = tMP:nT,
                             qProbs = c(0.025,0.5,0.975),
                             margin = c(2,3) )
@@ -580,6 +700,7 @@ makeStatTable <- function( sims = 1, folder = "" )
   C_ispt <- C_ispt[,,,tdx,drop = FALSE]
   # Append margin
   marg <- c(1,margin)
+
   # Add over margins, in case we are looking
   # complex/species/stock aggregates
   sumC_ispt <- apply( X = C_ispt, FUN = sum, MARGIN = c(marg,4), na.rm = T )
@@ -597,7 +718,7 @@ makeStatTable <- function( sims = 1, folder = "" )
   AAV_qsp   <- apply(X = AAV_isp, FUN = quantile, probs = qProbs, MARGIN = marg[-1] )
 
   return(AAV_qsp)
-} # END .calcStatsAAV
+} # END .calcStatsAAV_sp
 
 
 # .getCplxStats()
@@ -628,13 +749,14 @@ makeStatTable <- function( sims = 1, folder = "" )
 
   projYrs <- tMP:nT
 
-  C_ispt <- obj$om$C_ispt[allConvReps,,,projYrs]
-  B_ispt <- obj$om$SB_ispt[allConvReps,,,projYrs]
+  # E quantities
+  C_ispt <- obj$om$C_ispt[allConvReps,,,projYrs, drop=FALSE]
+  B_ispt <- obj$om$SB_ispt[allConvReps,,,projYrs, drop=FALSE]
 
   # Pull Bmsy
   Bmsy_sp <- obj$rp[[1]]$FmsyRefPts$BeqFmsy_sp
 
-  # Turn into complex catch
+  # Turn into complex catch (aggregate across species and stocks)
   C_it <- apply( X = C_ispt, FUN = sum, MARGIN = c(1,4))
 
   # Calculate AAV at the complex level

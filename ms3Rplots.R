@@ -2259,7 +2259,8 @@ plotTulipF <- function( obj = blob, nTrace = 3 )
       # plot individual lines for each fleet
       for( f in fishG )
       {
-        if(sum(F_qspft[2,s,p,f,])==0)
+        
+        if(sum(F_qspft[2,s,p,f,], na.rm=T)==0)
           next()
 
         lines( x = yrs, y = F_qspft[2,s,p,f,], col=fColrs[f], lwd = 1.5)
@@ -2327,7 +2328,7 @@ plotTulipTACu <- function( obj = blob, nTrace = 3, fIdx=1 )
   traces <- sample( 1:nReps, size = min(nTrace,nReps)  )
 
   par(  mfcol = c(nP,nS), 
-        mar = c(1,1.5,1,1.5),
+        mar = c(1,1.5,1,2),
         oma = c(5,5,3,3) )
 
 
@@ -3930,13 +3931,19 @@ diagCondition <- function(  repObj  = blob$ctlList$opMod$histRpt,
                             ms3Obj  = blob,
                             iRep    = 1 )
 {
+
+  nP <- repObj$nP
+  nT <- repObj$nT
+  nF <- repObj$nG
+  stockNames    <- dimnames(ms3Obj$ctlList$opMod$histRpt$I_pgt)[[1]]
+
   par(mfrow = c(3,2), mar = c(1,2,1.5,1), oma = c(3,5,3,3) )
 
   # Biomass RE
   plotRE_spt( repObj = repObj, omObj = ms3Obj$om, 
               AMseries = "SB_pt", 
               OMseries = "SB_ispt", 
-              iRep )
+              iRep = iRep )
   mtext( side = 3, text = "SB_spt", line = 0, font = 2)
 
   # Recruitment
@@ -3944,7 +3951,7 @@ diagCondition <- function(  repObj  = blob$ctlList$opMod$histRpt,
               omObj = ms3Obj$om, 
               AMseries = "R_pt",
               OMseries = "R_ispt", 
-              iRep )
+              iRep = iRep )
   mtext( side = 3, text = "R_spt", line = 0, font = 2)  
 
   # Recruitment errors
@@ -3953,7 +3960,7 @@ diagCondition <- function(  repObj  = blob$ctlList$opMod$histRpt,
               nS = 1,
               AMseries = "omegaR_pt",
               OMseries = "omegaR_ispt", 
-              iRep )
+              iRep = iRep )
   mtext( side = 3, text = expression(omega[R]), line = 0, font = 2)  
 
   # Catch
@@ -3961,7 +3968,7 @@ diagCondition <- function(  repObj  = blob$ctlList$opMod$histRpt,
                 omObj = ms3Obj$om, 
                 AMseries = "C_pgt",
                 OMseries = "C_ispft", 
-                iRep )
+                iRep = iRep )
   mtext( side = 3, text = expression(C[spft]), line = 0, font = 2)    
 
   # F
@@ -3969,12 +3976,15 @@ diagCondition <- function(  repObj  = blob$ctlList$opMod$histRpt,
                 omObj = ms3Obj$om, 
                 AMseries = "F_pgt",
                 OMseries = "F_ispft", 
-                iRep )
+                iRep = iRep, 
+                legendON=TRUE, stocks=stockNames )
   mtext( side = 3, text = expression(F[spft]), line = 0, font = 2) 
 
   mtext( side = 1, outer = TRUE, text = "Time Step", font = 2, line = 2)
   mtext( side = 2, outer = TRUE, text = "Relative error in conditioning", 
           font = 2, line = 3 )
+
+
 
   # # Numbers at age
   # plotRE_axspt( repObj = repObj, omObj = ms3Obj$om, series = "N_iaxspt" )
@@ -4018,6 +4028,19 @@ plotRE_spt <- function( repObj, omObj, nS = 1,
 
   if( OMseries == "omegaR_ispt" )
   {
+    
+    if(is.null(repObj$avgRcode_p))
+      repObj$avgRcode_p <- rep(0,nP)
+
+    for (p in 1:nP)
+    {
+      
+      if(repObj$avgRcode_p[p]==1)
+        true_spt[1:nS,p,]   <- repObj$SRdevs_pt[p,1:nT]
+      else
+        true_spt[1:nS,p,]   <- repObj$omegaR_pt[p,1:nT]
+    }
+
     sigmaR <- repObj$sigmaR
     est_spt[1:nS,1:nP,1:nT] <- est_spt[1:nS,1:nP,1:nT] - 0.5 * sigmaR
   }
@@ -4026,8 +4049,12 @@ plotRE_spt <- function( repObj, omObj, nS = 1,
                           est  = est_spt,
                           marg = c(1,2,3) )
 
-  specCols <- RColorBrewer::brewer.pal(n = nS, "Dark2")
-  stockLty <- 1:nP
+  browser()
+
+
+
+  stockCols <- RColorBrewer::brewer.pal(n = nP, "Dark2")
+  stockLty <- rep(1,nP)
 
   yRange <- range(re_qspt, na.rm = TRUE)
   yRange[2] <- max(.01,yRange[2])
@@ -4044,12 +4071,12 @@ plotRE_spt <- function( repObj, omObj, nS = 1,
     for( s in 1:nS )
       for( p in 1:nP )
       {
-        polyY <- c(re_qspt[1,s,p,],rev(re_qspt[3,s,p,]))
-        polygon( x = c(1:nT,nT:1), y = polyY,
-                  col = scales::alpha(specCols[s],alpha = .3),
-                  lty = stockLty[p] )
+        # polyY <- c(re_qspt[1,s,p,],rev(re_qspt[3,s,p,]))
+        # polygon( x = c(1:nT,nT:1), y = polyY,
+        #           col = scales::alpha(stockCols[p],alpha = .3),
+        #           lty = stockLty[p] )
         lines( x = 1:nT, y = re_qspt[2,s,p,], 
-                col = specCols[s], lty = stockLty[p] )
+                col = stockCols[p], lty = stockLty[p] )
 
       }
     abline( h = 0, lty = 3, lwd = .8 )
@@ -4058,26 +4085,37 @@ plotRE_spt <- function( repObj, omObj, nS = 1,
 plotRE_spft <- function(  repObj, omObj, 
                           OMseries = "C_spft",
                           AMseries = "C_pgt",
-                          iRep = 1, nS = 1 )
+                          iRep = 1, nS = 1,
+                          legendON=FALSE, stocks=NULL )
 {
   nP <- repObj$nP
   nT <- repObj$nT
   nF <- repObj$nG
 
-
   true_spft  <- array(NA, dim = c(nS,nP,nF,nT))
   est_spft   <- array(NA, dim = c(nS,nP,nF,nT))
 
-  true_spft[1:nS,,,]            <- repObj[[AMseries]][,,1:nT,drop = FALSE]
+  true_spft[1:nS,,,]            <- repObj[[AMseries]][,,1:nT,drop = FALSE]  
   est_spft[1:nS,1:nP,1:nF,1:nT] <- omObj[[OMseries]][iRep,1:nS,1:nP,1:nF,1:nT]
 
+
+  # repObj C_pgt contains SOK product for SOK fleets
+  # omObj C_spft contains ponded fish for SOK fleets
+
+  # convert SOK product which is what is reported in AMseries
+  if( OMseries == "C_ispft" )
+  {
+    psi_pt <- repObj$psi_pt
+    for (p in 1:nP)
+      true_spft[1:nS,p,6,] <- true_spft[1:nS,p,6,]/psi_pt[p,]
+  }
 
   re_qspt  <- calcREdist( true = true_spft,
                             est  = est_spft,
                             marg = c(1,2,4) )
 
-  specCols <- RColorBrewer::brewer.pal(n = nS, "Dark2")
-  stockLty <- 1:nP
+  stockCols <- RColorBrewer::brewer.pal(n = nP, "Dark2")
+  stockLty <- rep(1,nP)
 
   yRange <- range(re_qspt, na.rm = TRUE)
   yRange[2] <- max(.01,yRange[2])
@@ -4097,13 +4135,18 @@ plotRE_spft <- function(  repObj, omObj,
       {
         polyY <- c(re_qspt[1,s,p,],rev(re_qspt[3,s,p,]))
         polygon( x = c(1:nT,nT:1), y = polyY,
-                  col = scales::alpha(specCols[s],alpha = .3),
+                  col = scales::alpha(stockCols[p],alpha = .3),
                   lty = stockLty[p] )
         lines( x = 1:nT, y = re_qspt[2,s,p,], 
-                col = specCols[s], lty = stockLty[p] )
+                col = stockCols[p], lty = stockLty[p] )
 
       }
     abline( h = 0, lty = 3, lwd = .8 )
+
+  if(legendON)
+    legend('topright', bty='n',
+           legend=stocks, lty=stockLty, col=stockCols)
+
 }
 
 plotRE_axspt <- function( repObj, omObj, series = "N_axspt", iRep )
@@ -4120,7 +4163,7 @@ plotRE_axspt <- function( repObj, omObj, series = "N_axspt", iRep )
                             marg = c(1,2,3) )
 
   specCols <- RColorBrewer::brewer.pal(n = nS, "Dark2")
-  stockLty <- 1:nP
+  stockLty <- rep(1,nP)
 
   yRange <- range(re_qspt, na.rm = TRUE)
   yRange[2] <- max(.01,yRange[2])
@@ -4142,7 +4185,7 @@ plotRE_axspt <- function( repObj, omObj, series = "N_axspt", iRep )
                   col = scales::alpha(specCols[s],alpha = .3),
                   lty = stockLty[p] )
         lines( x = 1:nT, y = re_qspt[2,s,p,], 
-                col = specCols[s], lty = stockLty[p] )
+                col = stockCols[p], lty = stockLty[p] )
 
       }
     abline( h = 0, lty = 3, lwd = .8 )
