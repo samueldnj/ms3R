@@ -692,7 +692,7 @@ calcLossRank <- function( groupFolder = "DLSurveys7_.5tau_Long",
                       group_by(Scenario,AM) %>%
                       summarise(  minRank = min(Rank),
                                   maxRank = max(Rank),
-                                  meanRank = round(mean(Rank),2) )
+                                  meanRank = sprintf("%.2f",round(mean(Rank),2)) )
 
   tabFileName <- paste(lossVar,lossType, sep = "_")
   rankTableFile <- here::here("Outputs",groupFolder,paste(tabFileName,"_rankTableFull.csv",sep = ""))

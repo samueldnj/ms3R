@@ -1346,7 +1346,7 @@ plotSensBatchSummary_SAisp <- function( groupFolder = "sensRuns_BmsyCV",
     axis(side = 1)
 
     if( mfg[1] == mfg[3])
-      mtext( side = 1, text = "Prior SD", outer = TRUE, line = 1)
+      mtext( side = 1, text = xlab, outer = FALSE, line = 3)
 
     axis( side = 2, las = 1)
 

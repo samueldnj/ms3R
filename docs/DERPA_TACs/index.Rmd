@@ -1,67 +1,72 @@
 ---  
-title: "Do hierarchical assessment methods improve management performance in multi-species, data-limited fisheries?"
-author: 
-  - Samuel D. N. Johnson^1^ (corresponding)
-  - Sean P. Cox^1^
-affil:
-  - ^1^School of Resource and Environmental Management\
-    Simon Fraser University\
-    8888 University Drive\
-    BC, V5K 1S6, Canada
-email:
-  - samuelj@sfu.ca
-  - spcox@sfu.ca
-abstract: 
-    "The majority of harvest decisions in developed multi-species 
-    fisheries are made on a single-species/single-stock basis, given 
-    the output of a single-species stock assessment model. Single-species
-    harvest decisions are more difficult to make in fisheries
-    where single-species assessments are impossible to perform due to
-    data-limitations, involving *inter alia* short time series of
-    fishery independent observations, poor catch monitoring, limited
-    biological data, and structural mismatching of harvest decisions
-    to the spatial structure of the system. In this paper, we asked if
-    using hierarchical, data-limited stock assessment methods to set
-    harvest levels improved management performance in data-limited, 
-    multi-species fisheries. To investigate, we simulated a multi-species
-    flatfish fishery, based on a complex of three technically 
-    interacting right-eyed flounders fished in three spatial 
-    management areas off the coast of British Columbia, Canada. 
-    We tested the management performance when using each of 
-    five surplus production stock assessment models to set harvest 
-    levels in a multi-species fishery, including single-stock 
-    and hierarchical multi-stock assessments, and methods that 
-    pooled data across species and spatial strata. Each assessment 
-    method was tested under four data scenarios, which successively 
-    excluded biomass indices to reduce data quantity. 
-    Assessment model estimates of biomass were used to set 
-    catches for each management based on an optimal harvest
-    rate derived from multi-species reference points that
-    explicitly include technical interactions, and 
-    TACs were allocated according to relative survey biomass under 
-    data-pooled assessments. Performance of the assessment models
-    was measured by comparing catch outcomes against a simulated
-    'omniscient manager' who is able to see future process errors
-    and adjust annual fishing effort to optimise system yield. 
-    
+title: "Hierarchical stock assessment methods improve management performance in multi-species, data-limited fisheries."
+author:
+  - name: Samuel D. N. Johnson
+    email: samuelj@sfu.ca
+    affiliation: a
+    footnote: 1
+  - name: Sean P. Cox
+    email: spcox@sfu.ca
+    affiliation: a
+address:
+  - code: a
+    address: School of Resource and Environmental Management, Simon Fraser University, 8888 University Drive, BC, V5K 1S6, Canada
+footnote:
+  - code: 1
+    text: Corresponding author
+abstract: |
+    Managers of multi-species fisheries aim to balance harvest of multiple 
+    interacting species that vary in abundance and productivity. Technical 
+    interactions are a defining characteristic of multi-species fisheries, 
+    and are often ignored when setting catch limits or target exploitation 
+    rates, despite their effect on the ability to balance multi-species 
+    harvest. Balancing harvest is more difficult when stock assessments are 
+    impossible to perform due to data-limitations, involving *inter alia* 
+    short time series of fishery independent observations, poor catch 
+    monitoring, limited biological data, and spatial mismatching of 
+    harvest decisions to system structure. In this paper, we asked whether 
+    using hierarchical, data-limited stock assessment methods to set catch
+    limits improved management performance in data-limited, multi-species
+    fisheries. Management performance of five alternative 
+    stock assessment methods was evaluated by using them to set harvest 
+    levels targeting multi-species maximum yield in a multi-species flatfish 
+    fishery, including single-species and hierarchical multi-species 
+    models, and methods that pooled data across species and spatial 
+    strata, with catch outcomes of each method under three data scenarios 
+    compared to catch under an omniscient manager simulation. 
+    Operating models included technical interactions between species
+    intended to produce choke effects often observed in output 
+    controlled multi-species fisheries. Hierarchical multi-species models 
+    outperformed all other methods under data-poor and data-moderate 
+    scenarios, and outperformed single-species models under the data-rich 
+    scenario. Hierarchical models were least sensitive to prior precision, 
+    sometimes improving in performance when prior precision was reduced. 
+    Choke effects were found to both positive and negative effects, 
+    sometimes leading to underfishing of non-choke species, but at other 
+    times preventing overfishing of non-choke species. We highlight the 
+    importance of including technical interactions in multi-species 
+    assessment models and management objectives, how choke species can 
+    indicate mismatches between management objectives and system dynamics, 
+    and recommend hierarchical multi-species models for multi-species 
+    fishery management systems.
 
-    Performance - still dependent on choke species? How do
-    the alternative methods rank out?"
 date: \today
-bibliography: /Users/sdnjohnson/Work/Library/library.bib
+bibliography: bib/library.bib
 natbib: true
+journal: Fisheries Research
 biblio-style: plainnat
-csl: ./Users/sdnjohnson/Work/write/templates/csl/styles/dependent/fisheries-research.csl 
+csl: csl/fisheries-research.csl 
+layout: review,authoryear
 geometry: letterpaper
-toc: false
+toc: true
 fontsize: 12pt
-lineno: true
+linenumbers: true
 csl-refs: true
 params:
   groupFolder: "DLSurveys_.3tau_Long"
   baseline: "sim_OmniRun_Long"
   history: "fit_28032020144113"
-numbersections: false
+numbersections: true
 appendix: false
 output: 
   pdf_document:
@@ -69,13 +74,18 @@ output:
     keep_tex: true
     fig_caption: true
     latex_engine: pdflatex
-    template: ~/Work/write/templates/tex/basic.latex
   bookdown::pdf_document2:
     citation_package: natbib
     keep_tex: true
     fig_caption: true
     latex_engine: pdflatex
-    template: ~/Work/write/templates/tex/basic.latex
+    template: ~/Work/write/templates/tex/elsevier2.latex
+  bookdown::pdf_book:
+    base_format: rticles::elsevier_article
+    citation_package: natbib
+    keep_tex: true
+    fig_caption: true
+    latex_engine: pdflatex
   html_document:
     self_contained: true
     df_print: kable
@@ -90,6 +100,22 @@ output:
   bookdown::word_document2:
     df_print: kable
     reference_docx: /Users/sdnjohnson/Work/write/templates/docx/basic.docx
+header-includes:
+  - \usepackage{lscape}
+  - \usepackage{pdflscape}
+  - \newcommand{\blandscape}{\begin{landscape}}
+  - \newcommand{\elandscape}{\end{landscape}}
+  - \DeclareMathOperator*{\argmax}{arg\,max}
+  - \DeclareMathOperator*{\argmin}{arg\,min}
+  - \newpageafter{abstract}
+  - \geometry{letterpaper,top = 20mm,left = 20mm,right = 20mm}
+keywords:
+  - Data-limited fisheries management;
+  - Multi-species fisheries management;
+  - technical interactions;
+  - Management Strategy Evaluation;
+  - hierarchical Multi-species Stock Assessment;
+  - Choke species.
 ---
 
 
@@ -109,7 +135,7 @@ if (is_latex_output()) {
 fig_asp <- 0.618
 fig_width <- 6
 fig_out_width <- "6in"
-fig_dpi <- 180
+fig_dpi <- 300
 fig_align <- "center"
 fig_pos <- "htb"
 opts_chunk$set(

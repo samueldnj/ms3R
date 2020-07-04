@@ -62,60 +62,20 @@ distribution of simulated effort is shown as grey shaded region in the
 projection period. Single simulation replicates in the projection period 
 are shown as thinner black lines."
 
-retroBioSampleFitCap <- "Operating model spawning stock
-biomass (red line) and retrospective assesment model 
-estimates of spawning stock biomass (grey lines) under 
-the Comm2 scenario. Panels show the single-stock (top row)
-and hierarchical multi-stock (second row) model fits to all
-species in the HSHG area, and pooled AM model fits (bottom row,
-left to right) to spatially pooled data for Dover sole, species 
-pooled data for the HSHG area, and totally aggregated data for
-the entire DER complex."
-
-lossCatRelCap  <- "Distributions of cumulative relative loss in catch 
-for the projection years 2026 to 2036 under each AM and
-OM data scenario (x-axis labels). The points show the median loss, 
-while line segments show the central 90\\% of cumulative loss 
-distributions. Panels show the cumulative loss distributions by 
-species (columns) and stocks (rows). Each AM point type and 
-colour is shown in the legend at the bottom. Loss distributions
-for AMs that couldn't reach 100 replicates with satisfactory
-convergence are shown as a dashed line."
-
 lossCatAbsCap  <- "Distributions of cumulative absolute loss in catch (kt) 
-for the projection years 2026 to 2036 under each AM and
+for the projection years 2026 to 2036 under each assessment model and
 OM data scenario (x-axis labels). The points show the median loss, 
 while line segments show the central 90\\% of cumulative loss 
 distributions. Panels show the cumulative loss distributions by 
-species (columns) and stocks (rows). Each AM point type and 
+species (columns) and stocks (rows). Each assessment model point type and 
 colour is shown in the legend at the bottom. Loss distributions
-for AMs that couldn't reach 100 replicates with satisfactory
+for assessment models that couldn't reach 100 replicates with satisfactory
 convergence are shown as a dashed line."
 
-lossBioRelCap  <- "Distributions of cumulative relative loss in 
-spawning biomass for the projection years 2026 to 2036 under each AM and
-OM data scenario (x-axis labels). The points show the median loss, 
-while line segments show the central 90\\% of cumulative loss 
-distributions. Panels show the cumulative loss distributions by 
-species (columns) and stocks (rows). Each AM point type and 
-colour is shown in the legend at the bottom. Loss distributions
-for AMs that couldn't reach 100 replicates with satisfactory
-convergence are shown as a dashed line."
-
-lossBioAbsCap  <- "Distributions of cumulative absolute loss in 
-spawning biomass (kt) for the projection years 2026 to 2036 under 
-each AM and OM data scenario (x-axis labels). The points show the 
-median loss, while line segments show the central 90\\% of cumulative 
-loss  distributions. Panels show the cumulative loss distributions by 
-species (columns) and stocks (rows). Each AM point type and 
-colour is shown in the legend at the bottom. Loss distributions
-for AMs that couldn't reach 100 replicates with satisfactory
-convergence are shown as a dashed line."
-
-tulipBtCtHMSSurvCap <- "Spawning biomass depletion and relative catch 
+tulipBtCtHMSPoorCap <- "Spawning biomass depletion and relative catch 
 simulation envelopes for all nine DER complex management units when 
-assessed by the hierarchical multi-stock AM under the 
-Surv OM scenario. Median biomass is shown by the thick 
+assessed by the Hierarchical Multi-stock assessment model under the 
+Poor data-quality scenario. Median biomass is shown by the thick 
 black line, with the grey region showing the central 95\\% of the 
 distribution of spawning biomass, and thin black lines 
 showing three randomly selected simulation replicates. Catch is shown as grey 
@@ -131,8 +91,8 @@ retroBioSingleRepSSComm1Cap <- "Operating model spawning stock
 biomass (red line), commercial trawl vulnerable biomass (grey dotted line), 
 retrospective assesment model estimates of spawning stock 
 biomass (thin grey/purple lines), and catch and TACs (grey bars) 
-from the first simulation replicate in the Comm1 scenario and
-under the single-stock AM. Catch bars show realised catch in grey 
+from the first simulation replicate in the Rich data-quality scenario
+under the Single-stock assessment model. Catch bars show realised catch in grey 
 for the whole simulation period, and unfilled bars in the projection
 period show the difference between MP set TACs and realised catch.
 Coloured circles on the right hand vertical axis show the biomass 
@@ -140,12 +100,12 @@ level associated with the multi-species (closed blue circle) and
 single-species (open green circle) maximum sustainable yield."
 
 
-retroBioSingleRepHMSSurvCap <- "Operating model spawning stock
+retroBioSingleRepHMSPoorCap <- "Operating model spawning stock
 biomass (red line), commercial trawl vulnerable biomass (grey dotted line), 
 retrospective assesment model estimates of spawning stock 
 biomass (thin grey/purple lines), and catch and TACs (grey bars) 
-from the first simulation replicate in the Surv scenario and
-under the hierarchical multi-stock AM. Catch bars show realised 
+from the first simulation replicate in the Poor data-quality scenario and
+under the Hierarchical Multi-stock assessment model. Catch bars show realised 
 catch in grey for the whole simulation period, and unfilled bars 
 in the projection period show the difference between MP set TACs 
 and realised catch. Coloured circles on the right hand vertical axis 
@@ -153,25 +113,10 @@ show the biomass level associated with the multi-species
 (closed blue circle) and single-species (open green circle) 
 maximum sustainable yield."
 
-TACutilisationSSLowCVCap <- "Simulation envelopes of TAC utilisation,
-under the hierarchical multi-stock AM and the Surv OM scenario.
-Columns are species, rows are stock areas. Heavy black lines show the 
-median TAC utilisation, with thin black lines showing 3 
-random replicates, and the grey region showing the central 95\\% 
-of simulation's distribution."
-
-assErrSSLowCVCap <- "Simulation envelopes of hierarchical
-multi-stock relative assessment model errors under the 
-Surv OM scenario. Columns are species, rows are stock areas. 
-Heavy black lines show the median relative assessment error
-in each projection year, with thin black lines showing 3 
-random replicates, and the grey region showing the central 95\\% 
-of simulation's distribution."
-
 catchBioTradeoffCap <- "Tradeoff between catch and biomass 
 during the 2028 - 2037 period implied by switching between 
-different AMs under Rich and Poor data scenarios. Panels are 
-gridded by species (columns) and stocks (rows), with biomass 
+different assessment models under Rich and Poor data-quality scenarios. 
+Panels are gridded by species (columns) and stocks (rows), with biomass 
 relative to $B_{MSY,MS,s,p}$ on the horizontal axis, and catch 
 relative to $MSY_{MS,s,p}$ on the vertical axis. Distributions of
 biomass and catch under the omniscient manager are shown by the 
@@ -180,35 +125,37 @@ for single species maximum yield (open green circles) and
 multi-species maximum yield (closed blue circles). The biomass 
 level at which a stock is critically overfished is shown as a vertical
 red dashed line. Coloured point symbols show median biomass and catch 
-for over all replicates for different AMs, with AMs under the
-same scenario joined by a solid line (Rich) or dashed line 
-(Poor)."
+for over all replicates for different assessment models, with assessment 
+models under the same data-quality scenario joined by a solid line 
+(Rich) or dashed line (Poor)."
 
 batchLossSensSummaryCap <- "Regressions showing the average 
 sensitivity of cumulative catch loss to the prior standard
-deviations under each AM (colours, line types) for the 
+deviations under each assessment model (colours, line types) for the 
 data-rich (left column) and data-poor (right column) scenarios. 
 The horizontal axis on each plot shows the prior standard deviation 
 (CV for $B_{MSY}$), while the vertical axis shows the standardised 
-difference between median cumulative loss for an AM and the mean
+difference between median cumulative loss for an assessment model and the mean
 of median cumulative loss values over AMs, stratified by species
 and area. See the online version of the journal for a full colour 
 version of the plot."
 
 ```
 
-```{r stockMap, echo = FALSE, warning = FALSE, fig.cap = DERcplxMapCap }
-figPath <- file.path("./data/DERcomplexSurveyBio.pdf")
+```{r fig1-DERccomplexSurveyBio, echo = FALSE, warning = FALSE, fig.cap = DERcplxMapCap }
+figPath <- file.path("./data/fig1-DERcomplexSurveyBio.pdf")
 knitr::include_graphics(figPath)
 ```
 
 \clearpage
 
 
-```{r complexYieldCurves, echo = FALSE, warning = FALSE, fig.cap = yieldCurveCap, fig.width = 6 }
+```{r fig2-complexYieldCurves, echo = FALSE, warning = FALSE, fig.cap = yieldCurveCap, fig.width = 6 }
 # Load a blob, probably just the first one
 # in the group folder
-plotEffYieldCurves(blob, maxE = 60)
+# plotEffYieldCurves(blob, maxE = 60)
+figPath <- file.path("./data/fig2-complexYieldCurves.pdf")
+knitr::include_graphics(figPath)
 
 ```
 
@@ -216,8 +163,8 @@ plotEffYieldCurves(blob, maxE = 60)
 
 \blandscape{}
 
-```{r omniBtCtTulips, echo = FALSE, warning = FALSE, fig.cap = omniBtCtTulipsCap, fig.width = 9, out.width = "9in"  }
-figPath <- file.path("./data/omniRun_TulipBt.pdf")
+```{r fig3-omniBtCtTulips, echo = FALSE, warning = FALSE, fig.cap = omniBtCtTulipsCap, fig.width = 9, out.width = "9in"  }
+figPath <- file.path("./data/fig3-omniRunTulipBt.pdf")
 knitr::include_graphics(figPath)
 ```
 
@@ -226,213 +173,190 @@ knitr::include_graphics(figPath)
 
 \elandscape
 
-```{r omniEffTulips, echo = FALSE, warning = FALSE, fig.cap = omniEffTulipsCap }
-figPath <- file.path("./data/omniEffortTulip.pdf")
+```{r fig4-omniEffTulips, echo = FALSE, warning = FALSE, fig.cap = omniEffTulipsCap }
+figPath <- file.path("./data/fig4-omniEffortTulip.pdf")
 knitr::include_graphics(figPath)
 ```
 
 \blandscape
 
 
-<!-- 
-
-plotRetroBio_Scenario(  groupFolder = params$groupFolder,
-                        iRep = 1,
-                        scenName = "DERfit_McAsSsIdx",
-                        prefix = "DLSurveys",
-                        species = "Dover",
-                        stock = "HSHG" )
-
-
-\clearpage 
--->
-
-
-<!-- 
-
-plotBatchLossDists_Scenario(  groupFolder = params$groupFolder,
-                              prefix = "parBat",
-                              lossType = "rel",
-                              var = "C_ispt",
-                              period = 73:82,
-                              lossList = NULL,
-                              dim1 = 1:3,   # species (D,E,R, DP)
-                              dim2 = 1:3,   # stocks (H,Q,W, CW)
-                              qProbs = c(.05,.5,.95),
-                              clearBadReps = TRUE,
-                              minSampSize = 100 )
-
- -->
-
 \clearpage
 
-```{r batchLoss-absCatch, echo = FALSE, warning = FALSE, fig.cap = lossCatAbsCap, fig.width = 9, out.width = "9in" }
-plotBatchLossDists_Scenario(  groupFolder = params$groupFolder,
-                              prefix = "parBat",
-                              lossType = "abs",
-                              var = "C_ispt",
-                              period = 73:82,
-                              lossList = NULL,
-                              dim1 = 1:3,   # species (D,E,R, DP)
-                              dim2 = 1:3,   # stocks (H,Q,W, CW)
-                              qProbs = c(.05,.5,.95),
-                              scenLabs = c( Rich  = "DERfit_HcMcAsSsIdx",
-                                            Mod   = "DERfit_McAsSsIdx",
-                                            Poor  = "DERfit_AsSsIdx" ),
-                              clearBadReps = TRUE,
-                              minSampSize = 100 )
+```{r fig5-batchLossAbsCatch, echo = FALSE, warning = FALSE, fig.cap = lossCatAbsCap, fig.width = 9, out.width = "9in" }
+# plotBatchLossDists_Scenario(  groupFolder = params$groupFolder,
+#                               prefix = "parBat",
+#                               lossType = "abs",
+#                               var = "C_ispt",
+#                               period = 73:82,
+#                               lossList = NULL,
+#                               dim1 = 1:3,   # species (D,E,R, DP)
+#                               dim2 = 1:3,   # stocks (H,Q,W, CW)
+#                               qProbs = c(.05,.5,.95),
+#                               scenLabs = c( Rich  = "DERfit_HcMcAsSsIdx",
+#                                             Mod   = "DERfit_McAsSsIdx",
+#                                             Poor  = "DERfit_AsSsIdx" ),
+#                               clearBadReps = TRUE,
+#                               minSampSize = 100 )
+
+figPath <- file.path("./data/fig5-batchLossAbsCatch.pdf")
+knitr::include_graphics(figPath)
 
 ```
 
 \clearpage
 
-```{r tulipBtCtHMSSurv, echo = FALSE, warning = FALSE, fig.cap = tulipBtCtHMSSurvCap, fig.width = 9, out.width = "9in" }
-plotTulipBt(  obj = blob, nTrace = 3,
-              dep = TRUE,
-              ref = "B0",
-              Ct  = TRUE,
-              leg = FALSE,
-              clearBadReps = TRUE )
+```{r fig6-tulipBtCtHMSPoor, echo = FALSE, warning = FALSE, fig.cap = tulipBtCtHMSPoorCap, fig.width = 9, out.width = "9in" }
+# plotTulipBt(  obj = blob, nTrace = 3,
+#               dep = TRUE,
+#               ref = "B0",
+#               Ct  = TRUE,
+#               leg = FALSE,
+#               clearBadReps = TRUE,
+#               printStamp = FALSE )
+
+figPath <- file.path("./data/fig6-tulipBtCtHMSPoor.pdf")
+knitr::include_graphics(figPath)
 
 ```
 
 \clearpage
 
-```{r retroBioSingleRepHMSSurv, echo = FALSE, warning = FALSE, fig.cap = retroBioSingleRepHMSSurvCap, fig.width = 9, out.width = "9in" }
-plotRetroSBagg(  obj = blob, iRep = 1 )
+```{r fig7-retroBioSingleRepHMSPoor, echo = FALSE, warning = FALSE, fig.cap = retroBioSingleRepHMSPoorCap, fig.width = 9, out.width = "9in" }
+# plotRetroSBagg(  obj = blob, iRep = 1, plotStamp = FALSE )
+figPath <- file.path("./data/fig7-retroBioSingleRepHMSPoor.pdf")
+knitr::include_graphics(figPath)
 
 ```
 
 
 
-
-
-
-<!-- plotTulipTACu( obj = blob, nTrace = 3 ) -->
-
-
-
 \clearpage
 
-```{r catchBioTradeoff, echo = FALSE, warning = FALSE, fig.cap = catchBioTradeoffCap, fig.width = 9, out.width = "9in"  }
-plotBatchCatchBioTradeoff(  groupFolder = params$groupFolder,
-                            prefix = "parBat",
-                            period = 73:82,
-                            lossList = NULL,
-                            qProbs = c(.025,.5,.975),
-                            refPts = "MSrefPts",
-                            AMlabs = c( SS = "singleStock",
-                                        HMS = "hierMultiStock",
-                                        SpePool = "speciesPooling",
-                                        SpaPool = "spatialPooling",
-                                        TA = "totalAgg" ),
-                            scenLabs = c( Rich  = "DERfit_HcMcAsSsIdx",
-                                          Poor = "DERfit_AsSsIdx" ),
-                            minSampSize = 100  )
+```{r fig8-catchBioTradeoff, echo = FALSE, warning = FALSE, fig.cap = catchBioTradeoffCap, fig.width = 9, out.width = "9in"  }
+# plotBatchCatchBioTradeoff(  groupFolder = params$groupFolder,
+#                             prefix = "parBat",
+#                             period = 73:82,
+#                             lossList = NULL,
+#                             qProbs = c(.025,.5,.975),
+#                             refPts = "MSrefPts",
+#                             AMlabs = c( SS = "singleStock",
+#                                         HMS = "hierMultiStock",
+#                                         SpePool = "speciesPooling",
+#                                         SpaPool = "spatialPooling",
+#                                         TA = "totalAgg" ),
+#                             scenLabs = c( Rich  = "DERfit_HcMcAsSsIdx",
+#                                           Poor = "DERfit_AsSsIdx" ),
+#                             minSampSize = 100  )
+
+figPath <- file.path("./data/fig8-catchBioTradeoff.pdf")
+knitr::include_graphics(figPath)
 ```
 
 \clearpage
 
-```{r batchLoss-SensitivityRuns, echo = FALSE, warning = FALSE, fig.cap = batchLossSensSummaryCap, fig.width = 8, out.width = "8in"  }
+```{r fig9-regLossSensitivityRuns, echo = FALSE, warning = FALSE, fig.cap = batchLossSensSummaryCap, fig.width = 8, out.width = "8in"  }
 
 
-scenLabs <- list( BmsyCVrich = c( Rich_BmsyCV0.1  = "Comm1_BmsyCV0.1",
-                                  Rich_BmsyCV0.5  = "Comm1_BmsyCV0.5",
-                                  Rich_BmsyCV1.0  = "Comm1_BmsyCV1.0"),
-                  BmsyCVpoor = c( Poor_BmsyCV0.1  = "Surv_BmsyCV0.1",
-                                  Poor_BmsyCV0.5  = "Surv_BmsyCV0.5",
-                                  Poor_BmsyCV1.0  = "Surv_BmsyCV1.0" ),
-                  UmsyCVrich = c( Rich_UmsyCV0.1  = "Comm1_UmsyCV0.1",
-                                  Rich_UmsyCV0.5  = "Comm1_UmsyCV0.5",
-                                  Rich_UmsyCV1.0  = "Comm1_UmsyCV1.0"),
-                  UmsyCVpoor = c( Poor_UmsyCV0.1  = "Surv_UmsyCV0.1",
-                                  Poor_UmsyCV0.5  = "Surv_UmsyCV0.5",
-                                  Poor_UmsyCV1.0  = "Surv_UmsyCV1.0" ),
-                  hierSDrich = c( Rich_hierSD0.1  = "Comm1_shrinkSD0.1",
-                                  Rich_hierSD0.5  = "Comm1_shrinkSD0.5",
-                                  Rich_hierSD1.0  = "Comm1_shrinkSD1.0"),
-                  hierSDpoor = c( Poor_hierSD0.1  = "Surv_shrinkSD0.1",
-                                  Poor_hierSD0.5  = "Surv_shrinkSD0.5",
-                                  Poor_hierSD1.0  = "Surv_shrinkSD1.0" ))
+# scenLabs <- list( BmsyCVrich = c( Rich_BmsyCV0.1  = "Comm1_BmsyCV0.1",
+#                                   Rich_BmsyCV0.5  = "Comm1_BmsyCV0.5",
+#                                   Rich_BmsyCV1.0  = "Comm1_BmsyCV1.0"),
+#                   BmsyCVpoor = c( Poor_BmsyCV0.1  = "Surv_BmsyCV0.1",
+#                                   Poor_BmsyCV0.5  = "Surv_BmsyCV0.5",
+#                                   Poor_BmsyCV1.0  = "Surv_BmsyCV1.0" ),
+#                   UmsyCVrich = c( Rich_UmsyCV0.1  = "Comm1_UmsyCV0.1",
+#                                   Rich_UmsyCV0.5  = "Comm1_UmsyCV0.5",
+#                                   Rich_UmsyCV1.0  = "Comm1_UmsyCV1.0"),
+#                   UmsyCVpoor = c( Poor_UmsyCV0.1  = "Surv_UmsyCV0.1",
+#                                   Poor_UmsyCV0.5  = "Surv_UmsyCV0.5",
+#                                   Poor_UmsyCV1.0  = "Surv_UmsyCV1.0" ),
+#                   hierSDrich = c( Rich_hierSD0.1  = "Comm1_shrinkSD0.1",
+#                                   Rich_hierSD0.5  = "Comm1_shrinkSD0.5",
+#                                   Rich_hierSD1.0  = "Comm1_shrinkSD1.0"),
+#                   hierSDpoor = c( Poor_hierSD0.1  = "Surv_shrinkSD0.1",
+#                                   Poor_hierSD0.5  = "Surv_shrinkSD0.5",
+#                                   Poor_hierSD1.0  = "Surv_shrinkSD1.0" ))
 
-scenSplitString <- c( Bmsy    = "BmsyCV",
-                      Umsy    = "UmsyCV",
-                      hierSD  = "shrinkSD" )
+# scenSplitString <- c( Bmsy    = "BmsyCV",
+#                       Umsy    = "UmsyCV",
+#                       hierSD  = "shrinkSD" )
 
-xlab <- c(  Bmsy = expression(CV(B[MSY])), 
-            Umsy = expression( SD(U[MSY])), 
-            hierSD = expression(paste( tau[q], " and ", sigma[U[MSY]] ) ) )
+# xlab <- c(  Bmsy = expression(CV(B[MSY])), 
+#             Umsy = expression( SD(U[MSY])), 
+#             hierSD = expression(paste( tau[q], " and ", sigma[U[MSY]] ) ) )
 
-groupFolders <- c("sensRuns_BmsyCV", "sensRuns_UmsyCV","sensRuns_hierSD")
+# groupFolders <- c("sensRuns_BmsyCV", "sensRuns_UmsyCV","sensRuns_hierSD")
 
 
-par( mfrow = c(3,2), oma = c(3,3,2,1), mar = c(2,2,1,1) )
-leg <- TRUE
-for( sensIdx in 1:3 )
-{
+# par( mfcol = c(2,3), oma = c(5,3,2,1), mar = c(2,2,1,1) )
+# for( sensIdx in 1:3 )
+# {
 
-  plotSensBatchSummary_SAisp( groupFolder = groupFolders[sensIdx],
-                              prefix = "parBat",
-                              lossType = "abs",
-                              var = "C_ispt",
-                              period = 73:82,
-                              lossList = NULL,
-                              refPts = NULL,
-                              AMlabs = c( SS = "singleStock",
-                                          HMS = "hierMultiStock",
-                                          SpePool = "speciesPooling",
-                                          SpaPool = "spatialPooling",
-                                          TA = "totalAgg" ),
-                              scenLabs = scenLabs[[2 * sensIdx - 1]],
-                              clearBadReps = FALSE,
-                              scenSplitString = scenSplitString[sensIdx],
-                              xlab = xlab[sensIdx],
-                              noPar = TRUE,
-                              printLeg = FALSE
-                           )
+#   plotSensBatchSummary_SAisp( groupFolder = groupFolders[sensIdx],
+#                               prefix = "parBat",
+#                               lossType = "abs",
+#                               var = "C_ispt",
+#                               period = 73:82,
+#                               lossList = NULL,
+#                               refPts = NULL,
+#                               AMlabs = c( SS = "singleStock",
+#                                           HMS = "hierMultiStock",
+#                                           SpePool = "speciesPooling",
+#                                           SpaPool = "spatialPooling",
+#                                           TA = "totalAgg" ),
+#                               scenLabs = scenLabs[[2 * sensIdx - 1]],
+#                               clearBadReps = FALSE,
+#                               scenSplitString = scenSplitString[sensIdx],
+#                               xlab = xlab[sensIdx],
+#                               noPar = TRUE,
+#                               printLeg = FALSE
+#                            )
 
-leg <- FALSE
+#   if( sensIdx == 3)
+#     rmtext( txt = "Rich", font = 2, line = .05, outer = TRUE )
 
-  if( sensIdx == 1)
-    mtext( side = 3, text = "Rich", font = 2)
+#   plotSensBatchSummary_SAisp( groupFolder = groupFolders[sensIdx],
+#                               prefix = "parBat",
+#                               lossType = "abs",
+#                               var = "SB_ispt",
+#                               period = 73:82,
+#                               lossList = NULL,
+#                               refPts = NULL,
+#                               AMlabs = c( SS = "singleStock",
+#                                           HMS = "hierMultiStock",
+#                                           SpePool = "speciesPooling",
+#                                           SpaPool = "spatialPooling",
+#                                           TA = "totalAgg" ),
+#                               scenLabs = scenLabs[[2 * sensIdx]],
+#                               clearBadReps = FALSE,
+#                               scenSplitString = scenSplitString[sensIdx],
+#                               xlab = xlab[sensIdx],
+#                               noPar = TRUE,
+#                               printLeg = FALSE
+#                            )
 
-  plotSensBatchSummary_SAisp( groupFolder = groupFolders[sensIdx],
-                              prefix = "parBat",
-                              lossType = "abs",
-                              var = "SB_ispt",
-                              period = 73:82,
-                              lossList = NULL,
-                              refPts = NULL,
-                              AMlabs = c( SS = "singleStock",
-                                          HMS = "hierMultiStock",
-                                          SpePool = "speciesPooling",
-                                          SpaPool = "spatialPooling",
-                                          TA = "totalAgg" ),
-                              scenLabs = scenLabs[[2 * sensIdx]],
-                              clearBadReps = FALSE,
-                              scenSplitString = scenSplitString[sensIdx],
-                              xlab = xlab[sensIdx],
-                              noPar = TRUE
-                           )
+#   if( sensIdx == 3)
+#     rmtext( txt = "Poor", font = 2, line = .05, outer = TRUE )
+  
 
-  if( sensIdx == 1)
-    mtext( side = 3, text = "Poor", font = 2)
+#   # mtext( side = 1, text = xlab[sensIdx], font = 2, line = 3)
+# }
 
-  rmtext( line = .05, txt = xlab[sensIdx], font = 2, outer = TRUE)
-}
+# mtext( side = 2, text = "Std. diff from mean cumulative loss", 
+#         outer = TRUE, line = 1)
+# # Plot legend
+# par(fig=c(0, 1, 0, 1), oma=c(0, 0, 0, 0), mar=c(0, 0, 0, 0), new=TRUE)
+#   plot(0, 0, type='n', bty='n', xaxt='n', yaxt='n')
+#   legend( x       = "bottom",
+#           horiz   = TRUE,
+#           bty     = "n",
+#           legend  = c("Single-stock","Hierarchical","Species Pooling","Spatial Pooling","Total Aggregation"),
+#           lty     = 1:5,
+#           col     = RColorBrewer::brewer.pal(5,"Dark2"), 
+#           lwd     = 2 )
 
-mtext( side = 2, text = "Std. diff from mean cumulative loss", 
-        outer = TRUE, line = 1)
-# Plot legend
-par(fig=c(0, 1, 0, 1), oma=c(0, 0, 0, 0), mar=c(0, 0, 0, 0), new=TRUE)
-  plot(0, 0, type='n', bty='n', xaxt='n', yaxt='n')
-  legend( x       = "bottom",
-          horiz   = TRUE,
-          bty     = "n",
-          legend  = c("Single-stock","Hierarchical","Species Pooling","Spatial Pooling","Total Aggregation"),
-          lty     = 1:5,
-          col     = RColorBrewer::brewer.pal(5,"Dark2"), 
-          lwd     = 2 )
+figPath <- file.path("./data/fig9-regLossSensitivityRuns.pdf")
+knitr::include_graphics(figPath)
 
 ```
 
