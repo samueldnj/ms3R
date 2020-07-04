@@ -1,4 +1,4 @@
 "","dataScenario","modelHyp","Stock","$B_0$","$R_0$","$R_{init}$","$F_{init}$","$M_0$","$\overline{M}$","$q_s$","$q_d$","pdHess"
-"1","setup_HG","setup_MultiStock_AR1comps","C/S",2.453,150.385,321.175,0,0.44,0.835,0.217,0.999,FALSE
-"2","setup_HG","setup_MultiStock_AR1comps","JP/S",15.485,343.877,343.877,0,0.324,0.586,0.215,0.998,FALSE
-"3","setup_HG","setup_MultiStock_AR1comps","Lou",0.999,27.058,122.675,0,0.371,0.623,0.161,0.998,FALSE
+"1","HG_multistock","baseMSmodel","C/S",3.561,295.651,203.667,0,0.492,0.87,0.192,0.998,TRUE
+"2","HG_multistock","baseMSmodel","JP/S",15.146,641.815,641.815,0,0.428,0.707,0.227,0.998,TRUE
+"3","HG_multistock","baseMSmodel","Lou",1.3,41.873,264.251,0,0.456,0.64,0.143,0.998,TRUE
