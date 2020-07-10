@@ -128,10 +128,11 @@ speciesNames <- blob$om$speciesNames
 stockNames   <- blob$om$stockNames
 
 # Make simulation performane stats
-batchPerfStats <- lapply( X = batchBlobs, FUN = .simPerfStats, inclAgg=TRUE )
+batchPerfStats <- lapply( X = batchBlobs, FUN = .simPerfStats, inclAgg=TRUE, exclNoTAC=TRUE )
+
 statTable      <- do.call(rbind, batchPerfStats)  %>%
-                  select(scenario, mp, stock, pBtGt.3B0, avgCatch_t:pondAAV) %>%
-                  arrange(scenario, -1*pBtGt.3B0, avgCatch_t, avgPonded_t)
+                  select(scenario, mp, stock, pBtGt.3B0, nYrsSOK:catchAAV) %>%
+                  arrange(scenario, -1*pBtGt.3B0, -1*nYrsSOK, -1*avgLicSOK, -1*nYrsComm)
 
 
 message("All simulation objects loaded and ready to make batch report")

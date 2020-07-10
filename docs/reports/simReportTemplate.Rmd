@@ -197,7 +197,7 @@ plotTulipCt( obj = blob, tMin=60, plotFleets=TRUE )
 ```
 
 ```{r, plotTulipF, echo = FALSE, message = FALSE, fig.cap = EffTulipCaption }
-plotTulipF( obj = blob )
+plotTulipHR( obj = blob )
 
 # TO DO: change this to plot HCR
 
@@ -250,8 +250,8 @@ if( !is.null(blob$ctlList$mp$assess$spSkewYieldCurves) )
 
 ```{r, phaseTable, echo = FALSE }
 
-statTable <- .simPerfStats( obj = blob, inclAgg=TRUE ) %>%
-              select(stock, pBtGt.3B0, avgCatch_t:pondAAV)
+statTable <- .simPerfStats( obj = blob, inclAgg=TRUE, exclNoTAC=TRUE ) %>%
+              select(stock, pBtGt.3B0, nYrsSOK:catchAAV)
 
 # statTable <- dplyr::select('stock', )
 

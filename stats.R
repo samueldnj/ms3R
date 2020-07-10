@@ -316,7 +316,7 @@ makeStatTable <- function( sims = 1, folder = "" )
 # inputs:   sim=int indicating which simulation to compute stats for
 # outputs:  statTable=data.frame showing conservation and catch performance
 # usage:    in lapply to produce stats for a group of simulations
-.simPerfStats <- function( obj, inclAgg=FALSE  )
+.simPerfStats <- function( obj, inclAgg=FALSE, exclNoTAC=FALSE  )
 {
   # Pull sublists
   om        <- obj$om
@@ -328,6 +328,7 @@ makeStatTable <- function( sims = 1, folder = "" )
   nS      <- om$nS
   nP      <- om$nP
   nT      <- om$nT
+  nF      <- om$nF
   tMP     <- om$tMP
   pT      <- opMod$pT
   nReps   <- ctlList$ctl$nReps
@@ -381,12 +382,15 @@ makeStatTable <- function( sims = 1, folder = "" )
                   # "pBtGtBmsy",
                   # "pCtGtMSY", 
                   # "pFtGtFmsy",
-                  "avgCatch_t",
+                  "nYrsSOK",
+                  "avgLicSOK",
                   "avgPonded_t",
-                  "avg_closedSOK",
-                  "avg_openSOK",
-                  "catchAAV",
-                  "pondAAV")
+                  "avgSOK_t",
+                  "pondAAV",
+                  "nYrsComm",
+                  "avgCatch_t",
+                  "catchAAV"
+                  )
 
   statTable <- matrix( NA,  ncol = length(colLabels),
                             nrow = nS * nP )
@@ -436,8 +440,14 @@ makeStatTable <- function( sims = 1, folder = "" )
     P_ispt       <- apply(C_ispft[,,,6:7,,drop=FALSE], FUN=sum, MARGIN=c(1,2,3,5))
     
     # SOK licenses
-    sokEff_ispft <- mp$hcr$sokEff_ispft [allConvReps,,,,,drop = FALSE]
+    L_ispft <- mp$hcr$sokEff_ispft [allConvReps,,,,,drop = FALSE]
+    L_ispt  <- apply( X = L_ispft[,,,6:7,,drop = FALSE], FUN = sum, MARGIN = c(1,2,3,5))
 
+
+    # SOK product in kt
+    psi_ispft    <- om$psi_ispft[allConvReps,,,,,drop = FALSE]
+    SOK_ispft    <- P_ispft*psi_ispft
+    SOK_ispt     <- apply(SOK_ispft[,,,6:7,,drop=FALSE], FUN=sum, MARGIN=c(1,2,3,5))
     
     # Calculate probability that Bt above LRP
     pBtGt.3B0_sp <- .calcStatsProportion(   TS_ispt = SB_ispt,
@@ -479,28 +489,99 @@ makeStatTable <- function( sims = 1, folder = "" )
     #                                       nS = nS,
     #                                       nP = nP )
 
+    # Calculate number of years that fisheries are open
+    sokYrs_ispt <- P_ispt 
+    commYrs_ispt <- C_ispt
+    sokYrs_ispt[sokYrs_ispt>0]   <-1
+    commYrs_ispt[commYrs_ispt>0] <-1
 
-    # Average fisheries catch, SOK ponded biomass, SOK licenses
-    Cbar_sp     <- apply( X = C_ispt[,,,tMP:nT,drop = FALSE], FUN = mean, MARGIN = c(2,3), na.rm = T)
-    Pbar_sp     <- apply( X = P_ispt[,,,tMP:nT,drop = FALSE], FUN = mean, MARGIN = c(2,3), na.rm = T)
+    sokYrsBar_spt  <- apply( X = sokYrs_ispt[,,,,drop = FALSE], FUN = mean, MARGIN = c(2,3,4))
+    sokYrsBar_sp   <- apply( X = sokYrsBar_spt[,,tMP:nT,drop = FALSE], FUN = sum, MARGIN = c(1,2))
 
-    cSOKbar_sp <- apply( X = sokEff_ispft[,,,6,tMP:nT,drop = FALSE], FUN = mean, MARGIN = c(2,3), na.rm = T)
-    oSOKbar_sp <- apply( X = sokEff_ispft[,,,7,tMP:nT,drop = FALSE], FUN = mean, MARGIN = c(2,3), na.rm = T)
+    commYrsBar_spt  <- apply( X = commYrs_ispt[,,,,drop = FALSE], FUN = mean, MARGIN = c(2,3,4))
+    commYrsBar_sp   <- apply( X = commYrsBar_spt[,,tMP:nT,drop = FALSE], FUN = sum, MARGIN = c(1,2))
 
-    
-    # TO DO:
-    # - add average licenses stats for closed and open ponds...
 
-    # Catch and ponding variability
-    catchAAV_sp      <- .calcStatsAAV_sp( C_ispt = C_ispt,
+    # Average fisheries and SOK stats for years when fisheries are open
+    if(exclNoTAC)
+    {
+      # Assign NAs for years with zero catch to remove from stats
+      if( any(C_ispt[,,,tMP:nT] >0) )
+        C_ispt[C_ispt==0] <- NA
+
+      if( any(P_ispt[,,,tMP:nT] >0) )
+        P_ispt[P_ispt==0] <- NA
+
+      if( any(SOK_ispt[,,,tMP:nT] >0) )
+        SOK_ispt[SOK_ispt==0] <- NA
+      
+      if( any(L_ispt[,,,tMP:nT] >0) )
+        L_ispt[L_ispt==0] <- NA
+
+      # calculate average stats across reps
+      Cbar_isp      <- apply( X = C_ispt[,,,tMP:nT,drop = FALSE], FUN = mean, MARGIN = c(1,2,3), na.rm = T)
+      Pbar_isp      <- apply( X = P_ispt[,,,tMP:nT,drop = FALSE], FUN = mean, MARGIN = c(1,2,3), na.rm = T)
+      SOKbar_isp    <- apply( X = SOK_ispt[,,,tMP:nT,drop = FALSE], FUN = mean, MARGIN = c(1,2,3), na.rm = T)
+      LBar_isp      <- apply( X = L_ispt[,,,tMP:nT,drop = FALSE], FUN = mean, MARGIN = c(1,2,3), na.rm = T)
+
+      # Now assign zeros for any reps that have avg. catch for full time series
+      Cbar_isp[is.na(Cbar_isp)] <- 0
+      Pbar_isp[is.na(Pbar_isp)] <- 0
+      SOKbar_isp[is.na(SOKbar_isp)] <- 0
+      LBar_isp [is.na(LBar_isp )] <- 0
+
+      # catch, live ponded biomass, and SOK product in metric tonnes
+      Cbar_sp     <- apply( X = Cbar_isp[,,,drop = FALSE], FUN = mean, MARGIN = c(2,3), na.rm = T)
+      Pbar_sp     <- apply( X = Pbar_isp[,,,drop = FALSE], FUN = mean, MARGIN = c(2,3), na.rm = T)
+      SOKbar_sp   <- apply( X = SOKbar_isp[,,,drop = FALSE], FUN = mean, MARGIN = c(2,3), na.rm = T)
+
+      # SOK licenses
+      Lbar_sp   <- apply( X = LBar_isp[,,,drop = FALSE], FUN = mean, MARGIN = c(2,3), na.rm = T)
+
+
+      # Catch and ponding variability
+      catchAAV_sp      <- .calcStatsAAV_sp( C_ispt = C_ispt,
                                   tdx = tMP:nT,
                                   qProbs = c(0.5),
                                   margin = c(2,3) )
 
-    pondAAV_sp      <- .calcStatsAAV_sp( C_ispt = P_ispt,
+      pondAAV_sp      <- .calcStatsAAV_sp( C_ispt = P_ispt,
+                                  tdx = tMP:nT,
+                                  qProbs = c(0.5),
+                                  margin = c(2,3) )  
+
+    }  
+
+
+
+    # Average fisheries and SOK stats for all years
+    if(!exclNoTAC)
+    {
+      # catch, live ponded biomass, and SOK product in metric tonnes
+      Cbar_sp     <- apply( X = C_ispt[,,,tMP:nT,drop = FALSE], FUN = mean, MARGIN = c(2,3), na.rm = T)
+      Pbar_sp     <- apply( X = P_ispt[,,,tMP:nT,drop = FALSE], FUN = mean, MARGIN = c(2,3), na.rm = T)
+      SOKbar_sp   <- apply( X = SOK_ispt[,,,tMP:nT,drop = FALSE], FUN = mean, MARGIN = c(2,3), na.rm = T)
+
+      # SOK licenses for open (o), closed (c) and all ponds (co)
+      Lbar_sp <- apply( X = L_ispt[,,,tMP:nT,drop = FALSE], FUN = mean, MARGIN = c(2,3), na.rm = T) # open & closed  
+      # cSOKbar_sp  <- apply( X = sokEff_ispft[,,,6,tMP:nT,drop = FALSE], FUN = mean, MARGIN = c(2,3), na.rm = T)
+      # oSOKbar_sp  <- apply( X = sokEff_ispft[,,,7,tMP:nT,drop = FALSE], FUN = mean, MARGIN = c(2,3), na.rm = T)
+      
+
+      # Catch and ponding variability
+      catchAAV_sp      <- .calcStatsAAV_sp( C_ispt = C_ispt,
                                   tdx = tMP:nT,
                                   qProbs = c(0.5),
                                   margin = c(2,3) )
+
+      pondAAV_sp      <- .calcStatsAAV_sp( C_ispt = P_ispt,
+                                  tdx = tMP:nT,
+                                  qProbs = c(0.5),
+                                  margin = c(2,3) )  
+    }  
+
+
+
 
 
     for( s in 1:nS )
@@ -523,14 +604,18 @@ makeStatTable <- function( sims = 1, folder = "" )
         # statTable[rowIdx,"pFtGtFmsy"]       <- round(pFtGtFmsy_sp[s,p],2)
 
         # Catch statistics
+        statTable[rowIdx,"nYrsSOK"]         <- round(sokYrsBar_sp[s,p],1)
+        statTable[rowIdx,"nYrsComm"]        <- round(commYrsBar_sp[s,p],1)
+
         statTable[rowIdx,"avgCatch_t"]      <- round(Cbar_sp[s,p]*1e3,1)
         statTable[rowIdx,"catchAAV"]        <- round(catchAAV_sp[s,p]*1e2,1)
         statTable[rowIdx,"avgPonded_t"]     <- round(Pbar_sp[s,p]*1e3,1)
         statTable[rowIdx,"pondAAV"]         <- round(pondAAV_sp[s,p]*1e2,1)
+        statTable[rowIdx,"avgSOK_t"]        <- round(SOKbar_sp[s,p]*1e3,1)
+        statTable[rowIdx,"avgLicSOK"]       <- round(Lbar_sp[s,p],1)
 
-        statTable[rowIdx,"avg_closedSOK"]   <- round(cSOKbar_sp[s,p],1)
-        statTable[rowIdx,"avg_openSOK"]     <- round(oSOKbar_sp[s,p],1)
-
+        # statTable[rowIdx,"avg_cSOKlic"]     <- round(cSOKbar_sp[s,p],1)
+        # statTable[rowIdx,"avg_oSOKlic"]     <- round(oSOKbar_sp[s,p],1)
 
       }
 
@@ -541,7 +626,7 @@ makeStatTable <- function( sims = 1, folder = "" )
       aggRow <- statTable[1,]
 
       # Aggregate SOK licenses
-      sokEff_ispft <- mp$hcr$sokEff_ispft [allConvReps,,,,,drop = FALSE]
+      L_ispft <- mp$hcr$sokEff_ispft [allConvReps,,,,,drop = FALSE]
 
       
       # Calculate probability that SBt above LRP
@@ -556,20 +641,74 @@ makeStatTable <- function( sims = 1, folder = "" )
                                                   nS = 1,
                                                   nP = 1 )
 
+      # number of years with SOK or commercial fishing at aggregate level
+      sokYrs_it                 <- apply(P_ispt, FUN=sum, MARGIN=c(1,4), na.rm=T)
+      sokYrs_it[sokYrs_it>0]    <-1
+      sokYrs_i                  <- apply( X = sokYrs_it[,tMP:nT], FUN = sum, MARGIN=1)
+      sokYrsBar_agg             <- mean(sokYrs_i)
+
+      commYrs_it                <- apply(C_ispt, FUN=sum, MARGIN=c(1,4), na.rm=T)
+      commYrs_it[commYrs_it>0]  <-1
+      commYrs_i                 <- apply( X = commYrs_it[,tMP:nT], FUN = sum, MARGIN=1)
+      commYrsBar_agg            <- mean(commYrs_i)
+
       # Aggregate fisheries catch, SOK ponded biomass & SOK licenses then calcuate average across iReps and projT
       C_it     <- apply( X = C_ispt[,,,,drop = FALSE], FUN = sum, MARGIN = c(1,4), na.rm = T)
       P_it     <- apply( X = P_ispt[,,,,drop = FALSE], FUN = sum, MARGIN = c(1,4), na.rm = T)
+      SOK_it   <- apply( X = SOK_ispt[,,,,drop = FALSE], FUN = sum, MARGIN = c(1,4), na.rm = T)
+      L_it     <- apply( X = L_ispt[,,,,drop = FALSE], FUN = sum, MARGIN = c(1,4), na.rm = T)    
 
-      cSOK_it <- apply( X = sokEff_ispft[,,,6,,drop = FALSE], FUN = sum, MARGIN = c(1,5), na.rm = T)
-      oSOK_it <- apply( X = sokEff_ispft[,,,7,,drop = FALSE], FUN = sum, MARGIN = c(1,5), na.rm = T)
+      # # Average fisheries and SOK stats for years when fisheries are open
+      if(exclNoTAC)
+      {
+        # Assign NAs for years with zero catch to remove from stats
+        if( any(C_it[,tMP:nT] >0) )
+          C_it[C_it==0] <- NA
+
+        if( any(P_it[,tMP:nT] >0) )
+          P_it[P_it==0] <- NA
+
+        if( any(SOK_it[,tMP:nT] >0) )
+          SOK_it[SOK_it==0] <- NA
+
+        if( any(L_it[,tMP:nT] >0) )
+          L_it[L_it==0] <- NA
+
+        # calculate average stats across reps
+        Cbar_i      <- apply( X = C_it[,tMP:nT,drop = FALSE], FUN = mean, MARGIN = c(1), na.rm = T)
+        Pbar_i      <- apply( X = P_it[,tMP:nT,drop = FALSE], FUN = mean, MARGIN = c(1), na.rm = T)
+        SOKbar_i    <- apply( X = SOK_it[,tMP:nT,drop = FALSE], FUN = mean, MARGIN = c(1), na.rm = T)
+        Lbar_i      <- apply( X = L_it[,tMP:nT,drop = FALSE], FUN = mean, MARGIN = c(1), na.rm = T)
+
+        # Now assign zeros for any reps that have avg. catch of zero for full time series
+        Cbar_i[is.na(Cbar_i)] <- 0
+        Pbar_i[is.na(Pbar_i)] <- 0
+        SOKbar_i[is.na(SOKbar_i)] <- 0
+        Lbar_i[is.na(Lbar_i )] <- 0
+
+        # catch, live ponded biomass, and SOK product in metric tonnes
+        Cbar_agg    <- mean(Cbar_i)
+        Pbar_agg    <- mean(Pbar_i)
+        SOKbar_agg  <- mean(SOKbar_i)
+
+        # SOK licenses
+        Lbar_agg   <- mean(Lbar_i)
+
+      }  
+
+      if(!exclNoTAC)
+      {
+        # catch, live ponded biomass, and SOK product in metric tonnes
+        Cbar_agg     <- mean(C_it[,tMP:nT], na.rm = T)
+        Pbar_agg     <- mean(P_it[,tMP:nT], na.rm = T)
+        SOKbar_agg   <- mean(SOK_it[,tMP:nT], na.rm = T)
+
+        # SOK licenses
+        Lbar_agg     <- mean(L_it[,tMP:nT], na.rm = T)
+      }  
       
-      Cbar_agg     <- mean(C_it[,tMP:nT], na.rm = T)
-      Pbar_agg     <- mean(P_it[,tMP:nT], na.rm = T)
-
-      cSOKbar_agg <- mean(cSOK_it[,tMP:nT], na.rm = T)
-      oSOKbar_agg <- mean(oSOK_it[,tMP:nT], na.rm = T)
-
-      
+      # oSOKbar_agg  <- mean(L_it[,7,tMP:nT], na.rm = T)
+      # coSOKbar_agg <- mean(L_it[,7,tMP:nT], na.rm = T)
 
       # Catch and ponding variability
       catchAAV_agg      <- .calcStatsAAV_agg(C_it = C_it,
@@ -587,16 +726,21 @@ makeStatTable <- function( sims = 1, folder = "" )
       aggRow[,"pBtGt.3B0"]     <- round(pBtGt.3B0_agg,2)
       
       # commercial catch 
+      aggRow[,"nYrsComm"]      <- round(commYrsBar_agg,1)
       aggRow[,"avgCatch_t"]    <- round(Cbar_agg*1e3,1)
       aggRow[,"catchAAV"]      <- round(catchAAV_agg*1e2,2)
       
       # ponded fish
+      aggRow[,"nYrsSOK"]       <- round(sokYrsBar_agg,1)
       aggRow[,"avgPonded_t"]   <- round(Pbar_agg*1e3,1)
       aggRow[,"pondAAV"]       <- round(pondAAV_agg*1e2,1)
 
-      # number of SOK licenses
-      aggRow[,"avg_closedSOK"] <- round(cSOKbar_agg,1)
-      aggRow[,"avg_openSOK"]   <- round(oSOKbar_agg,1)
+      # SOK product and licenses
+      aggRow[,"avgSOK_t"]      <- round(SOKbar_agg*1e3,1)
+      aggRow[,"avgLicSOK"]     <- round(Lbar_agg,1)
+      # aggRow[,"avg_cSOKlic"]   <- round(cSOKbar_agg,1)
+      # aggRow[,"avg_oSOKlic"]   <- round(oSOKbar_agg,1)
+
 
       statTable <- rbind(statTable, aggRow)
 
@@ -1036,15 +1180,6 @@ makeStatTable <- function( sims = 1, folder = "" )
 
   outList
 } # END .getOmniInfo()
-
-
-
-
-
-
-
-
-
 
 
 

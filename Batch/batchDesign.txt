@@ -1,4 +1,4 @@
-# mseR batch design file,  Thu Jun 25 10:05:31 2020 
+# mseR batch design file,  Tue Jul  7 11:18:30 2020 
 "parFile","blobName","scenarioLabel","mpLabel","dataName","methodName","ruleName","scCol","scLty","scLwd","scSym","mpCol","mpLty","mpLwd","mpSym","join"
 "job1.txt","simjob1","\"rw15_loPondM\"","'cSOK_0.1HR_spatialMP'","data","method","rule","black",1,1,1,"black",1,1,1,0
 "job2.txt","simjob2","\"rw15_loPondM\"","'SR_0.1HR_spatialMP'","data","method","rule","black",1,1,1,"black",1,1,1,0

@@ -1,4 +1,4 @@
-# job17.txt: mseR parameter file written Thu Jun 25 10:05:31 2020.
+# job17.txt: mseR parameter file written Tue Jul  7 11:18:30 2020.
 parameter value
 ctl$scenarioName "rw5_hiPondM"
 ctl$mpName 'SR_0.1HR_spatialMP'
@@ -127,7 +127,10 @@ opMod$sigmaM 0.024
 opMod$gammaM 0.997
 opMod$pulseMFrq 0
 opMod$pulseMSize 1
-opMod$histFile "fit_01052020203314"
+opMod$histFile "fit_MSbase_MCMC"
+opMod$posteriorSamples FALSE
+opMod$postSampleType 'random'
+opMod$postSampleSeed 1234
 opMod$price_s c(Dover=1.33,English=1.37,Rock=1.65,Petrale=3.22,Arrowtooth=0.37)
 opMod$projObsErrMult 1.0
 opMod$phaseInObsErrMult 6

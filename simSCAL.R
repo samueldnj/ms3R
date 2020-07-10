@@ -28,13 +28,13 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   # Load history
   repList               <- .loadFit( ctlList$opMod$histFile )
   ctlList$opMod$histRpt <- c( repList$data, repList$repOpt ) 
+  ctlList$opMod$posts   <- repList$posts
   ctlList$opMod$fYear   <- repList$fYear
   ctlList$opMod$species <- repList$species
   ctlList$opMod$stocks  <- repList$stocks
   ctlList$opMod$fleets  <- repList$gearLabs
 
-  # Initialise the data structures
-  # to hold simulation states etc.
+  # Initialise the data structures to hold simulation states etc.
   simObj <- .initMS3pop(  ctlList )
 
   # Run mgmtProc
@@ -171,7 +171,8 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   #   for( p in 1:nP )    
   #     obj$mp$hcr$TAC_spft[s,p,,t]    <- obj$mp$hcr$TAC_spt[s,p,t] * obj$om$alloc_spf[s,p,]
 
-  # Convert TAC to SOK product using 16,000 lbs (7.25 t or 0.00725 kt) per pond ()
+  # SOK product per license is 16,000 lbs (7.2575 t or 0.0072575 kt) per pond ()
+  sokPerLic_kt <- 0.0072575
   # obj <- .tac2SOK(obj, t)
   closedPondAlloc <- 0.0907 # 100 short tons (90.7 t or 0.0907 kt) of TAC allocated to each closed pond,
   openPondAlloc   <- 0.0317 # 35 short tons (31.7t or 0.0317 kt) allocated to each open pond
@@ -179,9 +180,10 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   for( s in 1:nS )
     for( p in 1:nP ) 
     {
-      obj$mp$hcr$TAC_spft[s,p,6,t] <- obj$mp$hcr$TAC_spft[s,p,6,t]*0.00725/closedPondAlloc
-      obj$mp$hcr$TAC_spft[s,p,7,t] <- obj$mp$hcr$TAC_spft[s,p,7,t]*0.00725/openPondAlloc
+      obj$mp$hcr$TAC_spft[s,p,6,t] <- obj$mp$hcr$TAC_spft[s,p,6,t]*sokPerLic_kt/closedPondAlloc
+      obj$mp$hcr$TAC_spft[s,p,7,t] <- obj$mp$hcr$TAC_spft[s,p,7,t]*sokPerLic_kt/openPondAlloc
     }
+
 
 
   # 5. Update simulated population
@@ -298,10 +300,56 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
                             barEffDiff_i        = array( NA, dim = c(nReps)),
                             barInitEffDiff_i    = array( NA, dim = c(nReps)) )
 
+  # ---- Posterior Sampling ----
+
+  message(" (.mgmtProc) Posterior sampling for leading parameters...\n")
+  if( !is.null(ctlList$opMod$posteriorSamples) )
+  {
+    
+    
+    # Get posterior samples
+    mcmcPar <- ctlList$opMod$posts
+    nMCMC   <- dim(mcmcPar$B0_ip)[1]
+    nReps   <- ctlList$ctl$totReps
+
+    if( ctlList$opMod$postSampleType == "quantile" )
+    {  
+      
+      browser(cat('not yet implemented....'))
+      samples       <- .quantileStratSample(  seed  = ctlList$opMod$postSampleSeed,
+                                              post = mcmcPar,
+                                              par1 = "M_iapt", par2 = "B0_ip",
+                                              nBreaks = 10 )
+
+    }  
+
+    # if( ctlList$opMod$postSampleType == "full" )
+    #   samples <- 1:nrow(mcmcPar)
+
+
+
+    if( ctlList$opMod$postSampleType == "random" )
+    {
+      
+      if( nReps > nMCMC )
+        setReplace <- TRUE
+      else setReplace <- FALSE
+
+      set.seed(ctlList$opMod$postSampleSeed)
+
+      samples <- sample(1:nMCMC, size = nReps, replace = setReplace )
+    }
+
+    ctlList$opMod$postDraws_i <- samples
+
+  }
+
+
 
   ##########################################################
   ######### ------- CLOSED LOOP SIMULATION ------- #########
   ##########################################################
+
 
   
   message(" (.mgmtProc) Running feedback loop...\n")
@@ -318,6 +366,17 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
 
     startTime <- proc.time()[3]    
     t1 <- proc.time()[3]
+
+    # replace leading pars
+    if(ctlList$opMod$posteriorSamples)
+    {
+      postDrawIdx <- ctlList$opMod$postDraws_i[i]
+
+      # Replace MLE values for B0 and M with posterior draws
+      simObj$om$B0_sp                    <- mcmcPar$B0_ip[postDrawIdx,]
+      simObj$om$M_axspt[,1,1,,1:(tMP-1)] <- mcmcPar$M_iapt[postDrawIdx,,,1:(tMP-1)]
+
+    }  
 
     # Condition history of simulation model
     # and draw random errors for projection
@@ -869,6 +928,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
 
   # SOK stuff
   P_spft            <- om$P_spft
+  psi_spft          <- om$psi_spft
   pondM_ft          <- om$pondM_ft
 
   # Create a container to hold 
@@ -906,19 +966,21 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
             if( a == 1 )
             {
 
-                R_spt[s,p,t] <- reca_sp[s,p] * SB_spt[s,p,t-1] / (1 + recb_sp[s,p] * SB_spt[s,p,t-1])
-              
+              R_spt[s,p,t] <- reca_sp[s,p] * SB_spt[s,p,t-1] / (1 + recb_sp[s,p] * SB_spt[s,p,t-1])
+
               if( !obj$ctlList$ctl$noProcErr )
                 R_spt[s,p,t] <- R_spt[s,p,t] * exp( om$sigmaR_sp[s,p] * err$omegaR_spt[s,p,t] - 0.5*om$sigmaR_sp[s,p]^2) 
-                
                  
               # Testing for improving conditioning, fixing Rt for C/S to OM repfile values
-              if(p %in% c(1,3) & t<=tMP)
-              {
-                  R_spt[s,p,t] <- opMod$histRpt$R_pt[p,t]
-                  #cat('HACK: Line 918, fixing Rt for C/S and OM repfile values')
+              # lastIdx <- max(which(opMod$histRpt$omegaR_pt[p,] != 0) )
+              # if(p %in% c(1,2,3) & t<=lastIdx)
+              # {
 
-              }  
+              #     R_spt[s,p,t] <- opMod$histRpt$R_pt[p,t]
+              #     if(t == tInit_p[p])
+              #     cat('HACK: Line 918, fixing Rt for C/S and Lou for OM repfile values')
+
+              # }  
                 
 
               N_axspt[a,,s,p,t] <- R_spt[s,p,t]
@@ -1155,8 +1217,9 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
         propMat_sp <- SOKconvList$propMat_sp
 
 
-        # This is total ponded fish (some of which will survive)
-        P_spft[,,fIdx,t] <- TAC_spft[,,fIdx,t] / psi_sp
+        # Convert SOK product that is set in TAC to total ponded fish (some of which will survive)
+        P_spft[,,fIdx,t]    <- TAC_spft[,,fIdx,t] / psi_sp
+        psi_spft[,,fIdx,t]  <- psi_sp
 
         # convert arrays to spf dimensions for applyDiscreteFisheries()
         tmpP_spf[,,fIdx] <- P_spft[,,fIdx,t]
@@ -1271,6 +1334,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
       tauObs_spf[s,p,]  <- om$tauObs_spf[s,p,1:nF] * err$obsErrMult_spft[s,p,1:nF,t]
 
   idxOn_spf   <- obj$mp$data$idxOn_spft[,,,t]
+
 
   # Species Pooling
   if( ctlList$mp$data$speciesPooling & !ctlList$mp$data$spatialPooling  )
@@ -1398,7 +1462,6 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   Iperf_spft[Iperf_spft == 0] <- NA
   Ierr_spft[Ierr_spft == 0] <- NA
 
-
   # put all the state arrays back into OM
   # State vars
   B_axspt           -> obj$om$B_axspt
@@ -1439,6 +1502,9 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
 
   # SOK stuff
   P_spft            -> obj$om$P_spft
+  psi_spft          -> obj$om$psi_spft
+
+
 
   return( obj )
 } # END ageSexOpMod()
@@ -1624,15 +1690,16 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   # TAC above represents total mortality for each gear type. The OM reads in SOK landed product from the TAC object so we need to convert TAC for spawn on kelp fishery from assumed dead ponded fish, based on DFO assumption of 65% mortality (Schweigert et al. 2018), to live ponded fish and then SOK product
   for( s in 1:nS )
       for( p in 1:nP )
-  {      
-  livePondedFish <- obj$mp$hcr$TAC_spft[s,p,6,t]/0.65
+      {      
+        livePondedFish <- obj$mp$hcr$TAC_spft[s,p,6,t]/0.65
+        browser(cat('line 1638....'))
 
-  obj$mp$hcr$TAC_spft[s,p,6,t] <- livePondedFish*psi # convert to SOK product
-  }
+        obj$mp$hcr$TAC_spft[s,p,6,t] <- livePondedFish*psi # convert to SOK product
+      }
 
   return(obj)
 
-} # END .calcAlloc_hgSOK
+} # END .tac2SOK
 
 # .calcHCR_hgRule()      
 # Purpose:        harvest control rule to generate the quota
@@ -2302,6 +2369,9 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   methodID <- ctlList$mp$assess$method
 
   # AMfunName <- paste(".AM_",methodID, sep = "")
+
+  if( methodID == "ItCt")
+    obj <- .AM_ItCt( obj, t)
 
   if( methodID == "idxBased")
     obj <- .AM_idxBased( obj, t)
@@ -3874,15 +3944,21 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
 
       # Save historical proc errors, but use simulated recruitments after
       # last estimated recruitment
-      lastIdx <- max(which(repObj$omegaR_pt[p,] != 0) )
-      
       if(repObj$avgRcode_p[p]==1)
+      {
+        lastIdx <- max(which(repObj$SRdevs_pt[p,] != 0) )
         obj$errors$omegaR_spt[s,p,histdx[1:lastIdx]]   <- repObj$SRdevs_pt[p,1:lastIdx]
-      else
+
+      }  else {
+
+        lastIdx <- max(which(repObj$omegaR_pt[p,] != 0) )
         obj$errors$omegaR_spt[s,p,histdx[1:lastIdx]]   <- repObj$omegaR_pt[p,1:lastIdx]
+      }
+        
 
       if( !ctlList$ctl$noProcErr )
         obj$errors$omegaR_spt[s,p,histdx[1:lastIdx]] <- obj$errors$omegaR_spt[s,p,histdx[1:lastIdx]] + 0.5*repObj$sigmaR  # rec devs    
+
     }
 
   # Replace NaNs with 0s when the recent history has no catch
@@ -3893,6 +3969,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   for( p in 1:nP)
     obj$errors$omegaRinit_asp[,1,p]  <- repObj$fDevs_ap[,p] # Initialisation errors
   obj$errors$obsErrMult_spft          <- array(1, dim = c(nS,nP,nF,nT))
+
 
   # Random Walk with a trend for M in projections  
   if(ctlList$opMod$projM == 'ranWalkTrend')
@@ -4017,7 +4094,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   for( p in 1:nP)
   {
     obj$om$P_spft[,p,6,histdx]   <- repObj$pondC_pgt[p,6,histdx]
-    obj$om$psi_spft[,p,6,histdx] <- repObj$psi_t[histdx]
+    obj$om$psi_spft[,p,6,histdx] <- repObj$psi_pt[p,histdx]
   }
 
   message(" (.condMS3pop_SISCA) Running OM for historical period.\n")
@@ -4045,6 +4122,56 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
 
 
 } # END condMS3pop_SISCA()
+
+# .quantileStratSample()
+# Posterior sampling system for 2 leading parameters
+.quantileStratSample <- function( seed = NULL,
+                                  post = SOGtvMpost, par1 = "m", par2 = "sbo",
+                                  nBreaks = 10 )
+{
+  if( !is.null(seed) )
+    set.seed(seed)
+
+  browser(cat('line 4118....'))
+
+  pctiles <- seq(1/nBreaks,1,length = nBreaks)
+
+  par1 <- post[par1]
+
+
+  par1Quant <- quantile( x = post[par1], probs = pctiles )
+
+  par1Breaks <- c(0,par1Quant)
+
+  samples <- numeric(length = length(pctiles)^2 )
+
+  for( k in 1:nBreaks )
+    {
+      LB <- par1Breaks[k]
+      UB <- par1Breaks[k+1]
+
+      rowIdx1 <- which(post[,par1] > LB & post[,par1] <= UB  )
+      par2CondQuants <- quantile( x = post[rowIdx1,par2], probs = pctiles )
+      
+      par2CondBreaks <- c( 0, par2CondQuants )
+
+      for( j in 1:nBreaks )
+      {
+        condLB <- par2CondBreaks[j]
+        condUB <- par2CondBreaks[j+1]
+
+        rowIdx2 <- which( post[,par2] > condLB & post[,par2] <= condUB )
+
+        rowIdx <- intersect(rowIdx1, rowIdx2)
+        if(length(rowIdx) == 0) browser()
+        samples[j + (k-1)*nBreaks ] <- sample( x = rowIdx, size = 1 )
+      }
+
+    }  
+
+  samples
+}
+
 
 #------------------------------------------------------------------------------#
 #-- Natural Mortality functions.                                                    #
@@ -5232,7 +5359,7 @@ calcDiscSpawnN <- function(   lastFleetTime,
   return(obj)
 } # END .calcHistEffortDynamics()
 
-# convertSOK()
+# calcSOKpsi()
 # Converts landed SOK product to ponded fish for
 # accurate fishery removals. 
 calcSOKpsi <- function( N_axsp,
@@ -5281,7 +5408,7 @@ calcSOKpsi <- function( N_axsp,
                     psi_sp     = psi_sp )
 
   return(outList)
-} # END convertSOK()
+} # END calcSOKpsi()
 
 # .solveBaranov()
 # Generalised Newton-Rhapson solver or the Baranov

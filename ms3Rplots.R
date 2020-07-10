@@ -6,10 +6,127 @@
 # Author: SDN Johnson
 # Date: October 8, 2019
 #
-# Last Update: October 10, 2019
+# Last Update: July 9, 2020
 #
 # <><><><><><><><><><><><><><><><><><><><><><><><><><><>
 
+# genSimInfo()
+genSimInfo <- function(simFolder = here('mserproject'))
+{
+
+  # Read in sims
+  sims <- list.files(file.path(simFolder))
+  sims <- sims[grepl("sim",sims)]
+
+  readInfoFile <- function( sim )
+  {
+    infoPath <- file.path(simFolder,sim,'infoFile.txt' ) 
+    info <- lisread(infoPath)
+    info.df <- as.data.frame(info)
+    info.df$simLabel <- sim
+
+    info.df
+  }
+
+  # Read in info files, sort by  scenarios
+  info.df <- lapply( X = sims, FUN = readInfoFile )
+  info.df <- do.call( "rbind", info.df )
+
+}  #END genSimInfo()
+
+
+
+# multiSimBtIt()
+# Plot BtIt for same rep across different mp/scenario combinations
+multiSimBtIt <- function( iRep = 1,
+                           simFolder,
+                           OMs = c("rw5_loPondM, rw15_hiPondM"),
+                           MPs = c("NoFish"),
+                           yLimB     = c(0,22))
+
+
+{
+
+
+  info.df <- genSimInfo(simFolder=simFolder) %>%
+              mutate_if( is.factor, as.character) %>%
+              filter( scenario %in% OMs,
+                      mp %in% MPs )
+  
+  sims    <- expand.grid(OMs, MPs)
+  names(sims) <- c('OM','MP')
+        
+
+  # Set up plot environment 
+  par(mfcol = c(3,nrow(info.df) ), mar = c(1.5,1.5,0.5,1), 
+      oma = c( 3,4,1,0))
+
+  # Loop over MPs
+  for( i in 1:nrow(info.df) )
+  {
+    subDF <-  info.df %>%
+              filter( mp == sims$MP[i] &
+                      scenario == sims$OM[i])
+
+    simID <- subDF[1,"simLabel"]
+
+    simFile <- paste(simID,".RData",sep = "")
+    simPath <- file.path(simFolder,simID,simFile)
+
+    # Load blob
+    load(simPath)
+    
+    # Plot BtIt
+    plotBtIt_p(obj = blob, iRep = 1, f=5, addCatch=TRUE, 
+               parArg=FALSE, YlabOn=FALSE, legdOn=FALSE)
+
+    mtext(side = 3, text = paste(sims$OM[i],sims$MP[i]) , line = 33, cex = 1)
+
+  }
+
+  mtext( side =2, outer = TRUE, text = "Spawning biomass kt)", line = 1)
+
+
+            
+} # END multiSimBtCtRt()
+
+# plotHockeyStickHCR
+plotHockeyStickHCR <- function( LRP = .5, USR = .6,
+                                refHR = .1, 
+                                refHRaxis = NULL,
+                                refHRlab='Reference Harvest Rate', mpLab=NULL,
+                                refB = 1, yAXT='n',
+                                yLim = NULL,
+                                xLab=NULL, yLab='Harvest Rate')
+                                # xLab = expression(paste("Stock Status (",B[t]/B[MSY],")",sep = "")),
+                                # yLab = "Target Fishing Mortality (F)" )
+{
+  if(is.null(yLim))
+    yLim <- c(0,1.5*refHR)
+
+
+  plot( x = c(0,refB), y = yLim, type = "n", xlab = "", ylab = "", las = 1,
+        yaxt=yAXT )
+    segments( x0 = 0, x1 = LRP * refB, y0 = 0, lwd = 1.5 )
+    segments( x0 = LRP*refB, x1 = USR*refB, y0 = 0, y1 = refHR, lwd = 1.5 )
+    segments( x0 = USR*refB, x1 = refB, y0 = refHR, y1 = refHR, lwd = 1.5 )
+    abline( v = c(USR*refB, LRP * refB), lwd = .8, lty = 2)
+    abline( h = refHR, lty = 3, lwd = .8)
+    mtext( side = 1, text = xLab, line = 2 )
+    mtext( side = 2, text = yLab, line = 2 )
+
+    if(is.null(refHRaxis))
+      refHRaxis = refHR
+
+    if(!is.null(mpLab))
+      mtext( side = 4, text = mpLab, line = 0.5, cex=0.7 )
+
+
+    axis(side=2, at=c(0,refHR), tick=TRUE, labels=c('0',refHRaxis), las=1)
+    text(x=0.2,y=refHR+0.004, refHRlab)
+
+
+} # END plotHockeyStickHCR()
 
 # plotTACallocationError()
 # A multi-panel for understanding the
@@ -340,7 +457,7 @@ plotTulipBtCtBaseSim <- function( sim = 1,
         if( var == "C_ispt" & mfg[2] != 1 )
           axis( side = 2, las = 1)
         if( mfg[2] == mfg[4] )
-          mtext( side = 4, text = stockNames[p], line = 1.5)
+          mtext( side = 4, text = stockNames[p], line = 0.5)
         if( mfg[1] == 1 )
           mtext( side = 3, text = speciesNames[s])
         box()
@@ -2171,6 +2288,128 @@ plotConvStats <- function( obj = blob )
 
 }
 
+plotTulipHR <- function( obj = blob, nTrace = 3 )
+{
+  # Model dimensions
+  tMP     <- obj$om$tMP
+  nS      <- obj$om$nS
+  nP      <- obj$om$nP 
+  nT      <- obj$om$nT
+  nF      <- obj$om$nF
+
+  # Good replicates
+  goodReps <- obj$goodReps
+
+  # Pull target HR
+  Uref_p <- obj$ctlList$mp$hcr$Uref_p
+    
+  # Catch & Biomass series
+  C_ispt  <- obj$om$C_ispt[goodReps,,,,drop = FALSE]
+  C_ispft  <- obj$om$C_ispft[goodReps,,,,,drop = FALSE]
+  SB_ispt  <- obj$om$SB_ispt[goodReps,,,,drop = FALSE]
+
+  # Calculate Harvest rates by fleet and across all fleets
+  U_ispft <- array(NA, dim=c(sum(goodReps),nS,nP,nF,nT))
+  for (s in 1:nS)
+    for(f in 1:nF)
+      U_ispft[,s,,f,] <- C_ispft[,s,,f,]/(SB_ispt[,1:nS,,] + C_ispft[,s,,f,])
+
+  U_ispt <- C_ispt/(SB_ispt + C_ispt)
+
+  # Harvest rate envelopes
+  U_qspft <- apply(  X = U_ispft, FUN = quantile,
+                    MARGIN = c(2,3,4,5), probs = c(0.025, 0.5, 0.975),
+                    na.rm = T )
+
+  # Quantile for aggregate harvest rate
+  U_qspt <- apply(  X = U_ispt, FUN = quantile,
+                    MARGIN = c(2,3,4), probs = c(0.025, 0.5, 0.975),
+                    na.rm = T )
+
+  # fishing fleets
+  fishG  <- obj$ctlList$opMod$commGears
+  fleets <- obj$ctlList$opMod$fleets
+  fColrs <- brewer.pal(nF, 'Dark2')
+
+  nReps   <- dim(C_ispft)[1]
+
+  speciesNames  <- obj$om$speciesNames
+  stockNames    <- dimnames(obj$ctlList$opMod$histRpt$I_pgt)[[1]]
+  fYear         <- obj$ctlList$opMod$fYear
+
+  yrs <- seq( from = fYear, by = 1, length.out = nT)
+
+  traces <- sample( 1:nReps, size = min(nTrace,nReps)  )
+
+  par(  mfcol = c(nP,nS), 
+        mar = c(1,1.5,1,2),
+        oma = c(5,5,3,3) )
+
+  for(s in 1:nS)
+  {
+    for( p in 1:nP )
+    {
+      plot( x = range(yrs),
+            y = c(0,max(U_qspt[,s,p,], na.rm = T) ),
+            type = "n", axes = F, ylim=c(0,max(U_qspt[,s,p,], na.rm = T) ))
+
+      mfg <- par("mfg")
+      if( mfg[1] == mfg[3] )
+        axis( side = 1 )
+      if( mfg[1] == 1 )
+        mtext( side = 3, text = speciesNames[s], font = 2, line = 0 )
+      axis( side = 2, las = 1 )
+      if( mfg[2] == mfg[4] )
+      {
+        corners <- par("usr") #Gets the four corners of plot area (x1, x2, y1, y2)
+        par(xpd = TRUE) #Draw outside plot area
+        text(x = corners[2]+1, y = mean(corners[3:4]), stockNames[p], srt = 270,
+              font = 2, cex = 1.5 )
+        par(xpd = FALSE)
+      }
+
+      box()
+      grid()
+      
+      # plot one polygon for aggregate F
+      polygon(  x = c(yrs, rev(yrs)),
+                y = c(U_qspt[1,s,p,], rev(U_qspt[3,s,p,])),
+                col = "grey65", border = NA )
+      lines( x = yrs, y = U_qspt[2,s,p,], lwd = 1, lty=2 )
+
+      # plot individual lines for each fleet
+      for( f in fishG )
+      {
+        
+        if(sum(U_qspft[2,s,p,f,], na.rm=T)==0)
+          next()
+
+        lines( x = yrs, y = U_qspft[2,s,p,f,], col=fColrs[f], lwd = 1.5)
+        # for( tIdx in traces )
+        #   lines( x = yrs, y = C_ispft[tIdx,s,p,f,], lwd = .8 )
+      }
+
+      # abline(h=0, lwd=1.5)
+      abline( v = yrs[tMP], col = "grey30", lty = 3 )
+      abline( h = Uref_p[p], lty = 2, lwd = 1, col = "red")
+
+      legend('topright', bty='n', cex=0.8,
+              legend=c('total HR', fleets[fishG],'Target HR'),
+              lwd=c(1, rep(1,length(fishG)),1),
+              lty=c(2, rep(1,length(fishG)),3),
+              col=c('black',fColrs[fishG],'red')
+              )
+
+    }
+  }
+
+  mtext( side = 2, outer = TRUE, text = "Harvest Rate",
+          line = 2, font = 2)
+
+  mtext( side = 1, outer = TRUE, text = "Year",
+          line = 2, font = 2)
+}
+
 
 plotTulipF <- function( obj = blob, nTrace = 3 )
 {
@@ -2412,6 +2651,7 @@ plotTulipBt <- function(  obj = blob, nTrace = 3,
 
   if( dep )
   {
+
     if( ref == "B0" )
     {
       for( s in 1:nS )
@@ -2491,7 +2731,7 @@ plotTulipBt <- function(  obj = blob, nTrace = 3,
       {
         corners <- par("usr") #Gets the four corners of plot area (x1, x2, y1, y2)
         par(xpd = TRUE) #Draw outside plot area
-        text(x = corners[2]+3, y = mean(corners[3:4]), stockNames[p], srt = 270,
+        text(x = corners[2]+0.5, y = mean(corners[3:4]), stockNames[p], srt = 270,
               font = 2, cex = 1.5 )
         par(xpd = FALSE)
       }
@@ -2517,7 +2757,8 @@ plotTulipBt <- function(  obj = blob, nTrace = 3,
 
       abline( v = yrs[tMP], col = "grey30", lty = 3 )
       abline( h = B0_sp[s,p], lty = 2, col = "grey50", lwd = 2  )
-      abline( h = BmsySS_sp[s,p], lty = 3, col = "darkgreen", lwd = 2)
+      abline( h = 0.3*B0_sp[s,p], lty = 3, col = "darkgreen", lwd = 2)
+      # abline( h = BmsySS_sp[s,p], lty = 3, col = "darkgreen", lwd = 2)
 
       if( mfg[1] == 1 & mfg[2] == 1 & leg )
         legend( x = "topright", bty = "n",
@@ -2525,7 +2766,8 @@ plotTulipBt <- function(  obj = blob, nTrace = 3,
                             "Central 95%",
                             "Replicate Traces",
                             "Unfished",
-                            expression(B[MSY,MS])),
+                            "0.3B0"),
+                            # expression(B[MSY,MS])),
                 col = c(  "black", "grey65", "black",
                           "grey50", "darkgreen" ),
                 pch = c(NA,15, NA, NA, NA,NA),
@@ -2610,7 +2852,7 @@ plotTulipCt <- function(  obj = blob, nTrace = 3,
       {
         corners <- par("usr") #Gets the four corners of plot area (x1, x2, y1, y2)
         par(xpd = TRUE) #Draw outside plot area
-        text(x = corners[2]+3, y = mean(corners[3:4]), stockNames[p], srt = 270,
+        text(x = corners[2]+0.5, y = mean(corners[3:4]), stockNames[p], srt = 270,
               font = 2, cex = 1.5 )
         par(xpd = FALSE)
       }
@@ -3145,13 +3387,13 @@ plotBtCt_sp <- function(  obj = blob,
 
 # plotRetroSB()
 # Retrospective plots of AM fits for a given replicate
-plotRetroSB <- function( obj = blob, iRep = 1 )
+plotRetroSB <- function( obj = blob, iRep = 1, vB_f=2 )
 {
   # Get biomass arrays
-  SB_spt        <- obj$om$SB_ispt[iRep,,,]
-  VB_spt        <- obj$om$vB_ispft[iRep,,,2,]
-  totB_spt      <- obj$om$B_ispt[iRep,,,]
-  retroSB_tspt  <- obj$mp$assess$retroSB_itspt[iRep,,,,]
+  SB_ispt       <- obj$om$SB_ispt[iRep,,,,drop=FALSE]
+  VB_ispft      <- obj$om$vB_ispft[iRep,,,vB_f,,drop=FALSE]
+  totB_ispt     <- obj$om$B_ispt[iRep,,,,drop=F]
+  retroSB_itspt <- obj$mp$assess$retroSB_itspt[iRep,,,,,drop=FALSE]
 
   retroSB_tspt[retroSB_tspt < 0] <- NA
 
@@ -3178,7 +3420,7 @@ plotRetroSB <- function( obj = blob, iRep = 1 )
     for( p in 1:nP )
     {
       plot( x = range(yrs),
-            y = c(0,1.2*max(totB_spt[s,p,],VB_spt[s,p,],SB_spt[s,p,],na.rm = T) ),
+            y = c(0,1.2*max(totB_ispt[,s,p,],VB_ispft[,s,p,,],SB_ispt[,s,p,],na.rm = T) ),
             type = "n", axes = F )
 
       mfg <- par("mfg")
@@ -3197,19 +3439,118 @@ plotRetroSB <- function( obj = blob, iRep = 1 )
       }
       box()
       grid()
-      lines( x = yrs, y = SB_spt[s,p,], col = "red", lwd = 3 )
-      lines( x = yrs, y = VB_spt[s,p,], col = "grey40", lwd = 2, lty = 3 )
-      lines( x = yrs, y = totB_spt[s,p,], col = "black", lwd = 2 )
+      lines( x = yrs, y = SB_ispt[,s,p,], col = "red", lwd = 3 )
+      lines( x = yrs, y = VB_ispft[,s,p,,], col = "grey40", lwd = 2, lty = 3 )
+      lines( x = yrs, y = totB_ispt[,s,p,], col = "black", lwd = 2 )
       for( tt in 1:pT )
       {
         propTAC <- propTAC_spt[s,p,tMP + tt - 1]
-        lines( x = yrs, y = propTAC * retroSB_tspt[tt,s,p,], col = "grey60", lwd = 1 )
+        lines( x = yrs, y = retroSB_itspt[,tt,s,p,], col = "grey60", lwd = 1 )
       }
   
       abline( v = yrs[tMP] - 0.5, lty = 2, lwd = 0.5 )
     }
 
-}
+} # plotRetroSB()
+
+# plotBtIt_p()
+# Plot Biomass and index
+plotBtIt_p <- function( obj = blob, iRep = 1, f=5,
+                      plotVB=FALSE, addCatch=TRUE,
+                      parArg=TRUE, YlabOn= TRUE,
+                      legdOn=TRUE)
+{
+  # Get biomass arrays
+  SB_ispt     <- obj$om$SB_ispt
+  VB_ispft    <- obj$om$vB_ispft
+  I_ispt      <- obj$mp$data$I_ispft[,,,f,] 
+  # nS+1 and nP+1 for I_ispt represent aggregates
+
+  tMP     <- obj$om$tMP
+  nS      <- obj$om$nS
+  nP      <- obj$om$nP 
+  nT      <- obj$om$nT
+
+  # Hack to plot empirical assessment method for Herring projections
+  if(addCatch)
+  {
+    C_ispt <- obj$om$C_ispt
+    
+    for(s in 1:nS)
+      for(p in 1:nP)
+        I_ispt[,s,p,]<- I_ispt[,s,p,]+ C_ispt[,s,p,]
+
+  }  
+
+  speciesNames  <- obj$ctlList$opMod$species
+  stockNames    <- dimnames(obj$ctlList$opMod$histRpt$I_pgt)[[1]]
+  fYear         <- obj$ctlList$opMod$fYear
+  pT            <- obj$ctlList$opMod$pT
+
+  yrs <- seq( from = fYear, by = 1, length.out = nT)
+
+  if(parArg)
+  par(  mfcol = c(nP,nS), 
+        mar = c(1,1.5,1,1.5),
+        oma = c(3,3,3,3) )
+  for(s in 1:nS)
+    for( p in 1:nP )
+    {
+      plot( x = range(yrs),
+            y = c(0,max(VB_ispft[iRep,s,p,f,],
+                        SB_ispt[iRep,s,p,],
+                        I_ispt[iRep,s,p,], na.rm = T) ),
+            type = "n", axes = F )
+
+      mfg <- par("mfg")
+      if( mfg[1] == mfg[3] )
+        axis( side = 1 )
+      if( mfg[1] == 1 )
+        mtext( side = 3, text = speciesNames[s], font = 2, line = 0 )
+      axis( side = 2, las = 1 )
+
+      if( mfg[2] == mfg[4] )
+      {
+        corners <- par("usr") #Gets the four corners of plot area (x1, x2, y1, y2)
+        par(xpd = TRUE) #Draw outside plot area
+        text(x = corners[2]+1.5, y = mean(corners[3:4]), stockNames[p], srt = 270,font = 2, cex = 1.5 )
+        par(xpd = FALSE)
+      }
+      box()
+      grid()
+      lines( x = yrs, y = SB_ispt[iRep,s,p,], col = "red", lwd = 2 ) 
+
+      # plot vulnerable biomass
+      if(plotVB)
+      lines( x = yrs, y = VB_ispft[,s,p,,], col = "grey40", lwd = 2, lty = 3 )
+
+      # plot index
+      points( x = yrs, y = I_ispt[iRep,s,p,], 
+        bg = "green", pch=21, cex=1 )
+      
+      abline( v = yrs[tMP], lty = 2, lwd = 0.5 )
+
+      if(s==1 & p==1 & !addCatch & legdOn)
+      legend('topright',bty='n',
+             legend=c('Spawning Biomass',
+                      'Dive Survey Index'),
+             lwd=c(2,NA), pch=c(NA,21),
+             col=c('red','black'),
+             pt.bg=c(NA, 'green'))
+
+      if(s==1 & p==1 & addCatch & legdOn)
+      legend('topright',bty='n',
+             legend=c('Spawning Biomass',
+                      'It + Ct'),
+             lwd=c(2,NA), pch=c(NA,21),
+             col=c('red','black'),
+             pt.bg=c(NA, 'green'))
+    }
+
+  if(YlabOn)
+  mtext( side =2, outer = TRUE, text = "Spawning biomass kt)", line = 1.5)
+
+} # plotBtIt_p()
 
 
 
@@ -4039,6 +4380,7 @@ plotRE_spt <- function( repObj, omObj, nS = 1,
         true_spt[1:nS,p,]   <- repObj$SRdevs_pt[p,1:nT]
       else
         true_spt[1:nS,p,]   <- repObj$omegaR_pt[p,1:nT]
+
     }
 
     sigmaR <- repObj$sigmaR
@@ -4048,10 +4390,6 @@ plotRE_spt <- function( repObj, omObj, nS = 1,
   re_qspt  <- calcREdist( true = true_spt,
                           est  = est_spt,
                           marg = c(1,2,3) )
-
-  browser()
-
-
 
   stockCols <- RColorBrewer::brewer.pal(n = nP, "Dark2")
   stockLty <- rep(1,nP)
