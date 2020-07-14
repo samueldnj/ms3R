@@ -267,7 +267,7 @@ kable(  statTable, escape = FALSE,
 
 ```{r, plotConvergence, echo = FALSE, message = FALSE, fig.cap = convStatsCaption, results = "as-is" }
 if(   !(blob$ctlList$ctl$omni | blob$ctlList$ctl$perfConF)  & 
-    ( !blob$ctlList$mp$assess$method %in% c("idxBased","perfectInfo" ) ) )
+    ( !blob$ctlList$mp$assess$method %in% c("ItCt","idxBased","perfectInfo" ) ) )
 {
 
   cat(paste("## ", "Convergence diagnostics\n",sep = ""))

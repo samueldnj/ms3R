@@ -134,6 +134,9 @@ statTable      <- do.call(rbind, batchPerfStats)  %>%
                   select(scenario, mp, stock, pBtGt.3B0, nYrsSOK:catchAAV) %>%
                   arrange(scenario, -1*pBtGt.3B0, -1*nYrsSOK, -1*avgLicSOK, -1*nYrsComm)
 
+# save csv of statTable
+write.csv(statTable, file.path(batchDir,'batchReports','statTable.csv'), row.names=F)
+
 
 message("All simulation objects loaded and ready to make batch report")
 

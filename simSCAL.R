@@ -150,7 +150,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   # 2. Perform stock assessment
   obj  <- .callProcedureAM( obj, t )
 
-  # 3. Determine stock status and apply HCR to ser catch limit
+  # 3. Determine stock status and apply HCR to set catch limit
   if( ctlList$mp$hcr$type == "ramped")
     obj  <- .applyPrecHCR( obj, t )
 
@@ -478,7 +478,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
 
     if( prod(simObj$mp$assess$pdHess_tsp) == 1 | 
         prod(simObj$mp$assess$posSDs_tsp) == 1 | 
-        ctlList$mp$assess$method %in% c("idxBased","perfectInfo") )
+        ctlList$mp$assess$method %in% c("ItCt","idxBased","perfectInfo") )
       blob$goodReps[i] <- TRUE
 
     if( ctlList$ctl$omni | ctlList$ctl$perfConF )
@@ -930,6 +930,9 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   P_spft            <- om$P_spft
   psi_spft          <- om$psi_spft
   pondM_ft          <- om$pondM_ft
+
+  # Compute pulse limit
+  pulseLim_sp <- ctlList$opMod$pulseMfrac * B0_sp
 
   # Create a container to hold 
   # spawnN_aspx (for better array dim matching later)
@@ -1725,7 +1728,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
 
   # Get HCR quantities
   Uref_sp <- obj$rp$FmsyRefPts$Umsy_sp
-  Uref_sp[1,]   <- ctlList$mp$hcr$Uref_p
+  Uref_sp[1,]  <- ctlList$mp$hcr$Uref_p
 
   # Create control points
   Bref_sp <- obj$om$B0_sp
@@ -1744,9 +1747,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   idxF   <- obj$mp
 
   # Stock status
-  # projSB_sp   <- assess$retroSB_tspt[pt,,,t] 
-  # projVB_sp   <- assess$retroVB_tspft[pt,,,2,t]
-  projSB_p <- I_spft[1:nS,1:nP,5,t-1] + C_spt[,,t-1]
+  projSB_p  <- assess$retroSB_tspt[pt,,,t] 
 
   # Use the last two years of data in Spawn surface Survey
   # and calculate mean over time to get splitting weights
@@ -1778,7 +1779,6 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   # if speciesPooling=TRUE - MP for aggregated species (i.e. mixed fishery)
 
 
-
   # Spatial MP for stocks and separate MP for each species
   if( !ctlList$mp$data$spatialPooling & !ctlList$mp$data$speciesPooling )
   {
@@ -1807,7 +1807,26 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   # Aggregate MP for stocks and separate MP for each species
   if( ctlList$mp$data$spatialPooling & !ctlList$mp$data$speciesPooling )
   {
-    browser(cat('Aggregate MP for spatial pooling not yet implemented'))
+
+    for ( s in 1:nS )
+    {  
+
+        targU <- calcRampedHCR( B    = sum(projSB_p),
+                                LCP  = sum(hcr$LCP_spt[s,,t]),
+                                UCP  = sum(hcr$UCP_spt[s,,t]),
+                                Uref = Uref_sp[s,2],
+                                lowUmult = 0 )
+
+        # Total TAC for all areas
+        TAC <- targU*sum(projSB_p)
+
+        # Allocated TAC among areas in proportion to spawning biomass
+        propTAC_sp[s,] <- projSB_p/sum(projSB_p)
+
+        hcr$TAC_spt[s,,t] <- TAC*propTAC_sp[s,]
+
+    }
+            
 
   }
 
@@ -3462,6 +3481,61 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
 
 } # END .makeDatParHierProd
 
+# Apply ItCt index AM - this uses spawning biomass index + catch in that year
+.AM_ItCt <- function( obj, t )
+{
+  # Pull control list
+  ctlList <- obj$ctlList
+
+  # Get complex dims
+  nS  <- obj$om$nS
+  nP  <- obj$om$nP
+  nF  <- obj$om$nF
+  nT  <- obj$om$nT
+  tMP <- obj$om$tMP
+
+
+
+  # Calculate projection year
+  pt <- t - tMP + 1
+  pT <- ctlList$opMod$pT
+
+  # Pull data
+  I_spft <- obj$mp$data$I_spft
+  C_spt  <- obj$om$C_spt
+
+
+  # Stock status
+  projSB_pt <- I_spft[1:nS,1:nP,5,(tMP-1):(nT-1)] + C_spt[,,(tMP-1):(nT-1)]
+
+  for(s in 1:nS)
+  {  
+    for (p in 1:nP)
+    {
+      
+      obj$mp$assess$retroSB_tspt[pt:pT,s,p,t]    <- projSB_pt[p,pt:pT]
+      obj$mp$assess$retroVB_tspft[pt:pT,s,p,5,t] <- projSB_pt[p,pt:pT]  
+
+    }  
+
+  }  
+
+  if( ctlList$mp$hcr$Fref == "Umsy" )
+    obj$mp$hcr$Fref_spt[,,t]      <- obj$rp$FmsyRefPts$Umsy_sp
+
+  if( ctlList$mp$hcr$Fref == "Fmsy" )
+    obj$mp$hcr$Fref_spt[,,t]      <- obj$rp$FmsyRefPts$Fmsy_sp
+
+  if( ctlList$mp$hcr$Bref == "Bmsy" )
+    obj$mp$hcr$Bref_spt[,,t]      <- obj$rp$FmsyRefPts$BeqFmsy_sp  
+
+  if( ctlList$mp$hcr$Bref == "B0" )
+    obj$mp$hcr$Bref_spt[,,t]      <- obj$om$B0_sp
+  
+
+  return(obj)
+} # END .AM_ItCt()
+
 # Apply idx based AM - basically
 # a smoother of the last n
 # survey observations, scaled to
@@ -4010,7 +4084,6 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
         if(trendT < pT)
           M_pt[p,(tMP+trendT):nT] <- endM_p[p]* ranM[(trendT+1):pT]
 
-
         # PulseM
         if ( ctlList$opMod$pulseMFrq != 0 ) 
           pPulse   <- 1/ctlList$opMod$pulseMFrq                          
@@ -4024,7 +4097,9 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
         for (a in 2:nA)
         {
       
-          obj$om$M_axspt[a,,,p,tMP:nT]      <- M_pt[p,tMP:nT]
+          # obj$om$M_axspt[a,,,p,tMP:nT]      <- M_pt[p,tMP:nT]
+          # HACK: Set Mt to pulseMt, need to add B<0.3B0 condition into ageSexOpMod()')
+          obj$om$M_axspt[a,,,p,tMP:nT]      <- pulseM_pt[p,tMP:nT]
           obj$om$pulseM_axspt[a,,,p,tMP:nT] <- pulseM_pt[p,tMP:nT]
 
         }   

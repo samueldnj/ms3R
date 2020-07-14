@@ -415,7 +415,6 @@ makeStatTable <- function( sims = 1, folder = "" )
   {
     rp          <- obj$rp[[i]]
     B0_isp[i,,] <- rp$B0_sp
-
   } 
   
   # Bmsy_sp   <- rp$FmsyRefPts$BeqFmsy_sp
