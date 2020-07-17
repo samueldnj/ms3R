@@ -14,7 +14,7 @@ ctl$omni FALSE
 ctl$perfConF FALSE
 ctl$noProcErr FALSE
 mp$assess$assInt 1
-mp$assess$method "idxBased"
+mp$assess$method "ItCt"
 mp$assess$idxPoints 3
 mp$assess$idxScalar 1
 mp$assess$idxFleets 4
@@ -121,12 +121,13 @@ opMod$effortMod "targeting"
 opMod$pT 15
 opMod$projM 'ranWalkTrend'
 opMod$projMtrendT 15
-opMod$pondMmu_f c(0,0,0,0,0,0.314,0)
+opMod$pondMmu_f c(0,0,0,0,0,0.315,0)
 opMod$pondMlogSD_f c(0,0,0,0,0,0.2,0)
 opMod$sigmaM 0.024
 opMod$gammaM 0.997
 opMod$pulseMFrq 0
 opMod$pulseMSize 1
+opMod$pulseMfrac 0.3
 opMod$histFile "fit_MSbase_MCMC"
 opMod$posteriorSamples FALSE
 opMod$postSampleType 'random'

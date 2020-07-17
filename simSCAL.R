@@ -12,8 +12,8 @@
 # Last Update: B Doherty, May 7 2020
 #
 # TO DO:
-# - should Bmin in .calcHCR_ccRule() be compared to I_spt[s,p,t-1] or I_spt[s,p,t], I think it is I_spt[s,p,t] but this is NA for first projection year right now
 # - replace NAs with zeros for histroical Index in Lou
+# - add delta-log normal likelihood for spawn index to account for proabilitiy of detecting spawn event at low biomass
 #
 # <><><><><><><><><><><><><><><><><><><><><><><><><><><>
 
@@ -224,22 +224,23 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
 
 
   # OM lists
-  om <- list( iSeed_i   = rep(NA, nReps),
-              SB_ispt   = array( NA, dim = c(nReps, nS, nP, nT) ),      # SSB
-              B_ispt    = array( NA, dim = c(nReps, nS, nP, nT )),      # Total biomass
-              vB_ispft  = array( NA, dim = c(nReps, nS, nP, nF, nT )),  # Vulnerable biomass
-              R_ispt    = array( NA, dim = c(nReps, nS, nP, nT) ),      # Rec't
-              C_ispft   = array( NA, dim = c(nReps, nS, nP, nF, nT) ),  # Catch by fleet (kt)
-              C_ispt    = array( NA, dim = c(nReps, nS, nP, nT) ),      # Total catch (kt)
-              F_ispft   = array( NA, dim = c(nReps, nS, nP, nF, nT) ),  # Fishing Mort
-              P_ispft   = array( NA, dim = c(nReps, nS, nP, nF, nT ) ), # Ponded fish in biomass units
-              I_ispft   = array( NA, dim = c(nReps, nS+1, nP+1, nF, nT) ),  # Indices (without error)
-              E_ipft    = array( NA, dim = c(nReps, nP, nF, nT) ),      # Fishing effort
-              q_ispft   = array( NA, dim = c(nReps, nS, nP, nF, nT) ),  # Catchability
-              qF_ispft  = array( NA, dim = c(nReps, nS, nP, nF, nT) ),  # F/E
-              Rev_ispft = array( NA, dim = c(nReps, nS, nP, nF, nT ) ), # Revenue 
-              psi_ispft = array( NA, dim = c(nReps, nS, nP, nF, nT) ),   # SOK conversion rate 
-              M_iaxspt  = array( NA, dim = c(nReps, nA, nX, nS, nP, nT))  # Natural mortality             
+  om <- list( iSeed_i     = rep(NA, nReps),
+              SB_ispt     = array( NA, dim = c(nReps, nS, nP, nT) ),      # SSB
+              B_ispt      = array( NA, dim = c(nReps, nS, nP, nT )),      # Total biomass
+              vB_ispft    = array( NA, dim = c(nReps, nS, nP, nF, nT )),  # Vulnerable biomass
+              R_ispt      = array( NA, dim = c(nReps, nS, nP, nT) ),      # Rec't
+              C_ispft     = array( NA, dim = c(nReps, nS, nP, nF, nT) ),  # Catch by fleet (kt)
+              C_ispt      = array( NA, dim = c(nReps, nS, nP, nT) ),      # Total catch (kt)
+              F_ispft     = array( NA, dim = c(nReps, nS, nP, nF, nT) ),  # Fishing Mort
+              P_ispft     = array( NA, dim = c(nReps, nS, nP, nF, nT ) ), # Ponded fish in biomass units
+              I_ispft     = array( NA, dim = c(nReps, nS+1, nP+1, nF, nT) ),  # Indices (without error)
+              E_ipft      = array( NA, dim = c(nReps, nP, nF, nT) ),      # Fishing effort
+              q_ispft     = array( NA, dim = c(nReps, nS, nP, nF, nT) ),  # Catchability
+              qF_ispft    = array( NA, dim = c(nReps, nS, nP, nF, nT) ),  # F/E
+              Rev_ispft   = array( NA, dim = c(nReps, nS, nP, nF, nT ) ), # Revenue 
+              psi_ispft   = array( NA, dim = c(nReps, nS, nP, nF, nT) ),   # SOK conversion rate 
+              pondM_ift   = array( NA, dim = c(nReps, nF, nT) ),           # post ponding mortality 
+              M_iaxspt    = array( NA, dim = c(nReps, nA, nX, nS, nP, nT)) # Natural mortality             
             )
 
   om$errors  <- list( omegaR_ispt = array( NA, dim = c(nReps, nS, nP, nT) ),    # Rec Proc Errors
@@ -427,21 +428,22 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     # Fill blob for the current replicate
 
     # Operating model
-    blob$om$SB_ispt[i,,,]     <- simObj$om$SB_spt
-    blob$om$B_ispt[i,,,]      <- simObj$om$B_spt
-    blob$om$vB_ispft[i,,,,]   <- simObj$om$vB_spft
-    blob$om$R_ispt[i,,,]      <- simObj$om$R_spt
-    blob$om$C_ispft[i,,,,]    <- simObj$om$C_spft
-    blob$om$C_ispt[i,,,]      <- simObj$om$C_spt
-    blob$om$F_ispft[i,,,,]    <- simObj$om$F_spft
-    blob$om$I_ispft[i,,,,]    <- simObj$om$I_spft
-    blob$om$E_ipft[i,,,]      <- simObj$om$E_pft
-    blob$om$q_ispft[i,,,,]    <- simObj$om$q_spft
-    blob$om$qF_ispft[i,,,,]   <- simObj$om$qF_spft
-    blob$om$Rev_ispft[i,,,,]  <- simObj$om$Rev_spft
-    blob$om$P_ispft[i,,,,]    <- simObj$om$P_spft
-    blob$om$psi_ispft[i,,,,]  <- simObj$om$psi_spft
-    blob$om$M_iaxspt[i,,,,,]  <- simObj$om$M_axspt
+    blob$om$SB_ispt[i,,,]       <- simObj$om$SB_spt
+    blob$om$B_ispt[i,,,]        <- simObj$om$B_spt
+    blob$om$vB_ispft[i,,,,]     <- simObj$om$vB_spft
+    blob$om$R_ispt[i,,,]        <- simObj$om$R_spt
+    blob$om$C_ispft[i,,,,]      <- simObj$om$C_spft
+    blob$om$C_ispt[i,,,]        <- simObj$om$C_spt
+    blob$om$F_ispft[i,,,,]      <- simObj$om$F_spft
+    blob$om$I_ispft[i,,,,]      <- simObj$om$I_spft
+    blob$om$E_ipft[i,,,]        <- simObj$om$E_pft
+    blob$om$q_ispft[i,,,,]      <- simObj$om$q_spft
+    blob$om$qF_ispft[i,,,,]     <- simObj$om$qF_spft
+    blob$om$Rev_ispft[i,,,,]    <- simObj$om$Rev_spft
+    blob$om$P_ispft[i,,,,]      <- simObj$om$P_spft
+    blob$om$psi_ispft[i,,,,]    <- simObj$om$psi_spft
+    blob$om$pondM_ift[i,,]      <- simObj$om$pondM_ft
+    blob$om$M_iaxspt[i,,,,,]    <- simObj$om$M_axspt
 
     # Errors - maybe update simObj structure to match blob here
     blob$om$errors$omegaR_ispt[i,,,]  <- simObj$errors$omegaR_spt
@@ -863,6 +865,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   SB_spt            <- om$SB_spt
   B_spt             <- om$B_spt
   Z_axspt           <- om$Z_axspt
+
   
   # Catch
   C_axspft          <- om$C_axspft
@@ -937,6 +940,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   # Create a container to hold 
   # spawnN_aspx (for better array dim matching later)
   spawnN_axsp       <- array(0, dim = c(nA,nX,nS,nP) )
+
 
   # loop over stocks to calculate numbers for historical period
   tInit_p <- om$tInit_p + 1
@@ -1013,6 +1017,28 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
 
   # Compute total biomass at beginning of time step
   B_spt[,,t]    <- apply( X = B_axspt[,,,,t,drop = FALSE], FUN = sum, MARGIN = 3:4, na.rm = T )
+
+  # Switch out Mt for pulseMt if spawning biomass is below the pulse limit
+  if( t >= tMP )
+  {
+    
+
+    # # Compute total spawning biomass at beginning of time step
+    # SB_axsp <- array(NA, dim=c(nA,nX,nS,nP))
+    # for(x in 1:nX)
+    #   SB_axsp[,x,,] <- B_axspt[,x,,,t]  * matAge_asp[,1,]
+
+    #   SB_sp <- apply( X = SB_axsp, FUN = sum, MARGIN = 3:4, na.rm = T )
+  
+  
+    for(s in 1:nS)
+      for(p in 1:nP)
+      {
+        if( SB_spt[s,p,t-1] < pulseLim_sp[s,p] ) 
+          M_axspt[2:nA,,s,p,t] <- obj$om$pulseM_axspt[2:nA,,s,p,t]
+      }  
+
+  }
 
 
   # Now calculate effort for each area (for closed loop sim)
@@ -1122,6 +1148,9 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
 
     } # END F approximation
 
+
+
+
     # Now generate Z
     for( s in 1:nS )
       for( p in 1:nP )
@@ -1158,6 +1187,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     spawnN_axsp[1:nA,,,]  <- N_axspt[,,,,t] * exp( - spawnTiming * Z_axspt[,,,,t] )
 
   }
+
 
   # Discrete removals
   if( ctlList$opMod$Ftype == "disc" )
@@ -4055,7 +4085,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
       # Natural mortality: lag-1 autocorrelated, log-normal process errors,
       #                    No linear trend, or 50% higher during pulse yrs
       M_pt        <- obj$om$M_axspt[2,1,1,,]
-      pulseM_pt   <- M_pt
+      pulseM_pt   <- array(NA, dim=c(nP,nT))
       endM_p      <- apply(M_pt[,1:tMP-1], FUN=mean, MARGIN=1)
 
       # Random walk M scaled to mean==1
@@ -4091,15 +4121,13 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
         nPulse   <- rbinom( n=1, size=pT, prob=pPulse ) # number of events to sample
         pulseYrs <- sample( x=tMP:nT, size=nPulse, replace=FALSE) # sampled years 
         pulseM_pt[p,] <- M_pt[p,]
-        pulseM_pt[p,pulseYrs] <- pulseM_pt[pulseYrs] * ctlList$opMod$pulseMSize 
+        pulseM_pt[p,pulseYrs] <- pulseM_pt[p,pulseYrs] * ctlList$opMod$pulseMSize 
 
         # Output a base version and a pulse version
         for (a in 2:nA)
         {
       
-          # obj$om$M_axspt[a,,,p,tMP:nT]      <- M_pt[p,tMP:nT]
-          # HACK: Set Mt to pulseMt, need to add B<0.3B0 condition into ageSexOpMod()')
-          obj$om$M_axspt[a,,,p,tMP:nT]      <- pulseM_pt[p,tMP:nT]
+          obj$om$M_axspt[a,,,p,tMP:nT]      <- M_pt[p,tMP:nT]
           obj$om$pulseM_axspt[a,,,p,tMP:nT] <- pulseM_pt[p,tMP:nT]
 
         }   

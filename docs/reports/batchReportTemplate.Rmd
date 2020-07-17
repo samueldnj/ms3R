@@ -131,8 +131,10 @@ stockNames   <- blob$om$stockNames
 batchPerfStats <- lapply( X = batchBlobs, FUN = .simPerfStats, inclAgg=TRUE, exclNoTAC=TRUE )
 
 statTable      <- do.call(rbind, batchPerfStats)  %>%
-                  select(scenario, mp, stock, pBtGt.3B0, nYrsSOK:catchAAV) %>%
+                  select(scenario, mp, stock, pBtGt.3B0, pBtGt.5B0, pUtGt.1HR:catchAAV) %>%
                   arrange(scenario, -1*pBtGt.3B0, -1*nYrsSOK, -1*avgLicSOK, -1*nYrsComm)
+
+statTable$avgSOK_1000lbs <- statTable$avgSOK_t/0.453592
 
 # save csv of statTable
 write.csv(statTable, file.path(batchDir,'batchReports','statTable.csv'), row.names=F)

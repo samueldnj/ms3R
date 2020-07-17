@@ -1,0 +1,50 @@
+# Batch Control File, created Sun Mar 22 02:19:24 2020 by makeBatchDesign() 
+parameter value
+#
+# Scenarios 
+#
+# Scenario 1 : DDM_loPondM
+#
+scenario$scenario1$ctl$scenarioName "DDM_loPondM"
+scenario$scenario1$opMod$projMtrendT 15
+scenario$scenario1$opMod$pondMmu_f c(0,0,0,0,0,0.315,0)
+scenario$scenario1$opMod$pulseMFrq 16
+scenario$scenario1$opMod$pulseMSize 1.5
+scenario$scenario1$opMod$pulseMfrac 0.3
+#
+# Management Procedures 
+#
+# MP 1 : aggSR_HS30-60_HR.1
+#
+mp$mp1$ctl$mpName 'aggSR_HS30-60_HR.1'
+mp$mp1$mp$data$spatialPooling TRUE
+mp$mp1$mp$hcr$LCP .3
+mp$mp1$mp$hcr$LCP .6
+mp$mp1$mp$hcr$fishF c(0,1,0,0,0,0,0)
+mp$mp1$mp$hcr$sokClosedEff_p c(0,0,0)
+mp$mp1$mp$hcr$sokOpenEff_p c(0,0,0)
+mp$mp1$mp$hcr$Uref_p c(0,0.1,0)
+#
+# MP 2 : aggSR_HS50-60_HR.1
+#
+mp$mp2$ctl$mpName 'aggSR_HS50-60_HR.1'
+mp$mp2$mp$data$spatialPooling TRUE
+mp$mp2$mp$hcr$LCP .5
+mp$mp2$mp$hcr$LCP .6
+mp$mp2$mp$hcr$fishF c(0,1,0,0,0,0,0)
+mp$mp2$mp$hcr$sokClosedEff_p c(0,0,0)
+mp$mp2$mp$hcr$sokOpenEff_p c(0,0,0)
+mp$mp2$mp$hcr$Uref_p c(0,0.1,0)
+#
+# MP 3 : NoFish
+#
+mp$mp3$ctl$mpName 'NoFish'
+mp$mp3$mp$data$spatialPooling TRUE
+mp$mp3$mp$hcr$LCP .5
+mp$mp3$mp$hcr$LCP .6
+mp$mp3$mp$hcr$fishF c(0,0,0,0,0,0,0)
+mp$mp3$mp$hcr$sokClosedEff_p c(0,0,0)
+mp$mp3$mp$hcr$sokOpenEff_p c(0,0,0)
+mp$mp3$mp$hcr$Uref_p c(0,0,0)
+#
+# <End File> 

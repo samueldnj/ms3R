@@ -1,4 +1,4 @@
-# job10.txt: mseR parameter file written Tue Jul  7 11:18:30 2020.
+# job10.txt: mseR parameter file written Thu Jul 16 21:16:55 2020.
 parameter value
 ctl$scenarioName "rw15_hiPondM"
 ctl$mpName 'NoFish'
@@ -14,7 +14,7 @@ ctl$omni FALSE
 ctl$perfConF FALSE
 ctl$noProcErr FALSE
 mp$assess$assInt 1
-mp$assess$method "idxBased"
+mp$assess$method "ItCt"
 mp$assess$idxPoints 3
 mp$assess$idxScalar 1
 mp$assess$idxFleets 4
@@ -127,6 +127,7 @@ opMod$sigmaM 0.024
 opMod$gammaM 0.997
 opMod$pulseMFrq 0
 opMod$pulseMSize 1
+opMod$pulseMfrac 0.3
 opMod$histFile "fit_MSbase_MCMC"
 opMod$posteriorSamples FALSE
 opMod$postSampleType 'random'

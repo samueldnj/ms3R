@@ -378,6 +378,11 @@ makeStatTable <- function( sims = 1, folder = "" )
                   "medProbPDH_sp",
                   "pGoodReps",
                   "pBtGt.3B0", 
+                  "pBtGt.5B0", 
+                  "pBtGt.6B0",
+                  "pCtGt650t",
+                  "pUtGt.1HR",
+                  "avgUtGt0.1HR",
                   # "PBtGt.8Bmsy",
                   # "pBtGtBmsy",
                   # "pCtGtMSY", 
@@ -447,12 +452,48 @@ makeStatTable <- function( sims = 1, folder = "" )
     psi_ispft    <- om$psi_ispft[allConvReps,,,,,drop = FALSE]
     SOK_ispft    <- P_ispft*psi_ispft
     SOK_ispt     <- apply(SOK_ispft[,,,6:7,,drop=FALSE], FUN=sum, MARGIN=c(1,2,3,5))
+
+    # Harvest rate
+
+    # calculate dead ponded fish
+    pondM_it   <- om$pondM_ift[allConvReps,6,]
+    deadP_ispt <- apply(C_ispft[,,,6,,drop=FALSE], FUN=sum, MARGIN=c(1,2,3,5))
+
+    for(i in 1:nGoodReps)
+      for(s in 1:nS)
+        for(p in 1:nP)
+      deadP_ispt[i,s,p,] <- deadP_ispt[i,s,p,]*(1-exp(-1*pondM_it[i,]))
+
+    U_ispt   <- (C_ispt+deadP_ispt)/(SB_ispt + C_ispt + deadP_ispt)
+    Uref_isp <- array(0.1, dim = c(nGoodReps,nS,nP))
+    
     
     # Calculate probability that Bt above LRP
     pBtGt.3B0_sp <- .calcStatsProportion(   TS_ispt = SB_ispt,
                                             ref_isp = B0_isp,
                                             tdx = tMP:nT,
                                             prop = .3,
+                                            nS = nS,
+                                            nP = nP )
+
+    pBtGt.5B0_sp <- .calcStatsProportion(   TS_ispt = SB_ispt,
+                                            ref_isp = B0_isp,
+                                            tdx = tMP:nT,
+                                            prop = .5,
+                                            nS = nS,
+                                            nP = nP )
+
+    pBtGt.6B0_sp <- .calcStatsProportion(   TS_ispt = SB_ispt,
+                                            ref_isp = B0_isp,
+                                            tdx = tMP:nT,
+                                            prop = .6,
+                                            nS = nS,
+                                            nP = nP )
+
+    pUGt.1_sp <- .calcStatsProportion(      TS_ispt = U_ispt,
+                                            ref_isp = Uref_isp,
+                                            tdx = tMP:nT,
+                                            prop = 1,
                                             nS = nS,
                                             nP = nP )
 
@@ -488,11 +529,21 @@ makeStatTable <- function( sims = 1, folder = "" )
     #                                       nS = nS,
     #                                       nP = nP )
 
+    # Calculate median harvest rate when U>0.1, set NAs for all values <=0.1
+    overFishU_ispt <- U_ispt
+    overFishU_ispt[overFishU_ispt<=0.1] <-NA
+    overFishUbar_isp <- apply( X = overFishU_ispt[,,,tMP:nT,drop = FALSE], FUN = mean, MARGIN = c(1,2,3), na.rm = T)
+    overFishUbar_sp <- apply( X = overFishUbar_isp[,,,drop = FALSE], FUN = mean, MARGIN = c(2,3), na.rm = T)
+
     # Calculate number of years that fisheries are open
     sokYrs_ispt <- P_ispt 
     commYrs_ispt <- C_ispt
     sokYrs_ispt[sokYrs_ispt>0]   <-1
     commYrs_ispt[commYrs_ispt>0] <-1
+
+    # sokYrsBar_isp  <- apply( X = sokYrs_ispt[,,,tMP:nT,drop = FALSE], FUN = sum, MARGIN = c(1,2,3))
+    # apply( X = sokYrsBar_isp[,,,drop=FALSE], FUN = mean, MARGIN = c(2,3))
+    # Same result as below.
 
     sokYrsBar_spt  <- apply( X = sokYrs_ispt[,,,,drop = FALSE], FUN = mean, MARGIN = c(2,3,4))
     sokYrsBar_sp   <- apply( X = sokYrsBar_spt[,,tMP:nT,drop = FALSE], FUN = sum, MARGIN = c(1,2))
@@ -596,22 +647,26 @@ makeStatTable <- function( sims = 1, folder = "" )
 
         # Conservation performance
         statTable[rowIdx,"pBtGt.3B0"]     <- round(pBtGt.3B0_sp[s,p],2)
-        # statTable[rowIdx,"pBtGt.4Bmsy"]     <- round(pBtGt.4Bmsy_sp[s,p],2)
-        # statTable[rowIdx,"PBtGt.8Bmsy"]     <- round(pBtGt.8Bmsy_sp[s,p],2)
+        statTable[rowIdx,"pBtGt.5B0"]     <- round(pBtGt.5B0_sp[s,p],2)
+        statTable[rowIdx,"pBtGt.6B0"]     <- round(pBtGt.6B0_sp[s,p],2)
+        
         # statTable[rowIdx,"pBtGtBmsy"]       <- round(pBtGtBmsy_sp[s,p],2)
         # statTable[rowIdx,"pCtGtMSY"]        <- round(pCtGtMSY_sp[s,p],2)
         # statTable[rowIdx,"pFtGtFmsy"]       <- round(pFtGtFmsy_sp[s,p],2)
 
         # Catch statistics
-        statTable[rowIdx,"nYrsSOK"]         <- round(sokYrsBar_sp[s,p],1)
-        statTable[rowIdx,"nYrsComm"]        <- round(commYrsBar_sp[s,p],1)
+        statTable[rowIdx,"pUtGt.1HR"]       <- round(pUGt.1_sp[s,p],3)
+        statTable[rowIdx,"avgUtGt0.1HR"]     <- round(overFishUbar_sp[s,p],2)
 
-        statTable[rowIdx,"avgCatch_t"]      <- round(Cbar_sp[s,p]*1e3,1)
-        statTable[rowIdx,"catchAAV"]        <- round(catchAAV_sp[s,p]*1e2,1)
-        statTable[rowIdx,"avgPonded_t"]     <- round(Pbar_sp[s,p]*1e3,1)
-        statTable[rowIdx,"pondAAV"]         <- round(pondAAV_sp[s,p]*1e2,1)
-        statTable[rowIdx,"avgSOK_t"]        <- round(SOKbar_sp[s,p]*1e3,1)
-        statTable[rowIdx,"avgLicSOK"]       <- round(Lbar_sp[s,p],1)
+        statTable[rowIdx,"nYrsSOK"]       <- round(sokYrsBar_sp[s,p],1)
+        statTable[rowIdx,"nYrsComm"]      <- round(commYrsBar_sp[s,p],1)
+
+        statTable[rowIdx,"avgCatch_t"]    <- round(Cbar_sp[s,p]*1e3,1)
+        statTable[rowIdx,"catchAAV"]      <- round(catchAAV_sp[s,p]*1e2,1)
+        statTable[rowIdx,"avgPonded_t"]   <- round(Pbar_sp[s,p]*1e3,1)
+        statTable[rowIdx,"pondAAV"]       <- round(pondAAV_sp[s,p]*1e2,1)
+        statTable[rowIdx,"avgSOK_t"]      <- round(SOKbar_sp[s,p]*1e3,1)
+        statTable[rowIdx,"avgLicSOK"]     <- round(Lbar_sp[s,p],1)
 
         # statTable[rowIdx,"avg_cSOKlic"]     <- round(cSOKbar_sp[s,p],1)
         # statTable[rowIdx,"avg_oSOKlic"]     <- round(oSOKbar_sp[s,p],1)
@@ -628,10 +683,16 @@ makeStatTable <- function( sims = 1, folder = "" )
       L_ispft <- mp$hcr$sokEff_ispft [allConvReps,,,,,drop = FALSE]
 
       
-      # Calculate probability that SBt above LRP
-      SB_it <- apply(SB_ispt, MARGIN=c(1,4), FUN=sum, drop=FALSE)
-      B0_i     <- apply(B0_isp, MARGIN=1, FUN=sum)
+      # Calculate probability that Bt and Ct above certain thresholds
+      SB_it     <- apply(SB_ispt, MARGIN=c(1,4), FUN=sum, drop=FALSE)
+      B0_i      <- apply(B0_isp, MARGIN=1, FUN=sum)
+      C_it      <- apply(C_ispt, MARGIN=c(1,4), FUN=sum, drop=FALSE, na.rm=T)
+      deadP_it  <- apply(deadP_ispt, MARGIN=c(1,4), FUN=sum, drop=FALSE, na.rm=T)
 
+      # Calculate aggreate harvest rate
+      U_it   <- (C_it+deadP_it)/(SB_it + C_it + deadP_it)
+      Uref_i   <- rep(0.1, nGoodReps)
+    
 
       pBtGt.3B0_agg <- .calcStatsProportionAgg(   TS_it = SB_it,
                                                   ref_i = B0_i,
@@ -639,6 +700,41 @@ makeStatTable <- function( sims = 1, folder = "" )
                                                   prop = .3,
                                                   nS = 1,
                                                   nP = 1 )
+
+      pBtGt.5B0_agg <- .calcStatsProportionAgg(   TS_it = SB_it,
+                                                  ref_i = B0_i,
+                                                  tdx = tMP:nT,
+                                                  prop = .5,
+                                                  nS = 1,
+                                                  nP = 1 )
+
+      pBtGt.6B0_agg <- .calcStatsProportionAgg(   TS_it = SB_it,
+                                                  ref_i = B0_i,
+                                                  tdx = tMP:nT,
+                                                  prop = .6,
+                                                  nS = 1,
+                                                  nP = 1 )
+
+      pCtGt650_agg <- .calcStatsProportionAgg(    TS_it = C_it,
+                                                  ref_i = rep(0.650,nGoodReps),
+                                                  tdx = tMP:nT,
+                                                  prop = 1,
+                                                  nS = 1,
+                                                  nP = 1 )
+
+      pUGt.1_agg <- .calcStatsProportionAgg(      TS_it = U_it,
+                                                  ref_i = Uref_i,
+                                                  tdx = tMP:nT,
+                                                  prop = 1,
+                                                  nS = nS,
+                                                  nP = nP )
+
+      # Calculate average harvest rate when U>0.1, set NAs for all values <=0.1
+      overFishU_it <- U_it
+      overFishU_it[overFishU_it<=0.1] <-NA
+      overFishUbar_i <- apply(X = overFishU_it[,tMP:nT,drop = FALSE], FUN = mean, MARGIN = 1, na.rm = T)
+      overFishUbar_agg <- mean(overFishUbar_i,na.rm=T)
+
 
       # number of years with SOK or commercial fishing at aggregate level
       sokYrs_it                 <- apply(P_ispt, FUN=sum, MARGIN=c(1,4), na.rm=T)
@@ -723,8 +819,13 @@ makeStatTable <- function( sims = 1, folder = "" )
       
       # Conservation
       aggRow[,"pBtGt.3B0"]     <- round(pBtGt.3B0_agg,2)
+      aggRow[,"pBtGt.5B0"]     <- round(pBtGt.5B0_agg,2)
+      aggRow[,"pBtGt.6B0"]     <- round(pBtGt.6B0_agg,2)
       
-      # commercial catch 
+      # commercial catch
+      aggRow[,"pUtGt.1HR"]       <- round(pUGt.1_agg,3)
+      aggRow[,"avgUtGt0.1HR"]    <- round(overFishUbar_agg,2)
+      aggRow[,"pCtGt650t"]     <- round(pCtGt650_agg,2)
       aggRow[,"nYrsComm"]      <- round(commYrsBar_agg,1)
       aggRow[,"avgCatch_t"]    <- round(Cbar_agg*1e3,1)
       aggRow[,"catchAAV"]      <- round(catchAAV_agg*1e2,2)
