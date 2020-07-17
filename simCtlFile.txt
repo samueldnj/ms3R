@@ -1,7 +1,7 @@
 # simCtlFile.txt, written to sim_16062020153904on 1592347145
 parameter value
-ctl$scenarioName "ranWalkM_lowPondM"
-ctl$mpName 'NoFish'
+ctl$scenarioName "rw15DDM_loPondM"
+ctl$mpName "cSOK_0.1HR_spatialMP"
 ctl$quiet FALSE
 ctl$phaseMessages TRUE
 ctl$optimOutput TRUE
@@ -70,13 +70,13 @@ mp$hcr$type "hgRule"
 mp$hcr$spatial FALSE
 mp$hcr$Bref "Bmsy"
 mp$hcr$Fref "Umsy"
-mp$hcr$Uref_p c(0,0,0)
-mp$hcr$LCP .3
+mp$hcr$Uref_p c(0.1,0.1,0)
+mp$hcr$LCP .5
 mp$hcr$UCP .6
 mp$hcr$maxDeltaTACup NULL
 mp$hcr$minTAC_f c(1,0.300,0.100,0,0,0.0907,0.0317)
 mp$hcr$psi 0.066
-mp$hcr$fishF c(0,0,0,0,0,0,0)
+mp$hcr$fishF c(0,0,0,0,0,1,0)
 mp$hcr$sokClosedEff_p c(1,9,0)
 mp$hcr$sokOpenEff_p c(0,0,0)
 mp$omni$nKnots 9

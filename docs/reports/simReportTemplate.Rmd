@@ -263,6 +263,22 @@ kable(  statTable, escape = FALSE,
 
 ```
 
+```{r, bridgingTable, echo = FALSE }
+
+bridgeTable <- .simPerfStats( obj = blob, inclAgg=TRUE, exclNoTAC=FALSE ) %>%
+              select(stock, pBtGt.3B0, pBtGt.6B0, catchAAV, avgCatch_t, pCtGt650t)
+
+# statTable <- dplyr::select('stock', )
+
+kable(  bridgeTable , escape = FALSE, 
+        caption = "Performance statistics for Bridging Analysis.", booktabs = T,
+        align = rep("c",ncol(bridgeTable))) %>%
+  kable_styling( latex_options = c("striped", "scale_down","hold_position"),
+                 bootstrap_options = c("striped", "hover"))
+
+```
+
+
 
 
 ```{r, plotConvergence, echo = FALSE, message = FALSE, fig.cap = convStatsCaption, results = "as-is" }
