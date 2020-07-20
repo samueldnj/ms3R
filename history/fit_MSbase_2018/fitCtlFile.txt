@@ -13,6 +13,7 @@ ctrl$max_treedepth 14
 ctrl$quiet FALSE
 ctrl$calcSD TRUE
 ctrl$maxPhase 10
+ctrl$iscamRep "HG2018.rep"
 data$fleetnames_g c("reduction","seineRoe","gillnet","surface","dive","SOK")
 data$nA 10
 data$minAge 3
