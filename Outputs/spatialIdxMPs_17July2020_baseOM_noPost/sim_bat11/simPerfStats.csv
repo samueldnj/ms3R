@@ -1,0 +1,4 @@
+"","simLabel","scenario","mp","species","stock","projObsErrMult","nGoodReps","medProbPDH_sp","pGoodReps","pBtGt.3B0","pBtGt.5B0","pBtGt.6B0","pCtGt650t","pUtGt.1HR","avgUtGt0.1HR","nYrsSOK","avgLicSOK","avgPonded_t","avgSOK_t","pondAAV","nYrsComm","avgCatch_t","catchAAV"
+"1","sim_bat11","rw5_loPondM","cSOK_0.1HR_spatialMP","HG Herring","C/S",1,100,0,1,0.88,0.51,0.4,NA,0,NA,5.8,0.4,40.7,2.8,100,0,0,0
+"2","sim_bat11","rw5_loPondM","cSOK_0.1HR_spatialMP","HG Herring","JP/S",1,100,0,1,0.92,0.52,0.39,NA,0.001,0.17,7.9,4.6,488.1,33.5,91.3,0,0,0
+"3","sim_bat11","rw5_loPondM","cSOK_0.1HR_spatialMP","HG Herring","Lou",1,100,0,1,1,0.91,0.73,NA,0,NA,0,0,0,0,0,0,0,0

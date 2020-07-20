@@ -1,7 +1,7 @@
-# job5.txt: mseR parameter file written Thu Jul 16 21:16:55 2020.
+# job5.txt: mseR parameter file written Fri Jul 17 15:54:44 2020.
 parameter value
-ctl$scenarioName "rw15_loPondM"
-ctl$mpName 'NoFish'
+ctl$scenarioName "DDM2018_loPondM"
+ctl$mpName 'aggSR_HS50-60_HR.1'
 ctl$quiet FALSE
 ctl$phaseMessages TRUE
 ctl$optimOutput TRUE
@@ -60,7 +60,7 @@ mp$assess$spSkewYieldCurves TRUE
 mp$assess$spEstExpBio TRUE
 mp$data$idxOn c(5)
 mp$data$obsInt_i c(1)
-mp$data$spatialPooling FALSE
+mp$data$spatialPooling TRUE
 mp$data$speciesPooling FALSE
 mp$data$idxType c(1,1,1,1,3,1,1)
 mp$data$source "cond"
@@ -70,13 +70,13 @@ mp$hcr$type "hgRule"
 mp$hcr$spatial FALSE
 mp$hcr$Bref "Bmsy"
 mp$hcr$Fref "Umsy"
-mp$hcr$Uref_p c(0,0,0)
+mp$hcr$Uref_p c(0,0.1,0)
 mp$hcr$LCP .5
 mp$hcr$UCP .6
 mp$hcr$maxDeltaTACup NULL
 mp$hcr$minTAC_f c(1,0.300,0.100,0,0,0.0907,0.0317)
 mp$hcr$psi 0.066
-mp$hcr$fishF c(0,0,0,0,0,0,0)
+mp$hcr$fishF c(0,1,0,0,0,0,0)
 mp$hcr$sokClosedEff_p c(0,0,0)
 mp$hcr$sokOpenEff_p c(0,0,0)
 mp$omni$nKnots 9
@@ -125,10 +125,10 @@ opMod$pondMmu_f c(0,0,0,0,0,0.315,0)
 opMod$pondMlogSD_f c(0,0,0,0,0,0.2,0)
 opMod$sigmaM 0.024
 opMod$gammaM 0.997
-opMod$pulseMFrq 0
-opMod$pulseMSize 1
+opMod$pulseMFrq 16
+opMod$pulseMSize 1.5
 opMod$pulseMfrac 0.3
-opMod$histFile "fit_MSbase_MCMC"
+opMod$histFile "fit_MSbase_2018"
 opMod$posteriorSamples FALSE
 opMod$postSampleType 'random'
 opMod$postSampleSeed 1234

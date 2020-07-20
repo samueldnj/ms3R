@@ -1,0 +1,11 @@
+## Info file for ms3R simulation
+## Written 1594961509
+# scenario
+rw5_hiPondM
+# mp
+cSOK+SR_0.1HR_spatialMP
+# path
+/Users/beaudoherty/Documents/LANDMARK/projects/2020_Herring_SISCA/ms3R/Outputs/sim_bat18
+# simLabel
+sim_bat18
+## End File

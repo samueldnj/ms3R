@@ -304,7 +304,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   # ---- Posterior Sampling ----
 
   message(" (.mgmtProc) Posterior sampling for leading parameters...\n")
-  if( !is.null(ctlList$opMod$posteriorSamples) )
+  if(ctlList$opMod$posteriorSamples)
   {
     
     
@@ -1318,8 +1318,10 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
 
   # Now generate indices - if we are in the projection
   # or data is being overwritten by the OM
+
   if( t >= tMP | ctlList$mp$data$source == "OM" )
   {
+    
     # Get the indices that we're still collecting in the future
     idxOn_spf <- obj$ctlList$mp$data$idxOn_spft[,,,t]
 
@@ -3534,6 +3536,11 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   I_spft <- obj$mp$data$I_spft
   C_spt  <- obj$om$C_spt
 
+  # HACK: Assign 0 instead of NAs
+  I_spft[is.na(I_spft)] <- 0
+  
+  if(sum(is.na(C_spt[,,1:(t-1)]))>0)
+    browser(cat('NAs in catch... \n'))
 
   # Stock status
   projSB_pt <- I_spft[1:nS,1:nP,5,(tMP-1):(nT-1)] + C_spt[,,(tMP-1):(nT-1)]

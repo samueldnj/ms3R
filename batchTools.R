@@ -21,6 +21,7 @@ makeBatch <- function ( batchCtlFile = "batchControlFile.bch",
                         baseCtlFile = "simCtlFileBase.txt")
 {
   .subChar <<- "__"
+
   batchFilePath <- file.path(prjFld,batchFld,batchCtlFile)
   baseFilePath  <- file.path(prjFld,batchFld,baseCtlFile)
   # First, load the batch control file
