@@ -9,21 +9,19 @@ library(parallel)
 source("ms3R.r")
 source("makeResultPlots.R")
 
-batchControlFiles <- c( "sensRuns_switchqF.bch" )
+batchControlFiles <- c( "omniRuns_econYield.bch" )
                        
 nBatchJobs <- length( batchControlFiles )
 
 
-baseControlFiles  <- c( "simCtlFileBase.txt",
-                        "simCtlFileBase.txt")
+baseControlFiles  <- c( "simCtlFileBase.txt")
                         
 
-prefixes       <- c(  "sensRuns_switchqF",
-                      "omni_switchqF", )
+prefixes       <- c(  "omni_econYield" )
 
-saveDirName       <- c( "sensRuns_switchqF", )
+saveDirName       <- c( "omni_econYield" )
 
-baseLine <- c( "sim_parBatomni_switchqF",NULL )
+baseLine <- c( NULL,NULL )
                         
 nCores  <- rep(detectCores()-1, nBatchJobs)
 

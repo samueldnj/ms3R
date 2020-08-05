@@ -1708,23 +1708,27 @@ solvePTm <- function( Bmsy, B0 )
 
 
   # OM lists
-  om <- list( iSeed_i   = rep(NA, nReps),
-              SB_ispt   = array( NA, dim = c(nReps, nS, nP, nT) ),      # SSB
-              B_ispt    = array( NA, dim = c(nReps, nS, nP, nT )),      # Total biomass
-              vB_ispft  = array( NA, dim = c(nReps, nS, nP, nF, nT )),  # Vulnerable biomass
-              R_ispt    = array( NA, dim = c(nReps, nS, nP, nT) ),      # Rec't
-              C_ispft   = array( NA, dim = c(nReps, nS, nP, nF, nT) ),  # Catch by fleet (kt)
-              C_ispt    = array( NA, dim = c(nReps, nS, nP, nT) ),      # Total catch (kt)
-              F_ispft   = array( NA, dim = c(nReps, nS, nP, nF, nT) ),  # Fishing Mort
-              I_ispft   = array( NA, dim = c(nReps, nS+1, nP+1, nF, nT) ),  # Indices (without error)
-              E_ipft    = array( NA, dim = c(nReps, nP, nF, nT) ),      # Fishing effort
-              q_ispft   = array( NA, dim = c(nReps, nS, nP, nF, nT) ),  # Catchability
-              qF_ispft  = array( NA, dim = c(nReps, nS, nP, nF, nT) ),  # F/E
-              Rev_ispft = array( NA, dim = c(nReps, nS, nP, nF, nT ) )  # Revenue 
+  om <- list( iSeed_i       = rep(NA, nReps),
+              SB_ispt       = array( NA, dim = c(nReps, nS, nP, nT) ),      # SSB
+              B_ispt        = array( NA, dim = c(nReps, nS, nP, nT )),      # Total biomass
+              vB_ispft      = array( NA, dim = c(nReps, nS, nP, nF, nT )),  # Vulnerable biomass
+              R_ispt        = array( NA, dim = c(nReps, nS, nP, nT) ),      # Rec't
+              C_ispft       = array( NA, dim = c(nReps, nS, nP, nF, nT) ),  # Catch by fleet (kt)
+              C_ispt        = array( NA, dim = c(nReps, nS, nP, nT) ),      # Total catch (kt)
+              F_ispft       = array( NA, dim = c(nReps, nS, nP, nF, nT) ),  # Fishing Mort
+              I_ispft       = array( NA, dim = c(nReps, nS+1, nP+1, nF, nT) ),  # Indices (without error)
+              E_ipft        = array( NA, dim = c(nReps, nP, nF, nT) ),      # Fishing effort
+              q_ispft       = array( NA, dim = c(nReps, nS, nP, nF, nT) ),  # Catchability
+              qF_ispft      = array( NA, dim = c(nReps, nS, nP, nF, nT) ),  # F/E
+              Rev_ispft     = array( NA, dim = c(nReps, nS, nP, nF, nT ) ), # Revenue 
+              landVal_ist   = array( NA, dim = c(nReps, nS, nT) ),          # Landed value
+              basePrice_ist = array( NA, dim = c(nReps, nS, nT) ),          # Landed value
+              effCost_ipft  = array( NA, dim = c(nReps, nP, nF, nT) )
             )
 
-  om$errors  <- list( omegaR_ispt = array( NA, dim = c(nReps, nS, nP, nT) ),    # Rec Proc Errors
-                      delta_ispft = array( NA, dim = c(nReps, nS+1, nP+1, nF, nT) ) # Idx obs errors
+  om$errors  <- list( omegaR_ispt   = array( NA, dim = c(nReps, nS, nP, nT) ),         # Rec Proc Errors
+                      delta_ispft   = array( NA, dim = c(nReps, nS+1, nP+1, nF, nT) ), # Idx obs errors
+                      priceDev_ist  = array( NA, dim = c(nReps, nS, nT) )
                     )
 
   ## ADD AGE/LENGTH SAMPLING ERRORS ## 
@@ -1865,7 +1869,10 @@ solvePTm <- function( Bmsy, B0 )
     blob$om$E_ipft[i,,,]      <- simObj$om$E_pft
     blob$om$q_ispft[i,,,,]    <- simObj$om$q_spft
     blob$om$qF_ispft[i,,,,]   <- simObj$om$qF_spft
-    blob$om$Rev_ispft[i,,,,]  <- simObj$om$Rev_spft
+    blob$om$Rev_ispft[i,,,,]  <- simObj$om$fleetRev_spft
+    blob$om$landVal_ist[i,,]  <- simObj$om$landVal_st
+    blob$om$basePrice_ist[i,,]<- simObj$om$basePrice_st
+    blob$om$effCost_ipft[i,,,]<- simObj$om$effCost_pft
 
     # Errors - maybe update simObj structure to match blob here
     blob$om$errors$omegaR_ispt[i,,,]  <- simObj$errors$omegaR_spt
@@ -2022,6 +2029,7 @@ solvePTm <- function( Bmsy, B0 )
     om      <- obj$om
     ctlList <- obj$ctlList
     mp      <- ctlList$mp
+    opMod   <- ctlList$opMod
 
     # Some omni control pars
     maxF        <- mp$omni$maxF
@@ -2034,6 +2042,9 @@ solvePTm <- function( Bmsy, B0 )
     maxAAV      <- mp$omni$maxAAV
     maxEffDiff  <- mp$omni$maxRelEffDiff
     maxCatDiff  <- mp$omni$maxRelCatDiff
+    fixEff      <- mp$omni$fixEff
+    avgEffYrs   <- mp$omni$avgEffYrs
+
 
     # Obj function weights
     avgCatWt      <- mp$omni$avgCatWt
@@ -2048,6 +2059,7 @@ solvePTm <- function( Bmsy, B0 )
     initCatDiffWt <- mp$omni$initCatDiffWt
     initEffDiffWt <- mp$omni$initEffDiffWt
     probDepWt     <- mp$omni$probDepWt
+    totProfitWt   <- mp$omni$totProfitWt
 
     # Model dimensions
     nS      <- om$nS
@@ -2055,6 +2067,8 @@ solvePTm <- function( Bmsy, B0 )
     nT      <- om$nT
     tMP     <- om$tMP
     pT      <- ctlList$opMod$pT
+
+    rp      <- obj$rp
 
 
     # Some pars that are global to either effort
@@ -2082,7 +2096,7 @@ solvePTm <- function( Bmsy, B0 )
       {
         for( s in 1:nS )
           for( p in 1:nP )
-            obj$om$F_spft[s,p,2,tMP:nT] <- parMult*obj$rp$FmsyRefPts$Fmsy_sp[s,p]
+            obj$om$F_spft[s,p,2,tMP:nT] <- parMult*rp$FmsyRefPts$Fmsy_sp[s,p]
 
         if( !is.null(ctlList$omni$inputF) )
           obj$om$F_spft[,,2,tMP:nT] <- ctlList$omni$inputF
@@ -2097,7 +2111,7 @@ solvePTm <- function( Bmsy, B0 )
           for( p in 1:nP )
           {
             splineF <- spline( x = x, y = knotF_spk[s,p,], n = projInt)$y
-            splineF <- splineF * obj$rp$FmsyRefPts$Fmsy_sp[s,p]
+            splineF <- splineF * rp$FmsyRefPts$Fmsy_sp[s,p]
             splineF[splineF < 0] <- 0
             splineF[splineF > maxF] <- maxF
 
@@ -2116,7 +2130,7 @@ solvePTm <- function( Bmsy, B0 )
       if( ctlList$ctl$perfConF )
       {
         for( p in 1:nP )
-          obj$om$E_pft[p,2,tMP:nT] <- parMult*obj$rp$EmsyMSRefPts$EmsyMS_p[p]
+          obj$om$E_pft[p,2,tMP:nT] <- parMult*rp$EmsyMSRefPts$EmsyMS_p[p]
 
         if( !is.null(ctlList$omni$inputE) )
           for( p in 1:nP )
@@ -2127,34 +2141,70 @@ solvePTm <- function( Bmsy, B0 )
             obj$om$F_spft[s,p,2,tMP:nT] <- obj$om$E_pft[p,2,tMP:nT] * om$qF_spft[s,p,2,tMP - 1]
 
       } else {
-        # Then we are solving for area specific
-        # Es (nP at each time step)
-        tmpEmult    <- exp( pars )
-        knotE_pk    <- array( tmpEmult, dim = c(nP,nKnots) )
 
-        # Make spline for each species/stock
-        for( p in 1:nP )
+        if( fixEff )
         {
-          # Make spline, multiply by Emsy
-          splineE <- spline( x = x, y = knotE_pk[p,], n = projInt)$y
-          splineE <- splineE * obj$rp$EmsyMSRefPts$EmsyMS_p[p]
+          # Get fixed total effort
+          totalEff_t  <- apply( X = obj$om$E_pft[,2,(tMP-avgEffYrs):(tMP - 1)],
+                             MARGIN = 2, FUN = sum )
+          totalEff    <- mean(totalEff_t)
 
-          # Correct for under and over efforts, limit
-          # lowest effort to be the minimum over the
-          # historical period
-          if( minE == "hist" )
-            splineE[splineE < 0] <- min(obj$om$E_pft[p,2,1:(tMP-1)])/obj$rp$EmsyMSRefPts$EmsyMS_p[p]
-          else 
-            splineE[splineE < 0] <- minE
-          
-          splineE[splineE > maxE] <- maxE
+          # Make an array for holding pars
+          knotEps_pk <- array( pars, dim = c(nP,nKnots))
 
-          # Assign to projection
-          obj$om$E_pft[p,2,tMP:nT] <- parMult * splineE
+          splineEps_pt  <- array(0, dim = c(nP,(nT - tMP + 1) ) )
+          splineE_pt    <- array(0, dim = c(nP,(nT - tMP + 1) ) )
+          for( p in 1:nP )
+            splineEps_pt[p,] <- spline( x = x, y = knotEps_pk[p,], n = projInt)$y
 
-          for( s in 1:nS )
-            obj$om$F_spft[s,p,2,tMP:nT] <- obj$om$E_pft[p,2,tMP:nT] * om$qF_spft[s,p,2,tMP - 1]
+          splineEps_pt <- exp(splineEps_pt)
+          for( t in 1:projInt )
+            splineEps_pt[,t] <- splineEps_pt[,t] / sum(splineEps_pt[,t])
+
+          obj$om$E_pft[,2,tMP:nT] <- splineEps_pt * totalEff
+
         }
+
+        if( !fixEff )
+        {
+          # Then we are solving for area specific
+          # Es (nP at each time step)
+          tmpEmult    <- exp( pars )
+          knotE_pk    <- array( tmpEmult, dim = c(nP,nKnots) )
+
+
+          # Make spline for each species/stock
+          for( p in 1:nP )
+          {
+            # Make spline, multiply by Emsy
+            splineE <- spline( x = x, y = knotE_pk[p,], n = projInt)$y
+            splineE <- splineE * obj$rp$EmsyMSRefPts$EmsyMS_p[p]
+
+            maxE <- mp$omni$maxE * obj$rp$EmsyMSRefPts$EmsyMS_p[p]
+
+            # Correct for under and over efforts, limit
+            # lowest effort to be the minimum over the
+            # historical period
+            if( minE == "hist" )
+              splineE[splineE < 0] <- min(obj$om$E_pft[p,2,1:(tMP-1)])/rp$EmsyMSRefPts$EmsyMS_p[p]
+            else 
+              splineE[splineE < 0] <- minE
+            
+            splineE[splineE > maxE] <- maxE
+
+            if(any(is.na(splineE)))
+              browser()
+
+            # Assign to projection
+            obj$om$E_pft[p,2,tMP:nT] <- parMult * splineE
+
+
+          }
+        }
+
+        for( s in 1:nS )
+          for( p in 1:nP)
+            obj$om$F_spft[s,p,2,tMP:nT] <- obj$om$E_pft[p,2,tMP:nT] * om$qF_spft[s,p,2,tMP:nT]
       }
 
     }
@@ -2173,7 +2223,7 @@ solvePTm <- function( Bmsy, B0 )
     Cproj_spt   <- obj$om$C_spft[,,2,tMP:nT]
     TACproj_spt <- obj$om$TAC_spft[,,2,tMP:nT]
     Bproj_spt   <- obj$om$B_spt[,,tMP:nT]
-    Bmsy_sp     <- obj$rp$FmsyRefPts$BeqFmsy_sp
+    Bmsy_sp     <- rp$FmsyRefPts$BeqFmsy_sp
     
     # Make arrays to hold stock specific
     # penalties and intermediate values
@@ -2459,11 +2509,30 @@ solvePTm <- function( Bmsy, B0 )
                     probDepWt * linProbHiDep_sp
     }
 
+    econYield_pt  <- array(0, dim = dim(Cproj_spt)[2:3] )
+    RevProj_pt    <- array(0, dim = dim(Cproj_spt)[2:3] )
+    effCost_pt    <- array(0, dim = dim(Cproj_spt)[2:3] )
                     
+    # Now calculate economic yield
+    RevProj_spt <- obj$om$fleetRev_spft[,,2,tMP:nT]
+    effCost_pt  <- obj$om$effCost_pft[,2,tMP:nT]
+    for( p in 1:nP )
+    {
+      
+      RevProj_pt[p,]    <- apply( X = RevProj_spt[,p,], FUN = sum, MARGIN = 2,
+                                  na.rm = TRUE )
+      econYield_pt[p,]  <- RevProj_pt[p,] * (1 - opMod$crewShare) - effCost_pt[p,]
+
+      econYield_pt[p,]  <- econYield_pt[p,] * (1 + opMod$discountRate)^(-1 * (tMP:nT - tMP))
+    }
+
+    discEconYield <- sum(econYield_pt)
+
    
     objFun    <-  sum(objFun_sp) -
                   totCatWt * log(1e3*totCbar) -
-                  sumCatWt * log(1e3*Csum) 
+                  sumCatWt * log(1e3*Csum) -
+                  totProfitWt * log(1e3*discEconYield)
 
 
     if( mp$omni$penType == "barrier" )
@@ -2480,6 +2549,9 @@ solvePTm <- function( Bmsy, B0 )
       objFun <- objFun + 
                   effDiffWt * linEffDiff +
                   initEffDiffWt * linInitEffDiff
+
+    if(is.na(objFun))
+      browser()
 
     # Return results
     result                    <- obj
@@ -3233,9 +3305,6 @@ combBarrierPen <- function( x, eps,
     obj$om$E_pft[,,histdx] <- histE_pft
   }
 
-  
-
-
   # Now fill in future sel
   obj$om$sel_axspft[,,,,,tMP:nT]  <- repObj$sel_axspft[,,,,,tMP-1]
   obj$om$sel_lspft[,,,,tMP:nT]    <- obj$om$sel_lspft[,,,,tMP-1]
@@ -3253,7 +3322,19 @@ combBarrierPen <- function( x, eps,
   # Fill in future q as fixed at conditioning year's value
   # (OR maybe use mean of historical values? look at TS)
   obj$om$q_spft[,,,tMP:nT]        <- repObj$q_spft[,,,tMP-1]
-  obj$om$qF_spft[,,,tMP:nT]       <- obj$om$qF_spft[,,,tMP-1]
+  
+  for( s in 1:nS )
+    for( p in 1:nP )
+      for( f in 1:nF)
+      {
+        posIdx <- which(obj$om$qF_spft[s,p,f,1:(tMP-1)] != 0 )
+        
+        if( length(posIdx) > 0)
+        {
+          obj$om$qF_spft[s,p,f,tMP:nT]  <- exp(mean(log(obj$om$qF_spft[s,p,f,posIdx])))
+        }
+
+      }
 
   # Switch comm trawl catchability randomly
   if( ctlList$opMod$switchCommCatchability)
@@ -3271,7 +3352,8 @@ combBarrierPen <- function( x, eps,
   stime <- Sys.time()
   message(" (.condMS3pop) Calculating Fmsy and Emsy reference points\n")
   
-  repObj$om <- obj$om
+  repObj$om     <- obj$om
+  repObj$opMod  <- ctlList$opMod
   refPtList <- calcRefPts( repObj )
   obj$rp    <- refPtList
 
@@ -3299,13 +3381,40 @@ combBarrierPen <- function( x, eps,
 
   commGears <- ctlList$opMod$commGears
 
+  # Now, check if we're using correlated
+  # errors - should refactor the following two routines to
+  # avoid so much repetition - uncorrelated devs can be drawn
+  # with an ident. mtx as sigma
+  if( ctlList$opMod$corrRecDevs )
+  {
+    # Put historical rec devs into a tMP-1 x (nS x nP) matrix
+    histRecDevs_spt <- repObj$omegaR_spt[,,1:(tMP - 1)] 
+    histRecDevMat   <- array( 0, dim = c(tMP-1,nS * nP) )
+    for( s in 1:nS )
+      histRecDevMat[,(s-1)*nP + 1:nP] <- t(histRecDevs_spt[s,,])
+
+    
+
+    histRecDevMat[histRecDevMat==0] <- NA
+
+    histRecDevCorr <- cor(histRecDevMat, use = "pairwise")
+
+    # Now draw correlated deviates
+    corrRecDevsMat <- mvtnorm::rmvnorm( n = nT, mean = rep(0,nS*nP),
+                                        sigma = histRecDevCorr,
+                                        method = "chol")
+
+    for( s in 1:nS )
+      obj$errors$omegaR_spt[s,,] <- t(corrRecDevsMat[,(s-1)*nP + 1:nP ])
+  }
+
   # Loop and fill errors and allocation
   for( s in 1:nS )
     for( p in 1:nP )
     {
       obj$errors$delta_spft[s,p,,] <- rnorm(nF*nT)
 
-      if( !ctlList$ctl$noProcErr )
+      if( !ctlList$ctl$noProcErr & !ctlList$opMod$corrRecDevs )
         obj$errors$omegaR_spt[s,p,] <- rnorm(nT)
 
       # Save historical proc errors, but use simulated recruitments after
@@ -3313,15 +3422,20 @@ combBarrierPen <- function( x, eps,
       lastDevIdx <- max(which(repObj$omegaR_spt[s,p,] != 0) )
 
       obj$errors$omegaR_spt[s,p,histdx[1:lastDevIdx]]   <- repObj$omegaR_spt[s,p,1:lastDevIdx] 
+
+
       
       if( !ctlList$ctl$noProcErr )
-          obj$errors$omegaR_spt[s,p,histdx[1:lastDevIdx]] + 0.5*repObj$sigmaR_sp[s,p]  # rec devs    
+        obj$errors$omegaR_spt[s,p,histdx[1:lastDevIdx]] + 0.5*repObj$sigmaR_sp[s,p]  # rec devs    
 
+
+      # Might need a different function for this. Also, skip zeroes.
       obj$om$alloc_spf[s,p,commGears] <- recentCatch_spf[s,p,commGears] / sum( recentCatch_spf[s,p,commGears])
     }
 
   obj$errors$omegaRinit_asp         <- repObj$omegaRinit_asp # Initialisation errors
   
+  # Separate obs errors for combined indices - might need a switch...
   obj$errors$delta_spft[nS+1,1:nP,,] <- rnorm(nT * nP * nF)
   obj$errors$delta_spft[1:(nS+1),nP+1,,] <- rnorm(nT * (nS + 1)*nF)
 
@@ -3349,6 +3463,30 @@ combBarrierPen <- function( x, eps,
     obj$errors$obsErrMult_spft[,,,(tMP+nPhaseIn):nT] <- projObsErrMult
   }
 
+  # Get dimension names and economic/effort model pars
+  obj$om$speciesNames   <- dimnames(ctlList$opMod$histRpt$SB_spt)[[1]]
+  obj$om$stockNames     <- dimnames(ctlList$opMod$histRpt$SB_spt)[[2]]
+  obj$om$fleetNames     <- dimnames(ctlList$opMod$histRpt$vB_spft)[[3]]
+
+  obj$om$price_s        <- ctlList$opMod$price_s[obj$om$speciesNames]
+  obj$om$alphaU         <- ctlList$opMod$alphaU
+  obj$om$ut_50          <- ctlList$opMod$ut_50
+  obj$om$ut_95          <- ctlList$opMod$ut_95
+
+  # Fill in economic parameters
+  obj$om$basePrice_st[,tMP] <- ctlList$opMod$price_s[obj$om$speciesNames]
+
+  priceDevCorrMat <- diag(1,nS)
+  if(ctlList$opMod$corrPriceDevs)
+  {
+    priceDevCorrMat <- matrix(ctlList$opMod$priceCorr, nrow = nS, ncol = nS)
+    diag(priceDevCorrMat) <- 1
+  }
+
+  obj$errors$priceDev_st[1:nS,1:nT] <- t( mvtnorm::rmvnorm( n = nT, mean = rep(0,nS),
+                                                            sigma = priceDevCorrMat,
+                                                            method = "chol") ) * ctlList$opMod$priceSD
+
   obj <- .calcTimes( obj )
 
   message(" (.condMS3pop) Running OM for historical period.\n")
@@ -3358,15 +3496,6 @@ combBarrierPen <- function( x, eps,
   {
     obj <- .ageSexOpMod( obj, t )
   }
-
-  obj$om$speciesNames   <- dimnames(ctlList$opMod$histRpt$SB_spt)[[1]]
-  obj$om$stockNames     <- dimnames(ctlList$opMod$histRpt$SB_spt)[[2]]
-  obj$om$fleetNames     <- dimnames(ctlList$opMod$histRpt$vB_spft)[[3]]
-
-  obj$om$price_s        <- ctlList$opMod$price_s[obj$om$speciesNames]
-  obj$om$alphaU         <- ctlList$opMod$alphaU
-  obj$om$ut_50          <- ctlList$opMod$ut_50
-  obj$om$ut_95          <- ctlList$opMod$ut_95
 
   return(obj)
 
@@ -3408,36 +3537,43 @@ combBarrierPen <- function( x, eps,
  
 
   # Set up arrays to hold simulated states
-  om$B_axspt <- array(0,  dim = c(nA,nX,nS,nP,nT) )  # Biomass at age (total)
-  om$N_axspt <- array(0,  dim = c(nA,nX,nS,nP,nT) )  # Numbers at age
-  om$SB_spt  <- array(0,  dim = c(nS,nP,nT) )        # Spawning biomass
-  om$B_spt   <- array(0,  dim = c(nS,nP,nT) )        # Spawning biomass
-  om$R_spt   <- array(0,  dim = c(nS,nP,nT) )        # Recruitment
-  om$Z_axspt <- array(0,  dim = c(nA,nX,nS,nP,nT) )  # Total mortality
+  om$B_axspt      <- array(0,  dim = c(nA,nX,nS,nP,nT) )      # Biomass at age (total)
+  om$N_axspt      <- array(0,  dim = c(nA,nX,nS,nP,nT) )      # Numbers at age
+  om$SB_spt       <- array(0,  dim = c(nS,nP,nT) )            # Spawning biomass
+  om$B_spt        <- array(0,  dim = c(nS,nP,nT) )            # Spawning biomass
+  om$R_spt        <- array(0,  dim = c(nS,nP,nT) )            # Recruitment
+  om$Z_axspt      <- array(0,  dim = c(nA,nX,nS,nP,nT) )      # Total mortality
 
   # Catch, fishing mort, vuln bio, selectivity
-  om$C_spft     <- array(NA,  dim = c(nS,nP,nF,nT) )       # Total catch by fleet in kt
-  om$C_spt      <- array(NA,  dim = c(nS,nP,nT) )          # Total catch in kt
-  om$C_axspft   <- array(0,  dim = c(nA,nX,nS,nP,nF,nT) )  # Numbers
-  om$Cw_axspft  <- array(0,  dim = c(nA,nX,nS,nP,nF,nT) )  # Weight
-  om$vB_axspft  <- array(0,  dim = c(nA,nX,nS,nP,nF,nT) )  # vuln Bio (granular)
-  om$vB_spft    <- array(0,  dim = c(nS,nP,nF,nT) )        # vuln Bio (aggregate)
-  om$sel_axspft <- array(0,  dim = c(nA,nX,nS,nP,nF,nT) )  # sel at age (tv)
-  om$sel_lspft  <- array(0,  dim = c(nL,nS,nP,nF,nT) )     # sel at len (tv)
-  om$sel_axspf  <- array(0,  dim = c(nA,nX,nS,nP,nF) )     # sel at age
-  om$sel_lspf   <- array(0,  dim = c(nL,nS,nP,nF) )        # sel at len
-  om$F_spft     <- array(NA,  dim = c(nS,nP,nF,nT) )       # Fishing mortality
-  om$I_spft     <- array(NA,  dim = c(nS+1,nP+1,nF,nT) )   # Observations without error
-  om$E_pft      <- array(NA,  dim = c(nP,nF,nT) )          # Fishing effort
-  om$alloc_spf  <- array(0,  dim = c(nS,nP,nF))            # Catch allocation
-  om$Rev_spft   <- array(NA, dim = c(nS,nP,nF,nT) )        # Fleet revenue
+  om$C_spft       <- array(NA,  dim = c(nS,nP,nF,nT) )        # Total catch by fleet in kt
+  om$C_spt        <- array(NA,  dim = c(nS,nP,nT) )           # Total catch in kt
+  om$C_axspft     <- array(0,   dim = c(nA,nX,nS,nP,nF,nT) )  # Numbers
+  om$Cw_axspft    <- array(0,   dim = c(nA,nX,nS,nP,nF,nT) )  # Weight
+  om$vB_axspft    <- array(0,   dim = c(nA,nX,nS,nP,nF,nT) )  # vuln Bio (granular)
+  om$vB_spft      <- array(0,   dim = c(nS,nP,nF,nT) )        # vuln Bio (aggregate)
+  om$sel_axspft   <- array(0,   dim = c(nA,nX,nS,nP,nF,nT) )  # sel at age (tv)
+  om$sel_lspft    <- array(0,   dim = c(nL,nS,nP,nF,nT) )     # sel at len (tv)
+  om$sel_axspf    <- array(0,   dim = c(nA,nX,nS,nP,nF) )     # sel at age
+  om$sel_lspf     <- array(0,   dim = c(nL,nS,nP,nF) )        # sel at len
+  om$F_spft       <- array(NA,  dim = c(nS,nP,nF,nT) )        # Fishing mortality
+  om$I_spft       <- array(NA,  dim = c(nS+1,nP+1,nF,nT) )    # Observations without error
+  om$E_pft        <- array(NA,  dim = c(nP,nF,nT) )           # Fishing effort
+  om$alloc_spf    <- array(0,   dim = c(nS,nP,nF))            # Catch allocation
 
   # Observation model pars
-  om$q_spft     <- array(0,  dim = c(nS,nP,nF,nT) )        # catchability (tv)
-  om$q_spf      <- array(0,  dim = c(nS,nP,nF) )           # catchability
+  om$q_spft       <- array(0,  dim = c(nS,nP,nF,nT) )         # catchability (tv)
+  om$q_spf        <- array(0,  dim = c(nS,nP,nF) )            # catchability
 
-  # Scalar between effort and F
-  om$qF_spft    <- array(0,  dim = c(nS,nP,nF,nT) )        # catchability (tv)
+  # Commercial catchability scalar between effort and F
+  om$qF_spft      <- array(0,  dim = c(nS,nP,nF,nT) )         # catchability (tv)
+
+  # Economic sub-model pars
+  om$landVal_st     <- array(0,   dim = c(nS,nT))               # Landed value (after price flexibility) ($/kg)
+  om$basePrice_st   <- array(0,   dim = c(nS,nT))               # Base ex-vessel price ($/kg)
+  om$fleetRev_spft  <- array(NA,  dim = c(nS,nP,nF,nT) )        # Fleet revenue by area/fleet
+  om$effCost_pft    <- array(NA,  dim = c(nP,nF,nT) )           # Cost of effort by area/fleet
+
+
 
   # Variance parameters
   om$tauObs_spf <- repObj$tauObs_spf * ctlList$opMod$obsErrMult
@@ -3507,6 +3643,7 @@ combBarrierPen <- function( x, eps,
   errors$omegaR_spt       <- array(0, dim = c(nS,nP,nT) )
   errors$omegaRinit_asp   <- array(0, dim = c(nA,nS,nP) )
   errors$delta_spft       <- array(0, dim = c(nS+1,nP+1,nF,nT) )
+  errors$priceDev_st      <- array(0, dim = c(nS,nT))
 
 
 
@@ -3634,7 +3771,7 @@ combBarrierPen <- function( x, eps,
   C_spt             <- om$C_spt
   TAC_spft          <- hcr$TAC_spft
   TAC_spt           <- hcr$TAC_spt 
-  Rev_spft          <- obj$om$Rev_spft 
+  Rev_spft          <- obj$om$fleetRev_spft 
 
   # Vuln bio
   vB_axspft         <- om$vB_axspft
@@ -3655,6 +3792,10 @@ combBarrierPen <- function( x, eps,
   Ierr_spft         <- data$I_spft
   Iperf_spft        <- om$I_spft
 
+  # Economic model
+  v_st              <- om$landVal_st
+  basePrice_st      <- om$basePrice_st
+  effCost_pft       <- om$effCost_pft
 
   
   # Biological pars
@@ -3747,6 +3888,14 @@ combBarrierPen <- function( x, eps,
   SB_asp <- matAge_asp * B_axspt[,nX,,,t]
   SB_spt[,,t] <- apply(X = SB_asp, FUN = sum, MARGIN = c(2,3), na.rm = T )
 
+  # update price data
+  if( t > tMP )
+  {
+    i                 <- opMod$interestRate
+    basePrice_st[,t]  <- basePrice_st[,t-1] * (1 + i) * exp( err$priceDev_st[,t] )
+    
+  }
+
   # Now calculate effort for each area (for closed loop sim)
   if( t >= tMP & all(is.na(F_spft[,,,t])) )
   {
@@ -3794,11 +3943,12 @@ combBarrierPen <- function( x, eps,
                                               w_pf      = om$w_pf,
                                               nS = nS, nP = nP, nX = nX, nF = nF  )
       E_pft[,,t]     <- effortMod$E_pf
-      Rev_spft[,,,t] <- effortMod$rev_spf
+      # Rev_spft[,,,t] <- effortMod$rev_spf
 
       # Convert to F
       for( s in 1:nS )
         F_spft[s,,,t] <- E_pft[,,t] * qF_spft[s,,,t]
+
     }
 
     if( opMod$effortMod == "targeting" )
@@ -3879,6 +4029,26 @@ combBarrierPen <- function( x, eps,
   # Sum realised catch
   C_spft[,,,t] <- apply( X = Cw_axspft[,,,,,t], FUN = sum, MARGIN = c(3,4,5), na.rm = T )
   C_spt[,,t]   <- apply( X = C_spft[,,,t], FUN = sum, MARGIN = c(1,2), na.rm = T )
+
+
+  # Calculate landed value per kg given price flexibility
+  if( t >= tMP )
+  {
+    pflex   <- opMod$priceFlex
+    C_s     <- apply( X = C_spt[,,t], FUN = sum, MARGIN = 1 )
+    MSY_sp  <- rp$FmsyRefPts$YeqFmsy_sp
+    MSY_s   <- apply(X = MSY_sp, FUN = sum, MARGIN = 1)
+    v_st[,t] <- basePrice_st[,t] * ( 1 + pflex * ( C_s/MSY_s - 1 ) )
+    
+    for( p in 1:nP)
+      effCost_pft[p,,t] <- E_pft[p,,t] * rp$EmeyRefPts$effortPrice_p[p]
+  }
+
+  # Calculate revenue
+  for( p in 1:nP )
+    for( f in 1:nF)
+      Rev_spft[,p,f,t] <- C_spft[,p,f,t] * v_st[,t]
+
 
   # Now generate indices 
   # if( t >= tMP | ctlList$mp$data$source == "OM" )
@@ -4021,7 +4191,7 @@ combBarrierPen <- function( x, eps,
   C_spft            -> obj$om$C_spft
   C_spt             -> obj$om$C_spt
   E_pft             -> obj$om$E_pft
-  Rev_spft          -> obj$om$Rev_spft
+  Rev_spft          -> obj$om$fleetRev_spft
   
   # Vuln bio
   vB_axspft         -> obj$om$vB_axspft
@@ -4041,6 +4211,11 @@ combBarrierPen <- function( x, eps,
   # Biomass indices
   Iperf_spft        -> obj$om$I_spft
   Ierr_spft         -> obj$mp$data$I_spft
+
+  # economic model
+  v_st              -> obj$om$landVal_st
+  basePrice_st      -> obj$om$basePrice_st
+  effCost_pft       -> obj$om$effCost_pft
 
 
   return( obj )

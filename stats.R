@@ -1071,11 +1071,6 @@ makeStatTable <- function(  sim = 1, folder = "",
   pdHess_itsp     <- mp$assess$pdHess_itsp
 
 
-  
-  
-
-  browser()
-
   # Calculate probability of a good replicate (all PD hessians)
   nGoodReps_sp <- apply(X = allConvReps_isp, FUN = sum, MARGIN =c(2,3))
   pGoodReps_sp <- signif(nGoodReps_sp/maxReps,2)
@@ -1314,7 +1309,8 @@ makeStatTable <- function(  sim = 1, folder = "",
     simLabel <- simLabel[length(simLabel)]
   } else simLabel <- obj$simLabel
 
-  allConvReps <- obj$goodReps
+  allConvReps_isp <- obj$goodReps_isp
+  allConvReps <- apply( X = allConvReps_isp, FUN = prod, MARGIN = 1 )
 
   projYrs <- tMP:nT
 
@@ -1407,7 +1403,8 @@ makeStatTable <- function(  sim = 1, folder = "",
 
 
 
-  allConvReps <- obj$goodReps
+  allConvReps_isp <- obj$goodReps_isp
+  allConvReps <- apply( X = allConvReps_isp, FUN = prod, MARGIN = 1)
 
   projYrs <- tMP:nT
 

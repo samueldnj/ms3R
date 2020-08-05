@@ -40,6 +40,9 @@ calcRefPts <- function( obj )
   # Calculate reference curves
   refCurves <- .calcRefCurves( obj )
 
+  # Calculate economic yield curves from ref curves
+  econYieldCurves <- .calcEconomicYieldCurves( obj, refCurves$EffCurves )
+
   # EBSBpars
   EBSBpars <- calcJABBASelPars(obj)
 
@@ -50,12 +53,15 @@ calcRefPts <- function( obj )
   tmpEmsyRefPts <- .getEmsy_p(  obj = obj,
                                 refCurves = refCurves$EffCurves )
 
+
+
   
   obj$refPts <- list()
   obj$refPts$refCurves    <- refCurves
   obj$refPts$FmsyRefPts   <- FmsyRefPts
   obj$refPts$EmsyRefPts   <- tmpEmsyRefPts$EmsyRefPts
   obj$refPts$EmsyMSRefPts <- tmpEmsyRefPts$EmsyMSRefPts
+  obj$refPts$EmeyRefPts   <- econYieldCurves
   # Get survivorship
   obj$refPts$Surv_axsp    <- tmp$Surv_axsp
   obj$refPts$ssbpr_sp     <- yprList$ssbpr_sp
@@ -70,6 +76,120 @@ calcRefPts <- function( obj )
   return(obj$refPts)
 
 } # END calcRefPts()
+
+
+# solveSpline()
+# Solves a spline (or derivatives) for a given value within certain bounds.
+solveSpline <- function( Yvals, Xvals, value = 0.5, bounds = c(0,10), deriv = 0 )
+{
+  Yvals <- Yvals - value
+
+  xySplineFun <- splinefun( x=Xvals, y=Yvals )  
+
+  if(is.null(bounds))
+  {
+    UBidx <- min(which(Yvals>0))
+    bounds <- c(0,Xvals[UBidx])
+  }
+
+  # Find stat point for Fmsy
+  soln <- try( uniroot( f = xySplineFun, interval = bounds,
+                        deriv = deriv )$root )
+
+  return(soln)
+} # END solveEff()
+
+
+
+# .calcEconomicYieldCurves()
+# Name says it all. Uses MS effort/yield curves
+# and calculates economic yield as profit, i.e. profit = revenue - cost.
+# Right now, revenue is an average price per kg, and cost is
+# an average price per 1000 hours of trawling, back calculated
+# from Nelson 2009 (Financial Profile of Pacific Fisheries)
+.calcEconomicYieldCurves <- function( obj, refCurves )
+{
+  # Model dims
+  nF <- obj$nF
+  nS <- obj$nS
+  nP <- obj$nP
+
+  # Pull effort/yield curves, then for each
+  # area, solve for the effort related to
+  # the given landings (average vessel landings
+  # in 2009)
+  Yeq_spe <- refCurves$Yeq_spe
+  Yeq_spe[Yeq_spe < 0] <- NA
+  Eff     <- refCurves$E
+
+  stockNames <- dimnames(Yeq_spe)[[2]]
+
+  opMod <- obj$opMod
+  crewShare <- opMod$crewShare
+
+  # Calc total system yield
+  totYeq_pe <- apply(X = Yeq_spe, FUN = sum, MARGIN = c(2,3), na.rm = T)
+
+  # solveEff_p <- apply(  X = totYeq_pe, FUN = solveSpline, MARGIN = 1,
+  #                       Xvals = Eff, value = opMod$landingsForFuelCalcKt,
+  #                       bounds = NULL, deriv = 0 )
+
+  eff_p <- obj$om$E_pft[,2,54]
+  C_p   <- apply( X = obj$om$C_spt[,,54], FUN = sum, MARGIN = 2 )
+
+  # Now, we need to convert solveEff_p to the cost of
+  # fuel, using the landings and fuel cost per kt
+  effortPrice_p <- opMod$varCostPerKt * C_p / eff_p
+
+
+  # Array for holding effort cost
+  effCost_pe <- array(NA, dim       = c(nP, length(Eff)),
+                          dimnames  = list( stock = stockNames,
+                                            E = Eff ) )
+
+  econYeq_spe <- Yeq_spe
+  econRev_spe <- Yeq_spe
+  for( p in 1:nP )
+  {
+    specName  <- dimnames(Yeq_spe)[[1]][p]
+    price     <- opMod$price_s[specName]
+
+    effCost_pe[p,] <- effortPrice_p[p] * Eff
+
+    for( s in 1:nS )
+    {
+      econRev_spe[s,p,] <- Yeq_spe[s,p,] * price
+      econYeq_spe[s,p,] <- Yeq_spe[s,p,] * price * (1 - crewShare) - effCost_pe[p,]
+    }
+    
+  }
+  # Now sum across species for area specific yield
+  econRev_pe <- apply(X = econRev_spe, FUN = sum, MARGIN = c(2,3), na.rm = T)
+  econYeq_pe <- econRev_pe * (1 - crewShare) - effCost_pe
+  dimnames(econYeq_pe) <- dimnames(effCost_pe)
+  dimnames(econRev_pe) <- dimnames(effCost_pe)
+
+  
+  # Emey_sp <- apply( X = econYeq_spe, FUN = solveSpline, Xvals = Eff,
+  #                   deriv = 1, bounds = c(0,15), MARGIN = c(1,2) )
+
+  Emey_p <- apply( X = econYeq_pe, FUN = solveSpline, Xvals = Eff,
+                    deriv = 1, bounds = c(0,15), MARGIN = c(1) )
+
+  econYieldCurves <- list()
+  econYieldCurves$effCost_pe    <- effCost_pe
+  econYieldCurves$crewShare_pe  <- econRev_pe * crewShare
+  econYieldCurves$econYeq_spe   <- econYeq_spe
+  econYieldCurves$econRev_spe   <- econRev_spe
+  econYieldCurves$econYeq_pe    <- econYeq_pe
+  econYieldCurves$econRev_pe    <- econRev_pe
+  econYieldCurves$Emey_p        <- Emey_p
+  econYieldCurves$effortPrice_p <- effortPrice_p
+
+
+  return( econYieldCurves )
+
+} # END .calcEconomicYieldCurves()
 
 
 calcJABBASelPars <- function( obj )
@@ -286,7 +406,7 @@ calcJABBASelPars <- function( obj )
                 totalAgg    = EBSB_TotalAgg )
 
   out
-}
+} # END .calcJABBASelPars()
 
 # .EBSBratio()
 # Parametric function to calculate EBSB
@@ -393,7 +513,7 @@ calcJABBASelPars <- function( obj )
   Req_spe      <- array( NA,  dim = c(nS, nP, nFs),
                               dimnames = list(  species = specNames,
                                                 stock = stockNames,
-                                                F = f ) )
+                                                E = e ) )
 
   surv_axspe    <- array( NA, dim = c(nA,nX,nS,nP,nFs) )
 

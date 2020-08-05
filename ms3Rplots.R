@@ -2411,6 +2411,117 @@ plotEffYieldCurves <- function( obj = blob, maxE = NULL )
                     MSYMS_sp = MSYMS_sp )
 } # END plotEffYieldCurves()
 
+# plotEffYieldCurves()
+# Function for plotting effort based
+# yield curves for each species and
+# the complex in a stock area.
+plotEconYieldCurves <- function( obj = blob, maxE = NULL )
+{
+  # First, pull reference points and curves
+  rp            <- obj$rp[[1]]
+  
+  refCurves     <- rp$refCurves
+  EmsyRefPts    <- rp$EmsyRefPts
+  EmsyMSRefPts  <- rp$EmsyMSRefPts
+  FmsyRefPts    <- rp$FmsyRefPts
+  EmeyRefPts    <- rp$EmeyRefPts
+
+  browser()
+
+  nT  <- obj$om$nT
+  nP  <- obj$om$nP
+  nS  <- obj$om$nS
+  tMP <- obj$om$tMP
+
+  # Pull qF
+  qF_sp       <- blob$om$qF_ispft[1,,,2,nT]
+  
+  speciesNames <- blob$om$speciesNames
+  stockNames   <- blob$om$stockNames
+
+  # Now compute MSY for SS and MS curves
+  # MSY is still the same for SS, just need the effort
+  # that corresponds to it, which is Fmsy/qF
+  Eseq      <- as.numeric(dimnames(EmeyRefPts$econRev_pe)[[2]])
+
+  EmsyMS_p  <- EmsyMSRefPts$EmsyMS_p
+  MSYMS_sp  <- EmsyMSRefPts$YeqEmsy_sp
+
+  EmsySS_p  <- EmsyRefPts$Emsy_sp
+  MSYSS_sp  <- EmsyRefPts$YeqEmsy_sp
+
+  Emey_p      <- EmeyRefPts$Emey_p
+  Rev_pe      <- EmeyRefPts$econRev_pe
+  Rev_spe     <- EmeyRefPts$econRev_spe
+  econYeq_pe  <- EmeyRefPts$econYeq_pe
+  effCost_pe  <- EmeyRefPts$effCost_pe
+
+  browser()
+
+  specCols <- RColorBrewer::brewer.pal(n = nS, "Dark2")
+
+  if(is.null(maxE))
+    maxE <- 10 * max(Emey_p)
+
+  par( mfrow = c(3,1), mar = c(.1,1,.1,1), oma = c(3,4,1,1) )
+  for( p in 1:nP )
+  {
+
+    plot( x = c(0,maxE), y = c(0, max(econYeq_pe[p,],Rev_pe[p,],na.rm = T) ),
+          type = "n", xlab = "", ylab = "", axes = F, xaxs="i" )
+      axis(side = 2, las = 1)
+      box()
+      grid()
+
+      for( s in 1:nS )
+      {
+        lines( x = Eseq, y = Rev_spe[s,p,],
+               col = specCols[s], lty = 1, lwd = 2 )
+        # lines( x = Eseq, y = Beq_spe[s,p,],
+        #        col = specCols[s], lty = 2, lwd = 2 )
+
+      }
+      mfg <- par("mfg")
+      if( mfg[1] == mfg[3])
+        axis(side = 1)
+
+      rmtext( txt = stockNames[p], line = 0.02,
+              font = 2, cex = 1.5, outer = TRUE )
+
+      lines(  x = Eseq, y = Rev_pe[p,],
+              col = "black", lty = 1, lwd = 3 )
+
+      lines(  x = Eseq, y = econYeq_pe[p,],
+              col = "black", lty = 2, lwd = 3 )
+
+      lines( x = Eseq, y = effCost_pe[p,], col = "red",
+              lwd = 2 )
+
+      # segments( x0 = EmsyMS_p[p], col = "grey40",
+      #           y0 = 0, y1 = MSYMS_p[p], lty = 2  )
+
+      # segments( x0 = 0, x1 = EmsyMS_p[p], col = "grey40",
+      #           y0 = c(MSYMS_p[p],MSYMS_sp[,p]), lty = 2  )
+
+      if(  p == nP )
+        legend( x = "topright", bty = "n",
+                col = c(specCols,"black"),
+                lwd = c(2,2,2,3),
+                legend = c(speciesNames,"Complex") )
+
+  }
+
+  mtext( outer = TRUE, side = 1, text = "Commercial Trawl Effort (1000 hrs)", line = 2 )
+  mtext( outer = TRUE, side = 2, text = "Cost, Revenue, and Profit ($ x 1e6)", line = 2 )
+
+
+  # outList <- list(  EmsyMS_p = EmsyMS_p,
+  #                   EmsySS_sp = EmsySS_sp,
+  #                   MSYMS_p = MSYMS_p,
+  #                   MSYSS_sp = MSYSS_sp,
+  #                   MSYMS_sp = MSYMS_sp )
+} # END plotEffYieldCurves()
+
 # plotEmpYieldCurves
 # Function to plot median simuated yield 
 # resulting from a grid of constant fishing 
@@ -2679,7 +2790,9 @@ compareYieldCurves <- function( obj )
 # implied by the omniscient manager sim
 plotCvsB <- function( obj )
 {
-  goodReps <- obj$goodReps
+  goodReps_isp <- obj$goodReps
+
+  goodReps <- apply( X = goodReps_isp, FUN = prod, MARGIN = 1)
 
   SB_ispt   <- obj$om$SB_ispt[goodReps,,,,drop = FALSE]
   C_ispt    <- obj$om$C_ispt[goodReps,,,,drop = FALSE]
@@ -2787,7 +2900,9 @@ plotCvsB <- function( obj )
 # implied by the omniscient manager sim
 plotFvsB <- function( obj )
 {
-  goodReps <- obj$goodReps
+  goodReps_isp <- obj$goodReps
+
+  goodReps <- as.logical(apply(X = goodReps_isp, FUN = prod, MARGIN = 1))
 
   SB_ispt   <- obj$om$SB_ispt[goodReps,,,,drop = FALSE]
   C_ispt    <- obj$om$C_ispt[goodReps,,,,drop = FALSE]
