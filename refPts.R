@@ -40,15 +40,18 @@ calcRefPts <- function( obj )
   # Calculate reference curves
   refCurves <- .calcRefCurves( obj )
 
-  # Calculate economic yield curves from ref curves
-  econYieldCurves <- .calcEconomicYieldCurves( obj, refCurves$EffCurves )
-
   # EBSBpars
   EBSBpars <- calcJABBASelPars(obj)
 
   # First, let's just do Fmsy reference points
   FmsyRefPts <- .getFmsy_sp(  obj = obj, 
                               refCurves = refCurves )
+
+  # Calculate economic yield curves from ref curves
+  econYieldCurves <- .calcEconomicYieldCurves(  obj, 
+                                                refCurves$EffCurves,
+                                                FmsyRefPts )
+
 
   tmpEmsyRefPts <- .getEmsy_p(  obj = obj,
                                 refCurves = refCurves$EffCurves )
@@ -107,7 +110,7 @@ solveSpline <- function( Yvals, Xvals, value = 0.5, bounds = c(0,10), deriv = 0 
 # Right now, revenue is an average price per kg, and cost is
 # an average price per 1000 hours of trawling, back calculated
 # from Nelson 2009 (Financial Profile of Pacific Fisheries)
-.calcEconomicYieldCurves <- function( obj, refCurves )
+.calcEconomicYieldCurves <- function( obj, refCurves, FmsyRefPts )
 {
   # Model dims
   nF <- obj$nF
@@ -126,6 +129,7 @@ solveSpline <- function( Yvals, Xvals, value = 0.5, bounds = c(0,10), deriv = 0 
 
   opMod <- obj$opMod
   crewShare <- opMod$crewShare
+  pFlex     <- opMod$priceFlex
 
   # Calc total system yield
   totYeq_pe <- apply(X = Yeq_spe, FUN = sum, MARGIN = c(2,3), na.rm = T)
@@ -147,19 +151,27 @@ solveSpline <- function( Yvals, Xvals, value = 0.5, bounds = c(0,10), deriv = 0 
                           dimnames  = list( stock = stockNames,
                                             E = Eff ) )
 
-  econYeq_spe <- Yeq_spe
-  econRev_spe <- Yeq_spe
+  # Get Fmsy yield
+  YeqFmsy_sp  <- FmsyRefPts$YeqFmsy_sp
+
+  econYeq_spe <- array(0,dim = dim(Yeq_spe), dimnames = dimnames(Yeq_spe))
+  econRev_spe <- array(0,dim = dim(Yeq_spe), dimnames = dimnames(Yeq_spe))
+  landVal_spe <- array(0,dim = dim(Yeq_spe), dimnames = dimnames(Yeq_spe))
+
+  # Yeq_spe[is.na(Yeq_spe)]  <- 0
+
   for( p in 1:nP )
   {
-    specName  <- dimnames(Yeq_spe)[[1]][p]
-    price     <- opMod$price_s[specName]
+    specNames  <- dimnames(Yeq_spe)[[1]]
+    price_s     <- opMod$price_s[specNames]
 
     effCost_pe[p,] <- effortPrice_p[p] * Eff
 
     for( s in 1:nS )
     {
-      econRev_spe[s,p,] <- Yeq_spe[s,p,] * price
-      econYeq_spe[s,p,] <- Yeq_spe[s,p,] * price * (1 - crewShare) - effCost_pe[p,]
+      landVal_spe[s,p,] <- price_s[s] * (1 + pFlex * ( Yeq_spe[s,p,] / YeqFmsy_sp[s,p] - 1 ) )
+      econRev_spe[s,p,] <- Yeq_spe[s,p,] * landVal_spe[s,p,]
+      econYeq_spe[s,p,] <- Yeq_spe[s,p,] * landVal_spe[s,p,] * (1 - crewShare) - effCost_pe[p,]
     }
     
   }

@@ -2426,12 +2426,12 @@ plotEconYieldCurves <- function( obj = blob, maxE = NULL )
   FmsyRefPts    <- rp$FmsyRefPts
   EmeyRefPts    <- rp$EmeyRefPts
 
-  browser()
-
   nT  <- obj$om$nT
   nP  <- obj$om$nP
   nS  <- obj$om$nS
   tMP <- obj$om$tMP
+
+  crewShare <- obj$ctlList$opMod$crewShare
 
   # Pull qF
   qF_sp       <- blob$om$qF_ispft[1,,,2,nT]
@@ -2456,7 +2456,9 @@ plotEconYieldCurves <- function( obj = blob, maxE = NULL )
   econYeq_pe  <- EmeyRefPts$econYeq_pe
   effCost_pe  <- EmeyRefPts$effCost_pe
 
-  browser()
+  # remove zeroes
+  Rev_spe[Rev_spe == 0] <- NA
+  Rev_spe[,,1] <- 0
 
   specCols <- RColorBrewer::brewer.pal(n = nS, "Dark2")
 
@@ -2494,7 +2496,7 @@ plotEconYieldCurves <- function( obj = blob, maxE = NULL )
       lines(  x = Eseq, y = econYeq_pe[p,],
               col = "black", lty = 2, lwd = 3 )
 
-      lines( x = Eseq, y = effCost_pe[p,], col = "red",
+      lines( x = Eseq, y = effCost_pe[p,] + crewShare * Rev_pe[p,], col = "red",
               lwd = 2 )
 
       # segments( x0 = EmsyMS_p[p], col = "grey40",
@@ -2505,9 +2507,13 @@ plotEconYieldCurves <- function( obj = blob, maxE = NULL )
 
       if(  p == nP )
         legend( x = "topright", bty = "n",
-                col = c(specCols,"black"),
-                lwd = c(2,2,2,3),
-                legend = c(speciesNames,"Complex") )
+                col = c(specCols,"black","red","black"),
+                lty = c(1,1,1,1,1,2),
+                lwd = c(2,2,2,2,2,2),
+                legend = c( paste(speciesNames," Revenue",sep = ""),
+                            "Complex Revenue",
+                            "Variable Costs",
+                            "Total Profits") )
 
   }
 

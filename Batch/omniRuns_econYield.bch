@@ -6,7 +6,7 @@ parameter value
 # Scenario 1 : noCorr
 #
 scenario$scenario1$ctl$scenarioName 'noCorr'
-scenario$scenario1$ctl$nGoodReps 100
+scenario$scenario1$ctl$nGoodReps 40
 scenario$scenario1$ctl$omni TRUE
 scenario$scenario1$opMod$pT 40
 scenario$scenario1$opMod$corrRecDevs FALSE
@@ -15,24 +15,27 @@ scenario$scenario1$opMod$corrPriceDevs FALSE
 # Scenario 2 : corrRec
 #
 scenario$scenario2$ctl$scenarioName 'corrRecDevs'
-scenario$scenario2$ctl$nGoodReps 100
+scenario$scenario2$ctl$nGoodReps 40
 scenario$scenario2$ctl$omni TRUE
+scenario$scenario2$opMod$pT 40
 scenario$scenario2$opMod$corrRecDevs TRUE
 scenario$scenario2$opMod$corrPriceDevs FALSE
 #
 # Scenario 3 : corrPrice
 #
 scenario$scenario3$ctl$scenarioName 'corrPriceDevs'
-scenario$scenario3$ctl$nGoodReps 100
+scenario$scenario3$ctl$nGoodReps 40
 scenario$scenario3$ctl$omni TRUE
+scenario$scenario3$opMod$pT 40
 scenario$scenario3$opMod$corrRecDevs FALSE
 scenario$scenario3$opMod$corrPriceDevs TRUE
 #
 # Scenario 4 : corrRecPrice
 #
 scenario$scenario4$ctl$scenarioName 'corrRecPrice'
-scenario$scenario4$ctl$nGoodReps 100
+scenario$scenario4$ctl$nGoodReps 40
 scenario$scenario4$ctl$omni TRUE
+scenario$scenario4$opMod$pT 40
 scenario$scenario4$opMod$corrRecDevs TRUE
 scenario$scenario4$opMod$corrPriceDevs TRUE
 #
@@ -48,6 +51,7 @@ mp$mp1$mp$omni$fixEff FALSE
 mp$mp1$mp$omni$avgEffYrs 5
 mp$mp1$mp$omni$effDiffWt 0.0
 mp$mp1$mp$omni$initEffDiffWt 0.0
+mp$mp1$mp$omni$nKnots 9
 #
 # MP 2 : omni_totProfit1_freeEff
 #
@@ -58,6 +62,7 @@ mp$mp2$mp$omni$fixEff FALSE
 mp$mp2$mp$omni$avgEffYrs 5
 mp$mp2$mp$omni$effDiffWt 0.0
 mp$mp2$mp$omni$initEffDiffWt 0.0
+mp$mp2$mp$omni$nKnots 9
 #
 ## Management Procedures
 #
@@ -70,6 +75,7 @@ mp$mp3$mp$omni$fixEff TRUE
 mp$mp3$mp$omni$avgEffYrs 5
 mp$mp3$mp$omni$effDiffWt 0.0
 mp$mp3$mp$omni$initEffDiffWt 0.0
+mp$mp3$mp$omni$nKnots 9
 #
 # MP 4 : omni_totProfit1_fixEff
 #
@@ -80,6 +86,7 @@ mp$mp4$mp$omni$fixEff TRUE
 mp$mp4$mp$omni$avgEffYrs 5
 mp$mp4$mp$omni$effDiffWt 0.0
 mp$mp4$mp$omni$initEffDiffWt 0.0
+mp$mp4$mp$omni$nKnots 9
 #
 #
 ## <END FILE>

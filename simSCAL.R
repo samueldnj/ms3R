@@ -3570,8 +3570,9 @@ combBarrierPen <- function( x, eps,
   # Economic sub-model pars
   om$landVal_st     <- array(0,   dim = c(nS,nT))               # Landed value (after price flexibility) ($/kg)
   om$basePrice_st   <- array(0,   dim = c(nS,nT))               # Base ex-vessel price ($/kg)
-  om$fleetRev_spft  <- array(NA,  dim = c(nS,nP,nF,nT) )        # Fleet revenue by area/fleet
-  om$effCost_pft    <- array(NA,  dim = c(nP,nF,nT) )           # Cost of effort by area/fleet
+  om$fleetRev_spft  <- array(0,   dim = c(nS,nP,nF,nT) )        # Fleet revenue by area/fleet
+  om$effCost_pft    <- array(0,   dim = c(nP,nF,nT) )           # Cost of effort by area/fleet
+  om$profit_pft     <- array(0,   dim = c(nP,nF,nT) )           # undiscounted profit
 
 
 
