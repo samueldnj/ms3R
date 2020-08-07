@@ -3373,7 +3373,7 @@ combBarrierPen <- function( x, eps,
   # later for TMB
   obj$mp$data$I_spft[obj$mp$data$I_spft<0] <- NA
   obj$mp$data$A_axspft[obj$mp$data$A_axspft<0] <- NA
-  obj$mp$data$L_lxspft[obj$mp$data$A_axspft<0] <- NA
+  obj$mp$data$L_lxspft[obj$mp$data$L_lxspft<0] <- NA
 
   # Now calculate total catch and allocation
   tdxRecent <- (tMP - ctlList$opMod$allocYears):(tMP - 1)
@@ -3612,7 +3612,7 @@ combBarrierPen <- function( x, eps,
   # Data list
   mp$data$I_spft    <- array( NA, dim = c(nS+1,nP+1,nF,nT) )      # Add a pooled data dimension
   mp$data$A_axspft  <- array( NA, dim = c(nA,nX,nS,nP,nF,nT) )    
-  mp$data$L_lxspft  <- array( NA, dim = c(nL,nX+1,nS,nP,nF,nT) ) 
+  mp$data$L_lxspft  <- array( NA, dim = c(nL,nX,nS,nP,nF,nT) ) 
 
   # assessment list
   mp$assess$retroSB_tspt      <- array( NA, dim = c(pT, nS, nP, nT) )
