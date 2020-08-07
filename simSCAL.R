@@ -3249,7 +3249,7 @@ combBarrierPen <- function( x, eps,
   obj$om$C_spt[,,histdx]          <- apply( X = repObj$predCw_spft, FUN = sum, MARGIN = c(1,2,4) )
   obj$om$E_pft[,1:2,histdx]       <- repObj$E_pft[,1:2,]
   obj$om$sel_axspft[,,,,,histdx]  <- repObj$sel_axspft
-  obj$om$sel_lspft[,,,,histdx]    <- aperm(repObj$sel_lfspt,c(1,3,4,2,5))
+  obj$om$sel_lspft[,,,,histdx]    <- repObj$sel_lspft
 
   obj$mp$hcr$TAC_spft[,,,histdx]  <- obj$om$C_spft[,,,histdx]
   obj$mp$hcr$TAC_spt[,,histdx]    <- obj$om$C_spt[,,histdx]
@@ -3366,8 +3366,8 @@ combBarrierPen <- function( x, eps,
   # Add historical data
   obj$mp$data$I_spft[1:nS,1:nP,,histdx] <- repObj$I_spft
   obj$om$I_spft[1:nS,1:nP,,histdx]      <- repObj$I_spft
-  obj$mp$data$A_axspft[,,,,,histdx]  <- aperm( repObj$age_aspftx, c(1,6,2:5) )
-  obj$mp$data$L_lxspft[,,,,,histdx]  <- aperm( repObj$len_lspftx, c(1,6,2:5) )
+  obj$mp$data$A_axspft[,,,,,histdx]  <- repObj$age_axspft
+  obj$mp$data$L_lxspft[,,,,,histdx]  <- repObj$len_lxspft
 
   # replace negatives with NAs for plotting, can change back 
   # later for TMB
@@ -3588,18 +3588,18 @@ combBarrierPen <- function( x, eps,
   # Growth model pars
   om$L1_s       <- repObj$L1_s
   om$A1_s       <- repObj$A1_s
-  om$L2_xsp     <- aperm(repObj$L2_spx,c(3,1,2))
+  om$L2_xsp     <- repObj$L2_xsp
   om$A2_s       <- repObj$A2_s
-  om$vonK_xsp   <- aperm(repObj$vonK_spx,c(3,1,2))
+  om$vonK_xsp   <- repObj$vonK_xsp
   om$LWa_s      <- repObj$LWa_s
   om$LWb_s      <- repObj$LWb_s
 
   # Later: write calcSchedules function
   om$matAge_asp         <- repObj$matAge_asp
-  om$meanWtAge_axsp     <- aperm( repObj$meanWtAge_aspx,c(1,4,2,3) )
+  om$meanWtAge_axsp     <- repObj$meanWtAge_axsp
   om$Wlen_ls            <- repObj$Wlen_ls
-  om$probLenAge_laxsp   <- aperm( repObj$probLenAge_laspx, c(1,2,5,3,4) )
-  om$lenAge_axsp        <- aperm( repObj$lenAge_aspx, c(1,4,2,3) )
+  om$probLenAge_laxsp   <- repObj$probLenAge_laxsp
+  om$lenAge_axsp        <- repObj$lenAge_axsp
 
   # Make data list - anything else?
   # mp list - mostly for retrospective

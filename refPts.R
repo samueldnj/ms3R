@@ -682,8 +682,8 @@ calcJABBASelPars <- function( obj )
 
   # Life history schedules
   matAge_asp        <- obj$matAge_asp
-  lenAge_axsp       <- aperm(obj$lenAge_aspx,c(1,4,2,3))
-  wtAge_axsp        <- aperm(obj$meanWtAge_aspx,c(1,4,2,3))
+  lenAge_axsp       <- obj$lenAge_axsp
+  wtAge_axsp        <- obj$meanWtAge_axsp
   probLenAge_laspx  <- obj$probLenAge_laspx
   selAge_axsp       <- obj$sel_axspft[,,,,fleetIdx,nT]
 
