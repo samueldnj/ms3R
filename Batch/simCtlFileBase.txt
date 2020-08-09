@@ -123,7 +123,7 @@ opMod$interestRate 0.02
 opMod$priceFlex -0.1
 opMod$priceSD 0.05
 opMod$econBaseYear 2009
-opMod$crewShare .525
+opMod$crewShare .3
 opMod$projObsErrMult 1.0
 opMod$obsErrMult .5
 opMod$phaseInObsErrMult 6

@@ -10,7 +10,7 @@ ctl$maxIter 1e4
 ctl$rSeed 123
 ctl$totReps 100
 ctl$nGoodReps 3
-ctl$omni FALSE
+ctl$omni TRUE
 ctl$perfConF FALSE
 ctl$noProcErr FALSE
 mp$assess$assInt 1
@@ -72,9 +72,9 @@ mp$hcr$Fref "Umsy"
 mp$hcr$LCP .4
 mp$hcr$UCP .6
 mp$hcr$maxDeltaTACup .2
-mp$omni$fixEff TRUE
+mp$omni$fixEff FALSE
 mp$omni$avgEffYrs 5
-mp$omni$nKnots 9
+mp$omni$nKnots 20
 mp$omni$maxF 1.0
 mp$omni$maxE 40
 mp$omni$minE 0
@@ -103,6 +103,7 @@ mp$omni$initCatDiffWt .0
 mp$omni$initEffDiffWt 0.0
 mp$omni$penType "linear"
 mp$omni$linBeta 3
+mp$omni$baseEffort "MEY"
 opMod$allocYears 20
 opMod$alphaU .05
 opMod$baranovIter 20
@@ -114,7 +115,7 @@ opMod$priceCorr .6
 opMod$ut_50 .85
 opMod$ut_95 .75
 opMod$effortMod "Max"
-opMod$pT 40
+opMod$pT 20
 opMod$histFile "fit_parBatfitAAL4"
 opMod$price_s c(Dover=1.059,English=1.290,Rock=1.340,Petrale=2.590,Arrowtooth=0.990)
 opMod$varCostPerKt 0.176

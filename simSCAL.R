@@ -2178,7 +2178,14 @@ solvePTm <- function( Bmsy, B0 )
           {
             # Make spline, multiply by Emsy
             splineE <- spline( x = x, y = knotE_pk[p,], n = projInt)$y
-            splineE <- splineE * obj$rp$EmsyMSRefPts$EmsyMS_p[p]
+
+            if( mp$omni$baseEffort == "MSY")
+              baseEff <- obj$rp$EmsyMSRefPts$EmsyMS_p[p]
+
+            if( mp$omni$baseEffort == "MEY")
+              baseEff <- obj$rp$EmeyRefPts$Emey_p[p]
+
+            splineE <- splineE * baseEff
 
             maxE <- mp$omni$maxE * obj$rp$EmsyMSRefPts$EmsyMS_p[p]
 
@@ -2514,6 +2521,7 @@ solvePTm <- function( Bmsy, B0 )
     effCost_pt    <- array(0, dim = dim(Cproj_spt)[2:3] )
                     
     # Now calculate economic yield
+    browser()
     RevProj_spt <- obj$om$fleetRev_spft[,,2,tMP:nT]
     effCost_pt  <- obj$om$effCost_pft[,2,tMP:nT]
     for( p in 1:nP )
