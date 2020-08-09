@@ -1097,6 +1097,7 @@ makeStatTable <- function(  sim = 1, folder = "",
                   "pBtGtBmsy",
                   "pCtGtMSY", "pFtGtFmsy",
                   "avgCatch","AAV", "avgTACu",
+                  "medDiscProfits", "medEff",
                   "pHistLowCatch" )
 
   statTable <- matrix( NA,  ncol = length(colLabels),
@@ -1190,6 +1191,28 @@ makeStatTable <- function(  sim = 1, folder = "",
                                   qProbs = c(0.5),
                                   margin = c(2,3) )
 
+    # Calculate profit
+    rev_ispft      <- obj$om$Rev_ispft[1:maxGoodReps,,,,]
+    rev_ipft       <- apply( X = rev_ispft, FUN = sum, MARGIN = c(1,3,4,5))
+    effCost_ipft   <- obj$om$effCost_ipft[1:maxGoodReps,,,]
+    crewShare      <- opMod$crewShare
+    discRate       <- opMod$discountRate
+
+    profit_ipft    <- array(0, dim = dim(rev_ipft))
+    profit_ipft    <- (1 - crewShare)*rev_ipft - effCost_ipft
+    
+    discProfit_ipft  <- profit_ipft
+    for( t in tMP:nT )
+      discProfit_ipft[,,,t] <- profit_ipft[,,,t] * (1 + discRate)^(-(t - tMP))
+
+
+    discTotalProfit_ip     <- apply( X = discProfit_ipft[,,2,tMP:nT], FUN = sum, MARGIN = c(1,2) )
+    medDiscTotalProfit_p   <- apply( X = discTotalProfit_ip, FUN = median, MARGIN = c(2), na.rm = T )
+
+    E_ipft    <- obj$om$E_ipft[1:maxGoodReps,,,]
+    medEff_ip <- apply( X = E_ipft[,,2,], FUN = median, MARGIN = c(1,2),na.rm = T)
+    medEff_p  <- apply( X = medEff_ip, FUN = median, MARGIN = c(2),na.rm = T)
+
     for( s in 1:nS )
       for(p in 1:nP )
       {
@@ -1215,6 +1238,8 @@ makeStatTable <- function(  sim = 1, folder = "",
         statTable[rowIdx,"avgCatch"]        <- round(Cbar_sp[s,p],2)
         statTable[rowIdx,"AAV"]             <- round(AAV_sp[s,p],2)
         statTable[rowIdx,"avgTACu"]         <- round(TACubar_sp[s,p],2)
+        statTable[rowIdx,"medDiscProfits"]  <- round(medDiscTotalProfit_p[p],2)
+        statTable[rowIdx,"medEff"]          <- round(medEff_p[p],2)
         statTable[rowIdx,"pHistLowCatch"]   <- round(1 - pCtLtHistMinC_sp[s,p],2)
 
       }

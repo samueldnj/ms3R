@@ -115,7 +115,7 @@ opMod$ut_50 .85
 opMod$ut_95 .75
 opMod$effortMod "Max"
 opMod$pT 80
-opMod$histFile "fit_28032020144113"
+opMod$histFile "fit_parBatfitAAL4"
 opMod$price_s c(Dover=1.059,English=1.290,Rock=1.340,Petrale=2.590,Arrowtooth=0.990)
 opMod$varCostPerKt 0.176
 opMod$discountRate 0.05
