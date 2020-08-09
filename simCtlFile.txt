@@ -9,7 +9,7 @@ ctl$maxEval 1e4
 ctl$maxIter 1e4
 ctl$rSeed 123
 ctl$totReps 100
-ctl$nGoodReps 3
+ctl$nGoodReps 10
 ctl$omni TRUE
 ctl$perfConF FALSE
 ctl$noProcErr FALSE
@@ -89,9 +89,9 @@ mp$omni$expParMult 1
 mp$omni$inputF NULL
 mp$omni$inputE NULL
 mp$omni$avgCatWt 0.
-mp$omni$totCatWt 0.0
+mp$omni$totCatWt 1.0
 mp$omni$sumCatWt .0
-mp$omni$totProfitWt 1.0
+mp$omni$totProfitWt 0.0
 mp$omni$hiDepBmsyWt .0
 mp$omni$loDepBmsyWt .0
 mp$omni$probDepWt 0.0
