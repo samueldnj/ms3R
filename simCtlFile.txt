@@ -108,8 +108,8 @@ opMod$alphaU .05
 opMod$baranovIter 20
 opMod$baranovStep .5
 opMod$commGears c(2)
-opMod$corrRecDevs FALSE
-opMod$corrPriceDevs TRUE
+opMod$corrRecDevs TRUE
+opMod$corrPriceDevs FALSE
 opMod$priceCorr .6
 opMod$ut_50 .85
 opMod$ut_95 .75

@@ -3249,9 +3249,6 @@ combBarrierPen <- function( x, eps,
   obj$om$C_spt[,,histdx]          <- apply( X = repObj$predCw_spft, FUN = sum, MARGIN = c(1,2,4) )
   obj$om$E_pft[,1:2,histdx]       <- repObj$E_pft[,1:2,]
   obj$om$sel_axspft[,,,,,histdx]  <- repObj$sel_axspft
-
-  browser()
-
   obj$om$sel_lspft[,,,,histdx]    <- repObj$sel_lspft
 
   obj$mp$hcr$TAC_spft[,,,histdx]  <- obj$om$C_spft[,,,histdx]
@@ -3384,6 +3381,7 @@ combBarrierPen <- function( x, eps,
 
   commGears <- ctlList$opMod$commGears
 
+
   # Now, check if we're using correlated
   # errors - should refactor the following two routines to
   # avoid so much repetition - uncorrelated devs can be drawn
@@ -3408,7 +3406,8 @@ combBarrierPen <- function( x, eps,
                                         method = "chol")
 
     for( s in 1:nS )
-      obj$errors$omegaR_spt[s,,] <- t(corrRecDevsMat[,(s-1)*nP + 1:nP ])
+      for( p in 1:nP)
+        obj$errors$omegaR_spt[s,p,] <- corrRecDevsMat[,(s-1)*nP + p ]
   }
 
   # Loop and fill errors and allocation
@@ -3436,7 +3435,6 @@ combBarrierPen <- function( x, eps,
       obj$om$alloc_spf[s,p,commGears] <- recentCatch_spf[s,p,commGears] / sum( recentCatch_spf[s,p,commGears])
     }
 
-  browser()
 
   obj$errors$omegaRinit_asp         <- repObj$omegaRinit_asp # Initialisation errors
   
