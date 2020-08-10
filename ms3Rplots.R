@@ -2415,7 +2415,7 @@ plotEffYieldCurves <- function( obj = blob, maxE = NULL )
 # Function for plotting effort based
 # yield curves for each species and
 # the complex in a stock area.
-plotEconYieldCurves <- function( obj = blob, maxE = NULL )
+plotEconYieldCurves <- function( obj = blob, maxE = 60 )
 {
   # First, pull reference points and curves
   rp            <- obj$rp[[1]]
@@ -2451,6 +2451,7 @@ plotEconYieldCurves <- function( obj = blob, maxE = NULL )
   MSYSS_sp  <- EmsyRefPts$YeqEmsy_sp
 
   Emey_p      <- EmeyRefPts$Emey_p
+  MEY_p       <- EmeyRefPts$MEY_p
   Rev_pe      <- EmeyRefPts$econRev_pe
   Rev_spe     <- EmeyRefPts$econRev_spe
   econYeq_pe  <- EmeyRefPts$econYeq_pe
@@ -2499,13 +2500,16 @@ plotEconYieldCurves <- function( obj = blob, maxE = NULL )
       lines( x = Eseq, y = effCost_pe[p,] + crewShare * Rev_pe[p,], col = "red",
               lwd = 2 )
 
+      abline( v = Emey_p[p], lty = 2, col = "steelblue")
+      abline( v = EmsyMS_p[p], lty = 2, col = "grey40")
+
       # segments( x0 = EmsyMS_p[p], col = "grey40",
       #           y0 = 0, y1 = MSYMS_p[p], lty = 2  )
 
       # segments( x0 = 0, x1 = EmsyMS_p[p], col = "grey40",
       #           y0 = c(MSYMS_p[p],MSYMS_sp[,p]), lty = 2  )
 
-      if(  p == nP )
+      if(  p == 1 )
         legend( x = "topright", bty = "n",
                 col = c(specCols,"black","red","black"),
                 lty = c(1,1,1,1,1,2),
@@ -3697,6 +3701,172 @@ plotTulipBt <- function(  obj = blob, nTrace = 3,
     mtext(  outer = TRUE, side = 1, adj = .8, line = 3, cex = .6,
               text = stamp, col = "grey60" )
 }
+
+plotTulipRt <- function(  obj = blob,
+                          nTrace = 3, 
+                          clearBadReps = FALSE )
+{
+
+  nSims         <- obj$nSims
+  goodReps_isp  <- obj$goodReps_isp[1:nSims,,]
+  
+  R_ispt        <- 2*obj$om$R_ispt[1:nSims,,,,drop = FALSE]
+
+  R_qspt        <- apply( X = R_ispt, FUN = quantile, MARGIN = c(2,3,4),
+                          probs = c(0.025, 0.5, 0.975))
+
+  # Pull ref pts
+  rp <- obj$rp[[1]]
+
+  tMP     <- obj$om$tMP
+  nS      <- obj$om$nS
+  nP      <- obj$om$nP 
+  nT      <- obj$om$nT
+  nReps   <- dim(R_ispt)[1]
+
+  # Get reference points
+  R0_sp     <- obj$ctlList$opMod$histRpt$R0_sp
+  
+  speciesNames  <- obj$om$speciesNames
+  stockNames    <- obj$om$stockNames
+  fYear         <- obj$ctlList$opMod$fYear
+
+  yrs <- seq( from = fYear, by = 1, length.out = nT)
+
+   par( mfcol = c(nP,nS), 
+        mar = c(.1,1.5,.1,1.5),
+        oma = c(4,4,3,3) )
+
+   for( s in 1:nS )
+    for( p in 1:nP )
+    {
+      maxR <- max(R_qspt[,s,p,],na.rm = T) 
+      plot( x = range(yrs), y = c(0,maxR), type = "n",
+            axes = FALSE )
+        mfg <- par("mfg")
+        if(mfg[1] == mfg[3])
+          axis( side = 1)
+        axis( side = 2, las = 1)
+        grid()
+        box()
+        if( mfg[1] == 1 )
+          mtext( side = 3, text = speciesNames[s], font = 2)
+
+        if( mfg[2] == mfg[4] )
+          rmtext( txt = stockNames[p], outer = TRUE, line = 0.05,
+                  font = 2, cex = 1.5)
+        
+
+        polygon(  x = c(yrs,rev(yrs)), 
+                  y = c(R_qspt[1,s,p,],rev(R_qspt[3,s,p,]) ),
+                  border = NA, col = "grey60" )
+        lines( x = yrs, y = R_qspt[2,s,p,], lwd = 2)
+        points( x = yrs, y = R_qspt[2,s,p,], pch = 16, col = "grey15" )
+
+        abline( h = R0_sp[s,p], lty = 2, lwd = 2)
+        abline( v = yrs[tMP]-.5, lty = 3, lwd = 1)
+        
+
+    }
+} # END plotTulipRt
+
+plotTulipEconYield <- function( obj = blob,
+                                nTrace = 3, 
+                                fIdx = 2,
+                                clearBadReps = FALSE,
+                                colAlpha = 0.5 )
+{
+
+  nSims         <- obj$nSims
+  goodReps_isp  <- obj$goodReps_isp[1:nSims,,]
+
+  nReps         <- sum(apply(X = goodReps_isp, FUN=prod, MARGIN = c(1)))
+  
+  Rev_ispt      <- obj$om$Rev_ispft[1:nSims,,,2,]
+  effCost_ipt   <- obj$om$effCost_ipft[1:nSims,,2,]
+  crewShare     <- obj$ctlList$opMod$crewShare
+
+  browser()
+
+  Rev_ipt       <- apply( X = Rev_ispt, FUN = sum, MARGIN = c(1,3,4), 
+                          na.rm = T )
+  Prof_ipt      <- (1 - crewShare)*Rev_ipt - effCost_ipt
+
+  # Make Polygons
+  Rev_qpt       <- apply( X = Rev_ipt, FUN = quantile, MARGIN = c(2,3),
+                          probs = c(0.025, 0.5, 0.975), na.rm = T )
+  effCost_qpt   <- apply( X = effCost_ipt, FUN = quantile, MARGIN = c(2,3),
+                          probs = c(0.025, 0.5, 0.975), na.rm = T )
+  Prof_qpt      <- apply( X = Prof_ipt, FUN = quantile, MARGIN = c(2,3),
+                          probs = c(0.025, 0.5, 0.975), na.rm = T )
+
+
+
+  # Pull steady state ref pts
+  rp      <- obj$rp[[1]]
+  Emey_p  <- rp$EmeyRefPts$Emey_p
+  MEY_p   <- rp$EmeyRefPts$MEY_p
+
+  tMP     <- obj$om$tMP
+  nS      <- obj$om$nS
+  nP      <- obj$om$nP 
+  nT      <- obj$om$nT
+  nReps   <- dim(Rev_ipt)[1]
+  
+  speciesNames  <- obj$om$speciesNames
+  stockNames    <- obj$om$stockNames
+  fYear         <- obj$ctlList$opMod$fYear
+
+  yrs <- seq( from = fYear, by = 1, length.out = nT)
+
+  par(  mfcol = c(nP,1), 
+        mar = c(.1,1,.1,1),
+        oma = c(4,4,3,3) )
+
+  
+  revCol  <- scales::alpha("grey30",alpha = colAlpha)
+  costCol <- scales::alpha("red",alpha = colAlpha)
+  profCol <- scales::alpha("steelblue",alpha = colAlpha)
+
+  for( p in 1:nP )
+  {
+    maxRev <- max(Rev_qpt[,p,],na.rm = T) 
+    plot( x = range(yrs[tMP:nT]), y = c(0,maxRev), type = "n",
+          axes = FALSE )
+      mfg <- par("mfg")
+      if(mfg[1] == mfg[3])
+        axis( side = 1)
+      axis( side = 2, las = 1)
+      grid()
+      box()
+
+      if( mfg[2] == mfg[4] )
+        rmtext( txt = stockNames[p], outer = TRUE, line = 0.05,
+                font = 2, cex = 1.5)
+      
+
+      polygon(  x = c(yrs,rev(yrs)), 
+                y = c(Rev_qpt[1,p,],rev(Rev_qpt[3,p,]) ),
+                border = NA, col = revCol )
+      lines( x = yrs, y = Rev_qpt[2,p,], col = "black", lwd = 2)
+      
+      polygon(  x = c(yrs,rev(yrs)), 
+                y = c(effCost_qpt[1,p,],rev(effCost_qpt[3,p,]) ),
+                border = NA, col = costCol )
+      lines( x = yrs, y = effCost_qpt[2,p,], col = "red", lwd = 2)
+      
+      polygon(  x = c(yrs,rev(yrs)), 
+                y = c(Prof_qpt[1,p,],rev(Prof_qpt[3,p,]) ),
+                border = NA, col = profCol )
+      lines( x = yrs, y = Prof_qpt[2,p,], col = "steelblue", lwd = 2)
+
+
+      abline( h = MEY_p[p], lty = 2, lwd = 2)
+      abline( v = yrs[tMP]-.5, lty = 3, lwd = 1)
+      
+
+  }
+} # END plotTulipRt
 
 # plotTulipEffort_p()
 # Effort over time gridded

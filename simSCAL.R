@@ -2521,7 +2521,6 @@ solvePTm <- function( Bmsy, B0 )
     effCost_pt    <- array(0, dim = dim(Cproj_spt)[2:3] )
                     
     # Now calculate economic yield
-    browser()
     RevProj_spt <- obj$om$fleetRev_spft[,,2,tMP:nT]
     effCost_pt  <- obj$om$effCost_pft[,2,tMP:nT]
     for( p in 1:nP )
@@ -4054,6 +4053,9 @@ combBarrierPen <- function( x, eps,
     
     for( p in 1:nP)
       effCost_pft[p,,t] <- E_pft[p,,t] * rp$EmeyRefPts$effortPrice_p[p]
+
+    if( t > tMP )
+      effCost_pft[,,t] <- effCost_pft[,,t] * (1 + i)^(t - tMP)
   }
 
   # Calculate revenue

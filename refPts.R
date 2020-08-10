@@ -83,7 +83,8 @@ calcRefPts <- function( obj )
 
 # solveSpline()
 # Solves a spline (or derivatives) for a given value within certain bounds.
-solveSpline <- function( Yvals, Xvals, value = 0.5, bounds = c(0,10), deriv = 0 )
+solveSpline <- function(  Yvals, Xvals, value = 0, bounds = c(0,10), 
+                          deriv = 0 )
 {
   Yvals <- Yvals - value
 
@@ -99,7 +100,11 @@ solveSpline <- function( Yvals, Xvals, value = 0.5, bounds = c(0,10), deriv = 0 
   soln <- try( uniroot( f = xySplineFun, interval = bounds,
                         deriv = deriv )$root )
 
-  return(soln)
+  solVal <- xySplineFun(soln) + value
+
+  outList <- list( val = solVal, soln = soln)
+
+  return(outList)
 } # END solveEff()
 
 
@@ -185,8 +190,17 @@ solveSpline <- function( Yvals, Xvals, value = 0.5, bounds = c(0,10), deriv = 0 
   # Emey_sp <- apply( X = econYeq_spe, FUN = solveSpline, Xvals = Eff,
   #                   deriv = 1, bounds = c(0,15), MARGIN = c(1,2) )
 
-  Emey_p <- apply( X = econYeq_pe, FUN = solveSpline, Xvals = Eff,
-                    deriv = 1, bounds = c(0,15), MARGIN = c(1) )
+  meySolList <- apply(  X = econYeq_pe, FUN = solveSpline, Xvals = Eff,
+                        deriv = 1, bounds = c(0,15), MARGIN = c(1),
+                        value = 0 )
+
+  Emey_p <- numeric(length = nP)
+  MEY_p  <- numeric(length = nP)
+  for( p in 1:nP )
+  {
+    Emey_p[p] <-  meySolList[[p]]$soln
+    MEY_p[p]  <-  meySolList[[p]]$val
+  }
 
   econYieldCurves <- list()
   econYieldCurves$effCost_pe    <- effCost_pe
@@ -196,6 +210,7 @@ solveSpline <- function( Yvals, Xvals, value = 0.5, bounds = c(0,10), deriv = 0 
   econYieldCurves$econYeq_pe    <- econYeq_pe
   econYieldCurves$econRev_pe    <- econRev_pe
   econYieldCurves$Emey_p        <- Emey_p
+  econYieldCurves$MEY_p         <- MEY_p
   econYieldCurves$effortPrice_p <- effortPrice_p
 
 

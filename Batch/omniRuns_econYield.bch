@@ -11,7 +11,7 @@ scenario$scenario1$ctl$omni TRUE
 scenario$scenario1$opMod$pT 40
 scenario$scenario1$opMod$corrRecDevs FALSE
 scenario$scenario1$opMod$corrPriceDevs FALSE
-scenario$scenario1$mp$omni$nKnots 40
+scenario$scenario1$mp$omni$nKnots 21
 #
 # Scenario 2 : corrRec
 #
@@ -21,7 +21,7 @@ scenario$scenario2$ctl$omni TRUE
 scenario$scenario2$opMod$pT 40
 scenario$scenario2$opMod$corrRecDevs TRUE
 scenario$scenario2$opMod$corrPriceDevs FALSE
-scenario$scenario2$mp$omni$nKnots 40
+scenario$scenario2$mp$omni$nKnots 21
 #
 # Scenario 3 : corrPrice
 #
@@ -31,7 +31,7 @@ scenario$scenario3$ctl$omni TRUE
 scenario$scenario3$opMod$pT 40
 scenario$scenario3$opMod$corrRecDevs FALSE
 scenario$scenario3$opMod$corrPriceDevs TRUE
-scenario$scenario3$mp$omni$nKnots 40
+scenario$scenario3$mp$omni$nKnots 21
 #
 # Scenario 4 : corrRecPrice
 #
@@ -41,7 +41,7 @@ scenario$scenario4$ctl$omni TRUE
 scenario$scenario4$opMod$pT 40
 scenario$scenario4$opMod$corrRecDevs TRUE
 scenario$scenario4$opMod$corrPriceDevs TRUE
-scenario$scenario4$mp$omni$nKnots 40
+scenario$scenario4$mp$omni$nKnots 21
 #
 #
 ## Management Procedures

@@ -1,15 +1,15 @@
 # simCtlFile.txt, saved to ms3R root working directory
 parameter value
 ctl$scenarioName "DER_setupEcon"
-ctl$mpName "omni_totCat"
+ctl$mpName "omni_totProfit"
 ctl$quiet FALSE
 ctl$phaseMessages FALSE
 ctl$optimOutput FALSE
 ctl$maxEval 1e4
 ctl$maxIter 1e4
 ctl$rSeed 123
-ctl$totReps 100
-ctl$nGoodReps 10
+ctl$totReps 3
+ctl$nGoodReps 5
 ctl$omni TRUE
 ctl$perfConF FALSE
 ctl$noProcErr FALSE
@@ -74,7 +74,7 @@ mp$hcr$UCP .6
 mp$hcr$maxDeltaTACup .2
 mp$omni$fixEff FALSE
 mp$omni$avgEffYrs 5
-mp$omni$nKnots 20
+mp$omni$nKnots 16
 mp$omni$maxF 1.0
 mp$omni$maxE 40
 mp$omni$minE 0
@@ -89,9 +89,9 @@ mp$omni$expParMult 1
 mp$omni$inputF NULL
 mp$omni$inputE NULL
 mp$omni$avgCatWt 0.
-mp$omni$totCatWt 1.0
+mp$omni$totCatWt 0.0
 mp$omni$sumCatWt .0
-mp$omni$totProfitWt 0.0
+mp$omni$totProfitWt 1.0
 mp$omni$hiDepBmsyWt .0
 mp$omni$loDepBmsyWt .0
 mp$omni$probDepWt 0.0
@@ -115,7 +115,7 @@ opMod$priceCorr .6
 opMod$ut_50 .85
 opMod$ut_95 .75
 opMod$effortMod "Max"
-opMod$pT 20
+opMod$pT 30
 opMod$histFile "fit_parBatfitAAL4"
 opMod$price_s c(Dover=1.059,English=1.290,Rock=1.340,Petrale=2.590,Arrowtooth=0.990)
 opMod$varCostPerKt 0.176
