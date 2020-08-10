@@ -2177,13 +2177,22 @@ solvePTm <- function( Bmsy, B0 )
           for( p in 1:nP )
           {
             # Make spline, multiply by Emsy
-            splineE <- spline( x = x, y = knotE_pk[p,], n = projInt)$y
+            if(nKnots < (nT - tMP + 1))
+            {
+              effSplineFun <- splinefun( x = x, y = knotE_pk[p,] )
+              splineE <- effSplineFun(1:max(x))
+            }
+            else
+              splineE <- knotE_pk[p,]
 
             if( mp$omni$baseEffort == "MSY")
               baseEff <- obj$rp$EmsyMSRefPts$EmsyMS_p[p]
 
             if( mp$omni$baseEffort == "MEY")
               baseEff <- obj$rp$EmeyRefPts$Emey_p[p]
+
+            if( mp$omni$baseEffort == "Check" )
+              baseEff <- 0.1
 
             splineE <- splineE * baseEff
 
@@ -2216,8 +2225,7 @@ solvePTm <- function( Bmsy, B0 )
 
     }
 
-    
-
+  
     
 
     # run model for projection period
@@ -2437,15 +2445,15 @@ solvePTm <- function( Bmsy, B0 )
       }
 
 
-    barEffDiff <- combBarrierPen( x       = effDiffRel_t,
-                                  eps     = maxEffDiff,
-                                  alpha   = maxEffDiff/2, 
-                                  above   = FALSE )
+    # barEffDiff <- combBarrierPen( x       = effDiffRel_t,
+    #                               eps     = maxEffDiff,
+    #                               alpha   = maxEffDiff/2, 
+    #                               above   = FALSE )
 
-    expEffDiff <- expPenaltyFunction( x     = effDiffRel_t,
-                                      eps   = maxEffDiff,
-                                      alpha = 1,
-                                      above = FALSE )
+    # expEffDiff <- expPenaltyFunction( x     = effDiffRel_t,
+    #                                   eps   = maxEffDiff,
+    #                                   alpha = 1,
+    #                                   above = FALSE )
 
     linEffDiff <- linPenaltyFunction( x     = effDiffRel_t,
                                       eps   = maxEffDiff,
@@ -2454,15 +2462,15 @@ solvePTm <- function( Bmsy, B0 )
                                       above = FALSE )
 
 
-    barInitEffDiff <- combBarrierPen( x       = initEffDiffRel,
-                                      eps     = maxEffDiff,
-                                      alpha   = maxEffDiff/2, 
-                                      above   = FALSE )
+    # barInitEffDiff <- combBarrierPen( x       = initEffDiffRel,
+    #                                   eps     = maxEffDiff,
+    #                                   alpha   = maxEffDiff/2, 
+    #                                   above   = FALSE )
 
-    expInitEffDiff <- expPenaltyFunction( x     = initEffDiffRel,
-                                          eps   = maxEffDiff,
-                                          alpha = 1,
-                                          above = FALSE )
+    # expInitEffDiff <- expPenaltyFunction( x     = initEffDiffRel,
+    #                                       eps   = maxEffDiff,
+    #                                       alpha = 1,
+    #                                       above = FALSE )
 
     linInitEffDiff <- linPenaltyFunction( x     = initEffDiffRel,
                                           eps   = maxEffDiff,
@@ -2476,33 +2484,33 @@ solvePTm <- function( Bmsy, B0 )
     totCbar <- mean( apply(X = Cproj_spt, FUN = sum, MARGIN = 3 ) )
 
     # Total obj function for each stock/species
-    objFun_sp <- -  avgCatWt * log(1e3*Cbar_sp) + 
+    objFun_sp <- -  avgCatWt * log(1*Cbar_sp) + 
                     (closedWt * closedCount_sp)^mp$omni$linBeta
 
-    if( mp$omni$penType == "barrier" )
-    {
-      objFun_sp <- objFun_sp +
-                    loDepBmsyWt * barLoDep_sp + 
-                    hiDepBmsyWt * barHiDep_sp +
-                    AAVWt * barAAV_sp +  
-                    catDiffWt * barCatDiff_sp + 
-                    initCatDiffWt * barInitCatDiff_sp + 
-                    probDepWt * barProbLoDep_sp +
-                    probDepWt * barProbHiDep_sp
+    # if( mp$omni$penType == "barrier" )
+    # {
+    #   objFun_sp <- objFun_sp +
+    #                 loDepBmsyWt * barLoDep_sp + 
+    #                 hiDepBmsyWt * barHiDep_sp +
+    #                 AAVWt * barAAV_sp +  
+    #                 catDiffWt * barCatDiff_sp + 
+    #                 initCatDiffWt * barInitCatDiff_sp + 
+    #                 probDepWt * barProbLoDep_sp +
+    #                 probDepWt * barProbHiDep_sp
 
-    }
+    # }
 
-    if( mp$omni$penType == "exponential" )
-    {
-      objFun_sp <- objFun_sp +
-                    loDepBmsyWt * expLoDep_sp + 
-                    hiDepBmsyWt * expHiDep_sp +
-                    AAVWt * expAAV_sp +  
-                    catDiffWt * expCatDiff_sp + 
-                    initCatDiffWt * expInitCatDiff_sp + 
-                    probDepWt * expProbLoDep_sp +
-                    probDepWt * expProbHiDep_sp
-    }
+    # if( mp$omni$penType == "exponential" )
+    # {
+    #   objFun_sp <- objFun_sp +
+    #                 loDepBmsyWt * expLoDep_sp + 
+    #                 hiDepBmsyWt * expHiDep_sp +
+    #                 AAVWt * expAAV_sp +  
+    #                 catDiffWt * expCatDiff_sp + 
+    #                 initCatDiffWt * expInitCatDiff_sp + 
+    #                 probDepWt * expProbLoDep_sp +
+    #                 probDepWt * expProbHiDep_sp
+    # }
 
     if( mp$omni$penType == "linear" )
     {
@@ -2537,9 +2545,13 @@ solvePTm <- function( Bmsy, B0 )
 
    
     objFun    <-  sum(objFun_sp) -
-                  totCatWt * log(1e3*totCbar) -
-                  sumCatWt * log(1e3*Csum) -
-                  totProfitWt * log(1e3*discEconYield)
+                  totCatWt * log(1*totCbar) -
+                  sumCatWt * log(1*Csum)
+
+    if(totProfitWt > 0)
+      objFun <- objFun  -
+                totProfitWt * discEconYield
+
 
 
     if( mp$omni$penType == "barrier" )
@@ -2559,6 +2571,7 @@ solvePTm <- function( Bmsy, B0 )
 
     if(is.na(objFun))
       browser()
+
 
     # Return results
     result                    <- obj
@@ -2643,7 +2656,7 @@ solvePTm <- function( Bmsy, B0 )
 
   # Might need to refine this later, but for now we
   # use a random vector
-  initPars <- rnorm(n = nPars, sd = .3)
+  initPars <- rnorm(n = nPars, sd = 1)
 
   # # Multiply by the appropriate scalar
   # if( ctlList$opMod$effortMod %in% c("Max","dynModel") )
@@ -2669,12 +2682,13 @@ solvePTm <- function( Bmsy, B0 )
     # closures/low catch
     opt <- optim( par = initPars, fn = getObjFunctionVal,
                   method = "BFGS", obj = obj,
-                  control=list(maxit=10000, reltol=0.01 ) )
-                  # control=list(maxit=3000, reltol=0.001,ndeps=c(.01,.01) ) )
+                  # control=list(maxit=10000, reltol=0.01 ) )
+                  control=list(maxit=3000, reltol=0.001, trace = mp$omni$trace ) )
 
-    # opt <- optim( par = opt$par, fn = getObjFunctionVal,
-    #               method = "Nelder-Mead", obj = obj,
-    #               control=list(maxit=3000, reltol=0.001,ndeps=c(.01,.01) ) )
+    opt <- optim( par = opt$par, fn = getObjFunctionVal,
+                  method = "Nelder-Mead", obj = obj,
+                  control=list(maxit=3000, reltol=0.001,ndeps=c(.01,.01), 
+                  trace = mp$omni$trace ) )
 
     message( " (.solveProjPop) Optimisation for omniscient manager completed with f = ", 
               round(opt$value,2), ".\n")

@@ -3786,8 +3786,6 @@ plotTulipEconYield <- function( obj = blob,
   effCost_ipt   <- obj$om$effCost_ipft[1:nSims,,2,]
   crewShare     <- obj$ctlList$opMod$crewShare
 
-  browser()
-
   Rev_ipt       <- apply( X = Rev_ispt, FUN = sum, MARGIN = c(1,3,4), 
                           na.rm = T )
   Prof_ipt      <- (1 - crewShare)*Rev_ipt - effCost_ipt
