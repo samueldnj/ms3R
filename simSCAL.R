@@ -2047,19 +2047,20 @@ solvePTm <- function( Bmsy, B0 )
 
 
     # Obj function weights
-    avgCatWt      <- mp$omni$avgCatWt
-    totCatWt      <- mp$omni$totCatWt
-    hiDepBmsyWt   <- mp$omni$hiDepBmsyWt
-    loDepBmsyWt   <- mp$omni$loDepBmsyWt
-    closedWt      <- mp$omni$closedWt
-    AAVWt         <- mp$omni$AAVWt
-    catDiffWt     <- mp$omni$catDiffWt
-    sumCatWt      <- mp$omni$sumCatWt
-    effDiffWt     <- mp$omni$effDiffWt
-    initCatDiffWt <- mp$omni$initCatDiffWt
-    initEffDiffWt <- mp$omni$initEffDiffWt
-    probDepWt     <- mp$omni$probDepWt
-    totProfitWt   <- mp$omni$totProfitWt
+    avgCatWt        <- mp$omni$avgCatWt
+    totCatWt        <- mp$omni$totCatWt
+    hiDepBmsyWt     <- mp$omni$hiDepBmsyWt
+    loDepBmsyWt     <- mp$omni$loDepBmsyWt
+    closedWt        <- mp$omni$closedWt
+    AAVWt           <- mp$omni$AAVWt
+    catDiffWt       <- mp$omni$catDiffWt
+    sumCatWt        <- mp$omni$sumCatWt
+    effDiffWt       <- mp$omni$effDiffWt
+    initCatDiffWt   <- mp$omni$initCatDiffWt
+    initEffDiffWt   <- mp$omni$initEffDiffWt
+    probDepWt       <- mp$omni$probDepWt
+    totProfitWt     <- mp$omni$totProfitWt
+    leastSquaresWt  <- mp$omni$leastSquaresWt
 
     # Model dimensions
     nS      <- om$nS
@@ -2178,12 +2179,12 @@ solvePTm <- function( Bmsy, B0 )
           {
             # Make spline, multiply by Emsy
             if(nKnots < (nT - tMP + 1))
-            {
-              effSplineFun <- splinefun( x = x, y = knotE_pk[p,] )
-              splineE <- effSplineFun(1:max(x))
-            }
+              splineE <- spline( x = x, y = knotE_pk[p,], n = projInt)$y
             else
               splineE <- knotE_pk[p,]
+
+            splineE[splineE > maxE] <- maxE
+            splineE[splineE < 0 ]   <- minE
 
             if( mp$omni$baseEffort == "MSY")
               baseEff <- obj$rp$EmsyMSRefPts$EmsyMS_p[p]
@@ -2195,18 +2196,7 @@ solvePTm <- function( Bmsy, B0 )
               baseEff <- 0.1
 
             splineE <- splineE * baseEff
-
-            maxE <- mp$omni$maxE * obj$rp$EmsyMSRefPts$EmsyMS_p[p]
-
-            # Correct for under and over efforts, limit
-            # lowest effort to be the minimum over the
-            # historical period
-            if( minE == "hist" )
-              splineE[splineE < 0] <- min(obj$om$E_pft[p,2,1:(tMP-1)])/rp$EmsyMSRefPts$EmsyMS_p[p]
-            else 
-              splineE[splineE < 0] <- minE
             
-            splineE[splineE > maxE] <- maxE
 
             if(any(is.na(splineE)))
               browser()
@@ -2298,6 +2288,7 @@ solvePTm <- function( Bmsy, B0 )
 
     catDiffRel_spt <- catDiff_spt / (obj$om$C_spft[,,2,(tMP:nT) - 1])
     catDiffRel_spt[!is.finite(catDiffRel_spt)] <- 1
+    catDiffRel_spt[catDiffRel_spt > 1] <- 1
 
     initCatDiffRel_sp <- catDiffRel_spt[,,1]
 
@@ -2484,7 +2475,7 @@ solvePTm <- function( Bmsy, B0 )
     totCbar <- mean( apply(X = Cproj_spt, FUN = sum, MARGIN = 3 ) )
 
     # Total obj function for each stock/species
-    objFun_sp <- -  avgCatWt * log(1*Cbar_sp) + 
+    objFun_sp <- -  avgCatWt * log(Cbar_sp) + 
                     (closedWt * closedCount_sp)^mp$omni$linBeta
 
     # if( mp$omni$penType == "barrier" )
@@ -2545,12 +2536,12 @@ solvePTm <- function( Bmsy, B0 )
 
    
     objFun    <-  sum(objFun_sp) -
-                  totCatWt * log(1*totCbar) -
-                  sumCatWt * log(1*Csum)
+                  totCatWt * log(totCbar) -
+                  sumCatWt * log(Csum)
 
     if(totProfitWt > 0)
       objFun <- objFun  -
-                totProfitWt * discEconYield
+                totProfitWt * (discEconYield)
 
 
 
@@ -2568,6 +2559,9 @@ solvePTm <- function( Bmsy, B0 )
       objFun <- objFun + 
                   effDiffWt * linEffDiff +
                   initEffDiffWt * linInitEffDiff
+
+    pars[pars > 10] <- 10
+    objFun <- objFun + leastSquaresWt*sum(pars^2)
 
     if(is.na(objFun))
       browser()

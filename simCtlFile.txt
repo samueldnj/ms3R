@@ -74,9 +74,9 @@ mp$hcr$UCP .6
 mp$hcr$maxDeltaTACup .2
 mp$omni$fixEff FALSE
 mp$omni$avgEffYrs 5
-mp$omni$nKnots 7
+mp$omni$nKnots 11
 mp$omni$maxF 1.0
-mp$omni$maxE 40
+mp$omni$maxE 4
 mp$omni$minE 0
 mp$omni$maxAAV .25
 mp$omni$maxRelEffDiff .2
@@ -88,6 +88,7 @@ mp$omni$hiDepProb 0.05
 mp$omni$expParMult 1
 mp$omni$inputF NULL
 mp$omni$inputE NULL
+mp$omni$leastSquaresWt .1
 mp$omni$avgCatWt 0.
 mp$omni$totCatWt 1.0
 mp$omni$sumCatWt .0
@@ -98,9 +99,9 @@ mp$omni$probDepWt 0.0
 mp$omni$closedWt 0
 mp$omni$AAVWt 0
 mp$omni$catDiffWt 0.0
-mp$omni$effDiffWt 0.0
+mp$omni$effDiffWt .01
 mp$omni$initCatDiffWt .0
-mp$omni$initEffDiffWt 0.0
+mp$omni$initEffDiffWt .01
 mp$omni$penType "linear"
 mp$omni$linBeta 3
 mp$omni$baseEffort "MSY"
