@@ -103,7 +103,7 @@ mp$omni$initCatDiffWt .0
 mp$omni$initEffDiffWt 0.0
 mp$omni$penType "linear"
 mp$omni$linBeta 3
-mp$omni$baseEff "MSY"
+mp$omni$baseEffort "MSY"
 opMod$allocYears 20
 opMod$alphaU .05
 opMod$baranovIter 20
