@@ -12,40 +12,40 @@ scenario$scenario1$opMod$pT 80
 scenario$scenario1$opMod$corrRecDevs FALSE
 scenario$scenario1$opMod$corrPriceDevs FALSE
 scenario$scenario1$mp$omni$nKnots 21
-scenario$scenario1$mp$omni$leastSquaresWt .1
+scenario$scenario1$mp$omni$leastSquaresWt .01
 #
 # Scenario 2 : corrRec
 #
 scenario$scenario2$ctl$scenarioName 'corrRecDevs'
 scenario$scenario2$ctl$nGoodReps 40
 scenario$scenario2$ctl$omni TRUE
-scenario$scenario2$opMod$pT 40
+scenario$scenario2$opMod$pT 80
 scenario$scenario2$opMod$corrRecDevs TRUE
 scenario$scenario2$opMod$corrPriceDevs FALSE
 scenario$scenario2$mp$omni$nKnots 21
-scenario$scenario2$mp$omni$leastSquaresWt .1
+scenario$scenario2$mp$omni$leastSquaresWt .01
 #
 # Scenario 3 : corrPrice
 #
 scenario$scenario3$ctl$scenarioName 'corrPriceDevs'
 scenario$scenario3$ctl$nGoodReps 40
 scenario$scenario3$ctl$omni TRUE
-scenario$scenario3$opMod$pT 40
+scenario$scenario3$opMod$pT 80
 scenario$scenario3$opMod$corrRecDevs FALSE
 scenario$scenario3$opMod$corrPriceDevs TRUE
 scenario$scenario3$mp$omni$nKnots 21
-scenario$scenario3$mp$omni$leastSquaresWt .1
+scenario$scenario3$mp$omni$leastSquaresWt .01
 #
 # Scenario 4 : corrRecPrice
 #
 scenario$scenario4$ctl$scenarioName 'corrRecPrice'
 scenario$scenario4$ctl$nGoodReps 40
 scenario$scenario4$ctl$omni TRUE
-scenario$scenario4$opMod$pT 40
+scenario$scenario4$opMod$pT 80
 scenario$scenario4$opMod$corrRecDevs TRUE
 scenario$scenario4$opMod$corrPriceDevs TRUE
 scenario$scenario4$mp$omni$nKnots 21
-scenario$scenario4$mp$omni$leastSquaresWt .1
+scenario$scenario4$mp$omni$leastSquaresWt .01
 #
 #
 ## Management Procedures
@@ -60,6 +60,7 @@ mp$mp1$mp$omni$avgEffYrs 5
 mp$mp1$mp$omni$effDiffWt 0.01
 mp$mp1$mp$omni$initEffDiffWt 0.01
 mp$mp1$mp$omni$baseEffort "MSY"
+mp$mp1$mp$omni$loDepBmsyWt 1
 #
 # MP 2 : omni_totProfit1_freeEff
 #
@@ -71,6 +72,7 @@ mp$mp2$mp$omni$avgEffYrs 5
 mp$mp2$mp$omni$effDiffWt 0.01
 mp$mp2$mp$omni$initEffDiffWt 0.01
 mp$mp2$mp$omni$baseEffort "MEY"
+mp$mp2$mp$omni$loDepBmsyWt 1
 #
 ## Management Procedures
 #
@@ -84,6 +86,7 @@ mp$mp3$mp$omni$avgEffYrs 5
 mp$mp3$mp$omni$effDiffWt 0.0
 mp$mp3$mp$omni$initEffDiffWt 0.0
 mp$mp3$mp$omni$baseEffort "MSY"
+mp$mp3$mp$omni$loDepBmsyWt 1
 #
 # MP 4 : omni_totProfit1_fixEff
 #
@@ -95,6 +98,7 @@ mp$mp4$mp$omni$avgEffYrs 5
 mp$mp4$mp$omni$effDiffWt 0.0
 mp$mp4$mp$omni$initEffDiffWt 0.0
 mp$mp4$mp$omni$baseEffort "MEY"
+mp$mp4$mp$omni$loDepBmsyWt 1
 #
 #
 ## <END FILE>
