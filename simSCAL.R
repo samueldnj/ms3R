@@ -2475,7 +2475,7 @@ solvePTm <- function( Bmsy, B0 )
     totCbar <- mean( apply(X = Cproj_spt, FUN = sum, MARGIN = 3 ) )
 
     # Total obj function for each stock/species
-    objFun_sp <- -  avgCatWt * log(Cbar_sp) + 
+    objFun_sp <- -  avgCatWt * log(1e2*Cbar_sp) + 
                     (closedWt * closedCount_sp)^mp$omni$linBeta
 
     # if( mp$omni$penType == "barrier" )
@@ -2536,8 +2536,8 @@ solvePTm <- function( Bmsy, B0 )
 
    
     objFun    <-  sum(objFun_sp) -
-                  totCatWt * log(totCbar) -
-                  sumCatWt * log(Csum)
+                  totCatWt * log(1e2*totCbar) -
+                  sumCatWt * log(1e2*Csum)
 
     if(totProfitWt > 0)
       objFun <- objFun  -
@@ -2679,10 +2679,10 @@ solvePTm <- function( Bmsy, B0 )
                   # control=list(maxit=10000, reltol=0.01 ) )
                   control=list(maxit=3000, reltol=0.001, trace = mp$omni$trace ) )
 
-    opt <- optim( par = opt$par, fn = getObjFunctionVal,
-                  method = "Nelder-Mead", obj = obj,
-                  control=list(maxit=3000, reltol=0.001,ndeps=c(.01,.01), 
-                  trace = mp$omni$trace ) )
+    # opt <- optim( par = opt$par, fn = getObjFunctionVal,
+    #               method = "Nelder-Mead", obj = obj,
+    #               control=list(maxit=3000, reltol=0.001,ndeps=c(.01,.01), 
+    #               trace = mp$omni$trace ) )
 
     message( " (.solveProjPop) Optimisation for omniscient manager completed with f = ", 
               round(opt$value,2), ".\n")
