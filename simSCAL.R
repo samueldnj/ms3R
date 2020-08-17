@@ -2170,8 +2170,7 @@ solvePTm <- function( Bmsy, B0 )
         {
           # Then we are solving for area specific
           # Es (nP at each time step)
-          tmpEmult    <- exp( pars )
-          knotE_pk    <- array( tmpEmult, dim = c(nP,nKnots) )
+          knotlnE_pk    <- array( pars, dim = c(nP,nKnots) )
 
 
           # Make spline for each species/stock
@@ -2179,12 +2178,11 @@ solvePTm <- function( Bmsy, B0 )
           {
             # Make spline, multiply by Emsy
             if(nKnots < (nT - tMP + 1))
-              splineE <- spline( x = x, y = knotE_pk[p,], n = projInt)$y
+              splinelnE <- spline( x = x, y = knotlnE_pk[p,], n = projInt)$y
             else
-              splineE <- knotE_pk[p,]
+              splinelnE <- knotlnE_pk[p,]
 
-            splineE[splineE > maxE] <- maxE
-            splineE[splineE < 0 ]   <- minE
+            splinelnE[splinelnE > log(maxE) ]  <- log(maxE)
 
             if( mp$omni$baseEffort == "MSY")
               baseEff <- obj$rp$EmsyMSRefPts$EmsyMS_p[p]
@@ -2195,7 +2193,7 @@ solvePTm <- function( Bmsy, B0 )
             if( mp$omni$baseEffort == "Check" )
               baseEff <- 0.1
 
-            splineE <- splineE * baseEff
+            splineE <- exp(splinelnE) * baseEff
             
 
             if(any(is.na(splineE)))
@@ -2560,8 +2558,8 @@ solvePTm <- function( Bmsy, B0 )
                   effDiffWt * linEffDiff +
                   initEffDiffWt * linInitEffDiff
 
-    pars[pars > 10] <- 10
-    objFun <- objFun + leastSquaresWt*sum(pars^2)
+    robustPars[abs(pars) > 5] <- 5
+    objFun <- objFun + leastSquaresWt*sum(robustPars^2)
 
     if(is.na(objFun))
       browser()
