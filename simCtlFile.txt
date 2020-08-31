@@ -8,11 +8,12 @@ ctl$optimOutput FALSE
 ctl$maxEval 1e4
 ctl$maxIter 1e4
 ctl$rSeed 123
-ctl$totReps 3
-ctl$nGoodReps 3
+ctl$totReps 10
+ctl$nGoodReps 5
 ctl$omni TRUE
 ctl$perfConF FALSE
 ctl$noProcErr FALSE
+ctl$nCores 5
 mp$assess$assInt 1
 mp$assess$method "idxBased"
 mp$assess$idxPoints 3

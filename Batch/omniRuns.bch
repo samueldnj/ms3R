@@ -6,77 +6,29 @@ parameter value
 # Scenario 1 : DER_base
 #
 scenario$scenario1$ctl$scenarioName 'DER_base'
-scenario$scenario1$ctl$nGoodReps 400
+scenario$scenario1$ctl$nGoodReps 200
+scenario$scenario1$ctl$totReps 200
 scenario$scenario1$ctl$omni TRUE
-scenario$scenario1$opMod$pT 40
-scenario$scenario1$mp$omni$nKnots 9
+scenario$scenario1$ctl$nCores 24
+scenario$scenario1$opMod$pT 80
+scenario$scenario1$mp$omni$nKnots 21
 #
 #
 ## Management Procedures
+# MP 1 : omni_totCat1_effDiff1_initEffDiff1
 #
-# MP 1 : omni_totCat1
-#
-mp$mp1$ctl$mpName 'omni_totCat1'
+mp$mp1$ctl$mpName 'omni_totCat1_effDiff1_initEffDiff1_loDepBmsy1'
 mp$mp1$mp$omni$avgCatWt 0.
 mp$mp1$mp$omni$totCatWt 1.0
 mp$mp1$mp$omni$sumCatWt .0
 mp$mp1$mp$omni$hiDepBmsyWt .0
-mp$mp1$mp$omni$loDepBmsyWt .0
+mp$mp1$mp$omni$loDepBmsyWt 1.0
 mp$mp1$mp$omni$probDepWt 0.0
 mp$mp1$mp$omni$closedWt 0
 mp$mp1$mp$omni$AAVWt 0
 mp$mp1$mp$omni$catDiffWt 0
-mp$mp1$mp$omni$effDiffWt .0
+mp$mp1$mp$omni$effDiffWt 1.0
 mp$mp1$mp$omni$initCatDiffWt .0
-mp$mp1$mp$omni$initEffDiffWt .0
-#
-# MP 2 : omni_totCat1_effDiff1
-#
-mp$mp2$ctl$mpName 'omni_totCat1_effDiff1'
-mp$mp2$mp$omni$avgCatWt 0.
-mp$mp2$mp$omni$totCatWt 1.0
-mp$mp2$mp$omni$sumCatWt .0
-mp$mp2$mp$omni$hiDepBmsyWt .0
-mp$mp2$mp$omni$loDepBmsyWt .0
-mp$mp2$mp$omni$probDepWt 0.0
-mp$mp2$mp$omni$closedWt 0
-mp$mp2$mp$omni$AAVWt 0
-mp$mp2$mp$omni$catDiffWt 0
-mp$mp2$mp$omni$effDiffWt 1.0
-mp$mp2$mp$omni$initCatDiffWt .0
-mp$mp2$mp$omni$initEffDiffWt .0
-#
-# MP 3 : omni_totCat1_effDiff1_initEffDiff1
-#
-mp$mp3$ctl$mpName 'omni_totCat1_effDiff1_initEffDiff1'
-mp$mp3$mp$omni$avgCatWt 0.
-mp$mp3$mp$omni$totCatWt 1.0
-mp$mp3$mp$omni$sumCatWt .0
-mp$mp3$mp$omni$hiDepBmsyWt .0
-mp$mp3$mp$omni$loDepBmsyWt .0
-mp$mp3$mp$omni$probDepWt 0.0
-mp$mp3$mp$omni$closedWt 0
-mp$mp3$mp$omni$AAVWt 0
-mp$mp3$mp$omni$catDiffWt 0
-mp$mp3$mp$omni$effDiffWt 1.0
-mp$mp3$mp$omni$initCatDiffWt .0
-mp$mp3$mp$omni$initEffDiffWt 1.0
-#
-# MP 4 : omni_totCat1_effDiff1_initEffDiff1_histMinEff
-#
-mp$mp4$ctl$mpName 'omni_totCat1_effDiff1_initEffDiff1_histMinEff'
-mp$mp4$mp$omni$minE "hist"
-mp$mp4$mp$omni$avgCatWt 0.
-mp$mp4$mp$omni$totCatWt 1.0
-mp$mp4$mp$omni$sumCatWt .0
-mp$mp4$mp$omni$hiDepBmsyWt .0
-mp$mp4$mp$omni$loDepBmsyWt .0
-mp$mp4$mp$omni$probDepWt 0.0
-mp$mp4$mp$omni$closedWt 0
-mp$mp4$mp$omni$AAVWt 0
-mp$mp4$mp$omni$catDiffWt 0
-mp$mp4$mp$omni$effDiffWt 1.0
-mp$mp4$mp$omni$initCatDiffWt .0
-mp$mp4$mp$omni$initEffDiffWt 1.0
+mp$mp1$mp$omni$initEffDiffWt 1.0
 #
 # <File Ends>
