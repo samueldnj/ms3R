@@ -441,49 +441,44 @@ makeStatTable <- function( sims = 1, folder = "" )
 
     # Ponded fish
     P_ispft      <- om$P_ispft[allConvReps,,,,,drop = FALSE]
-    P_ispt       <- apply(C_ispft[,,,6:7,,drop=FALSE], FUN=sum, MARGIN=c(1,2,3,5))
+    P_ispt       <- apply(P_ispft[,,,6:7,,drop=FALSE], FUN=sum, MARGIN=c(1,2,3,5))
+
+    # Dead ponded fish
+    deadP_ispt <- apply(C_ispft[,,,6:7,,drop=FALSE], FUN=sum, MARGIN=c(1,2,3,5))
     
     # SOK licenses
     L_ispft <- mp$hcr$sokEff_ispft [allConvReps,,,,,drop = FALSE]
     L_ispt  <- apply( X = L_ispft[,,,6:7,,drop = FALSE], FUN = sum, MARGIN = c(1,2,3,5))
 
-
     # SOK product in kt
     psi_ispft    <- om$psi_ispft[allConvReps,,,,,drop = FALSE]
     SOK_ispft    <- P_ispft*psi_ispft
     SOK_ispt     <- apply(SOK_ispft[,,,6:7,,drop=FALSE], FUN=sum, MARGIN=c(1,2,3,5))
-
-    # Harvest rate
-
-    # calculate dead ponded fish
-    pondM_it   <- om$pondM_ift[allConvReps,6,]
-    deadP_ispt <- apply(C_ispft[,,,6,,drop=FALSE], FUN=sum, MARGIN=c(1,2,3,5))
-
-    for(i in 1:nGoodReps)
-      for(s in 1:nS)
-        for(p in 1:nP)
-      deadP_ispt[i,s,p,] <- deadP_ispt[i,s,p,]*(1-exp(-1*pondM_it[i,]))
-
-    U_ispt   <- (C_ispt+deadP_ispt)/(SB_ispt + C_ispt + deadP_ispt)
-    Uref_isp <- array(0.1, dim = c(nGoodReps,nS,nP))
     
+    # Harvest rate
+    U_ispt   <- (C_ispt+deadP_ispt)/(SB_ispt + C_ispt + P_ispt)
+    Uref_isp <- array(0.1, dim = c(nGoodReps,nS,nP))
+
+    # Spawning biomass + ponded fish - dead ponded fish
+    endSB_ispt <- om$endSB_ispt[allConvReps,,,,drop = FALSE]
+    # endSB_ispt <- SB_ispt + P_ispt - deadP_ispt
     
     # Calculate probability that Bt above LRP
-    pBtGt.3B0_sp <- .calcStatsProportion(   TS_ispt = SB_ispt,
+    pBtGt.3B0_sp <- .calcStatsProportion(   TS_ispt = endSB_ispt,
                                             ref_isp = B0_isp,
                                             tdx = tMP:nT,
                                             prop = .3,
                                             nS = nS,
                                             nP = nP )
 
-    pBtGt.5B0_sp <- .calcStatsProportion(   TS_ispt = SB_ispt,
+    pBtGt.5B0_sp <- .calcStatsProportion(   TS_ispt = endSB_ispt,
                                             ref_isp = B0_isp,
                                             tdx = tMP:nT,
                                             prop = .5,
                                             nS = nS,
                                             nP = nP )
 
-    pBtGt.6B0_sp <- .calcStatsProportion(   TS_ispt = SB_ispt,
+    pBtGt.6B0_sp <- .calcStatsProportion(   TS_ispt = endSB_ispt,
                                             ref_isp = B0_isp,
                                             tdx = tMP:nT,
                                             prop = .6,
@@ -687,30 +682,32 @@ makeStatTable <- function( sims = 1, folder = "" )
       
       # Calculate probability that Bt and Ct above certain thresholds
       SB_it     <- apply(SB_ispt, MARGIN=c(1,4), FUN=sum, drop=FALSE)
+      endSB_it  <- apply(endSB_ispt, MARGIN=c(1,4), FUN=sum, drop=FALSE)
       B0_i      <- apply(B0_isp, MARGIN=1, FUN=sum)
       C_it      <- apply(C_ispt, MARGIN=c(1,4), FUN=sum, drop=FALSE, na.rm=T)
+      P_it      <- apply(P_ispt, MARGIN=c(1,4), FUN=sum, drop=FALSE, na.rm=T)
       deadP_it  <- apply(deadP_ispt, MARGIN=c(1,4), FUN=sum, drop=FALSE, na.rm=T)
 
       # Calculate aggreate harvest rate
-      U_it   <- (C_it+deadP_it)/(SB_it + C_it + deadP_it)
+      U_it   <- (C_it+deadP_it)/(SB_it + C_it + P_it)
       Uref_i   <- rep(0.1, nGoodReps)
-    
 
-      pBtGt.3B0_agg <- .calcStatsProportionAgg(   TS_it = SB_it,
+
+      pBtGt.3B0_agg <- .calcStatsProportionAgg(   TS_it = endSB_it,
                                                   ref_i = B0_i,
                                                   tdx = tMP:nT,
                                                   prop = .3,
                                                   nS = 1,
                                                   nP = 1 )
 
-      pBtGt.5B0_agg <- .calcStatsProportionAgg(   TS_it = SB_it,
+      pBtGt.5B0_agg <- .calcStatsProportionAgg(   TS_it = endSB_it,
                                                   ref_i = B0_i,
                                                   tdx = tMP:nT,
                                                   prop = .5,
                                                   nS = 1,
                                                   nP = 1 )
 
-      pBtGt.6B0_agg <- .calcStatsProportionAgg(   TS_it = SB_it,
+      pBtGt.6B0_agg <- .calcStatsProportionAgg(   TS_it = endSB_it,
                                                   ref_i = B0_i,
                                                   tdx = tMP:nT,
                                                   prop = .6,
