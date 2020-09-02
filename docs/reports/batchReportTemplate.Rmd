@@ -136,13 +136,20 @@ statTable      <- do.call(rbind, batchPerfStats)  %>%
 
 statTable$avgSOK_1000lbs <- statTable$avgSOK_t/0.453592
 
-# save csv of statTable
-write.csv(statTable, file.path(batchDir,'batchReports','statTable.csv'), row.names=F)
+pmTable <- select(statTable, scenario, mp, stock, pBtGt.3B0, pBtGt.5B0, nYrsSOK:pondAAV, avgSOK_1000lbs,
+                  nYrsComm:catchAAV, pUtGt.1HR, avgUtGt0.1HR)
 
+# save csv of statTable
+write.csv(pmTable, file.path(batchDir,'batchReports','pmTable.csv'), row.names=F)
+
+# pm table for rw15_loPond
+
+pm_rw15LoPondM <- subset(pmTable, scenario=='rw15_loPondM')
+write.csv(pm_rw15LoPondM,  file.path(batchDir,'batchReports','pmTable_rw15LoPondM.csv'), row.names=F)
 
 message("All simulation objects loaded and ready to make batch report")
 
-
+browser()
 ```
 
 Batch report file for ms3R simulations.
