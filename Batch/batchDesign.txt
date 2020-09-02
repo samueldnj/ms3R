@@ -1,8 +1,0 @@
-# mseR batch design file,  Fri Jul 17 15:54:44 2020 
-"parFile","blobName","scenarioLabel","mpLabel","dataName","methodName","ruleName","scCol","scLty","scLwd","scSym","mpCol","mpLty","mpLwd","mpSym","join"
-"job1.txt","simjob1","\"DDM2019_loPondM\"","'aggSR_HS30-60_HR.1'","data","method","rule","black",1,1,1,"black",1,1,1,0
-"job2.txt","simjob2","\"DDM2019_loPondM\"","'aggSR_HS50-60_HR.1'","data","method","rule","black",1,1,1,"black",1,1,1,0
-"job3.txt","simjob3","\"DDM2019_loPondM\"","'NoFish'","data","method","rule","black",1,1,1,"black",1,1,1,0
-"job4.txt","simjob4","\"DDM2018_loPondM\"","'aggSR_HS30-60_HR.1'","data","method","rule","black",1,1,1,"black",1,1,1,0
-"job5.txt","simjob5","\"DDM2018_loPondM\"","'aggSR_HS50-60_HR.1'","data","method","rule","black",1,1,1,"black",1,1,1,0
-"job6.txt","simjob6","\"DDM2018_loPondM\"","'NoFish'","data","method","rule","black",1,1,1,"black",1,1,1,0
