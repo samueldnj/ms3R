@@ -7,18 +7,18 @@
 *.Rapp.history
 
 # History files that aren't necessary for conditioning
-./history/fit_*/plots
-./history/fit_*/hierSCAL.o
+history/fit_*/plots
+history/fit_*/hierSCAL.o
 
 # Compiled objects
 *.so
 *.o
 
 # Outputs of ms3R - these can be moved via the server
-./Outputs/sim_*
+Outputs/sim_*
 
 # Batch stuff - temporary and batch specific, no need to save
 # to repo
-./Batch/job*.txt
-./Batch/batchDesign.txt
+Batch/job*.txt
+Batch/batchDesign.txt
 
