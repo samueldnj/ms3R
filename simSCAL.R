@@ -3754,8 +3754,16 @@ combBarrierPen <- function( x, eps,
   priceDevCorrMat <- diag(1,nS)
   if(ctlList$opMod$corrPriceDevs)
   {
-    priceDevCorrMat <- matrix(ctlList$opMod$priceCorr, nrow = nS, ncol = nS)
-    diag(priceDevCorrMat) <- 1
+    if(is.null(ctlList$opMod$priceModel))
+    {
+      priceDevCorrMat <- matrix(ctlList$opMod$priceCorr, nrow = nS, ncol = nS)
+      diag(priceDevCorrMat) <- 1
+    }
+    if(!is.null(ctlList$opMod$priceModel))
+    {
+      load(file = file.path("history",ctlList$opMod$priceModel))
+      priceDevCorrMat <- cor(t(priceFlexModel$eps_st))
+    }
   }
 
   obj$errors$priceDev_st[1:nS,1:nT] <- t( mvtnorm::rmvnorm( n = nT, mean = rep(0,nS),
@@ -4310,11 +4318,11 @@ combBarrierPen <- function( x, eps,
   # Calculate landed value per kg given price flexibility
   if( t >= tMP )
   {
-    pflex   <- opMod$priceFlex
+    pflex_s <- opMod$priceFlex_s
     C_s     <- apply( X = C_spt[,,t], FUN = sum, MARGIN = 1 )
     MSY_sp  <- rp$FmsyRefPts$YeqFmsy_sp
     MSY_s   <- apply(X = MSY_sp, FUN = sum, MARGIN = 1)
-    v_st[,t] <- basePrice_st[,t] * ( 1 + pflex * ( C_s/MSY_s - 1 ) )
+    v_st[,t] <- basePrice_st[,t] * ( 1 + pflex_s * ( C_s/MSY_s - 1 ) )
     
     for( p in 1:nP)
       effCost_pft[p,,t] <- E_pft[p,,t] * rp$EmeyRefPts$effortPrice_p[p]

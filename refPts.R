@@ -132,9 +132,9 @@ solveSpline <- function(  Yvals, Xvals, value = 0, bounds = c(0,10),
 
   stockNames <- dimnames(Yeq_spe)[[2]]
 
-  opMod <- obj$opMod
+  opMod     <- obj$opMod
   crewShare <- opMod$crewShare
-  pFlex     <- opMod$priceFlex
+  pFlex_s   <- opMod$priceFlex_s
 
   # Calc total system yield
   totYeq_pe <- apply(X = Yeq_spe, FUN = sum, MARGIN = c(2,3), na.rm = T)
@@ -174,7 +174,7 @@ solveSpline <- function(  Yvals, Xvals, value = 0, bounds = c(0,10),
 
     for( s in 1:nS )
     {
-      landVal_spe[s,p,] <- price_s[s] * (1 + pFlex * ( Yeq_spe[s,p,] / YeqFmsy_sp[s,p] - 1 ) )
+      landVal_spe[s,p,] <- price_s[s] * (1 + pFlex_s[s] * ( Yeq_spe[s,p,] / YeqFmsy_sp[s,p] - 1 ) )
       econRev_spe[s,p,] <- Yeq_spe[s,p,] * landVal_spe[s,p,]
       econYeq_spe[s,p,] <- Yeq_spe[s,p,] * landVal_spe[s,p,] * (1 - crewShare) - effCost_pe[p,]
     }
@@ -191,7 +191,7 @@ solveSpline <- function(  Yvals, Xvals, value = 0, bounds = c(0,10),
   #                   deriv = 1, bounds = c(0,15), MARGIN = c(1,2) )
 
   meySolList <- apply(  X = econYeq_pe, FUN = solveSpline, Xvals = Eff,
-                        deriv = 1, bounds = c(0,15), MARGIN = c(1),
+                        deriv = 1, bounds = c(0,50), MARGIN = c(1),
                         value = 0 )
 
   Emey_p <- numeric(length = nP)
