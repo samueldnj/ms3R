@@ -9,11 +9,11 @@ ctl$maxEval 1e4
 ctl$maxIter 1e4
 ctl$rSeed 123
 ctl$totReps 10
-ctl$nGoodReps 5
+ctl$nGoodReps 10
 ctl$omni FALSE
 ctl$perfConF FALSE
 ctl$noProcErr FALSE
-ctl$nCores 1
+ctl$nCores 4
 mp$assess$assInt 1
 mp$assess$method "idxBased"
 mp$assess$idxPoints 3

@@ -1803,158 +1803,144 @@ solvePTm <- function( Bmsy, B0 )
   # Create a function that takes the rep number
   # as its first argument, and ctlList and obj as
   # secondary arguments, returning list of populated 
-  # simObjs - might need to switch this on and off
-
-  # Check the number of cores. If nCores > 1,
-  # then, break number of replicates into chunks
-  # of nCores seeds, i.e. 1:nCores, (nCores + 1):2nCores,...
+  # simObjs - might need to switch this on
+  # for splitting reps across cores, or off for splitting
+  # individual sims across cores.
   if(!is.null(ctlList$ctl$nCores) )
   {
     nCores <- ctlList$ctl$nCores
     nRepChunks  <- ceiling( nReps / nCores )
     repChunks   <- vector( mode = "list", length = nRepChunks )
 
-    # Loop over chunks, run in parallel, populate simObjs, 
-    # save outputs, check if min number of "goodreps" has been 
-    # completed
-    for( chunkIdx in 1:nRepChunks )
+    if( nCores > 1 )
     {
-      repChunks[[chunkIdx]] <- 1:nCores + (chunkIdx - 1) * nCores
+      # Create mc object
+      # First, load parallel package
+      library(parallel)
+      # turn off squawking
+      options(warn=-1)
+      # maxCores <- min( nCores, detectCores() )
+      cl      <- makeCluster(nCores, outFile = "./parBatchMsg.txt")
+      # parLapply
+      cat ("Running ", nReps, " simulation replicates in parallel on ", nCores, " cores.\n", sep = "" )
+      tBegin    <- proc.time()
+      startDate <- date()
+      simObj    <- clusterApplyLB(cl, x=1:nReps, 
+                                      fun=.runRep,
+                                      ctlList = ctlList, simObj = obj )
+      stopCluster(cl)
+    }
 
-      simObj <- vector( mode = "list", length = nCores)
+    if( nCores == 1 )
+    {
+      simObj <- lapply( X = 1:nReps, 
+                        FUN = .runRep,
+                        ctlList = ctlList, simObj = obj )
 
-      if( nCores > 1 )
+    }
+
+    # Loop over simObj list, save outputs
+    for( i in 1:nReps )
+    {      
+      # Operating model
+      blob$om$SB_ispt[i,,,]     <- simObj[[i]]$om$SB_spt
+      blob$om$B_ispt[i,,,]      <- simObj[[i]]$om$B_spt
+      blob$om$vB_ispft[i,,,,]   <- simObj[[i]]$om$vB_spft
+      blob$om$R_ispt[i,,,]      <- simObj[[i]]$om$R_spt
+      blob$om$C_ispft[i,,,,]    <- simObj[[i]]$om$C_spft
+      blob$om$C_ispt[i,,,]      <- simObj[[i]]$om$C_spt
+      blob$om$F_ispft[i,,,,]    <- simObj[[i]]$om$F_spft
+      blob$om$I_ispft[i,,,,]    <- simObj[[i]]$om$I_spft
+      blob$om$E_ipft[i,,,]      <- simObj[[i]]$om$E_pft
+      blob$om$q_ispft[i,,,,]    <- simObj[[i]]$om$q_spft
+      blob$om$qF_ispft[i,,,,]   <- simObj[[i]]$om$qF_spft
+      blob$om$Rev_ispft[i,,,,]  <- simObj[[i]]$om$fleetRev_spft
+      blob$om$landVal_ist[i,,]  <- simObj[[i]]$om$landVal_st
+      blob$om$basePrice_ist[i,,]<- simObj[[i]]$om$basePrice_st
+      blob$om$effCost_ipft[i,,,]<- simObj[[i]]$om$effCost_pft
+
+      # Errors - maybe update simObj structure to match blob here
+      blob$om$errors$omegaR_ispt[i,,,]  <- simObj[[i]]$errors$omegaR_spt
+      blob$om$errors$delta_ispft[i,,,,] <- simObj[[i]]$errors$delta_spft
+
+      # Data
+      blob$mp$data$I_ispft[i,,,,]       <- simObj[[i]]$mp$data$I_spft
+      # Add ages and lengths later
+
+      # HCR elements
+      blob$mp$hcr$Fref_ispt[i,,,]       <- simObj[[i]]$mp$hcr$Fref_spt
+      blob$mp$hcr$Bref_ispt[i,,,]       <- simObj[[i]]$mp$hcr$Bref_spt
+      blob$mp$hcr$targetF_ispt[i,,,]    <- simObj[[i]]$mp$hcr$targetF_spt
+      blob$mp$hcr$LCP_ispt[i,,,]        <- simObj[[i]]$mp$hcr$LCP_spt
+      blob$mp$hcr$UCP_ispt[i,,,]        <- simObj[[i]]$mp$hcr$UCP_spt
+      blob$mp$hcr$TAC_ispt[i,,,]        <- simObj[[i]]$mp$hcr$TAC_spt
+      blob$mp$hcr$propTAC_ispt[i,,,]    <- simObj[[i]]$mp$hcr$propTAC_spt
+      blob$mp$hcr$TAC_ispft[i,,,,]      <- simObj[[i]]$mp$hcr$TAC_spft
+
+
+      # Retrospective AM outputs
+      blob$mp$assess$retroR_itspt[i,,,,]        <- simObj[[i]]$mp$assess$retroR_tspt
+      blob$mp$assess$retroSB_itspt[i,,,,]       <- simObj[[i]]$mp$assess$retroSB_tspt
+      blob$mp$assess$retroVB_itspft[i,,,,,]     <- simObj[[i]]$mp$assess$retroVB_tspft
+      blob$mp$assess$retroq_itspf[i,,,,]        <- simObj[[i]]$mp$assess$retroq_tspf
+      blob$mp$assess$retroq_itspft[i,,,,,]      <- simObj[[i]]$mp$assess$retroq_tspft
+      blob$mp$assess$retrotauObs_itspf[i,,,,]   <- simObj[[i]]$mp$assess$retrotauObs_tspf
+      blob$mp$assess$retroUmsy_itsp[i,,,]       <- simObj[[i]]$mp$assess$retroUmsy_tsp
+      blob$mp$assess$retroBmsy_itsp[i,,,]       <- simObj[[i]]$mp$assess$retroBmsy_tsp
+      blob$mp$assess$maxGrad_itsp[i,,,]         <- simObj[[i]]$mp$assess$maxGrad_tsp
+      blob$mp$assess$pdHess_itsp[i,,,]          <- simObj[[i]]$mp$assess$pdHess_tsp
+      blob$mp$assess$posSDs_itsp[i,,,]          <- simObj[[i]]$mp$assess$posSDs_tsp
+
+      # Determine if a good replicate
+      probPosSD_sp  <- apply( X = simObj[[i]]$mp$assess$posSDs_tsp, FUN = mean, MARGIN = c(2,3))
+      probPDHess_sp <- apply( X = simObj[[i]]$mp$assess$pdHess_tsp, FUN = mean, MARGIN = c(2,3))
+
+      if(ctlList$mp$assess$method %in% c("idxBased","PerfectInfo"))
       {
-        # Create mc object
-        # First, load parallel package
-        library(parallel)
-        # turn off squawking
-        options(warn=-1)
-        # maxCores <- min( nCores, detectCores() )
-        cl      <- makeCluster(nCores, outFile = "./parBatchMsg.txt")
-        # parLapply
-        cat ("Running ", nCores, " simulation replicates in parallel.\n", sep = "" )
-        tBegin    <- proc.time()
-        startDate <- date()
-        simObj    <- clusterApplyLB(cl, x=repChunks[[chunkIdx]], 
-                                        fun=.runRep,
-                                        ctlList = ctlList, simObj = obj )
-        stopCluster(cl)
+        blob$goodReps_isp[i,,] <- TRUE
+      } else{
+        for( s in 1:nS )
+          for( p in 1:nP )
+            if( ( probPosSD_sp[s,p] >= .95 & probPDHess_sp[s,p] >= .95 ) )
+            {
+              blob$goodReps_isp[i,s,p] <- TRUE 
+            }
+      }
+
+      if( ctlList$ctl$omni | ctlList$ctl$perfConF )
+      {
+        blob$goodReps_isp[i,,] <- TRUE
+
+        blob$omniObjFun$objFun_isp[i,,]         <- simObj[[i]]$objFun_sp
+        blob$omniObjFun$objFun_i[i]             <- simObj[[i]]$objFun       
+        blob$omniObjFun$Cbar_isp[i,,]           <- simObj[[i]]$Cbar_sp
+        blob$omniObjFun$totCbar_i[i]            <- simObj[[i]]$totCbar
+        blob$omniObjFun$Csum_i[i]               <- simObj[[i]]$Csum
+        blob$omniObjFun$barLoDep_isp[i,,]       <- simObj[[i]]$barLoDep_sp
+        blob$omniObjFun$barHiDep_isp[i,,]       <- simObj[[i]]$barHiDep_sp
+        blob$omniObjFun$barProbLoDep_isp[i,,]   <- simObj[[i]]$barProbLoDep_sp
+        blob$omniObjFun$barProbHiDep_isp[i,,]   <- simObj[[i]]$barProbHiDep_sp
+        blob$omniObjFun$barInitCatDiff_isp[i,,] <- simObj[[i]]$barInitCatDiff_sp
+        blob$omniObjFun$closedCount_isp[i,,]    <- simObj[[i]]$closedCount_sp
+
+        blob$omniObjFun$barAAV_isp[i,,]         <- simObj[[i]]$barAAV_sp
+        blob$omniObjFun$barCatDiff_isp[i,,]     <- simObj[[i]]$barCatDiff_sp
+        blob$omniObjFun$barEffDiff_i[i]         <- simObj[[i]]$barEffDiff
+        blob$omniObjFun$barInitEffDiff_i[i]     <- simObj[[i]]$barInitEffDiff
 
       }
 
-      if( nCores == 1 )
-      {
-        simObj[[1]] <- .runRep( i = repChunks[[chunkIdx]][1],
-                                ctlList = ctlList, simObj = obj )
-      }
+      # Save reference points for this replicate - more necessary when
+      # we have multiple conditioning assessment posterior dist draws
+      # Maybe only save the reference points, and discard the curves...
+      blob$rp[[i]] <- simObj[[i]]$rp
 
+      # Save maxrep and max time step
+      blob$maxRep       <- simObj[[i]]$maxRep
+      blob$maxTimeStep  <- simObj[[i]]$maxTimeStep
 
-      # Now loop through the replicate index chunk, and save
-      # to the blob
-      for( j in 1:nCores )
-      {
-        i <- repChunks[[chunkIdx]][j]
+      message( " (.mgmtProc) Saved replicate ", i, " of ", nReps, ".\n", sep = "")
 
-        # Operating model
-        blob$om$SB_ispt[i,,,]     <- simObj[[j]]$om$SB_spt
-        blob$om$B_ispt[i,,,]      <- simObj[[j]]$om$B_spt
-        blob$om$vB_ispft[i,,,,]   <- simObj[[j]]$om$vB_spft
-        blob$om$R_ispt[i,,,]      <- simObj[[j]]$om$R_spt
-        blob$om$C_ispft[i,,,,]    <- simObj[[j]]$om$C_spft
-        blob$om$C_ispt[i,,,]      <- simObj[[j]]$om$C_spt
-        blob$om$F_ispft[i,,,,]    <- simObj[[j]]$om$F_spft
-        blob$om$I_ispft[i,,,,]    <- simObj[[j]]$om$I_spft
-        blob$om$E_ipft[i,,,]      <- simObj[[j]]$om$E_pft
-        blob$om$q_ispft[i,,,,]    <- simObj[[j]]$om$q_spft
-        blob$om$qF_ispft[i,,,,]   <- simObj[[j]]$om$qF_spft
-        blob$om$Rev_ispft[i,,,,]  <- simObj[[j]]$om$fleetRev_spft
-        blob$om$landVal_ist[i,,]  <- simObj[[j]]$om$landVal_st
-        blob$om$basePrice_ist[i,,]<- simObj[[j]]$om$basePrice_st
-        blob$om$effCost_ipft[i,,,]<- simObj[[j]]$om$effCost_pft
-
-        # Errors - maybe update simObj structure to match blob here
-        blob$om$errors$omegaR_ispt[i,,,]  <- simObj[[j]]$errors$omegaR_spt
-        blob$om$errors$delta_ispft[i,,,,] <- simObj[[j]]$errors$delta_spft
-
-        # Data
-        blob$mp$data$I_ispft[i,,,,]       <- simObj[[j]]$mp$data$I_spft
-        # Add ages and lengths later
-
-        # HCR elements
-        blob$mp$hcr$Fref_ispt[i,,,]       <- simObj[[j]]$mp$hcr$Fref_spt
-        blob$mp$hcr$Bref_ispt[i,,,]       <- simObj[[j]]$mp$hcr$Bref_spt
-        blob$mp$hcr$targetF_ispt[i,,,]    <- simObj[[j]]$mp$hcr$targetF_spt
-        blob$mp$hcr$LCP_ispt[i,,,]        <- simObj[[j]]$mp$hcr$LCP_spt
-        blob$mp$hcr$UCP_ispt[i,,,]        <- simObj[[j]]$mp$hcr$UCP_spt
-        blob$mp$hcr$TAC_ispt[i,,,]        <- simObj[[j]]$mp$hcr$TAC_spt
-        blob$mp$hcr$propTAC_ispt[i,,,]    <- simObj[[j]]$mp$hcr$propTAC_spt
-        blob$mp$hcr$TAC_ispft[i,,,,]      <- simObj[[j]]$mp$hcr$TAC_spft
-
-
-        # Retrospective AM outputs
-        blob$mp$assess$retroR_itspt[i,,,,]        <- simObj[[j]]$mp$assess$retroR_tspt
-        blob$mp$assess$retroSB_itspt[i,,,,]       <- simObj[[j]]$mp$assess$retroSB_tspt
-        blob$mp$assess$retroVB_itspft[i,,,,,]     <- simObj[[j]]$mp$assess$retroVB_tspft
-        blob$mp$assess$retroq_itspf[i,,,,]        <- simObj[[j]]$mp$assess$retroq_tspf
-        blob$mp$assess$retroq_itspft[i,,,,,]      <- simObj[[j]]$mp$assess$retroq_tspft
-        blob$mp$assess$retrotauObs_itspf[i,,,,]   <- simObj[[j]]$mp$assess$retrotauObs_tspf
-        blob$mp$assess$retroUmsy_itsp[i,,,]       <- simObj[[j]]$mp$assess$retroUmsy_tsp
-        blob$mp$assess$retroBmsy_itsp[i,,,]       <- simObj[[j]]$mp$assess$retroBmsy_tsp
-        blob$mp$assess$maxGrad_itsp[i,,,]         <- simObj[[j]]$mp$assess$maxGrad_tsp
-        blob$mp$assess$pdHess_itsp[i,,,]          <- simObj[[j]]$mp$assess$pdHess_tsp
-        blob$mp$assess$posSDs_itsp[i,,,]          <- simObj[[j]]$mp$assess$posSDs_tsp
-
-        # Determine if a good replicate
-        probPosSD_sp  <- apply( X = simObj[[j]]$mp$assess$posSDs_tsp, FUN = mean, MARGIN = c(2,3))
-        probPDHess_sp <- apply( X = simObj[[j]]$mp$assess$pdHess_tsp, FUN = mean, MARGIN = c(2,3))
-
-        if(ctlList$mp$assess$method %in% c("idxBased","PerfectInfo"))
-        {
-          blob$goodReps_isp[i,,] <- TRUE
-        } else{
-          for( s in 1:nS )
-            for( p in 1:nP )
-              if( ( probPosSD_sp[s,p] >= .95 & probPDHess_sp[s,p] >= .95 ) )
-              {
-                blob$goodReps_isp[i,s,p] <- TRUE 
-              }
-        }
-
-        if( ctlList$ctl$omni | ctlList$ctl$perfConF )
-        {
-          blob$goodReps_isp[i,,] <- TRUE
-
-          blob$omniObjFun$objFun_isp[i,,]         <- simObj[[j]]$objFun_sp
-          blob$omniObjFun$objFun_i[i]             <- simObj[[j]]$objFun       
-          blob$omniObjFun$Cbar_isp[i,,]           <- simObj[[j]]$Cbar_sp
-          blob$omniObjFun$totCbar_i[i]            <- simObj[[j]]$totCbar
-          blob$omniObjFun$Csum_i[i]               <- simObj[[j]]$Csum
-          blob$omniObjFun$barLoDep_isp[i,,]       <- simObj[[j]]$barLoDep_sp
-          blob$omniObjFun$barHiDep_isp[i,,]       <- simObj[[j]]$barHiDep_sp
-          blob$omniObjFun$barProbLoDep_isp[i,,]   <- simObj[[j]]$barProbLoDep_sp
-          blob$omniObjFun$barProbHiDep_isp[i,,]   <- simObj[[j]]$barProbHiDep_sp
-          blob$omniObjFun$barInitCatDiff_isp[i,,] <- simObj[[j]]$barInitCatDiff_sp
-          blob$omniObjFun$closedCount_isp[i,,]    <- simObj[[j]]$closedCount_sp
-
-          blob$omniObjFun$barAAV_isp[i,,]         <- simObj[[j]]$barAAV_sp
-          blob$omniObjFun$barCatDiff_isp[i,,]     <- simObj[[j]]$barCatDiff_sp
-          blob$omniObjFun$barEffDiff_i[i]         <- simObj[[j]]$barEffDiff
-          blob$omniObjFun$barInitEffDiff_i[i]     <- simObj[[j]]$barInitEffDiff
-
-        }
-
-        # Save reference points for this replicate - more necessary when
-        # we have multiple conditioning assessment posterior dist draws
-        # Maybe only save the reference points, and discard the curves...
-        blob$rp[[i]] <- simObj[[j]]$rp
-
-        # Save maxrep and max time step
-        blob$maxRep       <- simObj[[j]]$maxRep
-        blob$maxTimeStep  <- simObj[[j]]$maxTimeStep
-
-        message( " (.mgmtProc) Saved replicate ", i, " of ", nReps, ".\n", sep = "")
-      } # END j loop
 
       # Count the good replicates
       doneGoodReps_sp <- apply( X = blob$goodReps_isp, FUN = sum, MARGIN = c(2,3))
@@ -1969,12 +1955,11 @@ solvePTm <- function( Bmsy, B0 )
         message( " (.mgmtProc) Completed ", finishedGood, " of ", ctlList$ctl$nGoodReps, 
                   " replicates with all convergent AMs, continuing to next replicate.")
       }
-      # Clear memory of extraneous garbage
-      gc()
       blob$nSims <- i
-    } # END chunkIdx loop
-
-    blob$repChunks <- repChunks
+    } # END i loop
+    # Clean up
+    simObj <- NULL
+    gc()
     
     message( " (.mgmtProc) Maximum replicate count reached, ending simulations.\n")
     gc()
@@ -1983,6 +1968,7 @@ solvePTm <- function( Bmsy, B0 )
   # Should be possible to encapsulate the single core
   # situation within this as well...
   if( is.null(ctlList$ctl$nCores) )
+  {
     for( i in 1:nReps )
     {
       simObj <- obj
@@ -2149,10 +2135,11 @@ solvePTm <- function( Bmsy, B0 )
                   " replicates with all convergent AMs.")
       }
       # Clear memory of extraneous garbage
+      simObj <- NULL
       gc()
       message( " (.mgmtProc) Maximum replicate count reached, ending simulations.\n")
     } # END i loop
-
+  } # END nCores NULL case
   gc()
 
   blob$nSims <- i
