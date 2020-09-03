@@ -2304,17 +2304,22 @@ plotTulipHR <- function( obj = blob, nTrace = 3 )
   Uref_p <- obj$ctlList$mp$hcr$Uref_p
     
   # Catch & Biomass series
-  C_ispt  <- obj$om$C_ispt[goodReps,,,,drop = FALSE]
+  C_ispt   <- obj$om$C_ispt[goodReps,,,,drop = FALSE]
   C_ispft  <- obj$om$C_ispft[goodReps,,,,,drop = FALSE]
+
+  P_ispft  <- obj$om$P_ispft[goodReps,,,,,drop = FALSE]
+  P_ispt   <- apply(P_ispft[,,,6:7,,drop=FALSE], FUN=sum, MARGIN=c(1,2,3,5))
+  
   SB_ispt  <- obj$om$SB_ispt[goodReps,,,,drop = FALSE]
 
-  # Calculate Harvest rates by fleet and across all fleets
+  # Calculate aggregate harvest rate
+  U_ispt   <- C_ispt/(SB_ispt + C_ispt + P_ispt)
+
+  # Calculate fleet specific harvest rate
   U_ispft <- array(NA, dim=c(sum(goodReps),nS,nP,nF,nT))
   for (s in 1:nS)
     for(f in 1:nF)
-      U_ispft[,s,,f,] <- C_ispft[,s,,f,]/(SB_ispt[,1:nS,,] + C_ispft[,s,,f,])
-
-  U_ispt <- C_ispt/(SB_ispt + C_ispt)
+      U_ispft[,s,,f,] <- C_ispft[,s,,f,]/(SB_ispt[,s,,] + C_ispt[,s,,] + P_ispt[,s,,])
 
   # Harvest rate envelopes
   U_qspft <- apply(  X = U_ispft, FUN = quantile,
@@ -2617,13 +2622,14 @@ plotTulipTACu <- function( obj = blob, nTrace = 3, fIdx=1 )
 plotTulipBt <- function(  obj = blob, nTrace = 3,
                           dep = FALSE,
                           ref = "B0",
+                          var = "SB_ispt",
                           Ct  = FALSE,
                           leg = TRUE,
                           tMin = NULL )
 {
   goodReps <- obj$goodReps
 
-  SB_ispt   <- obj$om$SB_ispt[goodReps,,,,drop = FALSE]
+  SB_ispt   <- obj$om[[var]][goodReps,,,,drop = FALSE]
   C_ispt    <- obj$om$C_ispt[goodReps,,,,drop = FALSE]
 
   tMP     <- obj$om$tMP
@@ -3202,7 +3208,7 @@ plotBtCtRt_p <- function( obj = blob, iRep = 1, sIdx=1)
 # and projection period
 plotBtCtRtMt_p <- function( obj = blob, iRep = 1, sIdx=1)
 {
-  SB_ispt  <- obj$om$SB_ispt
+  SB_ispt  <- obj$om$endSB_ispt
   B_ispt   <- obj$om$B_ispt
   C_ispt   <- obj$om$C_ispt
   R_ispt   <- obj$om$R_ispt

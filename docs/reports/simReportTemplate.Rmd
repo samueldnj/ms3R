@@ -182,11 +182,11 @@ BtCtRtMtCap <- "Spawning Biomass, total catch, age-1 recruitment, and mortality 
 ## Spawning Biomass
 
 ```{r, plotTulipBtCt, echo = FALSE, message = FALSE, fig.cap = SBsptCaption }
-plotTulipBt( obj = blob, dep = TRUE, Ct = TRUE )
+plotTulipBt( obj = blob, var='endSB_ispt', dep = TRUE, Ct = TRUE )
 ```
 
 ```{r, plotTulipBtCtProj, echo = FALSE, message = FALSE, fig.cap = SBsptCaption }
-plotTulipBt( obj = blob, dep = TRUE, Ct = FALSE, tMin=60 )
+plotTulipBt( obj = blob, var='endSB_ispt', dep = TRUE, Ct = FALSE, tMin=60 )
 ```
 
 

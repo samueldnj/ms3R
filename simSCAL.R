@@ -90,7 +90,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
       {
         histOn <- which(!is.na(I_spft[s,p,fIdx,]))
         if( length(histOn) == 0 )
-          next
+          idxOn_spft[s,p,fIdx,] <- FALSE
 
         idxOn_spft[s,p,fIdx,histOn] <- TRUE
 
@@ -99,7 +99,11 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
         {
           i <- which( idxOn == fIdx )
 
-          lastObs <- max(histOn)
+          if(length(histOn) > 0 )
+            lastObs <- max(histOn)
+          else
+            lastObs <- tMP
+
           if(obsInt[i] == 1)
             lastObs <- tMP
 
@@ -226,6 +230,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   # OM lists
   om <- list( iSeed_i     = rep(NA, nReps),
               SB_ispt     = array( NA, dim = c(nReps, nS, nP, nT) ),      # SSB
+              endSB_ispt  = array( NA, dim = c(nReps, nS, nP, nT) ),      # SSB + surviving ponded fish
               B_ispt      = array( NA, dim = c(nReps, nS, nP, nT )),      # Total biomass
               vB_ispft    = array( NA, dim = c(nReps, nS, nP, nF, nT )),  # Vulnerable biomass
               R_ispt      = array( NA, dim = c(nReps, nS, nP, nT) ),      # Rec't
@@ -234,6 +239,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
               F_ispft     = array( NA, dim = c(nReps, nS, nP, nF, nT) ),  # Fishing Mort
               P_ispft     = array( NA, dim = c(nReps, nS, nP, nF, nT ) ), # Ponded fish in biomass units
               I_ispft     = array( NA, dim = c(nReps, nS+1, nP+1, nF, nT) ),  # Indices (without error)
+              rI_ispft    = array( NA, dim = c(nReps, nS+1, nP+1, nF, nT) ),  # proportion of index from each gear
               E_ipft      = array( NA, dim = c(nReps, nP, nF, nT) ),      # Fishing effort
               q_ispft     = array( NA, dim = c(nReps, nS, nP, nF, nT) ),  # Catchability
               qF_ispft    = array( NA, dim = c(nReps, nS, nP, nF, nT) ),  # F/E
@@ -374,8 +380,15 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
       postDrawIdx <- ctlList$opMod$postDraws_i[i]
 
       # Replace MLE values for B0 and M with posterior draws
-      simObj$om$B0_sp                    <- mcmcPar$B0_ip[postDrawIdx,]
+      simObj$om$B0_sp    <- mcmcPar$B0_ip[postDrawIdx,]
+      simObj$om$Rinit_sp <- mcmcPar$Rinit_ip[postDrawIdx,]
+
       simObj$om$M_axspt[,1,1,,1:(tMP-1)] <- mcmcPar$M_iapt[postDrawIdx,,,1:(tMP-1)]
+
+      # other mcmc pars are set in condMSEpop_SISCA
+      # - q, rec devs, selectivity
+
+      simObj$ctlList$opMod$postDrawIdx <- postDrawIdx
 
     }  
 
@@ -429,6 +442,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
 
     # Operating model
     blob$om$SB_ispt[i,,,]       <- simObj$om$SB_spt
+    blob$om$endSB_ispt[i,,,]    <- simObj$om$endSB_spt
     blob$om$B_ispt[i,,,]        <- simObj$om$B_spt
     blob$om$vB_ispft[i,,,,]     <- simObj$om$vB_spft
     blob$om$R_ispt[i,,,]        <- simObj$om$R_spt
@@ -607,6 +621,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   om$N_axspt    <- array(0,  dim = c(nA,nX,nS,nP,nT) )  # Numbers at age
   om$endN_axspt <- array(0,  dim = c(nA,nX,nS,nP,nT) )  # Numbers at age (at end of time step)
   om$SB_spt     <- array(0,  dim = c(nS,nP,nT) )        # Spawning biomass
+  om$endSB_spt  <- array(0,  dim = c(nS,nP,nT) )        # Spawning biomass + surviving ponded fish
   om$B_spt      <- array(0,  dim = c(nS,nP,nT) )        # Spawning biomass
   om$R_spt      <- array(0,  dim = c(nS,nP,nT) )        # Recruitment
   om$Z_axspt    <- array(0,  dim = c(nA,nX,nS,nP,nT) )  # Total mortality
@@ -627,6 +642,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   om$sel_lspf   <- array(0,  dim = c(nL,nS,nP,nF) )        # sel at len
   om$F_spft     <- array(NA,  dim = c(nS,nP,nF,nT) )       # Fishing mortality
   om$I_spft     <- array(NA,  dim = c(nS+1,nP+1,nF,nT) )   # Observations without error
+  om$rI_spft    <- array(NA,  dim = c(nS+1,nP+1,nF,nT) )   # proportions for blended index
   om$E_pft      <- array(NA,  dim = c(nP,nF,nT) )          # Fishing effort
   om$alloc_spf  <- array(0,  dim = c(nS,nP,nF))            # Catch allocation
   om$Rev_spft   <- array(NA, dim = c(nS,nP,nF,nT) )        # Fleet revenue
@@ -710,7 +726,6 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     om$tauObs_spf[1,,1:6]   <- repObj$tauObs_pg
     om$sigmaR_sp[1,]        <- repObj$sigmaR
     
-
     # Leading bio pars
     om$B0_sp[1,]    <- repObj$B0_p
     om$Rinit_sp[1,] <- repObj$Rinit_p
@@ -743,9 +758,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
 
     om$W_axspft[,1,1,,7,1:(tMP-1)]   <- om$W_axspft[,1,1,,6,1:(tMP-1)]
     om$W_axspft[,1,1,,7,tMP:nT]      <- om$W_axspft[,1,1,,6,tMP:nT]
-
-
-    
+  
     # Get mean weight-at-age for reference point calcs
     om$meanWtAge_axsp[,1,1,]      <- repObj$meanWt_ap
 
@@ -863,6 +876,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   endN_axspt        <- om$endN_axspt
   R_spt             <- om$R_spt
   SB_spt            <- om$SB_spt
+  endSB_spt         <- om$endSB_spt
   B_spt             <- om$B_spt
   Z_axspt           <- om$Z_axspt
 
@@ -1290,15 +1304,12 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
 
     for( fIdx in sokFleets)
         F_spft[,,fIdx,t] <- tmpP_spf[,,fIdx] * (1 - exp(-pondM_ft[fIdx,t])) / vB_spft[,,fIdx,t]
-
+    
     # Pull spawn timing numbers at age
     spawnN_axsp[1:nA,,,] <- discRemList$spawnN_axsp
 
     # Pull end of time-step numbers
     endN_axspt[,,,,t] <- discRemList$endN_axsp
-
-    if( any(endN_axspt[,,,,t] < 0, na.rm=T) )
-      browser()
 
     # Pull catch at age in biomass and numbers
     Cw_axspft[,,,,,t] <- discRemList$Cw_axspf
@@ -1311,8 +1322,20 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   SB_asp[1:nA,1:nS,1:nP] <- matAge_asp[1:nA,1:nS,1:nP] * spawnN_axsp[1:nA,nX,1:nS,1:nP] * W_axspt[1:nA,nX,1:nS,1:nP,t]
   SB_spt[,,t] <- apply(X = SB_asp, FUN = sum, MARGIN = c(2,3), na.rm = T )
 
+  # Calculate spawning biomass + surviving ponded fish after applying post-ponding M
+  survP_sp <- array(NA, dim = c(nS,nP))
+  for(s in 1:nS)
+    for(p in 1:nP)
+      survP_sp[s,p] <- sum(tmpP_spf[s,p,sokFleets]* exp(-pondM_ft[sokFleets,t]))
 
-  # Sum realised catch
+  endSB_spt[,,t] <- SB_spt[,,t] + survP_sp
+   
+  # endSB_asp <- SB_asp
+  # endSB_asp[1:nA,1:nS,1:nP] <- matAge_asp[1:nA,1:nS,1:nP] * endN_axspt[1:nA,nX,1:nS,1:nP,t] * W_axspt[1:nA,nX,1:nS,1:nP,t]
+  # endSB_spt[,,t] <- apply(X = endSB_asp, FUN = sum, MARGIN = c(2,3), na.rm = T )
+
+
+  # Sum realised catch and dead ponded fish
   C_spft[,,,t] <- apply( X = Cw_axspft[,,,,,t,drop = FALSE], FUN = sum, MARGIN = c(3,4,5), na.rm = T )
   C_spt[,,t]   <- apply( X = C_spft[,,,t,drop = FALSE], FUN = sum, MARGIN = c(1,2), na.rm = T )
 
@@ -1321,13 +1344,11 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
 
   if( t >= tMP | ctlList$mp$data$source == "OM" )
   {
-    
-    # Get the indices that we're still collecting in the future
-    idxOn_spf <- obj$ctlList$mp$data$idxOn_spft[,,,t]
 
     if(!is.null(mp$assess$spTVqFleets))
       browser(cat('check time-varying q implemented correctly and q!=0 after tMP'))
-    else
+    
+    if(is.null(mp$assess$spTVqFleets) & is.null(opMod$blendIdx))
       q_spft[1:nS,1:nP,,t] <- q_spf[1:nS,1:nP,]
 
     # Calculate and save
@@ -1352,7 +1373,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
             Iperf_spft[s,p,f,t] <- C_spft[s,p,f,t] / E_pft[p,f,t] 
 
           # Spawn survey
-          if( ctlList$mp$data$idxType[f] == 3)
+          if( ctlList$mp$data$idxType[f] %in% c(3,4))
             Iperf_spft[s,p,f,t] <- q_spft[s,p,f,t] * SB_spt[s,p,t]
 
           # Save true observations and those with error
@@ -1374,6 +1395,8 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   # Species Pooling
   if( ctlList$mp$data$speciesPooling & !ctlList$mp$data$spatialPooling  )
   {
+    browser(cat('blended index not yet implemented for species pooling... \n'))
+
     for( f in 1:nF)
     {
       for(p in 1:nP )
@@ -1411,6 +1434,8 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   # Spatial Pooling
   if( ctlList$mp$data$spatialPooling & !ctlList$mp$data$speciesPooling )
   {
+    browser(cat('blended index not yet implemented for spatial pooling... \n'))
+
     for( f in 1:nF)
     {
       for( s in 1:nS )
@@ -1465,7 +1490,8 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   # Total aggregation
   if( ctlList$mp$data$spatialPooling & ctlList$mp$data$speciesPooling )
   {
-
+    browser(cat('blended index not yet implemented for species & spatial pooling... \n'))
+    
     for( f in 1:nF)
     {
       tauObs_spf[tauObs_spf == 0] <- NA
@@ -1504,9 +1530,10 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   endN_axspt        -> obj$om$endN_axspt
   R_spt             -> obj$om$R_spt
   SB_spt            -> obj$om$SB_spt
+  endSB_spt         -> obj$om$endSB_spt
   B_spt             -> obj$om$B_spt
   Z_axspt           -> obj$om$Z_axspt
-  
+
   # Catch
   C_axspft          -> obj$om$C_axspft
   Cw_axspft         -> obj$om$Cw_axspft
@@ -1538,8 +1565,6 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   # SOK stuff
   P_spft            -> obj$om$P_spft
   psi_spft          -> obj$om$psi_spft
-
-
 
   return( obj )
 } # END ageSexOpMod()
@@ -1588,23 +1613,28 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
 
   # Initialise counter at 0 for number of licenses fishing
   nSOK_pg  <- array(NA, dim=c(nP,2))
-  maxSOK_g <- c(sum(sokEff_pg[,1]), sum(sokEff_pg[,2])) # max number of licenses
-
+  maxSOK_g <- ctlList$mp$hcr$maxSOK_g # max number of licenses
   
-  for (p in 1:nP)
+  for (p in c(1,3,2))
   {
-    
+
     remTAC <- TAC_p[p] # object to hold unallocated TAC
 
+    # Adjust number of licenses available for SOK JP/S based on licenses allocated to C/S and Lou
+    if(p ==2)
+      for(g in 1:2)
+        sokEff_pg[2,g] <- maxSOK_g[g] - sum(sokEff_pg[c(1,3),g])
+
     # Cumshewa/Selwyn: Max 1 SOK license and no commercial fisheries
-    # For JP/S, licenses not allocated in Cumshewa/Selwyn can be used
+    # Louscoone: Max 1 SOK license and no commercial fisheries
+    # For JP/S, licenses not allocated in Cumshewa/Selwyn or Louscoone can be used
     maxTacSOK_g <- c(sokEff_pg[p,1]*closedPondAlloc, sokEff_pg[p,2]*openPondAlloc)
 
     # If not enough TAC for open or closed ponds, assign zero for all fleets
     if(TAC_p[p] < minTAC_p[p]  )
       tac_pf[p,] <- 0
     
-    # If enough TAC, allocate to open pond, closed pond and seine roe
+    # If enough TAC, allocate to open pond, closed pond and seine roe, in that order
     if(TAC_p[p] >= minTAC_p[p]  ) 
     { 
       # allocate open ponds first
@@ -1642,8 +1672,6 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
         # update available TAC
         remTAC <- remTAC - tac_pf[p,6]
 
-
-
       } # END loop allocating TAC to closed ponds
 
       # allocate remaining TAC to seine roe fleet in JP/S
@@ -1670,10 +1698,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     sokEff_pg[p,1] <- tac_pf[p,6]/closedPondAlloc
     sokEff_pg[p,2] <- tac_pf[p,7]/openPondAlloc
 
-    # Adjust allocation of ponds. If not enough TAC available for SOK Cumshewa/Selwyn (max 1 license) allocate the catch to Juan Perez/Skincuttle (max 10)
-      if(p==1)
-        for(g in 1:2)
-            sokEff_pg[p+1,g] <- maxSOK_g[g] - sokEff_pg[p,g]
+
   } # END nP loop    
 
   # update SOK license, tac and fleet allocation
@@ -1809,7 +1834,6 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
 
   # if spatialPooling=TRUE - MP for aggregated stocks (i.e. larger area)
   # if speciesPooling=TRUE - MP for aggregated species (i.e. mixed fishery)
-
 
   # Spatial MP for stocks and separate MP for each species
   if( !ctlList$mp$data$spatialPooling & !ctlList$mp$data$speciesPooling )
@@ -3526,14 +3550,13 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   nT  <- obj$om$nT
   tMP <- obj$om$tMP
 
-
-
   # Calculate projection year
   pt <- t - tMP + 1
   pT <- ctlList$opMod$pT
 
   # Pull data
   I_spft <- obj$mp$data$I_spft
+  q_spft <- obj$om$q_spft
   C_spt  <- obj$om$C_spt
 
   # HACK: Assign 0 instead of NAs
@@ -3543,7 +3566,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     browser(cat('NAs in catch... \n'))
 
   # Stock status
-  projSB_pt <- I_spft[1:nS,1:nP,5,(tMP-1):(nT-1)] + C_spt[,,(tMP-1):(nT-1)]
+  projSB_pt <- I_spft[1:nS,1:nP,5,(tMP-1):(nT-1)]/q_spft[1:nS,1:nP,5,(tMP-1):(nT-1)]  + C_spt[,,(tMP-1):(nT-1)]
 
   for(s in 1:nS)
   {  
@@ -3942,10 +3965,11 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   # Now, copy model fit
   histdx <- 1:(tMP - 1)
   histF  <- 1:repObj$nG # number of fleets in historical time series
+  projdx <- tMP:nT
   obj$om$F_spft[1,,histF,histdx]        <- repObj$F_pgt
   obj$om$C_spft[1,,histF,histdx]        <- repObj$C_pgt
 
-  # Set all SOK catch and F to zero as ponded fish mortality is calculated in applyDiscreteFisheries() 
+  # Set all SOK catch and F to zero as ponded fish mortality is calculated in applyDiscreteFisheries()
   obj$om$F_spft[1,,6:7,histdx] <- 0
   obj$om$C_spft[1,,6:7,histdx] <- 0
 
@@ -3964,19 +3988,47 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   obj$om$initSurv_axsp[,1,1,]        <- repObj$initSurv_ap
 
   # Now fill in future sel
-  obj$om$sel_axspft[,1,1,,histF,tMP:nT]  <- repObj$sel_apgt[,,,tMP-1]
-  obj$om$sel_axspft[,1,1,,7,tMP:nT]      <- obj$om$sel_axspft[,1,1,,6,tMP:nT]
+  if(!ctlList$opMod$posteriorSamples)
+  {  
+    # selectivity
+    obj$om$sel_axspft[,1,1,,histF,tMP:nT]  <- repObj$sel_apgt[,,,tMP-1]
+    obj$om$sel_axspft[,1,1,,7,tMP:nT]      <- obj$om$sel_axspft[,1,1,,6,tMP:nT]
+
+    # catchability
+    obj$om$q_spf[1,,histF]    <- repObj$qhat_pg # same as repObj$qComb_pg
+    obj$om$q_spft[1,,histF,]  <- repObj$qhat_pg 
+    
+
+  }
+  if(ctlList$opMod$posteriorSamples)
+  {
+    postDrawIdx <- obj$ctlList$opMod$postDrawIdx
+    mcmcPar     <- ctlList$opMod$posts
+
+    # selectivity
+    sel50_pf <- mcmcPar$selAlpha_ipg[postDrawIdx,,]
+    sel95_pf <- sel50_pf + mcmcPar$selBeta_ipg[postDrawIdx,,]
+    tmp_pf      <- log(19.)/( sel95_pf - sel50_pf )
+
+    sel_apf <- array(0, dim=c(nA,nP,length(histF)))
+    # Force selectivity to zero for ages 1-2
+    for(a in 3:nA)
+      sel_apf[a,,histF] = 1/( 1 + exp(-tmp_pf*( a - sel50_pf)))
+
+    obj$om$sel_axspft[,1,1,,histF,] <- sel_apf
+    obj$om$sel_axspft[,1,1,,7,]     <- obj$om$sel_axspft[,1,1,,6,]
+
+    # catchability
+    obj$om$q_spf[1,,histF]    <- mcmcPar$q_ipg[postDrawIdx,,]
+    obj$om$q_spft[1,,histF,]  <- mcmcPar$q_ipg[postDrawIdx,,]
+
+  }  
+
 
   # Identify time step for initializing each population
   obj$om$tInit_p <- repObj$tInitModel_p
 
 
-  # Copy index catchability
-  for( tt in histdx )
-  {
-    obj$om$q_spft[1,,histF,tt]       <- repObj$qhat_pg
-    obj$om$q_spf[1,,histF]           <- repObj$qhat_pg
-  }
 
   # Now we have enough info to calculate reference points
   stime <- Sys.time()
@@ -3992,10 +4044,63 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   message( paste(" (.condMS3pop_SISCA) Reference point calculations completed in ", 
                   rpTime, " seconds\n", sep = "" ) )
 
-
   # Add historical data
   obj$mp$data$I_spft[1,1:nP,histF,histdx]        <- repObj$I_pgt[1:nP,,histdx]
   obj$mp$data$A_axspft[,1,1,1:nP,histF,histdx]   <- repObj$A_apgt[,1:nP,,histdx]
+
+  # Check if model is using a blended index & overwrite dive survey index & q
+  if(!is.null(repObj$combI_pt))
+  {  
+    
+    # overwrite dive survey index with blended index
+    obj$mp$data$I_spft[1,1:nP,5,histdx] <- repObj$combI_pt
+
+    # Flag the om rep file is using blended index
+    if(!ctlList$opMod$blendIdx)
+      browser(cat('OM rep file uses blended index but ctlList does not... \n'))
+
+  }  
+
+  # Simulate proportions of blended index
+  if(ctlList$opMod$blendIdx)
+  {
+    # add historical proportions of surface and survey index
+    obj$om$rI_spft[1,1:nP,histF,histdx]  <- repObj$rI_pgt
+
+    # add simulated proportions for dive survey
+    blendG      <- 
+    blendType_p <- ctlList$opMod$blendType_p
+    binom_p     <- ctlList$opMod$binom_p
+    beta1_p     <- ctlList$opMod$betaShape1_p
+    beta2_p     <- ctlList$opMod$betaShape2_p
+
+    for(p in 1:nP)  
+    {
+      if(blendType_p[p]=='binom')
+        obj$om$rI_spft[1,p,4,projdx] <- rbinom(pT,1,binom_p[p])
+
+      if(blendType_p[p]=='binomXbeta')
+      {
+        surfIdxOn  <- rbinom(pT,1,binom_p[p])
+        surfYrs    <- which(surfIdxOn==1) + projdx[1] -1
+
+        # random draws from beta distribution
+        betaDraws <- rbeta(length(surfYrs), shape1=beta1_p[p], shape2=beta2_p[p])
+
+        obj$om$rI_spft[1,p,4,projdx]  <- surfIdxOn
+        obj$om$rI_spft[1,p,4,surfYrs] <- betaDraws
+
+      }
+
+      # Add proportions for dive survey
+      obj$om$rI_spft[1,p,5,projdx] <- 1 - obj$om$rI_spft[1,p,4,projdx]
+
+      for( tt in projdx )
+        obj$om$q_spft[1,p,5,tt] <- sum(repObj$qComb_pg[p,4:5] * obj$om$rI_spft[1,p,4:5,tt])
+
+    }   
+  }  
+
 
   # replace negatives with NAs for plotting, can change back 
   # later for TMB
@@ -4072,6 +4177,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
 
     }
 
+
   # Replace NaNs with 0s when the recent history has no catch
   obj$om$alloc_spf[is.nan(obj$om$alloc_spf)] <- 0
 
@@ -4079,7 +4185,8 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   obj$errors$delta_spft[1,1:nP,histF,histdx]   <- repObj$z_pgt[1:nP,,histdx,drop = FALSE] # obs errors
   for( p in 1:nP)
     obj$errors$omegaRinit_asp[,1,p]  <- repObj$fDevs_ap[,p] # Initialisation errors
-  obj$errors$obsErrMult_spft          <- array(1, dim = c(nS,nP,nF,nT))
+  
+  obj$errors$obsErrMult_spft         <- array(1, dim = c(nS,nP,nF,nT))
 
 
   # Random Walk with a trend for M in projections  
@@ -4172,9 +4279,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
 
       obj$om$pondM_ft[f,tMP:nT] <- exp(rnorm(pT, log(pondM), logSD))
 
-    } 
-
-      
+    }      
 
   }  
 
@@ -5337,7 +5442,15 @@ applyDiscreteFisheries <- function( N_axsp,
   # Add ponded fish at age reduced by post-ponding M
   sokFleets <- which(fleetType_f == 2)
   for( fIdx in sokFleets )
+  {  
     endN_axsp[1:nA,,,] <- endN_axsp[1:nA,,,] + C_axspf[1:nA,,,,fIdx] * exp(-pondM_f[fIdx])
+
+    #Apply post-ponding mortality so catch for SOK fleets represents dead fish
+    Cw_axspf[1:nA,,,,fIdx] <- Cw_axspf[1:nA,,,,fIdx] * (1-exp(-pondM_f[fIdx]))
+    C_axspf[1:nA,,,,fIdx]  <- C_axspf[1:nA,,,,fIdx] * (1-exp(-pondM_f[fIdx]))
+
+  }  
+
 
   # Return model states
   outList <- list(  endN_axsp   = endN_axsp,
