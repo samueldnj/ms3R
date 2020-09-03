@@ -1965,8 +1965,12 @@ solvePTm <- function( Bmsy, B0 )
     gc()
   } # END nCores conditional
 
-  # Should be possible to encapsulate the single core
-  # situation within this as well...
+  # Single core case can be run above, if there's no
+  # need to check convergence of different runs. The
+  # following case will check convergence criteria (goodReps)
+  # between each replicate, and stop if a sufficient number
+  # is reached. Slower than above, but more control over
+  # stopping conditions.
   if( is.null(ctlList$ctl$nCores) )
   {
     for( i in 1:nReps )

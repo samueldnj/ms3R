@@ -13,7 +13,7 @@ ctl$nGoodReps 10
 ctl$omni FALSE
 ctl$perfConF FALSE
 ctl$noProcErr FALSE
-ctl$nCores 4
+ctl$nCores 1
 mp$assess$assInt 1
 mp$assess$method "idxBased"
 mp$assess$idxPoints 3
