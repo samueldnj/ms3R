@@ -15,7 +15,7 @@ ctl$perfConF FALSE
 ctl$noProcErr FALSE
 ctl$nCores 1
 mp$assess$assInt 1
-mp$assess$method "idxBased"
+mp$assess$method "hierProd"
 mp$assess$idxPoints 3
 mp$assess$idxScalar 1
 mp$assess$idxFleets 4
@@ -130,7 +130,7 @@ opMod$priceSD 0.4
 opMod$econBaseYear 2009
 opMod$crewShare .3
 opMod$projObsErrMult 1.0
-opMod$obsErrMult 1
+opMod$obsErrMult .75
 opMod$phaseInObsErrMult 6
 opMod$commCPUEdata "history/DERPAcpue"
 opMod$switchCommCatchability FALSE
