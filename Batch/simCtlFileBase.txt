@@ -32,7 +32,7 @@ mp$assess$spCondMLEobsErrFleets NULL
 mp$assess$spSolveInitBio FALSE
 mp$assess$spLateStart FALSE
 mp$assess$spYrFirstIdx 15
-mp$assess$spsigmaProc .05
+mp$assess$spsigmaProc .3
 mp$assess$sptauqdev .01
 mp$assess$spsdUmsy .4
 mp$assess$spCVBmsy .4
