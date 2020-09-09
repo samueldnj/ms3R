@@ -13,7 +13,7 @@ ctl$nGoodReps 10
 ctl$omni FALSE
 ctl$perfConF FALSE
 ctl$noProcErr FALSE
-ctl$nCores 1
+ctl$nCores NULL
 mp$assess$assInt 1
 mp$assess$method "hierProd"
 mp$assess$idxPoints 3
@@ -130,7 +130,7 @@ opMod$priceSD 0.4
 opMod$econBaseYear 2009
 opMod$crewShare .3
 opMod$projObsErrMult 1.0
-opMod$obsErrMult .75
+opMod$obsErrMult 1
 opMod$phaseInObsErrMult 6
 opMod$commCPUEdata "history/DERPAcpue"
 opMod$switchCommCatchability FALSE
