@@ -9,6 +9,8 @@
 # History files that aren't necessary for conditioning
 history/fit_*/plots
 history/fit_*/hierSCAL.o
+history/fit_*/SISCA.cpp
+history/fit_*/*.html
 
 # Compiled objects
 *.so
