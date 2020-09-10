@@ -57,7 +57,7 @@ mp$mp1$mp$assess$spShrinkqFleets NULL
 mp$mp1$mp$assess$spCondMLEqFleets NULL
 mp$mp1$mp$assess$spCondMLEobsErrFleets NULL
 mp$mp1$mp$assess$spFleetWeights c(1.0,1.0,1.0,1.0)
-mp$mp1$mp$assess$spsigmaProc .05
+mp$mp1$mp$assess$spsigmaProc .2
 mp$mp1$mp$assess$spsdUmsy .1
 mp$mp1$mp$assess$spCVBmsy .1
 mp$mp1$mp$assess$spsdlnq_f c(1,1,.5,.5)
@@ -94,7 +94,7 @@ mp$mp2$mp$assess$spsigU .05
 mp$mp2$mp$assess$spFleetWeights c(1.0,1.0,1.0,1.0)
 mp$mp2$mp$assess$spShrinkqFleets c(3,4)
 mp$mp2$mp$assess$spYrFirstIdx 20
-mp$mp2$mp$assess$spsigmaProc .05
+mp$mp2$mp$assess$spsigmaProc .2
 mp$mp2$mp$assess$spsdUmsy .4
 mp$mp2$mp$assess$spCVBmsy .2
 mp$mp2$mp$assess$spsdlnq_f c(1,1,.5,.5)
@@ -135,7 +135,7 @@ mp$mp3$mp$assess$spCondMLEqFleets NULL
 mp$mp3$mp$assess$spCondMLEobsErrFleets NULL
 mp$mp3$mp$assess$spSolveInitBio FALSE
 mp$mp3$mp$assess$spLateStart FALSE
-mp$mp3$mp$assess$spsigmaProc .05
+mp$mp3$mp$assess$spsigmaProc .2
 mp$mp3$mp$assess$sptauqdev .1
 mp$mp3$mp$assess$spsdUmsy .4
 mp$mp3$mp$assess$spCVBmsy .2
@@ -177,7 +177,7 @@ mp$mp4$mp$assess$spCondMLEqFleets NULL
 mp$mp4$mp$assess$spCondMLEobsErrFleets NULL
 mp$mp4$mp$assess$spSolveInitBio FALSE
 mp$mp4$mp$assess$spLateStart FALSE
-mp$mp4$mp$assess$spsigmaProc .05
+mp$mp4$mp$assess$spsigmaProc .2
 mp$mp4$mp$assess$sptauqdev .1
 mp$mp4$mp$assess$spsdUmsy .4
 mp$mp4$mp$assess$spCVBmsy .2
@@ -219,7 +219,7 @@ mp$mp5$mp$assess$spCondMLEqFleets NULL
 mp$mp5$mp$assess$spCondMLEobsErrFleets NULL
 mp$mp5$mp$assess$spSolveInitBio FALSE
 mp$mp5$mp$assess$spLateStart FALSE
-mp$mp5$mp$assess$spsigmaProc .05
+mp$mp5$mp$assess$spsigmaProc .2
 mp$mp5$mp$assess$sptauqdev .1
 mp$mp5$mp$assess$spsdUmsy .4
 mp$mp5$mp$assess$spCVBmsy .2
