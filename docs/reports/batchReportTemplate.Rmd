@@ -131,13 +131,14 @@ stockNames   <- blob$om$stockNames
 batchPerfStats <- lapply( X = batchBlobs, FUN = .simPerfStats, inclAgg=TRUE, exclNoTAC=TRUE )
 
 statTable      <- do.call(rbind, batchPerfStats)  %>%
-                  select(scenario, mp, stock, pBtGt.3B0, pBtGt.5B0, pUtGt.1HR:catchAAV) %>%
-                  arrange(scenario, -1*pBtGt.3B0, -1*nYrsSOK, -1*avgLicSOK, -1*nYrsComm)
+                  select(scenario, mp, stock, pBtGt.3B0, pBtGt.5B0, pUtGt.1HR:catchAAV, pBtGtHistSB:growthRate16yrs) %>%
+                  arrange(scenario, -1*pBtGt.3B0,-1*pBtGt.5B0, -1*nYrsSOK, -1*avgLicSOK, -1*nYrsComm)
 
 statTable$avgSOK_1000lbs <- statTable$avgSOK_t/0.453592
 
-pmTable <- select(statTable, scenario, mp, stock, pBtGt.3B0, pBtGt.5B0, nYrsSOK:pondAAV, avgSOK_1000lbs,
-                  nYrsComm:catchAAV, pUtGt.1HR, avgUtGt0.1HR)
+pmTable <- select(statTable, scenario, mp, stock, pBtGt.3B0, pBtGt.5B0, 
+                  nYrsSOK:pondAAV, avgSOK_1000lbs, nYrsComm:catchAAV, pUtGt.1HR, 
+                  avgUtGt0.1HR, pBtGtHistSB:growthRate16yrs)
 
 # save csv of statTable
 write.csv(pmTable, file.path(batchDir,'batchReports','pmTable.csv'), row.names=F)
@@ -147,9 +148,20 @@ write.csv(pmTable, file.path(batchDir,'batchReports','pmTable.csv'), row.names=F
 pm_rw15LoPondM <- subset(pmTable, scenario=='rw15_loPondM')
 write.csv(pm_rw15LoPondM,  file.path(batchDir,'batchReports','pmTable_rw15LoPondM.csv'), row.names=F)
 
+# Save Seperate tables for HS_30_100 and HS_50_60
+hcr1 <- c('oSOK_HS50-60_HR0.1', 'cSOK_HS50-60_HR0.1','cSOK+SR_HS50-60_HR0.1', 
+          'SR_HS50-60_HR0.1','NoFish')
+hcr2 <- c('oSOK_HS30-100_HR0.1', 'cSOK_HS30-100_HR0.1','cSOK+SR_HS30-100_HR0.1', 
+          'SR_HS30-100_HR0.1','NoFish')
+
+pm_rw15LoPondM_hcr1 <- subset(pm_rw15LoPondM, mp %in% hcr1) %>% arrange(stock)
+write.csv(pm_rw15LoPondM_hcr1 ,  file.path(batchDir,'batchReports','pmTable_rw15LoPondM_hcr1.csv'), row.names=F)
+
+pm_rw15LoPondM_hcr2 <- subset(pm_rw15LoPondM, mp %in% hcr2) %>% arrange(stock)
+write.csv(pm_rw15LoPondM_hcr2,  file.path(batchDir,'batchReports','pmTable_rw15LoPondM_hcr2.csv'), row.names=F)
+
 message("All simulation objects loaded and ready to make batch report")
 
-browser()
 ```
 
 Batch report file for ms3R simulations.

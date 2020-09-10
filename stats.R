@@ -389,12 +389,17 @@ makeStatTable <- function( sims = 1, folder = "" )
                   # "pFtGtFmsy",
                   "nYrsSOK",
                   "avgLicSOK",
-                  "avgPonded_t",
                   "avgSOK_t",
+                  "avgPonded_t",
                   "pondAAV",
                   "nYrsComm",
                   "avgCatch_t",
-                  "catchAAV"
+                  "catchAAV",
+                  "pBtGtHistSB", 
+                  "pBtGt.5HistSB", 
+                  "growthRate6yrs",
+                  "growthRate11yrs",
+                  "growthRate16yrs"
                   )
 
   statTable <- matrix( NA,  ncol = length(colLabels),
@@ -462,12 +467,31 @@ makeStatTable <- function( sims = 1, folder = "" )
     # Spawning biomass + ponded fish - dead ponded fish
     endSB_ispt <- om$endSB_ispt[allConvReps,,,,drop = FALSE]
     # endSB_ispt <- SB_ispt + P_ispt - deadP_ispt
+
+    # Calculate median biomass from 1975-1985
+    fYear         <- blob$ctlList$opMod$fYear
+    yrIdx         <- (1975-fYear+1):(1985-fYear+1)     
+    histSB_isp <- apply(SB_ispt[,,,yrIdx,drop=FALSE], FUN=median, MARGIN=c(1,2,3))
     
     # Calculate probability that Bt above LRP
     pBtGt.3B0_sp <- .calcStatsProportion(   TS_ispt = endSB_ispt,
                                             ref_isp = B0_isp,
                                             tdx = tMP:nT,
                                             prop = .3,
+                                            nS = nS,
+                                            nP = nP )
+
+    pBtGtHistSB_sp <- .calcStatsProportion( TS_ispt = endSB_ispt,
+                                            ref_isp = histSB_isp,
+                                            tdx = tMP:nT,
+                                            prop = 1,
+                                            nS = nS,
+                                            nP = nP )
+
+    pBtGt.5HistSB_sp <- .calcStatsProportion(TS_ispt = endSB_ispt,
+                                            ref_isp = histSB_isp,
+                                            tdx = tMP:nT,
+                                            prop = 0.5,
                                             nS = nS,
                                             nP = nP )
 
@@ -541,6 +565,20 @@ makeStatTable <- function( sims = 1, folder = "" )
 
     commYrsBar_isp  <- apply( X = commYrs_ispt[,,,tMP:nT,drop = FALSE], FUN = sum, MARGIN = c(1,2,3))
     commYrsBar_sp   <- apply( X = commYrsBar_isp[,,,drop=FALSE], FUN = median, MARGIN = c(2,3))
+
+    # Calculate exponential growth rate
+    r5_isp  <- (log(endSB_ispt[,,,tMP+4,drop=FALSE]) - log(endSB_ispt[,,,(tMP-1), drop=FALSE]))/5
+    r10_isp <- (log(endSB_ispt[,,,tMP+9,drop=FALSE]) - log(endSB_ispt[,,,(tMP-1), drop=FALSE]))/10
+    r15_isp <- (log(endSB_ispt[,,,tMP+14,drop=FALSE]) - log(endSB_ispt[,,,(tMP-1), drop=FALSE]))/15
+
+    # convert to % growth rate
+    g5_isp  <- exp(r5_isp)-1
+    g10_isp <- exp(r10_isp)-1
+    g15_isp  <- exp(r15_isp)-1
+
+    medG5_sp  <- apply(X=g5_isp, FUN=median, MARGIN=c(2,3))
+    medG10_sp <- apply(X=g10_isp, FUN=median, MARGIN=c(2,3))
+    medG15_sp <- apply(X=g15_isp, FUN=median, MARGIN=c(2,3))
 
     # Average fisheries and SOK stats for years when fisheries are open
     if(exclNoTAC)
@@ -643,17 +681,19 @@ makeStatTable <- function( sims = 1, folder = "" )
         statTable[rowIdx, "medProbPDH_sp"]  <- medProbPDH_sp[s,p]
 
         # Conservation performance
-        statTable[rowIdx,"pBtGt.3B0"]     <- round(pBtGt.3B0_sp[s,p],2)
-        statTable[rowIdx,"pBtGt.5B0"]     <- round(pBtGt.5B0_sp[s,p],2)
-        statTable[rowIdx,"pBtGt.6B0"]     <- round(pBtGt.6B0_sp[s,p],2)
+        statTable[rowIdx,"pBtGt.3B0"]     <- round(pBtGt.3B0_sp[s,p],3)
+        statTable[rowIdx,"pBtGtHistSB"]   <- round(pBtGtHistSB_sp[s,p],3)
+        statTable[rowIdx,"pBtGt.5HistSB"] <- round(pBtGt.5HistSB_sp[s,p],3)
+        statTable[rowIdx,"pBtGt.5B0"]     <- round(pBtGt.5B0_sp[s,p],3)
+        statTable[rowIdx,"pBtGt.6B0"]     <- round(pBtGt.6B0_sp[s,p],3)
         
         # statTable[rowIdx,"pBtGtBmsy"]       <- round(pBtGtBmsy_sp[s,p],2)
         # statTable[rowIdx,"pCtGtMSY"]        <- round(pCtGtMSY_sp[s,p],2)
         # statTable[rowIdx,"pFtGtFmsy"]       <- round(pFtGtFmsy_sp[s,p],2)
 
         # Catch statistics
-        statTable[rowIdx,"pUtGt.1HR"]       <- round(pUGt.1_sp[s,p],3)
-        statTable[rowIdx,"avgUtGt0.1HR"]     <- round(overFishUbar_sp[s,p],2)
+        statTable[rowIdx,"pUtGt.1HR"]     <- round(pUGt.1_sp[s,p],3)
+        statTable[rowIdx,"avgUtGt0.1HR"]  <- round(overFishUbar_sp[s,p],2)
 
         statTable[rowIdx,"nYrsSOK"]       <- round(sokYrsBar_sp[s,p],1)
         statTable[rowIdx,"nYrsComm"]      <- round(commYrsBar_sp[s,p],1)
@@ -668,6 +708,10 @@ makeStatTable <- function( sims = 1, folder = "" )
         # statTable[rowIdx,"avg_cSOKlic"]     <- round(cSOKbar_sp[s,p],1)
         # statTable[rowIdx,"avg_oSOKlic"]     <- round(oSOKbar_sp[s,p],1)
 
+        statTable[rowIdx,"growthRate6yrs"]  <- round(medG5_sp[s,p],3)
+        statTable[rowIdx,"growthRate11yrs"] <- round(medG10_sp[s,p],3)
+        statTable[rowIdx,"growthRate16yrs"] <- round(medG15_sp[s,p],3)
+
       }
 
 
@@ -681,12 +725,13 @@ makeStatTable <- function( sims = 1, folder = "" )
 
       
       # Calculate probability that Bt and Ct above certain thresholds
-      SB_it     <- apply(SB_ispt, MARGIN=c(1,4), FUN=sum, drop=FALSE)
-      endSB_it  <- apply(endSB_ispt, MARGIN=c(1,4), FUN=sum, drop=FALSE)
-      B0_i      <- apply(B0_isp, MARGIN=1, FUN=sum)
-      C_it      <- apply(C_ispt, MARGIN=c(1,4), FUN=sum, drop=FALSE, na.rm=T)
-      P_it      <- apply(P_ispt, MARGIN=c(1,4), FUN=sum, drop=FALSE, na.rm=T)
-      deadP_it  <- apply(deadP_ispt, MARGIN=c(1,4), FUN=sum, drop=FALSE, na.rm=T)
+      SB_it       <- apply(SB_ispt, MARGIN=c(1,4), FUN=sum, drop=FALSE)
+      endSB_it    <- apply(endSB_ispt, MARGIN=c(1,4), FUN=sum, drop=FALSE)
+      B0_i        <- apply(B0_isp, MARGIN=1, FUN=sum)
+      histSB_i    <- apply(histSB_isp, MARGIN=1, FUN=sum)
+      C_it        <- apply(C_ispt, MARGIN=c(1,4), FUN=sum, drop=FALSE, na.rm=T)
+      P_it        <- apply(P_ispt, MARGIN=c(1,4), FUN=sum, drop=FALSE, na.rm=T)
+      deadP_it    <- apply(deadP_ispt, MARGIN=c(1,4), FUN=sum, drop=FALSE, na.rm=T)
 
       # Calculate aggreate harvest rate
       U_it   <- (C_it+deadP_it)/(SB_it + C_it + P_it)
@@ -697,6 +742,20 @@ makeStatTable <- function( sims = 1, folder = "" )
                                                   ref_i = B0_i,
                                                   tdx = tMP:nT,
                                                   prop = .3,
+                                                  nS = 1,
+                                                  nP = 1 )
+
+      pBtGtHistSB_agg  <- .calcStatsProportionAgg(TS_it = endSB_it,
+                                                  ref_i = histSB_i,
+                                                  tdx = tMP:nT,
+                                                  prop = 1,
+                                                  nS = 1,
+                                                  nP = 1 )
+
+      pBtGt.5HistSB_agg <- .calcStatsProportionAgg(TS_it = endSB_it,
+                                                  ref_i = histSB_i,
+                                                  tdx = tMP:nT,
+                                                  prop = 0.5,
                                                   nS = 1,
                                                   nP = 1 )
 
@@ -745,6 +804,22 @@ makeStatTable <- function( sims = 1, folder = "" )
       commYrs_it[commYrs_it>0]  <-1
       commYrs_i                 <- apply( X = commYrs_it[,tMP:nT], FUN = sum, MARGIN=1)
       commYrsBar_agg            <- median(commYrs_i)
+
+
+      # Calculate biomass slopes
+      r5_i  <- (log(endSB_it[,tMP+4]) - log(endSB_it[,tMP-1]))/5
+      r10_i <- (log(endSB_it[,tMP+9]) - log(endSB_it[,tMP-1]))/10
+      r15_i <- (log(endSB_it[,tMP+14]) - log(endSB_it[,tMP-1]))/15
+
+      # convert to % growth rate
+      g5_i  <- exp(r5_i)-1
+      g10_i <- exp(r10_i)-1
+      g15_i  <- exp(r15_i)-1
+
+      medG5_agg  <- median(g5_i)
+      medG10_agg <- median(g10_i)
+      medG15_agg <- median(g15_i)
+
 
       # Aggregate fisheries catch, SOK ponded biomass & SOK licenses then calcuate average across iReps and projT
       C_it     <- apply( X = C_ispt[,,,,drop = FALSE], FUN = sum, MARGIN = c(1,4), na.rm = T)
@@ -817,14 +892,17 @@ makeStatTable <- function( sims = 1, folder = "" )
       pondAAV_agg      <- .calcStatsAAV_agg(C_it = P_it,
                                             tdx = tMP:nT,
                                             qProbs = c(0.5))
+
       
       # Fill aggregate row
       aggRow[,"stock"]         <- 'aggregate'
       
       # Conservation
-      aggRow[,"pBtGt.3B0"]     <- round(pBtGt.3B0_agg,2)
-      aggRow[,"pBtGt.5B0"]     <- round(pBtGt.5B0_agg,2)
-      aggRow[,"pBtGt.6B0"]     <- round(pBtGt.6B0_agg,2)
+      aggRow[,"pBtGt.3B0"]     <- round(pBtGt.3B0_agg,3)
+      aggRow[,"pBtGtHistSB"]   <- round(pBtGtHistSB_agg,3)
+      aggRow[,"pBtGt.5HistSB"] <- round(pBtGt.5HistSB_agg,3)
+      aggRow[,"pBtGt.5B0"]     <- round(pBtGt.5B0_agg,3)
+      aggRow[,"pBtGt.6B0"]     <- round(pBtGt.6B0_agg,3)
       
       # commercial catch
       aggRow[,"pUtGt.1HR"]       <- round(pUGt.1_agg,3)
@@ -845,6 +923,9 @@ makeStatTable <- function( sims = 1, folder = "" )
       # aggRow[,"avg_cSOKlic"]   <- round(cSOKbar_agg,1)
       # aggRow[,"avg_oSOKlic"]   <- round(oSOKbar_agg,1)
 
+      aggRow[,"growthRate6yrs"]    <- round(medG5_agg,3)
+      aggRow[,"growthRate11yrs"]   <- round(medG10_agg,3)
+      aggRow[,"growthRate16yrs"]   <- round(medG15_agg,3)
 
       statTable <- rbind(statTable, aggRow)
 

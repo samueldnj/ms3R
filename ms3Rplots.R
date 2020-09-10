@@ -105,11 +105,11 @@ plotHockeyStickHCR <- function( LRP = .5, USR = .6,
     yLim <- c(0,1.5*refHR)
 
 
-  plot( x = c(0,refB), y = yLim, type = "n", xlab = "", ylab = "", las = 1,
+  plot( x = c(0,refB*1.2), y = yLim, type = "n", xlab = "", ylab = "", las = 1,
         yaxt=yAXT )
     segments( x0 = 0, x1 = LRP * refB, y0 = 0, lwd = 1.5 )
     segments( x0 = LRP*refB, x1 = USR*refB, y0 = 0, y1 = refHR, lwd = 1.5 )
-    segments( x0 = USR*refB, x1 = refB, y0 = refHR, y1 = refHR, lwd = 1.5 )
+    segments( x0 = USR*refB, x1 = refB*1.2, y0 = refHR, y1 = refHR, lwd = 1.5 )
     abline( v = c(USR*refB, LRP * refB), lwd = .8, lty = 2)
     abline( h = refHR, lty = 3, lwd = .8)
     mtext( side = 1, text = xLab, line = 2 )
@@ -2791,7 +2791,8 @@ plotTulipBt <- function(  obj = blob, nTrace = 3,
             text = stamp, col = "grey60" )
 }
 
-# Biomass envelopes
+
+# Catch envelopes
 plotTulipCt <- function(  obj = blob, nTrace = 3,
                           ref = "B0",
                           leg = TRUE,
@@ -2858,7 +2859,7 @@ plotTulipCt <- function(  obj = blob, nTrace = 3,
       {
         corners <- par("usr") #Gets the four corners of plot area (x1, x2, y1, y2)
         par(xpd = TRUE) #Draw outside plot area
-        text(x = corners[2]+0.5, y = mean(corners[3:4]), stockNames[p], srt = 270,
+        text(x = corners[2]+0.1, y = mean(corners[3:4]), stockNames[p], srt = 270,
               font = 2, cex = 1.5 )
         par(xpd = FALSE)
       }
@@ -2918,6 +2919,100 @@ plotTulipCt <- function(  obj = blob, nTrace = 3,
   mtext(  outer = TRUE, side = 1, adj = .8, line = 3, cex = .6,
             text = stamp, col = "grey60" )
 } # END plotTulipCt()
+
+# Catch envelopes
+plotTulipMt <- function(  obj = blob, nTrace = 3,
+                          leg = TRUE, tMin = NULL)
+{
+  goodReps <- obj$goodReps
+
+  M_iaxspt <- obj$om$M_iaxspt[goodReps,,,,,,drop = FALSE]
+  
+
+  tMP     <- obj$om$tMP
+  nS      <- obj$om$nS
+  nP      <- obj$om$nP 
+  nT      <- obj$om$nT
+  nF      <- obj$om$nF
+  nReps   <- dim(M_iaxspt)[1]
+
+  speciesNames  <- obj$om$speciesNames
+  stockNames    <- dimnames(obj$ctlList$opMod$histRpt$I_pgt)[[1]]
+  fYear         <- obj$ctlList$opMod$fYear
+
+  yrs <- seq( from = fYear, by = 1, length.out = nT)
+
+  if(is.null(tMin))
+    tMin <-1
+ 
+  M_qspt <- apply( X = M_iaxspt[,5,1,,,,drop=FALSE], FUN = quantile,
+                    MARGIN = c(4,5,6), probs = c(0.025, 0.5, 0.975),
+                    na.rm = T )
+
+  traces <- sample( 1:dim(M_ipt)[1], size = min(nTrace,nReps)  )
+
+  stamp <- paste(obj$ctlList$ctl$scenarioName,":",obj$ctlList$ctl$mpName,sep = "")
+
+  par(  mfcol = c(nP,nS), 
+        mar = c(1,1.5,1,1.5),
+        oma = c(4,3,3,3) )
+
+  for(s in 1:nS)
+  {
+    for( p in 1:nP )
+    {
+      plot( x = range(yrs[tMin:nT]),
+            y = c(0,max(M_iaxspt[,5,,s,p,tMin:nT], na.rm = T) ),
+            type = "n", axes = F)
+
+      mfg <- par("mfg")
+      if( mfg[1] == mfg[3] )
+        axis( side = 1 )
+      if( mfg[1] == 1 )
+        mtext( side = 3, text = speciesNames[s], font = 2, line = 0 )
+      axis( side = 2, las = 1 )
+      if( mfg[2] == mfg[4] )
+      {
+        corners <- par("usr") #Gets the four corners of plot area (x1, x2, y1, y2)
+        par(xpd = TRUE) #Draw outside plot area
+        text(x = corners[2]+1, y = mean(corners[3:4]), stockNames[p], srt = 270,
+              font = 2, cex = 1.5 )
+        par(xpd = FALSE)
+      }
+      box()
+      grid()
+      polygon(  x = c(yrs, rev(yrs)),
+                y = c(M_qspt[1,s,p,], rev(M_qspt[3,s,p,])),
+                col = "grey65", border = NA )
+      lines( x = yrs, y = M_qspt[2,s,p,], lwd = 3 )
+
+
+      for( tIdx in traces )
+        lines( x = yrs, y = M_iaxspt[tIdx,5,1,s,p,], lwd = .8 )
+
+      abline( v = yrs[tMP], col = "grey30", lty = 3 )
+
+      
+        legend( x = "topleft", bty = "n",
+                legend = c( "Median M", 
+                            "Central 95%",
+                            "Replicate Traces"),
+                col = c(  "black", "grey65", "black"),
+                pch = c(NA,15, NA),
+                lty = c(1, NA, 1),
+                lwd = c(3, NA, .8) )
+      
+    }
+  }
+  mtext( side = 2, outer = TRUE, text = 'Natural mortality',
+          line = 1.5, font = 2)
+
+  mtext( side = 1, outer = TRUE, text = "",
+          line = 2, font = 2)
+
+  mtext(  outer = TRUE, side = 1, adj = .8, line = 3, cex = .6,
+            text = stamp, col = "grey60" )
+} # END plotTulipMt()
 
 # plotTulipEffort_p()
 # Effort over time gridded

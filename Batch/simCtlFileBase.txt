@@ -74,6 +74,8 @@ mp$hcr$Fref "Umsy"
 mp$hcr$Uref_p c(0.1,0.1,0)
 mp$hcr$LCP .5
 mp$hcr$UCP .6
+mp$hcr$qWtd_p c(0.8626,0.8956,0.7848)
+mp$hcr$B0Wtd_p c(4.16,17.93,2.13)
 mp$hcr$maxDeltaTACup NULL
 mp$hcr$minTAC_f c(1,0.300,0.100,0,0,0.0907,0.0317)
 mp$hcr$psi 0.066
@@ -135,12 +137,13 @@ opMod$gammaM 0.997
 opMod$pulseMFrq 0
 opMod$pulseMSize 1
 opMod$pulseMfrac 0.3
-opMod$histFile "fit_parBatblendIdx2"
-opMod$posteriorSamples FALSE
+opMod$histFile "fit_MSbase_MCMC_blendIdx"
+opMod$posteriorSamples TRUE
 opMod$postSampleType 'random'
 opMod$postSampleSeed 1234
 opMod$price_s c(Dover=1.33,English=1.37,Rock=1.65,Petrale=3.22,Arrowtooth=0.37)
 opMod$projObsErrMult 1.0
 opMod$phaseInObsErrMult 6
 opMod$commCPUEdata NULL
+opMod$recType 'bevHolt'
 # <End File>

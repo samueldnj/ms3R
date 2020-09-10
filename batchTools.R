@@ -156,7 +156,7 @@ doBatchRun <- function( arg )
       round(elapsed/60.0,digits=2)," minutes.\n" )
 
   } else for ( i in initPar:nJobs ) {
-    
+
     if ( file.exists( batchParFile[i] ) )
     {
       fileName <- strsplit( batchParFile[i],"\\." )[[1]][1]
@@ -174,7 +174,8 @@ doBatchRun <- function( arg )
       elapsed <- (proc.time() - tBegin)[ "elapsed" ]
       cat( "\nMSG (.runBatchJob): Elapsed time for simulation = ",
         round(elapsed/60.0,digits=2)," minutes.\n" )
-    }
+    } else
+    elapsed <-NA
     
     result[ i,"sim" ]           <- batchDesign[ i,"parFile" ]
     result[ i,"scenarioLabel" ] <- batchDesign[ i,"scenarioLabel" ]

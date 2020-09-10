@@ -380,9 +380,13 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
       postDrawIdx <- ctlList$opMod$postDraws_i[i]
 
       # Replace MLE values for B0 and M with posterior draws
-      simObj$om$B0_sp    <- mcmcPar$B0_ip[postDrawIdx,]
-      simObj$om$Rinit_sp <- mcmcPar$Rinit_ip[postDrawIdx,]
+      simObj$om$B0_sp[1:nS,]             <- mcmcPar$B0_ip[postDrawIdx,]
+      simObj$om$Rbar_sp[1:nS,]           <- mcmcPar$Rbar_ip[postDrawIdx,]
 
+      # Fix recruitment at values from mcmc draw
+      simObj$om$R_spt[1:nS,,1:(tMP-1)]   <- mcmcPar$R_ipt[postDrawIdx,,1:(tMP-1)]
+
+      simObj$om$Rinit_sp[1:nS,1:nP]      <- mcmcPar$Rinit_ip[postDrawIdx,]
       simObj$om$M_axspt[,1,1,,1:(tMP-1)] <- mcmcPar$M_iapt[postDrawIdx,,,1:(tMP-1)]
 
       # other mcmc pars are set in condMSEpop_SISCA
@@ -663,6 +667,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   om$Rinit_sp   <- array(NA, dim = c(nS,nP))
   om$M_xsp      <- array(NA, dim = c(nX,nS,nP))
   om$h_sp       <- array(NA, dim = c(nS,nP))
+  om$Rbar_sp    <- array(NA, dim = c(nS,nP))
 
   # Time varying natural mortality
   om$M_axspt          <- array(NA, dim = c(nA,nX,nS,nP,nT))
@@ -731,6 +736,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     om$Rinit_sp[1,] <- repObj$Rinit_p
     om$M_xsp[1,1,]  <- repObj$meanM_p
     om$h_sp[1,]     <- repObj$rSteepness_p
+    om$Rbar_sp[1,]  <- repObj$Rbar_p
 
     # Time-varying, age-structured natural mortality
     om$M_axspt[,1,1,,1:(tMP-1)] <- repObj$M_apt[,,1:(tMP-1)]
@@ -764,7 +770,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
 
     # Get spawn timing and fleet timing
     om$spawnTiming                <- repObj$spawnTiming
-    om$fleetTiming_f              <- c(repObj$fleetTiming_g,0.97)
+    om$fleetTiming_f              <- c(repObj$fleetTiming_g,0.985)
     om$fleetType_f                <- c(repObj$fleetType_g,2)
 
     om$Wlen_ls                    <- NA
@@ -854,6 +860,11 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   opMod   <- obj$ctlList$opMod
   ctlList <- obj$ctlList
 
+  repObj      <- opMod$histRpt
+  mcmcPar     <- ctlList$opMod$posts
+  postDrawIdx <- obj$ctlList$opMod$postDrawIdx
+
+
   # Get model dimensions, and state variables
   tMP               <- om$tMP
   nT                <- om$nT
@@ -913,6 +924,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
 
   # Biological pars
   B0_sp             <- om$B0_sp
+  Rbar_sp           <- om$Rbar_sp
   Rinit_sp          <- om$Rinit_sp
   M_xsp             <- om$M_xsp
   M_axspt           <- om$M_axspt
@@ -920,7 +932,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   R0_sp             <- rp$R0_sp
   surv_axsp         <- rp$Surv_axsp
   reca_sp           <- rp$rec.a_sp
-  recb_sp           <- rp$rec.b_sp  
+  recb_sp           <- rp$rec.b_sp
 
   # Growth
   L1_s              <- om$L1_s
@@ -972,6 +984,15 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
 
 
         R_spt[s,p,t] <- Rinit_sp[s,p] * obj$om$initSurv_axsp[1,1,s,p] * exp(om$sigmaR_sp[s,p] * err$omegaRinit_asp[1,s,p])
+
+        # Fix Rt at historical values from rep file or posterior draws
+        if(!ctlList$opMod$posteriorSamples)
+          R_spt[s,p,t] <-  repObj$R_pt[p,t]
+
+        if(ctlList$opMod$posteriorSamples)
+          R_spt[s,p,t] <-  mcmcPar$R_ipt[postDrawIdx,p,t]
+
+
       }  
 
     }
@@ -987,22 +1008,48 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
             if( a == 1 )
             {
 
-              R_spt[s,p,t] <- reca_sp[s,p] * SB_spt[s,p,t-1] / (1 + recb_sp[s,p] * SB_spt[s,p,t-1])
+              # Fix Rt at historical values from rep file or posterior draws
+              if(repObj$avgRcode_p[p]==1)
+                lastIdx <- max(which(repObj$omegaR_pt[p,] != 0) )
+              if(repObj$avgRcode_p[p]==0)
+                lastIdx <- max(which(repObj$SRdevs_pt[p,] != 0) )
 
-              if( !obj$ctlList$ctl$noProcErr )
-                R_spt[s,p,t] <- R_spt[s,p,t] * exp( om$sigmaR_sp[s,p] * err$omegaR_spt[s,p,t] - 0.5*om$sigmaR_sp[s,p]^2) 
-                 
-              # Testing for improving conditioning, fixing Rt for C/S to OM repfile values
-              # lastIdx <- max(which(opMod$histRpt$omegaR_pt[p,] != 0) )
-              # if(p %in% c(1,2,3) & t<=lastIdx)
-              # {
+              if(t<=lastIdx)
+              {
 
-              #     R_spt[s,p,t] <- opMod$histRpt$R_pt[p,t]
-              #     if(t == tInit_p[p])
-              #     cat('HACK: Line 918, fixing Rt for C/S and Lou for OM repfile values')
+                # Fix Rt at historical values from rep file or posterior draws
+                if(!ctlList$opMod$posteriorSamples)
+                  R_spt[s,p,t] <-  repObj$R_pt[p,t]
 
-              # }  
-                
+                if(ctlList$opMod$posteriorSamples)
+                  R_spt[s,p,t] <-  mcmcPar$R_ipt[postDrawIdx,p,t]
+
+              }  
+
+              # Simulate Beverton-Holt Recruitments for years where not estimated
+              if(t>lastIdx)
+              {  
+                if(obj$ctlList$opMod$recType =='bevHolt')
+                {
+
+                  R_spt[s,p,t] <- reca_sp[s,p] * SB_spt[s,p,t-1] / (1 + recb_sp[s,p] * SB_spt[s,p,t-1])
+
+                  if( !obj$ctlList$ctl$noProcErr)
+                    R_spt[s,p,t] <- R_spt[s,p,t] * exp( om$sigmaR_sp[s,p] * err$omegaR_spt[s,p,t] - 0.5*om$sigmaR_sp[s,p]^2)
+
+                }  
+
+                # Average Recruitments
+                if( !obj$ctlList$ctl$noProcErr & obj$ctlList$opMod$recType =='avgR')
+                {
+                    R_spt[s,p,t] <- Rbar_sp[s,p]
+
+                  if( !obj$ctlList$ctl$noProcErr)
+                    R_spt[s,p,t] <- Rbar_sp[s,p] * exp( err$omegaR_spt[s,p,t]) 
+
+
+                }  
+              }                      
 
               N_axspt[a,,s,p,t] <- R_spt[s,p,t]
             }
@@ -1323,16 +1370,16 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   SB_spt[,,t] <- apply(X = SB_asp, FUN = sum, MARGIN = c(2,3), na.rm = T )
 
   # Calculate spawning biomass + surviving ponded fish after applying post-ponding M
-  survP_sp <- array(NA, dim = c(nS,nP))
-  for(s in 1:nS)
-    for(p in 1:nP)
-      survP_sp[s,p] <- sum(tmpP_spf[s,p,sokFleets]* exp(-pondM_ft[sokFleets,t]))
-
-  endSB_spt[,,t] <- SB_spt[,,t] + survP_sp
+  # survP_sp <- array(NA, dim = c(nS,nP))
+  # for(s in 1:nS)
+  #   for(p in 1:nP)
+  #     survP_sp[s,p] <- sum(tmpP_spf[s,p,sokFleets]* exp(-pondM_ft[sokFleets,t]))
+  
+  # endSB_spt[,,t] <- SB_spt[,,t] + survP_sp
    
-  # endSB_asp <- SB_asp
-  # endSB_asp[1:nA,1:nS,1:nP] <- matAge_asp[1:nA,1:nS,1:nP] * endN_axspt[1:nA,nX,1:nS,1:nP,t] * W_axspt[1:nA,nX,1:nS,1:nP,t]
-  # endSB_spt[,,t] <- apply(X = endSB_asp, FUN = sum, MARGIN = c(2,3), na.rm = T )
+  endSB_asp <- SB_asp
+  endSB_asp[1:nA,1:nS,1:nP] <- matAge_asp[1:nA,1:nS,1:nP] * endN_axspt[1:nA,nX,1:nS,1:nP,t] * W_axspt[1:nA,nX,1:nS,1:nP,t]
+  endSB_spt[,,t] <- apply(X = endSB_asp, FUN = sum, MARGIN = c(2,3), na.rm = T )
 
 
   # Sum realised catch and dead ponded fish
@@ -1434,7 +1481,6 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   # Spatial Pooling
   if( ctlList$mp$data$spatialPooling & !ctlList$mp$data$speciesPooling )
   {
-    browser(cat('blended index not yet implemented for spatial pooling... \n'))
 
     for( f in 1:nF)
     {
@@ -1459,14 +1505,14 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
         }
 
         # Spawn survey
-        if( ctlList$mp$data$idxType[f] == 3 )
+        if( ctlList$mp$data$idxType[f] %in% c(3,4) )
         {
             Iperf_spft[s,nP + 1,f,t] <- sum( q_spft[s,,f,t] * SB_spt[s,,t] * idxOn_spf[s,1:nP,f], na.rm = T )
 
         }  
         
         # Spawn survey and vuln bio, aggregate spatial indices with error
-        if( ctlList$mp$data$idxType[f] %in% c(1,3) )
+        if( ctlList$mp$data$idxType[f] %in% c(1,3,4) )
           Ierr_spft[s,nP+1,f,t] <- sum(Ierr_spft[s,1:nP,f,t], na.rm=T)
 
         
@@ -1788,7 +1834,8 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   Uref_sp[1,]  <- ctlList$mp$hcr$Uref_p
 
   # Create control points
-  Bref_sp <- obj$om$B0_sp
+  # Bref_sp <- obj$om$B0_sp # perfr
+  Bref_sp          <- ctlList$mp$hcr$B0Wtd_p
   hcr$LCP_spt[,,t] <- Bref_sp * ctlList$mp$hcr$LCP
   hcr$UCP_spt[,,t] <- Bref_sp * ctlList$mp$hcr$UCP
 
@@ -3565,8 +3612,14 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   if(sum(is.na(C_spt[,,1:(t-1)]))>0)
     browser(cat('NAs in catch... \n'))
 
-  # Stock status
-  projSB_pt <- I_spft[1:nS,1:nP,5,(tMP-1):(nT-1)]/q_spft[1:nS,1:nP,5,(tMP-1):(nT-1)]  + C_spt[,,(tMP-1):(nT-1)]
+  # Get weighted q for surface and dive survey
+  qWtd_p <- ctlList$mp$hcr$qWtd_p
+
+  # Stock status, using weighted q from operating model grid
+  projSB_pt <- I_spft[1:nS,1:nP,5,(tMP-1):(nT-1)]/qWtd_p + C_spt[,,(tMP-1):(nT-1)]
+
+  # Stock status, assuming perfect info for q
+  # projSB_pt <- I_spft[1:nS,1:nP,5,(tMP-1):(nT-1)]/q_spft[1:nS,1:nP,5,(tMP-1):(nT-1)]  + C_spt[,,(tMP-1):(nT-1)]
 
   for(s in 1:nS)
   {  
@@ -3883,9 +3936,6 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   # Replace NaNs with 0s when the recent history has no catch
   obj$om$alloc_spf[is.nan(obj$om$alloc_spf)] <- 0
 
-  # We will need to modify how the MP is run
-  # later anyway.
-
   obj$errors$omegaRinit_asp         <- repObj$omegaRinit_asp # Initialisation errors
   
   obj$errors$delta_spft[nS+1,1:nP,,] <- rnorm(nT * nP * nF)
@@ -4160,15 +4210,70 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
 
       # Save historical proc errors, but use simulated recruitments after
       # last estimated recruitment
-      if(repObj$avgRcode_p[p]==1)
+
+      # Beverton Holt Recruitment
+      # if(repObj$avgRcode_p[p]==0)
+      if(ctlList$opMod$recType == 'bevHolt')
       {
-        lastIdx <- max(which(repObj$SRdevs_pt[p,] != 0) )
-        obj$errors$omegaR_spt[s,p,histdx[1:lastIdx]]   <- repObj$SRdevs_pt[p,1:lastIdx]
+        # Calculate last year with recruitment estimates
+        if(repObj$avgRcode_p[p]==1)
+          lastIdx <- max(which(repObj$omegaR_pt[p,] != 0) )
+        if(repObj$avgRcode_p[p]==0)
+          lastIdx <- max(which(repObj$SRdevs_pt[p,] != 0) )
+        
+        if(!ctlList$opMod$posteriorSamples)
+          obj$errors$omegaR_spt[s,p,histdx[1:lastIdx]] <- repObj$SRdevs_pt[p,1:lastIdx]
 
-      }  else {
 
-        lastIdx <- max(which(repObj$omegaR_pt[p,] != 0) )
+        if(ctlList$opMod$posteriorSamples)
+        {
+
+          # Calculate expected beverton holt recruitments without error
+          SB_t    <- mcmcPar$SB_ipt[postDrawIdx,p,histdx]
+          R_t     <- mcmcPar$R_ipt[postDrawIdx,p,histdx]
+          reca    <- repObj$reca_p[p]
+          recb    <- repObj$recb_p[p]
+          sigmaR  <- obj$om$sigmaR_sp[s,p]
+
+          bhR_t <- rep(0, length(R_t))
+
+          # Deterimine first year of recruitment generated from bevholt
+          firstdx <- min(which(SB_t>0))+ 1
+
+          for(t in firstdx:(tMP-1))
+            bhR_t[t]  <- recb*SB_t[t-1]*1000 / (1 + recb*SB_t[t-1])
+
+          # calculate recruitment deviations
+          SRdevs_t <- (log(R_t) - log(bhR_t))/sigmaR
+            
+          obj$errors$omegaR_spt[s,p,histdx[firstdx:lastIdx]]   <- SRdevs_t[firstdx:lastIdx]
+
+        }  
+          
+      }  
+
+      # Average R recruitment
+      # if(repObj$avgRcode_p[p]==1)
+      if(ctlList$opMod$recType == 'avgR')
+      {  
+      
+        if(!ctlList$opMod$posteriorSamples)
         obj$errors$omegaR_spt[s,p,histdx[1:lastIdx]]   <- repObj$omegaR_pt[p,1:lastIdx]
+
+        if(ctlList$opMod$posteriorSamples)
+        {  
+          R_t     <- mcmcPar$R_ipt[postDrawIdx,p,histdx]
+          Rbar    <- mcmcPar$Rbar_ip[postDrawIdx,p]
+
+          # Deterimine first year of recruitment generated from bevholt
+          firstdx <- min(which(R_t>0))
+          
+          # calculate recruitment deviations
+          recDevs_t <- (log(R_t) - log(Rbar))
+            
+          obj$errors$omegaR_spt[s,p,histdx[firstdx:lastIdx]]   <- recDevs_t[firstdx:lastIdx]
+        }  
+
       }
         
 
@@ -5443,7 +5548,11 @@ applyDiscreteFisheries <- function( N_axsp,
   sokFleets <- which(fleetType_f == 2)
   for( fIdx in sokFleets )
   {  
-    endN_axsp[1:nA,,,] <- endN_axsp[1:nA,,,] + C_axspf[1:nA,,,,fIdx] * exp(-pondM_f[fIdx])
+    
+    # calculate remaining natural mortality and apply to 
+    fracM     <- 1 - fleetTiming_f[fIdx]
+
+    endN_axsp[1:nA,,,] <- endN_axsp[1:nA,,,] + C_axspf[1:nA,,,,fIdx] * exp(-fracM*M_axsp[1:nA,,,]) * exp(-pondM_f[fIdx])
 
     #Apply post-ponding mortality so catch for SOK fleets represents dead fish
     Cw_axspf[1:nA,,,,fIdx] <- Cw_axspf[1:nA,,,,fIdx] * (1-exp(-pondM_f[fIdx]))
