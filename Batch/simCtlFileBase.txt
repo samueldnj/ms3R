@@ -31,14 +31,14 @@ mp$assess$spCondMLEqFleets NULL
 mp$assess$spCondMLEobsErrFleets NULL
 mp$assess$spSolveInitBio FALSE
 mp$assess$spLateStart FALSE
-mp$assess$spYrFirstIdx 42
+mp$assess$spYrFirstIdx 15
 mp$assess$spsigmaProc .1
 mp$assess$sptauqdev .01
 mp$assess$spsdUmsy .4
 mp$assess$spCVMSY .4
 mp$assess$spsdlnq_f c(1,1,1,1)
 mp$assess$sptauObs_spf .3
-mp$assess$spInitPE 42
+mp$assess$spInitPE 25
 mp$assess$spRE c("zetaspt_vec")
 mp$assess$spPhzUmsy 3
 mp$assess$spPhzepslnUmsy_s 5
