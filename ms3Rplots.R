@@ -4622,10 +4622,7 @@ plotScaledIndices <- function(  obj = blob,
   I_spft[,,-spFleets,] <- -1
   I_spft[I_spft < 0] <- NA
 
-  tFirstIdx <- ctlList$mp$assess$spYrFirstIdx
 
-  if( tFirstIdx > 1 )
-    I_spft[,,,tFirstIdx] <- NA
 
   # Aggregate OM biomasses to match AM biomass
   if( ctlList$mp$data$spatialPooling & !ctlList$mp$data$speciesPooling )
@@ -4694,6 +4691,11 @@ plotScaledIndices <- function(  obj = blob,
     C_spt             <- newC_spt
 
   }
+
+  tFirstIdx <- ctlList$mp$assess$spYrFirstIdx
+
+  if( tFirstIdx > 1 )
+    I_spft[,,,1:tFirstIdx] <- NA
 
 
   

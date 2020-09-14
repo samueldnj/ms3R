@@ -190,6 +190,9 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   # Get HCR quantities
   Fref_sp <- hcr$Fref_spt[,,t]
 
+  # if multiplying by MS multiplier, apply now
+
+
   # Model dims
   nS  <- obj$om$nS
   nP  <- obj$om$nP
@@ -505,6 +508,9 @@ solvePTm <- function( Bmsy, B0 )
   YeqMS_sp    <- refPtsMS$YeqEmsy_sp
   BeqMS_sp    <- refPtsMS$BeqEmsy_sp
   expBeqMS_sp <- refPtsMS$expBeqEmsy_sp
+  UmsyMS_sp   <- YeqMS_sp / BeqMS_sp
+
+  msHRmult_sp   <- UmsyMS_sp / UmsySS_sp
 
   if( refPtType == "SS" )
   {
@@ -646,7 +652,7 @@ solvePTm <- function( Bmsy, B0 )
     for( s in 1:nSS)
       for( p in 1:nPP )
       {
-        mBmsy_sp  <- refPtList$FmsyRefPts$expBeqFmsy_sp
+        mMSY_sp  <- refPtList$FmsyRefPts$YeqFmsy_sp
 
         omFref_sp <- Yeq_sp / Beq_sp
         omUmsy_sp <- YeqSS_sp / BeqSS_sp
@@ -655,7 +661,7 @@ solvePTm <- function( Bmsy, B0 )
         
         if(spSingleStock & !speciesPooling & !spatialPooling)
         {
-          mBmsy_sp  <- BeqSS_sp[s,p,drop = FALSE]
+          mMSY_sp  <- YeqSS_sp[s,p,drop = FALSE]
 
           # Calculate true Umsy values for MPs where
           # Umsy is fixed
@@ -667,8 +673,8 @@ solvePTm <- function( Bmsy, B0 )
 
         if( speciesPooling & spatialPooling )
         {
-          mBmsy_sp        <- BeqSS_sp[1,1,drop = FALSE]
-          mBmsy_sp[1,1]   <- sum(BeqSS_sp)
+          mMSY_sp        <- YeqSS_sp[1,1,drop = FALSE]
+          mMSY_sp[1,1]   <- sum(YeqSS_sp)
 
           omFref_sp       <- array(sum(Yeq_sp) / sum(Beq_sp), dim = c(1,1))
           omUmsy_sp       <- array(sum(YeqSS_sp) / sum(BeqSS_sp), dim = c(1,1))
@@ -682,8 +688,8 @@ solvePTm <- function( Bmsy, B0 )
         # Add Bmsy across stocks if coastwide
         if( spatialPooling & !speciesPooling & spSingleStock )
         {
-          mBmsy_sp          <- BeqSS_sp[1,1,drop = FALSE]
-          mBmsy_sp[1,1]     <- sum(BeqSS_sp[s,])
+          mMSY_sp          <- YeqSS_sp[1,1,drop = FALSE]
+          mMSY_sp[1,1]     <- sum(YeqSS_sp[s,])
 
           PTm_sp <- omPTm_sp[,1,drop = FALSE] 
 
@@ -699,8 +705,8 @@ solvePTm <- function( Bmsy, B0 )
         # Add Bmsy across species if species pooling
         if( speciesPooling & !spatialPooling & spSingleStock )
         {
-          mBmsy_sp          <- BeqSS_sp[1,1,drop = FALSE]
-          mBmsy_sp[1,1]     <- sum(BeqSS_sp[,p])
+          mMSY_sp          <- YeqSS_sp[1,1,drop = FALSE]
+          mMSY_sp[1,1]     <- sum(YeqSS_sp[,p])
 
           
           PTm_sp <- omPTm_sp[1,1,drop = FALSE] 
@@ -712,10 +718,14 @@ solvePTm <- function( Bmsy, B0 )
             PTm_sp[1,1]    <- solvePTm( Bmsy = sum(BeqSS_sp[,p]), B0 = sum(B0_sp[,p]) )
         }
 
+        # OM HR multipliers
+        omHRmult_sp <- omFref_sp / omUmsy_sp
+
         # Make lists for TMB AD function
         tmbLists <- .makeDatParHierProd(  C_spt[s,p,,drop = FALSE], 
                                           I_spft[s,p,,,drop = FALSE],
                                           ctlList,
+                                          mMSY_sp = mMSY_sp,
                                           mlnUmsy = mlnUmsy_SS,
                                           lnUmsy_sp = log(omUmsy_sp),
                                           PTm_sp = PTm_sp,
@@ -808,6 +818,9 @@ solvePTm <- function( Bmsy, B0 )
             obj$mp$hcr$Fref_spt[s,p,t]      <- omFref_sp
           } 
 
+          if( ctlList$mp$hcr$scaleFrefMS )
+            obj$mp$hcr$Fref_spt[s,p,t] <- obj$mp$hcr$Fref_spt[s,p,t] * omHRmult_sp
+
           if( ctlList$mp$hcr$Bref == "Bmsy" )
             obj$mp$hcr$Bref_spt[s,p,t]      <- amObj$repOpt$Bmsy_sp  
 
@@ -852,6 +865,9 @@ solvePTm <- function( Bmsy, B0 )
           {
             obj$mp$hcr$Fref_spt[,p,t]      <- omFref_sp
           } 
+
+          if( ctlList$mp$hcr$scaleFrefMS )
+            obj$mp$hcr$Fref_spt[,p,t] <- obj$mp$hcr$Fref_spt[,p,t] * omHRmult_sp
 
           if( ctlList$mp$hcr$Bref == "Bmsy" )
             obj$mp$hcr$Bref_spt[,p,t]      <- amObj$repOpt$Bmsy_sp  
@@ -899,6 +915,9 @@ solvePTm <- function( Bmsy, B0 )
           {
             obj$mp$hcr$Fref_spt[s,,t]      <- omFref_sp
           } 
+
+          if( ctlList$mp$hcr$scaleFrefMS )
+            obj$mp$hcr$Fref_spt[s,,t] <- obj$mp$hcr$Fref_spt[s,,t] * omHRmult_sp
 
           if( ctlList$mp$hcr$Bref == "Bmsy" )
             obj$mp$hcr$Bref_spt[s,,t]      <- amObj$repOpt$Bmsy_sp  
@@ -954,6 +973,9 @@ solvePTm <- function( Bmsy, B0 )
             obj$mp$hcr$Fref_spt[,,t]      <- omFref_sp
           } 
 
+          if( ctlList$mp$hcr$scaleFrefMS )
+            obj$mp$hcr$Fref_spt[,,t] <- obj$mp$hcr$Fref_spt[,,t] * omHRmult_sp
+
 
           if( ctlList$mp$hcr$Bref == "Bmsy" )
             obj$mp$hcr$Bref_spt[,,t]      <- amObj$repOpt$Bmsy_sp  
@@ -973,7 +995,7 @@ solvePTm <- function( Bmsy, B0 )
 
   if( !spSingleStock & (nSS > 1 | nPP > 1) )
   {
-    mBmsy_sp  <- refPtList$FmsyRefPts$expBeqFmsy_sp
+    mMSY_sp  <- refPtList$FmsyRefPts$YeqFmsy_sp
 
     omFref_sp <- Yeq_sp / Beq_sp
     omUmsy_sp <- YeqSS_sp / BeqSS_sp
@@ -983,10 +1005,10 @@ solvePTm <- function( Bmsy, B0 )
     # Add Bmsy across stocks if coastwide
     if( spatialPooling &  !speciesPooling )
     {
-      mBmsy_sp_new      <- mBmsy_sp[,1,drop = FALSE]
-      mBmsy_sp_new[,1]  <- apply( X = BeqSS_sp, FUN = sum, MARGIN = 1)
+      mMSY_sp_new      <- mMSY_sp[,1,drop = FALSE]
+      mMSY_sp_new[,1]  <- apply( X = YeqSS_sp, FUN = sum, MARGIN = 1)
 
-      mBmsy_sp <- mBmsy_sp_new
+      mMSY_sp <- mMSY_sp_new
 
       PTm_sp <- omPTm_sp[,1,drop = FALSE] 
 
@@ -1001,10 +1023,10 @@ solvePTm <- function( Bmsy, B0 )
 
     if( speciesPooling & !spatialPooling )
     {
-      mBmsy_sp_new <- mBmsy_sp[1,,drop = FALSE]
-      mBmsy_sp_new[1,] <- apply( X = BeqSS_sp, FUN = sum, MARGIN = 2 )
+      mMSY_sp_new <- mMSY_sp[1,,drop = FALSE]
+      mMSY_sp_new[1,] <- apply( X = YeqSS_sp, FUN = sum, MARGIN = 2 )
 
-      mBmsy_sp <- mBmsy_sp_new
+      mMSY_sp <- mMSY_sp_new
       PTm_sp <- omPTm_sp[1,,drop = FALSE] 
 
       for( p in 1:nP )
@@ -1016,9 +1038,12 @@ solvePTm <- function( Bmsy, B0 )
       }
     }
 
+    omHRmult_sp <- omFref_sp / omUmsy_sp
+
     tmbLists <- .makeDatParHierProd(  C_spt, 
                                       I_spft[1:nSS,1:nPP,,,drop = FALSE],
                                       ctlList,
+                                      mMSY_sp = mMSY_sp,
                                       mlnUmsy = mlnUmsy_SS,
                                       lnUmsy_sp = log(omUmsy_sp),
                                       PTm_sp = PTm_sp,
@@ -1139,6 +1164,9 @@ solvePTm <- function( Bmsy, B0 )
         obj$mp$hcr$Fref_spt[1:nSS,1:nPP,t]        <- omFref_sp
       }
 
+      if( ctlList$mp$hcr$scaleFrefMS )
+        obj$mp$hcr$Fref_spt[1:nSS,1:nPP,t] <- obj$mp$hcr$Fref_spt[1:nSS,1:nPP,t] * omHRmult_sp[1:nSS,1:nPP]
+
       if( ctlList$mp$hcr$Bref == "Bmsy" )
         obj$mp$hcr$Bref_spt[1:nSS,1:nPP,t]      <- amObj$repOpt$Bmsy_sp  
 
@@ -1187,6 +1215,9 @@ solvePTm <- function( Bmsy, B0 )
         {
           obj$mp$hcr$Fref_spt[1:nSS,p,t]      <- omFref_sp[1:nSS,p] 
         }
+
+        if( ctlList$mp$hcr$scaleFrefMS )
+          obj$mp$hcr$Fref_spt[1:nSS,p,t] <- obj$mp$hcr$Fref_spt[1:nSS,p,t] * omHRmult_sp[1:nSS,p]
 
 
         if( ctlList$mp$hcr$Bref == "Bmsy" )
@@ -1240,6 +1271,9 @@ solvePTm <- function( Bmsy, B0 )
         if( ctlList$mp$hcr$Fsource == "om")
           obj$mp$hcr$Fref_spt[s,1:nP,t]      <- omFref_sp[s,1:nP]
 
+        if( ctlList$mp$hcr$scaleFrefMS )
+          obj$mp$hcr$Fref_spt[s,1:nPP,t] <- obj$mp$hcr$Fref_spt[s,1:nPP,t] * omHRmult_sp[s,1:nPP]
+
         if( ctlList$mp$hcr$Bref == "Bmsy" )
           obj$mp$hcr$Bref_spt[s,1:nP,t]      <- amObj$repOpt$Bmsy_sp[1,1:nP]
 
@@ -1268,6 +1302,7 @@ solvePTm <- function( Bmsy, B0 )
 .makeDatParHierProd <- function(  C_spt, 
                                   I_spft,
                                   ctlList,
+                                  mMSY_sp,
                                   mlnUmsy,
                                   lnUmsy_sp,
                                   omqDevs_spft,
@@ -1518,8 +1553,8 @@ solvePTm <- function( Bmsy, B0 )
                 lnsigUmsy_s       = rep(log(ctlList$mp$assess$spsigU),nSS),
                 mlnUmsy           = mlnUmsy,
                 sdlnUmsy          = ctlList$mp$assess$spsdUmsy,
-                mMSY_sp           = sumCat_sp/nT,
-                sdMSY_sp          = sumCat_sp/nT*ctlList$mp$assess$spCVMSY,
+                mMSY_sp           = mMSY_sp,
+                sdMSY_sp          = mMSY_sp*ctlList$mp$assess$spCVMSY,
                 mBinit_sp         = sumCat_sp/2,
                 sdBinit_sp        = (sumCat_sp/2),
                 tau2IGa_f         = rep(IGtau2alpha,nF),
@@ -1825,7 +1860,13 @@ solvePTm <- function( Bmsy, B0 )
       simObj    <- clusterApplyLB(cl, x=1:nReps, 
                                       fun=.runRep,
                                       ctlList = ctlList, simObj = obj )
+
+      # simObj    <- lapply(  X=1:nReps, 
+      #                       FUN=.runRep,
+      #                       ctlList = ctlList, simObj = obj )
+
       stopCluster(cl)
+
     }
 
     if( nCores == 1 )
@@ -1839,6 +1880,12 @@ solvePTm <- function( Bmsy, B0 )
     # Loop over simObj list, save outputs
     for( i in 1:nReps )
     {      
+      if( class(simObj[[i]]) == "try-error" )
+      {
+        browser()
+        next
+      }
+
       # Operating model
       blob$om$SB_ispt[i,,,]     <- simObj[[i]]$om$SB_spt
       blob$om$B_ispt[i,,,]      <- simObj[[i]]$om$B_spt
@@ -2163,11 +2210,24 @@ solvePTm <- function( Bmsy, B0 )
   return(blob)
 } # END .mgmtProc()
 
+
+
 # .runRep()
+# Wrapper with a try call for .runRepInner, to try .runRep
+.runRep <- function( i = 1, ctlList, simObj )
+{
+  source("ms3R.R")
+  
+  simObj <- try( .runRepInner(i = i, ctlList, simObj) )
+
+  return(simObj)
+}
+
+# .runRepInner()
 # Runs a single simulation replicate from a given
 # rep number, and returns model states that are saved to
-# the blob
-.runRep <- function( i = 1, ctlList, simObj )
+# the blob, wrapped in a try call
+.runRepInner <- function( i = 1, ctlList, simObj )
 {
   # Set rep number and random seed
   simObj$ctlList$opMod$rep <- i
@@ -2175,8 +2235,6 @@ solvePTm <- function( Bmsy, B0 )
   simObj$om$iSeed <- rSeed
   set.seed( rSeed )
 
-  source("simSCAL.R")
-  source("refPts.R")
 
   nReps <- ctlList$ctl$totReps
   pT    <- ctlList$opMod$pT
@@ -2219,7 +2277,7 @@ solvePTm <- function( Bmsy, B0 )
       # Break if objNext fails
       if( class(objNext) == "try-error")
       {
-        blob$success <- FALSE
+        simObj$success <- FALSE
         message( "(.mgmtProc) Error in updatePop for replicate ", i, 
                   " at time step ", t, "\n; saving progress up to here.\n",sep = "")
         break
@@ -2228,13 +2286,12 @@ solvePTm <- function( Bmsy, B0 )
       simObj <- objNext
 
       message( "(.mgmtProc) Time step t = ", t ," complete\n", sep = "")
-
     } # END t loop
-    gc()
+    # gc()
   } # END feedback sim for replicate i
  
-  return(simObj)
 
+  return(simObj)
 } # END .runRep() 
 
 # .solveProjPop()
