@@ -114,7 +114,7 @@ Type objective_function<Type>::operator() ()
 
   /* ========== parameter section ==========*/
   // Leading Parameters
-  PARAMETER_ARRAY(lnBmsy_sp);           // Biomass at MSY
+  PARAMETER_ARRAY(lnMSY_sp);            // Maximum sustainable yield
   PARAMETER(lnUmsy);                    // Optimal complex exploitation rate
   PARAMETER_ARRAY(lnqFree_spf);         // species/stock/fleet catchability for freely estimated fleets (usually commercial)
   PARAMETER_ARRAY(lnqShrink_sf);        // fleet/species mean catchability for fleets that use a shrinkage prior
@@ -134,8 +134,8 @@ Type objective_function<Type>::operator() ()
   PARAMETER_VECTOR(lnsigUmsy_s);        // complex level Umsy sd
   PARAMETER(mlnUmsy);                   // hyperprior mean Umsy (tuning par)
   PARAMETER(sdlnUmsy);                  // hyperprior Umsy sd (tuning par)
-  PARAMETER_ARRAY(mBmsy_sp);            // prior mean eqbm biomass (tuning par)
-  PARAMETER_ARRAY(sdBmsy_sp);           // prior eqbm biomass SD
+  PARAMETER_ARRAY(mMSY_sp);             // prior mean MSY (tuning par)
+  PARAMETER_ARRAY(sdMSY_sp);            // prior SD MSY
   PARAMETER_ARRAY(mBinit_sp);           // Prior mean init biomass
   PARAMETER_ARRAY(sdBinit_sp);          // Prior SD for init biomass
   PARAMETER_VECTOR(tau2IGa_f);          // Inverse Gamma Prior parameters for tau2 prior
@@ -156,7 +156,7 @@ Type objective_function<Type>::operator() ()
   array<Type>       lnB_spt(nS,nP,nT+1);
   array<Type>       zeta_spt(nS,nP,nT+1);
   // Leading parameters
-  array<Type>       Bmsy_sp(nS,nP);
+  array<Type>       MSY_sp(nS,nP);
   array<Type>       Binit_sp(nS,nP);
   array<Type>       tau_spf(nS,nP,nF);  
   array<Type>       tau2_spf(nS,nP,nF); 
@@ -164,7 +164,7 @@ Type objective_function<Type>::operator() ()
   array<Type>       tau2hat_spf(nS,nP,nF);
 
   // Transform arrays
-  Bmsy_sp = exp(lnBmsy_sp);
+  MSY_sp = exp(lnMSY_sp);
 
   // Leading scalars
   Type Umsy = exp(lnUmsy);
@@ -202,6 +202,12 @@ Type objective_function<Type>::operator() ()
   array<Type>       lnUmsy_sp(nS,nP);
   vector<Type>      sigUmsy_s(nS);
   // vector<Type>      sig2Umsy_s(nS);
+
+  Umsy_s.setZero();
+  Umsy_sp.setZero();
+  lnUmsy_s.setZero();
+  lnUmsy_sp.setZero();
+  sigUmsy_s.setZero();
 
   // Now transform and build 
   tauq_s    = exp(lntauq_s);
@@ -304,9 +310,6 @@ Type objective_function<Type>::operator() ()
   array<Type> r_sp(nS,nP);
   array<Type> B0_sp(nS,nP);
 
-  r_sp  = Umsy_sp * (PTm_sp - 1) / (1 - 1 / PTm_sp);
-  B0_sp = Bmsy_sp * pow(PTm_sp, 1/(PTm_sp - 1) );
-
   // Square obs error SD
   tau2_spf = tau_spf * tau_spf;
   
@@ -323,8 +326,8 @@ Type objective_function<Type>::operator() ()
   Type              nlpRE   = 0.0;   // process error likelihood
   Type              pospen  = 0.0;   // posfun penalty
   // Derived variables - not sure I need all this shit
-  array<Type>       MSY_sp(nS,nP);
-  array<Type>       lnMSY_sp(nS,nP);
+  array<Type>       Bmsy_sp(nS,nP);
+  array<Type>       lnBmsy_sp(nS,nP);
   array<Type>       U_spt(nS,nP,nT);
   array<Type>       DnT_sp(nS,nP);
   array<Type>       lnDnT_sp(nS,nP);
@@ -338,8 +341,11 @@ Type objective_function<Type>::operator() ()
   D_spt.setZero();
 
   // Fill arrays
-  MSY_sp    = Bmsy_sp * Umsy_sp;
-  lnMSY_sp  = log(MSY_sp);
+  Bmsy_sp   = MSY_sp / Umsy_sp;
+  lnBmsy_sp  = log(Bmsy_sp);
+
+  r_sp  = Umsy_sp * (PTm_sp - 1) / (1 - 1 / PTm_sp);
+  B0_sp = Bmsy_sp * pow(PTm_sp, 1/(PTm_sp - 1) );
 
   // ========== Procedure Section ========== //
   // Generate process errors
@@ -535,8 +541,8 @@ Type objective_function<Type>::operator() ()
       // Normal prior
       if(BPriorCode == 0)
       {
-        // Bmsy
-        nlpB -= dnorm(Bmsy_sp(s,p),mBmsy_sp(s,p), sdBmsy_sp(s,p), 1); 
+        // MSY
+        nlpB -= dnorm(MSY_sp(s,p),mMSY_sp(s,p), sdMSY_sp(s,p), 1); 
 
         // Initial biomass
         if(initBioCode_sp(s,p) == 1 & solveInitBio_sp(s,p) == 0) 
@@ -550,7 +556,7 @@ Type objective_function<Type>::operator() ()
   // Jeffreys prior
   if( BPriorCode == 1 )
   {
-    nlpB += lnBmsy_sp.sum() + lnBinit_vec.sum();
+    nlpB += lnMSY_sp.sum() + lnBinit_vec.sum();
   }
 
   // multispecies and multstock shared priors
@@ -680,7 +686,7 @@ Type objective_function<Type>::operator() ()
   // Leading Pars
   REPORT(Binit_sp);
   REPORT(Umsy);
-  REPORT(Bmsy_sp);
+  REPORT(MSY_sp);
   REPORT(tau2_spf);
   REPORT(tau_spf);
   REPORT(tau2hat_spf);
@@ -691,8 +697,8 @@ Type objective_function<Type>::operator() ()
   REPORT(vB_spft);
 
   // Priors
-  REPORT(mBmsy_sp);
-  REPORT(sdBmsy_sp);
+  REPORT(mMSY_sp);
+  REPORT(sdMSY_sp);
   REPORT(mlnUmsy);
   REPORT(sdlnUmsy);
 
@@ -705,12 +711,12 @@ Type objective_function<Type>::operator() ()
   REPORT(lnqdev_spft);
 
   // Derived variables
+  REPORT(Bmsy_sp);
   REPORT(U_spt);
   REPORT(lnq_spf);
   REPORT(lnqhat_spf);
   REPORT(lnq_sf);
   REPORT(lnq_f);
-  REPORT(MSY_sp);
   REPORT(qhat_spf);
   REPORT(qhat_spft);
   REPORT(q_spf);
