@@ -63,7 +63,6 @@ mp$mp1$mp$assess$spCVMSY .5
 mp$mp1$mp$assess$spsdlnq_f c(1,1,.5,.5)
 mp$mp1$mp$assess$sptauObs_spf .3
 mp$mp1$mp$assess$spInitPE 25
-mp$mp1$mp$assess$spRE c('zetaspt_vec')
 mp$mp1$mp$assess$spPhzUmsy 3
 mp$mp1$mp$assess$spPhzepslnUmsy_s -5
 mp$mp1$mp$assess$spPhzepslnUmsy_sp -7
@@ -100,7 +99,6 @@ mp$mp2$mp$assess$spCVMSY .5
 mp$mp2$mp$assess$spsdlnq_f c(1,1,.5,.5)
 mp$mp2$mp$assess$sptauObs_spf .3
 mp$mp2$mp$assess$spInitPE 25
-mp$mp2$mp$assess$spRE c('zetaspt_vec')
 mp$mp2$mp$assess$spPhzUmsy 3
 mp$mp2$mp$assess$spPhzepslnUmsy_s 6
 mp$mp2$mp$assess$spPhzepslnUmsy_sp 8
@@ -142,7 +140,6 @@ mp$mp3$mp$assess$spCVMSY .5
 mp$mp3$mp$assess$spsdlnq_f c(1,1,1,1)
 mp$mp3$mp$assess$sptauObs_spf .2
 mp$mp3$mp$assess$spInitPE 25
-mp$mp3$mp$assess$spRE c('zetaspt_vec')
 mp$mp3$mp$assess$spPhzUmsy 3
 mp$mp3$mp$assess$spPhzepslnUmsy_s -6
 mp$mp3$mp$assess$spPhzepslnUmsy_sp -8
@@ -184,7 +181,6 @@ mp$mp4$mp$assess$spCVMSY .5
 mp$mp4$mp$assess$spsdlnq_f c(1,1,1,1)
 mp$mp4$mp$assess$sptauObs_spf .2
 mp$mp4$mp$assess$spInitPE 25
-mp$mp4$mp$assess$spRE c('zetaspt_vec')
 mp$mp4$mp$assess$spPhzepslnUmsy_s -6
 mp$mp4$mp$assess$spPhzepslnUmsy_sp -8
 mp$mp4$mp$assess$spPhzdeltalnq_spf -7
@@ -226,7 +222,6 @@ mp$mp5$mp$assess$spCVMSY .5
 mp$mp5$mp$assess$spsdlnq_f c(1,1,1,1)
 mp$mp5$mp$assess$sptauObs_spf .2
 mp$mp5$mp$assess$spInitPE 25
-mp$mp5$mp$assess$spRE c('zetaspt_vec')
 mp$mp5$mp$assess$spPhzUmsy 3
 mp$mp5$mp$assess$spPhzepslnUmsy_s -6
 mp$mp5$mp$assess$spPhzepslnUmsy_sp -8
