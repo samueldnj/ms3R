@@ -59,7 +59,7 @@ mp$assess$spFixUmsy FALSE
 mp$assess$spOMqDevs FALSE
 mp$assess$spSkewYieldCurves TRUE
 mp$assess$spEstExpBio FALSE
-mp$data$idxOn c(4)
+mp$data$idxOn c(2,4)
 mp$data$obsInt_i c(1,2)
 mp$data$spatialPooling FALSE
 mp$data$speciesPooling FALSE

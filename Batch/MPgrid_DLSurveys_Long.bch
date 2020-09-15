@@ -39,6 +39,15 @@ scenario$scenario4$ctl$totReps 200
 scenario$scenario4$mp$assess$spFleets c(3,4)
 scenario$scenario4$mp$assess$spLateStart TRUE
 #
+# Scenario 5 : 'DERfit_HcMcIdx'
+#
+scenario$scenario5$ctl$scenarioName 'DERfit_HcMcIdx'
+scenario$scenario5$opMod$pT 32
+scenario$scenario5$ctl$nGoodReps 180
+scenario$scenario5$ctl$totReps 200
+scenario$scenario5$mp$assess$spFleets c(1,2)
+scenario$scenario5$mp$assess$spLateStart FALSE
+#
 #
 #
 # Management Procedures 
@@ -58,9 +67,9 @@ mp$mp1$mp$assess$spShrinkqFleets NULL
 mp$mp1$mp$assess$spCondMLEqFleets NULL
 mp$mp1$mp$assess$spCondMLEobsErrFleets NULL
 mp$mp1$mp$assess$spFleetWeights c(1.0,1.0,1.0,1.0)
-mp$mp1$mp$assess$spsigmaProc .1
-mp$mp1$mp$assess$spsdUmsy .1
-mp$mp1$mp$assess$spCVMSY .5
+mp$mp1$mp$assess$spsigmaProc .05
+mp$mp1$mp$assess$spsdUmsy .3
+mp$mp1$mp$assess$spCVMSY .2
 mp$mp1$mp$assess$spsdlnq_f c(1,1,.5,.5)
 mp$mp1$mp$assess$sptauObs_spf .3
 mp$mp1$mp$assess$spInitPE 25
@@ -90,14 +99,14 @@ mp$mp2$mp$hcr$scaleFrefMS TRUE
 mp$mp2$mp$data$spatialPooling FALSE
 mp$mp2$mp$data$speciesPooling FALSE
 mp$mp2$mp$assess$spSingleStock FALSE
-mp$mp2$mp$assess$sptauq .05
-mp$mp2$mp$assess$spsigU .05
+mp$mp2$mp$assess$sptauq .1
+mp$mp2$mp$assess$spsigU .1
 mp$mp2$mp$assess$spFleetWeights c(1.0,1.0,1.0,1.0)
 mp$mp2$mp$assess$spShrinkqFleets c(3,4)
 mp$mp2$mp$assess$spYrFirstIdx 20
-mp$mp2$mp$assess$spsigmaProc .1
-mp$mp2$mp$assess$spsdUmsy .4
-mp$mp2$mp$assess$spCVMSY .5
+mp$mp2$mp$assess$spsigmaProc .05
+mp$mp2$mp$assess$spsdUmsy .3
+mp$mp2$mp$assess$spCVMSY .2
 mp$mp2$mp$assess$spsdlnq_f c(1,1,.5,.5)
 mp$mp2$mp$assess$sptauObs_spf .3
 mp$mp2$mp$assess$spInitPE 25
@@ -135,12 +144,12 @@ mp$mp3$mp$assess$spTVqFleets NULL
 mp$mp3$mp$assess$spCondMLEqFleets NULL
 mp$mp3$mp$assess$spCondMLEobsErrFleets NULL
 mp$mp3$mp$assess$spSolveInitBio FALSE
-mp$mp3$mp$assess$spLateStart TRUE
-mp$mp3$mp$assess$spsigmaProc .1
+mp$mp3$mp$assess$spLateStart FALSE
+mp$mp3$mp$assess$spsigmaProc .05
 mp$mp3$mp$assess$sptauqdev .1
-mp$mp3$mp$assess$spsdUmsy .4
-mp$mp3$mp$assess$spCVMSY .5
-mp$mp3$mp$assess$spsdlnq_f c(1,1,1,1)
+mp$mp3$mp$assess$spsdUmsy .3
+mp$mp3$mp$assess$spCVMSY .2
+mp$mp3$mp$assess$spsdlnq_f c(10,1,1,.5)
 mp$mp3$mp$assess$sptauObs_spf .2
 mp$mp3$mp$assess$spInitPE 25
 mp$mp3$mp$assess$spPhzUmsy 3
@@ -177,12 +186,12 @@ mp$mp4$mp$assess$spTVqFleets NULL
 mp$mp4$mp$assess$spCondMLEqFleets NULL
 mp$mp4$mp$assess$spCondMLEobsErrFleets NULL
 mp$mp4$mp$assess$spSolveInitBio FALSE
-mp$mp4$mp$assess$spLateStart TRUE
-mp$mp4$mp$assess$spsigmaProc .1
+mp$mp4$mp$assess$spLateStart FALSE
+mp$mp4$mp$assess$spsigmaProc .05
 mp$mp4$mp$assess$sptauqdev .1
-mp$mp4$mp$assess$spsdUmsy .4
-mp$mp4$mp$assess$spCVMSY .5
-mp$mp4$mp$assess$spsdlnq_f c(1,1,1,1)
+mp$mp4$mp$assess$spsdUmsy .3
+mp$mp4$mp$assess$spCVMSY .2
+mp$mp4$mp$assess$spsdlnq_f c(10,1,1,.5)
 mp$mp4$mp$assess$sptauObs_spf .2
 mp$mp4$mp$assess$spInitPE 25
 mp$mp4$mp$assess$spPhzepslnUmsy_s -6
@@ -219,12 +228,12 @@ mp$mp5$mp$assess$spTVqFleets NULL
 mp$mp5$mp$assess$spCondMLEqFleets NULL
 mp$mp5$mp$assess$spCondMLEobsErrFleets NULL
 mp$mp5$mp$assess$spSolveInitBio FALSE
-mp$mp5$mp$assess$spLateStart TRUE
-mp$mp5$mp$assess$spsigmaProc .1
+mp$mp5$mp$assess$spLateStart FALSE
+mp$mp5$mp$assess$spsigmaProc .05
 mp$mp5$mp$assess$sptauqdev .1
-mp$mp5$mp$assess$spsdUmsy .4
-mp$mp5$mp$assess$spCVMSY .5
-mp$mp5$mp$assess$spsdlnq_f c(1,1,1,1)
+mp$mp5$mp$assess$spsdUmsy .3
+mp$mp5$mp$assess$spCVMSY .2
+mp$mp5$mp$assess$spsdlnq_f c(10,1,1,.5)
 mp$mp5$mp$assess$sptauObs_spf .2
 mp$mp5$mp$assess$spInitPE 25
 mp$mp5$mp$assess$spPhzUmsy 3

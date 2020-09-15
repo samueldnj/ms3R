@@ -2135,9 +2135,7 @@ solvePTm <- function( Bmsy, B0 )
         for( s in 1:nS )
           for( p in 1:nP )
             if( ( probPosSD_sp[s,p] >= .95 & probPDHess_sp[s,p] >= .95 ) )
-            {
               blob$goodReps_isp[i,s,p] <- TRUE 
-            }
       }
 
       if( ctlList$ctl$omni | ctlList$ctl$perfConF )

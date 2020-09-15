@@ -24,25 +24,24 @@ subsequently lead to sub-optimal fishery outcomes [@ono2017management;
 of catch limits could occur when technically interacting quota species are 
 caught at different rates (i.e., catchability) by a common gear, leading 
 to a choke constraint in which one species quota is filled before the 
-others [@baudron2015adverse]. Choke constraints are generally 
-considered negative outcomes for multi-species fishery performance, 
-because they reduce harvester profitability as increasingly rare quota 
-for choke species may limit access to fishing grounds, as well as 
-driving quota costs above the landed value of the choke 
-species [@mortensen2018identifying].
+others [@baudron2015adverse]. Choke constraints are considered negative 
+outcomes for multi-species fishery performance, because they reduce 
+harvester profitability as increasingly rare quota for choke species may 
+limit access to fishing grounds, as well as driving quota costs above the 
+landed value of the choke species [@mortensen2018identifying].
 
 Setting catch limits for individual species in any fishery usually
 requires an estimate of species abundance, which continues to be
 a central challenge of fisheries stock assessment 
 [@hilborn1992quantitative; @quinn2003ruminations; @maunder2015contemporary], 
-especially when species data are insufficient for stock assessment models. Where such data limitations 
-exist, data pooling is sometimes used to extend stock assessments to 
-complexes of similar, interacting stocks of fish [@appeldoorn1996model]. 
-A couple of examples include pooling data for a single species across 
-multiple spatial strata when finer scale data are unavailable
-or when fish are believed to move between areas at a sufficiently
-high rate [@benson2015evaluating; @punt2018estimates], and pooling data 
-for multiple species of the same taxonomic group within an area 
+especially when species data are insufficient for stock assessment models. 
+Where such data limitations exist, data pooling is sometimes used to 
+extend stock assessments to complexes of similar, interacting stocks of 
+fish [@appeldoorn1996model]. A couple of examples include pooling data 
+for a single species across multiple spatial strata when finer scale data 
+are unavailable or when fish are believed to move between areas at a 
+sufficiently high rate [@benson2015evaluating; @punt2018estimates], and 
+pooling data for multiple species of the same taxonomic group within an area 
 when data are insufficient for individual species or during development
 of new fisheries [@demartini2019hazards]. Data-pooled estimates of 
 productivity represent means across the species complex; therefore the 
