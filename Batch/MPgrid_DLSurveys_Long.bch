@@ -135,7 +135,7 @@ mp$mp3$mp$assess$spTVqFleets NULL
 mp$mp3$mp$assess$spCondMLEqFleets NULL
 mp$mp3$mp$assess$spCondMLEobsErrFleets NULL
 mp$mp3$mp$assess$spSolveInitBio FALSE
-mp$mp3$mp$assess$spLateStart FALSE
+mp$mp3$mp$assess$spLateStart TRUE
 mp$mp3$mp$assess$spsigmaProc .1
 mp$mp3$mp$assess$sptauqdev .1
 mp$mp3$mp$assess$spsdUmsy .4
@@ -177,7 +177,7 @@ mp$mp4$mp$assess$spTVqFleets NULL
 mp$mp4$mp$assess$spCondMLEqFleets NULL
 mp$mp4$mp$assess$spCondMLEobsErrFleets NULL
 mp$mp4$mp$assess$spSolveInitBio FALSE
-mp$mp4$mp$assess$spLateStart FALSE
+mp$mp4$mp$assess$spLateStart TRUE
 mp$mp4$mp$assess$spsigmaProc .1
 mp$mp4$mp$assess$sptauqdev .1
 mp$mp4$mp$assess$spsdUmsy .4
@@ -219,7 +219,7 @@ mp$mp5$mp$assess$spTVqFleets NULL
 mp$mp5$mp$assess$spCondMLEqFleets NULL
 mp$mp5$mp$assess$spCondMLEobsErrFleets NULL
 mp$mp5$mp$assess$spSolveInitBio FALSE
-mp$mp5$mp$assess$spLateStart FALSE
+mp$mp5$mp$assess$spLateStart TRUE
 mp$mp5$mp$assess$spsigmaProc .1
 mp$mp5$mp$assess$sptauqdev .1
 mp$mp5$mp$assess$spsdUmsy .4

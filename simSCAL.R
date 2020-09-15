@@ -720,7 +720,6 @@ solvePTm <- function( Bmsy, B0 )
 
         # OM HR multipliers
         omHRmult_sp <- omFref_sp / omUmsy_sp
-        browser()
 
         # Make lists for TMB AD function
         tmbLists <- .makeDatParHierProd(  C_spt[s,p,,drop = FALSE], 
