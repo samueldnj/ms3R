@@ -720,6 +720,7 @@ solvePTm <- function( Bmsy, B0 )
 
         # OM HR multipliers
         omHRmult_sp <- omFref_sp / omUmsy_sp
+        browser()
 
         # Make lists for TMB AD function
         tmbLists <- .makeDatParHierProd(  C_spt[s,p,,drop = FALSE], 
@@ -819,7 +820,7 @@ solvePTm <- function( Bmsy, B0 )
           } 
 
           if( ctlList$mp$hcr$scaleFrefMS )
-            obj$mp$hcr$Fref_spt[s,p,t] <- obj$mp$hcr$Fref_spt[s,p,t] * omHRmult_sp
+            obj$mp$hcr$Fref_spt[s,p,t] <- obj$mp$hcr$Fref_spt[s,p,t] * c(omHRmult_sp)
 
           if( ctlList$mp$hcr$Bref == "Bmsy" )
             obj$mp$hcr$Bref_spt[s,p,t]      <- amObj$repOpt$Bmsy_sp  
@@ -867,7 +868,7 @@ solvePTm <- function( Bmsy, B0 )
           } 
 
           if( ctlList$mp$hcr$scaleFrefMS )
-            obj$mp$hcr$Fref_spt[,p,t] <- obj$mp$hcr$Fref_spt[,p,t] * omHRmult_sp
+            obj$mp$hcr$Fref_spt[,p,t] <- obj$mp$hcr$Fref_spt[,p,t] * c(omHRmult_sp)
 
           if( ctlList$mp$hcr$Bref == "Bmsy" )
             obj$mp$hcr$Bref_spt[,p,t]      <- amObj$repOpt$Bmsy_sp  
@@ -917,7 +918,7 @@ solvePTm <- function( Bmsy, B0 )
           } 
 
           if( ctlList$mp$hcr$scaleFrefMS )
-            obj$mp$hcr$Fref_spt[s,,t] <- obj$mp$hcr$Fref_spt[s,,t] * omHRmult_sp
+            obj$mp$hcr$Fref_spt[s,,t] <- obj$mp$hcr$Fref_spt[s,,t] * as.vector(omHRmult_sp)
 
           if( ctlList$mp$hcr$Bref == "Bmsy" )
             obj$mp$hcr$Bref_spt[s,,t]      <- amObj$repOpt$Bmsy_sp  
@@ -974,7 +975,7 @@ solvePTm <- function( Bmsy, B0 )
           } 
 
           if( ctlList$mp$hcr$scaleFrefMS )
-            obj$mp$hcr$Fref_spt[,,t] <- obj$mp$hcr$Fref_spt[,,t] * omHRmult_sp
+            obj$mp$hcr$Fref_spt[,,t] <- obj$mp$hcr$Fref_spt[,,t] * as.numeric(omHRmult_sp)
 
 
           if( ctlList$mp$hcr$Bref == "Bmsy" )
