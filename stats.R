@@ -16,10 +16,10 @@
 # time series, and calculates distributions
 # of each inside a nominated time period
 pullModelStates <- function(  sim         = 2,
-                              groupFolder = "omni_econYield",
+                              groupFolder = "omni_econYield_prelim",
                               stateVars   = c("C_ispt","SB_ispt","E_ipft"),
                               output      = FALSE,
-                              distPeriod  = 2026:2035 )
+                              distPeriod  = 2041:2060 )
 {
   # First, load the sim that we want
   # to calculate loss for

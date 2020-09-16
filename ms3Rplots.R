@@ -62,6 +62,125 @@ xaxisRot <- function( at = 1:10,
 } # END rmtext()
 
 
+# plotDynRefPoints_sp()
+# Plots distribution of dynamically optimised reference
+# points for a set of simulations
+plotDynRefPoints_sp <- function(  groupFolder = "omni_econYield_prelim",
+                                  mpFilter = "freeEff",
+                                  stateVar = "SB_ispt",
+                                  scenOrder = c("noCorr","corrRecDevs","corrPriceDevs","corrRecPrice") )
+{
+  # First, read info files from the relevant
+  # sims
+  simFolderList <- list.dirs( here::here("Outputs",groupFolder),
+                              recursive = FALSE, full.names = FALSE)
+
+  info.df <-  readBatchInfo( batchDir = here::here("Outputs",groupFolder) ) %>%
+                filter( grepl( mpFilter, mp ) ) %>%
+                arrange(scenario,mp)
+
+  scenLabels <- unique(info.df$scenario)
+
+
+  # Read in the modelStates we extracted
+  nModels <- nrow(info.df)
+  modelList <- vector(mode = "list", length = nModels)
+  names(modelList) <- info.df$simLabel
+  for( k in 1:nModels )
+  {
+    simLabel <- info.df$simLabel[k]
+    modelStatePath <- here::here("Outputs",groupFolder,simLabel,paste(simLabel,"_modelStates.RData",sep=""))
+    load(modelStatePath)
+
+    modelList[[k]] <- outList
+
+  }
+  outList <- NULL
+
+  # Get reference points
+  rp <- modelList[[1]]$rp
+  nS <- modelList[[1]]$nS
+  nP <- modelList[[1]]$nP
+  nT <- modelList[[1]]$nT
+  nF <- modelList[[1]]$nF
+
+  speciesNames <- modelList[[1]]$speciesNames
+  stockNames <- modelList[[1]]$stockNames
+
+  Bmsy_sp <- rp$FmsyRefPts$BeqFmsy_sp
+
+  mpJitter <- c(  totCat    = .25,
+                  totProfit = -.25 )
+
+  par( mfrow = c( nP, nS ),
+        oma = c(4,7,2,2),
+        mar = c(.1,.1,.1,.1) )
+
+  for( p in 1:nP )
+    for( s in 1:nS )
+    {
+      plot( x = c(0,2),
+            y = c(0.5,4.5), type = "n", axes = FALSE,
+            yaxs = "i")
+
+      BmsyMS <- rp$EmsyMSRefPts$BeqEmsy_sp[s,p]
+      relBmsyMS <- BmsyMS/Bmsy_sp[s,p]
+
+      # BmsyMS <- rp$EmeyRefPts$BeqEmsyMS_sp[s,p]
+      # relBmsyMS <- BmsyMS/Bmsy_sp[s,p]
+
+      mfg <- par("mfg")
+      if(mfg[1] == mfg[3])
+        axis( side = 1 )
+      if( mfg[2] == 1 )
+        axis( side = 2, at = 1:4, labels = scenOrder, las = 1 )
+      box(lwd = 2)
+      abline( h = 0.5 + 1:3, lwd = 2 )
+      abline( v = c(1), lty = 2, lwd = .8)
+      abline( v = c(relBmsyMS), lty = 2, lwd = .8, col = "darkgreen")
+
+      for( k in 1:nModels )
+      {
+        Bdist <- modelList[[k]]$stateDists$SB_ispt[,s,p]
+        relBdist <- Bdist / Bmsy_sp[s,p]
+
+        scenName  <- info.df$scenario[k]
+        mpName    <- info.df$mp[k]
+
+        yIdx <- which(scenOrder == scenName)
+        if( grepl(pattern = "totCat", x = mpName ) )
+        {
+          yJitter <- mpJitter["totCat"]
+          MPpch   <- 16
+        }
+        if( grepl(pattern = "totProfit", x = mpName ) )
+        {
+          yJitter <- mpJitter["totProfit"]
+          MPpch   <- 17
+        }
+
+        segments( x0 = relBdist[1], x1 = relBdist[3],
+                  y0 = yIdx + yJitter, lwd = 2, col = "grey60" )
+        points( x = relBdist[2], y = yIdx + yJitter,
+                pch = MPpch, cex = 1.5 )
+
+
+
+      }
+
+      if( mfg[1] == 1 )
+        mtext( side = 3, text = speciesNames[s], font = 2, line = .5)
+
+      if( mfg[2] == mfg[4] )
+        rmtext( txt = stockNames[p], font = 2, line = .05, outer = TRUE,
+                cex = 1.5)
+    }
+
+    mtext( side = 1, outer = TRUE, text = expression(B/B[MSY]),
+            line = 2.5 )
+
+}
+
 # plotBatchCatchBioTradeoff()
 # Plots of catch/biomass tradeoffs for a given
 # batch
