@@ -11,6 +11,107 @@
 #
 # <><><><><><><><><><><><><><><><><><><><><><><><><><><>
 
+# pullModelStates()
+# Loads blob pulls catch, effort and biomass 
+# time series, and calculates distributions
+# of each inside a nominated time period
+pullModelStates <- function(  sim         = 2,
+                              groupFolder = "omni_econYield",
+                              stateVars   = c("C_ispt","SB_ispt","E_ipft"),
+                              output      = FALSE,
+                              distPeriod  = 2026:2035 )
+{
+  # First, load the sim that we want
+  # to calculate loss for
+  simFolder <- .loadSim( sim = sim, folder = groupFolder )
+
+  # Save the blob
+  simObj <- blob
+
+  # figure out which reps we want
+  goodReps_isp    <- simObj$goodReps_isp
+  maxRep_sp       <- apply(X = goodReps_isp, FUN = maxWhich, MARGIN = c(2,3))
+  totReps         <- max(maxRep_sp)
+
+
+  blob <- NULL
+  gc()
+
+
+
+  fYear <- simObj$ctlList$opMod$fYear
+
+  distPerIdx <- distPeriod - fYear + 1
+
+  # Model dimensions
+  tMP <- simObj$om$tMP
+  nT  <- simObj$om$nT
+  nF  <- simObj$om$nF
+  nS  <- simObj$om$nS
+  nP  <- simObj$om$nP
+  pT  <- simObj$om$pT
+
+  speciesNames  <- c(simObj$om$speciesNames)
+  stockNames    <- c(simObj$om$stockNames)
+  fleetNames    <- simObj$om$fleetNames
+
+  # We want to calculate loss of given OM states
+  # Make a list to hold baseline
+  modelStates        <- vector( mode = "list", 
+                                length = length(stateVars))
+  names(modelStates) <- stateVars
+
+  # Make a list of distributions too
+  stateDists         <- modelStates
+  
+
+  # Pull control list settings 
+  ctlList         <- simObj$ctlList
+
+  for( var in stateVars )
+  {
+    modelStates[[var]] <- simObj$om[[var]]
+
+    # Now calculate distribution
+    stateDists[[var]] <- apply( X = simObj$om[[var]][,,,distPerIdx],
+                                FUN = quantile,
+                                probs = c(0.025, 0.5, 0.975),
+                                MARGIN = c(2,3), na.rm = TRUE )
+  }
+
+  # Calculate harvest rates
+  modelStates$U_ispt <- modelStates$C_ispt / modelStates$SB_ispt
+  stateDists$U_ispt <- apply(   X = modelStates$U_ispt[,,,distPerIdx],
+                                FUN = quantile,
+                                probs = c(0.025, 0.5, 0.975),
+                                MARGIN = c(2,3), na.rm = TRUE )
+
+  outList <- list(  simID         = simObj$folder,
+                    goodReps_isp  = goodReps_isp,
+                    speciesNames  = speciesNames,
+                    stockNames    = stockNames,
+                    fYear         = fYear,
+                    modelStates   = modelStates,
+                    stateDists    = stateDists,
+                    B0_sp         = simObj$om$B0_sp,
+                    rp            = simObj$rp[[1]],
+                    tMP           = tMP,
+                    nT            = nT, 
+                    nF            = nF, 
+                    nS            = nS, 
+                    nP            = nP, 
+                    pT            = pT,
+                    simFolder     = simFolder  )
+
+
+  # Save loss to sim folder
+  save( outList, file = file.path(simFolder,paste(simObj$simLabel,"_modelStates.RData",sep = "") ) )
+
+  if(output)
+    return(outList)
+} # END calcLoss()
+
+
 
 calcMSE_AMestimates <- function(  groupFolder="DLSurveys_.3tau_Long",
                                   prefix = "parBat" )

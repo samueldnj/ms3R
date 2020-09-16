@@ -10,6 +10,7 @@
 ./history/fit_*/plots
 ./history/fit_*/hierSCAL.o
 *.o
+*.so
 
 # Outputs of ms3R
 ./Outputs/sim*

@@ -1,0 +1,11 @@
+## Info file for hierSCAL model fit
+## Written 1597763543
+# dataScenario
+1956_surveys
+# modelHyp
+allComps_fixVonB
+# path
+/Users/sdnjohnson/Work/code/models/stockAssessment/multiSpecies/hierSCAL/Outputs/fits/./fit_base_MCMC
+# complex
+DER
+## End File
