@@ -37,7 +37,16 @@ pullModelStates <- function(  sim         = 2,
   blob <- NULL
   gc()
 
+  # Calculate profit
+  rev_ispft      <- simObj$om$Rev_ispft[1:totReps,,,,]
+  rev_ipft       <- apply( X = rev_ispft, FUN = sum, MARGIN = c(1,3,4,5))
+  effCost_ipft   <- simObj$om$effCost_ipft[1:totReps,,,]
+  crewShare      <- simObj$ctlList$opMod$crewShare
+  discRate       <- simObj$ctlList$opMod$discountRate
 
+  profit_ipft    <- array(0, dim = dim(rev_ipft))
+  profit_ipft    <- (1 - crewShare)*rev_ipft - effCost_ipft
+  
 
   fYear <- simObj$ctlList$opMod$fYear
 
@@ -63,6 +72,7 @@ pullModelStates <- function(  sim         = 2,
 
   # Make a list of distributions too
   stateDists         <- modelStates
+  stateMeans         <- modelStates
   
 
   # Pull control list settings 
@@ -77,6 +87,10 @@ pullModelStates <- function(  sim         = 2,
                                 FUN = quantile,
                                 probs = c(0.025, 0.5, 0.975),
                                 MARGIN = c(2,3), na.rm = TRUE )
+
+    stateMeans[[var]] <- apply( simObj$om[[var]][,,,distPerIdx],
+                                FUN = mean,
+                                MARGIN = c(2,3), na.rm = TRUE )
   }
 
   # Calculate harvest rates
@@ -86,6 +100,20 @@ pullModelStates <- function(  sim         = 2,
                                 probs = c(0.025, 0.5, 0.975),
                                 MARGIN = c(2,3), na.rm = TRUE )
 
+  stateMeans$U_ispt <- apply(   X = modelStates$U_ispt[,,,distPerIdx],
+                                FUN = mean,
+                                MARGIN = c(2,3), na.rm = TRUE )
+
+  modelStates$profit_ipft <- profit_ipft
+  stateDists$profit_ipft  <- apply( X = modelStates$profit_ipft[,,,distPerIdx],
+                                    FUN = quantile,
+                                    probs = c(0.025, 0.5, 0.975),
+                                    MARGIN = c(2,3), na.rm = TRUE )
+  stateMeans$profit_ipft <- apply(  X = modelStates$profit_ipft[,,,distPerIdx],
+                                    FUN = mean,
+                                    MARGIN = c(2,3), na.rm = TRUE )
+
+
   outList <- list(  simID         = simObj$folder,
                     goodReps_isp  = goodReps_isp,
                     speciesNames  = speciesNames,
@@ -93,6 +121,7 @@ pullModelStates <- function(  sim         = 2,
                     fYear         = fYear,
                     modelStates   = modelStates,
                     stateDists    = stateDists,
+                    stateMeans    = stateMeans,
                     B0_sp         = simObj$om$B0_sp,
                     rp            = simObj$rp[[1]],
                     tMP           = tMP,
