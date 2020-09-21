@@ -469,7 +469,7 @@ makeStatTable <- function( sims = 1, folder = "" )
     # endSB_ispt <- SB_ispt + P_ispt - deadP_ispt
 
     # Calculate median biomass from 1975-1985
-    fYear         <- blob$ctlList$opMod$fYear
+    fYear         <- obj$ctlList$opMod$fYear
     yrIdx         <- (1975-fYear+1):(1985-fYear+1)     
     histSB_isp <- apply(SB_ispt[,,,yrIdx,drop=FALSE], FUN=median, MARGIN=c(1,2,3))
     

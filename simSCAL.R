@@ -3886,6 +3886,8 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   refPtList <- calcRefPts( repObj )
   obj$rp    <- refPtList
 
+  browser()
+
   etime <- Sys.time()
   rpTime <- round(etime - stime,2)
   message( paste(" (.condMS3pop) Reference point calculations completed in ", 
