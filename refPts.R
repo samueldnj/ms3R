@@ -352,6 +352,7 @@ calcJABBASelPars <- function( obj )
   nT   <- dim(obj$om$qF_spft)[4]
   maxF <- max( 10*obj$om$M_xsp )
 
+
   if( obj$condModel == "hierSCAL")
     maxE <- max( maxF / obj$om$qF_spft[,,2,nT])
 
@@ -480,6 +481,7 @@ calcJABBASelPars <- function( obj )
   recruits_sp <- ( obj$rec.a_sp * yprList$ssbpr_sp - 1) / (obj$rec.b_sp * yprList$ssbpr_sp)
   
 
+
   equil <- list()
     equil$Req_sp     <- recruits_sp
     equil$Beq_sp     <- recruits_sp * yprList$ssbpr_sp
@@ -487,7 +489,7 @@ calcJABBASelPars <- function( obj )
     equil$Yeq_sp     <- recruits_sp * yprList$ypr_sp
     equil$ypr_sp     <- yprList$ypr_sp
     equil$ssbpr_sp   <- yprList$ssbpr_sp
-    equil$Ueq_sp     <- equil$Yeq_sp / equil$expBeq_sp
+    equil$Ueq_sp     <- yprList$ypr_sp / yprList$totbpr_sp
     equil$surv_axsp  <- tmp$Surv_axsp
 
   return(equil)
@@ -564,6 +566,8 @@ calcJABBASelPars <- function( obj )
   nT      <- obj$om$nT
   qF_sp   <- obj$om$om$qF_spft[,,fleetIdx,nT+1]
 
+  # M_xsp[1,1,] <- obj
+
   # Life history schedules
   matAge_asp        <- obj$om$matAge_asp
   wtAge_axsp        <- obj$om$meanWtAge_axsp
@@ -604,22 +608,26 @@ calcJABBASelPars <- function( obj )
   # by using survival array
   ssbpr_asp   <- array( NA, dim = c(nA,nS,nP) )
   expbpr_axsp <- array( NA, dim = c(nA,nX,nS,nP) )
+  totbpr_axsp <- array( NA, dim = c(nA,nX,nS,nP) )
   C_axsp      <- array(0, dim = dim(Surv_axsp))
 
   for( s in 1:nS )
     for( p in 1:nP)
     {
-      ssbpr_asp[,s,p]  <- Surv_axsp[,nX,s,p] * exp(-spawnTiming * Z_axsp[,nX,s,p]) * wtAge_axsp[,nX,s,p] * matAge_asp[,s,p]
+      ssbpr_asp[,s,p]  <- Surv_axsp[,nX,s,p] * exp(-spawnTiming * Z_axsp[,nX,s,p]) * 
+                          wtAge_axsp[,nX,s,p] * matAge_asp[,s,p]
       for( x in 1:nX )
       {
-        C_axsp[,x,s,p]    <- Surv_axsp[,x,s,p] * wtAge_axsp[,x,s,p] * exp(-spawnTiming * Z_axsp[,nX,s,p]) *
+        C_axsp[,x,s,p]    <- Surv_axsp[,x,s,p] * wtAge_axsp[,x,s,p] * 
                               selAge_axsp[,x,s,p] * fmort[s,p] * 
                               (1 - exp(-Z_axsp[,x,s,p]))/Z_axsp[,x,s,p]
 
         expbpr_axsp[,x,s,p] <- Surv_axsp[,x,s,p] * selAge_axsp[,x,s,p] * wtAge_axsp[,x,s,p]
+        totbpr_axsp[,x,s,p] <- Surv_axsp[,x,s,p] * selAge_axsp[,x,s,p] * wtAge_axsp[,x,s,p]
       }
 
     }
+
   # Replace NAs with 0 (unmodeled ages)
   # Z_axsp[is.na(Z_axsp)] <- 0
   # Surv_axsp[is.na(Surv_axsp)] <- 0
@@ -629,11 +637,16 @@ calcJABBASelPars <- function( obj )
   ypr_sp      <- apply( X = C_axsp, FUN = sum, MARGIN = c(3,4),na.rm = T)
   ssbpr_sp    <- apply( X = ssbpr_asp, FUN = sum, MARGIN = c(2,3), na.rm = T )
   expbpr_sp   <- apply( X = expbpr_axsp, FUN = sum, MARGIN = c(3,4), na.rm = T )  
+  totbpr_sp   <- apply( X = totbpr_axsp, FUN = sum, MARGIN = c(3,4), na.rm = T )  
+
+  if(any(expbpr_sp - ypr_sp < 0))
+    browser()
 
   # compile output list
   yprList <- list(  ssbpr_sp  = ssbpr_sp,
                     ypr_sp    = ypr_sp,
-                    expbpr_sp = expbpr_sp )
+                    expbpr_sp = expbpr_sp,
+                    totbpr_sp = totbpr_sp )
 
   obj$yprList <- yprList
   obj$Surv_axsp <- Surv_axsp

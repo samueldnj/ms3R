@@ -8,7 +8,7 @@ ctl$optimOutput TRUE
 ctl$maxEval 1e4
 ctl$maxIter 1e4
 ctl$rSeed 123
-ctl$totReps 100
+ctl$totReps 3
 ctl$nGoodReps 3
 ctl$omni FALSE
 ctl$perfConF FALSE
@@ -137,7 +137,7 @@ opMod$gammaM 0.997
 opMod$pulseMFrq 0
 opMod$pulseMSize 1
 opMod$pulseMfrac 0.3
-opMod$histFile "fit_MSbase_MCMC_blendIdx"
+opMod$histFile "fit_MSbase_MCMC"
 opMod$posteriorSamples TRUE
 opMod$postSampleType 'random'
 opMod$postSampleSeed 1234
