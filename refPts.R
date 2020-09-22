@@ -350,8 +350,7 @@ calcJABBASelPars <- function( obj )
 {
   # First, compute max F (tolerance of 1e-5)
   nT   <- dim(obj$om$qF_spft)[4]
-  maxF <- max( 10*obj$om$M_xsp )
-
+  maxF <- max( 4*obj$om$M_xsp )
 
   if( obj$condModel == "hierSCAL")
     maxE <- max( maxF / obj$om$qF_spft[,,2,nT])
@@ -564,7 +563,7 @@ calcJABBASelPars <- function( obj )
   nX      <- obj$om$nX
   M_xsp   <- obj$om$M_xsp
   nT      <- obj$om$nT
-  qF_sp   <- obj$om$om$qF_spft[,,fleetIdx,nT+1]
+  qF_sp   <- obj$om$qF_spft[,,fleetIdx,nT]
 
   # M_xsp[1,1,] <- obj
 
@@ -609,7 +608,7 @@ calcJABBASelPars <- function( obj )
   ssbpr_asp   <- array( NA, dim = c(nA,nS,nP) )
   expbpr_axsp <- array( NA, dim = c(nA,nX,nS,nP) )
   totbpr_axsp <- array( NA, dim = c(nA,nX,nS,nP) )
-  C_axsp      <- array(0, dim = dim(Surv_axsp))
+  C_axsp      <- array(0,   dim = dim(Surv_axsp))
 
   for( s in 1:nS )
     for( p in 1:nP)

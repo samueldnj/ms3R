@@ -1,7 +1,7 @@
-# simCtlFile.txt, written to sim_08092020150052on 1599602456
+# simCtlFile.txt, written to sim_22092020100432on 1600794273
 parameter value
 ctl$scenarioName "rw15_loPondM"
-ctl$mpName 'oSOK_HS30-100_HR0.1_fT985'
+ctl$mpName 'oSOK_HS30-100_HR0.1'
 ctl$quiet FALSE
 ctl$phaseMessages TRUE
 ctl$optimOutput TRUE
