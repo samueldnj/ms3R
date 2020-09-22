@@ -1350,6 +1350,163 @@ plotLossTulip <- function(  sim = 1,
 
 } # END plotLoss()
 
+# plotRefpts_p
+# 6 panel reference points plot from mseR
+plotRefPts_p <- function(obj=blob, pIdx=1)
+{
+  .plotYprF( obj,gfx=list( annotate=FALSE,checked=checked, doLegend=gfx$doLegend,
+                 setXaxis=setXaxis, setYaxis=setYaxis,
+                 xLim=xLim,yLim=yLim ) )
+  .plotSsbPerRecF( obj, gfx=list( annotate=annotate,checked=checked,
+                 doLegend=FALSE,
+                 setXaxis=setXaxis, setYaxis=setYaxis,
+                 xLim=c(minF,maxF),yLim=c(minSSBR,maxSSBR) ) )
+  .plotYieldF( obj, gfx=list( annotate=FALSE,checked=checked, doLegend=FALSE,
+                 setXaxis=setXaxis, setYaxis=setYaxis,
+                 xLim=c(minF,maxF),yLim=c(minYield,maxYield) ) )
+  .plotSsbF( obj, gfx=list( annotate=FALSE,checked=checked, doLegend=FALSE,
+                 setXaxis=setXaxis, setYaxis=setYaxis,
+                 xLim=c(minF,maxF),yLim=c(minSSB,maxSSB) ) )  
+  .plotRecSSB( obj, gfx=list( annotate=FALSE,checked=checked, doLegend=FALSE,
+                 setXaxis=setXaxis, setYaxis=setYaxis,
+                 xLim=c(minSSB,maxSSB),yLim=c(minRec,maxRec) ) )
+  .plotYieldSSB( obj, gfx=list( annotate=FALSE,checked=checked, doLegend=FALSE,
+                 setXaxis=setXaxis, setYaxis=setYaxis,
+                 xLim=c(minSSB,maxSSB),yLim=c(minYield,maxYield) ) )
+
+  mtext( side=3, line=0, cex=.CEXTITLE4, outer=TRUE, "Reference Points" )
+
+
+}
+
+# plotYeq
+# Plot equilibrium yield reference curve as a function
+# of F
+plotYeqF <- function( repList = reports,
+                      pIdx = 1 )
+{
+  repObj <- repList$repOpt
+  # Pull reference points object
+  refPoints <- repObj$refPts
+  refCurves <- refPoints$refCurves
+
+  stockNames <- dimnames(repObj$SB_pt)[[1]]
+
+  # Pull eqbm yields
+  YeqF_pf     <- refCurves$Yeq_p[pIdx,,drop = FALSE]
+  Fmsy_p      <- refPoints$FmsyRefPts$Fmsy_p[pIdx, drop = FALSE]
+  YeqFmsy_p   <- refPoints$FmsyRefPts$YeqFmsy_p[pIdx, drop = FALSE]
+
+  dimnames(YeqF_pf)[[1]] <- stockNames[pIdx]
+  names(Fmsy_p) <- stockNames[pIdx]
+  names(YeqFmsy_p) <- stockNames[pIdx]
+
+  # Now melt
+  YeqF.df     <- melt(YeqF_pf) %>%
+                  rename(yield = value) %>%
+                  filter( yield >= 0 )
+  Fmsy.df     <- melt(Fmsy_p) %>%
+                  rename( Fmsy = value) %>%
+                  mutate( stock = stockNames[pIdx])
+  YeqFmsy.df  <- melt(YeqFmsy_p) %>%
+                  rename( yield = value) %>%
+                  mutate( stock = stockNames[pIdx]) %>%
+                  left_join(Fmsy.df, by = "stock" )
+
+  # Figure out how to stack multiple YPR/SPR ref point
+  # tables together, with a column for the ref point
+  # label, for easier plotting of multiple ref points
+
+  tmp <-  ggplot(data = YeqF.df, aes(x=F, y=yield)) + 
+          geom_line() +
+          facet_grid( stock ~ ., scales = "free_y") +
+          theme_sleek() +
+          geom_point( data = YeqFmsy.df, inherit.aes = FALSE,
+                      mapping = aes( x = Fmsy, y = yield ),
+                      col = "red", size = 1.5 )
+
+  print(tmp)
+
+} # END plotYeqF()
+
+#plotYprF()
+.plotYprF <- function( obj, idNum=NULL, gfx )
+{
+  annotate <- gfx$annotate
+  checked  <- gfx$checked
+  
+  xLim     <- gfx$xLim
+  yLim     <- gfx$yLim
+  
+  # Determine whether 1 curve, or n curves to plot.
+  n <- length( obj )
+  if ( is.null(idNum) )
+    idNum <- c(1:n)  
+  
+  # Find maximum range of x-axis and y-axis.
+  
+  xLim <- gfx$xLim
+  if ( is.null( xLim ) )
+  {
+    xLim <- c( 0,0 )
+#    if ( n==1 )
+#      xLim <- c( 0, max(obj$refPtList$Fcra) )
+#    else
+      for ( i in 1:n )
+        xLim <- c( 0,max(xLim[2],max(obj[[i]]$refPtList$Fcra)) )        
+  }
+
+  yLim <- gfx$yLim      
+  if ( is.null( yLim ) )
+  {
+    yLim <- c( 0,0 )
+
+      for ( i in 1:n )
+        yLim <- c( 0,max(yLim[2],max(obj[[i]]$refPtList$ypr)) )
+  }
+
+  # Plot yield against fishing mortality.
+  plot( xLim, yLim, type="n", axes=FALSE, xlab="", ylab="" )
+    
+  for ( i in 1:n )
+  {
+
+      refs <- obj[[i]]$refPtList
+        
+    lines( .posVal(refs$F), .posVal(refs$ypr), lwd=2 )
+
+    if ( checked["F0"] )  
+      points( refs$F0,   refs$yprF0,   cex=.CEXSYM24, bg=.F0BG,   pch=.F0PCH )
+    if ( checked["F01"] )
+      points( refs$F01,  refs$yprF01,  cex=.CEXSYM24, bg=.F01BG,  pch=.F01PCH )    
+    if ( checked["Fcra"] )
+      points( refs$Fcra, refs$yprFcra, cex=.CEXSYM24, bg=.FcraBG, pch=.FcraPCH )
+    if ( checked["Fmax"] )
+      points( refs$Fmax, refs$yprFmax, cex=.CEXSYM24, bg=.FmaxBG, pch=.FmaxPCH )
+
+    if ( checked["F40"] )
+      points( refs$F40,  refs$yprF40,  cex=.CEXSYM24, bg=.FsprBG, pch=.FsprPCH )        
+      
+    if ( checked["Fmsy"] )
+    {
+      points( refs$Fmsy, refs$yprFmsy, cex=.CEXSYM24, bg=.FmsyBG, pch=.FmsyPCH )
+      if ( gfx$annotate & (n>1) )
+        text( refs$Fmsy, refs$yprFmsy, idNum[i], cex=.CEXANNO )
+    }      
+  }
+
+  axis( side=1, cex.axis=.CEXAXIS2 )
+  axis( side=2, cex.axis=.CEXAXIS2, las=.YAXISLAS )
+  axis( side=3, labels=FALSE )
+  axis( side=4, labels=FALSE )  
+  mtext( side=1, line=.INLINE3, cex=.CEXLAB2, "F" )
+  mtext( side=2, line=.INLINE3, cex=.CEXLAB2, "YPR" )
+  box()  
+  
+  if ( gfx$doLegend )
+    .addRefPointsLegend( x=0.7, y=0.90, checked )
+}     # END function .plotYprF   
+
 plotSSvsMSrefPts <- function( obj = blob )
 {
   # Pull reference points and curves

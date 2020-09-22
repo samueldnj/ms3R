@@ -655,14 +655,14 @@ makeStatTable <- function( sims = 1, folder = "" )
 
       # Catch and ponding variability
       catchAAV_sp      <- .calcStatsAAV_sp( C_ispt = C_ispt,
-                                  tdx = tMP:nT,
-                                  qProbs = c(0.5),
-                                  margin = c(2,3) )
+                                            tdx = tMP:nT,
+                                            qProbs = c(0.5),
+                                            margin = c(2,3) )
 
-      pondAAV_sp      <- .calcStatsAAV_sp( C_ispt = P_ispt,
-                                  tdx = tMP:nT,
-                                  qProbs = c(0.5),
-                                  margin = c(2,3) )  
+      pondAAV_sp      <- .calcStatsAAV_sp(  C_ispt = P_ispt,
+                                            tdx = tMP:nT,
+                                            qProbs = c(0.5),
+                                            margin = c(2,3) )  
     }  
 
 
@@ -910,7 +910,7 @@ makeStatTable <- function( sims = 1, folder = "" )
       aggRow[,"pCtGt650t"]     <- round(pCtGt650_agg,2)
       aggRow[,"nYrsComm"]      <- round(commYrsBar_agg,1)
       aggRow[,"avgCatch_t"]    <- round(Cbar_agg*1e3,1)
-      aggRow[,"catchAAV"]      <- round(catchAAV_agg*1e2,2)
+      aggRow[,"catchAAV"]      <- round(catchAAV_agg*1e2,1)
       
       # ponded fish
       aggRow[,"nYrsSOK"]       <- round(sokYrsBar_agg,1)
@@ -1003,6 +1003,9 @@ makeStatTable <- function( sims = 1, folder = "" )
                            )
 {
 
+  # assign zeros for any NA values
+  C_it[is.na(C_it)] <- 0
+
   # Calculate diff
   diffC_it        <- aperm(apply( X = C_it[,tdx], FUN = diff, MARGIN = 1, na.rm = T ))
   absDiffC_it     <- abs(diffC_it)
@@ -1026,12 +1029,12 @@ makeStatTable <- function( sims = 1, folder = "" )
                             qProbs = c(0.025,0.5,0.975),
                             margin = c(2,3) )
 {
+  
   C_ispt <- C_ispt[,,,tdx,drop = FALSE]
   # Append margin
   marg <- c(1,margin)
 
-  # Add over margins, in case we are looking
-  # complex/species/stock aggregates
+  # Add over margins, in case we are looking complex/species/stock aggregates, this will sum across NAs and assign zeros...
   sumC_ispt <- apply( X = C_ispt, FUN = sum, MARGIN = c(marg,4), na.rm = T )
 
 

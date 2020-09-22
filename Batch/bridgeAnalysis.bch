@@ -6,32 +6,23 @@ parameter value
 # Scenario 1 : DDM2019_loPondM
 #
 scenario$scenario1$ctl$scenarioName "DDM2019_loPondM_blendIdx"
-scenario$scenario1$opMod$histFile "fit_MSbase_MCMC_blendIdx"
+scenario$scenario1$opMod$histFile "fit_MSbase_MCMC"
 scenario$scenario1$opMod$projMtrendT 15
 scenario$scenario1$opMod$pondMmu_f c(0,0,0,0,0,0.315,0)
 scenario$scenario1$opMod$pulseMFrq 16
 scenario$scenario1$opMod$pulseMSize 1.5
 scenario$scenario1$opMod$pulseMfrac 0.3
 #
-# Scenario 2 : DDM2019_loPondM
 #
-scenario$scenario2$ctl$scenarioName "DDM2019_loPondM_sepIdx"
-scenario$scenario2$opMod$histFile "fit_MSbase_MCMC"
+# Scenario 2 : DDM2018_loPondM
+#
+scenario$scenario2$ctl$scenarioName "DDM2018_loPondM_blendIdx"
+scenario$scenario2$opMod$histFile "fit_MSbase_2018_MCMC"
 scenario$scenario2$opMod$projMtrendT 15
 scenario$scenario2$opMod$pondMmu_f c(0,0,0,0,0,0.315,0)
 scenario$scenario2$opMod$pulseMFrq 16
 scenario$scenario2$opMod$pulseMSize 1.5
 scenario$scenario2$opMod$pulseMfrac 0.3
-#
-# Scenario 3 : DDM2018_loPondM
-#
-scenario$scenario3$ctl$scenarioName "DDM2018_loPondM_sepIdx"
-scenario$scenario3$opMod$histFile "fit_MSbase_2018_MCMC"
-scenario$scenario3$opMod$projMtrendT 15
-scenario$scenario3$opMod$pondMmu_f c(0,0,0,0,0,0.315,0)
-scenario$scenario3$opMod$pulseMFrq 16
-scenario$scenario3$opMod$pulseMSize 1.5
-scenario$scenario3$opMod$pulseMfrac 0.3
 #
 # Management Procedures 
 #

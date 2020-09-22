@@ -162,6 +162,22 @@ write.csv(pm_rw15LoPondM_hcr2,  file.path(batchDir,'batchReports','pmTable_rw15L
 
 message("All simulation objects loaded and ready to make batch report")
 
+# Save Bridge Analysis Table
+
+bridgePerfStats <- lapply( X = batchBlobs, FUN = .simPerfStats, inclAgg=TRUE, exclNoTAC=FALSE )
+
+bridgeTable <- do.call(rbind, bridgePerfStats)  %>%
+               select(scenario, mp, stock, 
+                      pBtGt.3B0, pBtGt.6B0, catchAAV, avgCatch_t, pCtGt650t) %>%
+               arrange(scenario, -1*pBtGt.3B0,-1*pBtGt.6B0) %>%
+               subset(stock=='aggregate')
+
+bridgeTable$pCtLt650t <- 1- bridgeTable$pCtGt650t
+bridgeTable <- dplyr::select(bridgeTable, pBtGt.3B0, pBtGt.6B0, catchAAV, avgCatch_t, pCtLt650t)
+
+
+write.csv(bridgeTable,  file.path(batchDir,'batchReports','bridgeTable.csv'), row.names=F)
+
 ```
 
 Batch report file for ms3R simulations.
