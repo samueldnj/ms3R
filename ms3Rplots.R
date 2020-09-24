@@ -90,10 +90,20 @@ multiSimBtIt <- function( iRep = 1,
             
 } # END multiSimBtCtRt()
 
+plotMultiHCR <- function(LCPs, UCPs, hcrNames)
+{
+  # number of plots
+  nI <- length(LCPs)
+
+  par(mfrow=c(1,nI), mgp=c(1.4,0.6,0), mar=c(3,3,1,1))
+  for(i in 1:nI)
+    plotHockeyStickHCR(LCP = LCPs[i], UCP = UCPs[i], hcrName=hcrNames[i])
+
+}
+
 # plotHockeyStickHCR
-plotHockeyStickHCR <- function( LRP = .5, USR = .6,
-                                refHR = .1, 
-                                refHRaxis = NULL,
+plotHockeyStickHCR <- function( LCP = .5, UCP = .6, refHR = .1, 
+                                refHRaxis = NULL, hcrName='',
                                 refHRlab='Reference Harvest Rate', mpLab=NULL,
                                 refB = 1, yAXT='n',
                                 yLim = NULL,
@@ -106,11 +116,11 @@ plotHockeyStickHCR <- function( LRP = .5, USR = .6,
 
 
   plot( x = c(0,refB*1.2), y = yLim, type = "n", xlab = "", ylab = "", las = 1,
-        yaxt=yAXT )
-    segments( x0 = 0, x1 = LRP * refB, y0 = 0, lwd = 1.5 )
-    segments( x0 = LRP*refB, x1 = USR*refB, y0 = 0, y1 = refHR, lwd = 1.5 )
-    segments( x0 = USR*refB, x1 = refB*1.2, y0 = refHR, y1 = refHR, lwd = 1.5 )
-    abline( v = c(USR*refB, LRP * refB), lwd = .8, lty = 2)
+        yaxt=yAXT, main=hcrName )
+    segments( x0 = 0, x1 = LCP * refB, y0 = 0, lwd = 1.5 )
+    segments( x0 = LCP*refB, x1 = UCP*refB, y0 = 0, y1 = refHR, lwd = 1.5 )
+    segments( x0 = UCP*refB, x1 = refB*1.2, y0 = refHR, y1 = refHR, lwd = 1.5 )
+    abline( v = c(UCP*refB, LCP * refB), lwd = .8, lty = 2)
     abline( h = refHR, lty = 3, lwd = .8)
     mtext( side = 1, text = xLab, line = 2 )
     mtext( side = 2, text = yLab, line = 2 )

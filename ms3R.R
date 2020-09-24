@@ -11,7 +11,7 @@
 # <><><><><><><><><><><><><><><><><><><><><><><><><><><>
 
 source("loadPackages.R")
-source("refPts.R")
+source("ms3RrefPts.R")
 source("tools.R")
 source("simSCAL.R")
 source("ms3Rplots.R")

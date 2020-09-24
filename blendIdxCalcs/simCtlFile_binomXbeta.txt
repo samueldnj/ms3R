@@ -1,0 +1,18 @@
+# historical index values
+parameter value
+
+hist$omFitName 'fit_parBatblendIdx2'
+hist$fYearBlend 1988
+hist$lYearBlend 2019
+hist$seed 1234
+
+# projected index info
+proj$name 'binomXbeta'
+proj$nProjT 32
+proj$type c('binomXbeta','binomXbeta','binom')
+proj$binomP c(0.53,0.53,0.28)
+proj$logitSlope c(0.26,0.51,NA)
+proj$logitSlopeSD c(1,1,NA)
+proj$betaShape1 c(0.44306,0.27553,NA)
+proj$betaShape2 c(0.8327,0.87011,NA)
+proj$nSims 100
