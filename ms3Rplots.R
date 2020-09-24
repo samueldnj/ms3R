@@ -5253,6 +5253,8 @@ plotAMIdxResids <- function(  obj = blob,
 
   fitSB_spt[fitSB_spt < 0] <- NA
 
+  firstIdx <- ctlList$mp$assess$spYrFirstIdx
+
   spTVqFleets <- ctlList$mp$assess$spTVqFleets
   spFleets    <- ctlList$mp$assess$spFleets
 
@@ -5264,7 +5266,12 @@ plotAMIdxResids <- function(  obj = blob,
 
   # Now pull indices
   I_spft <- obj$mp$data$I_ispft[iRep,,,,1:t]
+  
   I_spft[,,-spFleets,] <- -1
+  
+  if(firstIdx > 1)
+    I_spft[,,,1:firstIdx] <- -1
+  
   I_spft[I_spft <= 0] <- NA
 
   nSS <- nS

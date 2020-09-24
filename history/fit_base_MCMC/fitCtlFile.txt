@@ -10,8 +10,8 @@ ctrl$calcSD TRUE
 ctrl$calcRefPts TRUE
 ctrl$plots TRUE
 ctrl$parBen FALSE
-ctrl$intMethod "MCMC"
-ctrl$mcIter 500
+ctrl$intMethod NULL
+ctrl$mcIter 0
 ctrl$mcChains 4
 ctrl$mcAdaptDelta .95
 ctrl$mcMaxTreeDepth 12
@@ -95,9 +95,9 @@ hypo$condMLEq c(0,0,0,0)
 hypo$logitq FALSE
 hypo$tq50_vec c(comm.hist=5)
 hypo$tq95_vec c(comm.hist=13)
-hypo$pmtauqSurv_f c(.3,.7)
+hypo$pmtauqSurv_f c(.2,.2)
 hypo$mq_f c(.01,.01,.3,.3)
-hypo$sdq_f c(1,1,.5,.5)
+hypo$sdq_f c(1,1,.25,.25)
 hypo$IGalphaq 1
 hypo$recModel "uncorr"
 hypo$recOption "BH"

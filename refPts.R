@@ -730,7 +730,7 @@ calcJABBASelPars <- function( obj )
   # Calculate yield-per-recruit, ssb per recruit, and exp biomass per recruit
   # by using survival array
   ssbpr_asp   <- array( NA, dim = c(nA,nS,nP) )
-  totbpr_asp  <- array( NA, dim = c(nA,nX,nS,nP) )
+  totbpr_axsp  <- array( NA, dim = c(nA,nX,nS,nP) )
   expbpr_axsp <- array( NA, dim = c(nA,nX,nS,nP) )
   C_axsp      <- array(0, dim = dim(Surv_axsp))
 
@@ -764,7 +764,7 @@ calcJABBASelPars <- function( obj )
   yprList <- list(  ssbpr_sp  = ssbpr_sp,
                     ypr_sp    = ypr_sp,
                     expbpr_sp = expbpr_sp,
-                    totbpr_sp = totbpr_sp, )
+                    totbpr_sp = totbpr_sp )
 
   obj$yprList <- yprList
   obj$Surv_axsp <- Surv_axsp

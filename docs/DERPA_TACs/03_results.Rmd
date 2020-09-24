@@ -128,9 +128,9 @@ period $2028 \leq t \leq 2037$ for each assessment model and Scenario
 combination. The medians of those relative catch and biomass 
 distributions were visually compared to each other and to the 
 central 95\% of the omniscient manager's trajectories over the 
-same time period, to understand the biomass and catch trade-offs 
-between different model choices, and to compare each model to the 
-omniscient manager's optimal solution.
+same time period (Figure 8), to understand the biomass and catch 
+trade-offs between different model choices, and to compare each model 
+to the omniscient manager's optimal solution.
 
 As indicated in the loss rankings, the Hierarchical Multi-stock 
 assessment model median biomass and catch between 2028 and 2037 came 
@@ -253,9 +253,9 @@ with the omniscient manager's and the multi-species maximum yield.
 As expected, cumulative catch loss increased with decreasing prior
 precision under all other assessment methods. The Single-stock model 
 was most sensitive to $B_{MSY}$ CVs under both Rich and Poor data quality 
-scenarios, and to $U_{MSY}$ log-normal SDs under the Poor data quality scenario, 
-indicating that the single-stock model required the most prior knowledge 
-for scaling biomass estimates correctly. The Total Aggregation and Spatial 
+scenarios, and to $U_{MSY}$ log-normal SDs under the Poor data quality 
+scenario, indicating that, as expected, the single-stock model was more 
+uncertain under less informative priors. The Total Aggregation and Spatial 
 Pooling methods were most sensitive to the $U_{MSY}$ prior standard deviation, 
 which may indicate a that the aggregate prior mean values we calculated for 
 those assessment models were not well supported by the aggregated data.

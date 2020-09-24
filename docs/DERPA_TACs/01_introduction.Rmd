@@ -47,50 +47,45 @@ of new fisheries [@demartini2019hazards]. Data-pooled estimates of
 productivity represent means across the species complex; therefore the 
 general cost of such pooling approaches is that catch limits will tend to 
 overfish unproductive species and underfish productive ones 
-[@gaichas2012assembly]. Hierarchical stock assessment models may help reduce
-these problems by representing a compromise between uninformative 
-single-species single-species approaches and problematic data-pooling
-approaches. In particular, hierarchical models allow data sharing 
-between multiple species within a complex via hierarchical shrinkage 
-prior distributions on model parameters that represent biological 
-similarities or technical interactions [@thorson2015giants]. Shared priors
-shrink species-specific parameters towards an estimated complex level
-mean value, improving model convergence for data-poor species and basing 
-estimates more on available data than strong *a priori* assumptions like 
-fixed (i.e. known) parameters, identical parameters among species, or 
-strongly informative priors [@jiao2009hierarchical; @jiao2011poor; 
-@punt2011among].
+[@gaichas2012assembly]. 
+
+In multi-species and/or multi-area contexts, hierarchical stock assessment 
+models, which treat each area/species combination as an individual yet 
+exchangeable replicate, may represent a compromise between single-species 
+approaches and data-pooling approaches.  For this paper, we define a 
+hierarchical stock assessment model as a model fit to multiple replicates 
+(e.g. areas/species) simultaneously, using hierarchical hyper-priors on 
+replicate-specific parameters to share information between replicates 
+[@thorson2015giants]. Hierarchical priors induce parameter shrinkage, which 
+draws parameters towards an estimated mean value, improving model convergence 
+for data-poor replicates while still estimating replicate-specific parameters 
+based on available data. Replicate specific estimates based on data stand in 
+contrast to data-pooled methods which estimate a mean value only, or 
+single-stock methods that may rely on strong *a priori* assumptions like 
+fixed values, forcing parameters to be identical among replicates, or using 
+strongly informative priors, which will almost certainly increase assessment 
+bias as those strong assumptions are difficult to formulate in data-limited 
+contexts [@jiao2009hierarchical; @jiao2011poor; @punt2011among].
 
 Although hierarchical stock assessments produce better
 estimates of species biomass and productivity than single-species
 methods in data-limited contexts, it remains unclear whether 
 such improved statistical performance translates into better 
-management outcomes [@johnson2018evaluating]. On one hand, improving 
-assessment model statistical performance may sacrifice future 
-fishery benefits of adaptive learning [@walters1986adaptive],
-as large assessment errors caused by poor quality data in the
-present may generate high contrast data that are more informative
-in the future. Alternatively, adaptive learning may fail to occur
-in a reasonable time in the presence of large errors, leading
-to stock collapse or harvesters divesting from the fishery because
-of over- or under-exploitation. Improving the rate of adaptive 
-learning may be possible via hierarchical modeling of spatially 
-replicated groundfish stocks, because the shared priors take
-lessons learned from responses to disturbances in one area 
-and use them to improve stock assessments in other areas 
-[@collie1991adaptive].
+management outcomes [@johnson2018evaluating]. Aside from some related 
+simulationes determining the benefits of manually sharing information 
+gained when actively adaptively managing spatially replicated groundfish 
+stocks [@collie1991adaptive], to our knowledge there are no evaluations 
+of the management performance of hierarchical stock assessment models.
 
-In this paper, we investigated whether hierarchical 
-stock assessment models improved management performance
-in a simulated multi-species, data-limited fishery. The 
-simulated fishery was modeled on a complex of Dover sole, 
-English sole, and southern rock sole - three species of 
-right-eyed flounders (*Pleuronectidae spp.*) - Dover sole (*Microstomus
-pacificus*), English sole (*Parophrys vetulus*), and southern rock
-sol (*Lepidopsetta bilineata*) - fished off the 
-coast of British Columbia, Canada, in three spatial management areas. 
-Closed-loop feedback simulation was used to estimate fishery
-outcomes when catch limits were set based on estimates 
+
+In this paper, we investigated whether hierarchical stock assessment models 
+improved management performance in a simulated multi-species, spatially
+replicated, data-limited fishery. The simulated fishery was modeled on a 
+spatially heterogeneous complex of Dover sole (*Microstomus pacificus*), 
+English sole (*Parophrys vetulus*), and southern Rock sole 
+(*Lepidopsetta bilineata*), fished off the coast of British Columbia, Canada, 
+in three spatial management areas. Closed-loop feedback simulation was used 
+to estimate fishery outcomes when catch limits were set based on estimates 
 of biomass from single-species, data-pooling, and hierarchical
 state-space surplus production models under three data scenarios. 
 Assessment models were either fit to species specific data as 

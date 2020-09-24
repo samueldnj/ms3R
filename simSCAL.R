@@ -563,8 +563,24 @@ solvePTm <- function( Bmsy, B0 )
   omqDevs_spft <- array(0, dim = c(nS,nP,nF,t-1))
   omqDevs_spft[,,,1:(tMP-1)] <- ctlList$opMod$histRpt$epslnq_spft
 
-  # Pull OM q values
+  # Pull OM q values - need to average the time-varying ones
   mq_spf      <- ctlList$opMod$histRpt$q_spf
+
+  # Take average resid b/n historic CPUE and vB
+  vB_spft <- ctlList$opMod$histRpt$vB_spft
+  I_spft  <- ctlList$opMod$histRpt$I_spft
+
+  firstIdx <- ctlList$mp$assess$spYrFirstIdx
+
+  # histq_spt <- ctlList$opMod$histRpt$q_spft[,,1,firstIdx:40]
+  # meanhistq_sp <- apply(X = histq_spt, FUN = mean, MARGIN = c(1,2), na.rm = T)
+  
+  histResid_spt <- -(log(vB_spft[,,1,firstIdx:40]) - log(I_spft[,,1,firstIdx:40]))
+  histResid_spt[is.nan(histResid_spt)] <- NA
+  lnqhat_sp <- apply( X = histResid_spt, FUN = mean, MARGIN = c(1,2), na.rm = T)
+  qhat_sp   <- exp(lnqhat_sp)
+  mq_spf[,,1] <- qhat_sp
+
   mq_sf       <- array(1, dim = c(nS,nF))
   mq_sf[,3:4] <- ctlList$opMod$histRpt$qSurv_sf
   sdlnq_f     <- ctlList$mp$assess$spsdlnq_f
@@ -3794,24 +3810,24 @@ combBarrierPen <- function( x, eps,
   # Fill in economic parameters
   obj$om$basePrice_st[,tMP] <- ctlList$opMod$price_s[obj$om$speciesNames]
 
-  priceDevCorrMat <- diag(1,nS)
+  priceDevCovMat <- diag(1,nS)
   if(ctlList$opMod$corrPriceDevs)
   {
     if(is.null(ctlList$opMod$priceModel))
     {
-      priceDevCorrMat <- matrix(ctlList$opMod$priceCorr, nrow = nS, ncol = nS)
-      diag(priceDevCorrMat) <- 1
+      priceDevCovMat <- matrix(ctlList$opMod$priceCorr, nrow = nS, ncol = nS)
+      diag(priceDevCorrMat) <- ctlList$opMod$priceSD^2
     }
     if(!is.null(ctlList$opMod$priceModel))
     {
       load(file = file.path("history",ctlList$opMod$priceModel))
-      priceDevCorrMat <- cor(t(priceFlexModel$eps_st))
+      priceDevCovMat <- cov(t(priceFlexModel$eps_st))
     }
   }
 
   obj$errors$priceDev_st[1:nS,1:nT] <- t( mvtnorm::rmvnorm( n = nT, mean = rep(0,nS),
-                                                            sigma = priceDevCorrMat,
-                                                            method = "chol") ) * ctlList$opMod$priceSD
+                                                            sigma = priceDevCovMat,
+                                                            method = "chol") )
 
   obj <- .calcTimes( obj )
 

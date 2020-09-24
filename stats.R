@@ -384,7 +384,7 @@ maxWhich <- function( vector )
 # Runs calcLossRank for abs and rel bio and catch
 # then summarises the mean (min, max) rank for all
 # four into a single table
-makeLossRankTable <- function(  groupFolder = "DLSurveys_.3tau_Long",
+makeLossRankTable <- function(  groupFolder = "DERTACs_reruns_.75tau_.05PE_180reps",
                                 prefix = "parBat",
                                 period = 73:82,
                                 clearBadReps = TRUE,
@@ -447,7 +447,7 @@ makeLossRankTable <- function(  groupFolder = "DLSurveys_.3tau_Long",
 # Refactored from other functions where I kept copying
 # it. Loads loss objects from single sims
 # and arranges it into an array for better plotting.
-makeCumulativeLossArray_SAisp <- function(  groupFolder = "DLSurveys7_.5tau_Long",
+makeCumulativeLossArray_SAisp <- function(  groupFolder = "DERTACs_reruns_.75tau_.05PE_180reps",
                                             prefix = "parBat",
                                             lossType = "abs",
                                             var = "C_ispt",
@@ -843,8 +843,8 @@ calcLossRank <- function( groupFolder = "DLSurveys7_.5tau_Long",
 # By default, calculates biomass and catch loss
 # on relative and absolute scale
 calcLoss <- function( sim         = 2,
-                      baseline    = "sim_OmniRun_Long",
-                      groupFolder = "DLSurveys7_.5tau_Long",
+                      baseline    = "sim_omni_totCat_200reps",
+                      groupFolder = "DERTACs_reruns_.75tau_.05PE_180reps",
                       lossVars    = c("C_ispt","SB_ispt"),
                       output      = TRUE )
 {
