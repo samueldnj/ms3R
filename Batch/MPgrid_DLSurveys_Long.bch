@@ -70,7 +70,7 @@ mp$mp1$mp$assess$spFleetWeights c(1.0,1.0,1.0,1.0)
 mp$mp1$mp$assess$spsigmaProc .05
 mp$mp1$mp$assess$spsdUmsy .3
 mp$mp1$mp$assess$spCVMSY .2
-mp$mp1$mp$assess$spsdlnq_f c(1,.75,.5,.25)
+mp$mp1$mp$assess$spsdlnq_f c(10,1,.5,.25)
 mp$mp1$mp$assess$sptauObs_spf .3
 mp$mp1$mp$assess$spInitPE 25
 mp$mp1$mp$assess$spPhzUmsy 3
@@ -107,7 +107,7 @@ mp$mp2$mp$assess$spYrFirstIdx 20
 mp$mp2$mp$assess$spsigmaProc .05
 mp$mp2$mp$assess$spsdUmsy .3
 mp$mp2$mp$assess$spCVMSY .2
-mp$mp2$mp$assess$spsdlnq_f c(1,.75,.5,.25)
+mp$mp2$mp$assess$spsdlnq_f c(10,1,.5,.25)
 mp$mp2$mp$assess$sptauObs_spf .3
 mp$mp2$mp$assess$spInitPE 25
 mp$mp2$mp$assess$spPhzUmsy 3

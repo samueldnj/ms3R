@@ -791,10 +791,10 @@ plotBatchCatchBioTradeoff <- function(  groupFolder = "DLSurveys_.3tau_Long",
 # A sample plot of assessment performance
 # for each AM type within a scenario.
 # Requires 5 completed simulation objects.
-plotRetroBio_Scenario <- function(  groupFolder = "DLSurveys7_.5tau_Long",
+plotRetroBio_Scenario <- function(  groupFolder = "DERTACs_reruns_.75tau_.05PE_180reps",
                                     iRep = 1,
                                     scenName = "DERfit_HcMcAsSsIdx",
-                                    prefix = "DLSurveys",
+                                    prefix = "parBat",
                                     species = "Dover",
                                     stock = "HSHG" )
 {
@@ -1512,13 +1512,13 @@ plotTulipBtCtBaseSim <- function( sim = 1,
 # under lower data quality conditions - can be
 # used to set a threshold for including
 # results in the paper...
-plotBatchConvergenceRate <- function( groupFolder = "DLSurveys5_LateStart",
-                                      prefix = "DLSurveys",
-                                      AMlabs = c( singleStock = "singleStock",
-                                                  hierMultiStock = "hierMultiStock",
-                                                  speciesPooling = "speciesPooling",
-                                                  spatialPooling = "spatialPooling",
-                                                  totalAgg = "totalAgg" ),
+plotBatchConvergenceRate <- function( groupFolder = "DERTACS_reruns_sep24",
+                                      prefix = "parBat",
+                                      AMlabs = c( SS = "singleStock",
+                                                  HMS = "hierMultiStock",
+                                                  SpeP = "speciesPooling",
+                                                  SpaP = "spatialPooling",
+                                                  TP = "totalAgg" ),
                                       scenLabs = c( HMAS  = "DERfit_HcMcAsSsIdx",
                                                     MAS   = "DERfit_McAsSsIdx",
                                                     AS    = "DERfit_AsSsIdx",
@@ -1592,11 +1592,13 @@ plotBatchConvergenceRate <- function( groupFolder = "DLSurveys5_LateStart",
 
   scenarios   <- unique(mpTable$scenario)
 
-  AMs       <- names(AMlabs)
+  AMs       <- AMlabs
   AMcols    <- RColorBrewer::brewer.pal(length(AMs), "Set2")
   AMjitter  <- seq( from = -.3, to = .3, length.out = length(AMs) )
 
   AMwidth <- AMjitter[2] - AMjitter[1]
+
+  par( mar = c(3,3,1,1))
 
   # Now set up plotting area
   plot( x = c(0,length(scenarios) + 1), y = c(0,1),
@@ -1642,7 +1644,12 @@ plotBatchConvergenceRate <- function( groupFolder = "DLSurveys5_LateStart",
       
     }
 
-
+    legend( x = "topleft", bty = "n",
+            legend = names(AMlabs),
+            col = "black",
+            pch = 22,
+            pt.cex = 2,
+            pt.bg = AMcols )
 
 } # END plotBatchConvergenceRate()
 
@@ -1861,14 +1868,294 @@ splitMP <- function(  mpLab,
     outList[[k]] <- splitMP[k]
 
   outList
-}
+} # END splitMP()
+
+# plotRankDists()
+# Multi-panel plot of relative and absolute
+# loss under a batch of MPs for all stock/species
+# combinations, including data-pooled and 
+# coast-wide aggregations.
+plotRankDists_sp <- function( groupFolder = "DERTACS_reruns_sep24",
+                              prefix = "parBat",
+                              lossType = "abs",
+                              var = "C_ispt",
+                              period = 73:82,
+                              lossList = NULL,
+                              dim1 = 1:3,   # species (D,E,R, DP)
+                              dim2 = 1:3,   # stocks (H,Q,W, CW)
+                              qProbs = c(.025,.5,.975),
+                              refPts = "MSrefPts",
+                              AMlabs = rev(c( SS = "singleStock",
+                                              HMS = "hierMultiStock",
+                                              SpecPool = "speciesPooling",
+                                              SpatPool = "spatialPooling",
+                                              TotPool = "totalAgg" ) ),
+                              scenLabs = c( Rich  = "DERfit_HcMcAsSsIdx",
+                                            Mod  = "DERfit_McAsSsIdx",
+                                            Poor = "DERfit_AsSsIdx" ),
+                              clearBadReps = TRUE,
+                              minSampSize = 10,
+                              rotxlabs = 0,
+                              xlab = TRUE,
+                              vertLines = TRUE  )
+{
+
+  # First, calculate the paired loss ranks
+
+  rankArray_SAisp <- calcPairedLossRank(  groupFolder = groupFolder,
+                                          lossVar = var,
+                                          lossType = lossType,
+                                          prefix = prefix,
+                                          period = period,
+                                          clearBadReps = clearBadReps,
+                                          minSampSize = minSampSize )
+
+  goodReps_SAisp <- attr(rankArray_SAisp,"conv")
+
+  nScen <- length(scenLabs)
+  nAM   <- length(AMlabs)
+  nS    <- length(dim1)
+  nP    <- length(dim2)
+
+
+
+  xJitter   <- (1:5) * 0.2 - 0.1
+  xRadius   <- 0.1 
+
+  # Now, make the plotting region
+  par( mfcol = c(nScen, nAM), mar = c(.2,.2,.2,.2), oma = c(5,5,3,3) )
+
+  for( amIdx in 1:nAM )
+  {
+    for( scenIdx in 1:nScen )
+    {
+      AMlab <- AMlabs[amIdx]
+      scenLab <- scenLabs[scenIdx]
+      # Make a plotting window, we want to break it up into nSxnP
+      # cells
+      plot( x = c(0,nS), y = c(0,nP),
+            xaxs = "i", yaxs = "i", type = "n", axes = FALSE )
+      mfg <- par("mfg")
+      if(mfg[1] == mfg[3])
+        axis( side = 1, at = 0.5 + 1:nS - 1, labels = 1:nS  )
+
+      # reverse y axis
+      if(mfg[2] == 1)
+        axis( side = 2, at = 0.5 + 1:nP - 1, las = 1, labels = nP:1 )
+
+      if(mfg[2] == mfg[4])
+        rmtext( outer = TRUE, line = 0.1, txt = names(scenLabs)[scenIdx], font = 2, cex = 1.5 )
+
+      if(mfg[1] == 1)
+        mtext( line = 1, text = names(AMlabs)[amIdx], font = 2, side = 3 )
+
+      # Close up cells
+      grid()
+      abline( v = 1:nP )
+      abline( h = 1:nS )
+      box()
+
+      for( s in 1:nS )
+        for( p in 1:nP )
+        {
+          convReps <- goodReps_SAisp[scenLab,AMlab,,s,p]
+          nConv <- sum(convReps)
+          rank.df <- reshape2::melt(rankArray_SAisp[scenLab,AMlab, convReps, s, p]) %>%
+                      mutate( rank = as.character(value) ) %>%
+                      dplyr::group_by( rank ) %>%
+                      dplyr::summarise( n = n() )
+
+          totReps   <- sum( rank.df$n )
+          rankProps <- rank.df$n/totReps
+          names(rankProps) <- rank.df$rank
+          whichMode <- which.max(rankProps)
+          avgRank   <- sum( rankProps * as.numeric(rank.df$rank) )
+
+          cols <- rep("grey60",nAM)
+          cols[whichMode] <- "darkred"
+
+          rect( xleft   = xJitter + s - 1 - xRadius,
+                xright  = xJitter + s - 1 + xRadius,
+                ybottom = 0 + (nP - p + 1) - 1,
+                ytop    = (nP - p + 1) - 1 + rankProps,
+                col = cols, border = "black" )
+
+          text( x = 0.3 + s - 1, y = 0.9 + (nP - p + 1) - 1,
+                labels = nConv,
+                font = 2)
+
+
+        }
+
+    }
+  } 
+
+} # END plotRankDists_sp()
+
+# plotRankDists()
+# Multi-panel plot of relative and absolute
+# loss under a batch of MPs for all stock/species
+# combinations, including data-pooled and 
+# coast-wide aggregations.
+plotRankDists <- function(  groupFolder = "DERTACS_reruns_sep24",
+                            prefix = "parBat",
+                            lossType = "abs",
+                            var = "C_ispt",
+                            period = 73:82,
+                            lossList = NULL,
+                            dim1 = 1:3,   # species (D,E,R, DP)
+                            dim2 = 1:3,   # stocks (H,Q,W, CW)
+                            qProbs = c(.025,.5,.975),
+                            refPts = "MSrefPts",
+                            AMlabs = rev(c( SS = "singleStock",
+                                            HMS = "hierMultiStock",
+                                            SpecPool = "speciesPooling",
+                                            SpatPool = "spatialPooling",
+                                            TotPool = "totalAgg" ) ),
+                            scenLabs = c( Rich  = "DERfit_HcMcAsSsIdx",
+                                          Mod  = "DERfit_McAsSsIdx",
+                                          Poor = "DERfit_AsSsIdx" ),
+                            clearBadReps = TRUE,
+                            minSampSize = 100,
+                            rotxlabs = 0,
+                            xlab = TRUE,
+                            vertLines = TRUE  )
+{
+
+  # First, calculate the paired loss ranks
+
+  rankArray_SAisp <- calcPairedLossRank(  groupFolder = groupFolder,
+                                          lossVar = var,
+                                          lossType = lossType,
+                                          prefix = prefix,
+                                          period = period,
+                                          clearBadReps = clearBadReps,
+                                          minSampSize = minSampSize )
+  goodReps_SAisp <- attr(rankArray_SAisp,"conv")[scenLabs,,,,,drop = FALSE]
+  
+  # Cut down to scenarios we want
+  rankArray_SAisp <- rankArray_SAisp[scenLabs,,,,,drop = FALSE]
+  goodReps_SAisp <- goodReps_SAisp[scenLabs,,,,,drop = FALSE]
+
+
+
+  nScen <- length(scenLabs)
+  nAM   <- length(AMlabs)
+  nS    <- length(dim1)
+  nP    <- length(dim2)
+
+
+  if( clearBadReps )
+  {
+    nGood_SAsp <- apply( X = goodReps_SAisp, FUN = sum, MARGIN = c(1,2,4,5),
+                          na.rm = T )
+
+    for( scenIdx in 1:nScen )
+    {
+      badRuns_arr.ind <-  which(nGood_SAsp[scenIdx,,,] < minSampSize, arr.ind = TRUE )
+      # Cull bad runs - some redundancy here but oh well
+
+      if( nrow(badRuns_arr.ind) > 0 )
+        for( j in 1:nrow(badRuns_arr.ind))
+        {
+          ind <- badRuns_arr.ind[j,]
+          # Remove the species and stock results from all AMs - replace goodReps with TRUE
+          # as the NAs in rank will be removed later
+          goodReps_SAisp[scenIdx,,,ind[2],ind[3]] <- TRUE
+          rankArray_SAisp[scenIdx,,,ind[2],ind[3]] <- NA
+        }
+      
+    }
+    # Ok, now  we want to calculate the largest number of reps we have available
+    goodReps_SAi <- apply(X = goodReps_SAisp[,,1:180,,], FUN = prod, MARGIN = c(1,2,3), na.rm = T)
+    goodReps_Si <- apply(X = goodReps_SAi, FUN = prod, MARGIN = c(1,3))
+    nGood_S <- apply( X = goodReps_Si, FUN = sum, MARGIN = 1)
+    nGood_SA <- apply(X = goodReps_SAi, FUN = sum, MARGIN = c(1,2))
+
+  }
+
+
+
+  xJitter   <- (1:5) * 0.2 - 0.1
+  xRadius   <- 0.1 
+
+  # Now, make the plotting region
+  par( mfcol = c(nScen, nAM), mar = c(.2,.2,.2,.2), oma = c(5,5,3,3) )
+
+  for( amIdx in 1:nAM )
+  {
+    for( scenIdx in 1:nScen )
+    {
+      AMlab <- AMlabs[amIdx]
+      scenLab <- scenLabs[scenIdx]
+      # Make a plotting window, we want to break it up into nSxnP
+      # cells
+      plot( x = c(0,nS), y = c(0,nP),
+            xaxs = "i", yaxs = "i", type = "n", axes = FALSE )
+      mfg <- par("mfg")
+      if(mfg[1] == mfg[3])
+        axis( side = 1, at = 0.5 + 1:nS - 1, labels = 1:nS  )
+
+      # reverse y axis
+      if(mfg[2] == 1)
+        axis( side = 2, at = 0.5 + 1:nP - 1, las = 1, labels = nP:1 )
+
+      if(mfg[2] == mfg[4])
+        rmtext( outer = TRUE, line = 0.1, txt = names(scenLabs)[scenIdx], font = 2, cex = 1.5 )
+
+      if(mfg[1] == 1)
+        mtext( line = 1, text = names(AMlabs)[amIdx], font = 2, side = 3 )
+
+      # Close up cells
+      grid()
+      abline( v = 1:nP )
+      abline( h = 1:nS )
+      box()
+
+      for( s in 1:nS )
+        for( p in 1:nP )
+        {
+          convReps <- goodReps_SAisp[scenLab,AMlab,,s,p]
+          nConv <- sum(convReps)
+          rank.df <- reshape2::melt(rankArray_SAisp[scenLab,AMlab, convReps, s, p]) %>%
+                      mutate( rank = as.character(value) ) %>%
+                      dplyr::group_by( rank ) %>%
+                      dplyr::summarise( n = n() )
+
+          totReps   <- sum( rank.df$n )
+          rankProps <- rank.df$n/totReps
+          names(rankProps) <- rank.df$rank
+          whichMode <- which.max(rankProps)
+          avgRank   <- sum( rankProps * as.numeric(rank.df$rank) )
+
+          cols <- rep("grey60",nAM)
+          cols[whichMode] <- "darkred"
+
+          rect( xleft   = xJitter + p - 1 - xRadius,
+                xright  = xJitter + p - 1 + xRadius,
+                ybottom = 0 + s - 1,
+                ytop    = (s - 1) + rankProps,
+                col = cols, border = "black" )
+
+          text( x = 0.3 + p - 1, y = 0.9 + s - 1,
+                labels = nConv,
+                font = 2)
+
+
+        }
+
+    }
+  } 
+
+} # END plotRankDists()
+
 
 # plotBatchLossDists_Scenario()
 # Multi-panel plot of relative and absolute
 # loss under a batch of MPs for all stock/species
 # combinations, including data-pooled and 
 # coast-wide aggregations.
-plotBatchLossDists_Scenario <- function(  groupFolder = "DLSurveys_.3tau_Long",
+plotBatchLossDists_Scenario <- function(  groupFolder = "DERTACS_reruns_sep24",
                                           prefix = "parBat",
                                           lossType = "abs",
                                           var = "C_ispt",
@@ -1876,7 +2163,7 @@ plotBatchLossDists_Scenario <- function(  groupFolder = "DLSurveys_.3tau_Long",
                                           lossList = NULL,
                                           dim1 = 1:3,   # species (D,E,R, DP)
                                           dim2 = 1:3,   # stocks (H,Q,W, CW)
-                                          qProbs = c(.25,.5,.75),
+                                          qProbs = c(.025,.5,.975),
                                           refPts = "MSrefPts",
                                           AMlabs = c( SS = "singleStock",
                                                       HMS = "hierMultiStock",
@@ -1886,7 +2173,7 @@ plotBatchLossDists_Scenario <- function(  groupFolder = "DLSurveys_.3tau_Long",
                                           scenLabs = c( Rich  = "DERfit_HcMcAsSsIdx",
                                                         Mod  = "DERfit_McAsSsIdx",
                                                         Poor = "DERfit_AsSsIdx" ),
-                                          clearBadReps = FALSE,
+                                          clearBadReps = TRUE,
                                           minSampSize = 100,
                                           rotxlabs = 0,
                                           xlab = TRUE,

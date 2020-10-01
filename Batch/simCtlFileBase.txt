@@ -8,8 +8,8 @@ ctl$optimOutput FALSE
 ctl$maxEval 1e4
 ctl$maxIter 1e4
 ctl$rSeed 123
-ctl$totReps 200
-ctl$nGoodReps 180
+ctl$totReps 250
+ctl$nGoodReps 250
 ctl$omni FALSE
 ctl$perfConF FALSE
 ctl$noProcErr FALSE

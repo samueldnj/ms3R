@@ -384,7 +384,7 @@ maxWhich <- function( vector )
 # Runs calcLossRank for abs and rel bio and catch
 # then summarises the mean (min, max) rank for all
 # four into a single table
-makeLossRankTable <- function(  groupFolder = "DERTACs_reruns_.75tau_.05PE_180reps",
+makeLossRankTable <- function(  groupFolder = "DERTACS_reruns_sep24",
                                 prefix = "parBat",
                                 period = 73:82,
                                 clearBadReps = TRUE,
@@ -614,7 +614,7 @@ makeCumulativeLossArray_SAisp <- function(  groupFolder = "DERTACs_reruns_.75tau
 # to abs/rel biomass/catch loss. Outputs
 # a table with scenarios as rows and
 # AMs as columns
-calcLossRank <- function( groupFolder = "DLSurveys7_.5tau_Long",
+calcLossRank <- function( groupFolder = "DERTACS_reruns_sep24",
                           lossVar = "SB_ispt",
                           lossType = "rel",
                           prefix = "parBat",
@@ -835,7 +835,177 @@ calcLossRank <- function( groupFolder = "DLSurveys7_.5tau_Long",
                     fullRank = rankTable )
 
   outList
-}
+} # END calcLossRank()
+
+# calcPairedLossRank()
+# Calculates each AMs rank with respect
+# to abs/rel biomass/catch loss WITHIN A REPLICATE. Outputs
+# a table with scenarios as rows and
+# AMs as columns
+calcPairedLossRank <- function( groupFolder = "DERTACS_reruns_sep24",
+                                lossVar = "C_ispt",
+                                lossType = "abs",
+                                prefix = "parBat",
+                                period = c(73:82),
+                                clearBadReps = TRUE,
+                                minSampSize = 100 )
+{
+  # First get info files so we can load the right 
+  # loss objects
+  # First, read info files from the relevant
+  # sims
+  simFolderList <- list.dirs( here::here("Outputs",groupFolder),
+                              recursive = FALSE, full.names = FALSE)
+
+  simFolderList <- simFolderList[grepl(prefix, simFolderList)]
+
+  info.df <-  readBatchInfo( batchDir = here::here("Outputs",groupFolder) ) %>%
+              filter(grepl(prefix,simLabel))
+
+  if( lossType == "rel" )
+  {
+    lossArrayName <- "totRelLoss_isp"
+  }
+
+  if( lossType == "abs" )
+  {
+    lossArrayName <- "totAbsLoss_isp"
+  }
+
+  # Break up MP names into factor levels
+  # MP labels are AM_Fsrce_eqbm
+  splitMP <- function(  mpLab, 
+                        breaks = "_",
+                        factorNames = c("AM","Fsrce","eqbm") )
+  {
+    splitMP <- stringr::str_split(mpLab, breaks)[[1]]
+
+    outList <- vector(  mode = "list", 
+                        length = length(splitMP) )
+    names(outList) <- factorNames
+    for( k in 1:length(splitMP))
+      outList[[k]] <- splitMP[k]
+
+    unlist(outList)
+  }
+
+  MPfactors <- lapply( X = info.df$mp, FUN = splitMP )
+  MPfactors <- do.call(rbind, MPfactors) %>% as.data.frame()
+
+  # Read in the performance tables
+  mpTable <- cbind( info.df, MPfactors ) %>%
+              mutate( perfPath = here::here("Outputs",groupFolder,simLabel,"simPerfStats.csv"),
+                      path = here::here("Outputs",groupFolder,simLabel) )
+
+  blobFiles <- file.path(mpTable$path,paste(mpTable$simLabel,".RData",sep = ""))
+  lossFiles <- file.path(mpTable$path,"loss.RData")
+
+  lossList <- lapply(X = mpTable$simLabel, FUN = .loadLoss, folder=  groupFolder)
+
+  names(lossList) <- mpTable$simLabel
+
+  # Calculate total loss for variable/period
+  totLossList  <- lapply( X = lossList,
+                          FUN = calcTotalLossPeriod,
+                          var = lossVar, period = period )
+  names(totLossList) <- names(lossList)
+
+  # Now pull dimensions from the blob
+  nT  <- lossList[[1]]$nT
+  nS  <- lossList[[1]]$nS
+  nP  <- lossList[[1]]$nP
+  pT  <- dim(lossList[[1]]$retroSB_itspt)[2]
+  tMP <- lossList[[1]]$tMP
+
+  speciesNames <- lossList[[1]]$speciesNames[1:3]
+  stockNames   <- lossList[[1]]$stockNames[1:3]
+
+
+  # Get number of MPs
+  nSims <- length(lossList)
+
+  AMs       <- unique(mpTable$AM)
+  Fsources  <- unique(mpTable$Fsrce)
+  eqbm      <- unique(mpTable$eqbm)
+  MPs       <- unique(info.df$mp)
+  scenarios <- unique(info.df$scenario)
+
+  nAM       <- length(AMs)
+  nSrce     <- length(Fsources)
+  nEqbm     <- length(eqbm)
+  nMP       <- length(MPs)
+  nScen     <- length(scenarios)
+
+  nReps_k <- numeric(length = nSims)
+  goodRepsList <- vector(mode = "list", length = nSims)
+
+  for( k in 1:nSims )
+  {
+    simID <- info.df$simLabel[k]
+    simLoss <- totLossList[[simID]][[lossArrayName]] 
+    nReps_k[k] <- dim(simLoss)[1]
+    goodRepsList[[k]]$goodReps_isp <- lossList[[k]]$goodReps_isp
+    goodRepsList[[k]]$nReps_sp     <- apply(X = lossList[[k]]$goodReps_isp, FUN = sum, MARGIN = c(2,3) )
+    names(goodRepsList)[k] <- simID
+  }
+
+  nReps         <- max(nReps_k)
+  speciesNames  <- lossList[[1]]$speciesNames
+  stockNames    <- lossList[[1]]$stockNames
+
+  # Make an array to hold loss function values
+  totLossArray_SAisp <- array(NA,  dim = c(nScen, nAM, nReps, nS, nP ),
+                                  dimnames = list(  scenario = scenarios,
+                                                    AM = AMs,
+                                                    rep = 1:nReps,
+                                                    species = speciesNames[1:nS],
+                                                    stock = stockNames[1:nP] ) )
+
+  goodReps_SAisp <- array(NA,  dim = c(nScen, nAM, nReps, nS, nP ),
+                                  dimnames = list(  scenario = scenarios,
+                                                    AM = AMs,
+                                                    rep = 1:nReps,
+                                                    species = speciesNames[1:nS],
+                                                    stock = stockNames[1:nP] ) )
+
+  for( k in 1:nSims )
+  {
+    simID <- mpTable$simLabel[k]
+    simLoss <- totLossList[[simID]][[lossArrayName]] 
+
+    scenID  <- mpTable$scenario[k]
+    amID    <- mpTable$AM[k]
+
+
+    totLossArray_SAisp[scenID,amID,1:dim(simLoss)[1],,] <- simLoss[1:dim(simLoss)[1],1:nS,1:nP]
+
+    thisGoodReps_isp <- goodRepsList[[simID]]$goodReps_isp
+    goodReps_SAisp[scenID, amID,,,] <- thisGoodReps_isp
+  }
+
+  rankArray_ASisp <- apply( X = totLossArray_SAisp, FUN = calcRankVec,
+                            MARGIN = c(1,3,4,5) )
+
+  rankArray_SAisp <- aperm(rankArray_ASisp,c(2,1,3,4,5))
+  dimnames( rankArray_ASisp ) <- dimnames( totLossArray_SAisp )
+
+  attr(rankArray_SAisp,"conv") <- goodReps_SAisp
+
+  rankArray_SAisp
+} # END calcPairedLossRank()
+
+# a function that takes in a vector, and ranks
+# the values in that vector
+calcRankVec <- function( x )
+{
+  rankOrder <- order(x)
+  nRanks <- length(x)
+  rankVec <- numeric(length = nRanks)
+  rankVec[rankOrder] <- 1:nRanks
+
+  rankVec
+} # END calcRankVec()
+
 
 # calcLoss()
 # Loads blob and calculates yearly catch and biomass 
@@ -844,7 +1014,7 @@ calcLossRank <- function( groupFolder = "DLSurveys7_.5tau_Long",
 # on relative and absolute scale
 calcLoss <- function( sim         = 2,
                       baseline    = "sim_omni_totCat_200reps",
-                      groupFolder = "DERTACs_reruns_.75tau_.05PE_180reps",
+                      groupFolder = "DERTACS_reruns_sep24",
                       lossVars    = c("C_ispt","SB_ispt"),
                       output      = TRUE )
 {
@@ -858,7 +1028,7 @@ calcLoss <- function( sim         = 2,
   # figure out which reps we want
   goodReps_isp    <- blob$goodReps_isp
   maxRep_sp       <- apply(X = goodReps_isp, FUN = maxWhich, MARGIN = c(2,3))
-  totReps         <- max(maxRep_sp)
+  totReps         <- dim(goodReps_isp)[1]
 
 
 
@@ -951,7 +1121,6 @@ calcLoss <- function( sim         = 2,
 
     lossRaw[[var]]        <- baseLineStates[[var]] - simStates[[var]]
     lossRel[[var]]        <- lossRaw[[var]] / baseLineStates[[var]]
-
    
   }
 

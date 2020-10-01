@@ -75,11 +75,11 @@ area from effort (eq \ref{eq:FqE});
 (eqs \ref{eq:startIdx}-\ref{eq:endIdx})
 3. Apply an assessment model (defined below) to estimate the
 spawning biomass for the upcoming year $\hat{B}_{s,p,t+1}$ and
-an optimal harvest rate $U_{MSY,MS,s,p}$ (eq \ref{eq:amBio});
-4. Apply the estimated harvest rate to generate a total 
-allowable catch $TAC_{s,p,t+1}$ from estimated biomass,
-and allocate among species/areas if using a pooled method 
-(eqs \ref{eq:startHR} - \ref{eq:endHR});
+an optimal harvest rate $\hat{U}_{MSY,SS,s,p}$ (eq \ref{eq:amBio});
+4. Scale the estimated optimal harvest rate to an estimated multi-species 
+optimal harvest rate, and use it with the biomass forecast generate a total 
+allowable catch $TAC_{s,p,t+1}$, allocated among species/areas if using 
+a pooled method (eqs \ref{eq:startHR} - \ref{eq:endHR});
 5. Allocate effort $E_{p,t+1}$ to fully realise at least
 one TAC from step 4 in each stock area (eq \ref{eq:maxE}).
 
@@ -102,7 +102,13 @@ where $F_{s,p,t}$ is the fishing mortality rate applied
 to species $s$ in stock-area $p$ by fleet $f$ in year 
 $t$, and $q^{F}_{s,p}$ is the commercial catchability 
 coefficient scaling trawl effort $E_{p,t}$ in area $p$ 
-to fishing mortality (Table 2) [Johnson and Cox, in prep].
+to fishing mortality (Table 2). The relationship equation 
+\ref{eq:FqE} implies a multi-species maximum yield $MSY_{MS,p}$ within 
+each area, from which we derived the corresponding species yield 
+$MSY_{MS,s,p}$, the biomass $B_{MSY,SS,s,p}$ at which multi-species maximum 
+yield is achieved, and the optimal harvest rate 
+$U_{MSY,MS,s,p} = MSY_{MS,s,p}/B_{MSY,MS,s,p}$ that produced multi-species 
+maximum yield [@pikitch1987use].
 
 <!-- The above effort model implies a multi-species maximum yield for 
 the trawl fishery in each area, depending on individual species 
@@ -180,12 +186,13 @@ or data-pooled stocks, via the biomass equation
 B_{s,p,t+1} = \left[ B_{s,p,t} + U_{MSY,s,p} \cdot \frac{m_{s,p}}{m_{s,p}-1} 
                   \cdot B_{s,p,t} \cdot \left(1 - \frac{1}{m_{s,p}} \cdot \left( \frac{B_{s,p,t}}{B_{MSY,s,p}} \right)^{m_{s,p} - 1}\right) - C_{s,p,t}\right] e^{\zeta_{s,p,t}},
 \end{equation}
-where ${MSY}$ (optimal single-species yield) and $U_{MSY}$ (optimal 
+where $MSY_{s,p}$ (optimal single-species yield) and $U_{MSY,s,p}$ (optimal 
 single-species harvest rate) are the leading biological model 
-parameters, $m_{s,p}$ is the Pella-Tomlinson parameter controlling 
-skew in the biomass/yield relationship (derived from operating
-model yield curve), and $\zeta_{s,p,t}$ are annual process error 
-deviations. 
+parameters, $B_{MSY} = MSY / U_{MSY}$ is the biomass at which $MSY$ is
+acheived under the optimal harvest rate, $m_{s,p}$ is the Pella-Tomlinson 
+parameter controlling skew in the biomass/yield relationship (derived 
+from operating model yield curve), and $\zeta_{s,p,t}$ are annual process 
+error deviations. 
 
 In total, we defined the following five potential assessment 
 model configurations:
@@ -200,10 +207,10 @@ model configurations:
 parentheses (delete subscripts in eq. 7 for species or stock-area as 
 appropriate, e.g., Spatial Pooling models have no $p$ subscript). 
 
-Prior distributions on optimal biomass $B_{MSY,s,p}$, optimal 
+Prior distributions on optimal yield $MSY_{s,p}$, optimal 
 harvest rate $U_{MSY,s,p}$, catchability $q_{s,p,f}$, and
 process error deviations $\zeta_{s,p,t}$ were defined for each 
-assessment model and are described in Supplemental S1. 
+assessment model and are described in Supplement S1. 
 
 
 ### Data generation for assessment models
@@ -272,19 +279,20 @@ from each assessment model, i.e.,
 \begin{equation}\label{eq:startHR}
 TAC'_{s,p,t+1} =  U_{s,p} \cdot \hat{B}_{s,p,t+1},
 \end{equation}
-where $U_{s,p}$ is the target harvest rate for species $s$ in 
-stock-area $p$, and $\hat{B}_{s,p,t+1}$ is the year $t+1$ biomass forecast 
-from the assessment model. Target harvest rates were derived 
-from the multi-species maximum yield relationship via
+where is the target harvest rate for species $s$ in stock-area $p$, 
+and $\hat{B}_{s,p,t+1}$ is the year $t+1$ biomass forecast from the 
+assessment model. The target harvest rate was 
 \begin{equation}
-U_{s,p} = \frac{MSY_{MS,s,p}}{B_{MSY,MS,s,p}},
+U_{s,p} = \frac{U_{MSY,MS,s,p}}{U_{MSY,SS,s,p}} \cdot \hat{U}_{MSY,s,p}
 \end{equation}
-where $MSY_{MS,s,p}$ and $B_{MSY,MS,s,p}$ are 
-the yield and spawning biomass, respectively, 
-associated with $E_{MSY,MS,p}$ for species $s$
-in area $p$. 
+where $U_{MSY,MS,s,p},U_{MSY,SS,s,p}$ are the optimal harvest rates 
+maximising multi-species and single-species yield, respectively,
+taken from the operating model, and $\hat{U}_{MSY,s,p}$ is the assesment
+model estimate of the single-species optimal harvest rate, thereby
+including assessment error but still attempting to maximise complex
+yield. 
 
-Finally, inter-annual increases in TAC were limited to 20\% for all 
+Inter-annual increases in TAC were limited to 20\% for all 
 individual stocks as a practical precautionary measure, i.e.,
 \begin{equation}
 TAC_{s,p,t+1} = \min \{ TAC'_{s,p,t+1},1.2 * TAC_{s,p,t}\},
@@ -303,12 +311,15 @@ omniscient manager solutions described below.
 Pooled TACs were set analogously to the stock-specific case above, with 
 pooled target harvest rates applied to biomass projections from pooled 
 assessments. For a spatially pooled assessment of species $s$, we defined 
-the spatially pooled target harvest rate as
-\begin{equation}
-U_{s} = \frac{\sum_p MSY_{MS,s,p}}{\sum_p B_{MSY,MS,s,p}},
-\end{equation}
-where the notation is as defined above. Species pooled harvest rates and 
-total aggregation harvest rates were defined analogously.
+the operating model spatially pooled optimal harvest rates as
+\begin{align}
+U_{MSY,MS,s} &= \frac{\sum_p MSY_{MS,s,p}}{\sum_p B_{MSY,MS,s,p}}, \\
+U_{MSY,SS,s} &= \frac{\sum_p MSY_{SS,s,p}}{\sum_p B_{MSY,SS,s,p}},
+\end{align}
+where the notation is as defined above, with species pooled and 
+totally pooled rates defined analogously. Assessment model estimates of 
+pooled optimal harvest rates were then scaled by the ratio of the 
+pooled operating model optimal harvest rates.
 
 Pooled TACs were split within an area or across spatial strata proportional 
 to Synoptic trawl survey indices for the individual stocks. For example, if 
@@ -458,23 +469,30 @@ $T_2 = 2037$, chosen in the middle of the projection period because
 dynamics in the earlier time were dominated by the smoothers on effort 
 and catch for the omniscient manager and TACs, respectively, and after 
 2028 the omniscient manager's median effort has reached a stable 
-state near the multi-species optimum. Biomass loss was also 
-calculated, but inferences about assessment method performance in 
-preliminary simulations were not qualitatively different between 
-the two metrics, so catch loss was reported only, with biomass risk for 
-each stock indicated in reference to a critically overfished biomass
-level, defined as 40\% of the single-species $B_{MSY}$ value. As outlined 
-above, 40\% of $B_{MSY}$ is commonly suggested as a limit reference 
-point for Canadian fisheries, below which a stock may be considered 
-critically overfished as recruitment may become impaired and 
-rebuilding may be required [@DFO2006A-Harvest-Strat].
+state near the multi-species optimum. 
 
 Cumulative absolute catch loss was used to calculate the 
-relative rank of each assessment model for each species/stock/OM scenario 
-combination, where lower loss ranked higher. Rank distributions
-across species and stocks were then used to calculate an
-average, minimum, and maximum rank of each assessment model to determine 
-the overall performance of each assessment model in each OM scenario.
+relative rank of each assessment model for within a simulation replicate 
+under each species/stock/OM scenario combination, where lower loss ranked 
+higher. Rank distributions across replicates within a species/stock/OM were 
+then used to calculate an average (modal), minimum, and maximum rank of each 
+assessment model across species/areas and replicates to determine the 
+overall performance of each assessment model in each OM scenario.
+
+#### Biomass risk
+
+Biomass risk was measured by the probability of stock biomass being below
+40\% of single-species $B_{MSY,SS,s,p}$. As outlined above, 40\% of 
+$B_{MSY}$ is commonly suggested as a limit reference point for Canadian 
+fisheries, below which a stock may be considered critically overfished as 
+recruitment may become impaired and rebuilding may be 
+required [@DFO2006A-Harvest-Strat].
+
+Biomass loss was also calculated, but inferences about assessment method 
+performance in preliminary simulations were not qualitatively different 
+between catch and biomass loss.
+
+
 
 
 ## Sensitivity analyses
