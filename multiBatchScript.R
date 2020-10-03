@@ -69,9 +69,7 @@ for( bIdx in 1:nBatchJobs )
   # Tidy up memory
   gc()
 
-  # Now copy fits to a subfolder location so
-  # it doesn't grow the size of the copied WDs, and then clear
-  # the sims
+  # Now copy fits to a subfolder location for easier filing
   destFolder <- file.path(".","Outputs",saveDirName[bIdx])
 
   projFolderContents <- list.dirs( "./Outputs", 
