@@ -43,12 +43,13 @@ dataSourceCap <- "Fishery dependent and independent indices of
 biomass available for stock assessments of DER complex species."
 
 stockStatusTabCap <- "Unfished biomas $B_0$, single-species MSY based 
-reference points $B_{MSY,SS}$ and $U_{MSY,SS}$, stock status as absolute
-biomass in 2016 $B_{2016}$, depletion relative to single-species
-optimal biomass $B_{2016}/B_{MSY,SS}$, and commercial trawl 
-catchability scalar $q^{F}$ for all DER complex stocks in 2016. Biomass
-quantities are given in kilotonnes, and depletion and harvest rates
-are unitless."
+reference points $B_{MSY,SS}$, $MSY_{SS}$, and $U_{MSY,SS}$, stock status 
+as absolute biomass in 2016 $B_{2016}$, depletion relative to single-species
+optimal biomass $B_{2016}/B_{MSY,SS}$, commercial trawl 
+catchability scalar $q^{F}$, and multi-species reference points including
+technical interactions $B_{MSY,MS}$, $MSY_{MS}$ and $U_{MSY,MS}$ for all 
+nine DER complex stocks in 2016. Biomass quantities are given in kilotonnes, 
+and depletion levels and harvest rates are unitless."
 
 expDesignTableCap <- "Summary of OM scenario and AM structure factors 
 in the experimental design for the simulation experiments."
@@ -87,8 +88,8 @@ mean rank within a scenario."
 
 ```
 
-
-```{r dataSources, echo = FALSE, warning = FALSE}
+<!-- 
+{r dataSources, echo = FALSE, warning = FALSE}
 
 dataSourcesTable <- tibble::tribble( 
 ~Series,             ~Extent,           ~Description,
@@ -105,21 +106,25 @@ kable(  dataSourcesTable, escape = FALSE,
   kable_styling(latex_options = c( "hold_position","scale_down"),
                 bootstrap_options = c("striped", "hover"))
 
-```
+ -->
 
 \clearpage
 
 
-
+\blandscape
 ```{r stockStatusTab, echo = FALSE, warning = FALSE }
 stockStatusColNames <- c( "Species",
                           "Stock",
                           "B0",
                           "Bmsy",
+                          "MSY",
                           "Umsy",
                           "$B_{2016}$",
                           "$B_{2016}/B_{MSY}$",
-                          "qF" )
+                          "qF",
+                          "BmsyMS",
+                          "MSYMS",
+                          "UmsyMS")
 
 stockStatusTab <- matrix( NA, nrow = 9, ncol = length(stockStatusColNames) )
 colnames(stockStatusTab) <- stockStatusColNames
@@ -128,8 +133,9 @@ stockStatusTab <- as.data.frame(stockStatusTab)
 specLabs  <- fitReport$species
 stockLabs <- fitReport$stocks
 
-B0_sp     <- fitReport$repOpt$B0_sp
-refPts    <- fitReport$repOpt$refPts$FmsyRefPts
+B0_sp     <- blob$rp[[1]]$B0_sp
+refPts    <- blob$rp[[1]]$FmsyRefPts
+MSrefPts  <- blob$rp[[1]]$EmsyMSRefPts
 
 # spawning biomass series
 SB_spt    <- fitReport$repOpt$SB_spt
@@ -149,10 +155,15 @@ for( s in 1:nS )
     # Pull reference points, B0
     stockStatusTab[rIdx,"B0"]         <- round(B0_sp[s,p],2)
     stockStatusTab[rIdx,"Bmsy"]       <- round(refPts$BeqFmsy_sp[s,p],2)
-    stockStatusTab[rIdx,"Umsy"]       <- round(refPts$Umsy_sp[s,p],2)
+    stockStatusTab[rIdx,"MSY"]        <- round(refPts$YeqFmsy_sp[s,p],2)
+    stockStatusTab[rIdx,"Umsy"]       <- round(refPts$YeqFmsy_sp[s,p]/refPts$BeqFmsy_sp[s,p],2)
     stockStatusTab[rIdx,"$B_{2016}$"] <- round(SB_spt[s,p,"2016"],2)
     stockStatusTab[rIdx,"$B_{2016}/B_{MSY}$"] <- round(D_sp2016[s,p],2)
     stockStatusTab[rIdx,"qF"]         <- round(qF_sp[s,p],3)
+    stockStatusTab[rIdx,"BmsyMS"]     <- round(MSrefPts$BeqEmsy_sp[s,p],2)
+    stockStatusTab[rIdx,"MSYMS"]      <- round(MSrefPts$YeqEmsy_sp[s,p],2)
+    stockStatusTab[rIdx,"UmsyMS"]     <- round(MSrefPts$YeqEmsy_sp[s,p]/MSrefPts$BeqEmsy_sp[s,p],2)
+
 
   }
 
@@ -160,10 +171,14 @@ colnames(stockStatusTab) <- c(  "Species",
                                 "Stock",
                                 "$B_0$",
                                 "$B_{MSY,SS}$",
+                                "$MSY_{SS}$",
                                 "$U_{MSY,SS}$",
                                 "$B_{2016}$",
                                 "$B_{2016}/B_{MSY,SS}$",
-                                "$q^{F}$")
+                                "$q^{F}$",
+                                "$B_{MSY,MS}$",
+                                "$MSY_{MS}$",
+                                "$U_{MSY,MS}$")
 
 stockStatusTab <- stockStatusTab[,-1]
 
@@ -175,67 +190,28 @@ kable(  stockStatusTab, escape = FALSE,
   pack_rows( "Dover sole",1,3 ) %>%
   pack_rows( "English sole",4,6 ) %>%
   pack_rows( "Rock sole",7,9 ) %>%
-  add_header_above(c(" " = 1, "Single-species Reference Points" = 3, "Stock Status" = 2, "Comm. Catchability" = 1 ))
+  add_header_above(c( " " = 2, 
+                      "SS Reference Points" = 3, 
+                      "Stock Status" = 2, 
+                      " " = 1,
+                      "MS Reference Points" = 3 ))
 
 ```
 
-
-\clearpage
-
-```{r AMpriorTab, echo = FALSE }
-
-options(knitr.kable.NA = "")
-
-AMpriorTable <- tibble::tribble( 
-  ~AM,                           ~VariableName,      ~Prior,
-  "Totally Aggregated AM",       "$B_{MSY}$",        "$B_{MSY} \\sim N(\\mu_{B_{MSY}}, 0.2 \\cdot \\mu_{B_{MSY}})$",
-  NA,                            "$U_{MSY}$",        "$\\log U_{MSY} \\sim N(\\mu_{\\log U_{MSY}}, 0.4)$",
-  NA,                            "$q_{f}$",          "$\\log q_{f} \\sim N(\\mu_{\\log q_{f}}, 1.0)$",
-  "Species-Pooled AM",           "$B_{MSY,p}$",      "$B_{MSY,p} \\sim N(\\mu_{B_{MSY,p}}, 0.2 \\cdot \\mu_{B_{MSY,p}})$",
-  NA,                            "$U_{MSY,p}$",      "$\\log U_{MSY,p} \\sim N(\\mu_{\\log U_{MSY,p}}, 0.4)$",
-  NA,                            "$q_{p,f}$",        "$\\log q_{p,f} \\sim N(\\mu_{\\log q_{p,f}}, 1.0)$",
-  "Spatial-Pooled AM",           "$B_{MSY,s}$",      "$B_{MSY,s} \\sim N(\\mu_{B_{MSY,s}}, 0.2 \\cdot \\mu_{B_{MSY,s}})$",
-  NA,                            "$U_{MSY,s}$",      "$\\log U_{MSY,s} \\sim N(\\mu_{\\log U_{MSY,s}}, 0.4)$",
-  NA,                            "$q_{s,f}$",        "$\\log q_{s,f} \\sim N(\\mu_{\\log q_{s,f}}, 1.0)$",
-  "Single-stock AM",             "$B_{MSY,s,p}$",    "$B_{MSY,s,p} \\sim N(\\mu_{B_{MSY}}, 0.1 \\cdot \\mu_{B_{MSY}})$",
-  NA,                            "$U_{MSY,s,p}$",    "$\\log U_{MSY,s,p} \\sim N(\\mu_{\\log U_{MSY}}, 0.1)$",
-  NA,                            "$q_{s,p,f}$",      "$\\log q_{s,p,f} \\sim N(\\mu_{\\log q_{s,p,f}}, s_f)$",
-  "Hierarchical Multi-stock AM", "$B_{MSY,s,p}$",    "$B_{MSY,s,p} \\sim N(\\mu_{B_{MSY}}, 0.2 \\cdot \\mu_{B_{MSY}})$",
-  NA,                            "$U_{MSY,s,p}$",    "$\\log U_{MSY,s,p} \\sim N(\\log \\overline{U}_{MSY,s}, \\sigma_{U_{MSY}})$",
-  NA,                            "$U_{MSY,s}$",      "$\\log \\overline{U}_{MSY,s} \\sim N(\\log \\overline{U}_{MSY}, \\sigma_{U_{MSY}})$",
-  NA,                            "$U_{MSY}$",        "$\\log \\overline{U}_{MSY} \\sim N( \\mu_{\\log U_{MSY}}, 0.4)$",
-  NA,                            "$q_{s,p,f}$",      "$\\log q_{s,p,f} \\sim N(\\log \\overline{q}_{s,f}, \\tau_q)$",
-  NA,                            "$q_{s,f}$",        "$\\log \\overline{q}_{s,f} \\sim N( \\mu_{\\log q_{s,f}}, s_f)$",
-  "Process errors",              "$\\zeta_{s,p,t}$", "$\\zeta_{s,p,t} \\sim N(0,0.05)$", )
+\elandscape
 
 
-colnames(AMpriorTable) <- c("AM","Variable","Prior")
-
-AMpriorTable <- AMpriorTable[,-(1:2)]
-
-kable(  AMpriorTable, escape = FALSE,
-        booktabs = TRUE,
-        caption = AMpriorTableCap,
-        align = rep("l",ncol(AMpriorTable))) %>%
-  kable_styling(latex_options = c( "hold_position"),
-                bootstrap_options = c("striped", "hover")) %>%
-  pack_rows("Totally aggregated AM", 1, 3) %>%
-  pack_rows("Species-Pooled AM", 4, 6) %>%
-  pack_rows("Spatial-Pooled AM", 7, 9) %>%
-  pack_rows("Single-stock AM", 10, 12) %>%
-  pack_rows("Hierarchical multi-stock AM", 13, 18) %>%
-  pack_rows("All AMs", 19, 19)
-
-```
 
 \clearpage{}
 
 ```{r sensRunsTable, echo = FALSE}
 sensRunTable <- tibble::tribble( 
     ~N,     ~Factor,                ~Levels,            ~Scenarios,     ~AMs,
-    30,     "$B_{MSY}$ prior CV",   "$0.1, 0.5, 1.0$",  "Rich, Poor",  "All",
+    30,     "$MSY$ prior CV",   "$0.1, 0.5, 1.0$",  "Rich, Poor",  "All",
     30,     "$U_{MSY}$ prior SD",   "$0.1, 0.5, 1.0$",  "Rich, Poor",  "All",
-    6,      "$\\tau_q$, $\\sigma_{U_{MSY}}$", "$0.1, 0.2, .5$",   "Rich, Poor","Hierarchical only", )
+    6,      "$\\tau_q$, $\\sigma_{U_{MSY}}$", "$0.1, 0.2, .5$",   "Rich, Poor","Hierarchical only", 
+    30,     "Synoptic Survey Precision", "0.1,0.5,0.75", "Rich, Poor", "All")
+
 
 kable(  sensRunTable, escape = FALSE,
         booktabs = TRUE,
@@ -255,7 +231,7 @@ omniPerfTab <- omniPerfTab %>%
                                 Stock = stock, 
                                 "pBtLt.4Bmsy",
                                 "pBtLt.8Bmsy",
-                                pCtGtMSY,
+                                # pCtGtMSY,
                                 pFtGtFmsy,
                                 pHistLowCatch )
 
@@ -263,7 +239,7 @@ colnames(omniPerfTab) <- c( "Species",
                             "Stock",
                             "$P(B_t < .4B_{MSY,SS})$",
                             "$P(B_t < .8B_{MSY,SS})$",
-                            "$P(C_t > MSY_{SS})$",
+                            # "$P(C_t > MSY_{SS})$",
                             "$P(F_t > F_{MSY,SS})$",
                             "$P(C_t < \\min C_{1951:2016})$")
 
@@ -280,7 +256,7 @@ kable(  omniPerfTab, escape = FALSE,
   pack_rows( "Rock sole",7,9 ) %>%
   add_header_above( c(" " = 1,
                       "Prob. of being overfished" = 2,
-                      "Prob. of overfishing" = 2,
+                      "Prob. of overfishing" = 1,
                       "Prob. of low catch" = 1) )
 
 ```
@@ -291,13 +267,11 @@ kable(  omniPerfTab, escape = FALSE,
 
 
 ```{r lossRankTable, echo = FALSE, warning =FALSE}
-lossRankTable <- makeLossRankTable( groupFolder = params$groupFolder,
-                                    prefix = "parBat",
-                                    period = 73:82,
-                                    clearBadReps = TRUE,
-                                    minSampSize = 10 ) %>%
-                    ungroup()
-
+lossRankTables <- makePairedLossRankTable( groupFolder = params$groupFolder,
+                                          prefix = "parBat",
+                                          period = 73:82,
+                                          clearBadReps = TRUE,
+                                          minSampSize = 100 )
 # Replace Scenario names and AM names
 AMlabs <- c(  "singleStock"= "Single Stock",
               "hierMultiStock"= "Hierarchical Multi-stock",
@@ -308,22 +282,41 @@ scenLabs <- c(  "DERfit_HcMcAsSsIdx" = "Rich",
                 "DERfit_McAsSsIdx" = "Mod",
                 "DERfit_AsSsIdx"  = "Poor")
 
-lossRankTable <- lossRankTable %>%
-                  mutate( Scenario = stringr::str_replace_all(Scenario, scenLabs),
-                          AM = str_replace_all(AM, AMlabs) ) %>%
-                  filter( Scenario %in% c("Rich","Mod","Poor")) %>%
-                  arrange(match(Scenario, c("Rich", "Mod", "Poor")),
-                            absCrank) %>%
-                  dplyr::select( Scenario, AM, absCrank )
+summRank.df <- lossRankTables$rankSummary.df
+fullRank.df <- lossRankTables$rank.df %>%
+                mutate( AM = str_replace_all(AM, AMlabs))
+
+scenSplit <- split(fullRank.df, fullRank.df$scenario)
+amSplit <- lapply( X = scenSplit, FUN = split, unique(fullRank.df$AM))
+
+
+lossRankTable <- summRank.df %>%
+                  mutate( AM = str_replace_all(AM, AMlabs),
+                          avgRank = round(avgRank,2),
+                          scenario = as.character(scenario) ) %>%
+                  filter( scenario %in% c("Rich","Mod","Poor")) %>%
+                  arrange(match(scenario, c("Rich", "Mod", "Poor")),
+                            avgRank) %>%
+                  dplyr::select( scenario, AM, modalRank, avgRank ) 
+
+rankList <- vector(mode = "list", length = nrow(lossRankTable))
+for(k in 1:nrow(lossRankTable))
+{
+  scenID <- as.character(lossRankTable[k,"scenario"])
+  amID <- as.character(lossRankTable[k,"AM"])
+
+  rankList[[k]] <- amSplit[[scenID]][[amID]]$rank
+}
                   
 
 
 colnames(lossRankTable) <- c( "Scenario","AM",
-                              "Average Loss Rank (range)")
+                              "Modal Rank", "Average Rank")
+
 
 kable(  lossRankTable[,-1], escape = FALSE, 
         caption = lossRankTabCap, booktabs = T,
-        align = rep("c",ncol(lossRankTable[,-1]))) %>%
+        align = c("l","c","c") ) %>%
   kable_styling(latex_options = c( "hold_position"),
                 bootstrap_options = c("striped", "hover")) %>%
   pack_rows( "Rich",1,5 ) %>%

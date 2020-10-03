@@ -5,7 +5,7 @@ parameter value
 #
 # Scenario 1 : 'Comm1_shrinkSD0.1'
 #
-scenario$scenario1$ctl$scenarioName 'Comm1_shrinkSD0.1'
+scenario$scenario1$ctl$scenarioName 'Rich_shrinkSD0.1'
 scenario$scenario1$opMod$pT 32
 scenario$scenario1$ctl$nGoodReps 50
 scenario$scenario1$ctl$totReps 70
@@ -16,7 +16,7 @@ scenario$scenario1$mp$assess$spsigU .1
 #
 # Scenario 4 : 'Surv_shrinkSD0.1'
 #
-scenario$scenario2$ctl$scenarioName 'Surv_shrinkSD0.1'
+scenario$scenario2$ctl$scenarioName 'Poor_shrinkSD0.1'
 scenario$scenario2$opMod$pT 32
 scenario$scenario2$ctl$nGoodReps 50
 scenario$scenario2$ctl$totReps 70
@@ -25,9 +25,9 @@ scenario$scenario2$mp$assess$spLateStart TRUE
 scenario$scenario2$mp$assess$sptauq .1
 scenario$scenario2$mp$assess$spsigU .1
 #
-# Scenario 1 : 'Comm1_shrinkSD0.2'
+# Scenario 1 : 'Rich_shrinkSD0.2'
 #
-scenario$scenario3$ctl$scenarioName 'Comm1_shrinkSD0.2'
+scenario$scenario3$ctl$scenarioName 'Rich_shrinkSD0.2'
 scenario$scenario3$opMod$pT 32
 scenario$scenario3$ctl$nGoodReps 50
 scenario$scenario3$ctl$totReps 70
@@ -36,9 +36,9 @@ scenario$scenario3$mp$assess$spLateStart FALSE
 scenario$scenario3$mp$assess$sptauq .2
 scenario$scenario3$mp$assess$spsigU .2
 #
-# Scenario 4 : 'Surv_shrinkSD0.2'
+# Scenario 4 : 'Poor_shrinkSD0.2'
 #
-scenario$scenario4$ctl$scenarioName 'Surv_shrinkSD0.2'
+scenario$scenario4$ctl$scenarioName 'Poor_shrinkSD0.2'
 scenario$scenario4$opMod$pT 32
 scenario$scenario4$ctl$nGoodReps 50
 scenario$scenario4$ctl$totReps 70
@@ -47,9 +47,9 @@ scenario$scenario4$mp$assess$spLateStart TRUE
 scenario$scenario4$mp$assess$sptauq .2
 scenario$scenario4$mp$assess$spsigU .2
 #
-# Scenario 1 : 'Comm1_shrinkSD0.5'
+# Scenario 1 : 'Rich_shrinkSD0.5'
 #
-scenario$scenario5$ctl$scenarioName 'Comm1_shrinkSD0.5'
+scenario$scenario5$ctl$scenarioName 'Rich_shrinkSD0.5'
 scenario$scenario5$opMod$pT 32
 scenario$scenario5$ctl$nGoodReps 50
 scenario$scenario5$ctl$totReps 70
@@ -58,9 +58,9 @@ scenario$scenario5$mp$assess$spLateStart FALSE
 scenario$scenario5$mp$assess$sptauq .5
 scenario$scenario5$mp$assess$spsigU .5
 #
-# Scenario 4 : 'Surv_shrinkSD0.5'
+# Scenario 4 : 'Poor_shrinkSD0.5'
 #
-scenario$scenario6$ctl$scenarioName 'Surv_shrinkSD0.5'
+scenario$scenario6$ctl$scenarioName 'Poor_shrinkSD0.5'
 scenario$scenario6$opMod$pT 32
 scenario$scenario6$ctl$nGoodReps 50
 scenario$scenario6$ctl$totReps 70
@@ -85,8 +85,9 @@ mp$mp1$mp$assess$spFleetWeights c(1.0,1.0,1.0,1.0)
 mp$mp1$mp$assess$spShrinkqFleets c(3,4)
 mp$mp1$mp$assess$spYrFirstIdx 20
 mp$mp1$mp$assess$spsigmaProc .05
-mp$mp1$mp$assess$spsdUmsy .4
-mp$mp1$mp$assess$spsdlnq_f c(1,1,.5,.5)
+mp$mp1$mp$assess$spsdUmsy .3
+mp$mp1$mp$assess$spCVMSY .2
+mp$mp1$mp$assess$spsdlnq_f c(10,1,.5,.25)
 mp$mp1$mp$assess$sptauObs_spf .3
 mp$mp1$mp$assess$spInitPE 25
 mp$mp1$mp$assess$spRE c('zetaspt_vec')
@@ -95,7 +96,7 @@ mp$mp1$mp$assess$spPhzepslnUmsy_s 6
 mp$mp1$mp$assess$spPhzepslnUmsy_sp 8
 mp$mp1$mp$assess$spPhzdeltalnq_spf 7
 mp$mp1$mp$assess$spPhzdeltalnq_sf 5
-mp$mp1$mp$assess$spPhzBmsy 2
+mp$mp1$mp$assess$spPhzMSY 2
 mp$mp1$mp$assess$spPhzlnBinit 2
 mp$mp1$mp$assess$spPhzlnqShrink 1
 mp$mp1$mp$assess$spPhzlnqFree 1

@@ -487,21 +487,21 @@ plotDynMSY_sp <- function( groupFolder = "omni_econYield_prelim",
 # plotBatchCatchBioTradeoff()
 # Plots of catch/biomass tradeoffs for a given
 # batch
-plotBatchCatchBioTradeoff <- function(  groupFolder = "DLSurveys_.3tau_Long",
+plotBatchCatchBioTradeoff <- function(  groupFolder = "DERTACS_reruns_sep24",
                                         prefix = "parBat",
                                         period = 73:82,
                                         lossList = NULL,
                                         qProbs = c(.025,.5,.975),
                                         refPts = "MSrefPts",
+                                        dim1 = 1:3, # Species
+                                        dim2 = 1:3, # Stock
                                         AMlabs = c( SS = "singleStock",
                                                     HMS = "hierMultiStock",
                                                     SpePool = "speciesPooling",
                                                     SpaPool = "spatialPooling",
                                                     TA = "totalAgg" ),
-                                        scenLabs = c( Comm1  = "DERfit_HcMcAsSsIdx",
-                                                      Comm2  = "DERfit_McAsSsIdx",
-                                                      Comm3  = "DERfit_McSsIdx",
-                                                      Surv = "DERfit_AsSsIdx" ),
+                                        scenLabs = c( Rich  = "DERfit_HcMcAsSsIdx",
+                                                      Poor = "DERfit_AsSsIdx" ),
                                         minSampSize = 100  )
 {
   # First, read info files from the relevant
@@ -672,13 +672,18 @@ plotBatchCatchBioTradeoff <- function(  groupFolder = "DLSurveys_.3tau_Long",
   names(AMcols) <- AMlabs
   names(AMpch)  <- AMlabs
 
+  nPP <- length(dim2)
+  nSS <- length(dim1)
+
+  browser()
+
   # Now plot
-  par(  mfcol = c(nP,nS),
+  par(  mfcol = c(nPP,nSS),
         mar = c(2,2,1,1),
         oma = c(5,3.5,3,3) )
 
-  for( s in 1:nS )
-    for( p in 1:nP )
+  for( s in dim1 )
+    for( p in dim2 )
     {
       plot( x = range(B_qSAsp[2,,,s,p],omniB_qsp[,s,p],omniC_qsp[,s,p]),
             y = range(C_qSAsp[2,,,s,p],omniB_qsp[,s,p],omniC_qsp[,s,p]),
@@ -791,7 +796,7 @@ plotBatchCatchBioTradeoff <- function(  groupFolder = "DLSurveys_.3tau_Long",
 # A sample plot of assessment performance
 # for each AM type within a scenario.
 # Requires 5 completed simulation objects.
-plotRetroBio_Scenario <- function(  groupFolder = "DERTACs_reruns_.75tau_.05PE_180reps",
+plotRetroBio_Scenario <- function(  groupFolder = "DERTACS_reruns_sep24",
                                     iRep = 1,
                                     scenName = "DERfit_HcMcAsSsIdx",
                                     prefix = "parBat",
@@ -2019,7 +2024,8 @@ plotRankDists <- function(  groupFolder = "DERTACS_reruns_sep24",
                             minSampSize = 100,
                             rotxlabs = 0,
                             xlab = TRUE,
-                            vertLines = TRUE  )
+                            vertLines = TRUE,
+                            nGoodReps = 100 )
 {
 
   # First, calculate the paired loss ranks
@@ -2050,37 +2056,43 @@ plotRankDists <- function(  groupFolder = "DERTACS_reruns_sep24",
     nGood_SAsp <- apply( X = goodReps_SAisp, FUN = sum, MARGIN = c(1,2,4,5),
                           na.rm = T )
 
-    for( scenIdx in 1:nScen )
-    {
-      badRuns_arr.ind <-  which(nGood_SAsp[scenIdx,,,] < minSampSize, arr.ind = TRUE )
-      # Cull bad runs - some redundancy here but oh well
+    badRuns_arr.ind <-  which(nGood_SAsp < minSampSize, arr.ind = TRUE )
 
-      if( nrow(badRuns_arr.ind) > 0 )
-        for( j in 1:nrow(badRuns_arr.ind))
-        {
-          ind <- badRuns_arr.ind[j,]
-          # Remove the species and stock results from all AMs - replace goodReps with TRUE
-          # as the NAs in rank will be removed later
-          goodReps_SAisp[scenIdx,,,ind[2],ind[3]] <- TRUE
-          rankArray_SAisp[scenIdx,,,ind[2],ind[3]] <- NA
-        }
-      
-    }
+    if( nrow(badRuns_arr.ind) > 0 )
+      for( j in 1:nrow(badRuns_arr.ind))
+      {
+        ind <- badRuns_arr.ind[j,]
+        # Remove the species and stock results from all AMs - replace goodReps with TRUE
+        # as the NAs in rank will be removed later
+        goodReps_SAisp[,,,ind[3],ind[4]] <- TRUE
+        rankArray_SAisp[,,,ind[3],ind[4]] <- NA
+      }
+
     # Ok, now  we want to calculate the largest number of reps we have available
-    goodReps_SAi <- apply(X = goodReps_SAisp[,,1:180,,], FUN = prod, MARGIN = c(1,2,3), na.rm = T)
+    goodReps_SAi <- apply(X = goodReps_SAisp, FUN = prod, MARGIN = c(1,2,3), na.rm = T)
     goodReps_Si <- apply(X = goodReps_SAi, FUN = prod, MARGIN = c(1,3))
-    nGood_S <- apply( X = goodReps_Si, FUN = sum, MARGIN = 1)
-    nGood_SA <- apply(X = goodReps_SAi, FUN = sum, MARGIN = c(1,2))
+
+    goodReps_i <- apply(X = goodReps_SAisp, FUN = prod, MARGIN = 3)
+
+    goodIdx <- which(goodReps_i == 1)
+
+    if( length(goodIdx) > nGoodReps)
+      goodIdx <- goodIdx[1:nGoodReps]
+
+    
+    goodReps_SAisp  <- goodReps_SAisp[,,goodIdx,,]
+    goodReps_SAi    <- goodReps_SAi[,,goodIdx]
+    rankArray_SAisp <- rankArray_SAisp[,,goodIdx,,]
 
   }
 
 
 
-  xJitter   <- (1:5) * 0.2 - 0.1
-  xRadius   <- 0.1 
+  xJitter   <- (1:5)
+  xRadius   <- 0.5
 
   # Now, make the plotting region
-  par( mfcol = c(nScen, nAM), mar = c(.2,.2,.2,.2), oma = c(5,5,3,3) )
+  par( mfcol = c(nScen, nAM), mar = c(.4,.2,.25,.2), oma = c(5,5,3,3) )
 
   for( amIdx in 1:nAM )
   {
@@ -2090,15 +2102,16 @@ plotRankDists <- function(  groupFolder = "DERTACS_reruns_sep24",
       scenLab <- scenLabs[scenIdx]
       # Make a plotting window, we want to break it up into nSxnP
       # cells
-      plot( x = c(0,nS), y = c(0,nP),
-            xaxs = "i", yaxs = "i", type = "n", axes = FALSE )
+      plot( x = c(0,6), y = c(0,1),
+            xaxs = "i", yaxs = "i",
+            type = "n", axes = FALSE )
       mfg <- par("mfg")
-      if(mfg[1] == mfg[3])
-        axis( side = 1, at = 0.5 + 1:nS - 1, labels = 1:nS  )
+      if( mfg[1] == mfg[3])
+        axis( side = 1, at = 1:5  )
 
-      # reverse y axis
+      # # reverse y axis on left margin
       if(mfg[2] == 1)
-        axis( side = 2, at = 0.5 + 1:nP - 1, las = 1, labels = nP:1 )
+        axis( side = 2, las = 1 )
 
       if(mfg[2] == mfg[4])
         rmtext( outer = TRUE, line = 0.1, txt = names(scenLabs)[scenIdx], font = 2, cex = 1.5 )
@@ -2108,46 +2121,274 @@ plotRankDists <- function(  groupFolder = "DERTACS_reruns_sep24",
 
       # Close up cells
       grid()
-      abline( v = 1:nP )
-      abline( h = 1:nS )
       box()
 
-      for( s in 1:nS )
-        for( p in 1:nP )
-        {
-          convReps <- goodReps_SAisp[scenLab,AMlab,,s,p]
-          nConv <- sum(convReps)
-          rank.df <- reshape2::melt(rankArray_SAisp[scenLab,AMlab, convReps, s, p]) %>%
-                      mutate( rank = as.character(value) ) %>%
-                      dplyr::group_by( rank ) %>%
-                      dplyr::summarise( n = n() )
-
-          totReps   <- sum( rank.df$n )
-          rankProps <- rank.df$n/totReps
-          names(rankProps) <- rank.df$rank
-          whichMode <- which.max(rankProps)
-          avgRank   <- sum( rankProps * as.numeric(rank.df$rank) )
-
-          cols <- rep("grey60",nAM)
-          cols[whichMode] <- "darkred"
-
-          rect( xleft   = xJitter + p - 1 - xRadius,
-                xright  = xJitter + p - 1 + xRadius,
-                ybottom = 0 + s - 1,
-                ytop    = (s - 1) + rankProps,
-                col = cols, border = "black" )
-
-          text( x = 0.3 + p - 1, y = 0.9 + s - 1,
-                labels = nConv,
-                font = 2)
+      rank.df <- reshape2::melt(rankArray_SAisp[scenLab,AMlab,, , ]) %>%
+                  filter(!is.na(value)) %>%
+                  mutate( rank = as.character(value) ) %>%
+                  dplyr::group_by( rank ) %>%
+                  dplyr::summarise( n = n() )
 
 
-        }
+      totReps   <- sum( rank.df$n )
+      rankProps <- rank.df$n/totReps
+      names(rankProps) <- rank.df$rank
+      whichMode <- which.max(rankProps)
+      avgRank   <- sum( rankProps * as.numeric(rank.df$rank) )
+
+      cols <- rep("grey60",nAM)
+      cols[whichMode] <- "darkred"
+
+      rect( xleft   = xJitter - xRadius,
+            xright  = xJitter + xRadius,
+            ybottom = 0,
+            ytop    = rankProps,
+            col = cols, border = "black" )
+      segments(x0 = avgRank, y0 = 0, y1 = rankProps[whichMode], lty = 2, col = "black", lwd = 3)
+
+      text( x = .5, y = 0.9,
+            labels = totReps,
+            font = 2)
+
 
     }
   } 
+  mtext( side = 1, text = "Rank", outer = TRUE, line = 2 )
+  mtext( side = 2, text = "Proportion", outer = TRUE, line = 2.5 )
 
-} # END plotRankDists()
+} # END plotRankDists()\
+
+plotSpecStockBoxes <- function( species, stock )
+{
+  nS <- length(species)
+  nP <- length(stock)
+
+  plot( x = c(0.5,nS+.5), y = c(.5,nP+.5), type = "n", axes = FALSE,
+        xaxs = "i", yaxs = "i" )
+    axis( side = 1, at = 1:nS, labels = species )
+    axis( side = 2, at = 1:nP, labels = rev(stock), las = 1 )
+    box(lwd = 3)
+    for( s in 1:nS )
+      for( p in 1:nP )
+      {
+        rect( xleft = s - .3,
+              xright = s + .3,
+              ybottom = p - .3,
+              ytop = p + .3, col = "grey60" )
+        # text( x = s, y = p, label =  )
+      }
+}
+
+# plotAMschematic()
+# Plots a 3x2 of each AM structure
+plotAMschematic <- function(  species = c("Dover","English","Rock"),
+                              stock = c("HSHG","QCS","WCVI") )
+{
+  nS <- length(species)
+  nP <- length(stock)
+
+  par(mfrow = c(3,2),
+      mar = c(2,3,2,1),
+      oma = c(4,4,3,3) )
+
+  # Total Pooling
+  plotSpecStockBoxes(species,stock)
+    mtext( side = 3, text = "Total Pooling")
+    # rect( xleft = 0.6, xright = nS+.4,
+    #       ybottom = 0.6, ytop = nP+.4,
+    #       border = "black")
+
+  # Spatial Pooling
+  plotSpecStockBoxes(species,stock)
+    mtext( side = 3, text = "Spatial Pooling")
+    abline( h = 1:nS + 0.5, lwd = 3)
+
+  # Species Pooling
+  plotSpecStockBoxes(species,stock)
+    mtext( side = 3, text = "Species Pooling")
+    abline( v = 1:nP + 0.5, lwd = 3)
+
+  # Hierarchical Multi-stock
+  plotSpecStockBoxes(species,stock)
+    mtext( side = 3, text = "Hierarchical Multi-stock")
+    abline( h = 1:nS + 0.5, lty = 2, lwd = 3)
+    abline( v = 1:nP + 0.5, lty = 2, lwd = 3)
+
+  # Single Stock
+  plotSpecStockBoxes(species,stock)
+    mtext( side = 3, text = "Single stock")
+    abline( v = 1:nP + 0.5, lwd = 3)
+    abline( h = 1:nS + 0.5, lwd = 3)
+
+  mtext( outer = TRUE, side = 1, line = 2, text = "Species")
+  mtext( outer = TRUE, side = 2, line = 2, text = "Stock Area")
+
+} # END plotAMschematic
+
+# plotDataSummary()
+# Data summary for each species and stock, uses the
+# hierSCAL report object
+plotDataSummary <- function(  blob,
+                              fleetLabs = c(  "Historical",
+                                              "Modern",
+                                              "HS Ass.",
+                                              "Synoptic"),
+                              dataCells = c(  "Indices",
+                                              "Catch") )
+{
+  reports <- blob$ctlList$opMod$histRpt
+
+  datObj <- reports
+  repObj <- reports
+  
+  # Pull data
+  I_spft      <- datObj$I_spft
+  age_axspft  <- datObj$age_axspft
+  len_lxspft  <- datObj$len_lxspft
+  C_spft      <- datObj$C_spft
+  aal_table   <- datObj$aal_table
+
+
+  # Model dims
+  nS      <- repObj$nS
+  nP      <- repObj$nP
+  nF      <- repObj$nF
+  nT      <- repObj$nT
+
+  # Year sequence for x axis
+  fYear <- blob$ctlList$opMod$fYear
+  years <- seq(from = fYear, by = 1, length.out = nT)
+
+
+  yLabs <- rev(dataCells)
+  specLabs <- blob$ctlList$opMod$species
+  stockLabs <- blob$ctlList$opMod$stocks
+
+
+
+  fleetCols <- RColorBrewer::brewer.pal(nF,"Dark2")
+
+  checkPosObs <- function( arr, out = 16 )
+  {
+
+    if(any(arr > 0) )
+      return(out)
+    else return(NA)
+  }
+
+  par( mfcol = c(nS,nP),
+        mar = c(.1,.1,.1,.1),
+        oma = c(5,6,2,2) )
+
+
+  # Prepare catch data
+  
+  C_spt <- apply( X = C_spft, FUN = sum, MARGIN = c(1,2,4), na.rm = T)
+  C_sp.max <- apply(C_spt, FUN = max, MARGIN = c(1,2))
+  C_spt <- sweep( x = C_spt, MARGIN = c(1,2), C_sp.max, FUN = "/")
+
+  fleetJitter <- seq( from = -.8, to = .8, 
+                      length.out = nF )
+
+  nCells <- length(dataCells)
+  cellMins <- seq(from = 0, by = 2, length = nCells)
+  names(cellMins) <- rev(dataCells)
+
+  # Prepare pch
+
+  for( s in 1:nS )
+    for( p in 1:nP )
+    {
+      plot( x = range(years), y = c(0,2*length(dataCells)),
+            type = "n", axes = FALSE )
+        # Axes and labels
+        mfg <- par( "mfg")
+        if( mfg[1] == mfg[3] )
+          axis( side = 1 )
+
+        if( mfg[2] == 1 )
+          axis( side = 2, las = 1,
+                at = cellMins + 1,
+                labels = yLabs )
+
+        if( mfg[1] == 1 )
+          mtext( side = 3, text = specLabs[s], font = 2)
+
+        if( mfg[2] == mfg[4] )
+          rmtext( txt = stockLabs[p], font = 2, line = .05, outer = TRUE,
+                  cex = 1.5 )
+
+        grid()
+        box()
+        
+        # Break up window with hz lines
+        abline( h = seq(from = 2, by = 2, length = nCells), lwd = .8 )
+
+        # Plot catch
+        if("Catch" %in% dataCells)
+        {
+        rect( xleft = years - .3, xright = years + .3,
+              ybottom = cellMins["Catch"], ytop = C_spt[s,p,],
+              col = "grey50", border = NA )
+        }
+
+        if("AAL" %in% dataCells)
+        {
+          # Plot AAL
+          # Prepare table
+          aal_table.this <- aal_table %>%
+                            as.data.frame() %>%
+                            filter( species == s, stock == p )%>%
+                            group_by( year, fleet ) %>%
+                            summarise( posSamp = 1 )
+          points( x =  years[aal_table.this$year],
+                  y = cellMins["AAL"] + 1 + fleetJitter[aal_table.this$fleet],
+                  pch = 16, col = fleetCols[aal_table.this$fleet] )
+        }
+
+        # Plot Lengths
+        if("Lengths" %in% dataCells)
+        {
+          len_spft <- apply(X = len_lxspft, FUN = checkPosObs, MARGIN = c(3:6) )
+          for(f in 1:nF )
+          {
+            plotPts <- which(!is.na(len_spft[s,p,f,]))
+            nPts <- length(plotPts)
+            points( x = years[plotPts], y = rep(cellMins["Lengths"] + 1 + fleetJitter[f],nPts),
+                    col = fleetCols[f], pch = len_spft[s,p,f,plotPts] )
+          }
+        }
+
+        # Plot Ages
+        if("Ages" %in% dataCells )
+        {    
+          age_spft <- apply(X = age_axspft, FUN = checkPosObs, MARGIN = c(3:6) )
+          for(f in 1:nF )
+            points( x = years, y = rep(cellMins["Ages"] + 1 + fleetJitter[f],nT),
+                    col = fleetCols[f], pch = age_spft[s,p,f,] )
+        }
+
+        if( "Indices" %in% dataCells )
+        {
+          # Plot indices
+          I_spft[I_spft > 0] <- 16
+          I_spft[I_spft <= 0] <- NA
+          for( f in 1:nF )
+            points( x = years, y = rep(cellMins["Indices"] + 1 + fleetJitter[f],nT),
+                    col = fleetCols[f], pch = I_spft[s,p,f,] )
+        }
+
+    }
+
+    par(xpd=TRUE, oma = c(0,0,0,0), mfcol = c(1,1))
+    # plot( x = c(0,1), y = c(0,1), add = TRUE)
+    legend( x = "bottom", bty = "n",
+            # inset = c(0,-1), xpd = TRUE,
+            legend = fleetLabs, 
+            pch = 16, col = fleetCols,
+            horiz = TRUE, cex = 1, pt.cex = 1.5)
+} # END plotDataSummary()
+
 
 
 # plotBatchLossDists_Scenario()
@@ -2165,11 +2406,11 @@ plotBatchLossDists_Scenario <- function(  groupFolder = "DERTACS_reruns_sep24",
                                           dim2 = 1:3,   # stocks (H,Q,W, CW)
                                           qProbs = c(.025,.5,.975),
                                           refPts = "MSrefPts",
-                                          AMlabs = c( SS = "singleStock",
-                                                      HMS = "hierMultiStock",
-                                                      SpecPool = "speciesPooling",
-                                                      SpatPool = "spatialPooling",
-                                                      TA = "totalAgg" ),
+                                          AMlabs = rev(c( SS = "singleStock",
+                                                          HMS = "hierMultiStock",
+                                                          SpecPool = "speciesPooling",
+                                                          SpatPool = "spatialPooling",
+                                                          TA = "totalAgg" )),
                                           scenLabs = c( Rich  = "DERfit_HcMcAsSsIdx",
                                                         Mod  = "DERfit_McAsSsIdx",
                                                         Poor = "DERfit_AsSsIdx" ),

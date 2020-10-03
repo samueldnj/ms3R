@@ -102,13 +102,18 @@ where $F_{s,p,t}$ is the fishing mortality rate applied
 to species $s$ in stock-area $p$ by fleet $f$ in year 
 $t$, and $q^{F}_{s,p}$ is the commercial catchability 
 coefficient scaling trawl effort $E_{p,t}$ in area $p$ 
-to fishing mortality (Table 2). The relationship equation 
+to fishing mortality (Table 1). The relationship equation 
 \ref{eq:FqE} implies a multi-species maximum yield $MSY_{MS,p}$ within 
-each area, from which we derived the corresponding species yield 
-$MSY_{MS,s,p}$, the biomass $B_{MSY,SS,s,p}$ at which multi-species maximum 
-yield is achieved, and the optimal harvest rate 
+each area, from which we derived the corresponding effort $E_{MSY,MS,p}$,
+species yield $MSY_{MS,s,p}$, the biomass $B_{MSY,SS,s,p}$ at which 
+multi-species maximum yield is achieved, and the optimal harvest rate 
 $U_{MSY,MS,s,p} = MSY_{MS,s,p}/B_{MSY,MS,s,p}$ that produced multi-species 
-maximum yield [@pikitch1987use].
+maximum yield, which are all given in Table 1 [@pikitch1987use]. The 
+single-species optima, which are also in Table 1, are derived in the usual 
+way by maximising single-species yield $MSY_{SS,s,p}$, produced at the 
+optimal biomass $B_{MSY,SS,s,p}$ by applying the optimal harvest rate
+$U_{MSY,SS,s,p} =  MSY_{SS,s,p}/B_{MSY,SS,s,p}$.
+
 
 <!-- The above effort model implies a multi-species maximum yield for 
 the trawl fishery in each area, depending on individual species 
@@ -154,10 +159,12 @@ lines showing individual species yield), which differ from the
 single-species $B_{MSY}$ and $MSY$ when commercial catchability 
 scalars differ between species. -->
 
-For simulated fishing in the projection time period, we allocated 
-maximum fishing effort to each area, defined as the effort required 
-to fully utilize the TAC of at least one species, while never 
-exceeding the TAC of any one of the three species, i.e.,
+For simulated fishing in the projection time period, the fully realised
+TAC depended on the choke effects determined by relative catchabilities 
+and absolute biomass levels of each species within an area. To simulate the
+choke effects, we allocated the maximum fishing effort to each area
+required to fully utilize the TAC of at least one species, but 
+never exceed the TAC of any one of the three species, i.e.,
 \begin{equation}\label{eq:maxE}
 E_{p,t+1} = \max \{ E ~|~ C_{s,p,t+1}(E) \leq TAC_{s,p,t+1} \forall s \},
 \end{equation}
@@ -195,7 +202,7 @@ from operating model yield curve), and $\zeta_{s,p,t}$ are annual process
 error deviations. 
 
 In total, we defined the following five potential assessment 
-model configurations:
+model configurations (Figure 3):
 
 1. Total Pooling (1 management unit);
 2. Species Pooling (3 management units, independent);
@@ -217,16 +224,18 @@ assessment model and are described in Supplement S1.
 
 Time series of catch and biomass indices were simulated in the historical 
 and projection periods for fitting assessment models. While it is more
-usual to use the actual historical data most closed loop simulations, we 
-decided that, given that pooled data must be simulated, simulating all data 
+usual to use the actual historical data in most closed loop simulations, we 
+decided that given that pooled data must be simulated, simulating all data 
 series removed any effect of the difference between simulated and real data
 on performance between pooled and non-pooled AMs. The historical fishery CPUE 
 and Hecate Strait Assemblage survey were simulated only for the periods in 
 Table 1, but the Modern Fishery CPUE and Synoptic trawl survey biomass index 
 were also simulated in the projection period. Both commercial CPUE series were 
-simulated without additional observation error deviations, but trawl survey 
-indices had log-normally distributed observation errors with precision 
-based on the conditioning assessment (Table A.1, Appendix A).
+simulated without additional observation error deviations, as catch rates 
+are unlikely to be unbiased indices of abundnace, but both fishery 
+independent trawl survey indices had log-normally distributed observation 
+errors with precision based on the conditioning assessment 
+(Table A.1, Appendix A).
 
 Biomass indices for individual stocks depended on the nature of 
 the index. Assemblage and Synoptic Survey biomass indices were 
@@ -287,10 +296,11 @@ U_{s,p} = \frac{U_{MSY,MS,s,p}}{U_{MSY,SS,s,p}} \cdot \hat{U}_{MSY,s,p}
 \end{equation}
 where $U_{MSY,MS,s,p},U_{MSY,SS,s,p}$ are the optimal harvest rates 
 maximising multi-species and single-species yield, respectively,
-taken from the operating model, and $\hat{U}_{MSY,s,p}$ is the assesment
-model estimate of the single-species optimal harvest rate, thereby
-including assessment error but still attempting to maximise complex
-yield. 
+taken from the operating model (Table 1), and $\hat{U}_{MSY,s,p}$ is 
+the assesment model estimate of the single-species optimal harvest 
+rate, thereby including assessment error while attempting to maximise 
+complex yield and avoiding including technical interactions and effort 
+in the estimation model. 
 
 Inter-annual increases in TAC were limited to 20\% for all 
 individual stocks as a practical precautionary measure, i.e.,
@@ -348,11 +358,10 @@ and a maximum gradient component less than $10^{-3}$ in absolute value.
 A lower threshold of 95\% convergence was chosen given that fitting models 
 becomes more difficult as data quality is deliberately reduced, and a 
 simulated assessment can not always be tuned like a real assessment 
-performed by a real-life analyst. Any OM/assessment model/stock combinations that could 
-not reach 100 replicates meeting the 95\% convergence criterion over a 
-total of 140 attempts (approximately a 70\% success rate) were considered 
-non-significant and were indicated as such in the results. The operating 
-model was run for two Dover sole generations [32 years; @seber1997estimation],
+performed by a real-life analyst. Any species/stock combinations 
+that could not reach 100 replicates meeting the 95\% convergence criterion 
+for all AMs were excluded from the results. The operating model was run 
+for two Dover sole generations [32 years; @seber1997estimation],
 because this species had the longest generation time.
 
 Operating model population dynamics and index data were 
@@ -439,17 +448,17 @@ three areas being above 20% ($\mathcal{P}_{diff}$) to match the TAC
 smoother in stochastic experiments, differences greater than 10% 
 between the last year of historical effort and the first year $2017$ of 
 simulated effort ($\mathcal{P}_{init}$), and a penality when biomass
-dropped below a lower threshold more than 5\% of the time 
-($\mathcal{P}_{overfished}$). For the overfishing penalty, the threshold
-was equal to 40\% of single-species $B_{MSY}$ for each area, which is
-commonly suggested as a limit reference point for Canadian fisheries
-[@DFO2006A-Harvest-Strat].
+dropped below a lower threshold of 40\% of single species $B_{MSY,SS}$ 
+more than 5\% of time-steps ($\mathcal{P}_{overfished}$). The threshold
+of $0.4 B_{MSY,SS}$ is commonly suggested as a limit reference point for 
+Canadian fisheries [@DFO2006A-Harvest-Strat], below which the stock could
+experience irreparable harm and recruitment could become impaired.
 
 An omniscient manager solution was obtained for each stochastic
 trajectory in the stochcastic management simulations. Each replicate was 
-run for 80 years to reduce end effects, such as transient dynamics at the 
-beginning of the projection, or a lack of consequences for overfishing 
-at the end of the projection.
+run for 80 years to produce several years free of end effects, such as 
+transient dynamics at the beginning of the projection, or a lack of 
+consequences for overfishing at the end of the projection.
 
 #### Cumulative catch loss
 
@@ -466,18 +475,22 @@ of cumulative catch loss, which were then used to determine relative
 performance of each assessment model under the three data scenarios. 
 Cumulative loss was calculated for the ten year period $T_1 = 2028$ to
 $T_2 = 2037$, chosen in the middle of the projection period because 
-dynamics in the earlier time were dominated by the smoothers on effort 
-and catch for the omniscient manager and TACs, respectively, and after 
-2028 the omniscient manager's median effort has reached a stable 
-state near the multi-species optimum. 
+dynamics in the earlier period were dominated by the smoothers on effort 
+and catch for the omniscient manager and TACs, respectively.
 
-Cumulative absolute catch loss was used to calculate the 
-relative rank of each assessment model for within a simulation replicate 
-under each species/stock/OM scenario combination, where lower loss ranked 
-higher. Rank distributions across replicates within a species/stock/OM were 
-then used to calculate an average (modal), minimum, and maximum rank of each 
-assessment model across species/areas and replicates to determine the 
-overall performance of each assessment model in each OM scenario.
+A paired analysis was used to determine the best performing AM 
+configuration across species, stocks and replicates. Within each
+replicate, each AM's cumulative absolute catch loss was used to 
+determine the relative rank of each assessment model under a 
+species/stock/OM scenario combination, where lower loss ranked higher.
+Any replicates with less than 95\% convergence rates for any AM on any 
+management units were excluded from the aggregate rankings, and any 
+species/stock combinations that failed to reach 100 replicates meeting 
+the convergence criteria for all AMs were excluded as well, to reduce
+variability in ranking distributions caused by varying sample sizes. 
+Rankings were then pooled across remaining species and stocks within
+an OM/AM combination.
+
 
 #### Biomass risk
 
@@ -488,9 +501,10 @@ fisheries, below which a stock may be considered critically overfished as
 recruitment may become impaired and rebuilding may be 
 required [@DFO2006A-Harvest-Strat].
 
-Biomass loss was also calculated, but inferences about assessment method 
-performance in preliminary simulations were not qualitatively different 
-between catch and biomass loss.
+Biomass loss was also calculated, but ultimately it was not reported. 
+Inferences about assessment method performance in preliminary 
+simulations were not qualitatively different between catch and 
+biomass loss.
 
 
 
@@ -500,10 +514,13 @@ between catch and biomass loss.
 Parameter prior distributions area a key feature of most contemporary
 stock assessment models, even in data-rich contexts. Moreover, prior
 distributions are a defining feature of hierachical multi-species
-stock assessment models. Therefore, we focused sensitivity analyses on
-fixed prior standard deviations for leading  parameters $B_{MSY}$ and $U_{MSY}$, and the 
-hierarchical shrinkage prior SDs $\tau_q$ and $\sigma_{U_{MSY}}$ (Table 4). 
-Analyses were run with 50 simulation replicates for only data-rich and 
-data-poor scenarios.
+stock assessment models. Therefore, we focused most sensitivity analyses 
+on fixed prior standard deviations for leading  parameters $MSY$ 
+and $U_{MSY}$, and the hierarchical shrinkage prior SDs $\tau_q$ and
+$\sigma_{U_{MSY}}$ (Table 4). Sensitivity of performance to future 
+increases in fishery independent survey precision were tested, where 
+the Synoptic survey observation error variance was reduced with a 
+linear ramp-down over the first 5 years of the projection period to 
+simulate increasing investment.
 
 

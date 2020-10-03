@@ -9,22 +9,27 @@ library(parallel)
 source("ms3R.r")
 source("makeResultPlots.R")
 
-batchControlFiles <- c( "omniRuns_econYield.bch" )
+batchControlFiles <- c( "sensRuns_MSYCV.bch",
+                        "sensRuns_hierSD.bch",
+                        "sensRuns_obsErr.bch",
+                        "sensRuns_UmsyCV.bch", )
                        
 nBatchJobs <- length( batchControlFiles )
 
 
-baseControlFiles  <- c( "simCtlFileBase.txt")
+baseControlFiles  <- rep( "simCtlFileBase.txt",4)
                         
 
-prefixes       <- c(  "omni_econYield" )
+prefixes       <- c(  "sens_MSYCV",
+                      "sens_hierSD",
+                      "sens_projObsErr",
+                      "sens_UmsySD" )
 
-saveDirName       <- c( "omni_econYield" )
+saveDirName       <- prefixes
 
-baseLine <- c( NULL,NULL )
+baseLine <- c( NULL,NULL,NULL,NULL )
                         
-nCores  <- rep(detectCores()-1, nBatchJobs)
-
+nCores <- rep(23,4)
 
 # Create a directory to hold completed mseR batch
 # jobs
@@ -86,7 +91,7 @@ for( bIdx in 1:nBatchJobs )
   fs::dir_delete(oldPath)
 
   # Run makeResultsPlots
-  makeResultPlots(saveDirName[bIdx])
+  # makeResultPlots(saveDirName[bIdx])
 
   
   message(  "Parallel batch complete for ",

@@ -380,6 +380,111 @@ maxWhich <- function( vector )
   idx
 }
 
+# makePairedLossRankTable()
+# Runs calcLossRank for abs and rel bio and catch
+# then summarises the mean (min, max) rank for all
+# four into a single table
+makePairedLossRankTable <- function(  groupFolder = "DERTACS_reruns_sep24",
+                                      prefix = "parBat",
+                                      period = 73:82,
+                                      clearBadReps = TRUE,
+                                      minSampSize = 100,
+                                      nGoodReps = 100,
+                                      dim1 = 1:3,
+                                      dim2 = 1:3,
+                                      var = "C_ispt",
+                                      lossType = "abs",
+                                      AMlabs = rev(c( SS = "singleStock",
+                                                      HMS = "hierMultiStock",
+                                                      SpecPool = "speciesPooling",
+                                                      SpatPool = "spatialPooling",
+                                                      TotPool = "totalAgg" ) ),
+                                      scenLabs = c( Rich  = "DERfit_HcMcAsSsIdx",
+                                                    Mod  = "DERfit_McAsSsIdx",
+                                                    Poor = "DERfit_AsSsIdx" ) )
+{
+  # First, calculate the paired loss ranks
+  rankArray_SAisp <- calcPairedLossRank(  groupFolder = groupFolder,
+                                          lossVar = var,
+                                          lossType = lossType,
+                                          prefix = prefix,
+                                          period = period,
+                                          clearBadReps = clearBadReps,
+                                          minSampSize = minSampSize )
+  goodReps_SAisp <- attr(rankArray_SAisp,"conv")[scenLabs,,,,,drop = FALSE]
+  
+  # Cut down to scenarios we want
+  rankArray_SAisp <- rankArray_SAisp[scenLabs,,,,,drop = FALSE]
+  goodReps_SAisp <- goodReps_SAisp[scenLabs,,,,,drop = FALSE]
+
+  nScen <- length(scenLabs)
+  nAM   <- length(AMlabs)
+  nS    <- length(dim1)
+  nP    <- length(dim2)
+
+
+  if( clearBadReps )
+  {
+    nGood_SAsp <- apply( X = goodReps_SAisp, FUN = sum, MARGIN = c(1,2,4,5),
+                          na.rm = T )
+
+    badRuns_arr.ind <-  which(nGood_SAsp < minSampSize, arr.ind = TRUE )
+
+    if( nrow(badRuns_arr.ind) > 0 )
+      for( j in 1:nrow(badRuns_arr.ind))
+      {
+        ind <- badRuns_arr.ind[j,]
+        # Remove the species and stock results from all AMs - replace goodReps with TRUE
+        # as the NAs in rank will be removed later
+        goodReps_SAisp[,,,ind[3],ind[4]] <- TRUE
+        rankArray_SAisp[,,,ind[3],ind[4]] <- NA
+      }
+
+    # Ok, now  we want to calculate the largest number of reps we have available
+    goodReps_SAi <- apply(X = goodReps_SAisp, FUN = prod, MARGIN = c(1,2,3), na.rm = T)
+    goodReps_Si <- apply(X = goodReps_SAi, FUN = prod, MARGIN = c(1,3))
+
+    goodReps_i <- apply(X = goodReps_SAisp, FUN = prod, MARGIN = 3)
+
+    goodIdx <- which(goodReps_i == 1)
+
+    if( length(goodIdx) > nGoodReps)
+      goodIdx <- goodIdx[1:nGoodReps]
+
+    
+    goodReps_SAisp  <- goodReps_SAisp[,,goodIdx,,]
+    goodReps_SAi    <- goodReps_SAi[,,goodIdx]
+    rankArray_SAisp <- rankArray_SAisp[,,goodIdx,,]
+
+  }
+
+  dimnames(rankArray_SAisp)[[1]] <- names(scenLabs)
+
+
+  rank.df <- reshape2::melt(rankArray_SAisp) %>%
+              filter(!is.na(value)) %>%
+              rename(rank = value )
+              
+
+  rankSummary.df <- rank.df %>%
+                    group_by(scenario, AM, rank) %>%
+                    summarise( nRuns = n() ) %>%
+                    mutate( rankProp = nRuns / sum(nRuns) ) %>%
+                    summarise( modalRank = which.max(rankProp),
+                                avgRank = sum(rankProp * rank) ) %>%
+                    ungroup()
+
+  tabList <- list(  rank.df = rank.df,
+                    rankSummary.df = rankSummary.df )
+
+  fullRankFilename <- paste("fullRankTable_",lossType,var,".csv", sep = "")
+  summRankFilename <- paste("summRankTable_",lossType,var,".csv", sep = "")
+  write.csv( rank.df, file = file.path(here::here("Outputs",groupFolder,fullRankFilename)))
+  write.csv( rankSummary.df, file = file.path(here::here("Outputs",groupFolder,summRankFilename)))
+
+  return(tabList)
+} # END makePairedLossRankTable()
+
 # makeLossRankTable()
 # Runs calcLossRank for abs and rel bio and catch
 # then summarises the mean (min, max) rank for all
@@ -987,7 +1092,7 @@ calcPairedLossRank <- function( groupFolder = "DERTACS_reruns_sep24",
                             MARGIN = c(1,3,4,5) )
 
   rankArray_SAisp <- aperm(rankArray_ASisp,c(2,1,3,4,5))
-  dimnames( rankArray_ASisp ) <- dimnames( totLossArray_SAisp )
+  dimnames( rankArray_SAisp ) <- dimnames( totLossArray_SAisp )
 
   attr(rankArray_SAisp,"conv") <- goodReps_SAisp
 
