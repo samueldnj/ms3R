@@ -1,0 +1,267 @@
+# Batch Control File, created Fri May  8 13:36:21 2020 by makeBatchDesign() 
+parameter value
+#
+# Scenarios 
+#
+# Scenario 1 : 'Rich_BmsyCV0.1'
+#
+scenario$scenario1$ctl$scenarioName 'Rich_BmsyCV0.1'
+scenario$scenario1$opMod$pT 32
+scenario$scenario1$ctl$nGoodReps 50
+scenario$scenario1$ctl$totReps 70
+scenario$scenario1$mp$assess$spFleets c(1,2,3,4)
+scenario$scenario1$mp$assess$spLateStart FALSE
+scenario$scenario1$mp$assess$spCVMSY .1
+#
+# Scenario 4 : 'Poor_BmsyCV0.1'
+#
+scenario$scenario2$ctl$scenarioName 'Poor_BmsyCV0.1'
+scenario$scenario2$opMod$pT 32
+scenario$scenario2$ctl$nGoodReps 50
+scenario$scenario2$ctl$totReps 70
+scenario$scenario2$mp$assess$spFleets c(3,4)
+scenario$scenario2$mp$assess$spLateStart TRUE
+scenario$scenario2$mp$assess$spCVMSY .1
+#
+# Scenario 1 : 'Rich_BmsyCV0.5'
+#
+scenario$scenario3$ctl$scenarioName 'Rich_BmsyCV0.5'
+scenario$scenario3$opMod$pT 32
+scenario$scenario3$ctl$nGoodReps 50
+scenario$scenario3$ctl$totReps 70
+scenario$scenario3$mp$assess$spFleets c(1,2,3,4)
+scenario$scenario3$mp$assess$spLateStart FALSE
+scenario$scenario3$mp$assess$spCVMSY .5
+#
+# Scenario 4 : 'Poor_BmsyCV0.5'
+#
+scenario$scenario4$ctl$scenarioName 'Poor_BmsyCV0.5'
+scenario$scenario4$opMod$pT 32
+scenario$scenario4$ctl$nGoodReps 50
+scenario$scenario4$ctl$totReps 70
+scenario$scenario4$mp$assess$spFleets c(3,4)
+scenario$scenario4$mp$assess$spLateStart TRUE
+scenario$scenario4$mp$assess$spCVMSY .5
+#
+# Scenario 1 : 'Rich_BmsyCV1.0'
+#
+scenario$scenario5$ctl$scenarioName 'Rich_BmsyCV1.0'
+scenario$scenario5$opMod$pT 32
+scenario$scenario5$ctl$nGoodReps 50
+scenario$scenario5$ctl$totReps 70
+scenario$scenario5$mp$assess$spFleets c(1,2,3,4)
+scenario$scenario5$mp$assess$spLateStart FALSE
+scenario$scenario5$mp$assess$spCVMSY 1.0
+#
+# Scenario 4 : 'Poor_BmsyCV1.0'
+#
+scenario$scenario6$ctl$scenarioName 'Poor_BmsyCV1.0'
+scenario$scenario6$opMod$pT 32
+scenario$scenario6$ctl$nGoodReps 50
+scenario$scenario6$ctl$totReps 70
+scenario$scenario6$mp$assess$spFleets c(3,4)
+scenario$scenario6$mp$assess$spLateStart TRUE
+scenario$scenario6$mp$assess$spCVMSY 1.0
+#
+#
+#
+# Management Procedures 
+#
+# MP 1 : singleStock_omF_MSrefPts
+#
+mp$mp1$ctl$mpName 'singleStock_omF_MSrefPts'
+mp$mp1$mp$hcr$Fsource 'om'
+mp$mp1$mp$hcr$refPtType 'MS'
+mp$mp1$mp$data$spatialPooling FALSE
+mp$mp1$mp$data$speciesPooling FALSE
+mp$mp1$mp$assess$spSingleStock TRUE
+mp$mp1$mp$assess$spYrFirstIdx 20
+mp$mp1$mp$assess$spTVqFleets NULL
+mp$mp1$mp$assess$spShrinkqFleets NULL
+mp$mp1$mp$assess$spCondMLEqFleets NULL
+mp$mp1$mp$assess$spCondMLEobsErrFleets NULL
+mp$mp1$mp$assess$spFleetWeights c(1.0,1.0,1.0,1.0)
+mp$mp1$mp$assess$spsigmaProc .05
+mp$mp1$mp$assess$spsdUmsy .3
+mp$mp1$mp$assess$spsdlnq_f c(10,1,.5,.25)
+mp$mp1$mp$assess$sptauObs_spf .3
+mp$mp1$mp$assess$spInitPE 25
+mp$mp1$mp$assess$spRE c('zetaspt_vec')
+mp$mp1$mp$assess$spPhzUmsy 3
+mp$mp1$mp$assess$spPhzepslnUmsy_s -5
+mp$mp1$mp$assess$spPhzepslnUmsy_sp -7
+mp$mp1$mp$assess$spPhzdeltalnq_spf -6
+mp$mp1$mp$assess$spPhzdeltalnq_sf -4
+mp$mp1$mp$assess$spPhzMSY 1
+mp$mp1$mp$assess$spPhzlnBinit 2
+mp$mp1$mp$assess$spPhzlnqShrink -1
+mp$mp1$mp$assess$spPhzlnqFree 1
+mp$mp1$mp$assess$spPhzTVq 1
+mp$mp1$mp$assess$spPhzProcErr -4
+mp$mp1$mp$assess$spPhzSigmaProc -3
+mp$mp1$mp$assess$spPhztauObs 3
+mp$mp1$mp$assess$spIGtau2alpha 10
+mp$mp1$mp$assess$spIGtau2Mode 0.2
+mp$mp1$mp$assess$spSkewYieldCurves TRUE
+#
+# MP 2 : hierMultiStock_omF_MSrefPts
+#
+mp$mp2$ctl$mpName 'hierMultiStock_omF_MSrefPts'
+mp$mp2$mp$hcr$Fsource 'om'
+mp$mp2$mp$hcr$refPtType 'MS'
+mp$mp2$mp$data$spatialPooling FALSE
+mp$mp2$mp$data$speciesPooling FALSE
+mp$mp2$mp$assess$spSingleStock FALSE
+mp$mp2$mp$assess$sptauq .05
+mp$mp2$mp$assess$spsigU .05
+mp$mp2$mp$assess$spFleetWeights c(1.0,1.0,1.0,1.0)
+mp$mp2$mp$assess$spShrinkqFleets c(3,4)
+mp$mp2$mp$assess$spYrFirstIdx 20
+mp$mp2$mp$assess$spsigmaProc .05
+mp$mp2$mp$assess$spsdUmsy .3
+mp$mp2$mp$assess$spsdlnq_f c(10,1,.5,.25)
+mp$mp2$mp$assess$sptauObs_spf .3
+mp$mp2$mp$assess$spInitPE 25
+mp$mp2$mp$assess$spRE c('zetaspt_vec')
+mp$mp2$mp$assess$spPhzUmsy 3
+mp$mp2$mp$assess$spPhzepslnUmsy_s 6
+mp$mp2$mp$assess$spPhzepslnUmsy_sp 8
+mp$mp2$mp$assess$spPhzdeltalnq_spf 7
+mp$mp2$mp$assess$spPhzdeltalnq_sf 5
+mp$mp2$mp$assess$spPhzMSY 2
+mp$mp2$mp$assess$spPhzlnBinit 2
+mp$mp2$mp$assess$spPhzlnqShrink 1
+mp$mp2$mp$assess$spPhzlnqFree 1
+mp$mp2$mp$assess$spPhzTVq 1
+mp$mp2$mp$assess$spPhzProcErr 4
+mp$mp2$mp$assess$spPhzSigmaProc -3
+mp$mp2$mp$assess$spPhztauObs 1
+mp$mp2$mp$assess$spIGtau2alpha 10
+mp$mp2$mp$assess$spIGtau2Mode 0.2
+mp$mp2$mp$assess$spSkewYieldCurves TRUE
+#
+# MP 3 : speciesPooling_omF_MSrefPts
+#
+mp$mp3$ctl$mpName 'speciesPooling_omF_MSrefPts'
+mp$mp3$mp$hcr$Fsource 'om'
+mp$mp3$mp$hcr$refPtType 'MS'
+mp$mp3$mp$data$spatialPooling FALSE
+mp$mp3$mp$data$speciesPooling TRUE
+mp$mp3$mp$assess$spSingleStock TRUE
+mp$mp3$mp$assess$spPosPenFactor 1e3
+mp$mp3$mp$assess$spFleetWeights c(1,1,1.0,1.0)
+mp$mp3$mp$assess$spShrinkqFleets NULL
+mp$mp3$mp$assess$spYrFirstIdx 20
+mp$mp3$mp$assess$spTVqFleets NULL
+mp$mp3$mp$assess$spCondMLEqFleets NULL
+mp$mp3$mp$assess$spCondMLEobsErrFleets NULL
+mp$mp3$mp$assess$spSolveInitBio FALSE
+mp$mp3$mp$assess$spLateStart FALSE
+mp$mp3$mp$assess$spsigmaProc .05
+mp$mp3$mp$assess$sptauqdev .1
+mp$mp3$mp$assess$spsdUmsy .3
+mp$mp3$mp$assess$spsdlnq_f c(10,1,1,.5)
+mp$mp3$mp$assess$sptauObs_spf .2
+mp$mp3$mp$assess$spInitPE 25
+mp$mp3$mp$assess$spRE c('zetaspt_vec')
+mp$mp3$mp$assess$spPhzUmsy 3
+mp$mp3$mp$assess$spPhzepslnUmsy_s -6
+mp$mp3$mp$assess$spPhzepslnUmsy_sp -8
+mp$mp3$mp$assess$spPhzdeltalnq_spf -7
+mp$mp3$mp$assess$spPhzdeltalnq_sf -5
+mp$mp3$mp$assess$spPhzMSY 2
+mp$mp3$mp$assess$spPhzlnBinit 2
+mp$mp3$mp$assess$spPhzlnqShrink 1
+mp$mp3$mp$assess$spPhzlnqFree 1
+mp$mp3$mp$assess$spPhzTVq 1
+mp$mp3$mp$assess$spPhzProcErr 4
+mp$mp3$mp$assess$spPhzSigmaProc -3
+mp$mp3$mp$assess$spPhztauObs 3
+mp$mp3$mp$assess$spIGtau2alpha 10
+mp$mp3$mp$assess$spIGtau2Mode 0.2
+mp$mp3$mp$assess$spSkewYieldCurves TRUE
+#
+# MP 4 : spatialPooling_omF_MSrefPts
+#
+mp$mp4$ctl$mpName 'spatialPooling_omF_MSrefPts'
+mp$mp4$mp$hcr$Fsource 'om'
+mp$mp4$mp$hcr$refPtType 'MS'
+mp$mp4$mp$data$spatialPooling TRUE
+mp$mp4$mp$data$speciesPooling FALSE
+mp$mp4$mp$assess$spSingleStock FALSE
+mp$mp4$mp$assess$spPosPenFactor 1e3
+mp$mp4$mp$assess$spFleetWeights c(1,1,1.0,1.0)
+mp$mp4$mp$assess$spShrinkqFleets NULL
+mp$mp4$mp$assess$spYrFirstIdx 20
+mp$mp4$mp$assess$spTVqFleets NULL
+mp$mp4$mp$assess$spCondMLEqFleets NULL
+mp$mp4$mp$assess$spCondMLEobsErrFleets NULL
+mp$mp4$mp$assess$spSolveInitBio FALSE
+mp$mp4$mp$assess$spLateStart FALSE
+mp$mp4$mp$assess$spsigmaProc .05
+mp$mp4$mp$assess$sptauqdev .1
+mp$mp4$mp$assess$spsdUmsy .3
+mp$mp4$mp$assess$spsdlnq_f c(10,1,1,.5)
+mp$mp4$mp$assess$sptauObs_spf .2
+mp$mp4$mp$assess$spInitPE 25
+mp$mp4$mp$assess$spRE c('zetaspt_vec')
+mp$mp4$mp$assess$spPhzepslnUmsy_s -6
+mp$mp4$mp$assess$spPhzepslnUmsy_sp -8
+mp$mp4$mp$assess$spPhzdeltalnq_spf -7
+mp$mp4$mp$assess$spPhzdeltalnq_sf -5
+mp$mp4$mp$assess$spPhzUmsy 3
+mp$mp4$mp$assess$spPhzMSY 2
+mp$mp4$mp$assess$spPhzlnBinit 2
+mp$mp4$mp$assess$spPhzlnqShrink 1
+mp$mp4$mp$assess$spPhzlnqFree 1
+mp$mp4$mp$assess$spPhzTVq 1
+mp$mp4$mp$assess$spPhzProcErr 4
+mp$mp4$mp$assess$spPhzSigmaProc -3
+mp$mp4$mp$assess$spPhztauObs 3
+mp$mp4$mp$assess$spIGtau2alpha 10
+mp$mp4$mp$assess$spIGtau2Mode 0.2
+mp$mp4$mp$assess$spSkewYieldCurves TRUE
+#
+# MP 5 : totalAgg_omF_MSrefPts
+#
+mp$mp5$ctl$mpName 'totalAgg_omF_MSrefPts'
+mp$mp5$mp$hcr$Fsource 'om'
+mp$mp5$mp$hcr$refPtType 'MS'
+mp$mp5$mp$data$spatialPooling TRUE
+mp$mp5$mp$data$speciesPooling TRUE
+mp$mp5$mp$assess$spSingleStock TRUE
+mp$mp5$mp$assess$spPosPenFactor 1e3
+mp$mp5$mp$assess$spFleetWeights c(1,1,1.0,1.0)
+mp$mp5$mp$assess$spShrinkqFleets NULL
+mp$mp5$mp$assess$spYrFirstIdx 20
+mp$mp5$mp$assess$spTVqFleets NULL
+mp$mp5$mp$assess$spCondMLEqFleets NULL
+mp$mp5$mp$assess$spCondMLEobsErrFleets NULL
+mp$mp5$mp$assess$spSolveInitBio FALSE
+mp$mp5$mp$assess$spLateStart FALSE
+mp$mp5$mp$assess$spsigmaProc .05
+mp$mp5$mp$assess$sptauqdev .1
+mp$mp5$mp$assess$spsdUmsy .3
+mp$mp5$mp$assess$spsdlnq_f c(10,1,1,.5)
+mp$mp5$mp$assess$sptauObs_spf .2
+mp$mp5$mp$assess$spInitPE 25
+mp$mp5$mp$assess$spRE c('zetaspt_vec')
+mp$mp5$mp$assess$spPhzUmsy 3
+mp$mp5$mp$assess$spPhzepslnUmsy_s -6
+mp$mp5$mp$assess$spPhzepslnUmsy_sp -8
+mp$mp5$mp$assess$spPhzdeltalnq_spf -7
+mp$mp5$mp$assess$spPhzdeltalnq_sf -5
+mp$mp5$mp$assess$spPhzMSY 2
+mp$mp5$mp$assess$spPhzlnBinit 2
+mp$mp5$mp$assess$spPhzlnqShrink 1
+mp$mp5$mp$assess$spPhzlnqFree 1
+mp$mp5$mp$assess$spPhzTVq 1
+mp$mp5$mp$assess$spPhzProcErr 4
+mp$mp5$mp$assess$spPhzSigmaProc -3
+mp$mp5$mp$assess$spPhztauObs 3
+mp$mp5$mp$assess$spIGtau2alpha 10
+mp$mp5$mp$assess$spIGtau2Mode 0.2
+mp$mp5$mp$assess$spSkewYieldCurves TRUE
+#
+#
+# <End File> 
