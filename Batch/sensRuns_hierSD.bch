@@ -76,8 +76,9 @@ scenario$scenario6$mp$assess$spsigU .5
 # MP 2 : hierMultiStock_omF_MSrefPts
 #
 mp$mp1$ctl$mpName 'hierMultiStock_omF_MSrefPts'
-mp$mp1$mp$hcr$Fsource 'om'
+mp$mp1$mp$hcr$Fsource 'est'
 mp$mp1$mp$hcr$refPtType 'MS'
+mp$mp1$mp$hcr$scaleFrefMS TRUE
 mp$mp1$mp$data$spatialPooling FALSE
 mp$mp1$mp$data$speciesPooling FALSE
 mp$mp1$mp$assess$spSingleStock FALSE
@@ -90,7 +91,6 @@ mp$mp1$mp$assess$spCVMSY .2
 mp$mp1$mp$assess$spsdlnq_f c(10,1,.5,.25)
 mp$mp1$mp$assess$sptauObs_spf .3
 mp$mp1$mp$assess$spInitPE 25
-mp$mp1$mp$assess$spRE c('zetaspt_vec')
 mp$mp1$mp$assess$spPhzUmsy 3
 mp$mp1$mp$assess$spPhzepslnUmsy_s 6
 mp$mp1$mp$assess$spPhzepslnUmsy_sp 8
@@ -104,8 +104,8 @@ mp$mp1$mp$assess$spPhzTVq 1
 mp$mp1$mp$assess$spPhzProcErr 4
 mp$mp1$mp$assess$spPhzSigmaProc -3
 mp$mp1$mp$assess$spPhztauObs 1
-mp$mp1$mp$assess$spIGtau2alpha 1
-mp$mp1$mp$assess$spIGtau2Mode 0.25
+mp$mp1$mp$assess$spIGtau2alpha 10
+mp$mp1$mp$assess$spIGtau2Mode 0.2
 mp$mp1$mp$assess$spSkewYieldCurves TRUE
 #
 # <End File> 

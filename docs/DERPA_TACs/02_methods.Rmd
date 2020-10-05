@@ -495,11 +495,21 @@ an OM/AM combination.
 #### Biomass risk
 
 Biomass risk was measured by the probability of stock biomass being below
-40\% of single-species $B_{MSY,SS,s,p}$. As outlined above, 40\% of 
-$B_{MSY}$ is commonly suggested as a limit reference point for Canadian 
-fisheries, below which a stock may be considered critically overfished as 
-recruitment may become impaired and rebuilding may be 
-required [@DFO2006A-Harvest-Strat].
+both 80\% and 40\% of single-species $B_{MSY,SS,s,p}$. As outlined above, 
+40\% of $B_{MSY}$ is commonly suggested as a limit reference point for 
+Canadian fisheries, below which a stock may be considered critically 
+overfished as recruitment may become impaired and rebuilding may be 
+required [@DFO2006A-Harvest-Strat], while 80\% of $B_{MSY,SS}$ is
+generally considered where a fish stock transitions from an optimally 
+fished state to an overfished state. For both biomass levels, the
+probability was calculated as
+\[
+P(B_{s,p,t} < 0.4 B_{MSY,SS,s,p} ) = \frac{1}{3200} \sum_{i = 1}^{100}\sum_{t = 2016}^{2047} \mathbb{1}(B_{i,s,p,t} < \lambda B_{MSY,SS,s,p})
+\] 
+where $i,s,p,t$ are replicates, species, stocks and time steps, 
+respectively, $\lambda = 0.4,0.8$, and $\mathbb{1}$ is the indicator
+function that takes value $1$ when its argument is true, and zero
+otherwise.
 
 Biomass loss was also calculated, but ultimately it was not reported. 
 Inferences about assessment method performance in preliminary 

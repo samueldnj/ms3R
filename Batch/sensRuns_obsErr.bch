@@ -70,8 +70,9 @@ scenario$scenario6$opMod$projObsErrMult 1.0
 # MP 1 : singleStock_omF_MSrefPts
 #
 mp$mp1$ctl$mpName 'singleStock_omF_MSrefPts'
-mp$mp1$mp$hcr$Fsource 'om'
+mp$mp1$mp$hcr$Fsource 'est'
 mp$mp1$mp$hcr$refPtType 'MS'
+mp$mp1$mp$hcr$scaleFrefMS TRUE
 mp$mp1$mp$data$spatialPooling FALSE
 mp$mp1$mp$data$speciesPooling FALSE
 mp$mp1$mp$assess$spSingleStock TRUE
@@ -83,10 +84,10 @@ mp$mp1$mp$assess$spCondMLEobsErrFleets NULL
 mp$mp1$mp$assess$spFleetWeights c(1.0,1.0,1.0,1.0)
 mp$mp1$mp$assess$spsigmaProc .05
 mp$mp1$mp$assess$spsdUmsy .3
+mp$mp1$mp$assess$spCVMSY .2
 mp$mp1$mp$assess$spsdlnq_f c(10,1,.5,.25)
 mp$mp1$mp$assess$sptauObs_spf .3
 mp$mp1$mp$assess$spInitPE 25
-mp$mp1$mp$assess$spRE c('zetaspt_vec')
 mp$mp1$mp$assess$spPhzUmsy 3
 mp$mp1$mp$assess$spPhzepslnUmsy_s -5
 mp$mp1$mp$assess$spPhzepslnUmsy_sp -7
@@ -107,22 +108,23 @@ mp$mp1$mp$assess$spSkewYieldCurves TRUE
 # MP 2 : hierMultiStock_omF_MSrefPts
 #
 mp$mp2$ctl$mpName 'hierMultiStock_omF_MSrefPts'
-mp$mp2$mp$hcr$Fsource 'om'
+mp$mp2$mp$hcr$Fsource 'est'
 mp$mp2$mp$hcr$refPtType 'MS'
+mp$mp2$mp$hcr$scaleFrefMS TRUE
 mp$mp2$mp$data$spatialPooling FALSE
 mp$mp2$mp$data$speciesPooling FALSE
 mp$mp2$mp$assess$spSingleStock FALSE
-mp$mp2$mp$assess$sptauq .05
-mp$mp2$mp$assess$spsigU .05
+mp$mp2$mp$assess$sptauq .4
+mp$mp2$mp$assess$spsigU .1
 mp$mp2$mp$assess$spFleetWeights c(1.0,1.0,1.0,1.0)
 mp$mp2$mp$assess$spShrinkqFleets c(3,4)
 mp$mp2$mp$assess$spYrFirstIdx 20
 mp$mp2$mp$assess$spsigmaProc .05
 mp$mp2$mp$assess$spsdUmsy .3
+mp$mp2$mp$assess$spCVMSY .2
 mp$mp2$mp$assess$spsdlnq_f c(10,1,.5,.25)
 mp$mp2$mp$assess$sptauObs_spf .3
 mp$mp2$mp$assess$spInitPE 25
-mp$mp2$mp$assess$spRE c('zetaspt_vec')
 mp$mp2$mp$assess$spPhzUmsy 3
 mp$mp2$mp$assess$spPhzepslnUmsy_s 6
 mp$mp2$mp$assess$spPhzepslnUmsy_sp 8
@@ -143,8 +145,9 @@ mp$mp2$mp$assess$spSkewYieldCurves TRUE
 # MP 3 : speciesPooling_omF_MSrefPts
 #
 mp$mp3$ctl$mpName 'speciesPooling_omF_MSrefPts'
-mp$mp3$mp$hcr$Fsource 'om'
+mp$mp3$mp$hcr$Fsource 'est'
 mp$mp3$mp$hcr$refPtType 'MS'
+mp$mp3$mp$hcr$scaleFrefMS TRUE
 mp$mp3$mp$data$spatialPooling FALSE
 mp$mp3$mp$data$speciesPooling TRUE
 mp$mp3$mp$assess$spSingleStock TRUE
@@ -160,10 +163,10 @@ mp$mp3$mp$assess$spLateStart FALSE
 mp$mp3$mp$assess$spsigmaProc .05
 mp$mp3$mp$assess$sptauqdev .1
 mp$mp3$mp$assess$spsdUmsy .3
+mp$mp3$mp$assess$spCVMSY .2
 mp$mp3$mp$assess$spsdlnq_f c(10,1,1,.5)
 mp$mp3$mp$assess$sptauObs_spf .2
 mp$mp3$mp$assess$spInitPE 25
-mp$mp3$mp$assess$spRE c('zetaspt_vec')
 mp$mp3$mp$assess$spPhzUmsy 3
 mp$mp3$mp$assess$spPhzepslnUmsy_s -6
 mp$mp3$mp$assess$spPhzepslnUmsy_sp -8
@@ -184,11 +187,12 @@ mp$mp3$mp$assess$spSkewYieldCurves TRUE
 # MP 4 : spatialPooling_omF_MSrefPts
 #
 mp$mp4$ctl$mpName 'spatialPooling_omF_MSrefPts'
-mp$mp4$mp$hcr$Fsource 'om'
+mp$mp4$mp$hcr$Fsource 'est'
 mp$mp4$mp$hcr$refPtType 'MS'
+mp$mp4$mp$hcr$scaleFrefMS TRUE
 mp$mp4$mp$data$spatialPooling TRUE
 mp$mp4$mp$data$speciesPooling FALSE
-mp$mp4$mp$assess$spSingleStock FALSE
+mp$mp4$mp$assess$spSingleStock TRUE
 mp$mp4$mp$assess$spPosPenFactor 1e3
 mp$mp4$mp$assess$spFleetWeights c(1,1,1.0,1.0)
 mp$mp4$mp$assess$spShrinkqFleets NULL
@@ -201,10 +205,10 @@ mp$mp4$mp$assess$spLateStart FALSE
 mp$mp4$mp$assess$spsigmaProc .05
 mp$mp4$mp$assess$sptauqdev .1
 mp$mp4$mp$assess$spsdUmsy .3
+mp$mp4$mp$assess$spCVMSY .2
 mp$mp4$mp$assess$spsdlnq_f c(10,1,1,.5)
 mp$mp4$mp$assess$sptauObs_spf .2
 mp$mp4$mp$assess$spInitPE 25
-mp$mp4$mp$assess$spRE c('zetaspt_vec')
 mp$mp4$mp$assess$spPhzepslnUmsy_s -6
 mp$mp4$mp$assess$spPhzepslnUmsy_sp -8
 mp$mp4$mp$assess$spPhzdeltalnq_spf -7
@@ -225,8 +229,9 @@ mp$mp4$mp$assess$spSkewYieldCurves TRUE
 # MP 5 : totalAgg_omF_MSrefPts
 #
 mp$mp5$ctl$mpName 'totalAgg_omF_MSrefPts'
-mp$mp5$mp$hcr$Fsource 'om'
+mp$mp5$mp$hcr$Fsource 'est'
 mp$mp5$mp$hcr$refPtType 'MS'
+mp$mp5$mp$hcr$scaleFrefMS TRUE
 mp$mp5$mp$data$spatialPooling TRUE
 mp$mp5$mp$data$speciesPooling TRUE
 mp$mp5$mp$assess$spSingleStock TRUE
@@ -242,10 +247,10 @@ mp$mp5$mp$assess$spLateStart FALSE
 mp$mp5$mp$assess$spsigmaProc .05
 mp$mp5$mp$assess$sptauqdev .1
 mp$mp5$mp$assess$spsdUmsy .3
+mp$mp5$mp$assess$spCVMSY .2
 mp$mp5$mp$assess$spsdlnq_f c(10,1,1,.5)
 mp$mp5$mp$assess$sptauObs_spf .2
 mp$mp5$mp$assess$spInitPE 25
-mp$mp5$mp$assess$spRE c('zetaspt_vec')
 mp$mp5$mp$assess$spPhzUmsy 3
 mp$mp5$mp$assess$spPhzepslnUmsy_s -6
 mp$mp5$mp$assess$spPhzepslnUmsy_sp -8

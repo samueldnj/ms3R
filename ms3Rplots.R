@@ -675,8 +675,6 @@ plotBatchCatchBioTradeoff <- function(  groupFolder = "DERTACS_reruns_sep24",
   nPP <- length(dim2)
   nSS <- length(dim1)
 
-  browser()
-
   # Now plot
   par(  mfcol = c(nPP,nSS),
         mar = c(2,2,1,1),

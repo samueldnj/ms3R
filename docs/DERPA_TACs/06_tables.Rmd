@@ -54,10 +54,6 @@ and depletion levels and harvest rates are unitless."
 expDesignTableCap <- "Summary of OM scenario and AM structure factors 
 in the experimental design for the simulation experiments."
 
-AMpriorTableCap <- "Prior distributions used for each assessment
-model. For single stock and hierarchical multi-stock assesssment
-models, $s_f$ is 1 for commercial indices, and 0.5 for survey
-indices."
 
 sensRunTableCap   <- "Summary of sensitivity analyses, showing
 the total number of experiments, the factor being varied, the
@@ -79,12 +75,13 @@ component stock, and operating model $U_{MSY}$ was found by pooling
 single-species maximum yield, and taking the ratio of pooled yield
 and biomass."
 
-lossRankTabCap <- "Summary of AM rankings with respect to cumulative
-absolute catch loss between 2026 and 2035 under each scenario. The
-rank column shows the average rank of the AMs over all species/areas,
-and the range of that distribution in parentheses. AMs are ordered by
-mean rank within a scenario."
-
+lossRankTabCap <- "Summary of AM catch loss rankings and biomass risk
+under each scenario. The catch loss rankings show the modal and average 
+ranks, calculated across replicates, species, and stocks. Biomass risk 
+columns show the average probability, with range in parentheses, of stocks 
+being in a critically overfished (i.e. below $0.4B_{MSY,SS}$) or overfished 
+(i.e., below $0.8 B_{MSY,SS}$) state, calculated across species and stocks. 
+Within a scenario, AMs are ordered by average rank."
 
 ```
 
@@ -283,6 +280,17 @@ scenLabs <- c(  "DERfit_HcMcAsSsIdx" = "Rich",
                 "DERfit_AsSsIdx"  = "Poor")
 
 summRank.df <- lossRankTables$rankSummary.df
+
+probOverfishingTable <- calcProbOverfished(  params$groupFolder, 
+                                              prefix = "parBat" ) %>%
+                        mutate( scenario = str_replace_all(scenario, scenLabs)) %>%
+                        filter( scenario %in% scenLabs)
+
+summRank.df <- summRank.df %>% 
+                left_join( probOverfishingTable ) %>%
+                mutate( probCrit = paste( sprintf("%.2f",pBtLt.4Bmsy), " (", sprintf("%.2f",minProbBtLt.4Bmsy), ", ", sprintf("%.2f",maxProbBtLt.4Bmsy),  ")", sep = ""),
+                        probCaut = paste( sprintf("%.2f",pBtLt.8Bmsy), " (", sprintf("%.2f",minProbBtLt.8Bmsy), ", ", sprintf("%.2f",maxProbBtLt.8Bmsy), ")", sep = "") )
+
 fullRank.df <- lossRankTables$rank.df %>%
                 mutate( AM = str_replace_all(AM, AMlabs))
 
@@ -297,7 +305,7 @@ lossRankTable <- summRank.df %>%
                   filter( scenario %in% c("Rich","Mod","Poor")) %>%
                   arrange(match(scenario, c("Rich", "Mod", "Poor")),
                             avgRank) %>%
-                  dplyr::select( scenario, AM, modalRank, avgRank ) 
+                  dplyr::select( scenario, AM, modalRank, avgRank, probCrit, probCaut ) 
 
 rankList <- vector(mode = "list", length = nrow(lossRankTable))
 for(k in 1:nrow(lossRankTable))
@@ -311,17 +319,22 @@ for(k in 1:nrow(lossRankTable))
 
 
 colnames(lossRankTable) <- c( "Scenario","AM",
-                              "Modal Rank", "Average Rank")
+                              "Modal Rank", "Average Rank", 
+                              "$P(B_t < 0.4 B_{MSY,SS})$",
+                              "$P(B_t < 0.8 B_{MSY,SS})$")
 
 
 kable(  lossRankTable[,-1], escape = FALSE, 
         caption = lossRankTabCap, booktabs = T,
-        align = c("l","c","c") ) %>%
+        align = c("l","c","c","c","c") ) %>%
   kable_styling(latex_options = c( "hold_position"),
                 bootstrap_options = c("striped", "hover")) %>%
   pack_rows( "Rich",1,5 ) %>%
   pack_rows( "Mod",6,10 ) %>%
-  pack_rows( "Poor",11,15 ) 
+  pack_rows( "Poor",11,15 ) %>%
+  add_header_above( c(" " = 1,
+                      "Catch Loss Rankings" = 2,
+                      "Biomass risk" = 2 ) )
 ```
 
 \clearpage

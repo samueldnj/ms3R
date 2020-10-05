@@ -103,6 +103,7 @@ output:
 header-includes:
   - \usepackage{lscape}
   - \usepackage{pdflscape}
+  - \usepackage{bbold}
   - \newcommand{\blandscape}{\begin{landscape}}
   - \newcommand{\elandscape}{\end{landscape}}
   - \DeclareMathOperator*{\argmax}{arg\,max}

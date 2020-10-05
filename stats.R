@@ -141,8 +141,87 @@ pullModelStates <- function(  sim         = 2,
 } # END calcLoss()
 
 
+# calcProbOverfished()
+# Calculates mean and range of probability of being
+# overfished wrt single species reference points
+calcProbOverfished <- function( groupFolder="DERTACS_reruns_sep24",
+                                prefix = "parBat" )
+{
+  # First get info files so we can load the right 
+  # loss objects
+  # First, read info files from the relevant
+  # sims
+  simFolderList <- list.dirs( here::here("Outputs",groupFolder),
+                              recursive = FALSE, full.names = FALSE)
 
-calcMSE_AMestimates <- function(  groupFolder="DLSurveys_.3tau_Long",
+  simFolderList <- simFolderList[grepl(prefix, simFolderList)]
+
+  info.df <-  readBatchInfo( batchDir = here::here("Outputs",groupFolder) ) %>%
+              filter(grepl(prefix,simLabel)) %>%
+              mutate( perfPath = here::here("Outputs",groupFolder,simLabel,"simPerfStats.csv"),
+                      path = here::here("Outputs",groupFolder,simLabel),
+                      pBtLt.4Bmsy = NA,
+                      minProbBtLt.4Bmsy = NA,
+                      maxProbBtLt.4Bmsy = NA,
+                      pBtLt.8Bmsy = NA,
+                      minProbBtLt.8Bmsy = NA,
+                      maxProbBtLt.8Bmsy = NA )
+
+  # Break up MP names into factor levels
+  # MP labels are AM_Fsrce_eqbm
+  splitMP <- function(  mpLab, 
+                        breaks = "_",
+                        factorNames = c("AM","Fsrce","eqbm") )
+  {
+    splitMP <- stringr::str_split(mpLab, breaks)[[1]]
+
+    outList <- vector(  mode = "list", 
+                        length = length(splitMP) )
+    names(outList) <- factorNames
+    for( k in 1:length(splitMP))
+      outList[[k]] <- splitMP[k]
+
+    unlist(outList)
+  }
+
+  MPfactors <- lapply( X = info.df$mp, FUN = splitMP )
+  MPfactors <- do.call(rbind, MPfactors) %>% as.data.frame()
+
+  # Append MP factors
+  info.df <- cbind( info.df, MPfactors )
+
+  # Read in the performance tables
+  
+  perfTables <- lapply(X = info.df$perfPath, FUN = read.csv)
+  
+  for( k in 1:length(perfTables) )
+  {
+    perfTables[[k]] <- perfTables[[k]] %>% filter( ! species %in% "Rock" )
+    info.df$pBtLt.4Bmsy[k]        <- round(mean(1 - perfTables[[k]]$pBtGt.4Bmsy ),2)
+    info.df$minProbBtLt.4Bmsy[k]  <- round(min(1 - perfTables[[k]]$pBtGt.4Bmsy ),2)
+    info.df$maxProbBtLt.4Bmsy[k]  <- round(max(1 - perfTables[[k]]$pBtGt.4Bmsy ),2)
+    info.df$pBtLt.8Bmsy[k]        <- round(mean(1 - perfTables[[k]]$PBtGt.8Bmsy ),2)
+    info.df$minProbBtLt.8Bmsy[k]  <- round(min(1 - perfTables[[k]]$PBtGt.8Bmsy ),2)
+    info.df$maxProbBtLt.8Bmsy[k]  <- round(max(1 - perfTables[[k]]$PBtGt.8Bmsy ),2)
+  }
+
+  probOverfishedTable <- info.df %>%
+                          dplyr::select(  scenario, 
+                                          AM, 
+                                          pBtLt.4Bmsy,
+                                          minProbBtLt.4Bmsy,
+                                          maxProbBtLt.4Bmsy, 
+                                          pBtLt.8Bmsy,
+                                          minProbBtLt.8Bmsy,
+                                          maxProbBtLt.8Bmsy )
+
+
+  probOverfishedTable
+} # END calcProbOverfished
+
+
+
+calcMSE_AMestimates <- function(  groupFolder="DERTACS_reruns_sep24",
                                   prefix = "parBat" )
 {
   # First get info files so we can load the right 
