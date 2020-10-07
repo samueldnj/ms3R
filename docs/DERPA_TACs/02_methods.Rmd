@@ -542,12 +542,12 @@ Parameter prior distributions area a key feature of most contemporary
 stock assessment models, even in data-rich contexts. Moreover, prior
 distributions are a defining feature of hierachical multi-species
 stock assessment models. Therefore, we focused most sensitivity analyses 
-on fixed prior standard deviations for leading  parameters $MSY$ 
+on fixed prior standard deviations for AM leading  parameters $MSY$ 
 and $U_{MSY}$, and the hierarchical shrinkage prior SDs $\tau_q$ and
 $\sigma_{U_{MSY}}$ (Table 4). Sensitivity of performance to future 
 increases in fishery independent survey precision were tested, where 
 the Synoptic survey observation error variance was reduced with a 
 linear ramp-down over the first 5 years of the projection period to 
-simulate increasing investment.
+simulate a gradual increase in survey effort.
 
 

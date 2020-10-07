@@ -7,8 +7,8 @@ parameter value
 #
 scenario$scenario1$ctl$scenarioName 'Rich_UmsyCV0.1'
 scenario$scenario1$opMod$pT 32
-scenario$scenario1$ctl$nGoodReps 50
-scenario$scenario1$ctl$totReps 70
+scenario$scenario1$ctl$nGoodReps 75
+scenario$scenario1$ctl$totReps 75
 scenario$scenario1$mp$assess$spFleets c(1,2,3,4)
 scenario$scenario1$mp$assess$spLateStart FALSE
 scenario$scenario1$mp$assess$spsdUmsy .1
@@ -17,8 +17,8 @@ scenario$scenario1$mp$assess$spsdUmsy .1
 #
 scenario$scenario2$ctl$scenarioName 'Poor_UmsyCV0.1'
 scenario$scenario2$opMod$pT 32
-scenario$scenario2$ctl$nGoodReps 50
-scenario$scenario2$ctl$totReps 70
+scenario$scenario2$ctl$nGoodReps 75
+scenario$scenario2$ctl$totReps 75
 scenario$scenario2$mp$assess$spFleets c(3,4)
 scenario$scenario2$mp$assess$spLateStart TRUE
 scenario$scenario2$mp$assess$spsdUmsy .1
@@ -27,8 +27,8 @@ scenario$scenario2$mp$assess$spsdUmsy .1
 #
 scenario$scenario3$ctl$scenarioName 'Rich_UmsyCV0.5'
 scenario$scenario3$opMod$pT 32
-scenario$scenario3$ctl$nGoodReps 50
-scenario$scenario3$ctl$totReps 70
+scenario$scenario3$ctl$nGoodReps 75
+scenario$scenario3$ctl$totReps 75
 scenario$scenario3$mp$assess$spFleets c(1,2,3,4)
 scenario$scenario3$mp$assess$spLateStart FALSE
 scenario$scenario3$mp$assess$spsdUmsy .5
@@ -37,8 +37,8 @@ scenario$scenario3$mp$assess$spsdUmsy .5
 #
 scenario$scenario4$ctl$scenarioName 'Poor_UmsyCV0.5'
 scenario$scenario4$opMod$pT 32
-scenario$scenario4$ctl$nGoodReps 50
-scenario$scenario4$ctl$totReps 70
+scenario$scenario4$ctl$nGoodReps 75
+scenario$scenario4$ctl$totReps 75
 scenario$scenario4$mp$assess$spFleets c(3,4)
 scenario$scenario4$mp$assess$spLateStart TRUE
 scenario$scenario4$mp$assess$spsdUmsy .5
@@ -47,8 +47,8 @@ scenario$scenario4$mp$assess$spsdUmsy .5
 #
 scenario$scenario5$ctl$scenarioName 'Rich_UmsyCV1.0'
 scenario$scenario5$opMod$pT 32
-scenario$scenario5$ctl$nGoodReps 50
-scenario$scenario5$ctl$totReps 70
+scenario$scenario5$ctl$nGoodReps 75
+scenario$scenario5$ctl$totReps 75
 scenario$scenario5$mp$assess$spFleets c(1,2,3,4)
 scenario$scenario5$mp$assess$spLateStart FALSE
 scenario$scenario5$mp$assess$spsdUmsy 1.0
@@ -57,8 +57,8 @@ scenario$scenario5$mp$assess$spsdUmsy 1.0
 #
 scenario$scenario6$ctl$scenarioName 'Poor_UmsyCV1.0'
 scenario$scenario6$opMod$pT 32
-scenario$scenario6$ctl$nGoodReps 50
-scenario$scenario6$ctl$totReps 70
+scenario$scenario6$ctl$nGoodReps 75
+scenario$scenario6$ctl$totReps 75
 scenario$scenario6$mp$assess$spFleets c(3,4)
 scenario$scenario6$mp$assess$spLateStart TRUE
 scenario$scenario6$mp$assess$spsdUmsy 1.0
@@ -83,8 +83,8 @@ mp$mp1$mp$assess$spCondMLEqFleets NULL
 mp$mp1$mp$assess$spCondMLEobsErrFleets NULL
 mp$mp1$mp$assess$spFleetWeights c(1.0,1.0,1.0,1.0)
 mp$mp1$mp$assess$spsigmaProc .05
-mp$mp1$mp$assess$spCVMSY .2
-mp$mp1$mp$assess$spsdlnq_f c(10,1,.5,.25)
+mp$mp1$mp$assess$spCVMSY .1
+mp$mp1$mp$assess$spsdlnq_f c(1,1,.5,.25)
 mp$mp1$mp$assess$sptauObs_spf .3
 mp$mp1$mp$assess$spInitPE 25
 mp$mp1$mp$assess$spPhzUmsy 3
@@ -119,8 +119,8 @@ mp$mp2$mp$assess$spFleetWeights c(1.0,1.0,1.0,1.0)
 mp$mp2$mp$assess$spShrinkqFleets c(3,4)
 mp$mp2$mp$assess$spYrFirstIdx 20
 mp$mp2$mp$assess$spsigmaProc .05
-mp$mp2$mp$assess$spCVMSY .2
-mp$mp2$mp$assess$spsdlnq_f c(10,1,.5,.25)
+mp$mp2$mp$assess$spCVMSY .1
+mp$mp2$mp$assess$spsdlnq_f c(1,1,.5,.25)
 mp$mp2$mp$assess$sptauObs_spf .3
 mp$mp2$mp$assess$spInitPE 25
 mp$mp2$mp$assess$spPhzUmsy 3
@@ -160,7 +160,7 @@ mp$mp3$mp$assess$spSolveInitBio FALSE
 mp$mp3$mp$assess$spLateStart FALSE
 mp$mp3$mp$assess$spsigmaProc .05
 mp$mp3$mp$assess$sptauqdev .1
-mp$mp3$mp$assess$spCVMSY .2
+mp$mp3$mp$assess$spCVMSY .1
 mp$mp3$mp$assess$spsdlnq_f c(10,1,1,.5)
 mp$mp3$mp$assess$sptauObs_spf .2
 mp$mp3$mp$assess$spInitPE 25
@@ -201,7 +201,7 @@ mp$mp4$mp$assess$spSolveInitBio FALSE
 mp$mp4$mp$assess$spLateStart FALSE
 mp$mp4$mp$assess$spsigmaProc .05
 mp$mp4$mp$assess$sptauqdev .1
-mp$mp4$mp$assess$spCVMSY .2
+mp$mp4$mp$assess$spCVMSY .1
 mp$mp4$mp$assess$spsdlnq_f c(10,1,1,.5)
 mp$mp4$mp$assess$sptauObs_spf .2
 mp$mp4$mp$assess$spInitPE 25
@@ -242,7 +242,7 @@ mp$mp5$mp$assess$spSolveInitBio FALSE
 mp$mp5$mp$assess$spLateStart FALSE
 mp$mp5$mp$assess$spsigmaProc .05
 mp$mp5$mp$assess$sptauqdev .1
-mp$mp5$mp$assess$spCVMSY .2
+mp$mp5$mp$assess$spCVMSY .1
 mp$mp5$mp$assess$spsdlnq_f c(10,1,1,.5)
 mp$mp5$mp$assess$sptauObs_spf .2
 mp$mp5$mp$assess$spInitPE 25

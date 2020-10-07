@@ -7,8 +7,8 @@ parameter value
 #
 scenario$scenario1$ctl$scenarioName 'Rich_shrinkSD0.1'
 scenario$scenario1$opMod$pT 32
-scenario$scenario1$ctl$nGoodReps 50
-scenario$scenario1$ctl$totReps 70
+scenario$scenario1$ctl$nGoodReps 75
+scenario$scenario1$ctl$totReps 75
 scenario$scenario1$mp$assess$spFleets c(1,2,3,4)
 scenario$scenario1$mp$assess$spLateStart FALSE
 scenario$scenario1$mp$assess$sptauq .1
@@ -18,8 +18,8 @@ scenario$scenario1$mp$assess$spsigU .1
 #
 scenario$scenario2$ctl$scenarioName 'Poor_shrinkSD0.1'
 scenario$scenario2$opMod$pT 32
-scenario$scenario2$ctl$nGoodReps 50
-scenario$scenario2$ctl$totReps 70
+scenario$scenario2$ctl$nGoodReps 75
+scenario$scenario2$ctl$totReps 75
 scenario$scenario2$mp$assess$spFleets c(3,4)
 scenario$scenario2$mp$assess$spLateStart TRUE
 scenario$scenario2$mp$assess$sptauq .1
@@ -29,8 +29,8 @@ scenario$scenario2$mp$assess$spsigU .1
 #
 scenario$scenario3$ctl$scenarioName 'Rich_shrinkSD0.2'
 scenario$scenario3$opMod$pT 32
-scenario$scenario3$ctl$nGoodReps 50
-scenario$scenario3$ctl$totReps 70
+scenario$scenario3$ctl$nGoodReps 75
+scenario$scenario3$ctl$totReps 75
 scenario$scenario3$mp$assess$spFleets c(1,2,3,4)
 scenario$scenario3$mp$assess$spLateStart FALSE
 scenario$scenario3$mp$assess$sptauq .2
@@ -40,8 +40,8 @@ scenario$scenario3$mp$assess$spsigU .2
 #
 scenario$scenario4$ctl$scenarioName 'Poor_shrinkSD0.2'
 scenario$scenario4$opMod$pT 32
-scenario$scenario4$ctl$nGoodReps 50
-scenario$scenario4$ctl$totReps 70
+scenario$scenario4$ctl$nGoodReps 75
+scenario$scenario4$ctl$totReps 75
 scenario$scenario4$mp$assess$spFleets c(3,4)
 scenario$scenario4$mp$assess$spLateStart TRUE
 scenario$scenario4$mp$assess$sptauq .2
@@ -51,8 +51,8 @@ scenario$scenario4$mp$assess$spsigU .2
 #
 scenario$scenario5$ctl$scenarioName 'Rich_shrinkSD0.5'
 scenario$scenario5$opMod$pT 32
-scenario$scenario5$ctl$nGoodReps 50
-scenario$scenario5$ctl$totReps 70
+scenario$scenario5$ctl$nGoodReps 75
+scenario$scenario5$ctl$totReps 75
 scenario$scenario5$mp$assess$spFleets c(1,2,3,4)
 scenario$scenario5$mp$assess$spLateStart FALSE
 scenario$scenario5$mp$assess$sptauq .5
@@ -62,8 +62,8 @@ scenario$scenario5$mp$assess$spsigU .5
 #
 scenario$scenario6$ctl$scenarioName 'Poor_shrinkSD0.5'
 scenario$scenario6$opMod$pT 32
-scenario$scenario6$ctl$nGoodReps 50
-scenario$scenario6$ctl$totReps 70
+scenario$scenario6$ctl$nGoodReps 75
+scenario$scenario6$ctl$totReps 75
 scenario$scenario6$mp$assess$spFleets c(3,4)
 scenario$scenario6$mp$assess$spLateStart TRUE
 scenario$scenario6$mp$assess$sptauq .5

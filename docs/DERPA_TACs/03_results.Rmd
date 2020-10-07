@@ -141,7 +141,7 @@ catch loss close to zero for the 2028 - 2037 period (Figure 10).
 There was little risk of overfishing under any data scenario and AM
 combination (Table 4). No AM pushed stocks into a critically overfished 
 state where $B_{s,p,t} < 0.4 B_{MSY,SS,s,p}$ under the Rich and Mod data 
-scenarios, while under the Poor scenario a small mean probability of being 
+scenarios, while under the Poor scenario a small probability of being  
 critically overfished was observed under the Species Pooling (1\%) and 
 Spatial Pooling (6\%) AMs. There were positive probabilities of being
 overfished ($B_{s,p,t} < 0.8 B_{MSY,SS,s,p}$) under all scenarios,
@@ -207,12 +207,13 @@ was minimal.
 ## Sensitivity of results to prior standard deviations
 
 We summarised average model sensitivities by fitting linear regressions to 
-the distributions of median cumulative loss. To remove the effect of absolute 
-catch scales on the regressions, median loss distributions were standardised 
-across assessment models, stratified by species, stock-area, and data scenario. 
-Regressions with positive slopes have increasing catch loss with increasing prior 
-uncertainty, and negative or zero slopes indicate a decrease or no change in 
-catch loss with increasing prior uncertainty.
+the distributions of median cumulative absolute catch loss. To remove the 
+effect of absolute catch scales on the regressions, median loss 
+distributions were standardised across assessment models, stratified by 
+species, stock-area, and data scenario. Regressions with positive slopes 
+have increasing catch loss with increasing prior uncertainty, and negative 
+or zero slopes indicate a decrease or no change in catch loss with 
+increasing prior uncertainty.
 
 The Hierarchical Multi-stock model was least sensitive to increasing 
 $B_{MSY}$ prior CVs in both Rich and Poor data quality scenarios.

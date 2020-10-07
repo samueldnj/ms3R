@@ -1,14 +1,14 @@
 # # makeResultPlots.R
 source("ms3R.R")
 
-lapply(X = 2:7, FUN = calcLoss, groupFolder = "sens_hierSD")
-lapply(X = 2:31, FUN = calcLoss, groupFolder = "sens_MSYCV")
-lapply(X = 2:31, FUN = calcLoss, groupFolder = "sens_projObsErr")
-lapply(X = 2:31, FUN = calcLoss, groupFolder = "sens_UmsySD")
+# lapply(X = 2:7, FUN = calcLoss, groupFolder = "sens_hierSD")
+# lapply(X = 2:31, FUN = calcLoss, groupFolder = "sens_MSYCV")
+# lapply(X = 2:31, FUN = calcLoss, groupFolder = "sens_projObsErr")
+# lapply(X = 2:31, FUN = calcLoss, groupFolder = "sens_UmsySD")
 
 
 
-makeResultPlots <- function(groupFolder, prefix = "parBat")
+makeResultPlots <- function(groupFolder, prefix = "parBat", retroBioBatchPlot = TRUE)
 {
 
   batchDir <- file.path("./Outputs",groupFolder)
@@ -16,7 +16,7 @@ makeResultPlots <- function(groupFolder, prefix = "parBat")
   outputDirList <- outputDirList[grepl("sim_",outputDirList)]
   outputDirList <- outputDirList[order(outputDirList)]
 
-  # ourSimIndices <- which(grepl(prefix,outputDirList))
+  ourSimIndices <- which(grepl(prefix,outputDirList))
 
   # # abs and rel loss for SB
   lapply( X = ourSimIndices, FUN = plotLossTulip,
@@ -100,37 +100,123 @@ makeResultPlots <- function(groupFolder, prefix = "parBat")
   lapply( X = ourSimIndices, FUN = plotTulipAssError, 
           save = TRUE, groupFolder = groupFolder, obj = NULL )
 
-  speciesNames <- c("Dover","English","Rock")
-  stockNames <- c("HSHG","QCS","WCVI")
-  scenNames  <- c("DERfit_HcMcAsSsIdx","DERfit_McAsSsIdx","DERfit_McSsIdx","DERfit_AsSsIdx")
+  if( retroBioBatchPlot)
+  {
 
-  for( sIdx in 1:3)
-    for( pIdx in 1:3 )
-      for( scenIdx in 1:4)
-      {
-        saveFile <- paste("RetroBioSample_",scenNames[scenIdx],"_",speciesNames[sIdx],"_",stockNames[pIdx],".pdf",sep = "")
-        savePath <- here::here("Outputs",groupFolder,"batchPlots")
-        if(!dir.exists(savePath))
-          dir.create(savePath)
-        pdf( file = file.path(savePath,saveFile),
-             width = 11, height = 8.5 )
-        plotRetroBio_Scenario(  groupFolder = groupFolder,
-                                iRep = 1,
-                                scenName = scenNames[scenIdx],
-                                prefix = "parBat",
-                                species = speciesNames[sIdx],
-                                stock = stockNames[pIdx] )
-        stamp <- paste(scenNames[scenIdx],speciesNames[sIdx],stockNames[pIdx],sep =":")
-        mtext( side = 1, text = stamp, adj = .65, cex = .8, col = "grey70", outer = TRUE )
-        dev.off()
-      }
+    speciesNames <- c("Dover","English","Rock")
+    stockNames <- c("HSHG","QCS","WCVI")
+    scenNames  <- c("DERfit_HcMcAsSsIdx","DERfit_McAsSsIdx","DERfit_McSsIdx","DERfit_AsSsIdx")
+
+    for( sIdx in 1:3)
+      for( pIdx in 1:3 )
+        for( scenIdx in 1:4)
+        {
+          saveFile <- paste("RetroBioSample_",scenNames[scenIdx],"_",speciesNames[sIdx],"_",stockNames[pIdx],".pdf",sep = "")
+          savePath <- here::here("Outputs",groupFolder,"batchPlots")
+          if(!dir.exists(savePath))
+            dir.create(savePath)
+          pdf( file = file.path(savePath,saveFile),
+               width = 11, height = 8.5 )
+          plotRetroBio_Scenario(  groupFolder = groupFolder,
+                                  iRep = 1,
+                                  scenName = scenNames[scenIdx],
+                                  prefix = "parBat",
+                                  species = speciesNames[sIdx],
+                                  stock = stockNames[pIdx] )
+          stamp <- paste(scenNames[scenIdx],speciesNames[sIdx],stockNames[pIdx],sep =":")
+          mtext( side = 1, text = stamp, adj = .65, cex = .8, col = "grey70", outer = TRUE )
+          dev.off()
+        }
+  }
 }
 
-makeResultPlots("sens_hierSD")
-makeResultPlots("sens_MSYCV")
-makeResultPlots("sens_projObsErr")
-makeResultPlots("sens_UmsySD")
+makeResultPlots("sens_hierSD",retroBioBatchPlot = FALSE)
+# makeResultPlots("sens_MSYCV", retroBioBatchPlot = FALSE)
+# makeResultPlots("sens_projObsErr",retroBioBatchPlot = FALSE)
+# makeResultPlots("sens_UmsySD", retroBioBatchPlot = FALSE)
 
+
+# plotRankDists_sp( groupFolder = "sens_projObsErr",
+#                   prefix = "parBat",
+#                   lossType = "abs",
+#                   var = "C_ispt",
+#                   period = 73:82,
+#                   lossList = NULL,
+#                   dim1 = 1:3,   # species (D,E,R, DP)
+#                   dim2 = 1:3,   # stocks (H,Q,W, CW)
+#                   qProbs = c(.025,.5,.975),
+#                   refPts = "MSrefPts",
+#                   AMlabs = rev(c( SS = "singleStock",
+#                                   HMS = "hierMultiStock",
+#                                   SpecPool = "speciesPooling",
+#                                   SpatPool = "spatialPooling",
+#                                   TotPool = "totalAgg" ) ),
+#                   scenLabs = c( Rich_obsErr0.1  = "Rich_obsErr0.1",
+#                                 Poor_obsErr0.1  = "Poor_obsErr0.1",
+#                                 Rich_obsErr0.5  = "Rich_obsErr0.5",
+#                                 Poor_obsErr0.5  = "Poor_obsErr0.5",
+#                                 Rich_obsErr1.0  = "Rich_obsErr1.0",
+#                                 Poor_obsErr1.0  = "Poor_obsErr1.0"),
+#                   clearBadReps = TRUE,
+#                   minSampSize = 10,
+#                   rotxlabs = 0,
+#                   xlab = TRUE,
+#                   vertLines = TRUE  )
+
+# plotRankDists(  groupFolder = "sens_projObsErr",
+#                 prefix = "parBat",
+#                 lossType = "abs",
+#                 var = "C_ispt",
+#                 period = 73:82,
+#                 lossList = NULL,
+#                 dim1 = 1:3,   # species (D,E,R, DP)
+#                 dim2 = 1:3,   # stocks (H,Q,W, CW)
+#                 qProbs = c(.025,.5,.975),
+#                 refPts = "MSrefPts",
+#                 AMlabs = rev(c( SS = "singleStock",
+#                                 HMS = "hierMultiStock",
+#                                 SpecPool = "speciesPooling",
+#                                 SpatPool = "spatialPooling",
+#                                 TotPool = "totalAgg" ) ),
+#                 scenLabs = c( Rich_obsErr0.1  = "Rich_obsErr0.1",
+#                               Poor_obsErr0.1  = "Poor_obsErr0.1",
+#                               Rich_obsErr0.5  = "Rich_obsErr0.5",
+#                               Poor_obsErr0.5  = "Poor_obsErr0.5",
+#                               Rich_obsErr1.0  = "Rich_obsErr1.0",
+#                               Poor_obsErr1.0  = "Poor_obsErr1.0"),
+#                 clearBadReps = FALSE,
+#                 minSampSize = 49,
+#                 rotxlabs = 0,
+#                 xlab = TRUE,
+#                 vertLines = TRUE,
+#                 nGoodReps = 25 )
+
+# plotBatchLossDists_Scenario(  groupFolder = "sens_projObsErr",
+#                               prefix = "parBat",
+#                               lossType = "abs",
+#                               var = "C_ispt",
+#                               period = 73:82,
+#                               lossList = NULL,
+#                               dim1 = 1:3,   # species (D,E,R, DP)
+#                               dim2 = 1:3,   # stocks (H,Q,W, CW)
+#                               qProbs = c(.025,.5,.975),
+#                               refPts = "MSrefPts",
+#                               AMlabs = rev(c( SS = "singleStock",
+#                                               HMS = "hierMultiStock",
+#                                               SpecPool = "speciesPooling",
+#                                               SpatPool = "spatialPooling",
+#                                               TotPool = "totalAgg" ) ),
+#                               scenLabs = c( Rich_obsErr0.1  = "Rich_obsErr0.1",
+#                                             Poor_obsErr0.1  = "Poor_obsErr0.1",
+#                                             Rich_obsErr0.5  = "Rich_obsErr0.5",
+#                                             Poor_obsErr0.5  = "Poor_obsErr0.5",
+#                                             Rich_obsErr1.0  = "Rich_obsErr1.0",
+#                                             Poor_obsErr1.0  = "Poor_obsErr1.0"),
+#                               clearBadReps = TRUE,
+#                               minSampSize = 40,
+#                               rotxlabs = 45,
+#                               xlab = TRUE,
+#                               vertLines = TRUE  )
 
 # speciesNames <- c("Dover","English","Rock")
 # stockNames <- c("HSHG","QCS","WCVI")

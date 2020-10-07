@@ -2526,7 +2526,7 @@ plotBatchLossDists_Scenario <- function(  groupFolder = "DERTACS_reruns_sep24",
                 HMS = 2,
                 SpecPool = 3,
                 SpatPool = 4,
-                TA = 5 )
+                TotPool = 5 )
 
   AMdictionary <- AMlabs
 
@@ -2534,7 +2534,6 @@ plotBatchLossDists_Scenario <- function(  groupFolder = "DERTACS_reruns_sep24",
   names(AMcols)   <- names(AMcodes)
   AMpch           <- 20 + 1:length(AMcodes)
   names(AMpch)    <- names(AMcodes)
-
 
 
 
@@ -2729,6 +2728,115 @@ plotBatchLossDists_Scenario <- function(  groupFolder = "DERTACS_reruns_sep24",
           col     = AMcols[names(AMdictionary)], 
           lwd     = 2 )
   
+}
+
+plotSensRuns_pub <- function()
+{
+  scenLabs <- list( MSYCVrich  = c( Rich_MSYCV0.1  = "Rich_MSYCV0.1",
+                                    Rich_MSYCV0.5  = "Rich_MSYCV0.5",
+                                    Rich_MSYCV1.0  = "Rich_MSYCV1.0"),
+                    MSYCVpoor  = c( Poor_MSYCV0.1  = "Poor_MSYCV0.1",
+                                    Poor_MSYCV0.5  = "Poor_MSYCV0.5",
+                                    Poor_MSYCV1.0  = "Poor_MSYCV1.0" ),
+                    UmsyCVrich = c( Rich_UmsyCV0.1  = "Rich_UmsyCV0.1",
+                                    Rich_UmsyCV0.5  = "Rich_UmsyCV0.5",
+                                    Rich_UmsyCV1.0  = "Rich_UmsyCV1.0"),
+                    UmsyCVpoor = c( Poor_UmsyCV0.1  = "Poor_UmsyCV0.1",
+                                    Poor_UmsyCV0.5  = "Poor_UmsyCV0.5",
+                                    Poor_UmsyCV1.0  = "Poor_UmsyCV1.0" ),
+                    hierSDrich = c( Rich_hierSD0.1  = "Rich_shrinkSD0.1",
+                                    Rich_hierSD0.5  = "Rich_shrinkSD0.5",
+                                    Rich_hierSD1.0  = "Rich_shrinkSD1.0"),
+                    hierSDpoor = c( Poor_hierSD0.1  = "Poor_shrinkSD0.1",
+                                    Poor_hierSD0.5  = "Poor_shrinkSD0.5",
+                                    Poor_hierSD1.0  = "Poor_shrinkSD1.0" ),
+                    obsErrrich = c( Rich_obsErr0.1  = "Rich_obsErr0.1",
+                                    Rich_obsErr0.5  = "Rich_obsErr0.5",
+                                    Rich_obsErr1.0  = "Rich_obsErr1.0"),
+                    obsErrpoor = c( Poor_obsErr0.1  = "Poor_obsErr0.1",
+                                    Poor_obsErr0.5  = "Poor_obsErr0.5",
+                                    Poor_obsErr1.0  = "Poor_obsErr1.0" )
+                     )
+
+  scenSplitString <- c( MSY     = "MSYCV",
+                        Umsy    = "UmsyCV",
+                        hierSD  = "shrinkSD",
+                        obsErr  = "obsErr" )
+
+  xlab <- c(  Bmsy = expression(CV(MSY)), 
+              Umsy = expression( SD(U[MSY])), 
+              hierSD = expression(paste( tau[q], " and ", sigma[U[MSY]] ) ),
+              obsErr = expression(tau) )
+
+  groupFolders <- c("sens_MSYCV", "sens_UmsySD","sens_hierSD", "sens_projObsErr")
+
+
+  par( mfcol = c(2,4), oma = c(5,3,2,1), mar = c(2,2,1,1) )
+  for( sensIdx in 1:4 )
+  {
+
+    plotSensBatchSummary_SAisp( groupFolder = groupFolders[sensIdx],
+                                prefix = "parBat",
+                                lossType = "abs",
+                                var = "C_ispt",
+                                period = 73:82,
+                                lossList = NULL,
+                                refPts = NULL,
+                                AMlabs = c( SS = "singleStock",
+                                            HMS = "hierMultiStock",
+                                            SpePool = "speciesPooling",
+                                            SpaPool = "spatialPooling",
+                                            TA = "totalAgg" ),
+                                scenLabs = scenLabs[[2 * sensIdx - 1]],
+                                clearBadReps = FALSE,
+                                scenSplitString = scenSplitString[sensIdx],
+                                xlab = xlab[sensIdx],
+                                noPar = TRUE,
+                                printLeg = FALSE
+                             )
+
+    if( sensIdx == 4)
+      rmtext( txt = "Rich", font = 2, line = .05, outer = TRUE )
+
+    plotSensBatchSummary_SAisp( groupFolder = groupFolders[sensIdx],
+                                prefix = "parBat",
+                                lossType = "abs",
+                                var = "SB_ispt",
+                                period = 73:82,
+                                lossList = NULL,
+                                refPts = NULL,
+                                AMlabs = c( SS = "singleStock",
+                                            HMS = "hierMultiStock",
+                                            SpePool = "speciesPooling",
+                                            SpaPool = "spatialPooling",
+                                            TA = "totalAgg" ),
+                                scenLabs = scenLabs[[2 * sensIdx]],
+                                clearBadReps = FALSE,
+                                scenSplitString = scenSplitString[sensIdx],
+                                xlab = xlab[sensIdx],
+                                noPar = TRUE,
+                                printLeg = FALSE
+                             )
+
+    if( sensIdx == 4)
+      rmtext( txt = "Poor", font = 2, line = .05, outer = TRUE )
+    
+
+    # mtext( side = 1, text = xlab[sensIdx], font = 2, line = 3)
+  }
+
+  mtext( side = 2, text = "Std. diff from mean cumulative loss", 
+          outer = TRUE, line = 1)
+  # Plot legend
+  par(fig=c(0, 1, 0, 1), oma=c(0, 0, 0, 0), mar=c(0, 0, 0, 0), new=TRUE)
+    plot(0, 0, type='n', bty='n', xaxt='n', yaxt='n')
+    legend( x       = "bottom",
+            horiz   = TRUE,
+            bty     = "n",
+            legend  = c("Single-stock","Hierarchical","Species Pooling","Spatial Pooling","Total Aggregation"),
+            lty     = 1:5,
+            col     = RColorBrewer::brewer.pal(5,"Dark2"), 
+            lwd     = 2 )
 }
 
 
