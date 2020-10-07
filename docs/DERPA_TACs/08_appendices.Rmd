@@ -123,9 +123,9 @@ Z_{a,x,s,p,f,t} = M_{x,s,p} + S_{a,x,s,p,f} \cdot F_{a,x,s,p,f,t}.
 
 Operating model observation error standard deviations were derived
 from estimates from fitting a hierarchical age-structured model to 
-DER complex data [Johnson and Cox, in prep]. To improve convergence 
-in the simulations, we multipled all estimates by $0.3$ to improve
-observation model precision (multiplier found by trial and error).
+DER complex data. To improve AM convergence in the simulations, we 
+multipled all estimates by $0.75$ to improve observation model 
+precision (multiplier found by trial and error).
 
 
 ```{r loadSimForObsErrTable, echo = FALSE, include = FALSE}
@@ -139,7 +139,7 @@ biomass indices"
 ```{r obsErrTab, echo = FALSE}
 tauObs_spf <- blob$ctlList$opMod$histRpt$tauObs_spf
 tauObs_spf[tauObs_spf == 1] <- NA
-tauObs_spf <- round(tauObs_spf * 0.3,3)
+tauObs_spf <- round(tauObs_spf * 0.75,3)
 
 tauObs.df <- reshape2::melt(tauObs_spf)
 
@@ -204,63 +204,4 @@ value inside the range (i.e. negative values by *zero*,
 large values by $120 E_{MSY_p}$).
 
 \clearpage
-# Hierarchical model performance under relaxed shrinkage prior SDs
 
-```{r loadSimForRetroPlot, echo = FALSE, include = FALSE}
-# .loadSim( 6, folder = "sensRuns_hierSD")
-
-sensRunTulipCap <- "Spawning biomass depletion and relative catch 
-simulation envelopes for all nine DER complex management units when 
-assessed by the hierarchical multi-stock asssessment model under the 
-Poor OM data quality scenario, when hierarchical shrinkage prior SDs
-were $\\sigma_{U_{MSY}} = \\tau_{q} = 0.5$. Median biomass is shown by 
-the thick black line, with the grey region showing the central 95\\% of the 
-distribution of spawning biomass, and thin black lines 
-showing three randomly selected simulation replicates. Catch is shown as grey 
-bars in the historical period, which represent median catch in the projection, 
-with thin vertical line segments showing the central 95\\% of the catch 
-distribution. Coloured circles on the right hand vertical axis show 
-the biomass depletion level associated with the multi-species 
-(closed blue circle) and single-species (open green circle) 
-maximum sustainable yield."
-
-sensRunRetroCap <- "Operating model spawning stock
-biomass (red line), commercial trawl vulnerable biomass (grey dotted line), 
-retrospective assesment model estimates of spawning stock 
-biomass (thin grey/purple lines), and catch and TACs (grey bars) 
-from the first simulation replicate in the Poor data quality scenario
-under the hierarchical multi-stock assessment model when hierarchical 
-shrinkage prior SDs were $\\sigma_{U_{MSY}} = \\tau_{q} = 0.5$. Catch 
-bars show realised catch in grey for the whole simulation period, and 
-unfilled bars in the projection period show the difference between MP 
-set TACs and realised catch. Coloured circles on the right hand vertical axis 
-show the biomass level associated with the multi-species 
-(closed blue circle) and single-species (open green circle) 
-maximum sustainable yield."
-```
-
-\blandscape
-```{r figC1-tulipBtCtHMSPoorHierSD, echo = FALSE, warning = FALSE, fig.cap = sensRunTulipCap, fig.width = 9, out.width = "9in" }
-# plotTulipBt(  obj = blob, nTrace = 3,
-#               dep = TRUE,
-#               ref = "B0",
-#               Ct  = TRUE,
-#               leg = FALSE,
-#               clearBadReps = TRUE,
-#               printStamp = FALSE )
-
-figPath <- file.path("./data/figC1-tulipBtCtHMSPoorHierSD.pdf")
-knitr::include_graphics(figPath)
-
-```
-
-\clearpage
-
-```{r figC2-retroBioSingleRepHMSPoorHierSD, echo = FALSE, warning = FALSE, fig.cap = sensRunRetroCap, fig.width = 9, out.width = "9in" }
-# plotRetroSBagg(  obj = blob, iRep = 1, plotStamp = FALSE )
-figPath <- file.path("./data/figC2-retroBioSingleRepHMSPoorHierSD.pdf")
-knitr::include_graphics(figPath)
-
-```
-
-\elandscape

@@ -87,8 +87,8 @@ mp$mp1$mp$assess$spShrinkqFleets c(3,4)
 mp$mp1$mp$assess$spYrFirstIdx 20
 mp$mp1$mp$assess$spsigmaProc .05
 mp$mp1$mp$assess$spsdUmsy .3
-mp$mp1$mp$assess$spCVMSY .2
-mp$mp1$mp$assess$spsdlnq_f c(10,1,.5,.25)
+mp$mp1$mp$assess$spCVMSY .1
+mp$mp1$mp$assess$spsdlnq_f c(1,1,.5,.25)
 mp$mp1$mp$assess$sptauObs_spf .3
 mp$mp1$mp$assess$spInitPE 25
 mp$mp1$mp$assess$spPhzUmsy 3

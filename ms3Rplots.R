@@ -3053,10 +3053,12 @@ plotTotLossDists <- function( sim = 1,
 # loss for a given baseline to have
 # been calculated first, and saved
 # into the sim folder
-plotLossTulip <- function(  sim = 1, 
-                            groupFolder   = "shortGrid",
-                            lossType      = "rel",
-                            var           = "SB_ispt",
+plotLossTulip <- function(  sim = 2, 
+                            groupFolder   = "DERTACS_reruns_sep24",
+                            lossType      = "abs",
+                            var           = "C_ispt",
+                            dim1          = 1:2,
+                            dim2          = 1:3,
                             save          = FALSE,
                             clearBadReps  = FALSE )
 {
@@ -3117,8 +3119,8 @@ plotLossTulip <- function(  sim = 1,
   }
 
   # Plot window - just for loss right now
-  par(  mfcol = c(nP + 1, nS + 1),
-        mar = c(.5,.5,.5,.5),
+  par(  mfcol = c(length(dim2), length(dim1)),
+        mar = c(.5,2,.5,1),
         oma = c(3,3,3,3) )
 
   speciesNames  <- c(objLoss$speciesNames,"data-pooled")
@@ -3132,10 +3134,10 @@ plotLossTulip <- function(  sim = 1,
 
 
   # Loop and plot
-  for( s in 1:(nS+1) )
-    for( p in 1:(nP+1) )
+  for( s in dim1 )
+    for( p in dim2 )
     {
-      maxLoss <- 1
+      maxLoss <- max(abs(loss_qspt[,s,p,]),na.rm = T)
       
 
       plot( x = range(years[tdxPlot]), y = c(-maxLoss,maxLoss),
@@ -3143,15 +3145,14 @@ plotLossTulip <- function(  sim = 1,
       mfg <- par("mfg")
       if( mfg[1] == mfg[3] )
         axis( side = 1 )
-      if( mfg[2] == 1 )
-        axis( side = 2, las = 1)
+      axis( side = 2, las = 1)
       if( mfg[1] == 1 )
       {
-        mtext( side = 3, text = speciesNames[s] )
+        mtext( side = 3, text = speciesNames[s], font = 2 )
       }
       if( mfg[2] == mfg[4] )
       {
-        mtext( side = 4, text = stockNames[p] )
+        rmtext( outer =TRUE, line = 0.05, txt = stockNames[p], font = 2, cex = 1.5 )
       }
       grid()
       box()
@@ -3173,7 +3174,7 @@ plotLossTulip <- function(  sim = 1,
 
     }
     mtext( side = 1, text = "Year", line = 2, outer = TRUE )
-    mtext( side = 2, text = yLab, line = 2, outer = TRUE )
+    mtext( side = 2, text = yLab, line = 1.5, outer = TRUE )
 
   if( save )
     dev.off()

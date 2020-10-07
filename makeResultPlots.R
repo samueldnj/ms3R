@@ -1,6 +1,12 @@
 # # makeResultPlots.R
 source("ms3R.R")
 
+lapply(X = 2:7, FUN = calcLoss, groupFolder = "sens_hierSD")
+lapply(X = 2:31, FUN = calcLoss, groupFolder = "sens_MSYCV")
+lapply(X = 2:31, FUN = calcLoss, groupFolder = "sens_projObsErr")
+lapply(X = 2:31, FUN = calcLoss, groupFolder = "sens_UmsySD")
+
+
 
 makeResultPlots <- function(groupFolder, prefix = "parBat")
 {
@@ -12,87 +18,87 @@ makeResultPlots <- function(groupFolder, prefix = "parBat")
 
   # ourSimIndices <- which(grepl(prefix,outputDirList))
 
-  # # # abs and rel loss for SB
-  # lapply( X = ourSimIndices, FUN = plotLossTulip,
-  #         groupFolder = groupFolder,
-  #         lossType    = "rel",
-  #         var         = "SB_ispt",
-  #         save        = TRUE )
+  # # abs and rel loss for SB
+  lapply( X = ourSimIndices, FUN = plotLossTulip,
+          groupFolder = groupFolder,
+          lossType    = "rel",
+          var         = "SB_ispt",
+          save        = TRUE )
 
-  # lapply( X = ourSimIndices, FUN = plotLossTulip,
-  #         groupFolder = groupFolder,
-  #         lossType    = "abs",
-  #         var         = "SB_ispt",
-  #         save        = TRUE )
+  lapply( X = ourSimIndices, FUN = plotLossTulip,
+          groupFolder = groupFolder,
+          lossType    = "abs",
+          var         = "SB_ispt",
+          save        = TRUE )
 
-  # # abs and rel loss for Catch
-  # lapply( X = ourSimIndices, FUN = plotLossTulip,
-  #         groupFolder = groupFolder,
-  #         lossType    = "rel",
-  #         var         = "C_ispt",
-  #         save        = TRUE )
+  # abs and rel loss for Catch
+  lapply( X = ourSimIndices, FUN = plotLossTulip,
+          groupFolder = groupFolder,
+          lossType    = "rel",
+          var         = "C_ispt",
+          save        = TRUE )
 
-  # lapply( X = ourSimIndices, FUN = plotLossTulip,
-  #         groupFolder = groupFolder,
-  #         lossType    = "abs",
-  #         var         = "C_ispt",
-  #         save        = TRUE )
+  lapply( X = ourSimIndices, FUN = plotLossTulip,
+          groupFolder = groupFolder,
+          lossType    = "abs",
+          var         = "C_ispt",
+          save        = TRUE )
 
-  # saveBioPlots <- function( sim = 1,
-  #                           groupFolder = groupFolder )
-  # {
-  #   .loadSim(sim, folder=groupFolder)
+  saveBioPlots <- function( sim = 1,
+                            groupFolder = groupFolder )
+  {
+    .loadSim(sim, folder=groupFolder)
 
 
-  #   # First biomass tulips
-  #   saveFile <- here("Outputs",groupFolder,blob$simLabel,"tulipBt.pdf")
+    # First biomass tulips
+    saveFile <- here("Outputs",groupFolder,blob$simLabel,"tulipBt.pdf")
 
-  #   pdf( file = saveFile, width = 11, height = 8 )
+    pdf( file = saveFile, width = 11, height = 8 )
 
-  #   plotTulipBt(  obj = blob, nTrace = 3,
-  #                 dep = TRUE,
-  #                 ref = "B0",
-  #                 Ct  = TRUE,
-  #                 leg = FALSE )
-  #   dev.off()
+    plotTulipBt(  obj = blob, nTrace = 3,
+                  dep = TRUE,
+                  ref = "B0",
+                  Ct  = TRUE,
+                  leg = FALSE )
+    dev.off()
 
-  #   # Then retrospective biomass
-  #   goodReps_isp <- blob$goodReps_isp
-  #   maxRep_sp <- apply( X = goodReps_isp, FUN = maxWhich, MARGIN =c(2,3))
-  #   maxRep <- max(maxRep_sp)
+    # Then retrospective biomass
+    goodReps_isp <- blob$goodReps_isp
+    maxRep_sp <- apply( X = goodReps_isp, FUN = maxWhich, MARGIN =c(2,3))
+    maxRep <- max(maxRep_sp)
 
-  #   singleRepFolder <- here("Outputs",groupFolder,blob$simLabel,"singleReps")
-  #   if(!dir.exists(singleRepFolder))
-  #     dir.create(singleRepFolder)
+    singleRepFolder <- here("Outputs",groupFolder,blob$simLabel,"singleReps")
+    if(!dir.exists(singleRepFolder))
+      dir.create(singleRepFolder)
 
-  #   retroBioFolder <- file.path(singleRepFolder,"retroBt")
-  #   if(!dir.exists(retroBioFolder))
-  #     dir.create(retroBioFolder)
+    retroBioFolder <- file.path(singleRepFolder,"retroBt")
+    if(!dir.exists(retroBioFolder))
+      dir.create(retroBioFolder)
 
-  #   for( k in 1:maxRep )
-  #   {
+    for( k in 1:maxRep )
+    {
       
-  #     saveFile <- file.path(retroBioFolder,paste("retroBio",k,".pdf",sep = ""))
-  #     pdf( file = saveFile, width = 11, height = 8 )
+      saveFile <- file.path(retroBioFolder,paste("retroBio",k,".pdf",sep = ""))
+      pdf( file = saveFile, width = 11, height = 8 )
 
-  #     plotRetroSBagg(  obj = blob, iRep = k )
+      plotRetroSBagg(  obj = blob, iRep = k )
       
-  #     dev.off()
-  #   }
+      dev.off()
+    }
 
-  # }
+  }
 
-  # # Now output tulip plots and retro SB
-  # lapply( X = ourSimIndices, FUN = saveBioPlots, groupFolder= groupFolder)
+  # Now output tulip plots and retro SB
+  lapply( X = ourSimIndices, FUN = saveBioPlots, groupFolder= groupFolder)
 
-  # # And do biomas and catch overlay plots
-  # lapply( X = ourSimIndices, FUN = plotTulipBtCtBaseSim, groupFolder = groupFolder, 
-  #         save = TRUE, var = "SB_ispt")
-  # lapply( X = ourSimIndices, FUN = plotTulipBtCtBaseSim, save = TRUE, 
-  #         groupFolder = groupFolder,
-  #         var = "C_ispt")
-  # lapply( X = ourSimIndices, FUN = plotTulipAssError, 
-  #         save = TRUE, groupFolder = groupFolder, obj = NULL )
+  # And do biomas and catch overlay plots
+  lapply( X = ourSimIndices, FUN = plotTulipBtCtBaseSim, groupFolder = groupFolder, 
+          save = TRUE, var = "SB_ispt")
+  lapply( X = ourSimIndices, FUN = plotTulipBtCtBaseSim, save = TRUE, 
+          groupFolder = groupFolder,
+          var = "C_ispt")
+  lapply( X = ourSimIndices, FUN = plotTulipAssError, 
+          save = TRUE, groupFolder = groupFolder, obj = NULL )
 
   speciesNames <- c("Dover","English","Rock")
   stockNames <- c("HSHG","QCS","WCVI")
@@ -120,7 +126,11 @@ makeResultPlots <- function(groupFolder, prefix = "parBat")
       }
 }
 
-makeResultPlots("DERTACS_reruns_sep24")
+makeResultPlots("sens_hierSD")
+makeResultPlots("sens_MSYCV")
+makeResultPlots("sens_projObsErr")
+makeResultPlots("sens_UmsySD")
+
 
 # speciesNames <- c("Dover","English","Rock")
 # stockNames <- c("HSHG","QCS","WCVI")

@@ -568,7 +568,7 @@ solvePTm <- function( Bmsy, B0 )
 
   # Take average resid b/n historic CPUE and vB
   vB_spft <- ctlList$opMod$histRpt$vB_spft
-  I_spft  <- ctlList$opMod$histRpt$I_spft
+  I_spft  <- obj$mp$data$I_spft[1:(nS),1:(nP),,1:(t-1)]
 
   firstIdx <- ctlList$mp$assess$spYrFirstIdx
 

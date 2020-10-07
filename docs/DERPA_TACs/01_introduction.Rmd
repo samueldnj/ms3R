@@ -63,9 +63,10 @@ based on available data. Replicate specific estimates based on data stand in
 contrast to data-pooled methods which estimate a mean value only, or 
 single-stock methods that may rely on strong *a priori* assumptions like 
 fixed values, forcing parameters to be identical among replicates, or using 
-strongly informative priors, which will almost certainly increase assessment 
-bias as those strong assumptions are difficult to formulate in data-limited 
-contexts [@jiao2009hierarchical; @jiao2011poor; @punt2011among].
+strongly informative priors, all of which will almost certainly increase 
+assessment bias as those strong assumptions are difficult to formulate 
+in data-limited contexts [@jiao2009hierarchical; @jiao2011poor; 
+@punt2011among].
 
 Although hierarchical stock assessments produce better
 estimates of species biomass and productivity than single-species

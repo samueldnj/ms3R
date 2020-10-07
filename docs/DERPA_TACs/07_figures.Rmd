@@ -109,18 +109,40 @@ the biomass depletion level associated with the multi-species
 (closed blue circle) and single-species (open green circle) 
 maximum sustainable yield."
 
+tulipCatLossSSPoorCap <- "Catch loss simulation envelopes for 
+the six DER complex management units included in the catch loss ranking, 
+when assessed using the Single-stock assessment model under the 
+Poor data-quality scenario. Median catch loss is shown by the thick 
+black line, the central 95\\% of the catch loss distribution is shown as
+the grey shaded region, and the thin black lines show three randomly selected 
+simulation replicates. The thick vertical dashed line shows the beginning
+of the projection period, and the horizontal thin dashed line shows zero
+catch loss."
 
-retroBioSingleRepSSComm1Cap <- "Operating model spawning stock
+tulipCatLossHMSPoorCap <- "Catch loss simulation envelopes for 
+the six DER complex management units included in the catch loss ranking, 
+when assessed using the Hierarchical Multi-stock assessment model under the 
+Poor data-quality scenario. Median catch loss is shown by the thick 
+black line, the central 95\\% of the catch loss distribution is shown as
+the grey shaded region, and the thin black lines show three randomly selected 
+simulation replicates. The thick vertical dashed line shows the beginning
+of the projection period, and the horizontal thin dashed line shows zero
+catch loss."
+
+
+retroBioSingleRepSSPoorCap <- "Operating model spawning stock
 biomass (red line), commercial trawl vulnerable biomass (grey dotted line), 
 retrospective assesment model estimates of spawning stock 
 biomass (thin grey/purple lines), and catch and TACs (grey bars) 
-from the first simulation replicate in the Rich data-quality scenario
-under the Single-stock assessment model. Catch bars show realised catch in grey 
-for the whole simulation period, and unfilled bars in the projection
-period show the difference between MP set TACs and realised catch.
-Coloured circles on the right hand vertical axis show the biomass 
-level associated with the multi-species (closed blue circle) and 
-single-species (open green circle) maximum sustainable yield."
+from the first simulation replicate in the Poor data-quality scenario and
+under the Single-stock assessment model. Catch bars show realised 
+catch in grey for the whole simulation period, and unfilled bars 
+in the projection period show the difference between MP set TACs 
+and realised catch. Coloured circles on the right hand vertical axis 
+show the biomass level associated with the multi-species 
+(closed blue circle) and single-species (open green circle) 
+maximum sustainable yield. Purple lines indicate an assessment with
+a non-positive-definite Hessian matrix."
 
 
 retroBioSingleRepHMSPoorCap <- "Operating model spawning stock
@@ -279,24 +301,39 @@ plotRankDists(  groupFolder = "DERTACS_reruns_sep24",
 
 ```
 
-```{r loadStuffAgain, echo = FALSE, include = FALSE, warning = FALSE}
-.loadSim("sim_parBatDERTACS_reruns_tunedHMS_Sep2417", folder= params$groupFolder)
+```{r loadSSPoor, echo = FALSE, include = FALSE, warning = FALSE}
+.loadSim("sim_parBatDERTACS_reruns_tunedHMS_Sep2416", folder= params$groupFolder)
 
 
 ```
 
+\clearpage
 
-```{r fig8-tulipBtCtHMSPoor, echo = FALSE, warning = FALSE, fig.cap = tulipBtCtHMSPoorCap, fig.width = 9, out.width = "9in" }
-plotTulipBt(  obj = blob, nTrace = 3,
-              dep = TRUE,
-              ref = "B0",
-              Ct  = TRUE,
-              leg = FALSE,
-              clearBadReps = TRUE,
-              printStamp = FALSE )
+```{r fig9-retroBioSingleRepSSPoor, echo = FALSE, warning = FALSE, fig.cap = retroBioSingleRepHMSPoorCap, fig.width = 9, out.width = "9in" }
+plotRetroSBagg(  obj = blob, iRep = 1, plotStamp = FALSE )
+
+```
+
+\clearpage
+
+```{r fig8-tulipBtCtSSPoor, echo = FALSE, warning = FALSE, fig.cap = tulipCatLossHMSPoorCap, fig.width = 9, out.width = "9in" }
+plotLossTulip(  sim = "sim_parBatDERTACS_reruns_tunedHMS_Sep2416", 
+                groupFolder   = params$groupFolder,
+                lossType      = "abs",
+                var           = "C_ispt",
+                dim1          = 1:2,
+                dim2          = 1:3,
+                save          = FALSE,
+                clearBadReps  = TRUE )
 
 # figPath <- file.path("./data/fig6-tulipBtCtHMSPoor.pdf")
 # knitr::include_graphics(figPath)
+
+```
+
+```{r loadHMSPoor, echo = FALSE, include = FALSE, warning = FALSE}
+.loadSim("sim_parBatDERTACS_reruns_tunedHMS_Sep2417", folder= params$groupFolder)
+
 
 ```
 
@@ -304,7 +341,20 @@ plotTulipBt(  obj = blob, nTrace = 3,
 
 ```{r fig9-retroBioSingleRepHMSPoor, echo = FALSE, warning = FALSE, fig.cap = retroBioSingleRepHMSPoorCap, fig.width = 9, out.width = "9in" }
 plotRetroSBagg(  obj = blob, iRep = 1, plotStamp = FALSE )
-# figPath <- file.path("./data/fig7-retroBioSingleRepHMSPoor.pdf")
+
+```
+
+```{r fig8-tulipBtCtHMSPoor, echo = FALSE, warning = FALSE, fig.cap = tulipCatLossHMSPoorCap, fig.width = 9, out.width = "9in" }
+plotLossTulip(  sim = "sim_parBatDERTACS_reruns_tunedHMS_Sep2417", 
+                groupFolder   = params$groupFolder,
+                lossType      = "abs",
+                var           = "C_ispt",
+                dim1          = 1:2,
+                dim2          = 1:3,
+                save          = FALSE,
+                clearBadReps  = TRUE )
+
+# figPath <- file.path("./data/fig6-tulipBtCtHMSPoor.pdf")
 # knitr::include_graphics(figPath)
 
 ```
