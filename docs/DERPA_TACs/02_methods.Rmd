@@ -5,35 +5,34 @@
 British Columbia's multi-species complex of right-eyed flounders is 
 a technically interacting group of flatfishes managed across the whole
 BC coast. Although there are several right-eyed flounders in BC waters, 
-we focus on Dover sole, English sole, and southern Rock sole, which we
-hereafter refer to as Rock sole. Taken together, these species comprise 
-a multi-stock complex (DER complex), managed as part of the BC 
-multi-species groundfish fishery.
+we focus on the three species, indexed by $s$, Dover sole ($s = 1$), 
+English sole ($s = 2$), and southern Rock sole ($s = 3$), which we hereafter 
+refer to as Rock sole. Taken together, these species comprise a multi-stock 
+complex (DER complex), managed as part of the BC multi-species groundfish 
+fishery.
 
 The DER complex is managed in three spatially distinct stock
-areas (Figure 1) [@PRIFMP2015]. From north to south, the first 
-stock area - Hecate Strait/Haida Gwaii (HSHG) - corresponds to
-BC groundfish management area 5CDE, extending from 
-Dixon Entrance and north of Haida Gwaii, south through 
-Hecate Strait. The second stock area - Queen Charlotte Sound 
-(QCS) - corresponds to BC groundfish management area 5AB, 
-extending from the southern tip of Haida Gwaii to the northern
-tip of Vancouver Island. Finally, the third area - West Coast of 
-Vancouver Island (WCVI) - corresponds to groundfish management 
-area 3CD, extending from the northern tip of Vancouver Island 
-south to Juan de Fuca Strait.
+areas, indexed by $p$ (Figure 1) [@PRIFMP2015]. From north to south, the 
+first stock area - Hecate Strait/Haida Gwaii (HSHG, $p = 1$) - extends from 
+Dixon Entrance and north of Haida Gwaii, south through Hecate Strait. 
+The second stock area - Queen Charlotte Sound (QCS, $p = 2$) - extends 
+from the southern tip of Haida Gwaii to the northern tip of Vancouver Island. 
+Finally, the third area - West Coast of Vancouver Island (WCVI, $p = 3$) - 
+extends from the northern tip of Vancouver Island south to Juan de Fuca Strait.
 
-Each area had commercial trawl catch for the entire history (1956 - 2016), 
-two commercial catch rate series, and at least one survey biomass index 
-time series for each species (Figure 2). The two commercial fishery 
+Each species/area combination had commercial trawl catch for the entire 
+history (1956 - 2016), two commercial catch rate series, and at least one survey 
+biomass index time series for each species (Figure 2), for a total of
+four distinct fleets, indexed by $f$. The two commercial fishery 
 catch-per-unit-effort (CPUE) series span 1976 - 2016, split between a 
-historical trawl fishery (1976 - 1995) and a modern trawl fishery 
-(1996 - 2016), with the split corresponding to pre- and post-implementation 
-of an at-sea-observer program, respectively. The fishery 
+historical trawl fishery (1976 - 1995, $f = 1$) and a modern trawl fishery 
+(1996 - 2016, $f = 2$), with the split corresponding to pre- and 
+post-implementation of an at-sea-observer programme, respectively. The fishery 
 independent trawl survey biomass indices were the biennial Hecate Strait 
-Assemblage survey in the HSHG area (1984 - 2002), and the Multi-species 
-Synoptic Trawl Survey, which operated every year but alternates between areas,
-so it is effectively a biennial survey in all three areas (2003 - 2016).
+Assemblage survey in the HSHG area (1984 - 2002, $f = 3$), and the 
+Multi-species Synoptic Trawl Survey, which operated every year but 
+alternates between areas, so it is effectively a biennial survey in all 
+three areas (2003 - 2016, $f = 4$).
 
 
 ## Closed-loop feedback simulation framework
@@ -63,10 +62,11 @@ fishing effort was allowed to increase until at least one
 species-/area-specific TAC was fully caught.
 
 The simulation projected population dynamics for each species in each
-area (total nine stocks) forward in time for $32$ years (two Dover sole generations), with annual 
-simulated assessments, harvest decisions, and catch removed from 
-the population from 2017 - 2048. The following four steps summarise 
-the closed-loop simulation procedure for each projection year $t$:
+area (total nine stocks) forward in time for $32$ years (two Dover sole 
+generations), with annual simulated assessments, harvest decisions, and 
+catch removed from the population from 2017 - 2048. The following four 
+steps summarise the closed-loop simulation procedure for each 
+projection year $t$:
 
 1. Update stochastic population dynamics and
 generate new realized catch $C_{s,p,t}(E_{p,t})$ in each
@@ -279,16 +279,17 @@ pooled according to the stock-specific definition above. For Assemblage
 and Synoptic survey biomass indices, pooled indices without 
 observation error were defined as
 \begin{align} 
-\bar{I}^{pooled}_{s,f,t}  & = \sum_{p} \mathcal{I}(I_{s,p,f,t} > 0) \cdot q_{s,p,f} \cdot B_{s,p,f,t} \\
-\bar{I}^{pooled}_{p,f,t}  & = \sum_{s} \mathcal{I}(I_{s,p,f,t} > 0) \cdot q_{s,p,f} \cdot B_{s,p,f,t} \\
-\bar{I}^{pooled}_{f,t}    & = \sum_{s,p} \mathcal{I}(I_{s,p,f,t} > 0) \cdot q_{s,p,f} \cdot B_{s,p,f,t}
+\bar{I}^{pooled}_{s,f,t}  & = \sum_{p} \mathbb{1}{\mathcal{I}}(I_{s,p,f,t} > 0) \cdot q_{s,p,f} \cdot B_{s,p,f,t} \\
+\bar{I}^{pooled}_{p,f,t}  & = \sum_{s} \mathbb{1}{\mathcal{I}}(I_{s,p,f,t} > 0) \cdot q_{s,p,f} \cdot B_{s,p,f,t} \\
+\bar{I}^{pooled}_{f,t}    & = \sum_{s,p} \mathbb{1}{\mathcal{I}}(I_{s,p,f,t} > 0) \cdot q_{s,p,f} \cdot B_{s,p,f,t}
 \end{align}
 where $\bar{I}^{pooled}_{s,f,t}$ is the spatially pooled index for species
 $s$, $\bar{I}^{pooled}_{p,f,t}$ is a species pooled index for area $p$, 
 $\bar{I}^{pooled}_{f,t}$ is the totally aggregated index (all without
-error), and $\mathcal{I}(I_{s,p,f,t} > 0)$ is the indicator function that 
-takes value $1$ when survey leg for fleet $f$ in area $p$ was running in 
-year $t$. Pooled commercial CPUE indices were simulated as
+error), and $\mathbb{1}{\mathcal{I}}(I_{s,p,f,t} > 0)$ is the indicator 
+function that takes value $1$ when survey $f$ in area $p$ took samples in 
+year $t$, and 0 otherwise. Pooled commercial CPUE indices were simulated 
+as
 \begin{align} 
 \bar{I}^{pooled}_{s,f,t}  & = \frac{\sum_{p} C_{s,p,f,t}}{\sum_{p} E_{p,f,t} } \\
 \bar{I}^{pooled}_{p,f,t}  & = \frac{\sum_{s} C_{s,p,f,t}}{ E_{p,f,t} } \\
@@ -419,8 +420,9 @@ The three data quality scenarios range from relatively data-rich to
 data-poor by successively removing commercial CPUE index series from the 
 full set, i.e.,
 
-1. Data-**Rich**: Historical CPUE, Modern CPUE, Assemblage 
-survey, Synoptic survey;
+1. Data-**Rich**: Historical CPUE (1956 - 1996), Modern CPUE (1996 onwards), 
+Assemblage survey (1984 - 2002, biennial, HSHG only), Synoptic survey 
+(2003 onwards, biennial);
 2. Data-**Mod**erate: Modern CPUE, Assemblage survey, Synoptic survey;
 4. Data-**Poor**: Assemblage survey, Synoptic survey.
 
@@ -429,7 +431,25 @@ Single-stock assessment models were initialised later under the **Mod**
 and **Poor** data scenarios, with the starting year of the
 assessments set to the first year with index data, which was 1984 in
 HSHG for both scenario, and 1997 or 2003 for other areas under
-the **Mod** and **Poor** scenarios, respectively. 
+the **Mod** and **Poor** scenarios, respectively. While it may be unusual to
+consider the case with only fishery-independent data as "data-poor", 
+we are defining this based on time-series length relative to the stock 
+history, and observation series precision. The Assemblage survey was 
+highly variable, with a biennial frequency on a design that could
+be considered a fixed station survey, and only surveys one area
+out of the three. Similarly, the Synoptic survey time series is quite short, 
+with only 7 or 8 observations in each area, covering only the most recent 
+23\% of the historical period, and it is not optimally designed to survey any 
+one groundfish species. The production model AMs will struggle to estimate
+biomass and productivity using only observations from a short time period at 
+the end of a stock's one-way trip history that misses most of the original 
+depletion signal. 
+
+We did not include a scenario where only fishery CPUE is used for management 
+purposes, as this is not a realistic case for the real BC groundfish fishery, 
+and we preferred not to introduce variability between scenarios by defining 
+a new TAC allocation method, which would have been necessary in the absence 
+of the Synoptic survey index.
 
 
 ### Performance evaluation
@@ -495,17 +515,16 @@ period $T_1 = 2028$ to $T_2 = 2037$, chosen in the middle of the projection
 period because dynamics in the earlier period were dominated by the smoothers 
 on effort and catch for the omniscient manager and TACs, respectively.
 
-A paired analysis was used to determine the best performing AM 
-configuration across species, stocks and replicates. Within each
-replicate, each AM's cumulative absolute catch loss determined the relative 
-rank of each AM under a species/stock/OM scenario combination, where lower 
-loss ranked higher. Any replicates with less than 95\% convergence rates for 
-any AM on any management units were excluded from the aggregate rankings, and 
-any species/stock combinations that failed to reach 100 replicates meeting 
-the convergence criteria for all AMs were excluded as well, to reduce
-variability in ranking distributions caused by varying sample sizes and 
-random seeds. Rankings were then pooled across remaining species and stocks 
-within an OM/AM combination, from which the modal rank and average rank
+A paired analysis was used to determine rank AM configurations across species, 
+stocks and replicates. Within each replicate, each AM's cumulative absolute catch 
+loss determined the relative rank of each AM under a species/stock/OM scenario 
+combination, where lower loss ranked higher. Any replicates with less than 95\% 
+convergence rates for any AM on any management units were excluded from the 
+aggregate rankings, and any species/stock combinations that failed to reach 
+100 replicates meeting the convergence criteria for all AMs were excluded as 
+well, to reduce variability in ranking distributions caused by varying sample 
+sizes and random seeds. Rankings were then pooled across remaining species and 
+stocks within an OM/AM combination, from which the modal rank and average rank
 were calculated.
 
 

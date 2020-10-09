@@ -3,34 +3,35 @@
 In this paper, we demonstrated that hierarchical stock assessment
 models may improve management performance in a data-limited, multi-species 
 flatfish fishery. When available data quality was moderate or poor 
-(indicated here by time-series length), biomass estimates from 
-hierarchical stock assessment models resulted in catches that were closer 
-to an omniscient manager's optimal reference 
-series compared to catch limits derived from single-stock and data-pooling 
-assessment methods. Under high data quality scenarios, data-pooling
-methods outperformed hierarchical models, but the latter 
-still outperformed single-stock assessment methods. Improved performance
-relative to single-stock models under lower data quality conditions
-is consistent with our previous study, where statistical performance
-of hierarchical multi-stock assessments improved with decreasing 
-data quantity and quality [@johnson2018evaluating]. This suggests
-that hierarchical assessment methods would generally be a better
-approach than conventional single-species methods under typical
-fisheries data quality conditions.
+(indicated here by time-series length), biomass and harvest rate estimates 
+from hierarchical stock assessment models resulted in catches that were 
+closer to an omniscient manager's optimal reference series compared to catch 
+limits derived from single-stock and data-pooling assessment methods. Under 
+high data quality scenarios, data-pooling methods outperformed hierarchical 
+models, but the latter still outperformed single-stock assessment methods. 
+Improved performance relative to single-stock models under lower data quality 
+conditions is consistent with our previous study, where statistical performance
+of hierarchical multi-stock assessments improved with decreasing data quantity 
+and quality [@johnson2018evaluating]. This suggests that hierarchical assessment 
+methods would generally be a better approach to making catch limit decisions 
+than conventional single-species methods under typical fisheries data quality 
+conditions, such as short or noisy time series of fishery-independent 
+observations.
 
 Our results arise from models that are necessarily a simplification
 of the real stock-management system. The harvest rules applied to DER complex 
 species were relatively simple and may require more detail or complexity 
-for practical applications. First, the harvest rules were all constant target 
-harvest rates, which do not include precautionary "ramping-down" of 
-catch towards a limit biomass level [@DFO2006A-Harvest-Strat; @cox2013roles]. 
-Including a ramped harvest rule may have reduced the probability of 
-some stocks being critically overfished in some cases, but probably at
-some further cost of choke effects. Second, catch 
-limits for the simulated DER complex were set based on fixed target harvest 
-rates that were derived *a priori* from multi-species yield curves, and not 
-estimated as part of the assessment models that we tested. Incorporating 
-multi-species yield curve calculations based on assessment model ouput 
+for practical applications. All harvest rules were constant target harvest 
+rates, which do not include precautionary "ramping-down" of catch towards a 
+limit biomass level [@DFO2006A-Harvest-Strat; @cox2013roles]. Including a 
+ramped harvest rule would reduce the probability of stocks being critically 
+overfished in some cases, probably at some further cost of choke effects, but
+there was very little chance of critically overfishing any stock under
+our simulations anyway. Second, catch limits for the simulated DER complex 
+were set based on estimated target harvest rates that were scaled by 
+*a priori* known scalars derived from multi-species yield curves, which may 
+positively bias results towards lower catch loss in general. Incorporating 
+multi-species yield curve calculations to the assessment model ouput 
 into the harvest decision would be simple to do, but would require either 
 a model of increased complexity to link fishing effort to single-species 
 yield, or an extra assumption linking effort to surplus production model 
@@ -83,10 +84,11 @@ clear that our median results would be significantly different given
 the potential magnitude of assessment model errors in data-limited
 scenarios. Impacts of a detailed effort dynamics sub-model would probably
 be more important in more extreme data-limited scenarios that relied
-solely on fishery CPUE as an index of abundance. In fact, it would be
-interesting to determine whether the hierarchical information-sharing
-approach would exacerbate assessment model errors in such a (common)
-context where fishery CPUE is the main abundance index.
+solely on fishery CPUE as an index of abundance, which we did not
+test here. In fact, it would be interesting to determine whether the 
+hierarchical information-sharing approach would exacerbate assessment 
+model errors in the (common) context where fishery CPUE is the main 
+abundance index.
 
 Despite the limitations above, our results indicate that even in fisheries 
 with long time series of catch and effort data, hierarchical multi-species 
@@ -94,55 +96,42 @@ assessment models may be preferable over typical single-species methods.
 The poor performance of the single-species models in all scenarios 
 highlights the difference between data-rich (i.e., a higher quantity of data) 
 and information-rich (i.e., data with higher statistical power) fisheries. 
-The data-rich scenario differed 
-from data-moderate and data-poor scenarios by the inclusion of a historical 
-series of fishery dependent CPUE, which was quite noisy and subject to the 
-effects of changing harvester behaviour like targeting (variable catchability), 
-and therefore, additional historical CPUE data had little effect on cumulative 
-catch loss under the single-species models. In contrast, the data-pooling 
-procedures all ranked higher than single-species and multi-species models 
-under the data-rich scenario, as they were able to leverage additional 
-statistical power from the historical CPUE by effectively increasing the 
-sample size through data aggregation. The superior performance of the 
+The data-rich scenario differed from data-moderate and data-poor scenarios by 
+the inclusion of a historical series of fishery dependent CPUE, which was quite 
+noisy and subject to the effects of changing harvester behaviour like targeting 
+(variable catchability), and therefore, additional historical CPUE data had 
+little effect on cumulative catch loss under the single-species models. In 
+contrast, the data-pooling procedures all ranked higher than single-species and 
+multi-species models under the data-rich scenario, as they were able to leverage 
+additional statistical power from the historical CPUE by effectively increasing 
+the sample size through data aggregation. The superior performance of the 
 hierarchical model over the single-species model under the data-rich scenario 
-indicate that shared priors partially compensate for low statistical power, 
-but not as much as data-pooling. 
+indicate that shared priors partially compensate for low statistical power
+when setting TACs, but not as much as data-pooling. 
 
-Although the data-pooled methods performed better under the rich scenario, 
-they were more sensitive to priors, so those results may be optimistically 
-biased in all scenarios. Data-pooled observation errors were simulated as 
-independent of the observation errors in the component indices, using the
-average standard deviation of the components. If aggregate indices pooled 
-errors from each component index, then the resulting observation error 
-variance would be additive in the components, especially if those errors 
-were positively correlated, which may be the case under a common survey 
-or fishery.
+The data-pooled methods performed better under the Rich scenario and were
+generally insensitive to priors, indicating that the data were more 
+influential than priors on the TACs and allocation. This may be because 
+data-pooled observation errors are biased low, being simulated 
+independently of the observation errors in the component indices, and 
+using the average standard deviation of the components. If aggregate 
+indices pooled errors from each component index, then the resulting 
+observation error variance would be additive in the components, especially 
+if those errors were positively correlated, which may be the case under a 
+common survey or fishery. 
 
-A dual effect of control was observed under catch limits set by 
-the hierarchical models in the data-poor scenario, in which lower
-contrast in assessment model outputs reduced the statistical power of 
-assessment model data, sacrificing long term adaptability of the management
-system in favour of short term stability in catch. Moreover, there was 
-limited evidence that adaptive learning was facilitated through the shared 
-hierarchical prior distributions [@collie1991adaptive]. Uninformative catch 
-series resulting from a lack of large perturbations (sometimes caused by 
-large catch errors) resulted in hierarchical multi-species assessment model 
-estimates that viewed HSHG English sole as a larger and less productive 
-stock, causing negatively biased assessment estimates of biomass to approach 
-the multi-species $B_{MSY,MS}$ value for that stock, and indicating that 
-the assessments believed the TACs were appropriately scaled to the target 
-harvest rates. Relaxing hierarchical prior standard deviations in the 
-sensitivity analysis removed this persistent bias and all stocks approached 
-biomass levels associated with multi-species maximum yield; however, 
-information sharing was not wholly responsible for the improved behaviour, 
-which appeared to also rely on a favourable combination of assessment errors 
-and technical interactions as in the other stock areas. Adaptive learning catalysts
-like large stock perturbations may have been limited by a low recruitment 
-process error standard deviation of $\sigma_{s,p} = .4$ in DER complex 
-simulations, which was required for fitting the DER complex OM to data. 
-Future work could relax this assumption to test whether perturbations 
-stemming from higher recruitment variability would improve adaptive 
-learning of hierarchical assessment methods [@walters1986adaptive].
+One might expect that data-pooled methods would outperform other methods 
+as future precision in the Synoptic survey was increased, amplifying the
+pooling advantage, but this was not the case. The lack of dominance 
+by the pooled methods was caused by the allocation model and, when pooled
+over space, the pooling method. The allocation model allocated TAC in 
+proportion to Synoptic survey index, which was biased away from absolute
+stock size by the Synoptic trawl efficiency parameter, leading to 
+under-allocation for some species/areas and choke constraints. When
+data were pooled over areas, the alternating biennial observations
+caused a sawtooth pattern as low and high biomass areas dominated
+the pooled index, which inflated the observation errors independent
+of the survey precision.
 
 We showed that choke effects are not a uniformly negative outcome for 
 multi-species fisheries, and may indicate a mismatch between the target
@@ -157,8 +146,8 @@ in the complex. In reality, choke effects would likely be lessened
 by changing species catchability via harvester targeting and avoidance,
 creating a more complex relationship between effort and complex
 yield; but, the existence of a choke species would still indicate 
-a mismatch between an individual species TAC and the optimal exploitation 
-level for the multi-species complex.
+a mismatch between an individual species' TAC and the optimal exploitation 
+rate for meeting the management objectives for the multi-species complex.
 
 
 <!-- A logical next step for practical application of hierarchical AMs in 
@@ -186,18 +175,24 @@ of technical interactions [@moffitt2016moving].
 
 ## Conclusion
 
-Hierarchical multi-species assessment models can out-perform single-species
+Hierarchical multi-species assessment models can outperform single-species 
 assessment models in meeting multi-species harvest objectives across 
-data-rich, data-moderate, and data-poor scenarios. As expected, biomass
-estimation performance of hierarchical models improved relative to
-other methods as data quantity was reduced, and - as hoped - this
-translated into improved management performance across the multi-species
-flatfish fishery. We therefore recommend that assessment and management
-of multi-species fisheries include technical interactions when 
-designing harvest strategies and management procedures aimed at
-achieving strategic objectives. Otherwise, error-prone single-species
-approaches may give a misleading picture of the expected performance
-of multi-species fishery management.
+data-rich, data-moderate, and data-poor scenarios, while avoiding
+states of conservation concern with high probability. While hierarchical 
+model estimates of biomass used for setting TACs were sometimes more 
+biased than those produced by other methods, negatively correlated bias in 
+biomass and productivity was better matched under hierarchical models than
+the other methods as data quantity was reduced, which translated into 
+more optimal TACs and better management performance across the multi-species 
+flatfish fishery. We recommend that assessment and management of multi-species 
+fisheries include hierarchical models and acknowledge technical interactions 
+when designing harvest strategies and management procedures for data-limited, 
+multi-species fisheries aimed at achieving strategic objectives. Otherwise, 
+management procedures and harvest strategies based on single-species approaches 
+that rely heavily on prior knowledge (inducing bias) and ignore technical 
+interactions (making objectives impossible to achieve) may give a misleading 
+picture of the expected management performance in data-limited, multi-species 
+fisheries.
 
 # Acknowledgements
 

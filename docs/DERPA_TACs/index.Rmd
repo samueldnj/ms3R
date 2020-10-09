@@ -1,5 +1,5 @@
 ---  
-title: "Hierarchical stock assessment methods improve management performance in multi-species, data-limited fisheries."
+title: "Setting TACs using hierarchical stock assessment models improves management performance in multi-species, spatially-replicated, data-limited fisheries."
 author:
   - name: Samuel D. N. Johnson
     email: samuelj@sfu.ca
@@ -15,19 +15,7 @@ footnote:
   - code: 1
     text: Corresponding author
 abstract: |
-    Managers of multi-species fisheries aim to balance harvest of multiple 
-    interacting species that vary in abundance and productivity. Technical 
-    interactions are a defining characteristic of multi-species fisheries, 
-    and are often ignored when setting catch limits or target exploitation 
-    rates, despite their effect on the ability to balance multi-species 
-    harvest. Balancing harvest is more difficult when stock assessments are 
-    impossible to perform due to data-limitations, involving *inter alia* 
-    short time series of fishery independent observations, poor catch 
-    monitoring, limited biological data, and spatial mismatching of 
-    harvest decisions to system structure. In this paper, we asked whether 
-    using hierarchical, data-limited stock assessment methods to set catch
-    limits improved management performance in data-limited, multi-species
-    fisheries. Management performance of five alternative 
+    Management performance of five alternative 
     stock assessment methods was evaluated by using them to set harvest 
     levels targeting multi-species maximum yield in a multi-species flatfish 
     fishery, including single-species and hierarchical multi-species 
@@ -38,10 +26,10 @@ abstract: |
     intended to produce choke effects often observed in output 
     controlled multi-species fisheries. Hierarchical multi-species models 
     outperformed all other methods under data-poor and data-moderate 
-    scenarios, and outperformed single-species models under the data-rich 
-    scenario. Hierarchical models were least sensitive to prior precision, 
-    sometimes improving in performance when prior precision was reduced. 
-    Choke effects were found to both positive and negative effects, 
+    scenarios, approaching optimal catch/biomass trajectories and avoiding
+    states of conservation concern with high probability, and outperforme 
+    single-species models under the data-rich scenario. 
+    Choke effects were found to have both positive and negative outcomes, 
     sometimes leading to underfishing of non-choke species, but at other 
     times preventing overfishing of non-choke species. We highlight the 
     importance of including technical interactions in multi-species 

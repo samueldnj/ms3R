@@ -1681,7 +1681,7 @@ plotSensBatchSummary_SAisp <- function( groupFolder = "sensRuns_BmsyCV",
                                         xlab = "Bmsy CV",
                                         noPar = FALSE,
                                         plotPts = FALSE,
-                                        printLeg = FALSE
+                                        printLeg = TRUE
                                       )
 {
   # First, make cumulative loss array
@@ -1752,7 +1752,7 @@ plotSensBatchSummary_SAisp <- function( groupFolder = "sensRuns_BmsyCV",
   # Make lists to hold regressions
   scenRegList       <- vector(mode = "list", length = nScen)
 
-  stockSpecRegList  <- vector(mode = "list", length = nScen)
+  stockSpecRegList  <- vector(mode = "list", length = nS * nP)
   
   # Now, group and subtract mean of each species
   # response values
@@ -1770,19 +1770,23 @@ plotSensBatchSummary_SAisp <- function( groupFolder = "sensRuns_BmsyCV",
   if(!noPar)
     par( mar = c(2,2,1,1), oma = c(3,3,1,1))
 
-  plot( x = c(0,1.2 * max(meltedArray.df$CV, na.rm = T) ),
-        y = range(meltedArray.df$stdResp, na.rm = T),
+  yRange <- range(meltedArray.df$stdResp, na.rm = T)
+
+  plot( x = c(0,1.1*max(meltedArray.df$CV, na.rm = T) ),
+        y = c(yRange[1],1.4 * yRange[2]),
         xlab = "",
         ylab = "", axes = FALSE, type = "n" )
     mfg <- par("mfg")
-    axis(side = 1)
-
+    
     if( mfg[1] == mfg[3])
+    {
+      axis(side = 1)
       mtext( side = 1, text = xlab, outer = FALSE, line = 3)
+    }
 
     axis( side = 2, las = 1)
 
-
+    grid()
     abline( h = 0, lty = 2, lwd = 1 )
 
     box()
@@ -1800,9 +1804,11 @@ plotSensBatchSummary_SAisp <- function( groupFolder = "sensRuns_BmsyCV",
                 bg = "NA", pch = AMpch[AMlabs[amIdx]] )
     }
 
-    for( amIdx in plotAMidx)
-    {
 
+    amRegList <- vector(mode = "list", length = length(plotAMidx))
+    for( i in 1:length(plotAMidx))
+    {
+      amIdx <- plotAMidx[i]
       # Subset dataframe
       subDF <- meltedArray.df %>%
                 filter( AM == AMlabs[amIdx] )
@@ -1816,6 +1822,8 @@ plotSensBatchSummary_SAisp <- function( groupFolder = "sensRuns_BmsyCV",
         # Make scenario average regressions
         scenRegList[[scenIdx]]$lm <- lm( stdResp ~ CV, data = scenSubDF )
 
+        scenRegList[[scenIdx]]$stockSpecRegList <- stockSpecRegList
+
         listIdx <- 0
         for(s in 1:nS )
           for(p in 1:nP )
@@ -1827,8 +1835,8 @@ plotSensBatchSummary_SAisp <- function( groupFolder = "sensRuns_BmsyCV",
             stockSpecDF <- scenSubDF %>%
                             filter( stock == stockID,
                                     species == specID )
-
-            scenRegList[[scenIdx]]$stockSpecRegList <- stockSpecRegList
+            
+            names(scenRegList[[scenIdx]]$stockSpecRegList)[listIdx] <- paste(specID,"_",stockID,sep = "")
             scenRegList[[scenIdx]]$stockSpecRegList[[listIdx]] <- lm( stdResp ~ CV, data = stockSpecDF )
 
 
@@ -1837,21 +1845,46 @@ plotSensBatchSummary_SAisp <- function( groupFolder = "sensRuns_BmsyCV",
             #         lty = scenLty[scenIdx], lwd = .5 )
           }
 
-        abline( reg = scenRegList[[scenIdx]]$lm,
+        summSubDF <- scenSubDF %>%
+                      group_by(CV) %>%
+                      summarise( meanResp = mean(stdResp) ) 
+
+        summSubDF$predResp <- predict(object = scenRegList[[scenIdx]]$lm, newdata = summSubDF)
+
+        lines( x = summSubDF$CV, y = summSubDF$predResp,
                 col = AMcols[AMlabs[amIdx]],
-                lty = AMlty[AMlabs[amIdx]], lwd = 2 )
+                lty = AMlty[AMlabs[amIdx]], lwd = 2)
+        points( x = summSubDF$CV + xJitter[amIdx], y = summSubDF$meanResp,
+                col = AMcols[AMlabs[amIdx]],
+                bg = "NA", pch = AMpch[AMlabs[amIdx]])
+
+
+        # abline( reg = scenRegList[[scenIdx]]$lm,
+        #         col = AMcols[AMlabs[amIdx]],
+        #         lty = AMlty[AMlabs[amIdx]], lwd = 2 )
+
+        amRegList[[i]] <- scenRegList
 
       }
 
-
     }
+    amRegPval <- numeric(length = length(plotAMidx))
+    # Let's put the significance of each change
+    for( i in 1:length(plotAMidx) )
+    {
+      amRegPval[i] <- coef(summary(amRegList[[i]][[1]]$lm))[2,4]
+    }
+
+    legTxt <- paste("p = ", round(amRegPval,2), sep = "")
+
     if( printLeg )
     {
       legend( x = "topleft",
               bty = "n",
-              legend = names(AMlabs),
-              lty = AMlty[AMlabs],
-              col = AMcols[AMlabs], 
+              legend = legTxt,
+              lty = AMlty[AMlabs[plotAMidx]],
+              col = AMcols[AMlabs[plotAMidx]], 
+              pch = AMpch[AMlabs[plotAMidx]],
               lwd = 2 )
     }
 }
@@ -2745,11 +2778,11 @@ plotSensRuns_pub <- function()
                                     Poor_UmsyCV0.5  = "Poor_UmsyCV0.5",
                                     Poor_UmsyCV1.0  = "Poor_UmsyCV1.0" ),
                     hierSDrich = c( Rich_hierSD0.1  = "Rich_shrinkSD0.1",
-                                    Rich_hierSD0.5  = "Rich_shrinkSD0.5",
-                                    Rich_hierSD1.0  = "Rich_shrinkSD1.0"),
+                                    Rich_hierSD0.2  = "Rich_shrinkSD0.2",
+                                    Rich_hierSD0.5  = "Rich_shrinkSD0.5"),
                     hierSDpoor = c( Poor_hierSD0.1  = "Poor_shrinkSD0.1",
-                                    Poor_hierSD0.5  = "Poor_shrinkSD0.5",
-                                    Poor_hierSD1.0  = "Poor_shrinkSD1.0" ),
+                                    Poor_hierSD0.2  = "Poor_shrinkSD0.2",
+                                    Poor_hierSD0.5  = "Poor_shrinkSD0.5" ),
                     obsErrrich = c( Rich_obsErr0.1  = "Rich_obsErr0.1",
                                     Rich_obsErr0.5  = "Rich_obsErr0.5",
                                     Rich_obsErr1.0  = "Rich_obsErr1.0"),
@@ -2771,7 +2804,7 @@ plotSensRuns_pub <- function()
   groupFolders <- c("sens_MSYCV", "sens_UmsySD","sens_hierSD", "sens_projObsErr")
 
 
-  par( mfcol = c(2,4), oma = c(5,3,2,1), mar = c(2,2,1,1) )
+  par( mfcol = c(2,4), oma = c(6,3,2,1), mar = c(.1,2,.1,1) )
   for( sensIdx in 1:4 )
   {
 
@@ -2782,21 +2815,21 @@ plotSensRuns_pub <- function()
                                 period = 73:82,
                                 lossList = NULL,
                                 refPts = NULL,
-                                AMlabs = c( SS = "singleStock",
-                                            HMS = "hierMultiStock",
-                                            SpePool = "speciesPooling",
-                                            SpaPool = "spatialPooling",
-                                            TA = "totalAgg" ),
+                                AMlabs = rev(c( SS = "singleStock",
+                                                HMS = "hierMultiStock",
+                                                SpePool = "speciesPooling",
+                                                SpaPool = "spatialPooling",
+                                                TotPool = "totalAgg" )),
                                 scenLabs = scenLabs[[2 * sensIdx - 1]],
                                 clearBadReps = FALSE,
                                 scenSplitString = scenSplitString[sensIdx],
                                 xlab = xlab[sensIdx],
                                 noPar = TRUE,
-                                printLeg = FALSE
+                                printLeg = TRUE
                              )
 
     if( sensIdx == 4)
-      rmtext( txt = "Rich", font = 2, line = .05, outer = TRUE )
+      rmtext( txt = "Rich", font = 2, line = .05, outer = TRUE, cex = 1.5 )
 
     plotSensBatchSummary_SAisp( groupFolder = groupFolders[sensIdx],
                                 prefix = "parBat",
@@ -2805,27 +2838,27 @@ plotSensRuns_pub <- function()
                                 period = 73:82,
                                 lossList = NULL,
                                 refPts = NULL,
-                                AMlabs = c( SS = "singleStock",
-                                            HMS = "hierMultiStock",
-                                            SpePool = "speciesPooling",
-                                            SpaPool = "spatialPooling",
-                                            TA = "totalAgg" ),
+                                AMlabs = rev(c( SS = "singleStock",
+                                                HMS = "hierMultiStock",
+                                                SpePool = "speciesPooling",
+                                                SpaPool = "spatialPooling",
+                                                TotPool = "totalAgg" ) ),
                                 scenLabs = scenLabs[[2 * sensIdx]],
                                 clearBadReps = FALSE,
                                 scenSplitString = scenSplitString[sensIdx],
                                 xlab = xlab[sensIdx],
                                 noPar = TRUE,
-                                printLeg = FALSE
+                                printLeg = TRUE
                              )
 
     if( sensIdx == 4)
-      rmtext( txt = "Poor", font = 2, line = .05, outer = TRUE )
+      rmtext( txt = "Poor", font = 2, line = .05, outer = TRUE, cex = 1.5 )
     
 
     # mtext( side = 1, text = xlab[sensIdx], font = 2, line = 3)
   }
 
-  mtext( side = 2, text = "Std. diff from mean cumulative loss", 
+  mtext( side = 2, text = "Standardised difference from mean absolute cumulative loss", 
           outer = TRUE, line = 1)
   # Plot legend
   par(fig=c(0, 1, 0, 1), oma=c(0, 0, 0, 0), mar=c(0, 0, 0, 0), new=TRUE)
@@ -2833,8 +2866,10 @@ plotSensRuns_pub <- function()
     legend( x       = "bottom",
             horiz   = TRUE,
             bty     = "n",
-            legend  = c("Single-stock","Hierarchical","Species Pooling","Spatial Pooling","Total Aggregation"),
+            legend  = rev(c("Single-stock","Hierarchical","Species Pooling","Spatial Pooling","Total Pooling")),
             lty     = 1:5,
+            pch     = 21:25,
+            bg      = NA,
             col     = RColorBrewer::brewer.pal(5,"Dark2"), 
             lwd     = 2 )
 }

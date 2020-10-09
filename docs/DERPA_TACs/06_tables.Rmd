@@ -206,8 +206,8 @@ sensRunTable <- tibble::tribble(
     ~N,     ~Factor,                ~Levels,            ~Scenarios,     ~AMs,
     30,     "$MSY$ prior CV",   "$0.1, 0.5, 1.0$",  "Rich, Poor",  "All",
     30,     "$U_{MSY}$ prior SD",   "$0.1, 0.5, 1.0$",  "Rich, Poor",  "All",
-    6,      "$\\tau_q$, $\\sigma_{U_{MSY}}$", "$0.1, 0.2, .5$",   "Rich, Poor","Hierarchical only", 
-    30,     "Synoptic Survey Precision", "0.1,0.5,0.75", "Rich, Poor", "All")
+    6,      "Hierarchical prior SDs $\\tau_q$, $\\sigma_{U_{MSY}}$", "$0.1, 0.2, 0.5$",   "Rich, Poor","Hierarchical only", 
+    30,     "Synoptic survey SD $\\tau$", "0.1,0.5,1.0", "Rich, Poor", "All")
 
 
 kable(  sensRunTable, escape = FALSE,

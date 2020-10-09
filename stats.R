@@ -279,6 +279,7 @@ calcMSE_AMestimates <- function(  groupFolder="DERTACS_reruns_sep24",
     retroEstList[[simID]]$retroSB_itspt  <- blob$mp$assess$retroSB_itspt
     retroEstList[[simID]]$retroUmsy_itsp <- blob$mp$assess$retroUmsy_itsp
     retroEstList[[simID]]$retroBmsy_itsp <- blob$mp$assess$retroBmsy_itsp
+    retroEstList[[simID]]$retroMSY_itsp  <- blob$mp$assess$retroBmsy_itsp * blob$mp$assess$retroUmsy_itsp
     retroEstList[[simID]]$Bmsy_sp        <- blob$rp[[1]]$FmsyRefPts$BeqFmsy_sp
     retroEstList[[simID]]$YeqFmsy_sp     <- blob$rp[[1]]$FmsyRefPts$YeqFmsy_sp
     retroEstList[[simID]]$Umsy_sp        <- retroEstList[[simID]]$YeqFmsy_sp / retroEstList[[simID]]$Bmsy_sp
@@ -309,7 +310,7 @@ calcMSE_AMestimates <- function(  groupFolder="DERTACS_reruns_sep24",
   tabColNames <- c( "simID",
                     "Scenario","AM",
                     "Species","Stock",
-                    "MARE_Bt","MARE_Bmsy","MARE_Umsy")
+                    "MARE_Bt","MARE_Bmsy","MARE_Umsy","MARE_MSY")
   
   mareTable <- matrix(NA, nrow = nSims * nS * nP, ncol = length(tabColNames))
   
@@ -326,15 +327,20 @@ calcMSE_AMestimates <- function(  groupFolder="DERTACS_reruns_sep24",
     errList[[simID]]$mseSB_itsp   <- array(NA, dim = c(nReps,pT,nS,nP))
     errList[[simID]]$mseBmsy_itsp <- array(NA, dim = c(nReps,pT,nS,nP))
     errList[[simID]]$mseUmsy_itsp <- array(NA, dim = c(nReps,pT,nS,nP))
+    errList[[simID]]$mseMSY_itsp  <- array(NA, dim = c(nReps,pT,nS,nP))
 
     errList[[simID]]$mseSB_sp   <- array(NA, dim = c(nS,nP))
     errList[[simID]]$mseBmsy_sp <- array(NA, dim = c(nS,nP))
     errList[[simID]]$mseUmsy_sp <- array(NA, dim = c(nS,nP))
+    errList[[simID]]$mseMSY_sp  <- array(NA, dim = c(nS,nP))
+
+
 
     retroSB_itspt   <- retroEstList[[simID]]$retroSB_itspt
     omSB_ispt       <- retroEstList[[simID]]$SB_ispt
     retroUmsy_itsp  <- retroEstList[[simID]]$retroUmsy_itsp
     retroBmsy_itsp  <- retroEstList[[simID]]$retroBmsy_itsp
+    retroMSY_itsp   <- retroEstList[[simID]]$retroMSY_itsp
     omUmsy_sp       <- retroEstList[[simID]]$Umsy_sp
     omBmsy_sp       <- retroEstList[[simID]]$Bmsy_sp
     omYeqFmsy_sp    <- retroEstList[[simID]]$YeqFmsy_sp
@@ -345,6 +351,7 @@ calcMSE_AMestimates <- function(  groupFolder="DERTACS_reruns_sep24",
     {
       errBmsy_isp    <- array(NA, dim = c(nReps,nS,nP))
       errUmsy_isp    <- array(NA, dim = c(nReps,nS,nP))
+      errMSY_isp    <- array(NA, dim = c(nReps,nS,nP))
       errSB_ispt     <- array(NA, dim = c(nReps,nS,nP,nT))
 
       if( mpTable[i,"AM"] %in% c("speciesPooling","totalAgg") )
@@ -399,17 +406,20 @@ calcMSE_AMestimates <- function(  groupFolder="DERTACS_reruns_sep24",
 
         errBmsy_isp[j,1:nSS,1:nPP]    <- abs(retroBmsy_itsp[j,tt,1:nSS,1:nPP] - omBmsy_sp[1:nSS,1:nPP])/omBmsy_sp[1:nSS,1:nPP]
         errUmsy_isp[j,1:nSS,1:nPP]    <- abs(retroUmsy_itsp[j,tt,1:nSS,1:nPP] - omUmsy_sp[1:nSS,1:nPP])/omUmsy_sp[1:nSS,1:nPP]
+        errMSY_isp[j,1:nSS,1:nPP]     <- abs(retroMSY_itsp[j,tt,1:nSS,1:nPP] - omYeqFmsy_sp[1:nSS,1:nPP])/omYeqFmsy_sp[1:nSS,1:nPP]
       }
 
       errList[[simID]]$mseSB_itsp[,tt,1:nSS,1:nPP] <- apply(X = errSB_ispt[,1:nSS,1:nPP,,drop = FALSE], FUN = median, MARGIN = c(1,2,3),na.rm = T )
       errList[[simID]]$mseBmsy_itsp[,tt,1:nSS,1:nPP] <- errBmsy_isp[,1:nSS,1:nPP]
       errList[[simID]]$mseUmsy_itsp[,tt,1:nSS,1:nPP] <- errUmsy_isp[,1:nSS,1:nPP]
+      errList[[simID]]$mseMSY_itsp[,tt,1:nSS,1:nPP] <- errMSY_isp[,1:nSS,1:nPP]
 
     }
 
     errList[[simID]]$mseSB_sp[1:nSS,1:nPP]   <- apply( X = errList[[simID]]$mseSB_itsp[,,1:nSS,1:nPP,drop = FALSE], FUN = median, MARGIN = c(3,4),na.rm = T)
     errList[[simID]]$mseBmsy_sp[1:nSS,1:nPP] <- apply( X = errList[[simID]]$mseBmsy_itsp[,,1:nSS,1:nPP,drop = FALSE], FUN = median, MARGIN = c(3,4),na.rm = T)
     errList[[simID]]$mseUmsy_sp[1:nSS,1:nPP] <- apply( X = errList[[simID]]$mseUmsy_itsp[,,1:nSS,1:nPP,drop = FALSE], FUN = median, MARGIN = c(3,4),na.rm = T)
+    errList[[simID]]$mseMSY_sp[1:nSS,1:nPP]  <- apply( X = errList[[simID]]$mseMSY_itsp[,,1:nSS,1:nPP,drop = FALSE], FUN = median, MARGIN = c(3,4),na.rm = T)
 
     
 
@@ -436,6 +446,7 @@ calcMSE_AMestimates <- function(  groupFolder="DERTACS_reruns_sep24",
         mareTable[rowIdx,"MARE_Bt"]         <- round(errList[[simID]]$mseSB_sp[s,p],3)
         mareTable[rowIdx,"MARE_Bmsy"]       <- round(errList[[simID]]$mseBmsy_sp[s,p],3)
         mareTable[rowIdx,"MARE_Umsy"]       <- round(errList[[simID]]$mseUmsy_sp[s,p],3)
+        mareTable[rowIdx,"MARE_MSY"]        <- round(errList[[simID]]$mseMSY_sp[s,p],3)
 
         rowIdx <- rowIdx + 1
       }

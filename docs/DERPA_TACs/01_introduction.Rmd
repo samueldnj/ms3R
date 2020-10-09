@@ -73,11 +73,20 @@ estimates of species biomass and productivity than single-species
 methods in data-limited contexts, it remains unclear whether 
 such improved statistical performance translates into better 
 management outcomes [@johnson2018evaluating]. Aside from some related 
-simulationes determining the benefits of manually sharing information 
+simulations determining the benefits of manually sharing information 
 gained when actively adaptively managing spatially replicated groundfish 
 stocks [@collie1991adaptive], to our knowledge there are no evaluations 
-of the management performance of hierarchical stock assessment models.
-
+of the management performance of hierarchical stock assessment models. 
+Further, low assessment model bias and/or high precision, which are
+often unattainable outside of simulation, aren't necessary conditions 
+for superior management performance, as in practice biases can sometimes 
+compensate for each other (e.g., negative correlation in stock size and 
+productivity), or be compensated for by other parts of the management 
+system, such as a reduction in harvest rate. A modern fisheries management 
+oriented paradigm is more concerned with the expected performance 
+a fisheries management system - made up of data, assessments, and harvest 
+rules - despite the inherent, and at some point irreducible, uncertainties
+in the system [@de-la-Mare1998Tidier-fisherie].
 
 In this paper, we investigated whether hierarchical stock assessment models 
 improved management performance in a simulated multi-species, spatially

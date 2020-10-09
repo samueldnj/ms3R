@@ -10,20 +10,10 @@
 
 ```{r figCaptions, echo = FALSE, include = FALSE, warning = FALSE }
 
-DERcplxMapCap <- "Mininum trawlable survey biomass $B_{trawl}$ estimates for DER 
-complex species on the BC coast, aggregated to a 10km square grid.
-Estimates are produced by scaling average trawl survey ($kg/m^2$) 
-density values in each grid cell by the cell's area in $m^2$. 
-Locations that do not show a coloured grid cell do not have any 
-survey blocks from which to calculate relative biomass. Survey density 
-for each grid cell is calculated from data for the Hecate Strait 
-Assemblage Survey and the BC Groundfish Trawl Synoptic Survey, stored 
-in the GFBio data base maintained at the Pacific Biological Station 
-of Fisheries and Oceans, Canada. Thick black lines delineate the major 
-statistical areas 3CD and 5ABCDE used for groundfish management BC, while
-the dashed grey lines makr out latitude and longitude, indicating the
-rotation of the coordinates to save space. The full colour figure 
-is available in the online version of the article."
+DERcplxMapCap <- "Boundaries for each of the DER complex stock
+areas on the BC coast, showing, from north to south, 
+Hecate Strait/Haida Gwaii (HSHG), Queen Charlotte Sound (QCS), 
+and West Coast of Vancouver Island (WCVI)."
 
 dataSummFigCap <- "A summary of DER complex data available for fitting the 
 assessment model. Panels show species from left to right, and rows show
@@ -40,21 +30,6 @@ hierarchical model, the broken lines indicate that data are separated, but
 information is shared between populations via the statistical model's 
 hierarchical prior distributions."
 
-histStatusCap <- "Historical spawning biomass (red line) and catch (grey bars)
-for all 9 management units in the DER complex operating model. Species labels are at the top of each
-column, and stock area labels are on the right hand end of each row. Points
-are scaled commercial CPUE and survey biomass indices, which are scaled from
-data to spawning biomass by observation catchability and the ratio of model
-estimates of spawning and exploitable biomass, 
-e.g. $\\hat{I}^{(s)}_{spft} = \\frac{I_{spft}}{q_{spf}} \\cdot \\frac{\\hat{B}_{spt}}{\\hat{B}_{spft}}$."
-
-
-yieldCurveCap <- "Operating model equilibrium yield curves for a given
-fishing effort for the nine DER complex management units, as well as 
-complex yield curves within each stock area. Each panel shows the three
-individual DER complex species yield curves within a given stock area in
-different colours, and the complex yield curve found by summing the three
-yield curves as a thick black line."
 
 omniBtCtTulipsCap <- "Spawning biomass depletion and relative catch 
 simulation envelopes for all nine DER complex management units from 
@@ -65,27 +40,19 @@ showing three randomly selected simulation replicates. Catch is shown as grey
 bars in the historical period, which represent median catch in the projection, 
 with thin vertical line segments showing the central 95\\% of the catch 
 distribution. The depletion level associated with the traditional single 
-species optimal biomass $B_{MSY,SS}$ is shown as a dashed horizontal green 
-line, while the depletion level associated with our derived complex 
-level multi-species optimal yield is shown as a blue horizontal dashed line.
+species optimal biomass $B_{MSY,SS}$ is shown as an open green circle
+on the right-hand axis, while the depletion level associated with the 
+multi-species maximum yield is shown as a blue closed circle on the 
+right-hand axis.
 "
 
 omniEffTulipsCap <- "Commercial fishing effort simulation envelopes for 
 each stock area. Historical and median simulated effort in the projection 
 period are shown by a thicker black line, while the central 95\\% of the 
-distribution of simulated effort is shown as grey shaded region in the 
-projection period. Single simulation replicates in the projection period 
-are shown as thinner black lines."
-
-lossCatAbsCap  <- "Distributions of cumulative absolute loss in catch (kt) 
-for the projection years 2028 to 2037 under each assessment model and
-OM data scenario (x-axis labels). The points show the median loss, 
-while line segments show the central 90\\% of cumulative loss 
-distributions. Panels show the cumulative loss distributions by 
-species (columns) and stocks (rows). Each assessment model point type and 
-colour is shown in the legend at the bottom. Loss distributions
-for assessment models that couldn't reach 100 replicates with satisfactory
-convergence are shown as a dashed line."
+distribution of simulated effort in the projection period is shown as grey 
+shaded region, with single simulation replicates shown as thinner black lines.
+The effort level that achieves multi-species maximum yield is shown as
+a closed blue circle on the right-hand axis."
 
 lossRankCap  <- "Distributions of AM rankings by cumulative absolute 
 loss in catch (kt) for the projection years 2028 to 2037 under each 
@@ -108,6 +75,7 @@ distribution. Coloured circles on the right hand vertical axis show
 the biomass depletion level associated with the multi-species 
 (closed blue circle) and single-species (open green circle) 
 maximum sustainable yield."
+
 
 tulipCatLossSSPoorCap <- "Catch loss simulation envelopes for 
 the six DER complex management units included in the catch loss ranking, 
@@ -188,7 +156,7 @@ version of the plot."
 ```
 
 ```{r fig1-DERcomplexSurveyBio, echo = FALSE, warning = FALSE, fig.cap = DERcplxMapCap }
-figPath <- file.path("./data/fig1-DERcomplexSurveyBio.pdf")
+figPath <- file.path("./data/fig1-DERcomplexStockAreas.pdf")
 knitr::include_graphics(figPath)
 ```
 
@@ -309,14 +277,14 @@ plotRankDists(  groupFolder = "DERTACS_reruns_sep24",
 
 \clearpage
 
-```{r fig9-retroBioSingleRepSSPoor, echo = FALSE, warning = FALSE, fig.cap = retroBioSingleRepHMSPoorCap, fig.width = 9, out.width = "9in" }
+```{r fig9-retroBioSingleRepSSPoor, echo = FALSE, warning = FALSE, fig.cap = retroBioSingleRepSSPoorCap, fig.width = 9, out.width = "9in" }
 plotRetroSBagg(  obj = blob, iRep = 1, plotStamp = FALSE )
 
 ```
 
 \clearpage
 
-```{r fig8-tulipBtCtSSPoor, echo = FALSE, warning = FALSE, fig.cap = tulipCatLossHMSPoorCap, fig.width = 9, out.width = "9in" }
+```{r fig8-tulipBtCtSSPoor, echo = FALSE, warning = FALSE, fig.cap = tulipCatLossSSSPoorCap, fig.width = 9, out.width = "9in" }
 plotLossTulip(  sim = "sim_parBatDERTACS_reruns_tunedHMS_Sep2416", 
                 groupFolder   = params$groupFolder,
                 lossType      = "abs",
@@ -385,116 +353,11 @@ plotBatchCatchBioTradeoff(  groupFolder = params$groupFolder,
 
 \clearpage
 
-```{r fig11-regLossSensitivityRuns, echo = FALSE, warning = FALSE, fig.cap = batchLossSensSummaryCap, fig.width = 8, out.width = "8in"  }
+```{r fig11-regLossSensitivityRuns, echo = FALSE, warning = FALSE, fig.cap = batchLossSensSummaryCap, fig.width = 9, out.width = "9in", fig.asp = 0.7  }
+plotSensRuns_pub()
 
-
-# scenLabs <- list( MSYCVrich  = c( Rich_MSYCV0.1  = "Rich_MSYCV0.1",
-#                                   Rich_MSYCV0.5  = "Rich_MSYCV0.5",
-#                                   Rich_MSYCV1.0  = "Rich_MSYCV1.0"),
-#                   MSYCVpoor  = c( Poor_MSYCV0.1  = "Poor_MSYCV0.1",
-#                                   Poor_MSYCV0.5  = "Poor_MSYCV0.5",
-#                                   Poor_MSYCV1.0  = "Poor_MSYCV1.0" ),
-#                   UmsyCVrich = c( Rich_UmsyCV0.1  = "Rich_UmsyCV0.1",
-#                                   Rich_UmsyCV0.5  = "Rich_UmsyCV0.5",
-#                                   Rich_UmsyCV1.0  = "Rich_UmsyCV1.0"),
-#                   UmsyCVpoor = c( Poor_UmsyCV0.1  = "Poor_UmsyCV0.1",
-#                                   Poor_UmsyCV0.5  = "Poor_UmsyCV0.5",
-#                                   Poor_UmsyCV1.0  = "Poor_UmsyCV1.0" ),
-#                   hierSDrich = c( Rich_hierSD0.1  = "Rich_shrinkSD0.1",
-#                                   Rich_hierSD0.5  = "Rich_shrinkSD0.5",
-#                                   Rich_hierSD1.0  = "Rich_shrinkSD1.0"),
-#                   hierSDpoor = c( Poor_hierSD0.1  = "Poor_shrinkSD0.1",
-#                                   Poor_hierSD0.5  = "Poor_shrinkSD0.5",
-#                                   Poor_hierSD1.0  = "Poor_shrinkSD1.0" ),
-#                   obsErrrich = c( Rich_obsErr0.1  = "Rich_obsErr0.1",
-#                                   Rich_obsErr0.5  = "Rich_obsErr0.5",
-#                                   Rich_obsErr1.0  = "Rich_obsErr1.0"),
-#                   obsErrpoor = c( Poor_obsErr0.1  = "Poor_obsErr0.1",
-#                                   Poor_obsErr0.5  = "Poor_obsErr0.5",
-#                                   Poor_obsErr1.0  = "Poor_obsErr1.0" )
-#                    )
-
-# scenSplitString <- c( MSY     = "MSYCV",
-#                       Umsy    = "UmsyCV",
-#                       hierSD  = "shrinkSD",
-#                       obsErr  =  )
-
-# xlab <- c(  Bmsy = expression(CV(B[MSY])), 
-#             Umsy = expression( SD(U[MSY])), 
-#             hierSD = expression(paste( tau[q], " and ", sigma[U[MSY]] ) ) )
-
-# groupFolders <- c("sensRuns_BmsyCV", "sensRuns_UmsyCV","sensRuns_hierSD")
-
-
-# par( mfcol = c(2,3), oma = c(5,3,2,1), mar = c(2,2,1,1) )
-# for( sensIdx in 1:3 )
-# {
-
-#   plotSensBatchSummary_SAisp( groupFolder = groupFolders[sensIdx],
-#                               prefix = "parBat",
-#                               lossType = "abs",
-#                               var = "C_ispt",
-#                               period = 73:82,
-#                               lossList = NULL,
-#                               refPts = NULL,
-#                               AMlabs = c( SS = "singleStock",
-#                                           HMS = "hierMultiStock",
-#                                           SpePool = "speciesPooling",
-#                                           SpaPool = "spatialPooling",
-#                                           TA = "totalAgg" ),
-#                               scenLabs = scenLabs[[2 * sensIdx - 1]],
-#                               clearBadReps = FALSE,
-#                               scenSplitString = scenSplitString[sensIdx],
-#                               xlab = xlab[sensIdx],
-#                               noPar = TRUE,
-#                               printLeg = FALSE
-#                            )
-
-#   if( sensIdx == 3)
-#     rmtext( txt = "Rich", font = 2, line = .05, outer = TRUE )
-
-#   plotSensBatchSummary_SAisp( groupFolder = groupFolders[sensIdx],
-#                               prefix = "parBat",
-#                               lossType = "abs",
-#                               var = "SB_ispt",
-#                               period = 73:82,
-#                               lossList = NULL,
-#                               refPts = NULL,
-#                               AMlabs = c( SS = "singleStock",
-#                                           HMS = "hierMultiStock",
-#                                           SpePool = "speciesPooling",
-#                                           SpaPool = "spatialPooling",
-#                                           TA = "totalAgg" ),
-#                               scenLabs = scenLabs[[2 * sensIdx]],
-#                               clearBadReps = FALSE,
-#                               scenSplitString = scenSplitString[sensIdx],
-#                               xlab = xlab[sensIdx],
-#                               noPar = TRUE,
-#                               printLeg = FALSE
-#                            )
-
-#   if( sensIdx == 3)
-#     rmtext( txt = "Poor", font = 2, line = .05, outer = TRUE )
-  
-
-#   # mtext( side = 1, text = xlab[sensIdx], font = 2, line = 3)
-# }
-
-# mtext( side = 2, text = "Std. diff from mean cumulative loss", 
-#         outer = TRUE, line = 1)
-# # Plot legend
-# par(fig=c(0, 1, 0, 1), oma=c(0, 0, 0, 0), mar=c(0, 0, 0, 0), new=TRUE)
-#   plot(0, 0, type='n', bty='n', xaxt='n', yaxt='n')
-#   legend( x       = "bottom",
-#           horiz   = TRUE,
-#           bty     = "n",
-#           legend  = c("Single-stock","Hierarchical","Species Pooling","Spatial Pooling","Total Aggregation"),
-#           lty     = 1:5,
-#           col     = RColorBrewer::brewer.pal(5,"Dark2"), 
-#           lwd     = 2 )
-
-figPath <- file.path("./data/fig9-regLossSensitivityRuns.pdf")
-knitr::include_graphics(figPath)
+# figPath <- file.path("./data/fig9-regLossSensitivityRuns.pdf")
+# knitr::include_graphics(figPath)
 
 ```
 

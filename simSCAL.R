@@ -660,6 +660,8 @@ solvePTm <- function( Bmsy, B0 )
 
   I_spft[is.na(I_spft)] <- -1
 
+  AMmq_spf <- mq_spf
+  AMmq_sf  <- mq_sf
 
   # Single stock version (no hierarchical method)
   if( spSingleStock | (nSS == 1 & nPP == 1) )
@@ -685,6 +687,9 @@ solvePTm <- function( Bmsy, B0 )
           omUmsy_sp <- UmsySS_sp[s,p,drop = FALSE]
 
           PTm_sp <- omPTm_sp[s,p,drop = FALSE]
+
+          AMmq_spf  <- mq_spf[s,p,,drop = FALSE]
+          AMmq_sf   <- mq_sf[s,,drop = FALSE]
         }
 
         if( speciesPooling & spatialPooling )
@@ -699,6 +704,10 @@ solvePTm <- function( Bmsy, B0 )
           # Solve for total agg yield curve skew
           if( ctlList$mp$assess$spSkewYieldCurves )
             PTm_sp[1,1]     <- solvePTm( Bmsy = sum(BeqSS_sp), B0 = sum(B0_sp) )
+
+          newmq_spf <- mq_spf[1,1,,drop = FALSE]
+          newmq_spf[1,1,] <- apply(X = mq_spf, FUN = mean, MARGIN = c(3))
+          AMmq_spf <- newmq_spf
         }
 
         # Add Bmsy across stocks if coastwide
@@ -715,6 +724,10 @@ solvePTm <- function( Bmsy, B0 )
           PTm_sp          <- omPTm_sp[1,1,drop = FALSE]
           if( ctlList$mp$assess$spSkewYieldCurves )
             PTm_sp[1,1]    <- solvePTm( Bmsy = sum(BeqSS_sp[s,]), B0 = sum(B0_sp[s,]) )
+
+          newmq_spf <- mq_spf[1,1,,drop = FALSE]
+          newmq_spf[1,1,] <- apply(X = mq_spf[s,,], FUN = mean, MARGIN = c(2))
+          AMmq_spf <- newmq_spf
           
         }
 
@@ -732,6 +745,11 @@ solvePTm <- function( Bmsy, B0 )
 
           if( ctlList$mp$assess$spSkewYieldCurves )
             PTm_sp[1,1]    <- solvePTm( Bmsy = sum(BeqSS_sp[,p]), B0 = sum(B0_sp[,p]) )
+
+          newmq_spf <- mq_spf[1,1,,drop = FALSE]
+          newmq_spf[1,1,] <- apply(X = mq_spf[,p,], FUN = mean, MARGIN = c(2))
+          AMmq_spf <- newmq_spf
+          AMmq_sf  <- mq_sf[s,,drop = FALSE]
         }
 
         # OM HR multipliers
@@ -748,8 +766,8 @@ solvePTm <- function( Bmsy, B0 )
                                           nu_spfk = nu_spfk,
                                           P1_spf = P1_spf,
                                           P2_spf = P2_spf,
-                                          mq_spf = mq_spf,
-                                          mq_sf  = mq_sf,
+                                          mq_spf = AMmq_spf,
+                                          mq_sf  = AMmq_sf,
                                           sdlnq_f = sdlnq_f,
                                           omqDevs_spft = omqDevs_spft,
                                           oldStock = NULL,
@@ -1066,8 +1084,8 @@ solvePTm <- function( Bmsy, B0 )
                                       nu_spfk = nu_spfk,
                                       P1_spf = P1_spf,
                                       P2_spf = P2_spf,
-                                      mq_spf = mq_spf,
-                                      mq_sf  = mq_sf,
+                                      mq_spf = AMmq_spf,
+                                      mq_sf  = AMmq_sf,
                                       sdlnq_f = sdlnq_f,
                                       omqDevs_spft = omqDevs_spft,
                                       oldStock = NULL,
@@ -1792,8 +1810,9 @@ solvePTm <- function( Bmsy, B0 )
                       retroq_itspf      = array( NA, dim = c(nReps, pT, nS, nP, nF ) ),      # Retrospective catchability 
                       retroq_itspft     = array( NA, dim = c(nReps, pT, nS, nP, nF, nT ) ),  # Retrospective tv catchability 
                       retrotauObs_itspf = array( NA, dim = c(nReps, pT, nS, nP, nF ) ),      # Retrospective obs error estimates 
-                      retroUmsy_itspf   = array( NA, dim = c(nReps, pT, nS, nP ) ),          # Retrospective Umsy 
-                      retroBmsy_itspf   = array( NA, dim = c(nReps, pT, nS, nP ) ),          # Retrospective Bmsy 
+                      retroUmsy_itsp    = array( NA, dim = c(nReps, pT, nS, nP ) ),          # Retrospective Umsy 
+                      retroBmsy_itsp    = array( NA, dim = c(nReps, pT, nS, nP ) ),          # Retrospective Bmsy 
+                      retroMSY_itsp     = array( NA, dim = c(nReps, pT, nS, nP ) ),          # Retrospective Umsy 
                       maxGrad_itsp      = array( NA, dim = c(nReps, pT, nS, nP ) ),          # AM max gradient component
                       pdHess_itsp       = array( NA, dim = c(nReps, pT, nS, nP ) ),          # AM pdHessian?
                       posSDs_itsp       = array( NA, dim = c(nReps, pT, nS, nP ) ))          # AM all positive SDs?
@@ -1947,6 +1966,7 @@ solvePTm <- function( Bmsy, B0 )
       blob$mp$assess$retrotauObs_itspf[i,,,,]   <- simObj[[i]]$mp$assess$retrotauObs_tspf
       blob$mp$assess$retroUmsy_itsp[i,,,]       <- simObj[[i]]$mp$assess$retroUmsy_tsp
       blob$mp$assess$retroBmsy_itsp[i,,,]       <- simObj[[i]]$mp$assess$retroBmsy_tsp
+      blob$mp$assess$retroMSY_itsp[i,,,]        <- simObj[[i]]$mp$assess$retroMSY_tsp
       blob$mp$assess$maxGrad_itsp[i,,,]         <- simObj[[i]]$mp$assess$maxGrad_tsp
       blob$mp$assess$pdHess_itsp[i,,,]          <- simObj[[i]]$mp$assess$pdHess_tsp
       blob$mp$assess$posSDs_itsp[i,,,]          <- simObj[[i]]$mp$assess$posSDs_tsp
