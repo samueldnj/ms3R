@@ -1,10 +1,11 @@
 # # makeResultPlots.R
 source("ms3R.R")
 
-# lapply(X = 2:7, FUN = calcLoss, groupFolder = "sens_hierSD")
-# lapply(X = 2:31, FUN = calcLoss, groupFolder = "sens_MSYCV")
-# lapply(X = 2:31, FUN = calcLoss, groupFolder = "sens_projObsErr")
-# lapply(X = 2:31, FUN = calcLoss, groupFolder = "sens_UmsySD")
+lapply(X = 2:21, FUN = calcLoss, groupFolder = "DERTACs_reruns_Oct10")
+lapply(X = 2:7, FUN = calcLoss, groupFolder = "sens_hierSD")
+lapply(X = 2:31, FUN = calcLoss, groupFolder = "sens_MSYCV")
+lapply(X = 2:31, FUN = calcLoss, groupFolder = "sens_projObsErr")
+lapply(X = 2:31, FUN = calcLoss, groupFolder = "sens_UmsySD")
 
 
 
@@ -130,10 +131,12 @@ makeResultPlots <- function(groupFolder, prefix = "parBat", retroBioBatchPlot = 
   }
 }
 
+
+makeResultPlots("DERTACs_reruns_Oct10",retroBioBatchPlot = TRUE)
 makeResultPlots("sens_hierSD",retroBioBatchPlot = FALSE)
-# makeResultPlots("sens_MSYCV", retroBioBatchPlot = FALSE)
-# makeResultPlots("sens_projObsErr",retroBioBatchPlot = FALSE)
-# makeResultPlots("sens_UmsySD", retroBioBatchPlot = FALSE)
+makeResultPlots("sens_MSYCV", retroBioBatchPlot = FALSE)
+makeResultPlots("sens_projObsErr",retroBioBatchPlot = FALSE)
+makeResultPlots("sens_UmsySD", retroBioBatchPlot = FALSE)
 
 
 # plotRankDists_sp( groupFolder = "sens_projObsErr",

@@ -489,9 +489,9 @@ makePairedLossRankTable <- function(  groupFolder = "DERTACS_reruns_sep24",
                                                       SpecPool = "speciesPooling",
                                                       SpatPool = "spatialPooling",
                                                       TotPool = "totalAgg" ) ),
-                                      scenLabs = c( Rich  = "DERfit_HcMcAsSsIdx",
+                                      scenLabs = c( High  = "DERfit_HcMcAsSsIdx",
                                                     Mod  = "DERfit_McAsSsIdx",
-                                                    Poor = "DERfit_AsSsIdx" ) )
+                                                    Low = "DERfit_AsSsIdx" ) )
 {
   # First, calculate the paired loss ranks
   rankArray_SAisp <- calcPairedLossRank(  groupFolder = groupFolder,

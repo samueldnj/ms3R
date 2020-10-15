@@ -31,23 +31,22 @@ biomass, catch, and fishing mortality reach the equilibrium after a transition
 period of about 20 years. During the transitionary period, effort is slowly 
 ramped up in each area from the end of the historical period, stabilising 
 around area-specific $E_{MSY}$ after about 12 years (Figure 5, blue closed 
-circles). As is common, maximising catch over a finite time horizon led to 
-a reduction in biomass and an increase in effort towards the end of the 
-80 year projection period, where the lower biomasses resulting from 
+circles). As is common when maximising catch over a finite time horizon, 
+a reduction in biomass and an increase in effort was observed towards the end 
+of the 80 year projection period, where penalties from lower biomasses and  
 overfishing the stock relative to the multi-species optimal harvest 
-rate/effort are less of a penalty than the catch increases; however, the
-omniscient manager avoids a complete crash of the complex thanks to the 
-penalty on avoiding the critically overfished state at 40\% of single 
-species $B_{MSY,SS}$.
+rate are lower than the catch increases; however, the omniscient manager 
+avoids a complete crash of the complex thanks to the penalty on avoiding the 
+critically overfished state at 40\% of single species $B_{MSY,SS}$.
 
 Each area had similar relationships between single-species and multi-species
 optimal biomass levels, with one species overfished, one underfished, and one
-close to optimally fished, relative to single-species reference points. 
-In HSHG and QCS, the overfished stocks were both Rock sole, fished down to
-74\% (HSHG) and 81\% of $B_{MSY,SS}$ to increase fishery access to Dover 
-and English soles in those areas (Table 1). In WCVI, English sole was 
-slightly overfished relative to single-species at 91\% of $B_{MSY,SS}$, but
-this would be of little concern in a real fishery if the absolute size were
+close to optimally fished, relative to single-species reference points. In 
+HSHG and QCS, the overfished stocks were both Rock sole, fished down to 
+74\% (HSHG) and 81\% of $B_{MSY,SS}$ to increase fishery access to Dover and 
+English soles in those areas (Table 1). In WCVI, English sole was slightly 
+overfished relative to single-species at 91\% of $B_{MSY,SS}$, but this 
+would be of little concern in a real fishery if the absolute size were
 not so small. Despite the tendency of the omniscient manager toward 
 overfishing at least one species in each area, very few optimal solutions 
 risked severe overfishing below 40\% of $B_{MSY}$ (Table 3), indicating that 
@@ -69,50 +68,51 @@ for sustained periods.
 
 ### Rankings by catch loss
 
-Due to low convergence rates for HSHG Rock sole in the Rich scenario,
-and QCS and WCVI Rock sole under the Mod scenario (Figure S.1), all 
+Due to low convergence rates for HSHG Rock sole in the High scenario,
+and QCS and WCVI Rock sole under the Mod scenario (Figure S1), all 
 Rock sole results are excluded from catch loss rankings.
 
-Hierarchical Multi-stock assessment models ranked highest under the Poor 
-and Mod data quality scenarios (Table 4). Under the Poor data 
-quality scenario, the Hierarchical model had the lowest cumulative absolute 
+Hierarchical Multi-species assessment models ranked highest under the Low 
+and Mod data quantity scenarios (Table 4). Under the Low data 
+quantity scenario, the Hierarchical model had the lowest cumulative absolute 
 catch loss in over 40\% of replicate/stock/species combinations (Figure 6), 
 ranking highest by average and modal rank in the aggregate. When split
 across individual species/areas, the modal rank for the hierarchical AM
 remained at 1, but there was more variability in the ranking distributions
-in the HSHG area, leading to a drop in average rank  (Figure S.1). As data 
-quantity increased for the Mod scenario, the modal rank and average rank 
-of the hierarchical model remained the highest out of all AMs in the 
-aggregate, ranking 1st in 60% of cases (Figure 6), while the variability 
-in rankings in the HSHG area was reduced (Figure S.1), pushing the average 
-rank higher than under the Poor scenario. It was only under the Rich scenario 
-that the Hierarchical model rank fell, to fourth place by average rank, 
-and equal last with the Single-stock AM by modal rank, driven by 
-consistently poor performance in the QCS and WCVI areas (Figure S.1).
+in the HSHG area, leading to a drop in average rank  (Figure S1,
+online supplement). As data quantity increased for the Mod scenario, the 
+modal rank and average rank of the hierarchical model remained the highest 
+out of all AMs in the aggregate, ranking 1st in almost 60% of cases (Figure 
+6), while the variability in rankings in the HSHG area was reduced (Figure 
+S1), pushing the average rank higher than under the Low scenario. It was 
+only under the High scenario that the Hierarchical model rank fell, to 
+fourth place by average rank, and equal last with the Single-species AM by 
+modal rank, driven by consistently poor performance in the QCS and WCVI 
+areas (Figure S1).
 
-Under the Rich data quality scenario, the the data pooling methods ranked 
-highest in both modal and average ranks (Table 4, Rich). Species pooling 
-and spatial pooling performed similarly under the Rich scenario, with
+Under the High data quantity scenario, the the data pooling methods ranked 
+highest in both modal and average ranks (Table 4, High). Species and Spatial 
+Pooling methods performed similarly under the High scenario, with
 only a small difference between average ranks, and the similar frequencies
-between modal and second highest observed ranks (Figure 6, Rich scenario),
-a pattern reflected in individual stock rank distributions (Figure S.1).
+between modal and second highest observed ranks (Figure 6, High scenario),
+a pattern reflected in individual stock rank distributions (Figure S1).
 The Total Pooling AM's rank of 3rd place reflected its rank distribution, 
-where the modal rank of 3 was observed in over 50\% of cases in the aggregate 
-(Figure 6), and was also the modal rank for all individual stock 
-distributions (Figure S.1). As data were removed for the Mod data quality 
+where the modal rank of 3 was observed in around 50\% of cases in the 
+aggregate (Figure 6), and was also the modal rank for all individual stock 
+distributions (Figure S1). As data were removed for the Mod data quantity 
 scenario, the average and modal ranks of all pooled methods dropped, but
-the relative ordering remained the same. The Single-stock method had the 
-worst rank under all data-quality scenarios, with a consistent modal rank 
+the relative ordering remained the same. The Single-species method had the 
+worst rank under all data quantity scenarios, with a consistent modal rank 
 of 5th across all scenarios (Figure 6), with most consistently inferior 
-performance observed under the Mod data quality scenario, where the 
-average rank was 4.54 (Table 4).
+performance observed under the Mod data quantity scenario, where the 
+average rank was 4.59 (Table 4).
 
 Choke effects both increased and reduced catch loss, depending
 on the assessment errors. On the one hand, there were several cases
-under where AM underestimates of biomass and/or productivity produced TACs 
+where AM underestimates of biomass and/or productivity produced TACs 
 that produced a realised harvest rate much lower than the target associated 
 with maximum multi-species yield. This behaviour was most prominent under 
-single-stock AMs for the Poor and Mod scenario, where the fished 
+Single-species AMs for the Low and Mod scenario, where the fished 
 initialisation led the AMs to estimate a larger and less productive stock
 in equilibrium, estimating a steep early decline in biomass followed by 
 apparent equilibration to a low biomass state where catch balances production 
@@ -126,13 +126,13 @@ relative to the multi-species harvest rate. These "protective" choke
 effects were observed under the pooling AMs and the hierarchical AM,
 and occured even when there were large assessment errors. For example, under 
 the hierarchical AM in the Mod scenario, AMs perceived a larger and less 
-productive stock than the OM, similar to the single-stock AM, but shrinkage
+productive stock than the OM, similar to the Single-species AM, but shrinkage
 priors on productivity parameters were able to reduce the magnitude of 
 the error in $U_{MSY}$ so that, despite having some of the largest errors
 in biomass forecasts and the $B_{MSY}$, the AM did not perceive a stock that 
-quickly declined from its high initial biomass (Table S.2). Biomass estimates 
+quickly declined from its high initial biomass (Table S2). Biomass estimates 
 were then positively biased with respect to the operating model biomass, which 
-were then offset by the negatively biased productivity estimates, producing 
+were compensated by the negatively biased productivity estimates, producing 
 more appropriately scaled TACs for all stocks, with choke effects occasionally 
 protecting against overfishing. More optimal TACs then reduced catch loss 
 overall, with median catch loss close to zero for the 2028 - 2037 period 
@@ -144,14 +144,14 @@ overall, with median catch loss close to zero for the 2028 - 2037 period
 
 There was little risk of overfishing under any data scenario and AM
 combination (Table 4). No AM pushed stocks into a critically overfished 
-state where $B_{s,p,t} < 0.4 B_{MSY,SS,s,p}$ under the Rich and Mod data 
-scenarios, while under the Poor scenario a small probability of being 
-critically overfished was observed under the Species Pooling (1\%) and 
-Spatial Pooling (6\%) AMs. There were positive probabilities of being
-overfished ($B_{s,p,t} < 0.8 B_{MSY,SS,s,p}$) under all scenarios,
-with the highest observed under the Spatial Pooling AM and Poor scenario.
-The Single-stock AM never overfished any stock under any data scenario,
-as it always underestimated at least one species' biomass in each
+state where $B_{s,p,t} < 0.4 B_{MSY,SS,s,p}$ under the High and Mod data 
+scenarios, while under the Low scenario a small probability of being 
+critically overfished was observed under the Species Pooling (max 1\%) and 
+Spatial Pooling (max 6\%) AMs. As expected, there were higher probabilities 
+of being overfished ($B_{s,p,t} < 0.8 B_{MSY,SS,s,p}$) under all scenarios,
+with the highest observed at 22\% under the Spatial Pooling AM and Low 
+scenario. The Single-species AM never overfished any stock under any data 
+scenario, as it always underestimated at least one species' biomass in each
 area, producing a choke constraint and high catch loss as discussed
 above.
 
@@ -166,46 +166,47 @@ central 95\% of the omniscient manager's trajectories over the
 same time period (Figure 11) in order to understand the biomass and 
 catch trade-offs between different model choices.
 
-The Hierarchical Multi-stock assessment model median catch between 2028 
+The Hierarchical Multi-species assessment model median catch between 2028 
 and 2037 came closest (i.e., smaller Euclidean distance) to the omniscient 
-manager median catch under the Poor data quality scenario outside the HSHG 
-area (Figure 11, compare points to the horizontal segment in black 
-crosshair). Within HSHG, while the Hierarchical model tended to take a
-little more catch than the omniscient manager under the Poor scenario, 
-a large biomass surplus relative to the omniscient manager was present, 
-indicating that realised harvest rates from TACs set by the hierarchical
-AM are smaller than those set by the omniscient manager.
+manager median catch under the Low data quantity scenario outside the HSHG 
+area, and for HSHG Dover sole (Figure 11, compare points to the horizontal 
+segment in black crosshair). For HSHG English and Rock soles, while the 
+Hierarchical model tended to take a little more catch than the omniscient 
+manager under the Low scenario, a large biomass surplus relative to the 
+omniscient manager was present, indicating that realised harvest rates 
+from TACs set by the hierarchical AM were smaller than those set by the 
+omniscient manager.
 
-Although the range of biomass-catch trade-offs are quite broad for each 
+Although the range of biomass-catch trade-offs were quite broad for each 
 stock, the majority of Scenario/AM combinations lie inside the central 
 95\% distributions of the omniscient manager (Figure 11, black crosshairs). 
-Notable exceptions to this were the Single-stock models for all 
-species/areas under the Rich scenario and in HSHG under the Poor scenario
+Notable exceptions to this were the Single-species models for all 
+species/areas under the High scenario and in HSHG under the Low scenario
 for Dover and English, the Hierarchical models in QCS and WCVI under the 
-Rich scenario, and the Total Pooling method for WCVI Rock sole under the 
-Rich data quality scenario. As described above, the Single-stock methods 
-tended to under-estimate biomass and productivity under the Poor scenario, 
-so the tendency of the Single-stock median biomass-catch to be towards the 
-lower right corner of the range is expected. For the Single-stock and 
-Hierarchical methods under the Rich scenario, the reason is a combination 
-of large negative assessment errors in some or all years for choke speies, 
+High scenario, and the Total Pooling method for WCVI Rock sole under the 
+High data quantity scenario. As described above, the Single-species methods 
+tended to under-estimate biomass and productivity under the Low scenario, 
+so the tendency of the Single-species median biomass-catch to be towards the 
+lower right corner of the range is expected. For the Single-species and 
+Hierarchical methods under the High scenario, the reason is a combination 
+of large negative assessment errors in some or all years for choke species, 
 and the 20\% limit on increases in catch, producing a low-catch/high-biomass
-paradigm. Finally, the Total Pooling outlier in WCVI Rock is caused by 
+dynamic. Finally, the Total Pooling outlier in WCVI Rock Sole is caused by 
 a persistent small negative assessment error, and an underallocation of the 
 pooled TAC to WCVI Rock thanks to the differing Synoptic survey 
-catchabilities. The Total Pooling and Hierarchical methods for HSHG
-English and Rock soles were also outside the central 95\% of the omnisceint
-manager, but only marginally so. 
+catchabilities. The Total Pooling method was also outside the central
+95\% of the omnisceint manager in HSHG under the High scenario, but only 
+marginally so. 
 
 Catch-biomass trade-offs were approximately collinear under both
-Rich and Poor data quality scenarios for all stocks. All stock
-spawning biomasses are well above both the single-species and multi-species 
-optimal levels at the beginning of the projection period (e.g., Table 1,
-Stock Status), meaning that the catch limits set by all methods 
-were depleting a standing stock and benefited from its surplus 
-production. Under these conditions, an increase in catch almost linearly 
-caused a decrease in biomass as the compensatory effect of density dependence
-was minimal.
+High and Low data quantity scenarios for all stocks. All spawning 
+stock biomasses were well above both the single-species 
+and multi-species optimal levels at the beginning of the projection 
+period (e.g., Table 1, Stock Status), meaning that the catch limits 
+set by all methods were depleting a standing stock and benefited from 
+its surplus production. Under these conditions, an increase in catch 
+almost linearly caused a decrease in biomass as the compensatory 
+effect of density dependence was minimal. 
 
 
 ## Sensitivity of results to prior standard deviations
@@ -221,70 +222,58 @@ increasing prior uncertainty. Linear model slope parameter $p$-values
 for each AM were also calculated to determine if an effect was significant 
 or not, where we define significance as $p < 0.1$.
 
-The Hierarchical Multi-stock model was insensitive to increasing 
-$MSY$ prior CVs in the Poor scenario, but the most sensitive under the Rich 
-scenario (Figure 12, first column). Cumulative catch loss decreased on average 
-as the $MSY$ prior CV was decreased, with a decrease of about 1 standard deviation 
-under the Rich scenario, but the decrease was not significant under the
-Poor scenario ($p = 0.34$). The single-stock method had significant 
-changes under both scenarios, with catch loss decreasing by about 0.4
-standard deviations (Rich) and 1 standard deviation (Poor). The data-pooling methods 
-were all insensitive to the $MSY$ CV under the Rich scenario ($p > .5$), but all 
-pooling methods had significant changes under the Poor scenario, where the Total 
-Pooling method increased catch loss by about 0.5 standard deviations with 
-decreasing prior CVs, while the Spatial and Species pooling methods decreased 
-their catch loss by about 1 standard deviation, dropping below the Total Pooling 
-method. The increase in catch loss for the Total Pooling method as $MSY$ CVs 
-were reduced is related to the allocation method, where smaller stocks with low
-trawl efficency are under-allocated TAC relative to the target harvest rate, 
-based on their Synoptic survey indices. Higher $MSY$ CVs allowed for 
-overestimation of biomass, which led to higher TAC allocations for those stocks.
+The Hierarchical Multi-species model was insensitive to increasing 
+$MSY$ prior CVs in the Low scenario, but the most sensitive under the High 
+scenario (Figure 12, first column), where cumulative catch loss decreased by
+more than 1 standard deviation as the $MSY$ prior CV, appearing to
+be equal in median catch loss with the Total Pooling method. The Single-species 
+method had significant changes under both scenarios, with catch loss 
+decreasing by about 0.4 standard deviations (High) and 1 standard 
+deviation (Low). The Total and Spatial Pooling methods had no significant 
+response to the $MSY$ CV under both Low and High scenarios, while the 
+Species Pooling method increased catch loss by 0.3 standard deviations 
+with decreasing $MSY$ CV under the High scenario, and dropped about 1.5 
+standard deviations in catch loss under the Low scenario.
 
-The Single-stock AM was the only AM significantly sensitive to the $U_{MSY}$ 
-prior standard deviation under the Rich scenario, with catch loss decreasing
-by about 0.5 standard deviations (Figure 12, second column). Under the Poor
-scenario, the Single-stock, Hierarchical, and Species Pooling AMs were
-all significantly affected. Both the Hierarchical and Species Pooling AMs
-experienced reduced catch loss with deceasing $U_{MSY}$ prior standard deviation
-under the Poor scenario, dropping by about 0.5 standard deviations, but the 
-Single-stock AM's catch loss increased on average as prior standard deviation 
-decreased. This negative relationship is driven by decreased catch loss in the 
-QCS area as prior standard deviations were relaxed, producing higher $U_{MSY}$ 
-estimates that partially offset the negative biases in $\hat{B}_{t+1}$ under 
-the Single-stock/Poor AM/scenario combination in the main experiment 
-(Table S.2), which also persisted in the sensitivity analyses. The negative 
-correlation in $U_{MSY}$ and $\hat{B}_{t+1}$ biases for the QCS area produced 
-TACs that reduced catch loss, as with the Hierarchical AM under the Poor 
-scenario in the main experiment.
+The Hierarchical AM was significantly sensitive to the $U_{MSY}$ prior 
+standard deviation under the Low scenario (Figure 12, second column). 
+Hierarchical AM catch loss droppped by more than 2 standard deviations 
+in catch loss as $SD(U_{MSY})$ decreased from 1.0 to 0.1. Over the same 
+range, the Single-species AM had a significant increase in catch loss by 
+about 1 standard deviation with decreasing $SD(U_{MSY})$. The changes in 
+both Single-species and Hierarchical AMs' catch loss, and stabilty of all 
+other methods, under the Low scenario indicate a change in ranking, where 
+the Hierarchical AM drops from first to last place as $SD(U_{MSY})$ 
+approaches 1.0, while the Single-species AM goes from last to fourth 
+(when measured using median catch loss). No AM was significantly sensitive 
+to the $U_{MSY}$ prior standard deviation under the High scenario, but the 
+Single-species method catch loss decreased by about 0.5 standard deviations. 
 
-Interestingly, the Hierarchical Multi-stock assessment models reacted differently
-to changing catchability and $U_{MSY}$ hierarchical shrinkage priors under
-the Rich and Poor scenarios (Figure 12, third column). As $\sigma_{U_{MSY}}$ 
-and $\tau_q$ increased from 0.1 to 0.5, average catch loss increased by about 
-0.5 standard deviations under the Rich scenario, but the increase was non-significant 
-($p = 0.13$). The lack of significance may be because the relationship between prior 
-SD and catch loss is not linear, as evidenced by the dip in the catch-loss
-response $\tau_q = U_{MSY} = 0.2$, before increasing again $\tau_q = U_{MSY} = 0.5$.
-This suggests that, for the Rich scenario at least, that the optimal level
-of shrinkage to minimise catch loss is induced by hierarchical hyper-prior SDs 
-somewhere in the 0.1-0.5 range. Under the Poor scenario, median absolute 
+Interestingly, the Hierarchical Multi-species assessment models reacted 
+differently to changing catchability and $U_{MSY}$ hierarchical shrinkage 
+priors under the High and Low scenarios (Figure 12, third column). As 
+$\sigma_{U_{MSY}}$ and $\tau_q$ increased from 0.1 to 0.5, average catch 
+loss increased by about 0.5 standard deviations under the High scenario 
+($p = 0.04$), mostly driven by assessment errors in the QCS and WCVI areas,
+leading to a widening range of catch trajectories as hierarhical prior
+standard deviations increased. Under the Low scenario, median absolute 
 catch-loss dropped by about 1 standard devation, indicating that TACs were 
 closer to the omniscient manager as hyper-prior SDs increased. The improved 
-performance with increasing hyper-prior uncertainty was caused by a combination 
-of subtle effects, with some assessments becoming more biased, and others less 
-biased, which occasionally switched the choke species in an area. The 
-combination of raised and lowered catch limits and technical interactions 
-produced beneficial choke effects, reducing catch loss overall.
+performance with increasing hyper-prior uncertainty was caused by a 
+combination of subtle effects, with some assessments becoming more biased, 
+and others less biased, which occasionally switched the choke species in an 
+area. The combination of raised and lowered catch limits and technical 
+interactions produced beneficial choke effects, reducing catch loss overall.
 
 Finally, there was low sensitivity to the reduction in Synoptic survey
-standard errors (Figure 12, fourth column). Under the Rich scenario, the 
-Total Pooling method had a significant improvement of around .3 standard 
-deviations with decreasing standard error ($p = 0.04$), but all other AMs 
-had a flat response and/or insignificant effects ($p \geq .17$). Under 
-the Poor scenario, only the Species Pooling AM catch loss improved 
-significantly, dropping around 0.25 standard deviations with decreasing 
-Synoptic survey standard error ($p = 0.02$). For both scenarios, the 
-decreases in catch loss appear to be caused by a slight improvemeant 
+standard errors (Figure 12, fourth column). Under the High scenario, the 
+Species and Spatial Pooling methods had significant improvements of 
+around 0.3 standard deviations with decreasing standard error ($p < 0.01$), 
+but all other AMs had a flat response and/or insignificant effects 
+($p \geq .19$). Under the Low scenario, only the Species Pooling AM catch 
+loss improved significantly, dropping around 0.25 standard deviations with
+decreasing Synoptic survey standard error ($p = 0.01$). For both scenarios,
+the decreases in catch loss appear to be caused by a slight improvement 
 in pooled TAC allocation with increased survey precision, but choke
 constraints were still present.
 

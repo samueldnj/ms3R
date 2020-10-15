@@ -66,15 +66,6 @@ catching less than the historical miniumum during the time period
 2028 - 2037 for all nine DER complex stocks when managed by the 
 omniscient manager."
 
-AM_relErrorsTabCap <- "Bias and precision metrics (MRE, MARE) for assessment 
-model estimates under the Rich data scenario. Metrics were calculated for 
-spawning stock biomass $B_t$, assessment model 
-$B_{MSY}$, and assessment model $U_{MSY}$. Operating model $B_{MSY}$
-for pooled data AMs was defined by pooling optimal biomass for
-component stock, and operating model $U_{MSY}$ was found by pooling 
-single-species maximum yield, and taking the ratio of pooled yield
-and biomass."
-
 lossRankTabCap <- "Summary of AM catch loss rankings and biomass risk
 under each scenario. The catch loss rankings show the modal and average 
 ranks, calculated across replicates, species, and stocks. Biomass risk 
@@ -204,10 +195,10 @@ kable(  stockStatusTab, escape = FALSE,
 ```{r sensRunsTable, echo = FALSE}
 sensRunTable <- tibble::tribble( 
     ~N,     ~Factor,                ~Levels,            ~Scenarios,     ~AMs,
-    30,     "$MSY$ prior CV",   "$0.1, 0.5, 1.0$",  "Rich, Poor",  "All",
-    30,     "$U_{MSY}$ prior SD",   "$0.1, 0.5, 1.0$",  "Rich, Poor",  "All",
-    6,      "Hierarchical prior SDs $\\tau_q$, $\\sigma_{U_{MSY}}$", "$0.1, 0.2, 0.5$",   "Rich, Poor","Hierarchical only", 
-    30,     "Synoptic survey SD $\\tau$", "0.1,0.5,1.0", "Rich, Poor", "All")
+    30,     "$MSY$ prior CV",   "$0.1, 0.5, 1.0$",  "High, Low",  "All",
+    30,     "$U_{MSY}$ prior SD",   "$0.1, 0.5, 1.0$",  "High, Low",  "All",
+    6,      "Hierarchical prior SDs $\\tau_q$, $\\sigma_{U_{MSY}}$", "$0.1, 0.2, 0.5$",   "High, Low","Hierarchical only", 
+    30,     "Synoptic survey SD $\\tau$", "0.1,0.5,1.0", "High, Low", "All")
 
 
 kable(  sensRunTable, escape = FALSE,
@@ -264,20 +255,20 @@ kable(  omniPerfTab, escape = FALSE,
 
 
 ```{r lossRankTable, echo = FALSE, warning =FALSE}
-lossRankTables <- makePairedLossRankTable( groupFolder = params$groupFolder,
-                                          prefix = "parBat",
-                                          period = 73:82,
-                                          clearBadReps = TRUE,
-                                          minSampSize = 100 )
+lossRankTables <- makePairedLossRankTable(  groupFolder = params$groupFolder,
+                                            prefix = "parBat",
+                                            period = 73:82,
+                                            clearBadReps = TRUE,
+                                            minSampSize = 100 )
 # Replace Scenario names and AM names
 AMlabs <- c(  "singleStock"= "Single Stock",
               "hierMultiStock"= "Hierarchical Multi-stock",
               "speciesPooling"= "Species Pooling",
               "spatialPooling"= "Spatial Pooling",
               "totalAgg" = "Total Pooling")
-scenLabs <- c(  "DERfit_HcMcAsSsIdx" = "Rich",
+scenLabs <- c(  "DERfit_HcMcAsSsIdx" = "High",
                 "DERfit_McAsSsIdx" = "Mod",
-                "DERfit_AsSsIdx"  = "Poor")
+                "DERfit_AsSsIdx"  = "Low")
 
 summRank.df <- lossRankTables$rankSummary.df
 
@@ -302,8 +293,8 @@ lossRankTable <- summRank.df %>%
                   mutate( AM = str_replace_all(AM, AMlabs),
                           avgRank = round(avgRank,2),
                           scenario = as.character(scenario) ) %>%
-                  filter( scenario %in% c("Rich","Mod","Poor")) %>%
-                  arrange(match(scenario, c("Rich", "Mod", "Poor")),
+                  filter( scenario %in% c("High","Mod","Low")) %>%
+                  arrange(match(scenario, c("High", "Mod", "Low")),
                             avgRank) %>%
                   dplyr::select( scenario, AM, modalRank, avgRank, probCrit, probCaut ) 
 
@@ -329,7 +320,7 @@ kable(  lossRankTable[,-1], escape = FALSE,
         align = c("l","c","c","c","c") ) %>%
   kable_styling(latex_options = c( "hold_position"),
                 bootstrap_options = c("striped", "hover")) %>%
-  pack_rows( "Rich",1,5 ) %>%
+  pack_rows( "High",1,5 ) %>%
   pack_rows( "Mod",6,10 ) %>%
   pack_rows( "Poor",11,15 ) %>%
   add_header_above( c(" " = 1,

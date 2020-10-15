@@ -1,11 +1,12 @@
 # Figures
 
-```{r loadStuff, echo = FALSE, include = FALSE, warning = FALSE}
-.loadSim("sim_parBatDERTACS_reruns_tunedHMS_Sep2417", folder= params$groupFolder)
+<!-- 
+{r loadStuff, echo = FALSE, include = FALSE, warning = FALSE}
+.loadSim("sim_parBatDERTACs_reruns_Oct10_17", folder= params$groupFolder)
 
 
-```
 
+ -->
 
 
 ```{r figCaptions, echo = FALSE, include = FALSE, warning = FALSE }
@@ -62,10 +63,10 @@ distributions of ranks are across species, stocks, and replicates that
 met the 95\\% convergent AMs criterion. The modal rank is shown as
 a dark red bar, and the average rank as a vertical dashed line."
 
-tulipBtCtHMSPoorCap <- "Spawning biomass depletion and relative catch 
+tulipBtCtHMSLowCap <- "Spawning biomass depletion and relative catch 
 simulation envelopes for all nine DER complex management units when 
-assessed by the Hierarchical Multi-stock assessment model under the 
-Poor data-quality scenario. Median biomass is shown by the thick 
+assessed by the Hierarchical Multi-species assessment model under the 
+Low data-quality scenario. Median biomass is shown by the thick 
 black line, with the grey region showing the central 95\\% of the 
 distribution of spawning biomass, and thin black lines 
 showing three randomly selected simulation replicates. Catch is shown as grey 
@@ -77,20 +78,20 @@ the biomass depletion level associated with the multi-species
 maximum sustainable yield."
 
 
-tulipCatLossSSPoorCap <- "Catch loss simulation envelopes for 
+tulipCatLossSSLowCap <- "Catch loss simulation envelopes for 
 the six DER complex management units included in the catch loss ranking, 
-when assessed using the Single-stock assessment model under the 
-Poor data-quality scenario. Median catch loss is shown by the thick 
+when assessed using the Single-species assessment model under the 
+Low data-quality scenario. Median catch loss is shown by the thick 
 black line, the central 95\\% of the catch loss distribution is shown as
 the grey shaded region, and the thin black lines show three randomly selected 
 simulation replicates. The thick vertical dashed line shows the beginning
 of the projection period, and the horizontal thin dashed line shows zero
 catch loss."
 
-tulipCatLossHMSPoorCap <- "Catch loss simulation envelopes for 
+tulipCatLossHMSLowCap <- "Catch loss simulation envelopes for 
 the six DER complex management units included in the catch loss ranking, 
-when assessed using the Hierarchical Multi-stock assessment model under the 
-Poor data-quality scenario. Median catch loss is shown by the thick 
+when assessed using the Hierarchical Multi-species assessment model under the 
+Low data-quality scenario. Median catch loss is shown by the thick 
 black line, the central 95\\% of the catch loss distribution is shown as
 the grey shaded region, and the thin black lines show three randomly selected 
 simulation replicates. The thick vertical dashed line shows the beginning
@@ -98,11 +99,11 @@ of the projection period, and the horizontal thin dashed line shows zero
 catch loss."
 
 
-retroBioSingleRepSSPoorCap <- "Operating model spawning stock
+retroBioSingleRepSSLowCap <- "Operating model spawning stock
 biomass (red line), commercial trawl vulnerable biomass (grey dotted line), 
 retrospective assesment model estimates of spawning stock 
 biomass (thin grey/purple lines), and catch and TACs (grey bars) 
-from the first simulation replicate in the Poor data-quality scenario and
+from the first simulation replicate in the Low data-quality scenario and
 under the Single-stock assessment model. Catch bars show realised 
 catch in grey for the whole simulation period, and unfilled bars 
 in the projection period show the difference between MP set TACs 
@@ -113,12 +114,12 @@ maximum sustainable yield. Purple lines indicate an assessment with
 a non-positive-definite Hessian matrix."
 
 
-retroBioSingleRepHMSPoorCap <- "Operating model spawning stock
+retroBioSingleRepHMSLowCap <- "Operating model spawning stock
 biomass (red line), commercial trawl vulnerable biomass (grey dotted line), 
 retrospective assesment model estimates of spawning stock 
 biomass (thin grey/purple lines), and catch and TACs (grey bars) 
-from the first simulation replicate in the Poor data-quality scenario and
-under the Hierarchical Multi-stock assessment model. Catch bars show realised 
+from the first simulation replicate in the Low data-quality scenario and
+under the Hierarchical Multi-species assessment model. Catch bars show realised 
 catch in grey for the whole simulation period, and unfilled bars 
 in the projection period show the difference between MP set TACs 
 and realised catch. Coloured circles on the right hand vertical axis 
@@ -128,7 +129,7 @@ maximum sustainable yield."
 
 catchBioTradeoffCap <- "Tradeoff between catch and biomass 
 during the 2028 - 2037 period implied by switching between 
-different assessment models under Rich and Poor data-quality scenarios. 
+different assessment models under High and Low data-quality scenarios. 
 Panels are gridded by species (columns) and stocks (rows), with biomass 
 relative to $B_{MSY,MS,s,p}$ on the horizontal axis, and catch 
 relative to $MSY_{MS,s,p}$ on the vertical axis. Distributions of
@@ -140,7 +141,7 @@ level at which a stock is critically overfished is shown as a vertical
 red dashed line. Coloured point symbols show median biomass and catch 
 for over all replicates for different assessment models, with assessment 
 models under the same data-quality scenario joined by a solid line 
-(Rich) or dashed line (Poor)."
+(High) or dashed line (Low)."
 
 batchLossSensSummaryCap <- "Regressions showing the average 
 sensitivity of cumulative catch loss to the prior standard
@@ -162,35 +163,44 @@ knitr::include_graphics(figPath)
 
 \blandscape
 ```{r fig2-DERcplxdata, echo=FALSE, warning = FALSE, fig.cap=dataSummFigCap, fig.width = 6, out.width = "9in"}
-plotDataSummary(  blob, 
-                  dataCells = c( "Indices",
-                                 "Catch") )
+# plotDataSummary(  blob, 
+#                   dataCells = c( "Indices",
+#                                  "Catch") )
+figPath <- file.path("./data/fig2-DERcplxData.pdf")
+knitr::include_graphics(figPath)
+
 ```
 \elandscape
 
 \clearpage
 
 ```{r fig3-AMschematic, echo = FALSE, warning = FALSE, fig.cap = modelSchemCap, fig.width = 6, out.width = "5in", fig.asp = 1.5}
-plotAMschematic()
+# plotAMschematic()
+figPath <- file.path("./data/fig3-AMschematic.pdf")
+knitr::include_graphics(figPath)
 
 ```
 
 \clearpage
 
 \blandscape{}
-```{r loadOmni, echo = FALSE, include = FALSE, warning = FALSE}
+<!-- 
+{r loadOmni, echo = FALSE, include = FALSE, warning = FALSE}
 .loadSim(params$baseline, folder = params$groupFolder)
 
-```
+ -->
 
 ```{r fig4-omniBtCtTulips, echo = FALSE, warning = FALSE, fig.cap = omniBtCtTulipsCap, fig.width = 9, out.width = "9in"  }
-plotTulipBt(  obj = blob, nTrace = 3,
-              dep = TRUE,
-              ref = "B0",
-              Ct  = TRUE,
-              leg = FALSE,
-              clearBadReps = TRUE,
-              printStamp = FALSE )
+# plotTulipBt(  obj = blob, nTrace = 3,
+#               dep = TRUE,
+#               ref = "B0",
+#               Ct  = TRUE,
+#               leg = FALSE,
+#               clearBadReps = TRUE,
+#               printStamp = FALSE )
+
+figPath <- file.path("./data/fig4-omniRunTulipBt.pdf")
+knitr::include_graphics(figPath)
 
 
 ```
@@ -202,13 +212,16 @@ knitr::include_graphics(figPath) -->
 
 
 ```{r fig5-omniEffTulips, echo = FALSE, warning = FALSE, fig.cap = omniEffTulipsCap, fig.width = 9, out.width = "9in"   }
-plotTulipEffort_p(  obj = blob, 
-                    nTrace = 3, 
-                    fIdx = 1:2,
-                    combineFisheries = TRUE,
-                    envelopeFleet = 2,
-                    clearBadReps = TRUE,
-                    plotEmsy = TRUE )
+# plotTulipEffort_p(  obj = blob, 
+#                     nTrace = 3, 
+#                     fIdx = 1:2,
+#                     combineFisheries = TRUE,
+#                     envelopeFleet = 2,
+#                     clearBadReps = TRUE,
+#                     plotEmsy = TRUE )
+
+figPath <- file.path("./data/fig5-omniEffortTulip.pdf")
+knitr::include_graphics(figPath)
 
 
 ```
@@ -219,111 +232,97 @@ plotTulipEffort_p(  obj = blob,
 
 \clearpage
 
-<!-- {r fig6-batchLossAbsCatch, echo = FALSE, warning = FALSE, fig.cap = lossCatAbsCap, fig.width = 9, out.width = "9in" }
-plotBatchLossDists_Scenario(  groupFolder = params$groupFolder,
-                              prefix = "parBat",
-                              lossType = "abs",
-                              var = "C_ispt",
-                              period = 73:82,
-                              lossList = NULL,
-                              dim1 = 1:3,   # species (D,E,R, DP)
-                              dim2 = 1:3,   # stocks (H,Q,W, CW)
-                              qProbs = c(.025,.5,.975),
-                              scenLabs = c( Rich  = "DERfit_HcMcAsSsIdx",
-                                            Mod   = "DERfit_McAsSsIdx",
-                                            Poor  = "DERfit_AsSsIdx" ),
-                              clearBadReps = TRUE,
-                              minSampSize = 100 )
 
-# figPath <- file.path("./data/fig5-batchLossAbsCatch.pdf")
-# knitr::include_graphics(figPath)
+```{r fig6-lossRankDists, echo = FALSE, warning = FALSE, fig.cap = lossRankCap, fig.width = 9, out.width = "9in"  }
+# plotRankDists(  groupFolder = params$groupFolder,
+#                 prefix = "parBat",
+#                 lossType = "abs",
+#                 var = "C_ispt",
+#                 period = 73:82,
+#                 lossList = NULL,
+#                 dim1 = 1:3,   # species (D,E,R, DP)
+#                 dim2 = 1:3,   # stocks (H,Q,W, CW)
+#                 qProbs = c(.025,.5,.975),
+#                 refPts = "MSrefPts",
+#                 AMlabs = rev(c( "Single-stock" = "singleStock",
+#                                 "Hierarchical" = "hierMultiStock",
+#                                 "Species Pooling" = "speciesPooling",
+#                                 "Spatial Pooling" = "spatialPooling",
+#                                 "Total Pooling" = "totalAgg" )),
+#                 scenLabs = c( High  = "DERfit_HcMcAsSsIdx",
+#                               Mod  = "DERfit_McAsSsIdx",
+#                               Low = "DERfit_AsSsIdx" ),
+#                 clearBadReps = TRUE,
+#                 minSampSize = 100,
+#                 rotxlabs = 0,
+#                 xlab = TRUE,
+#                 vertLines = TRUE,
+#                 nGoodReps = 100 )
+
+figPath <- file.path("./data/fig6-lossRankDists.pdf")
+knitr::include_graphics(figPath)
+
+```
+
+<!-- {r loadSSLow, echo = FALSE, include = FALSE, warning = FALSE}
+.loadSim("sim_parBatDERTACs_reruns_Oct10_16", folder= params$groupFolder)
+
+
+ -->
+
+\clearpage
+
+```{r fig7-retroBioSingleRepSSLow, echo = FALSE, warning = FALSE, fig.cap = retroBioSingleRepSSLowCap, fig.width = 9, out.width = "9in" }
+# plotRetroSBagg(  obj = blob, iRep = 1, plotStamp = FALSE )
+figPath <- file.path("./data/fig7-retroBioSingleRepSSLow.pdf")
+knitr::include_graphics(figPath)
+
+```
+
+\clearpage
+
+```{r fig8-tulipCatLossSSLow, echo = FALSE, warning = FALSE, fig.cap = tulipCatLossSSLowCap, fig.width = 9, out.width = "9in" }
+# plotLossTulip(  sim = "sim_parBatDERTACs_reruns_Oct10_16", 
+#                 groupFolder   = params$groupFolder,
+#                 lossType      = "abs",
+#                 var           = "C_ispt",
+#                 dim1          = 1:2,
+#                 dim2          = 1:3,
+#                 save          = FALSE,
+#                 clearBadReps  = TRUE )
+
+figPath <- file.path("./data/fig8-tulipCatLossSSLow.pdf")
+knitr::include_graphics(figPath)
+
+```
+
+<!-- {r loadHMSLow, echo = FALSE, include = FALSE, warning = FALSE}
+.loadSim("sim_parBatDERTACs_reruns_Oct10_17", folder= params$groupFolder)
+
+
 
  -->
 \clearpage
 
-```{r fig7-lossRankDists, echo = FALSE, warning = FALSE, fig.cap = lossRankCap, fig.width = 9, out.width = "9in"  }
-plotRankDists(  groupFolder = "DERTACS_reruns_sep24",
-                prefix = "parBat",
-                lossType = "abs",
-                var = "C_ispt",
-                period = 73:82,
-                lossList = NULL,
-                dim1 = 1:3,   # species (D,E,R, DP)
-                dim2 = 1:3,   # stocks (H,Q,W, CW)
-                qProbs = c(.025,.5,.975),
-                refPts = "MSrefPts",
-                AMlabs = rev(c( "Single-stock" = "singleStock",
-                                "Hierarchical" = "hierMultiStock",
-                                "Species Pooling" = "speciesPooling",
-                                "Spatial Pooling" = "spatialPooling",
-                                "Total Pooling" = "totalAgg" )),
-                scenLabs = c( Rich  = "DERfit_HcMcAsSsIdx",
-                              Mod  = "DERfit_McAsSsIdx",
-                              Poor = "DERfit_AsSsIdx" ),
-                clearBadReps = TRUE,
-                minSampSize = 100,
-                rotxlabs = 0,
-                xlab = TRUE,
-                vertLines = TRUE,
-                nGoodReps = 100 )
+```{r fig9-retroBioSingleRepHMSLow, echo = FALSE, warning = FALSE, fig.cap = retroBioSingleRepHMSLowCap, fig.width = 9, out.width = "9in" }
+# plotRetroSBagg(  obj = blob, iRep = 1, plotStamp = FALSE )
+figPath <- file.path("./data/fig9-retroBioSingleRepHMSLow.pdf")
+knitr::include_graphics(figPath)
 
 ```
 
-```{r loadSSPoor, echo = FALSE, include = FALSE, warning = FALSE}
-.loadSim("sim_parBatDERTACS_reruns_tunedHMS_Sep2416", folder= params$groupFolder)
+```{r fig10-tulipCatLossHMSLow, echo = FALSE, warning = FALSE, fig.cap = tulipCatLossHMSLowCap, fig.width = 9, out.width = "9in" }
+# plotLossTulip(  sim = "sim_parBatDERTACs_reruns_Oct10_17", 
+#                 groupFolder   = params$groupFolder,
+#                 lossType      = "abs",
+#                 var           = "C_ispt",
+#                 dim1          = 1:2,
+#                 dim2          = 1:3,
+#                 save          = FALSE,
+#                 clearBadReps  = TRUE )
 
-
-```
-
-\clearpage
-
-```{r fig9-retroBioSingleRepSSPoor, echo = FALSE, warning = FALSE, fig.cap = retroBioSingleRepSSPoorCap, fig.width = 9, out.width = "9in" }
-plotRetroSBagg(  obj = blob, iRep = 1, plotStamp = FALSE )
-
-```
-
-\clearpage
-
-```{r fig8-tulipBtCtSSPoor, echo = FALSE, warning = FALSE, fig.cap = tulipCatLossSSSPoorCap, fig.width = 9, out.width = "9in" }
-plotLossTulip(  sim = "sim_parBatDERTACS_reruns_tunedHMS_Sep2416", 
-                groupFolder   = params$groupFolder,
-                lossType      = "abs",
-                var           = "C_ispt",
-                dim1          = 1:2,
-                dim2          = 1:3,
-                save          = FALSE,
-                clearBadReps  = TRUE )
-
-# figPath <- file.path("./data/fig6-tulipBtCtHMSPoor.pdf")
-# knitr::include_graphics(figPath)
-
-```
-
-```{r loadHMSPoor, echo = FALSE, include = FALSE, warning = FALSE}
-.loadSim("sim_parBatDERTACS_reruns_tunedHMS_Sep2417", folder= params$groupFolder)
-
-
-```
-
-\clearpage
-
-```{r fig9-retroBioSingleRepHMSPoor, echo = FALSE, warning = FALSE, fig.cap = retroBioSingleRepHMSPoorCap, fig.width = 9, out.width = "9in" }
-plotRetroSBagg(  obj = blob, iRep = 1, plotStamp = FALSE )
-
-```
-
-```{r fig8-tulipBtCtHMSPoor, echo = FALSE, warning = FALSE, fig.cap = tulipCatLossHMSPoorCap, fig.width = 9, out.width = "9in" }
-plotLossTulip(  sim = "sim_parBatDERTACS_reruns_tunedHMS_Sep2417", 
-                groupFolder   = params$groupFolder,
-                lossType      = "abs",
-                var           = "C_ispt",
-                dim1          = 1:2,
-                dim2          = 1:3,
-                save          = FALSE,
-                clearBadReps  = TRUE )
-
-# figPath <- file.path("./data/fig6-tulipBtCtHMSPoor.pdf")
-# knitr::include_graphics(figPath)
+figPath <- file.path("./data/fig10-tulipCatLossHMSLow.pdf")
+knitr::include_graphics(figPath)
 
 ```
 
@@ -331,33 +330,33 @@ plotLossTulip(  sim = "sim_parBatDERTACS_reruns_tunedHMS_Sep2417",
 
 \clearpage
 
-```{r fig10-catchBioTradeoff, echo = FALSE, warning = FALSE, fig.cap = catchBioTradeoffCap, fig.width = 9, out.width = "9in"  }
-plotBatchCatchBioTradeoff(  groupFolder = params$groupFolder,
-                            prefix = "parBat",
-                            period = 73:82,
-                            lossList = NULL,
-                            qProbs = c(.025,.5,.975),
-                            refPts = "MSrefPts",
-                            AMlabs = rev(c( "Single-stock" = "singleStock",
-                                            "Hierarchical" = "hierMultiStock",
-                                            "Species Pooling" = "speciesPooling",
-                                            "Spatial Pooling" = "spatialPooling",
-                                            "Total Pooling" = "totalAgg" )),
-                            scenLabs = c( Rich  = "DERfit_HcMcAsSsIdx",
-                                          Poor = "DERfit_AsSsIdx" ),
-                            minSampSize = 100  )
+```{r fig11-catchBioTradeoff, echo = FALSE, warning = FALSE, fig.cap = catchBioTradeoffCap, fig.width = 9, out.width = "9in"  }
+# plotBatchCatchBioTradeoff(  groupFolder = params$groupFolder,
+#                             prefix = "parBat",
+#                             period = 73:82,
+#                             lossList = NULL,
+#                             qProbs = c(.025,.5,.975),
+#                             refPts = "MSrefPts",
+#                             AMlabs = rev(c( "Single-stock" = "singleStock",
+#                                             "Hierarchical" = "hierMultiStock",
+#                                             "Species Pooling" = "speciesPooling",
+#                                             "Spatial Pooling" = "spatialPooling",
+#                                             "Total Pooling" = "totalAgg" )),
+#                             scenLabs = c( High  = "DERfit_HcMcAsSsIdx",
+#                                           Low = "DERfit_AsSsIdx" ),
+#                             minSampSize = 100  )
 
-# figPath <- file.path("./data/fig8-catchBioTradeoff.pdf")
-# knitr::include_graphics(figPath)
+figPath <- file.path("./data/fig11-catchBioTradeoff.pdf")
+knitr::include_graphics(figPath)
 ```
 
 \clearpage
 
-```{r fig11-regLossSensitivityRuns, echo = FALSE, warning = FALSE, fig.cap = batchLossSensSummaryCap, fig.width = 9, out.width = "9in", fig.asp = 0.7  }
-plotSensRuns_pub()
+```{r fig12-regLossSensitivityRuns, echo = FALSE, warning = FALSE, fig.cap = batchLossSensSummaryCap, fig.width = 9, out.width = "9in", fig.asp = 0.7  }
+# plotSensRuns_pub()
 
-# figPath <- file.path("./data/fig9-regLossSensitivityRuns.pdf")
-# knitr::include_graphics(figPath)
+figPath <- file.path("./data/fig12-regLossSensitivityRuns.pdf")
+knitr::include_graphics(figPath)
 
 ```
 

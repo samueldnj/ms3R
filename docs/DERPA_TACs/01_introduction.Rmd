@@ -8,9 +8,9 @@ variation in single-species optimal harvest rates, and, therefore,
 differential responses to exploitation. Single-species optimal harvest 
 rates (e.g., the harvest rate associated with maximum sustainable 
 yield) typically ignore both multi-species trophic interactions that
-influence individual demographic rates [@gislason1999single; 
+influence species' demographic rates [@gislason1999single; 
 @collie2001biological], and technical interactions that make it virtually 
-impossible to simultaneously achieve the optimal harvest rate for all 
+impossible to simultaneously achieve the optimal harvest rates for all 
 species [@pikitch1987use]. 
 
 Technical interactions among species that co-occur in non-selective 
@@ -44,31 +44,30 @@ sufficiently high rate [@benson2015evaluating; @punt2018estimates], and
 pooling data for multiple species of the same taxonomic group within an area 
 when data are insufficient for individual species or during development
 of new fisheries [@demartini2019hazards]. Data-pooled estimates of 
-productivity represent means across the species complex; therefore the 
-general cost of such pooling approaches is that catch limits will tend to 
-overfish unproductive species and underfish productive ones 
-[@gaichas2012assembly]. 
+productivity represent means across the species complex,implying that
+resulting catch limits will tend to overfish unproductive species and 
+underfish productive ones [@gaichas2012assembly]. 
 
 In multi-species and/or multi-area contexts, hierarchical stock assessment 
-models, which treat each area/species combination as an individual yet 
+models, which treat each area/species combination as a discrete yet 
 exchangeable replicate, may represent a compromise between single-species 
-approaches and data-pooling approaches.  For this paper, we define a 
+and data-pooling approaches.  For this paper, we define a 
 hierarchical stock assessment model as a model fit to multiple replicates 
 (e.g. areas/species) simultaneously, using hierarchical hyper-priors on 
-replicate-specific parameters to share information between replicates 
-[@thorson2015giants]. Hierarchical priors induce parameter shrinkage, which 
-draws parameters towards an estimated mean value, improving model convergence 
-for data-poor replicates while still estimating replicate-specific parameters 
-based on available data. Replicate specific estimates based on data stand in 
-contrast to data-pooled methods which estimate a mean value only, or 
-single-stock methods that may rely on strong *a priori* assumptions like 
-fixed values, forcing parameters to be identical among replicates, or using 
-strongly informative priors, all of which will almost certainly increase 
-assessment bias as those strong assumptions are difficult to formulate 
-in data-limited contexts [@jiao2009hierarchical; @jiao2011poor; 
-@punt2011among].
+selected parameters to share information between replicates 
+[@thorson2015giants]. Hierarchical priors induce shrinkage effects in 
+which parameter values are drawn towards an estimated overall mean value,
+thus improving model convergence for replicates with low statistical power
+data while still estimating replicate-specific parameters based on that 
+data. Hierarchical methods based on data and hyper-priors stand in 
+contrast to data-pooled methods that estimate a mean value only, or 
+single-stock methods that usually rely on strong *a priori* assumptions 
+about replicate specific parameters, forcing parameters to be identical 
+among replicates, or using strongly informative priors, all of which 
+will almost certainly increase assessment bias [@jiao2009hierarchical; 
+@jiao2011poor; @punt2011among].
 
-Although hierarchical stock assessments produce better
+Although hierarchical stock assessments are expected to produce better
 estimates of species biomass and productivity than single-species
 methods in data-limited contexts, it remains unclear whether 
 such improved statistical performance translates into better 
@@ -78,13 +77,13 @@ gained when actively adaptively managing spatially replicated groundfish
 stocks [@collie1991adaptive], to our knowledge there are no evaluations 
 of the management performance of hierarchical stock assessment models. 
 Further, low assessment model bias and/or high precision, which are
-often unattainable outside of simulation, aren't necessary conditions 
-for superior management performance, as in practice biases can sometimes 
-compensate for each other (e.g., negative correlation in stock size and 
-productivity), or be compensated for by other parts of the management 
+often unattainable outside of simulations, aren't necessary conditions 
+for superior management performance, because biases can, in practice, 
+sometimes compensate for each other (e.g., negative correlation in stock 
+size and productivity), or be offset for by other parts of the management 
 system, such as a reduction in harvest rate. A modern fisheries management 
-oriented paradigm is more concerned with the expected performance 
-a fisheries management system - made up of data, assessments, and harvest 
+oriented paradigm is more concerned with the expected performance of a 
+fisheries management system - made up of data, assessments, and harvest 
 rules - despite the inherent, and at some point irreducible, uncertainties
 in the system [@de-la-Mare1998Tidier-fisherie].
 
@@ -93,19 +92,20 @@ improved management performance in a simulated multi-species, spatially
 replicated, data-limited fishery. The simulated fishery was modeled on a 
 spatially heterogeneous complex of Dover sole (*Microstomus pacificus*), 
 English sole (*Parophrys vetulus*), and southern Rock sole 
-(*Lepidopsetta bilineata*), fished off the coast of British Columbia, Canada, 
-in three spatial management areas. Closed-loop feedback simulation was used 
-to estimate fishery outcomes when catch limits were set based on estimates 
-of biomass from single-species, data-pooling, and hierarchical
-state-space surplus production models under three data scenarios. 
-Assessment models were either fit to species specific data as 
-single-species or hierarchical multi-species models, or fit to data 
-pooled spatially across management units, pooled across species 
+(*Lepidopsetta bilineata*) off the coast of British Columbia, Canada, 
+fished in three spatial management areas. Closed-loop feedback simulation 
+was used to estimate fishery outcomes when catch limits were set based 
+on estimates of biomass from single-species, data-pooling, and hierarchical
+state-space surplus production models under high, moderate, and low data 
+quantity scenarios. Assessment models were either fit to species-specific 
+data as single-species or hierarchical multi-species models, or fit to 
+data pooled spatially across management units, pooled across species 
 within a spatial management unit, or totally aggregated across 
 both species and spatial management units. Management performance of 
-each assessment approach was measured as cumulative absolute loss in 
-catch, measured against optimal catch trajectories generated by an 
-omniscient manager, who could set annual effort to maximize total
-multi-species/multi-stock complex yield given perfect knowledge of all
-future recruitments [@walters1998evaluation; @martell2008retrospective]. 
+each assessment approach was by both the risk of overfishing, and
+by cumulative absolute loss in catch, defined as deviation from optimal 
+catch trajectories generated by an omniscient manager, who could set 
+annual effort to maximize total multi-species/multi-stock complex yield 
+given perfect knowledge of all future recruitments 
+[@walters1998evaluation; @martell2008retrospective]. 
 

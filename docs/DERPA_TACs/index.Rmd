@@ -1,5 +1,5 @@
 ---  
-title: "Setting TACs using hierarchical stock assessment models improves management performance in multi-species, spatially-replicated, data-limited fisheries."
+title: "Hierarchical surplus production stock assessment models improves management performance in multi-species, spatially-replicated, data-limited fisheries."
 author:
   - name: Samuel D. N. Johnson
     email: samuelj@sfu.ca
@@ -15,34 +15,33 @@ footnote:
   - code: 1
     text: Corresponding author
 abstract: |
-    Management performance of five alternative 
-    stock assessment methods was evaluated by using them to set harvest 
-    levels targeting multi-species maximum yield in a multi-species flatfish 
-    fishery, including single-species and hierarchical multi-species 
-    models, and methods that pooled data across species and spatial 
-    strata, with catch outcomes of each method under three data scenarios 
-    compared to catch under an omniscient manager simulation. 
-    Operating models included technical interactions between species
-    intended to produce choke effects often observed in output 
-    controlled multi-species fisheries. Hierarchical multi-species models 
-    outperformed all other methods under data-poor and data-moderate 
-    scenarios, approaching optimal catch/biomass trajectories and avoiding
-    states of conservation concern with high probability, and outperforme 
-    single-species models under the data-rich scenario. 
-    Choke effects were found to have both positive and negative outcomes, 
-    sometimes leading to underfishing of non-choke species, but at other 
-    times preventing overfishing of non-choke species. We highlight the 
-    importance of including technical interactions in multi-species 
-    assessment models and management objectives, how choke species can 
-    indicate mismatches between management objectives and system dynamics, 
-    and recommend hierarchical multi-species models for multi-species 
-    fishery management systems.
+    Managers of multi-species fisheries aim to balance harvest of target 
+    and non-target species that vary in abundance, productivity, and 
+    degree of technical interactions. In this paper, we evaluated
+    management performance of five data-limited stock assessment 
+    methods used in such a multi-species context. Data-limited methods 
+    included single-species and hierarchical multi-species models at the
+    extremes, as well as methods that pooled data across species and spatial 
+    strata. Operating models included technical interactions between species
+    intended to produce choke effects often observed in output controlled 
+    multi-species fisheries. Average annual yield of each method under three
+    data scenarios were compared to annual yield obtained by a simulated
+    omniscient manager. Yield and conservation performance of hierarchical 
+    multi-species models was superior to all other methods under low and
+    moderate data scenarios, and superior to single-species models under 
+    the higher data quantity scenario. These results were robust to a 
+    wide range of prior precision in assessment model biomass parameters, 
+    hierarchical prior precision for catchability and productivity, and 
+    future survey precision; however, results were sensitive to prior 
+    precision in assessment model productivity parameters under the low
+    data scenario, where the hierarchical multi-species method dropped
+    from first to fourth place, dominated by the data-pooling methods. 
 
 date: \today
 bibliography: bib/library.bib
 natbib: true
 journal: Fisheries Research
-biblio-style: plainnat
+biblio-style: apalike
 csl: csl/fisheries-research.csl 
 layout: review,authoryear
 geometry: letterpaper
@@ -51,7 +50,7 @@ fontsize: 12pt
 linenumbers: true
 csl-refs: true
 params:
-  groupFolder: "DERTACS_reruns_sep24"
+  groupFolder: "DERTACs_reruns_Oct10"
   baseline: "sim_omni_totCat_200reps"
   history: "fit_parBatfitAAL12"
 numbersections: true

@@ -1929,8 +1929,10 @@ plotRankDists_sp <- function( groupFolder = "DERTACS_reruns_sep24",
                               scenLabs = c( Rich  = "DERfit_HcMcAsSsIdx",
                                             Mod  = "DERfit_McAsSsIdx",
                                             Poor = "DERfit_AsSsIdx" ),
+                              specLabs = c("Dover","English","Rock"),
+                              stockLabs = c("HSHG", "QCS", "WCVI"),
                               clearBadReps = TRUE,
-                              minSampSize = 10,
+                              minSampSize = 100,
                               rotxlabs = 0,
                               xlab = TRUE,
                               vertLines = TRUE  )
@@ -1973,11 +1975,11 @@ plotRankDists_sp <- function( groupFolder = "DERTACS_reruns_sep24",
             xaxs = "i", yaxs = "i", type = "n", axes = FALSE )
       mfg <- par("mfg")
       if(mfg[1] == mfg[3])
-        axis( side = 1, at = 0.5 + 1:nS - 1, labels = 1:nS  )
+        axis( side = 1, at = 0.5 + 1:nS - 1, labels = specLabs  )
 
       # reverse y axis
       if(mfg[2] == 1)
-        axis( side = 2, at = 0.5 + 1:nP - 1, las = 1, labels = nP:1 )
+        axis( side = 2, at = 0.5 + 1:nP - 1, las = 1, labels = rev(stockLabs) )
 
       if(mfg[2] == mfg[4])
         rmtext( outer = TRUE, line = 0.1, txt = names(scenLabs)[scenIdx], font = 2, cex = 1.5 )
@@ -2095,15 +2097,15 @@ plotRankDists <- function(  groupFolder = "DERTACS_reruns_sep24",
         ind <- badRuns_arr.ind[j,]
         # Remove the species and stock results from all AMs - replace goodReps with TRUE
         # as the NAs in rank will be removed later
-        goodReps_SAisp[,,,ind[3],ind[4]] <- TRUE
+        goodReps_SAisp[,,,ind[3],ind[4]] <- NA
         rankArray_SAisp[,,,ind[3],ind[4]] <- NA
       }
 
     # Ok, now  we want to calculate the largest number of reps we have available
     goodReps_SAi <- apply(X = goodReps_SAisp, FUN = prod, MARGIN = c(1,2,3), na.rm = T)
-    goodReps_Si <- apply(X = goodReps_SAi, FUN = prod, MARGIN = c(1,3))
+    goodReps_Si <- apply(X = goodReps_SAi, FUN = prod, MARGIN = c(1,3), na.rm = T)
 
-    goodReps_i <- apply(X = goodReps_SAisp, FUN = prod, MARGIN = 3)
+    goodReps_i <- apply(X = goodReps_SAisp, FUN = prod, MARGIN = 3, na.rm = T)
 
     goodIdx <- which(goodReps_i == 1)
 
@@ -2176,10 +2178,6 @@ plotRankDists <- function(  groupFolder = "DERTACS_reruns_sep24",
             ytop    = rankProps,
             col = cols, border = "black" )
       segments(x0 = avgRank, y0 = 0, y1 = rankProps[whichMode], lty = 2, col = "black", lwd = 3)
-
-      text( x = .5, y = 0.9,
-            labels = totReps,
-            font = 2)
 
 
     }
@@ -2297,7 +2295,7 @@ plotDataSummary <- function(  blob,
 
 
 
-  fleetCols <- RColorBrewer::brewer.pal(nF,"Dark2")
+  fleetCols <- RColorBrewer::brewer.pal(nF,"Set2")
 
   checkPosObs <- function( arr, out = 16 )
   {
@@ -2331,7 +2329,7 @@ plotDataSummary <- function(  blob,
     for( p in 1:nP )
     {
       plot( x = range(years), y = c(0,2*length(dataCells)),
-            type = "n", axes = FALSE )
+            type = "n", axes = FALSE, yaxs = "i" )
         # Axes and labels
         mfg <- par( "mfg")
         if( mfg[1] == mfg[3] )
@@ -2353,13 +2351,13 @@ plotDataSummary <- function(  blob,
         box()
         
         # Break up window with hz lines
-        abline( h = seq(from = 2, by = 2, length = nCells), lwd = .8 )
+        abline( h = seq(from = 2, by = 2, length = nCells-1), lwd = .8 )
 
         # Plot catch
         if("Catch" %in% dataCells)
         {
         rect( xleft = years - .3, xright = years + .3,
-              ybottom = cellMins["Catch"], ytop = C_spt[s,p,],
+              ybottom = cellMins["Catch"], ytop = 1.5*C_spt[s,p,],
               col = "grey50", border = NA )
         }
 
@@ -5491,7 +5489,7 @@ plotRetroSBagg <- function( obj = blob, iRep = 1,
     for( p in 1:nPP )
     {
       plot( x = range(yrs),
-            y = c(0,max(VB_spt[s,p,],SB_spt[s,p,],na.rm = T) ),
+            y = c(0,max(VB_spt[s,p,],SB_spt[s,p,],retroSB_tspt[,s,p,],na.rm = T) ),
             type = "n", axes = F )
 
       mfg <- par("mfg")

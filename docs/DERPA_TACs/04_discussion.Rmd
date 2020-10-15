@@ -2,21 +2,17 @@
 
 In this paper, we demonstrated that hierarchical stock assessment
 models may improve management performance in a data-limited, multi-species 
-flatfish fishery. When available data quality was moderate or poor 
+flatfish fishery. When available data quantity was moderate or low 
 (indicated here by time-series length), biomass and harvest rate estimates 
 from hierarchical stock assessment models resulted in catches that were 
 closer to an omniscient manager's optimal reference series compared to catch 
 limits derived from single-stock and data-pooling assessment methods. Under 
-high data quality scenarios, data-pooling methods outperformed hierarchical 
+high data quantity scenarios, data-pooling methods outperformed hierarchical 
 models, but the latter still outperformed single-stock assessment methods. 
-Improved performance relative to single-stock models under lower data quality 
-conditions is consistent with our previous study, where statistical performance
-of hierarchical multi-stock assessments improved with decreasing data quantity 
-and quality [@johnson2018evaluating]. This suggests that hierarchical assessment 
-methods would generally be a better approach to making catch limit decisions 
-than conventional single-species methods under typical fisheries data quality 
-conditions, such as short or noisy time series of fishery-independent 
-observations.
+This suggests that hierarchical assessment methods could be a better 
+approach to making catch limit decisions than conventional single-species 
+methods under typical fisheries data quality conditions, such as short or 
+noisy time series of fishery-independent observations.
 
 Our results arise from models that are necessarily a simplification
 of the real stock-management system. The harvest rules applied to DER complex 
@@ -90,26 +86,73 @@ hierarchical information-sharing approach would exacerbate assessment
 model errors in the (common) context where fishery CPUE is the main 
 abundance index.
 
+Our assessment models were all different versions of a state-space
+surplus production model, and rankings of AMs may vary when other model
+configurations with more biological realism are included. For example, 
+the aggregate productivity parameter $U_{MSY}$ could be separated into 
+growth, natural mortality, and stock-recruit steepness by using a 
+delay-difference or age-structured model formulation [@deriso1980harvesting; 
+@schnute1985general; @fournier1982general], which may partially offset 
+the advantages of data-pooling and hierarchical assessment methods 
+exhibited above. However, in data-limited contexts where biological data 
+are of low sample size, there would be even greater reliance on 
+strong *a-priori* assumptions for additional parameters in models of 
+higher complexity, which we predict would lead to similar results.
+
 Despite the limitations above, our results indicate that even in fisheries 
 with long time series of catch and effort data, hierarchical multi-species 
 assessment models may be preferable over typical single-species methods. 
 The poor performance of the single-species models in all scenarios 
 highlights the difference between data-rich (i.e., a higher quantity of data) 
 and information-rich (i.e., data with higher statistical power) fisheries. 
-The data-rich scenario differed from data-moderate and data-poor scenarios by 
-the inclusion of a historical series of fishery dependent CPUE, which was quite 
-noisy and subject to the effects of changing harvester behaviour like targeting 
-(variable catchability), and therefore, additional historical CPUE data had 
-little effect on cumulative catch loss under the single-species models. In 
-contrast, the data-pooling procedures all ranked higher than single-species and 
-multi-species models under the data-rich scenario, as they were able to leverage 
-additional statistical power from the historical CPUE by effectively increasing 
+The high data quantity scenario differed from the moderate and low 
+scenarios by the inclusion of a historical series of fishery dependent CPUE, 
+which was quite noisy and subject to the effects of changing harvester 
+behaviour like targeting (variable catchability), and therefore, 
+additional historical CPUE data had little effect on cumulative catch 
+loss under the single-species models. In contrast, the data-pooling 
+procedures all ranked higher than single-species and multi-species models 
+under the data-rich scenario, as they were able to leverage additional 
+statistical power from the historical CPUE by effectively increasing 
 the sample size through data aggregation. The superior performance of the 
-hierarchical model over the single-species model under the data-rich scenario 
-indicate that shared priors partially compensate for low statistical power
-when setting TACs, but not as much as data-pooling. 
+hierarchical model over the single-species model under the high data 
+scenario indicate that shared priors partially compensate for low 
+statistical power when setting TACs, but not as much as data-pooling.
 
-The data-pooled methods performed better under the Rich scenario and were
+Superior management performance of the hierarchical models was primarily
+caused by compensatory (negatively correlated) biases in biomass and 
+productivity. Biases in biomass estimates were comparable between 
+Single-species and Hierarchical models, but the hierarchical shrinkage 
+prior structure defined for productivity parameters led to target harvest 
+rate estimates that, while biased, combined with biased biomass estimates 
+to produce TACs that were closer to the omniscient manager's. Therefore, 
+while improved performance relative to single-stock models under lower 
+data quantity conditions is consistent with our previous study, where 
+statistical performance of hierarchical multi-stock assessments improved 
+with decreasing data quantity and quality [@johnson2018evaluating], the 
+improved management performance of Hierarchical methods was due to a
+fundamentally different mechanism. This difference can be explained
+by a different assessment model parameterisation, increased
+complex size, and a different and simplified experimental design.
+
+Hierarchical and Single-species models were sensitive to changes in prior 
+precision for assessment model productivity parameters under the Low data 
+quantity scenario. The Hierarchical model went from lowest median catch 
+loss (i.e., ranked first) to highest (ranked last) as prior precision on
+the complex mean productivity was reduced, indicating that the compensatory
+biases that gave hierarchical models the advantage under low data 
+conditions were dependent on this prior. Under the same scenario, the 
+Single-species method improved slightly as prior precision on the 
+stock-specific productivity parameter was reduced, allowing more
+compensatory bias into the harvest rate estimates. Similarly, under the 
+same low-data scenario, Hierarchical models achieved significantly lower 
+catch loss as hierarchical shrinkage prior precision was reduced. Lower 
+catch loss under reduced hierarchical precision could be attributed
+to higher variability in catchability and productivity estimates, allowing
+the stock-specific estimates to achieve more optimal TACs despite the
+constrained complex or species mean values.
+
+The data-pooled methods performed better under the High scenario and were
 generally insensitive to priors, indicating that the data were more 
 influential than priors on the TACs and allocation. This may be because 
 data-pooled observation errors are biased low, being simulated 
@@ -175,20 +218,19 @@ of technical interactions [@moffitt2016moving].
 
 ## Conclusion
 
-Hierarchical multi-species assessment models can outperform single-species 
-assessment models in meeting multi-species harvest objectives across 
-data-rich, data-moderate, and data-poor scenarios, while avoiding
-states of conservation concern with high probability. While hierarchical 
-model estimates of biomass used for setting TACs were sometimes more 
-biased than those produced by other methods, negatively correlated bias in 
-biomass and productivity was better matched under hierarchical models than
-the other methods as data quantity was reduced, which translated into 
-more optimal TACs and better management performance across the multi-species 
-flatfish fishery. We recommend that assessment and management of multi-species 
-fisheries include hierarchical models and acknowledge technical interactions 
-when designing harvest strategies and management procedures for data-limited, 
-multi-species fisheries aimed at achieving strategic objectives. Otherwise, 
-management procedures and harvest strategies based on single-species approaches 
+Hierarchical multi-species surplus production assessment models can 
+outperform single-species production models in meeting multi-species harvest 
+objectives across high, moderate, and low data quantity scenarios, while 
+avoiding states of conservation concern with high probability. While 
+hierarchical model estimates of biomass used for setting TACs were often 
+more biased than those produced by other methods, negatively correlated bias 
+in biomass and productivity was better matched under hierarchical models 
+than the other methods as data quantity was reduced, translating into 
+better management performance across the multi-species flatfish fishery. We
+recommend that assessment and management of multi-species fisheries include 
+hierarchical models that acknowledge technical interactions when designing 
+harvest strategies and management procedures for data-limited, multi-species 
+fisheries. Otherwise, management procedures based on single-species approaches 
 that rely heavily on prior knowledge (inducing bias) and ignore technical 
 interactions (making objectives impossible to achieve) may give a misleading 
 picture of the expected management performance in data-limited, multi-species 
