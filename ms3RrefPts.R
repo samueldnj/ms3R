@@ -638,8 +638,8 @@ calcJABBASelPars <- function( obj )
   expbpr_sp   <- apply( X = expbpr_axsp, FUN = sum, MARGIN = c(3,4), na.rm = T )  
   totbpr_sp   <- apply( X = totbpr_axsp, FUN = sum, MARGIN = c(3,4), na.rm = T )  
 
-  if(any(expbpr_sp - ypr_sp < 0))
-    browser()
+  # if(any(expbpr_sp - ypr_sp < 0))
+  #   browser()
 
   # compile output list
   yprList <- list(  ssbpr_sp  = ssbpr_sp,
