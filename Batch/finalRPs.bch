@@ -1,0 +1,48 @@
+# MP 1 : cSOK_HS30-100_HR0.1
+#
+mp$mp1$ctl$mpName 'cSOK_HS30-100_HR0.1'
+mp$mp1$mp$hcr$fishF c(0,0,0,0,0,1,0)
+mp$mp1$mp$hcr$sokClosedEff_p c(1,10,1)
+mp$mp1$mp$hcr$sokOpenEff_p c(0,0,0)
+mp$mp1$mp$hcr$Uref_p c(0.1,0.1,0.1)
+mp$mp1$mp$hcr$LCP .3
+mp$mp1$mp$hcr$UCP 1.0
+#
+# MP 2 : SR_HS30-100_HR0.1
+#
+mp$mp2$ctl$mpName 'SR_HS30-100_HR0.1'
+mp$mp2$mp$hcr$fishF c(0,1,0,0,0,0,0)
+mp$mp2$mp$hcr$sokClosedEff_p c(0,0,0)
+mp$mp2$mp$hcr$sokOpenEff_p c(0,0,0)
+mp$mp2$mp$hcr$Uref_p c(0,0.1,0)
+mp$mp2$mp$hcr$LCP .3
+mp$mp2$mp$hcr$UCP 1.0
+#
+# MP 3 : cSOK+SR_HS30-100_HR0.1
+#
+mp$mp3$ctl$mpName 'cSOK+SR_HS30-100_HR0.1'
+mp$mp3$mp$hcr$fishF c(0,1,0,0,0,1,0)
+mp$mp3$mp$hcr$sokClosedEff_p c(1,10,1)
+mp$mp3$mp$hcr$sokOpenEff_p c(0,0,0)
+mp$mp3$mp$hcr$Uref_p c(0.1,0.1,0.1)
+mp$mp3$mp$hcr$LCP .3
+mp$mp3$mp$hcr$UCP 1.0
+#
+# MP 4 : oSOK_HS30-100_HR0.1
+#
+mp$mp4$ctl$mpName 'oSOK_HS30-100_HR0.1'
+mp$mp4$mp$hcr$fishF c(0,0,0,0,0,0,1)
+mp$mp4$mp$hcr$sokClosedEff_p c(0,0,0)
+mp$mp4$mp$hcr$sokOpenEff_p c(1,10,1)
+mp$mp4$mp$hcr$Uref_p c(0.1,0.1,0.1)
+mp$mp4$mp$hcr$LCP .3
+mp$mp4$mp$hcr$UCP 1.0
+#
+# MP 5 : NoFish
+#
+mp$mp5$ctl$mpName 'NoFish'
+mp$mp5$mp$hcr$fishF c(0,0,0,0,0,0,0)
+mp$mp5$mp$hcr$sokClosedEff_p c(0,0,0)
+mp$mp5$mp$hcr$sokOpenEff_p c(0,0,0)
+mp$mp5$mp$hcr$Uref_p c(0,0,0)
+#

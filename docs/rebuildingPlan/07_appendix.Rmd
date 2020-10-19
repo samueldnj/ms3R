@@ -18,7 +18,9 @@ load(here::here('history/fit_MSbase_MCMC/fit_MSbase_MCMC.RData'))
 
 ```
 
-This appendix includes plots for equilibrium relationships for reference points calculations, and,.... other parameter of interest for the base operating model
+This appendix includes plots for equilibrium relationships for 
+reference points calculations, and,.... other parameter of interest 
+for the base operating model
 
 Figures and tables will now be prepended with the appendix letter:
 
