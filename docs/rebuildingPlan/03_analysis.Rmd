@@ -68,7 +68,17 @@ projection involves the following steps:
 performance against the conservation and fishery objectives.
 
 ```{r msefig, fig.pos="H", fig.cap = mseFigCap}
-mseFigCap <- "Schematic of the closed loop simulation approach taken here comprises operating model (OM)scenarios that represent alternative hypotheses of OYE biology, ecology, exploitation history and environmental conditions (Env) that are fit to historic data (dotted box). The operating model scenarios are used to simulate future estimates of the data which are fit after applying a Harvest Control Rule (HCR) to set the catch under each management procedure at each annual time step. The simulation repeats until the end of the projection period. The assessment model is run at each time step to evaluate management performance against the objectives (adapted from @cox2010a)."
+mseFigCap <- "Schematic of the closed loop simulation approach taken 
+here comprises operating model (OM)scenarios that represent alternative 
+hypotheses of OYE biology, ecology, exploitation history and 
+environmental conditions (Env) that are fit to historic data 
+(dotted box). The operating model scenarios are used to simulate 
+future estimates of the data which are fit after applying a Harvest
+Control Rule (HCR) to set the catch under each management procedure 
+at each annual time step. The simulation repeats until the end of 
+the projection period. The assessment model is run at each time step 
+to evaluate management performance against the objectives 
+(adapted from @cox2010a)."
 
 knitr::include_graphics('figure/mseFig.pdf')
 ```
@@ -76,7 +86,66 @@ knitr::include_graphics('figure/mseFig.pdf')
 
 ## Operating model
 
-Describe SISCAH here....
+The SISCAH operating model (OM) is age-structured with multiple biologically
+independent sub-areas (i.e., there is no biomass or recruitment exchange
+among areas in this version of the model). The Haida Gwaii herring stock is 
+currently managed across 5 sections that are grouped into the three sub-areas 
+(from north to south) - Cumshewa/Selwyn (*C/S*, 023/024), 
+Juan-Perez/Skincuttle (*JP/S*, 021/025), and Louscoone (*Lou*, 006) - for 
+operating model fitting (Figure 1). Available data at this spatial scale
+include: (i) fleet-specific landed catch and age-composition data (1951 - 
+2019) from the commercial reduction, seine-roe, and gillnet fisheries; 
+(ii) closed-pond spawn-on-kelp (SOK) landings; and (iii) fishery independent 
+spawn indices from the surface survey (1951 - 1987) and dive survey 
+(1988 - 2019). **Model notation and equations are given in Tables 1 and 2, 
+respectively. <- STILL INCLUDE THESE??**
+
+The SISCAH OM is structured in a hierarchical way to allow multi-level 
+hierarchical shrinkage priors on biological and fishery parameters that
+we assume are exchangeable among sub-areas. For example, age-at-50% 
+selectivity is likely to be similar among sub-areas because of common 
+factors affecting growth (e.g., food availability). Therefore, a shrinkage 
+prior would constrain age-at-50% selectivity parameters among the sub-areas 
+as deviations from a major stock mean value. The shrinkage prior typically 
+improves model convergence when data quality is poor, such as when sample 
+sizes are reduced from disaggregation into sub-areas [@johnson2018evaluating; 
+@benson2020performance]. 
+
+SISCAH includes both closed-pond and open-pond spawn-on-kelp fisheries. 
+Closed pond fisheries model the impoundment (ponding) of fish from the 
+spawning stock. Fish are captured via purse-seines and then towed 
+to and subsequently transferred into a closed net-pen (pond), within which 
+herring will spawn on blades of kelp (usually *Macrocystus integrifolia*) 
+[@schweigert2018synopsis-of-the]. Ponded fish are removed from the spawning 
+stock biomass for the remainder of the year, and then reunited with the
+main population after losses to pond-induced mortality. Closed pond SOK 
+fisheries are included as input data in the historical period, and 
+simulated in the projection period.
+
+The instantaneous ponding induced mortality rate was fixed at 
+$M_{SOK} = 0.315$/yr in the history, based on an average observed loss of 
+27\% of ponded biomass [@shields1982herring]; however, the true value is 
+unknown and possibly dependent on environmental factors, general stock 
+health, tow distance, pond density, and operator handling [@shields1982herring;
+@schweigert2018synopsis-of-the]. Therefore, we tested an alternative
+higher ponding induced mortality rate in the projections, with 
+$M_{SOK} = 1.05$/yr, corresponding to 65\% dead ponded biomass 
+[@schweigert2018synopsis-of-the]. 
+
+In an open-pond fishery, herring are not impounded but are attracted to 
+a site where kelp is laid out to collect spawn, or alternatively, frames 
+strung with kelp are towed to sites where herring are already spawning. 
+Open-pond SOK harvesting induces lower mortality on mature fish, and its 
+impact on the stock is primarily through egg loss [@shelton2014assessing]. 
+Landings data for open-pond SOK fisheries are not available, so open pond
+SOK fisheries are only modeled in the projection time period. To simulate 
+an open pond SOK fishery in the projections, we reduced to $M_{SOK} = 0$ 
+and replaced the biomass vulnerable to the Seine-Roe fishery with the 
+total mature spawning biomass, because there is no impounding and 
+associated gear selectivity.
+
+
+
 
 ### Historical scenarios
 

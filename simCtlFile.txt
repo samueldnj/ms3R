@@ -130,6 +130,7 @@ opMod$effortMod "targeting"
 opMod$pT 15
 opMod$projM 'ranWalkTrend'
 opMod$projMtrendT 15
+opMod$projMtype 'correlated'
 opMod$pondMmu_f c(0,0,0,0,0,0.315,0)
 opMod$pondMlogSD_f c(0,0,0,0,0,0.2,0)
 opMod$sigmaM 0.024
@@ -137,7 +138,7 @@ opMod$gammaM 0.997
 opMod$pulseMFrq 0
 opMod$pulseMSize 1
 opMod$pulseMfrac 0.3
-opMod$histFile "fit_MSbase_MCMC"
+opMod$histFile "fit_parBatHGherringGrid10"
 opMod$posteriorSamples TRUE
 opMod$postSampleType 'random'
 opMod$postSampleSeed 1234

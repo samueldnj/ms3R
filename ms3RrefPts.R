@@ -350,7 +350,7 @@ calcJABBASelPars <- function( obj )
 {
   # First, compute max F (tolerance of 1e-5)
   nT   <- dim(obj$om$qF_spft)[4]
-  maxF <- max( 4*obj$om$M_xsp )
+  maxF <- max( 8*obj$om$M_xsp )
 
   if( obj$condModel == "hierSCAL")
     maxE <- max( maxF / obj$om$qF_spft[,,2,nT])
@@ -363,7 +363,7 @@ calcJABBASelPars <- function( obj )
   nX          <- obj$om$nX
 
   specNames   <- "Herring"
-  stockNames  <- dimnames(obj$M_ap)[[2]]
+  stockNames  <- dimnames(obj$M_apt)[[2]]
   
 
   f <- seq( from = 0.0, to = maxF, length = nFs )
@@ -638,8 +638,6 @@ calcJABBASelPars <- function( obj )
   expbpr_sp   <- apply( X = expbpr_axsp, FUN = sum, MARGIN = c(3,4), na.rm = T )  
   totbpr_sp   <- apply( X = totbpr_axsp, FUN = sum, MARGIN = c(3,4), na.rm = T )  
 
-  if(any(expbpr_sp - ypr_sp < 0))
-    browser()
 
   # compile output list
   yprList <- list(  ssbpr_sp  = ssbpr_sp,
@@ -889,7 +887,7 @@ calcJABBASelPars <- function( obj )
   for(s in 1:nS )
     for( p in 1:nP )
     {
-      surv <- rep(1, length = A_s[s])
+      surv <- rep(1, length.out = A_s[s])
       a <- c(1:A_s[s])
       surv[a] <- exp( -M_xsp[nX,s,p] * (a - 1) )
       surv[A_s[s]] <- surv[A_s[s]] / (1 - exp(-M_xsp[nX,s,p]))

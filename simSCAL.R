@@ -4312,9 +4312,40 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
       # Random walk M scaled to mean==1
       sigmaM    <- ctlList$opMod$sigmaM           # Natural mortality rate CV.
       gammaM    <- ctlList$opMod$gammaM           # Lag-1 autocorr in M
-      deltaM    <- rnorm( n=pT,mean=0,sd=1 )      # Random normal deviates.
-      ranM      <- .fillRanWalk( gamma=gammaM, sigma=sigmaM, deltat=deltaM)
-      ranM      <- ranM/mean( ranM ) 
+      # Split Mt series among areas
+      
+      if( ctlList$opMod$projMtype == "identical")
+        deltaM_pt <- matrix( rnorm(pT), nrow = nP, ncol = pT, byrow = T)
+
+      if( ctlList$opMod$projMtype == "independent")
+        deltaM_pt <- matrix( rnorm(pT*nP), nrow = nP, ncol = pT, byrow = T)      
+
+      if( ctlList$opMod$projMtype == "correlated")
+      {
+        # Add in correlated M routine here...
+        deltaM_pt <- matrix( rnorm(pT*nP), nrow = nP, ncol = pT, byrow = T)      
+
+        # First, we need to get the deviations from the history
+        omegaM_pt <- ctlList$opMod$histRpt$omegaM_pt
+
+        # Then calculate a correlation matrix
+        corM_p <- cor(t(omegaM_pt))
+
+        # Then generate correlated deviations by left-multiplying
+        # delta - need to do some math to make sure these
+        # create the right correlated RW devs after fillRanWalk is applied
+        cholM_p <- chol(corM_p)
+        deltaM_pt <- t(cholM_p) %*% deltaM_pt
+      }
+
+      ranM_pt <- matrix(0, nrow = nP, ncol = pT)
+      
+      for( p in 1:nP )
+      {
+        ranM_pt[p,]      <- .fillRanWalk( gamma=gammaM, sigma=sigmaM, deltat=deltaM_pt[p,])
+        ranM_pt[p,]      <- ranM_pt[p,]/mean( ranM_pt[p,] ) 
+      }
+      
 
       # number of years for trend
       if(!is.null(ctlList$opMod$projMtrendT))
@@ -4329,11 +4360,11 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
 
         # Trend M for trendT years
         trendM    <- (log(endM_p[p]) - log(M_pt[p,tMP-1]))/ trendT
-        M_pt[p,tMP:(tMP+trendT-1)]  <- M_pt[p,tMP-1]*exp( trendM*c(1:trendT) ) * ranM[1:trendT]
+        M_pt[p,tMP:(tMP+trendT-1)]  <- M_pt[p,tMP-1]*exp( trendM*c(1:trendT) ) * ranM_pt[p,1:trendT]
 
         # random walks from remaining projection years (i.e., pT-trendT)
         if(trendT < pT)
-          M_pt[p,(tMP+trendT):nT] <- endM_p[p]* ranM[(trendT+1):pT]
+          M_pt[p,(tMP+trendT):nT] <- endM_p[p]* ranM_pt[p,(trendT+1):pT]
 
         # PulseM
         if ( ctlList$opMod$pulseMFrq != 0 ) 
@@ -4348,8 +4379,8 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
         for (a in 2:nA)
         {
       
-          obj$om$M_axspt[a,,,p,tMP:nT]      <- M_pt[p,tMP:nT]
-          obj$om$pulseM_axspt[a,,,p,tMP:nT] <- pulseM_pt[p,tMP:nT]
+          obj$om$M_axspt[a,1,1,p,tMP:nT]      <- M_pt[p,tMP:nT]
+          obj$om$pulseM_axspt[a,1,1,p,tMP:nT] <- pulseM_pt[p,tMP:nT]
 
         }   
       
@@ -4357,7 +4388,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
 
       # Keep Juvenile M constant
         for( t in tMP:nT )
-          obj$om$M_axspt[1,,,,t] <- obj$om$M_axspt[1,,,,tMP-1]
+          obj$om$M_axspt[1,1,1,,t] <- obj$om$M_axspt[1,1,1,,tMP-1]
 
   }  
 
