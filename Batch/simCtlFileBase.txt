@@ -130,6 +130,7 @@ opMod$effortMod "targeting"
 opMod$pT 15
 opMod$projM 'ranWalkTrend'
 opMod$projMtrendT 15
+opMod$projMtype 'identical'
 opMod$pondMmu_f c(0,0,0,0,0,0.315,0)
 opMod$pondMlogSD_f c(0,0,0,0,0,0.2,0)
 opMod$sigmaM 0.024
