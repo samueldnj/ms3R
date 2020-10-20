@@ -383,10 +383,6 @@ makeStatTable <- function( sims = 1, folder = "", ... )
                   "pCtGt650t",
                   "pUtGt.1HR",
                   "avgUtGt0.1HR",
-                  # "PBtGt.8Bmsy",
-                  # "pBtGtBmsy",
-                  # "pCtGtMSY", 
-                  # "pFtGtFmsy",
                   "nYrsSOK",
                   "avgLicSOK",
                   "avgSOK_t",
@@ -399,7 +395,14 @@ makeStatTable <- function( sims = 1, folder = "", ... )
                   "pBtGt.5HistSB", 
                   "growthRate6yrs",
                   "growthRate11yrs",
-                  "growthRate16yrs"
+                  "growthRate16yrs",
+                  "B0",
+                  "BtMP",
+                  "DtMP",
+                  "BhistT",
+                  "DhistT",
+                  "BnT",
+                  "DnT"
                   )
 
   statTable <- matrix( NA,  ncol = length(colLabels),
@@ -426,6 +429,8 @@ makeStatTable <- function( sims = 1, folder = "", ... )
     rp          <- obj$rp[[i]]
     B0_isp[i,,] <- rp$B0_sp
   } 
+
+
   
   # Bmsy_sp   <- rp$FmsyRefPts$BeqFmsy_sp
   # Fmsy_sp   <- rp$FmsyRefPts$Fmsy_sp
@@ -712,6 +717,15 @@ makeStatTable <- function( sims = 1, folder = "", ... )
         statTable[rowIdx,"growthRate11yrs"] <- round(medG10_sp[s,p],3)
         statTable[rowIdx,"growthRate16yrs"] <- round(medG15_sp[s,p],3)
 
+        statTable[rowIdx,"B0"]              <- round(mean(B0_isp[,s,p],na.rm = T),3)
+        statTable[rowIdx,"BtMP"]            <- round(mean(endSB_ispt[,s,p,tMP],na.rm = T),3)
+        statTable[rowIdx,"DtMP"]            <- round(mean(endSB_ispt[,s,p,tMP]/B0_isp[,s,p],na.rm = T),3)
+        statTable[rowIdx,"BhistT"]          <- round(mean(endSB_ispt[,s,p,tMP-1],na.rm = T),3)
+        statTable[rowIdx,"DhistT"]          <- round(mean(endSB_ispt[,s,p,tMP-1]/B0_isp[,s,p],na.rm = T),3)
+        statTable[rowIdx,"BnT"]             <- round(mean(endSB_ispt[,s,p,nT],na.rm = T),3)
+        statTable[rowIdx,"DnT"]             <- round(mean(endSB_ispt[,s,p,nT]/B0_isp[,s,p],na.rm = T),3)
+
+
       }
 
 
@@ -926,6 +940,14 @@ makeStatTable <- function( sims = 1, folder = "", ... )
       aggRow[,"growthRate6yrs"]    <- round(medG5_agg,3)
       aggRow[,"growthRate11yrs"]   <- round(medG10_agg,3)
       aggRow[,"growthRate16yrs"]   <- round(medG15_agg,3)
+
+      aggRow[,"B0"]              <- round(mean(B0_i,na.rm = T),3)
+      aggRow[,"BtMP"]            <- round(mean(endSB_it[,tMP],na.rm = T),3)
+      aggRow[,"DtMP"]            <- round(mean(endSB_it[,tMP]/B0_i,na.rm = T),3)
+      aggRow[,"BhistT"]          <- round(mean(endSB_it[,tMP-1],na.rm = T),3)
+      aggRow[,"DhistT"]          <- round(mean(endSB_it[,tMP-1]/B0_i,na.rm = T),3)
+      aggRow[,"BnT"]             <- round(mean(endSB_it[,nT],na.rm = T),3)
+      aggRow[,"DnT"]             <- round(mean(endSB_it[,nT]/B0_i,na.rm = T),3)
 
       statTable <- rbind(statTable, aggRow)
 
