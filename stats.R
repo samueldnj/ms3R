@@ -265,7 +265,7 @@ calcTotalLossPeriod <- function(  obj,
 # Function to calculate a table of stats for 
 # a whole batch (usually a given subfolder of
 # ./Outputs/)
-calcBatchTable <- function( batchFolder = "" )
+calcBatchTable <- function( batchFolder = "", ... )
 {
   # set output folder
   simFolder <- here::here("Outputs",batchFolder)
@@ -279,7 +279,7 @@ calcBatchTable <- function( batchFolder = "" )
   nSims <- length(simList)
 
   statsTables <- lapply(  X = 1:nSims, FUN = makeStatTable,
-                          folder = batchFolder )
+                          folder = batchFolder, ... )
 
   batchStatTable <- do.call("rbind", statsTables)
 
@@ -298,14 +298,14 @@ calcBatchTable <- function( batchFolder = "" )
 
 # makeStatTable()
 # Wrapper for 
-makeStatTable <- function( sims = 1, folder = "" )
+makeStatTable <- function( sims = 1, folder = "", ... )
 {
   # First, load blob
   source("tools.R")
 
   .loadSim(sims, folder = folder)
 
-  statTable <- .simPerfStats( obj = blob )
+  statTable <- .simPerfStats( obj = blob, ... )
 
   statTable
 } # END makeStatTable()

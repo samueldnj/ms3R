@@ -1,4 +1,4 @@
-# Batch Control File, created Tue Oct 20 10:52:10 2020 by makeBatchDesign() 
+# Batch Control File, created Tue Oct 20 13:03:45 2020 by makeBatchDesign() 
 parameter value
 #
 # OM Scenarios 
@@ -7,7 +7,7 @@ parameter value
 #
 scenario$scenario1$ctl$scenarioName 'a1Mmean_sr0.67_identM_rw15_loPondM'
 scenario$scenario1$opMod$histFile 'fit_parBatHGherringMCMC1'
-scenario$scenario1$opMod$projMtrend 15
+scenario$scenario1$opMod$projMtrendT 15
 scenario$scenario1$opMod$projMtype 'identical'
 scenario$scenario1$opMod$pondMmu_f c(0,0,0,0,0,0.315,0)
 #
@@ -15,7 +15,7 @@ scenario$scenario1$opMod$pondMmu_f c(0,0,0,0,0,0.315,0)
 #
 scenario$scenario2$ctl$scenarioName 'a1M1.25_sr0.67_identM_rw15_loPondM'
 scenario$scenario2$opMod$histFile 'fit_parBatHGherringMCMC2'
-scenario$scenario2$opMod$projMtrend 15
+scenario$scenario2$opMod$projMtrendT 15
 scenario$scenario2$opMod$projMtype 'identical'
 scenario$scenario2$opMod$pondMmu_f c(0,0,0,0,0,0.315,0)
 #
@@ -23,7 +23,7 @@ scenario$scenario2$opMod$pondMmu_f c(0,0,0,0,0,0.315,0)
 #
 scenario$scenario3$ctl$scenarioName 'a1M1.64_sr0.67_identM_rw15_loPondM'
 scenario$scenario3$opMod$histFile 'fit_parBatHGherringMCMC3'
-scenario$scenario3$opMod$projMtrend 15
+scenario$scenario3$opMod$projMtrendT 15
 scenario$scenario3$opMod$projMtype 'identical'
 scenario$scenario3$opMod$pondMmu_f c(0,0,0,0,0,0.315,0)
 #
@@ -31,7 +31,7 @@ scenario$scenario3$opMod$pondMmu_f c(0,0,0,0,0,0.315,0)
 #
 scenario$scenario4$ctl$scenarioName 'a1Mmean_sr0.5_identM_rw15_loPondM'
 scenario$scenario4$opMod$histFile 'fit_parBatHGherringMCMC4'
-scenario$scenario4$opMod$projMtrend 15
+scenario$scenario4$opMod$projMtrendT 15
 scenario$scenario4$opMod$projMtype 'identical'
 scenario$scenario4$opMod$pondMmu_f c(0,0,0,0,0,0.315,0)
 #
@@ -39,7 +39,7 @@ scenario$scenario4$opMod$pondMmu_f c(0,0,0,0,0,0.315,0)
 #
 scenario$scenario5$ctl$scenarioName 'a1M1.25_sr0.5_identM_rw15_loPondM'
 scenario$scenario5$opMod$histFile 'fit_parBatHGherringMCMC5'
-scenario$scenario5$opMod$projMtrend 15
+scenario$scenario5$opMod$projMtrendT 15
 scenario$scenario5$opMod$projMtype 'identical'
 scenario$scenario5$opMod$pondMmu_f c(0,0,0,0,0,0.315,0)
 #
@@ -47,7 +47,7 @@ scenario$scenario5$opMod$pondMmu_f c(0,0,0,0,0,0.315,0)
 #
 scenario$scenario6$ctl$scenarioName 'a1M1.64_sr0.5_identM_rw15_loPondM'
 scenario$scenario6$opMod$histFile 'fit_parBatHGherringMCMC6'
-scenario$scenario6$opMod$projMtrend 15
+scenario$scenario6$opMod$projMtrendT 15
 scenario$scenario6$opMod$projMtype 'identical'
 scenario$scenario6$opMod$pondMmu_f c(0,0,0,0,0,0.315,0)
 #
@@ -55,7 +55,7 @@ scenario$scenario6$opMod$pondMmu_f c(0,0,0,0,0,0.315,0)
 #
 scenario$scenario7$ctl$scenarioName 'a1Mmean_sr0.8_identM_rw15_loPondM'
 scenario$scenario7$opMod$histFile 'fit_parBatHGherringMCMC7'
-scenario$scenario7$opMod$projMtrend 15
+scenario$scenario7$opMod$projMtrendT 15
 scenario$scenario7$opMod$projMtype 'identical'
 scenario$scenario7$opMod$pondMmu_f c(0,0,0,0,0,0.315,0)
 #
@@ -63,7 +63,7 @@ scenario$scenario7$opMod$pondMmu_f c(0,0,0,0,0,0.315,0)
 #
 scenario$scenario8$ctl$scenarioName 'a1M1.25_sr0.8_identM_rw15_loPondM'
 scenario$scenario8$opMod$histFile 'fit_parBatHGherringMCMC8'
-scenario$scenario8$opMod$projMtrend 15
+scenario$scenario8$opMod$projMtrendT 15
 scenario$scenario8$opMod$projMtype 'identical'
 scenario$scenario8$opMod$pondMmu_f c(0,0,0,0,0,0.315,0)
 #
@@ -71,7 +71,7 @@ scenario$scenario8$opMod$pondMmu_f c(0,0,0,0,0,0.315,0)
 #
 scenario$scenario9$ctl$scenarioName 'a1M1.64_sr0.8_identM_rw15_loPondM'
 scenario$scenario9$opMod$histFile 'fit_parBatHGherringMCMC9'
-scenario$scenario9$opMod$projMtrend 15
+scenario$scenario9$opMod$projMtrendT 15
 scenario$scenario9$opMod$projMtype 'identical'
 scenario$scenario9$opMod$pondMmu_f c(0,0,0,0,0,0.315,0)
 #
@@ -79,7 +79,7 @@ scenario$scenario9$opMod$pondMmu_f c(0,0,0,0,0,0.315,0)
 #
 scenario$scenario10$ctl$scenarioName 'a1Mmean_sr0.67_diffM_rw15_loPondM'
 scenario$scenario10$opMod$histFile 'fit_parBatHGherringMCMC10'
-scenario$scenario10$opMod$projMtrend 15
+scenario$scenario10$opMod$projMtrendT 15
 scenario$scenario10$opMod$projMtype 'correlated'
 scenario$scenario10$opMod$pondMmu_f c(0,0,0,0,0,0.315,0)
 #
@@ -87,7 +87,7 @@ scenario$scenario10$opMod$pondMmu_f c(0,0,0,0,0,0.315,0)
 #
 scenario$scenario11$ctl$scenarioName 'a1M1.25_sr0.67_diffM_rw15_loPondM'
 scenario$scenario11$opMod$histFile 'fit_parBatHGherringMCMC11'
-scenario$scenario11$opMod$projMtrend 15
+scenario$scenario11$opMod$projMtrendT 15
 scenario$scenario11$opMod$projMtype 'correlated'
 scenario$scenario11$opMod$pondMmu_f c(0,0,0,0,0,0.315,0)
 #
@@ -95,7 +95,7 @@ scenario$scenario11$opMod$pondMmu_f c(0,0,0,0,0,0.315,0)
 #
 scenario$scenario12$ctl$scenarioName 'a1M1.64_sr0.67_diffM_rw15_loPondM'
 scenario$scenario12$opMod$histFile 'fit_parBatHGherringMCMC12'
-scenario$scenario12$opMod$projMtrend 15
+scenario$scenario12$opMod$projMtrendT 15
 scenario$scenario12$opMod$projMtype 'correlated'
 scenario$scenario12$opMod$pondMmu_f c(0,0,0,0,0,0.315,0)
 #
@@ -103,7 +103,7 @@ scenario$scenario12$opMod$pondMmu_f c(0,0,0,0,0,0.315,0)
 #
 scenario$scenario13$ctl$scenarioName 'a1Mmean_sr0.5_diffM_rw15_loPondM'
 scenario$scenario13$opMod$histFile 'fit_parBatHGherringMCMC13'
-scenario$scenario13$opMod$projMtrend 15
+scenario$scenario13$opMod$projMtrendT 15
 scenario$scenario13$opMod$projMtype 'correlated'
 scenario$scenario13$opMod$pondMmu_f c(0,0,0,0,0,0.315,0)
 #
@@ -111,7 +111,7 @@ scenario$scenario13$opMod$pondMmu_f c(0,0,0,0,0,0.315,0)
 #
 scenario$scenario14$ctl$scenarioName 'a1M1.25_sr0.5_diffM_rw15_loPondM'
 scenario$scenario14$opMod$histFile 'fit_parBatHGherringMCMC14'
-scenario$scenario14$opMod$projMtrend 15
+scenario$scenario14$opMod$projMtrendT 15
 scenario$scenario14$opMod$projMtype 'correlated'
 scenario$scenario14$opMod$pondMmu_f c(0,0,0,0,0,0.315,0)
 #
@@ -119,7 +119,7 @@ scenario$scenario14$opMod$pondMmu_f c(0,0,0,0,0,0.315,0)
 #
 scenario$scenario15$ctl$scenarioName 'a1M1.64_sr0.5_diffM_rw15_loPondM'
 scenario$scenario15$opMod$histFile 'fit_parBatHGherringMCMC15'
-scenario$scenario15$opMod$projMtrend 15
+scenario$scenario15$opMod$projMtrendT 15
 scenario$scenario15$opMod$projMtype 'correlated'
 scenario$scenario15$opMod$pondMmu_f c(0,0,0,0,0,0.315,0)
 #
@@ -127,7 +127,7 @@ scenario$scenario15$opMod$pondMmu_f c(0,0,0,0,0,0.315,0)
 #
 scenario$scenario16$ctl$scenarioName 'a1Mmean_sr0.8_diffM_rw15_loPondM'
 scenario$scenario16$opMod$histFile 'fit_parBatHGherringMCMC16'
-scenario$scenario16$opMod$projMtrend 15
+scenario$scenario16$opMod$projMtrendT 15
 scenario$scenario16$opMod$projMtype 'correlated'
 scenario$scenario16$opMod$pondMmu_f c(0,0,0,0,0,0.315,0)
 #
@@ -135,7 +135,7 @@ scenario$scenario16$opMod$pondMmu_f c(0,0,0,0,0,0.315,0)
 #
 scenario$scenario17$ctl$scenarioName 'a1M1.25_sr0.8_diffM_rw15_loPondM'
 scenario$scenario17$opMod$histFile 'fit_parBatHGherringMCMC17'
-scenario$scenario17$opMod$projMtrend 15
+scenario$scenario17$opMod$projMtrendT 15
 scenario$scenario17$opMod$projMtype 'correlated'
 scenario$scenario17$opMod$pondMmu_f c(0,0,0,0,0,0.315,0)
 #
@@ -143,7 +143,7 @@ scenario$scenario17$opMod$pondMmu_f c(0,0,0,0,0,0.315,0)
 #
 scenario$scenario18$ctl$scenarioName 'a1M1.64_sr0.8_diffM_rw15_loPondM'
 scenario$scenario18$opMod$histFile 'fit_parBatHGherringMCMC18'
-scenario$scenario18$opMod$projMtrend 15
+scenario$scenario18$opMod$projMtrendT 15
 scenario$scenario18$opMod$projMtype 'correlated'
 scenario$scenario18$opMod$pondMmu_f c(0,0,0,0,0,0.315,0)
 #
@@ -151,7 +151,7 @@ scenario$scenario18$opMod$pondMmu_f c(0,0,0,0,0,0.315,0)
 #
 scenario$scenario19$ctl$scenarioName 'a1Mmean_sr0.67_identM_rw5_loPondM'
 scenario$scenario19$opMod$histFile 'fit_parBatHGherringMCMC1'
-scenario$scenario19$opMod$projMtrend 5
+scenario$scenario19$opMod$projMtrendT 5
 scenario$scenario19$opMod$projMtype 'identical'
 scenario$scenario19$opMod$pondMmu_f c(0,0,0,0,0,0.315,0)
 #
@@ -159,7 +159,7 @@ scenario$scenario19$opMod$pondMmu_f c(0,0,0,0,0,0.315,0)
 #
 scenario$scenario20$ctl$scenarioName 'a1M1.25_sr0.67_identM_rw5_loPondM'
 scenario$scenario20$opMod$histFile 'fit_parBatHGherringMCMC2'
-scenario$scenario20$opMod$projMtrend 5
+scenario$scenario20$opMod$projMtrendT 5
 scenario$scenario20$opMod$projMtype 'identical'
 scenario$scenario20$opMod$pondMmu_f c(0,0,0,0,0,0.315,0)
 #
@@ -167,7 +167,7 @@ scenario$scenario20$opMod$pondMmu_f c(0,0,0,0,0,0.315,0)
 #
 scenario$scenario21$ctl$scenarioName 'a1M1.64_sr0.67_identM_rw5_loPondM'
 scenario$scenario21$opMod$histFile 'fit_parBatHGherringMCMC3'
-scenario$scenario21$opMod$projMtrend 5
+scenario$scenario21$opMod$projMtrendT 5
 scenario$scenario21$opMod$projMtype 'identical'
 scenario$scenario21$opMod$pondMmu_f c(0,0,0,0,0,0.315,0)
 #
@@ -175,7 +175,7 @@ scenario$scenario21$opMod$pondMmu_f c(0,0,0,0,0,0.315,0)
 #
 scenario$scenario22$ctl$scenarioName 'a1Mmean_sr0.5_identM_rw5_loPondM'
 scenario$scenario22$opMod$histFile 'fit_parBatHGherringMCMC4'
-scenario$scenario22$opMod$projMtrend 5
+scenario$scenario22$opMod$projMtrendT 5
 scenario$scenario22$opMod$projMtype 'identical'
 scenario$scenario22$opMod$pondMmu_f c(0,0,0,0,0,0.315,0)
 #
@@ -183,7 +183,7 @@ scenario$scenario22$opMod$pondMmu_f c(0,0,0,0,0,0.315,0)
 #
 scenario$scenario23$ctl$scenarioName 'a1M1.25_sr0.5_identM_rw5_loPondM'
 scenario$scenario23$opMod$histFile 'fit_parBatHGherringMCMC5'
-scenario$scenario23$opMod$projMtrend 5
+scenario$scenario23$opMod$projMtrendT 5
 scenario$scenario23$opMod$projMtype 'identical'
 scenario$scenario23$opMod$pondMmu_f c(0,0,0,0,0,0.315,0)
 #
@@ -191,7 +191,7 @@ scenario$scenario23$opMod$pondMmu_f c(0,0,0,0,0,0.315,0)
 #
 scenario$scenario24$ctl$scenarioName 'a1M1.64_sr0.5_identM_rw5_loPondM'
 scenario$scenario24$opMod$histFile 'fit_parBatHGherringMCMC6'
-scenario$scenario24$opMod$projMtrend 5
+scenario$scenario24$opMod$projMtrendT 5
 scenario$scenario24$opMod$projMtype 'identical'
 scenario$scenario24$opMod$pondMmu_f c(0,0,0,0,0,0.315,0)
 #
@@ -199,7 +199,7 @@ scenario$scenario24$opMod$pondMmu_f c(0,0,0,0,0,0.315,0)
 #
 scenario$scenario25$ctl$scenarioName 'a1Mmean_sr0.8_identM_rw5_loPondM'
 scenario$scenario25$opMod$histFile 'fit_parBatHGherringMCMC7'
-scenario$scenario25$opMod$projMtrend 5
+scenario$scenario25$opMod$projMtrendT 5
 scenario$scenario25$opMod$projMtype 'identical'
 scenario$scenario25$opMod$pondMmu_f c(0,0,0,0,0,0.315,0)
 #
@@ -207,7 +207,7 @@ scenario$scenario25$opMod$pondMmu_f c(0,0,0,0,0,0.315,0)
 #
 scenario$scenario26$ctl$scenarioName 'a1M1.25_sr0.8_identM_rw5_loPondM'
 scenario$scenario26$opMod$histFile 'fit_parBatHGherringMCMC8'
-scenario$scenario26$opMod$projMtrend 5
+scenario$scenario26$opMod$projMtrendT 5
 scenario$scenario26$opMod$projMtype 'identical'
 scenario$scenario26$opMod$pondMmu_f c(0,0,0,0,0,0.315,0)
 #
@@ -215,7 +215,7 @@ scenario$scenario26$opMod$pondMmu_f c(0,0,0,0,0,0.315,0)
 #
 scenario$scenario27$ctl$scenarioName 'a1M1.64_sr0.8_identM_rw5_loPondM'
 scenario$scenario27$opMod$histFile 'fit_parBatHGherringMCMC9'
-scenario$scenario27$opMod$projMtrend 5
+scenario$scenario27$opMod$projMtrendT 5
 scenario$scenario27$opMod$projMtype 'identical'
 scenario$scenario27$opMod$pondMmu_f c(0,0,0,0,0,0.315,0)
 #
@@ -223,7 +223,7 @@ scenario$scenario27$opMod$pondMmu_f c(0,0,0,0,0,0.315,0)
 #
 scenario$scenario28$ctl$scenarioName 'a1Mmean_sr0.67_diffM_rw5_loPondM'
 scenario$scenario28$opMod$histFile 'fit_parBatHGherringMCMC10'
-scenario$scenario28$opMod$projMtrend 5
+scenario$scenario28$opMod$projMtrendT 5
 scenario$scenario28$opMod$projMtype 'correlated'
 scenario$scenario28$opMod$pondMmu_f c(0,0,0,0,0,0.315,0)
 #
@@ -231,7 +231,7 @@ scenario$scenario28$opMod$pondMmu_f c(0,0,0,0,0,0.315,0)
 #
 scenario$scenario29$ctl$scenarioName 'a1M1.25_sr0.67_diffM_rw5_loPondM'
 scenario$scenario29$opMod$histFile 'fit_parBatHGherringMCMC11'
-scenario$scenario29$opMod$projMtrend 5
+scenario$scenario29$opMod$projMtrendT 5
 scenario$scenario29$opMod$projMtype 'correlated'
 scenario$scenario29$opMod$pondMmu_f c(0,0,0,0,0,0.315,0)
 #
@@ -239,7 +239,7 @@ scenario$scenario29$opMod$pondMmu_f c(0,0,0,0,0,0.315,0)
 #
 scenario$scenario30$ctl$scenarioName 'a1M1.64_sr0.67_diffM_rw5_loPondM'
 scenario$scenario30$opMod$histFile 'fit_parBatHGherringMCMC12'
-scenario$scenario30$opMod$projMtrend 5
+scenario$scenario30$opMod$projMtrendT 5
 scenario$scenario30$opMod$projMtype 'correlated'
 scenario$scenario30$opMod$pondMmu_f c(0,0,0,0,0,0.315,0)
 #
@@ -247,7 +247,7 @@ scenario$scenario30$opMod$pondMmu_f c(0,0,0,0,0,0.315,0)
 #
 scenario$scenario31$ctl$scenarioName 'a1Mmean_sr0.5_diffM_rw5_loPondM'
 scenario$scenario31$opMod$histFile 'fit_parBatHGherringMCMC13'
-scenario$scenario31$opMod$projMtrend 5
+scenario$scenario31$opMod$projMtrendT 5
 scenario$scenario31$opMod$projMtype 'correlated'
 scenario$scenario31$opMod$pondMmu_f c(0,0,0,0,0,0.315,0)
 #
@@ -255,7 +255,7 @@ scenario$scenario31$opMod$pondMmu_f c(0,0,0,0,0,0.315,0)
 #
 scenario$scenario32$ctl$scenarioName 'a1M1.25_sr0.5_diffM_rw5_loPondM'
 scenario$scenario32$opMod$histFile 'fit_parBatHGherringMCMC14'
-scenario$scenario32$opMod$projMtrend 5
+scenario$scenario32$opMod$projMtrendT 5
 scenario$scenario32$opMod$projMtype 'correlated'
 scenario$scenario32$opMod$pondMmu_f c(0,0,0,0,0,0.315,0)
 #
@@ -263,7 +263,7 @@ scenario$scenario32$opMod$pondMmu_f c(0,0,0,0,0,0.315,0)
 #
 scenario$scenario33$ctl$scenarioName 'a1M1.64_sr0.5_diffM_rw5_loPondM'
 scenario$scenario33$opMod$histFile 'fit_parBatHGherringMCMC15'
-scenario$scenario33$opMod$projMtrend 5
+scenario$scenario33$opMod$projMtrendT 5
 scenario$scenario33$opMod$projMtype 'correlated'
 scenario$scenario33$opMod$pondMmu_f c(0,0,0,0,0,0.315,0)
 #
@@ -271,7 +271,7 @@ scenario$scenario33$opMod$pondMmu_f c(0,0,0,0,0,0.315,0)
 #
 scenario$scenario34$ctl$scenarioName 'a1Mmean_sr0.8_diffM_rw5_loPondM'
 scenario$scenario34$opMod$histFile 'fit_parBatHGherringMCMC16'
-scenario$scenario34$opMod$projMtrend 5
+scenario$scenario34$opMod$projMtrendT 5
 scenario$scenario34$opMod$projMtype 'correlated'
 scenario$scenario34$opMod$pondMmu_f c(0,0,0,0,0,0.315,0)
 #
@@ -279,7 +279,7 @@ scenario$scenario34$opMod$pondMmu_f c(0,0,0,0,0,0.315,0)
 #
 scenario$scenario35$ctl$scenarioName 'a1M1.25_sr0.8_diffM_rw5_loPondM'
 scenario$scenario35$opMod$histFile 'fit_parBatHGherringMCMC17'
-scenario$scenario35$opMod$projMtrend 5
+scenario$scenario35$opMod$projMtrendT 5
 scenario$scenario35$opMod$projMtype 'correlated'
 scenario$scenario35$opMod$pondMmu_f c(0,0,0,0,0,0.315,0)
 #
@@ -287,7 +287,7 @@ scenario$scenario35$opMod$pondMmu_f c(0,0,0,0,0,0.315,0)
 #
 scenario$scenario36$ctl$scenarioName 'a1M1.64_sr0.8_diffM_rw5_loPondM'
 scenario$scenario36$opMod$histFile 'fit_parBatHGherringMCMC18'
-scenario$scenario36$opMod$projMtrend 5
+scenario$scenario36$opMod$projMtrendT 5
 scenario$scenario36$opMod$projMtype 'correlated'
 scenario$scenario36$opMod$pondMmu_f c(0,0,0,0,0,0.315,0)
 #
@@ -295,7 +295,7 @@ scenario$scenario36$opMod$pondMmu_f c(0,0,0,0,0,0.315,0)
 #
 scenario$scenario37$ctl$scenarioName 'a1Mmean_sr0.67_identM_rw15_hiPondM'
 scenario$scenario37$opMod$histFile 'fit_parBatHGherringMCMC1'
-scenario$scenario37$opMod$projMtrend 15
+scenario$scenario37$opMod$projMtrendT 15
 scenario$scenario37$opMod$projMtype 'identical'
 scenario$scenario37$opMod$pondMmu_f c(0,0,0,0,0,1.05,0)
 #
@@ -303,7 +303,7 @@ scenario$scenario37$opMod$pondMmu_f c(0,0,0,0,0,1.05,0)
 #
 scenario$scenario38$ctl$scenarioName 'a1M1.25_sr0.67_identM_rw15_hiPondM'
 scenario$scenario38$opMod$histFile 'fit_parBatHGherringMCMC2'
-scenario$scenario38$opMod$projMtrend 15
+scenario$scenario38$opMod$projMtrendT 15
 scenario$scenario38$opMod$projMtype 'identical'
 scenario$scenario38$opMod$pondMmu_f c(0,0,0,0,0,1.05,0)
 #
@@ -311,7 +311,7 @@ scenario$scenario38$opMod$pondMmu_f c(0,0,0,0,0,1.05,0)
 #
 scenario$scenario39$ctl$scenarioName 'a1M1.64_sr0.67_identM_rw15_hiPondM'
 scenario$scenario39$opMod$histFile 'fit_parBatHGherringMCMC3'
-scenario$scenario39$opMod$projMtrend 15
+scenario$scenario39$opMod$projMtrendT 15
 scenario$scenario39$opMod$projMtype 'identical'
 scenario$scenario39$opMod$pondMmu_f c(0,0,0,0,0,1.05,0)
 #
@@ -319,7 +319,7 @@ scenario$scenario39$opMod$pondMmu_f c(0,0,0,0,0,1.05,0)
 #
 scenario$scenario40$ctl$scenarioName 'a1Mmean_sr0.5_identM_rw15_hiPondM'
 scenario$scenario40$opMod$histFile 'fit_parBatHGherringMCMC4'
-scenario$scenario40$opMod$projMtrend 15
+scenario$scenario40$opMod$projMtrendT 15
 scenario$scenario40$opMod$projMtype 'identical'
 scenario$scenario40$opMod$pondMmu_f c(0,0,0,0,0,1.05,0)
 #
@@ -327,7 +327,7 @@ scenario$scenario40$opMod$pondMmu_f c(0,0,0,0,0,1.05,0)
 #
 scenario$scenario41$ctl$scenarioName 'a1M1.25_sr0.5_identM_rw15_hiPondM'
 scenario$scenario41$opMod$histFile 'fit_parBatHGherringMCMC5'
-scenario$scenario41$opMod$projMtrend 15
+scenario$scenario41$opMod$projMtrendT 15
 scenario$scenario41$opMod$projMtype 'identical'
 scenario$scenario41$opMod$pondMmu_f c(0,0,0,0,0,1.05,0)
 #
@@ -335,7 +335,7 @@ scenario$scenario41$opMod$pondMmu_f c(0,0,0,0,0,1.05,0)
 #
 scenario$scenario42$ctl$scenarioName 'a1M1.64_sr0.5_identM_rw15_hiPondM'
 scenario$scenario42$opMod$histFile 'fit_parBatHGherringMCMC6'
-scenario$scenario42$opMod$projMtrend 15
+scenario$scenario42$opMod$projMtrendT 15
 scenario$scenario42$opMod$projMtype 'identical'
 scenario$scenario42$opMod$pondMmu_f c(0,0,0,0,0,1.05,0)
 #
@@ -343,7 +343,7 @@ scenario$scenario42$opMod$pondMmu_f c(0,0,0,0,0,1.05,0)
 #
 scenario$scenario43$ctl$scenarioName 'a1Mmean_sr0.8_identM_rw15_hiPondM'
 scenario$scenario43$opMod$histFile 'fit_parBatHGherringMCMC7'
-scenario$scenario43$opMod$projMtrend 15
+scenario$scenario43$opMod$projMtrendT 15
 scenario$scenario43$opMod$projMtype 'identical'
 scenario$scenario43$opMod$pondMmu_f c(0,0,0,0,0,1.05,0)
 #
@@ -351,7 +351,7 @@ scenario$scenario43$opMod$pondMmu_f c(0,0,0,0,0,1.05,0)
 #
 scenario$scenario44$ctl$scenarioName 'a1M1.25_sr0.8_identM_rw15_hiPondM'
 scenario$scenario44$opMod$histFile 'fit_parBatHGherringMCMC8'
-scenario$scenario44$opMod$projMtrend 15
+scenario$scenario44$opMod$projMtrendT 15
 scenario$scenario44$opMod$projMtype 'identical'
 scenario$scenario44$opMod$pondMmu_f c(0,0,0,0,0,1.05,0)
 #
@@ -359,7 +359,7 @@ scenario$scenario44$opMod$pondMmu_f c(0,0,0,0,0,1.05,0)
 #
 scenario$scenario45$ctl$scenarioName 'a1M1.64_sr0.8_identM_rw15_hiPondM'
 scenario$scenario45$opMod$histFile 'fit_parBatHGherringMCMC9'
-scenario$scenario45$opMod$projMtrend 15
+scenario$scenario45$opMod$projMtrendT 15
 scenario$scenario45$opMod$projMtype 'identical'
 scenario$scenario45$opMod$pondMmu_f c(0,0,0,0,0,1.05,0)
 #
@@ -367,7 +367,7 @@ scenario$scenario45$opMod$pondMmu_f c(0,0,0,0,0,1.05,0)
 #
 scenario$scenario46$ctl$scenarioName 'a1Mmean_sr0.67_diffM_rw15_hiPondM'
 scenario$scenario46$opMod$histFile 'fit_parBatHGherringMCMC10'
-scenario$scenario46$opMod$projMtrend 15
+scenario$scenario46$opMod$projMtrendT 15
 scenario$scenario46$opMod$projMtype 'correlated'
 scenario$scenario46$opMod$pondMmu_f c(0,0,0,0,0,1.05,0)
 #
@@ -375,7 +375,7 @@ scenario$scenario46$opMod$pondMmu_f c(0,0,0,0,0,1.05,0)
 #
 scenario$scenario47$ctl$scenarioName 'a1M1.25_sr0.67_diffM_rw15_hiPondM'
 scenario$scenario47$opMod$histFile 'fit_parBatHGherringMCMC11'
-scenario$scenario47$opMod$projMtrend 15
+scenario$scenario47$opMod$projMtrendT 15
 scenario$scenario47$opMod$projMtype 'correlated'
 scenario$scenario47$opMod$pondMmu_f c(0,0,0,0,0,1.05,0)
 #
@@ -383,7 +383,7 @@ scenario$scenario47$opMod$pondMmu_f c(0,0,0,0,0,1.05,0)
 #
 scenario$scenario48$ctl$scenarioName 'a1M1.64_sr0.67_diffM_rw15_hiPondM'
 scenario$scenario48$opMod$histFile 'fit_parBatHGherringMCMC12'
-scenario$scenario48$opMod$projMtrend 15
+scenario$scenario48$opMod$projMtrendT 15
 scenario$scenario48$opMod$projMtype 'correlated'
 scenario$scenario48$opMod$pondMmu_f c(0,0,0,0,0,1.05,0)
 #
@@ -391,7 +391,7 @@ scenario$scenario48$opMod$pondMmu_f c(0,0,0,0,0,1.05,0)
 #
 scenario$scenario49$ctl$scenarioName 'a1Mmean_sr0.5_diffM_rw15_hiPondM'
 scenario$scenario49$opMod$histFile 'fit_parBatHGherringMCMC13'
-scenario$scenario49$opMod$projMtrend 15
+scenario$scenario49$opMod$projMtrendT 15
 scenario$scenario49$opMod$projMtype 'correlated'
 scenario$scenario49$opMod$pondMmu_f c(0,0,0,0,0,1.05,0)
 #
@@ -399,7 +399,7 @@ scenario$scenario49$opMod$pondMmu_f c(0,0,0,0,0,1.05,0)
 #
 scenario$scenario50$ctl$scenarioName 'a1M1.25_sr0.5_diffM_rw15_hiPondM'
 scenario$scenario50$opMod$histFile 'fit_parBatHGherringMCMC14'
-scenario$scenario50$opMod$projMtrend 15
+scenario$scenario50$opMod$projMtrendT 15
 scenario$scenario50$opMod$projMtype 'correlated'
 scenario$scenario50$opMod$pondMmu_f c(0,0,0,0,0,1.05,0)
 #
@@ -407,7 +407,7 @@ scenario$scenario50$opMod$pondMmu_f c(0,0,0,0,0,1.05,0)
 #
 scenario$scenario51$ctl$scenarioName 'a1M1.64_sr0.5_diffM_rw15_hiPondM'
 scenario$scenario51$opMod$histFile 'fit_parBatHGherringMCMC15'
-scenario$scenario51$opMod$projMtrend 15
+scenario$scenario51$opMod$projMtrendT 15
 scenario$scenario51$opMod$projMtype 'correlated'
 scenario$scenario51$opMod$pondMmu_f c(0,0,0,0,0,1.05,0)
 #
@@ -415,7 +415,7 @@ scenario$scenario51$opMod$pondMmu_f c(0,0,0,0,0,1.05,0)
 #
 scenario$scenario52$ctl$scenarioName 'a1Mmean_sr0.8_diffM_rw15_hiPondM'
 scenario$scenario52$opMod$histFile 'fit_parBatHGherringMCMC16'
-scenario$scenario52$opMod$projMtrend 15
+scenario$scenario52$opMod$projMtrendT 15
 scenario$scenario52$opMod$projMtype 'correlated'
 scenario$scenario52$opMod$pondMmu_f c(0,0,0,0,0,1.05,0)
 #
@@ -423,7 +423,7 @@ scenario$scenario52$opMod$pondMmu_f c(0,0,0,0,0,1.05,0)
 #
 scenario$scenario53$ctl$scenarioName 'a1M1.25_sr0.8_diffM_rw15_hiPondM'
 scenario$scenario53$opMod$histFile 'fit_parBatHGherringMCMC17'
-scenario$scenario53$opMod$projMtrend 15
+scenario$scenario53$opMod$projMtrendT 15
 scenario$scenario53$opMod$projMtype 'correlated'
 scenario$scenario53$opMod$pondMmu_f c(0,0,0,0,0,1.05,0)
 #
@@ -431,7 +431,7 @@ scenario$scenario53$opMod$pondMmu_f c(0,0,0,0,0,1.05,0)
 #
 scenario$scenario54$ctl$scenarioName 'a1M1.64_sr0.8_diffM_rw15_hiPondM'
 scenario$scenario54$opMod$histFile 'fit_parBatHGherringMCMC18'
-scenario$scenario54$opMod$projMtrend 15
+scenario$scenario54$opMod$projMtrendT 15
 scenario$scenario54$opMod$projMtype 'correlated'
 scenario$scenario54$opMod$pondMmu_f c(0,0,0,0,0,1.05,0)
 #
@@ -439,7 +439,7 @@ scenario$scenario54$opMod$pondMmu_f c(0,0,0,0,0,1.05,0)
 #
 scenario$scenario55$ctl$scenarioName 'a1Mmean_sr0.67_identM_rw5_hiPondM'
 scenario$scenario55$opMod$histFile 'fit_parBatHGherringMCMC1'
-scenario$scenario55$opMod$projMtrend 5
+scenario$scenario55$opMod$projMtrendT 5
 scenario$scenario55$opMod$projMtype 'identical'
 scenario$scenario55$opMod$pondMmu_f c(0,0,0,0,0,1.05,0)
 #
@@ -447,7 +447,7 @@ scenario$scenario55$opMod$pondMmu_f c(0,0,0,0,0,1.05,0)
 #
 scenario$scenario56$ctl$scenarioName 'a1M1.25_sr0.67_identM_rw5_hiPondM'
 scenario$scenario56$opMod$histFile 'fit_parBatHGherringMCMC2'
-scenario$scenario56$opMod$projMtrend 5
+scenario$scenario56$opMod$projMtrendT 5
 scenario$scenario56$opMod$projMtype 'identical'
 scenario$scenario56$opMod$pondMmu_f c(0,0,0,0,0,1.05,0)
 #
@@ -455,7 +455,7 @@ scenario$scenario56$opMod$pondMmu_f c(0,0,0,0,0,1.05,0)
 #
 scenario$scenario57$ctl$scenarioName 'a1M1.64_sr0.67_identM_rw5_hiPondM'
 scenario$scenario57$opMod$histFile 'fit_parBatHGherringMCMC3'
-scenario$scenario57$opMod$projMtrend 5
+scenario$scenario57$opMod$projMtrendT 5
 scenario$scenario57$opMod$projMtype 'identical'
 scenario$scenario57$opMod$pondMmu_f c(0,0,0,0,0,1.05,0)
 #
@@ -463,7 +463,7 @@ scenario$scenario57$opMod$pondMmu_f c(0,0,0,0,0,1.05,0)
 #
 scenario$scenario58$ctl$scenarioName 'a1Mmean_sr0.5_identM_rw5_hiPondM'
 scenario$scenario58$opMod$histFile 'fit_parBatHGherringMCMC4'
-scenario$scenario58$opMod$projMtrend 5
+scenario$scenario58$opMod$projMtrendT 5
 scenario$scenario58$opMod$projMtype 'identical'
 scenario$scenario58$opMod$pondMmu_f c(0,0,0,0,0,1.05,0)
 #
@@ -471,7 +471,7 @@ scenario$scenario58$opMod$pondMmu_f c(0,0,0,0,0,1.05,0)
 #
 scenario$scenario59$ctl$scenarioName 'a1M1.25_sr0.5_identM_rw5_hiPondM'
 scenario$scenario59$opMod$histFile 'fit_parBatHGherringMCMC5'
-scenario$scenario59$opMod$projMtrend 5
+scenario$scenario59$opMod$projMtrendT 5
 scenario$scenario59$opMod$projMtype 'identical'
 scenario$scenario59$opMod$pondMmu_f c(0,0,0,0,0,1.05,0)
 #
@@ -479,7 +479,7 @@ scenario$scenario59$opMod$pondMmu_f c(0,0,0,0,0,1.05,0)
 #
 scenario$scenario60$ctl$scenarioName 'a1M1.64_sr0.5_identM_rw5_hiPondM'
 scenario$scenario60$opMod$histFile 'fit_parBatHGherringMCMC6'
-scenario$scenario60$opMod$projMtrend 5
+scenario$scenario60$opMod$projMtrendT 5
 scenario$scenario60$opMod$projMtype 'identical'
 scenario$scenario60$opMod$pondMmu_f c(0,0,0,0,0,1.05,0)
 #
@@ -487,7 +487,7 @@ scenario$scenario60$opMod$pondMmu_f c(0,0,0,0,0,1.05,0)
 #
 scenario$scenario61$ctl$scenarioName 'a1Mmean_sr0.8_identM_rw5_hiPondM'
 scenario$scenario61$opMod$histFile 'fit_parBatHGherringMCMC7'
-scenario$scenario61$opMod$projMtrend 5
+scenario$scenario61$opMod$projMtrendT 5
 scenario$scenario61$opMod$projMtype 'identical'
 scenario$scenario61$opMod$pondMmu_f c(0,0,0,0,0,1.05,0)
 #
@@ -495,7 +495,7 @@ scenario$scenario61$opMod$pondMmu_f c(0,0,0,0,0,1.05,0)
 #
 scenario$scenario62$ctl$scenarioName 'a1M1.25_sr0.8_identM_rw5_hiPondM'
 scenario$scenario62$opMod$histFile 'fit_parBatHGherringMCMC8'
-scenario$scenario62$opMod$projMtrend 5
+scenario$scenario62$opMod$projMtrendT 5
 scenario$scenario62$opMod$projMtype 'identical'
 scenario$scenario62$opMod$pondMmu_f c(0,0,0,0,0,1.05,0)
 #
@@ -503,7 +503,7 @@ scenario$scenario62$opMod$pondMmu_f c(0,0,0,0,0,1.05,0)
 #
 scenario$scenario63$ctl$scenarioName 'a1M1.64_sr0.8_identM_rw5_hiPondM'
 scenario$scenario63$opMod$histFile 'fit_parBatHGherringMCMC9'
-scenario$scenario63$opMod$projMtrend 5
+scenario$scenario63$opMod$projMtrendT 5
 scenario$scenario63$opMod$projMtype 'identical'
 scenario$scenario63$opMod$pondMmu_f c(0,0,0,0,0,1.05,0)
 #
@@ -511,7 +511,7 @@ scenario$scenario63$opMod$pondMmu_f c(0,0,0,0,0,1.05,0)
 #
 scenario$scenario64$ctl$scenarioName 'a1Mmean_sr0.67_diffM_rw5_hiPondM'
 scenario$scenario64$opMod$histFile 'fit_parBatHGherringMCMC10'
-scenario$scenario64$opMod$projMtrend 5
+scenario$scenario64$opMod$projMtrendT 5
 scenario$scenario64$opMod$projMtype 'correlated'
 scenario$scenario64$opMod$pondMmu_f c(0,0,0,0,0,1.05,0)
 #
@@ -519,7 +519,7 @@ scenario$scenario64$opMod$pondMmu_f c(0,0,0,0,0,1.05,0)
 #
 scenario$scenario65$ctl$scenarioName 'a1M1.25_sr0.67_diffM_rw5_hiPondM'
 scenario$scenario65$opMod$histFile 'fit_parBatHGherringMCMC11'
-scenario$scenario65$opMod$projMtrend 5
+scenario$scenario65$opMod$projMtrendT 5
 scenario$scenario65$opMod$projMtype 'correlated'
 scenario$scenario65$opMod$pondMmu_f c(0,0,0,0,0,1.05,0)
 #
@@ -527,7 +527,7 @@ scenario$scenario65$opMod$pondMmu_f c(0,0,0,0,0,1.05,0)
 #
 scenario$scenario66$ctl$scenarioName 'a1M1.64_sr0.67_diffM_rw5_hiPondM'
 scenario$scenario66$opMod$histFile 'fit_parBatHGherringMCMC12'
-scenario$scenario66$opMod$projMtrend 5
+scenario$scenario66$opMod$projMtrendT 5
 scenario$scenario66$opMod$projMtype 'correlated'
 scenario$scenario66$opMod$pondMmu_f c(0,0,0,0,0,1.05,0)
 #
@@ -535,7 +535,7 @@ scenario$scenario66$opMod$pondMmu_f c(0,0,0,0,0,1.05,0)
 #
 scenario$scenario67$ctl$scenarioName 'a1Mmean_sr0.5_diffM_rw5_hiPondM'
 scenario$scenario67$opMod$histFile 'fit_parBatHGherringMCMC13'
-scenario$scenario67$opMod$projMtrend 5
+scenario$scenario67$opMod$projMtrendT 5
 scenario$scenario67$opMod$projMtype 'correlated'
 scenario$scenario67$opMod$pondMmu_f c(0,0,0,0,0,1.05,0)
 #
@@ -543,7 +543,7 @@ scenario$scenario67$opMod$pondMmu_f c(0,0,0,0,0,1.05,0)
 #
 scenario$scenario68$ctl$scenarioName 'a1M1.25_sr0.5_diffM_rw5_hiPondM'
 scenario$scenario68$opMod$histFile 'fit_parBatHGherringMCMC14'
-scenario$scenario68$opMod$projMtrend 5
+scenario$scenario68$opMod$projMtrendT 5
 scenario$scenario68$opMod$projMtype 'correlated'
 scenario$scenario68$opMod$pondMmu_f c(0,0,0,0,0,1.05,0)
 #
@@ -551,7 +551,7 @@ scenario$scenario68$opMod$pondMmu_f c(0,0,0,0,0,1.05,0)
 #
 scenario$scenario69$ctl$scenarioName 'a1M1.64_sr0.5_diffM_rw5_hiPondM'
 scenario$scenario69$opMod$histFile 'fit_parBatHGherringMCMC15'
-scenario$scenario69$opMod$projMtrend 5
+scenario$scenario69$opMod$projMtrendT 5
 scenario$scenario69$opMod$projMtype 'correlated'
 scenario$scenario69$opMod$pondMmu_f c(0,0,0,0,0,1.05,0)
 #
@@ -559,7 +559,7 @@ scenario$scenario69$opMod$pondMmu_f c(0,0,0,0,0,1.05,0)
 #
 scenario$scenario70$ctl$scenarioName 'a1Mmean_sr0.8_diffM_rw5_hiPondM'
 scenario$scenario70$opMod$histFile 'fit_parBatHGherringMCMC16'
-scenario$scenario70$opMod$projMtrend 5
+scenario$scenario70$opMod$projMtrendT 5
 scenario$scenario70$opMod$projMtype 'correlated'
 scenario$scenario70$opMod$pondMmu_f c(0,0,0,0,0,1.05,0)
 #
@@ -567,7 +567,7 @@ scenario$scenario70$opMod$pondMmu_f c(0,0,0,0,0,1.05,0)
 #
 scenario$scenario71$ctl$scenarioName 'a1M1.25_sr0.8_diffM_rw5_hiPondM'
 scenario$scenario71$opMod$histFile 'fit_parBatHGherringMCMC17'
-scenario$scenario71$opMod$projMtrend 5
+scenario$scenario71$opMod$projMtrendT 5
 scenario$scenario71$opMod$projMtype 'correlated'
 scenario$scenario71$opMod$pondMmu_f c(0,0,0,0,0,1.05,0)
 #
@@ -575,7 +575,7 @@ scenario$scenario71$opMod$pondMmu_f c(0,0,0,0,0,1.05,0)
 #
 scenario$scenario72$ctl$scenarioName 'a1M1.64_sr0.8_diffM_rw5_hiPondM'
 scenario$scenario72$opMod$histFile 'fit_parBatHGherringMCMC18'
-scenario$scenario72$opMod$projMtrend 5
+scenario$scenario72$opMod$projMtrendT 5
 scenario$scenario72$opMod$projMtype 'correlated'
 scenario$scenario72$opMod$pondMmu_f c(0,0,0,0,0,1.05,0)
 #

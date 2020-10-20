@@ -69,7 +69,7 @@ for( k in 1:nrow(omGrid))
         sep = "", append = T, file = outFile )
   cat(  "scenario$scenario", k, "$opMod$histFile '", histOMLabel, "'\n", 
         sep = "", append = T, file = outFile )
-  cat(  "scenario$scenario", k, "$opMod$projMtrend ", rwLevel, "\n", 
+  cat(  "scenario$scenario", k, "$opMod$projMtrendT ", rwLevel, "\n", 
         sep = "", append = T, file = outFile )
   cat(  "scenario$scenario", k, "$opMod$projMtype '", projMtype, "'\n", 
         sep = "", append = T, file = outFile )
