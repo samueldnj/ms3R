@@ -1,0 +1,4 @@
+"","dataScenario","modelHyp","Stock","$B_0$","$R_0$","$R_{init}$","$F_{init}$","$M_0$","$\overline{M}$","$q_s$","$q_d$","pdHess"
+"1","HG_multistock","juveM1.25_steep0.5_diffMDevs","C/S",7.326,635.564,352.714,0,0.513,0.881,0.266,0.998,TRUE
+"2","HG_multistock","juveM1.25_steep0.5_diffMDevs","JP/S",33.362,1761.756,1236.978,0,0.449,0.759,0.216,0.997,TRUE
+"3","HG_multistock","juveM1.25_steep0.5_diffMDevs","Lou",4.056,238.537,559.891,0,0.473,0.778,0.103,0.998,TRUE

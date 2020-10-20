@@ -4,7 +4,7 @@ areaM   <- c("identMDevs","diffMDevs")
 rw      <- c(15,5)
 PondM   <- c("lo","hi")
 
-histFolderNames <- paste("fit_parBatHGherringGrid",1:16,sep = "")
+histFolderNames <- paste("fit_parBatHGherringMCMC",1:18,sep = "")
 
 outFile <- "HGherringGrid.bch"
 
