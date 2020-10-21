@@ -80,14 +80,14 @@ points show biomass at the end of the projection period."
 ```
 
 ```{r, impliedHCRs, echo = FALSE, fig.cap = FvsBcap }
-
-plotFvsB(blob)
+if( blob$ctlList$mp$omni$nKnots > 1)
+  plotFvsB(blob)
 
 ```
 
 ```{r, impliedHCRs_catch, echo = FALSE, fig.cap = CvsBcap }
-
-plotCvsB(blob)
+if( blob$ctlList$mp$omni$nKnots > 1)
+  plotCvsB(blob)
 
 ```
 
