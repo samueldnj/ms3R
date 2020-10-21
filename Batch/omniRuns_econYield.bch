@@ -6,7 +6,8 @@ parameter value
 # Scenario 1 : noCorr
 #
 scenario$scenario1$ctl$scenarioName 'noCorr'
-scenario$scenario1$ctl$nGoodReps 200
+scenario$scenario1$ctl$nGoodReps 250
+scenario$scenario1$ctl$totReps 250
 scenario$scenario1$ctl$omni TRUE
 scenario$scenario1$ctl$nCores 24
 scenario$scenario1$opMod$pT 40
@@ -17,7 +18,8 @@ scenario$scenario1$mp$omni$nKnots 1
 # Scenario 2 : corrRec
 #
 scenario$scenario2$ctl$scenarioName 'corrRecDevs'
-scenario$scenario2$ctl$nGoodReps 200
+scenario$scenario2$ctl$nGoodReps 250
+scenario$scenario2$ctl$totReps 250
 scenario$scenario2$ctl$omni TRUE
 scenario$scenario2$ctl$nCores 24
 scenario$scenario2$opMod$pT 40
@@ -28,7 +30,8 @@ scenario$scenario2$mp$omni$nKnots 1
 # Scenario 3 : corrPrice
 #
 scenario$scenario3$ctl$scenarioName 'corrPriceDevs'
-scenario$scenario3$ctl$nGoodReps 200
+scenario$scenario3$ctl$nGoodReps 250
+scenario$scenario3$ctl$totReps 250
 scenario$scenario3$ctl$omni TRUE
 scenario$scenario3$ctl$nCores 24
 scenario$scenario3$opMod$pT 40
@@ -39,7 +42,8 @@ scenario$scenario3$mp$omni$nKnots 1
 # Scenario 4 : corrRecPrice
 #
 scenario$scenario4$ctl$scenarioName 'corrRecPrice'
-scenario$scenario4$ctl$nGoodReps 200
+scenario$scenario4$ctl$nGoodReps 250
+scenario$scenario4$ctl$totReps 250
 scenario$scenario4$ctl$omni TRUE
 scenario$scenario4$ctl$nCores 24
 scenario$scenario4$opMod$pT 40
