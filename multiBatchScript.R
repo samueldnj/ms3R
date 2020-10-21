@@ -9,7 +9,7 @@ library(parallel)
 source("ms3R.r")
 source("makeResultPlots.R")
 
-batchControlFiles <- c( "MPgrid_DLSurveys_Long.bch",
+batchControlFiles <- c( "omniRuns_econYield.bch",
                         "sensRuns_MSYCV.bch",
                         "sensRuns_hierSD.bch",
                         "sensRuns_obsErr.bch",

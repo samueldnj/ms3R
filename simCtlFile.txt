@@ -10,7 +10,7 @@ ctl$maxIter 1e4
 ctl$rSeed 123
 ctl$totReps 3
 ctl$nGoodReps 3
-ctl$omni FALSE
+ctl$omni TRUE
 ctl$perfConF FALSE
 ctl$noProcErr FALSE
 ctl$nCores NULL
@@ -76,10 +76,10 @@ mp$hcr$maxDeltaTACup .2
 mp$hcr$scaleFrefMS TRUE
 mp$omni$fixEff FALSE
 mp$omni$avgEffYrs 5
-mp$omni$nKnots 21
+mp$omni$nKnots 1
 mp$omni$maxF 1.0
 mp$omni$maxE 10
-mp$omni$minE 1
+mp$omni$minE 0.01
 mp$omni$maxAAV .25
 mp$omni$maxRelEffDiff .2
 mp$omni$maxRelCatDiff .3
@@ -107,7 +107,7 @@ mp$omni$initEffDiffWt 1
 mp$omni$penType "linear"
 mp$omni$linBeta 3
 mp$omni$baseEffort "MSY"
-mp$omni$trace 3
+mp$omni$trace 6
 opMod$allocYears 20
 opMod$alphaU .05
 opMod$baranovIter 20
@@ -125,9 +125,9 @@ opMod$histFile "fit_base_MCMC"
 opMod$price_s c(Dover=1.08,English=1.19,Rock=0.96,Petrale=2.590,Arrowtooth=0.990)
 opMod$varCostPerKt 0.176
 opMod$discountRate 0.05
-opMod$interestRate 0.02
+opMod$interestRate 0.0
 opMod$priceFlex_s c(0.07973206,0.07681141,0.07118977)
-opMod$priceSD 0.4
+opMod$priceSD 0.1
 opMod$econBaseYear 2009
 opMod$crewShare .3
 opMod$projObsErrMult 1.0

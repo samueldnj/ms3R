@@ -2413,9 +2413,14 @@ solvePTm <- function( Bmsy, B0 )
     # simulation
     projInt <- nT - tMP + 1
     nKnots  <- mp$omni$nKnots
-    space   <- projInt / (nKnots - 1)
+    if( nKnots == 1 )
+      space <- nT - tMP + 1
+    else
+      space   <- projInt / (nKnots - 1)
+    
     knotPts <- round( seq(from = 1, by = space, length.out = nKnots) )
     knotPts[knotPts > projInt] <- projInt
+
 
     # Create x points for interpolation spline
     x <- knotPts
@@ -2448,12 +2453,17 @@ solvePTm <- function( Bmsy, B0 )
         for( s in 1:nS )
           for( p in 1:nP )
           {
-            splineF <- spline( x = x, y = knotF_spk[s,p,], n = projInt)$y
-            splineF <- splineF * rp$FmsyRefPts$Fmsy_sp[s,p]
-            splineF[splineF < 0] <- 0
-            splineF[splineF > maxF] <- maxF
+            if( nKnots > 1 )
+            {
+              splineF <- spline( x = x, y = knotF_spk[s,p,], n = projInt)$y
+              splineF <- splineF * rp$FmsyRefPts$Fmsy_sp[s,p]
+              splineF[splineF < 0] <- 0
+              splineF[splineF > maxF] <- maxF
 
-            obj$om$F_spft[s,p,2,tMP:nT] <- parMult*splineF
+              obj$om$F_spft[s,p,2,tMP:nT] <- parMult*splineF
+            } 
+            if( nKnots == 1 )
+              obj$om$F_spft[s,p,2,tMP:nT] <- knotF_spk[s,p,1]
           }
       }
     }
@@ -2514,12 +2524,15 @@ solvePTm <- function( Bmsy, B0 )
           for( p in 1:nP )
           {
             # Make spline, multiply by Emsy
-            if(nKnots < (nT - tMP + 1))
+            if(nKnots < (nT - tMP + 1) & nKnots > 1 )
               splinelnE <- spline( x = x, y = knotlnE_pk[p,], n = projInt)$y
-            else
+            if( nKnots == nT - tMP + 1)
               splinelnE <- knotlnE_pk[p,]
+            if( nKnots == 1 )
+              splinelnE <- rep(knotlnE_pk[p,],nT - tMP + 1)
 
             splinelnE[splinelnE > log(maxE) ]  <- log(maxE)
+            splinelnE[splinelnE < log(minE) ]  <- log(minE)
 
             if( mp$omni$baseEffort == "MSY")
               baseEff <- obj$rp$EmsyMSRefPts$EmsyMS_p[p]
@@ -3015,10 +3028,10 @@ solvePTm <- function( Bmsy, B0 )
                   # control=list(maxit=10000, reltol=0.01 ) )
                   control=list(maxit=3000, reltol=0.001, trace = mp$omni$trace ) )
 
-    # opt <- optim( par = opt$par, fn = getObjFunctionVal,
-    #               method = "Nelder-Mead", obj = obj,
-    #               control=list(maxit=3000, reltol=0.001,ndeps=c(.01,.01), 
-    #               trace = mp$omni$trace ) )
+    opt <- optim( par = opt$par, fn = getObjFunctionVal,
+                  method = "Nelder-Mead", obj = obj,
+                  control=list(maxit=3000, reltol=0.001,ndeps=c(.01,.01), 
+                  trace = mp$omni$trace ) )
 
     message( " (.solveProjPop) Optimisation for omniscient manager completed with f = ", 
               round(opt$value,2), ".\n")
