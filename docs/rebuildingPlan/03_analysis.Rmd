@@ -7,6 +7,11 @@ source(here::here("ms3Rplots.R"))
 
 ```
 
+```{r readPerfTab, echo = FALSE, include = FALSE}
+perfTab <- read.csv("./data/fullStatTable_baseCtlPts.csv", stringsAsFactors = FALSE)
+```
+
+
 ## Evaluation of potential rebuilding strategies using closed loop simulation
 
 Fishery models play important roles in the design and operation of feedback 
@@ -146,13 +151,54 @@ associated gear selectivity.
 
 
 
-
 ### Historical scenarios
 
-Describe base OM and alternative OM grid here (18 OMs). Might be worth 
-including a table for this.
+The historical operating model scenarios were a grid of 18 HG herring
+stock hypotheses, made up of three factors. The OM factors for generating
+the grid were age-1 natural mortality (3 levels), stock-recruit steepness 
+(recruitment at low spawning stock biomass, 3 levels), and whether sub-area 
+specific time-varying natural mortality was 100\% correlated or independent
+(2 levels).
 
-See Figure \@ref(fig:refPtsCS) for reference points plots
+
+```{r omGridTable, echo = FALSE }
+
+remString <- function( x, pattern )
+{
+  newX <- stringr::str_split(string = x, pattern = pattern )[[1]][1]
+
+  newX
+}
+
+histOMs <- perfTab %>%
+            filter( mp == "NoFish", 
+                    grepl(pattern = "rw15_hiPondM", x = scenario) ) %>%
+            select( scenario,
+                    B0,
+                    BhistT,
+                    DhistT ) %>%
+            arrange( DhistT ) %>%
+            mutate( scenario = sapply( X =scenario, 
+                                       FUN = remString,
+                                       pattern = "rw15_hiPondM") )
+
+colnames(histOMs) <- c( "Scenario",
+                        "$B_0$",
+                        "$B_{2019}$",
+                        "$B_{2019}/B_0$")
+
+histOMtabCap <- "The full grid of 18 historical operating models,
+arranged in ascending order of depletion relative to unfished in 2019."
+
+csasdown::csas_table( histOMs,
+                      caption = histOMtabCap,
+                      booktabs = TRUE, escape = FALSE,
+                      landscape = FALSE,
+                      font_size = 12, format = kable_format ) %>%
+    kable_styling(  latex_options = c("hold_position", "scale_down"),
+                    bootstrap_options = c("striped", "hover","scale_down"))
+
+```
 
 ### Projection scenarios
 
@@ -383,6 +429,162 @@ Appendix tables here)**
 
 ## Management procedure performance
 
+
 Discuss performance metrics results at aggregrate level... to be 
 completed once final  weighting of OM grid (or best-case/worst-case) 
 scenarios are determined.
+
+
+```{r eqWtdTable, echo = FALSE }
+
+# Get best/worst OMs for later
+noFish_allOMs <- perfTable %>%
+                  filter( mp == "NoFish" ) %>%
+                  arrange( desc(pBtGt.3B0) )
+
+bestOM <- noFish_allOMs$scenario[1]
+worstOM <- noFish_allOMs$scenario[72]
+
+eqWtd_perfTable <- perfTab %>%
+                    group_by( mp ) %>%
+                    summarise_if( is.numeric, mean ) %>%
+                    arrange( desc(pBtGt.3B0) )
+
+
+eqWtdTabCap <- "MP performance averaged over the full grid of
+72 operating models, assuming an equal weighting. MPs are ordered
+by performance with respect to the conservation Objective 
+1, i.e. $P(B_t \geq 0.3 B_0)$."
+
+csasdown::csas_table( eqWtd_perfTable,
+                      caption = eqWtdTabCap,
+                      booktabs = TRUE, escape = FALSE,
+                      landscape = FALSE,
+                      font_size = 12, format = kable_format ) %>%
+    kable_styling(  latex_options = c("hold_position", "scale_down"),
+                    bootstrap_options = c("striped", "hover","scale_down"))
+
+```
+
+\newpage
+
+```{r bestOMperfTable, echo = FALSE }
+
+
+bestOM_perfTable <- perfTable %>%
+                    filter( scenario == bestOM ) %>%
+                    arrange( desc(pBtGt.3B0) )
+
+
+bestOMTabCap <- "Rebuilding procedure performance under the operating model with
+the best conservation performance in the absence of fishing. RPs are ordered 
+by performance with respect to the conservation Objective 1, i.e. 
+$P(B_t \geq 0.3 B_0)$."
+
+csasdown::csas_table( bestOM_perfTable,
+                      caption = bestOMTabCap,
+                      booktabs = TRUE, escape = FALSE,
+                      landscape = FALSE,
+                      font_size = 12, format = kable_format ) %>%
+    kable_styling(  latex_options = c("hold_position", "scale_down"),
+                    bootstrap_options = c("striped", "hover","scale_down"))
+
+```
+
+\newpage
+
+```{r worstOMperfTable, echo = FALSE }
+
+
+worstOM_perfTable <- perfTable %>%
+                    filter( scenario == worstOM ) %>%
+                    arrange( desc(pBtGt.3B0) )
+
+
+worstOMTabCap <- "Rebuilding procedure performance under the operating model with 
+the worst conservation performance in the absence of fishing. RPs are ordered by 
+performance with respect to the conservation Objective 1, i.e. $P(B_t \geq 0.3 B_0)$."
+
+csasdown::csas_table( worstOM_perfTable,
+                      caption = worstOMTabCap,
+                      booktabs = TRUE, escape = FALSE,
+                      landscape = FALSE,
+                      font_size = 12, format = kable_format ) %>%
+    kable_styling(  latex_options = c("hold_position", "scale_down"),
+                    bootstrap_options = c("striped", "hover","scale_down"))
+
+```
+
+\newpage
+
+```{r pessimTable, echo = FALSE }
+
+
+pessimMtab <- perfTable %>%
+                  filter( mp == "NoFish", 
+                          grepl(pattern = "rw15_hiPondM", x = scenario) ) %>%
+                  select( scenario,
+                          pBtGt.3B0, 
+                          pBtGt.5B0,
+                          growthRate6yrs,
+                          growthRate11yrs,
+                          growthRate16yrs,
+                          B0,
+                          BtMP,
+                          DtMP,
+                          BnT,
+                          DnT) %>%
+                  arrange( DnT )
+
+
+pessimTabCap <- "Summaries of historical operating model dynamics in the 
+absence of fishing under the most pessimistic future $M$ trend scenario 
+**rw15**. Operating models are arranged by depletion relative to
+unfished biomass at the end of the projection period."
+
+csasdown::csas_table( pessimMtab,
+                      caption = pessimTabCap,
+                      booktabs = TRUE, escape = FALSE,
+                      landscape = FALSE,
+                      font_size = 12, format = kable_format ) %>%
+    kable_styling(  latex_options = c("hold_position", "scale_down"),
+                    bootstrap_options = c("striped", "hover","scale_down"))
+
+```
+
+\newpage
+
+```{r optimTable, echo = FALSE }
+
+
+optimMtab <- perfTable %>%
+                  filter( mp == "NoFish", 
+                          grepl(pattern = "rw15_hiPondM", x = scenario) ) %>%
+                  select( scenario,
+                          pBtGt.3B0, 
+                          pBtGt.5B0,
+                          growthRate6yrs,
+                          growthRate11yrs,
+                          growthRate16yrs,
+                          B0,
+                          BtMP,
+                          DtMP,
+                          BnT,
+                          DnT) %>%
+                  arrange( DnT )
+
+
+optimTabCap <- "Summaries of historical operating model dynamics in the 
+absence of fishing under the most optimistic future $M$ trend scenario
+**rw5**. Operating models are arranged by depletion relative to
+unfished biomass at the end of the projection period."
+
+csasdown::csas_table( optimMtab,
+                      caption = optimTabCap,
+                      booktabs = TRUE, escape = FALSE,
+                      landscape = FALSE,
+                      font_size = 12, format = kable_format ) %>%
+    kable_styling(  latex_options = c("hold_position", "scale_down"),
+                    bootstrap_options = c("striped", "hover","scale_down"))
+
+```
