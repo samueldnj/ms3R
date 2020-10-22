@@ -95,7 +95,7 @@ mp$omni$avgCatWt 0.
 mp$omni$totCatWt 1.0
 mp$omni$sumCatWt .0
 mp$omni$totProfitWt .0
-mp$omni$hiDepBmsyWt .0x
+mp$omni$hiDepBmsyWt .0
 mp$omni$loDepBmsyWt 1
 mp$omni$probDepWt 0.0
 mp$omni$closedWt 0
