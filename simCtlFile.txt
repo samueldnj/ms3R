@@ -13,7 +13,7 @@ ctl$nGoodReps 3
 ctl$omni TRUE
 ctl$perfConF FALSE
 ctl$noProcErr FALSE
-ctl$nCores NULL
+ctl$nCores 3
 mp$assess$assInt 1
 mp$assess$method "hierProd"
 mp$assess$idxPoints 3

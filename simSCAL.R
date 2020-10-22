@@ -1812,7 +1812,7 @@ solvePTm <- function( Bmsy, B0 )
                       retrotauObs_itspf = array( NA, dim = c(nReps, pT, nS, nP, nF ) ),      # Retrospective obs error estimates 
                       retroUmsy_itsp    = array( NA, dim = c(nReps, pT, nS, nP ) ),          # Retrospective Umsy 
                       retroBmsy_itsp    = array( NA, dim = c(nReps, pT, nS, nP ) ),          # Retrospective Bmsy 
-                      retroMSY_itsp     = array( NA, dim = c(nReps, pT, nS, nP ) ),          # Retrospective Umsy 
+                      # retroMSY_itsp     = array( NA, dim = c(nReps, pT, nS, nP ) ),          # Retrospective Umsy 
                       maxGrad_itsp      = array( NA, dim = c(nReps, pT, nS, nP ) ),          # AM max gradient component
                       pdHess_itsp       = array( NA, dim = c(nReps, pT, nS, nP ) ),          # AM pdHessian?
                       posSDs_itsp       = array( NA, dim = c(nReps, pT, nS, nP ) ))          # AM all positive SDs?
@@ -1966,7 +1966,7 @@ solvePTm <- function( Bmsy, B0 )
       blob$mp$assess$retrotauObs_itspf[i,,,,]   <- simObj[[i]]$mp$assess$retrotauObs_tspf
       blob$mp$assess$retroUmsy_itsp[i,,,]       <- simObj[[i]]$mp$assess$retroUmsy_tsp
       blob$mp$assess$retroBmsy_itsp[i,,,]       <- simObj[[i]]$mp$assess$retroBmsy_tsp
-      blob$mp$assess$retroMSY_itsp[i,,,]        <- simObj[[i]]$mp$assess$retroMSY_tsp
+      # blob$mp$assess$retroMSY_itsp[i,,,]        <- simObj[[i]]$mp$assess$retroMSY_tsp
       blob$mp$assess$maxGrad_itsp[i,,,]         <- simObj[[i]]$mp$assess$maxGrad_tsp
       blob$mp$assess$pdHess_itsp[i,,,]          <- simObj[[i]]$mp$assess$pdHess_tsp
       blob$mp$assess$posSDs_itsp[i,,,]          <- simObj[[i]]$mp$assess$posSDs_tsp

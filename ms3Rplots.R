@@ -941,6 +941,25 @@ plotRetroBio_Scenario <- function(  groupFolder = "DERTACS_reruns_sep24",
 } # END plotRetroBio_Scenario()
 
 
+# plotTulipEcon_sp
+# Simulation envelopes of price and revenue at the species/stock
+# level. Doesn't include costs of fishing or profit, as these
+# are at the area level aggregated over species.
+plotTulipEcon_sp <- function( obj = NULL,
+                              simNum = 1,
+                              groupFolder = "",
+                              price = TRUE,
+                              revenue = TRUE )
+{
+  if( is.null(obj))
+  {
+    .loadSim( simNum, groupFolder )
+    obj <- blob
+  }
+
+
+} # END plotTulipEcon_sp
+
 # Envelopes of simulated assessment errors
 plotTulipAssError <- function(  simNum = 1,
                                 obj = NULL,
