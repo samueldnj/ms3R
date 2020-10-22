@@ -951,11 +951,133 @@ plotTulipEcon_sp <- function( obj = NULL,
                               price = TRUE,
                               revenue = TRUE )
 {
+  # Load sim if not passed in
   if( is.null(obj))
   {
     .loadSim( simNum, groupFolder )
     obj <- blob
   }
+
+
+  goodReps_isp  <- obj$goodReps_isp
+  nReps         <- dim(goodReps_isp)[1]
+
+  # Get catch and econ arrays
+  C_ispt            <- obj$om$C_ispt
+  Rev_ispft         <- obj$om$Rev_ispft
+  landVal_ist       <- obj$om$landVal_ist
+  basePrice_ist     <- obj$om$basePrice_ist
+  effCost_ipft      <- obj$om$effCost_ipft  
+
+  # Get control list
+  ctlList <- obj$ctlList
+
+  # Model dims
+  tMP     <- obj$om$tMP
+  nS      <- obj$om$nS
+  nP      <- obj$om$nP 
+  nT      <- obj$om$nT
+  pT      <- obj$ctlList$opMod$pT
+
+  # Labeling info
+  speciesNames  <- obj$ctlList$opMod$species
+  stockNames    <- obj$ctlList$opMod$stock
+  fYear         <- obj$ctlList$opMod$fYear
+
+  years         <- seq( from = fYear, by = 1, length.out = nT )  
+
+  traceIdx <- sample(x = 1:nReps, size = 3)
+
+  maxY <- 0
+  
+  basePrice_qst <- apply(X = basePrice_ist, FUN = quantile,
+                          probs = c(0.025, 0.5, 0.975),
+                          MARGIN = c(2,3) )
+  landVal_qst   <- apply(X = landVal_ist, FUN = quantile,
+                          probs = c(0.025, 0.5, 0.975),
+                          MARGIN = c(2,3) )
+  Rev_qspft     <- apply(X = Rev_ispft, FUN = quantile,
+                          probs = c(0.025, 0.5, 0.975),
+                          MARGIN = c(2,3,4,5) )
+
+
+  # Make nP x nS array
+  # Now plot
+  par(  mfcol = c(nP, nS ),
+        mar = c(.1,1.5,.1,1.5),
+        oma = c(3,3,2,2) )
+  for( s in 1:nS )
+    for( p in 1:nP )
+    {
+      if( price )
+        maxY <- max(maxY,basePrice_qst[,s,tMP:nT],landVal_qst[,s,tMP:nT],na.rm =T)
+      if( revenue )
+        maxY <- max(maxY,Rev_qspft[,s,p,2,tMP:nT],na.rm =T)
+
+      plot( x = range(years[tMP:nT]),
+            y = c(0,maxY),
+            type = "n", xlab = "", ylab = "", axes = FALSE )
+
+        mfg <- par("mfg")
+        if( mfg[1] == mfg[3] )
+          axis( side = 1 )
+        
+        axis( side = 2, las = 1 )
+        if( mfg[2] == mfg[4] )
+          rmtext( txt = stockNames[p], line = .1, font = 2, cex = 1.5, outer = TRUE )
+        if( mfg[1] == 1 )
+          mtext( side = 3, text = speciesNames[s] )
+        box()
+        grid()
+
+        if( price )
+        {
+          # Price when catch == MSY
+          polygon(  x = c(years[tMP:nT],years[nT:tMP]),
+                    y = c(basePrice_qst[1,s,tMP:nT],rev(basePrice_qst[3,s,tMP:nT])),
+                    border = NA, 
+                    col = scales::alpha("darkgreen",.5) )
+          lines( x = years[tMP:nT], y = basePrice_qst[2,s,tMP:nT],
+                  lwd = 3, col = "darkgreen" )
+
+          for( i in traceIdx )
+            lines( x = years[tMP:nT], y = basePrice_ist[i,s,tMP:nT],
+                  lwd = 3, col = "darkgreen" )            
+
+
+          # Price from elasticity of demand (downward sloping demand curve)
+          polygon(  x = c(years[tMP:nT],years[nT:tMP]),
+                    y = c(landVal_qst[1,s,tMP:nT],rev(landVal_qst[3,s,tMP:nT])),
+                    border = NA, 
+                    col = scales::alpha("salmon",.5) )
+          lines( x = years[tMP:nT], y = landVal_qst[2,s,tMP:nT],
+                  lwd = 3, col = "salmon" )
+
+          for( i in traceIdx )
+            lines( x = years[tMP:nT], y = landVal_ist[i,s,tMP:nT],
+                  lwd = 3, col = "salmon" )    
+
+
+        }
+
+        if( revenue )
+        {
+          polygon(  x = c(years[tMP:nT],years[nT:tMP]),
+                    y = c(Rev_qspft[1,s,p,2,tMP:nT],rev(Rev_qspft[3,s,p,2,tMP:nT])),
+                    border = NA, 
+                    col = scales::alpha("darkgreen",.5) )
+          lines( x = years[tMP:nT], y = Rev_qspft[2,s,p,2,tMP:nT],
+                  lwd = 3, col = "darkgreen" )
+
+          for( i in traceIdx )
+            lines( x = years[tMP:nT], y = Rev_ispft[i,s,p,2,tMP:nT],
+                  lwd = 3, col = "darkgreen" )            
+        }
+
+
+
+    }
+
 
 
 } # END plotTulipEcon_sp

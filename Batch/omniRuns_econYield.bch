@@ -10,7 +10,7 @@ scenario$scenario1$ctl$nGoodReps 250
 scenario$scenario1$ctl$totReps 250
 scenario$scenario1$ctl$omni TRUE
 scenario$scenario1$ctl$nCores 24
-scenario$scenario1$opMod$pT 40
+scenario$scenario1$opMod$pT 80
 scenario$scenario1$opMod$corrRecDevs FALSE
 scenario$scenario1$opMod$corrPriceDevs FALSE
 scenario$scenario1$mp$omni$nKnots 1
@@ -22,7 +22,7 @@ scenario$scenario2$ctl$nGoodReps 250
 scenario$scenario2$ctl$totReps 250
 scenario$scenario2$ctl$omni TRUE
 scenario$scenario2$ctl$nCores 24
-scenario$scenario2$opMod$pT 40
+scenario$scenario2$opMod$pT 80
 scenario$scenario2$opMod$corrRecDevs TRUE
 scenario$scenario2$opMod$corrPriceDevs FALSE
 scenario$scenario2$mp$omni$nKnots 1
@@ -34,7 +34,7 @@ scenario$scenario3$ctl$nGoodReps 250
 scenario$scenario3$ctl$totReps 250
 scenario$scenario3$ctl$omni TRUE
 scenario$scenario3$ctl$nCores 24
-scenario$scenario3$opMod$pT 40
+scenario$scenario3$opMod$pT 80
 scenario$scenario3$opMod$corrRecDevs FALSE
 scenario$scenario3$opMod$corrPriceDevs TRUE
 scenario$scenario3$mp$omni$nKnots 1
@@ -46,7 +46,7 @@ scenario$scenario4$ctl$nGoodReps 250
 scenario$scenario4$ctl$totReps 250
 scenario$scenario4$ctl$omni TRUE
 scenario$scenario4$ctl$nCores 24
-scenario$scenario4$opMod$pT 40
+scenario$scenario4$opMod$pT 80
 scenario$scenario4$opMod$corrRecDevs TRUE
 scenario$scenario4$opMod$corrPriceDevs TRUE
 scenario$scenario4$mp$omni$nKnots 1
