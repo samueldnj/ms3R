@@ -13,7 +13,7 @@ ctl$nGoodReps 7
 ctl$omni TRUE
 ctl$perfConF FALSE
 ctl$noProcErr FALSE
-ctl$nCores 7
+ctl$nCores NULL
 mp$assess$assInt 1
 mp$assess$method "hierProd"
 mp$assess$idxPoints 3
@@ -127,7 +127,7 @@ opMod$varCostPerKt 0.176
 opMod$discountRate 0.05
 opMod$interestRate 0.0
 opMod$priceFlex_s c(0.07973206,0.07681141,0.07118977)
-opMod$priceSD 0.1
+opMod$priceSD 0.05
 opMod$econBaseYear 2009
 opMod$crewShare .3
 opMod$projObsErrMult 1.0

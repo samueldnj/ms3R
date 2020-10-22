@@ -988,7 +988,7 @@ plotTulipEcon_sp <- function( obj = NULL,
 
   traceIdx <- sample(x = 1:nReps, size = 3)
 
-  maxY <- 0
+  
   
   basePrice_qst <- apply(X = basePrice_ist, FUN = quantile,
                           probs = c(0.025, 0.5, 0.975),
@@ -1000,6 +1000,8 @@ plotTulipEcon_sp <- function( obj = NULL,
                           probs = c(0.025, 0.5, 0.975),
                           MARGIN = c(2,3,4,5) )
 
+  browser()
+
 
   # Make nP x nS array
   # Now plot
@@ -1009,6 +1011,7 @@ plotTulipEcon_sp <- function( obj = NULL,
   for( s in 1:nS )
     for( p in 1:nP )
     {
+      maxY <- 0
       if( price )
         maxY <- max(maxY,basePrice_qst[,s,tMP:nT],landVal_qst[,s,tMP:nT],na.rm =T)
       if( revenue )
@@ -1036,26 +1039,26 @@ plotTulipEcon_sp <- function( obj = NULL,
           polygon(  x = c(years[tMP:nT],years[nT:tMP]),
                     y = c(basePrice_qst[1,s,tMP:nT],rev(basePrice_qst[3,s,tMP:nT])),
                     border = NA, 
-                    col = scales::alpha("darkgreen",.5) )
+                    col = scales::alpha("darkgreen",.3) )
           lines( x = years[tMP:nT], y = basePrice_qst[2,s,tMP:nT],
                   lwd = 3, col = "darkgreen" )
 
           for( i in traceIdx )
             lines( x = years[tMP:nT], y = basePrice_ist[i,s,tMP:nT],
-                  lwd = 3, col = "darkgreen" )            
+                  lwd = .8, col = "darkgreen" )            
 
 
           # Price from elasticity of demand (downward sloping demand curve)
           polygon(  x = c(years[tMP:nT],years[nT:tMP]),
                     y = c(landVal_qst[1,s,tMP:nT],rev(landVal_qst[3,s,tMP:nT])),
                     border = NA, 
-                    col = scales::alpha("salmon",.5) )
+                    col = scales::alpha("salmon",.3) )
           lines( x = years[tMP:nT], y = landVal_qst[2,s,tMP:nT],
                   lwd = 3, col = "salmon" )
 
           for( i in traceIdx )
             lines( x = years[tMP:nT], y = landVal_ist[i,s,tMP:nT],
-                  lwd = 3, col = "salmon" )    
+                  lwd = .8, col = "salmon" )    
 
 
         }
@@ -1065,20 +1068,20 @@ plotTulipEcon_sp <- function( obj = NULL,
           polygon(  x = c(years[tMP:nT],years[nT:tMP]),
                     y = c(Rev_qspft[1,s,p,2,tMP:nT],rev(Rev_qspft[3,s,p,2,tMP:nT])),
                     border = NA, 
-                    col = scales::alpha("darkgreen",.5) )
+                    col = scales::alpha("grey50",.3) )
           lines( x = years[tMP:nT], y = Rev_qspft[2,s,p,2,tMP:nT],
-                  lwd = 3, col = "darkgreen" )
+                  lwd = 3, col = "grey50" )
 
           for( i in traceIdx )
             lines( x = years[tMP:nT], y = Rev_ispft[i,s,p,2,tMP:nT],
-                  lwd = 3, col = "darkgreen" )            
+                  lwd = .8, col = "grey50" )            
         }
-
 
 
     }
 
-
+    mtext( side = 1, text = "Year", outer = TRUE )
+    mtext( side = 2, text = "Unit Price ($/kg), Revenue ($m)", outer = TRUE)
 
 } # END plotTulipEcon_sp
 

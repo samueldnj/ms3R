@@ -3843,19 +3843,14 @@ combBarrierPen <- function( x, eps,
   # Fill in economic parameters
   obj$om$basePrice_st[,tMP] <- ctlList$opMod$price_s[obj$om$speciesNames]
 
-  priceDevCovMat <- diag(1,nS)
-  if(ctlList$opMod$corrPriceDevs)
+  priceDevCovMat <- diag(ctlList$opMod$priceSD^2,nS)
+  if(!is.null(ctlList$opMod$priceModel))
   {
-    if(is.null(ctlList$opMod$priceModel))
-    {
-      priceDevCovMat <- matrix(ctlList$opMod$priceCorr, nrow = nS, ncol = nS)
-      diag(priceDevCorrMat) <- ctlList$opMod$priceSD^2
-    }
-    if(!is.null(ctlList$opMod$priceModel))
-    {
-      load(file = file.path("history",ctlList$opMod$priceModel))
-      priceDevCovMat <- cov(t(priceFlexModel$eps_st))
-    }
+    load(file = file.path("history",ctlList$opMod$priceModel))
+    priceDevCovMat <- cov(t(priceFlexModel$eps_st))
+
+    if( !ctlList$opMod$corrPriceDevs)
+      priceDevCovMat <- diag(diag(priceDevCovMat))
   }
 
   obj$errors$priceDev_st[1:nS,1:nT] <- t( mvtnorm::rmvnorm( n = nT, mean = rep(0,nS),
