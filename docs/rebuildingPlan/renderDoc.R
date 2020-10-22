@@ -4,7 +4,7 @@
 
 library(bookdown)
 
-setwd(here::here('docs/rebuildingPlan'))
+# setwd(here::here('docs/rebuildingPlan'))
 
 # csasdown::draft("sr") # creates Science Response Template in working dir
 bookdown::render_book("index.Rmd")
