@@ -1,40 +1,41 @@
 # Context
 
-Mandatory section and title.
+A management strategy evaluation (MSE) process is ongoing for the BC Pacific 
+herring fisheries since 2017. A first cycle has been completed 
+for all major stocks, with the southern management areas (SOG and
+WCVI) completed in 2018 [@benson2020a; @dfo2019a], and the northern 
+stocks in 2019 [@dfo2020b]. During the first cycle, technical working groups 
+from the major areas identified potential stock structure and the role of 
+spawn-on-kelp (SOK) fisheries as important sources of uncertainty that 
+should be included in future herring operating models.
 
-## Note on this section
+Stock structure and spawn-on-kelp fisheries were not represented in existing
+stock assessments or operating models for Pacific herring. Therefore, we 
+developed a new Spatially Integrated Statistical Catch-at-Age Herring 
+(SISCAH) model with the capability of incorporating both of these issues in 
+Pacific herring assessments and MSE in an efficient and scientifically 
+defensible way.
 
-The context section must give the readers a clear idea of the issue
-being addressed and of the history of how the need for this process 
-came about (e.g., the rationale for using the Science Response 
-Process in this specific case).
+The Haida Gwaii major Pacific herring area has been closed to fishing 
+since 2005. According to the the current non-spatial reference operating 
+model, Haida Gwaii herring has been in a sustained high-mortality/low-biomass 
+state since the late 1990s, which has inhibited stock growth even in the 
+absence of commercial fishing [@dfo2020c]. A Rebuilding Plan is 
+being developed for Haida Gwaii herring through a partnership between the 
+Council of Haida Nation, DFO, and Parks Canada [@dfo2020b].
 
-It should include the formal request/question from the client, 
-the response deadline, as well as a short summary of the 
-conclusion (one or two sentences).
+In the first MSE cycle, no candidate management procedure, including the
+status quo (No Fishing), met the limit reference point performance criterion 
+for Haida Gwaii herring [@dfo2020b]. Haida Gwaii operating 
+models and management procedures both only recognise large-scale scales and,
+therefore, do not contemplate potential spatial diversity in herring 
+productivity that may be masked at larger scales. Here, we use the SISCAH
+operating model to drive closed loop simulations for Haida Gwaii herring 
+and better understand how spatial rebuilding procedures, spawn-on-kelp 
+fisheries, and natural mortality patterns potentially affect rebuilding 
+dynamics for this area.
 
-The rationale for the approach taken to answer the request can be 
-described (e.g., specific scientific questions that were addressed).
-This section could also include information on previous related 
-meetings and advice on which this process is based.
 
-This section is not intended for detailed background information 
-on the science issues themselves, but rather gives the bigger 
-picture.
-At the end of this section, the reader will have a clear 
-understanding of the reason to produce the report, will know how 
-this specific report fits in the sequence of past advice, and what 
-advice is expected to be produced in the future on this specific 
-issue.
-
-If the objective of the process was to comment on a specific 
-report (e.g., Environmental Assessment report produced by a 
-proponent in the context of the Canadian Environmental Assessment 
-Act) then the relevant link to the report that was the subject of
-the review could be identified in this section.
-
-This section will be posted in HTML format on the CSAS website 
-followed by the link to the full PDF version of the publication.
 
 ## Mandatory paragraph
 

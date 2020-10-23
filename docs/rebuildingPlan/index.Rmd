@@ -30,20 +30,24 @@ csl: csl/csas.csl
 lot: true
 lof: true
 # Any extra LaTeX code for the header:
-# header-includes:
-# - \usepackage{tikz}
+header-includes:
+- \newcommand{\blandscape}{\begin{landscape}}
+- \newcommand{\elandscape}{\end{landscape}}
 ---
 
 ```{r setup, echo=FALSE, cache=FALSE, message=FALSE, results='hide', warning=FALSE}
 library(knitr)
+library(kableExtra)
 if (is_latex_output()) {
   knitr_figs_dir <- "knitr-figs-pdf/"
   knitr_cache_dir <- "knitr-cache-pdf/"
   fig_out_type <- "png"
+  kable_format <- "latex"
 } else {
   knitr_figs_dir <- "knitr-figs-docx/"
   knitr_cache_dir <- "knitr-cache-docx/"
   fig_out_type <- "png"
+  kable_format <- "pandoc"
 }
 fig_asp <- 0.618
 fig_width <- 9

@@ -7,9 +7,6 @@ source(here::here("ms3Rplots.R"))
 
 ```
 
-```{r readPerfTab, echo = FALSE, include = FALSE}
-perfTab <- read.csv("./data/fullStatTable_baseCtlPts.csv", stringsAsFactors = FALSE)
-```
 
 
 ## Evaluation of potential rebuilding strategies using closed loop simulation
@@ -17,33 +14,43 @@ perfTab <- read.csv("./data/fullStatTable_baseCtlPts.csv", stringsAsFactors = FA
 Fishery models play important roles in the design and operation of feedback 
 fishery management systems. Fishery operating models use data obtained from 
 scientific monitoring to estimate historical abundances and productivity 
-under alternative hypotheses for environmental conditions and Herring 
-biology. To speed up learning and to avoid putting stocks and fisheries 
-at risk in real experiments, we represent these alternative hypotheseses 
-using different operating model scenarios and run computer experiments on 
-simulated fishery management systems (Figure \@ref(fig:msefig)). Inferences 
-derived from assessments of stock status flow through a decision-making 
-process to determine what future impacts (e.g., harvests) are allowed on 
-the stock. These impacts combine with environmental variability and 
-density-dependent population dynamics to affect characteristics, 
-productivity, and abundance of the stock. Environment-stock interactions 
-are typically the most uncertain aspect of fishery management systems 
-because the dynamics are non-linear and only partially observable. Thus, 
-we may not know the importance of an impact on the stock until long after 
-it occurs. Using this type of closed-loop simulation, the authors’ 
-evaluated proposed rebuilding management procedures for Pacific Herring 
-in Haida Gwaii that attempt to meet rebuilding objectives following a 
-step-wise approach[@cox2010a]. The steps were as follows:
+under alternative hypotheses for, *inter alia*, environmental conditions and 
+fish stock biology. Alternative hypotheses are used to condition operating
+model scenarios that drive closed loop simulations of fishery management
+systems, which evaluate alternative management procedures in computer experiments
+(Figure \@ref(fig:msefig)). These so called Management Strategy Evaluations 
+(MSEs) speed up learning about the fisheries management system while avoiding 
+putting fish stocks and fisheries at risk in real experiments. In a closed-loop
+simulation experiment, annual inferences of stock status based on simulated data 
+flow through a decision rule, which sets the next year's fishery removals. In the 
+following year, removals are taken from the stock via simulated fishing mortality, 
+and new data is generated for application of the procedure again, repeating in this
+way until the pre-determined end of the computer experiment. In this way, the
+expected performance of a simulated fishery management procedure can be estimated
+via pre-determined performance metrics, indicating acceptable procedures with
+respect to fishery objectives, and their relative rank. Simulated procedure
+performance is ideally integrated over several operating model scenarios representing
+major uncertainties that are difficult to resolve. For example, environment-stock 
+interactions such as recruitment and predation mortality are among the most 
+uncertain aspects of fishery management systems because the dynamics are non-linear 
+and only partially observable. Therefore, multiple alternative hypotheses on 
+recruitment and predation (natural) mortality may be used to condition 
+operating model scenarios to ensure management procedures are robust to those
+uncertainties, as the plausibility of those hypotheses may not be known until 
+long after a procedure is chosen. In this paper, we used closed-loop simulation to 
+evaluate the expected ability of four proposed rebuilding procedures (RPs) to 
+meet rebuilding objectives for Pacific Herring in Haida Gwaii following a 
+step-wise approach[@cox2010a]:
 
-1. Define a range of alternative management procedures (MPs) 
+1. Define a range of alternative management procedures (RPs) 
 defined by (i) **data** types and precision, (ii) **assessment 
 methods** for establishing stock status, (iii) **harvest control 
 rules (HCRs)** for setting annual catch limits; and (iv) **meta-rules** 
 for modifying annual catch limits given pre-defined constraints and 
 conditions as required. Meta-rules might involve time intervals, 
 constraints on fisheries, spatial and fishery allocation rules, and/or 
-rules for revising the MPs, as well as “exceptional circumstances” 
-that provide trigger points and subsequent actions when MPs are 
+rules for revising the RPs, as well as “exceptional circumstances” 
+that provide trigger points and subsequent actions when RPs are 
 considered unreliable.
 
 2. Specify an operating model (OM) to enable simulation of alternative 
@@ -69,29 +76,14 @@ projection involves the following steps:
 	vii) Repeat Step 3a-f for 100 independent replicate simulations
 
 4. Calculate a set of quantitative performance measures based on the 
-100 simulation replicates that can be used to compare and rank MP 
+100 simulation replicates that can be used to compare and rank RP 
 performance against the conservation and fishery objectives.
-
-```{r msefig, fig.pos="H", fig.cap = mseFigCap}
-mseFigCap <- "Schematic of the closed loop simulation approach taken 
-here comprises operating model (OM)scenarios that represent alternative 
-hypotheses of OYE biology, ecology, exploitation history and 
-environmental conditions (Env) that are fit to historic data 
-(dotted box). The operating model scenarios are used to simulate 
-future estimates of the data which are fit after applying a Harvest
-Control Rule (HCR) to set the catch under each management procedure 
-at each annual time step. The simulation repeats until the end of 
-the projection period. The assessment model is run at each time step 
-to evaluate management performance against the objectives 
-(adapted from @cox2010a)."
-
-knitr::include_graphics('figure/mseFig.pdf')
-```
 
 
 ## Operating model
 
-The SISCAH operating model (OM) is age-structured with multiple biologically
+The Spatially Integrated Statistical Catch-at-Age Herring (SISCAH) 
+Operating Model (OM) is an age-structured model with multiple biologically
 independent sub-areas (i.e., there is no biomass or recruitment exchange
 among areas in this version of the model). The Haida Gwaii herring stock is 
 currently managed across 5 sections that are grouped into the three sub-areas 
@@ -105,23 +97,12 @@ spawn indices from the surface survey (1951 - 1987) and dive survey
 (1988 - 2019). **Model notation and equations are given in Tables 1 and 2, 
 respectively. <- STILL INCLUDE THESE??**
 
-The SISCAH OM is structured in a hierarchical way to allow multi-level 
-hierarchical shrinkage priors on biological and fishery parameters that
-we assume are exchangeable among sub-areas. For example, age-at-50% 
-selectivity is likely to be similar among sub-areas because of common 
-factors affecting growth (e.g., food availability). Therefore, a shrinkage 
-prior would constrain age-at-50% selectivity parameters among the sub-areas 
-as deviations from a major stock mean value. The shrinkage prior typically 
-improves model convergence when data quality is poor, such as when sample 
-sizes are reduced from disaggregation into sub-areas [@johnson2018evaluating; 
-@benson2020performance]. 
-
 SISCAH includes both closed-pond and open-pond spawn-on-kelp fisheries. 
 Closed pond fisheries model the impoundment (ponding) of fish from the 
 spawning stock. Fish are captured via purse-seines and then towed 
 to and subsequently transferred into a closed net-pen (pond), within which 
 herring will spawn on blades of kelp (usually *Macrocystus integrifolia*) 
-[@schweigert2018synopsis-of-the]. Ponded fish are removed from the spawning 
+[@schweigert2018a]. Ponded fish are removed from the spawning 
 stock biomass for the remainder of the year, and then reunited with the
 main population after losses to pond-induced mortality. Closed pond SOK 
 fisheries are included as input data in the historical period, and 
@@ -129,19 +110,19 @@ simulated in the projection period.
 
 The instantaneous ponding induced mortality rate was fixed at 
 $M_{SOK} = 0.315$/yr in the history, based on an average observed loss of 
-27\% of ponded biomass [@shields1982herring]; however, the true value is 
+27\% of ponded biomass [@shields1982a]; however, the true value is 
 unknown and possibly dependent on environmental factors, general stock 
-health, tow distance, pond density, and operator handling [@shields1982herring;
-@schweigert2018synopsis-of-the]. Therefore, we tested an alternative
-higher ponding induced mortality rate in the projections, with 
+health, tow distance, pond density, and operator handling [@shields1982a;
+@schweigert2018a]. Therefore, we tested an alternative
+higher ponding induced mortality rate in closed-loop simulations, with 
 $M_{SOK} = 1.05$/yr, corresponding to 65\% dead ponded biomass 
-[@schweigert2018synopsis-of-the]. 
+[@schweigert2018a]. 
 
 In an open-pond fishery, herring are not impounded but are attracted to 
 a site where kelp is laid out to collect spawn, or alternatively, frames 
 strung with kelp are towed to sites where herring are already spawning. 
 Open-pond SOK harvesting induces lower mortality on mature fish, and its 
-impact on the stock is primarily through egg loss [@shelton2014assessing]. 
+impact on the stock is primarily through egg loss [@shelton2014a]. 
 Landings data for open-pond SOK fisheries are not available, so open pond
 SOK fisheries are only modeled in the projection time period. To simulate 
 an open pond SOK fishery in the projections, we reduced to $M_{SOK} = 0$ 
@@ -154,59 +135,48 @@ associated gear selectivity.
 ### Historical scenarios
 
 The historical operating model scenarios were a grid of 18 HG herring
-stock hypotheses, made up of three factors. The OM factors for generating
-the grid were age-1 natural mortality (3 levels), stock-recruit steepness 
-(recruitment at low spawning stock biomass, 3 levels), and whether sub-area 
-specific time-varying natural mortality was 100\% correlated or independent
-(2 levels).
+stock hypotheses, comprising a fully factorial design over three factors 
+(Table \@ref(tab:omGridTable)). The OM factors for generating the grid were 
+age-1 natural mortality rates (3 levels), stock-recruit steepness (3 levels), 
+and whether projected time-varying mortality random walk deviations were 
+identical or correlated among sub-areas (2 levels). The age-1 and time-varying 
+natural mortality factor levels were chosen to increase variation in
+operating model estimates of unfished biomass and current stock status at
+those levels, and the time-varying natural mortality and steepness factor levels
+were chosen to maximise the variation in future population dynamics.
 
+Age-1 natural mortality rate factor levels were, from lowest to highest, the 
+sub-area time-averaged 2+ rate (**a1Mmean**, around 0.72 on average), 1.25 
+(**a1M1.25**), or 1.64 (**a1M1.64**). The latter two age-1 rates were chosen 
+via a likelihood profile for a grid of rates ranging between 0.6 and 2.0 [REFS], 
+where 1.25 was the most likely value (lowest data log-likelihood value), and 
+1.64 had the same log-likelihood value as the **a1Mmean** operating model 
+[FIG?]. Stock-recruit steepness values were low ($h = 0.5$, **sr0.5**), 
+medium ($h = 0.67$, **sr0.67**), and high ($h = .8$, **sr0.8**), where
+the medium value was taken from the current herring operating model prior
+mean value for steepness, and $h=0.5$ and $h=0.8$ span a common range
+for stock-recruit steepness. Finally, the time-varying M scenarios either
+treated $M_{2+,p,t}$ random walk deviations as identical across areas when 
+fitting operating models (i.e., same trends but different scales; **identM**), 
+or independently estimated among sub-areas (i.e., different trends and scales;
+**diffM**). For the **diffM** case, projected random walk deviations were 
+correlated, with the correlation matrix estimated from historical
+deviations. Historical scenario labels were defined by concatenating factor level 
+labels for the corresponding operating model hypotheses, separated
+by an underscore. For example, the hypothesis using sub-area mean 
+age-1 mortality, with low steepness, and different M deviations had the 
+label **a1Mmean_sr0.5_diffM**.
 
-```{r omGridTable, echo = FALSE }
+**NOTES ON GRID, I.E, a1M HAS LARGEST EFFECT ON CURRENT STOCK STATUS?**
 
-remString <- function( x, pattern )
-{
-  newX <- stringr::str_split(string = x, pattern = pattern )[[1]][1]
-
-  newX
-}
-
-histOMs <- perfTab %>%
-            filter( mp == "NoFish", 
-                    grepl(pattern = "rw15_hiPondM", x = scenario) ) %>%
-            select( scenario,
-                    B0,
-                    BhistT,
-                    DhistT ) %>%
-            arrange( DhistT ) %>%
-            mutate( scenario = sapply( X =scenario, 
-                                       FUN = remString,
-                                       pattern = "rw15_hiPondM") )
-
-colnames(histOMs) <- c( "Scenario",
-                        "$B_0$",
-                        "$B_{2019}$",
-                        "$B_{2019}/B_0$")
-
-histOMtabCap <- "The full grid of 18 historical operating models,
-arranged in ascending order of depletion relative to unfished in 2019."
-
-csasdown::csas_table( histOMs,
-                      caption = histOMtabCap,
-                      booktabs = TRUE, escape = FALSE,
-                      landscape = FALSE,
-                      font_size = 12, format = kable_format ) %>%
-    kable_styling(  latex_options = c("hold_position", "scale_down"),
-                    bootstrap_options = c("striped", "hover","scale_down"))
-
-```
 
 ### Projection scenarios
 
 We evaluated four operating model projection scenarios combining two 
 future trends in natural mortality with two SOK post-ponding mortality 
 rates. The natural mortality scenarios involve a random walk with a 
-trend that allows $M_{p,t}$ to decrease to the historical average
-$\bar{M}_{p}$ over periods of 5 years (**rw5**) or 15 years (**rw15**). 
+trend that decreases age 2+ $M_{2+,p,t}$ to the historical average
+$\bar{M}_{2+,p}$ over periods of 5 years (**rw5**) or 15 years (**rw15**). 
 Both of these scenarios are somewhat optimistic given recent trends in 
 estimated natural mortality, but they do provide scenarios where 
 rebuilding procedure behaviour is revealed because fisheries would be 
@@ -222,19 +192,19 @@ rate of 35\%) based on the assumed mortality estimate (65 short tons) used
 by DFO for allocating quota to closed ponds [@schweigert2018a]. For both 
 scenarios, the $logM_{SOK}$ distributions had a standard deviation of
 $\sigma_{M_{SOK}}=0.2$. Operating model scenarios were labeled by 
-concatenating the above factor names (i.e., **rw5+loPondM**, 
-**rw5+hiPondM**, **rw15+loPondM**, **rw15+hiPondM**). All scenarios 
+concatenating the above factor names (i.e., **rw5_loPondM**, 
+**rw5_hiPondM**, **rw15_loPondM**, **rw15_hiPondM**). All scenarios 
 assumed zero post-ponding mortality for open-pond SOK fisheries, but 
 account for egg loss by removing open-ponded fish from the spawning 
 stock when generating recruitment.
 
 ## Management procedures
 
-We evaluated 8 different fishing MPs that used an empirical assessment 
+We evaluated 8 different fishing RPs that used an empirical assessment 
 method, two different HCRs (QUESTION: Do we want to show bout HCRs or 
 just the HCR with LCP=0.3B0 and UCP=B0) and 4 different area and 
-allocation rules. We also tested an MP with no fishing (**NoFish**). 
-Each MP is applied independently to each area, with the exception of 
+allocation rules. We also tested an RP with no fishing (**NoFish**). 
+Each RP is applied independently to each area, with the exception of 
 SOK licensing allocation rules due to a constraint on the total number 
 of annual licenses available for Haida Gwaii.
 
@@ -281,18 +251,6 @@ Stock status is calculated as the empirical estimate of spawning
 biomass $\hat{B}_{p,t+1}$ divided by the average operating model 
 unfished biomass $\bar{B}_{0_{p}}$, equally weighted according to 
 the OM grid.
-
-```{r hcrfig, fig.pos="H", fig.cap = hcrFigCap}
-hcrFigCap <- "Harvest control rule diagram showing the functional 
-relationship between harvest rate and stock status used for setting 
-TACs in each sub-area under different MPs. "
-
-names <- c("HS50-60+HR0.1", "HS30-100+HR0.1")
-
-plotMultiHCR(LCPs=c(.5,.3), UCPs=c(.6,1), hcrNames=names)
-
-
-```
 
 For example, for the **HS30-100+HR0.1** rule when the stock is below the 
 lower control point ($B/B_{0}<0.3B_{0}$) the target harvest rate was set 
@@ -353,7 +311,7 @@ requires a minimum $TAC = 300$ t to open.
 ## Bridging Analyses
 
 The previous MSE cycle for Haida Gwaii evaluated the performance of 
-candidate MPs over a 15-year projection period (2019-2033), using a 
+candidate RPs over a 15-year projection period (2019-2033), using a 
 density-dependent mortality (DDM) operating model as the reference 
 scenario for simulation testing [e.g. ISCAM DDM; @benson2020a; @dfo2020b]. 
 The DDM scenario assumes future natural mortality rates return to the 
@@ -365,8 +323,8 @@ model $B_0$ to simulate conditions where low spawning biomass may
 lead to serious harm for the stock. To compare the current MSE with 
 the previous MSE cycle, we fit the base SISCAH operating model with 
 (SSICAH 2019) and withouth the 2019 data (SISCAH 2018) and tested 
-modified versions of the SR MP applied for the aggregate area. The 
-aggregate SR MP (**aggSR**) uses the same survey-based assessment method 
+modified versions of the SR RP applied for the aggregate area. The 
+aggregate SR RP (**aggSR**) uses the same survey-based assessment method 
 to forecast stock status and biomass described above, except calculates 
 spawning biomass for the aggregate area, i.e.,:
 
@@ -379,8 +337,8 @@ Gwaii, $C_{t}$ is the total removals (dead fish) in biomass units,
 $q$ is an average catchability coefficient for the blended index for 
 the operating model used (e.g. SISCAH 2019 and SISCAH 2018)
 
-We tested two versions of the aggSR MP, one with the same 
-**HS50-60+HR0.1** HCR used in the spatial MPs (**aggSR\_50-60HS+0.1HR**),
+We tested two versions of the aggSR RP, one with the same 
+**HS50-60+HR0.1** HCR used in the spatial RPs (**aggSR\_50-60HS+0.1HR**),
 (QUESTION: Do we need to show both of these or is the 30-60HS+0.1HR 
 sufficient) and a second using a HCR with a lower control point of 
 30\% (**aggSR\_30-60HS+0.1HR**) of operating model unfished biomass 
@@ -404,14 +362,13 @@ generation via a weighted average of area-specific generation times
 used a limited reference point (LRP) objective to maintain greater 
 than 75\% probability that total HG spawning biomass remains above 
 an LRP equal to 30\% of total unfished biomass, i.e.,
-
 \begin{equation}
-  P(\sum B_{p,t} > 0.3\sum_{p} B_{0_{p}}) \geq 0.75
+  P(\sum_{p=1}^3 B_{p,t} > 0.3\sum_{p=1}^3 B_{0,p}) \geq 0.75,
 \end{equation}
-This probability was approximated via the proportion of projection 
-years (across all replicates) where aggregated spawning biomass 
-exceeded $0.3\sum_{p} B_{0_{p}}$. Fishery performance statistics 
-included (i) number of years with openings, (ii) number of SOK licenses 
+approximated by the proportion of projection years (across all 
+replicates) where aggregated spawning biomass exceeded 
+$0.3\sum_{p} B_{0_{p}}$. Fishery performance statistics included (i) number 
+of years with openings, (ii) number of SOK licenses 
 allowed to operate, (iii) average catch, (iv) average interannual catch 
 variability, and v) proportion of years where harvest rate exceeds the 
 target. Fishery statistics were calculated for each simulation replicate 
@@ -423,7 +380,7 @@ equations table) and projection results are shown in Table X (TO DO: add
 PM Table)**.
 
 We present only tables showing perfromance metrics for the aggregated 
-areas with MPs using the HS30-100+HR0.1 HCR. Additional performance 
+areas with RPs using the HS30-100+HR0.1 HCR. Additional performance 
 metrics for sub-areas are provided in an appendix **(TO DO: Reference 
 Appendix tables here)**
 
@@ -435,156 +392,3 @@ completed once final  weighting of OM grid (or best-case/worst-case)
 scenarios are determined.
 
 
-```{r eqWtdTable, echo = FALSE }
-
-# Get best/worst OMs for later
-noFish_allOMs <- perfTable %>%
-                  filter( mp == "NoFish" ) %>%
-                  arrange( desc(pBtGt.3B0) )
-
-bestOM <- noFish_allOMs$scenario[1]
-worstOM <- noFish_allOMs$scenario[72]
-
-eqWtd_perfTable <- perfTab %>%
-                    group_by( mp ) %>%
-                    summarise_if( is.numeric, mean ) %>%
-                    arrange( desc(pBtGt.3B0) )
-
-
-eqWtdTabCap <- "MP performance averaged over the full grid of
-72 operating models, assuming an equal weighting. MPs are ordered
-by performance with respect to the conservation Objective 
-1, i.e. $P(B_t \geq 0.3 B_0)$."
-
-csasdown::csas_table( eqWtd_perfTable,
-                      caption = eqWtdTabCap,
-                      booktabs = TRUE, escape = FALSE,
-                      landscape = FALSE,
-                      font_size = 12, format = kable_format ) %>%
-    kable_styling(  latex_options = c("hold_position", "scale_down"),
-                    bootstrap_options = c("striped", "hover","scale_down"))
-
-```
-
-\newpage
-
-```{r bestOMperfTable, echo = FALSE }
-
-
-bestOM_perfTable <- perfTable %>%
-                    filter( scenario == bestOM ) %>%
-                    arrange( desc(pBtGt.3B0) )
-
-
-bestOMTabCap <- "Rebuilding procedure performance under the operating model with
-the best conservation performance in the absence of fishing. RPs are ordered 
-by performance with respect to the conservation Objective 1, i.e. 
-$P(B_t \geq 0.3 B_0)$."
-
-csasdown::csas_table( bestOM_perfTable,
-                      caption = bestOMTabCap,
-                      booktabs = TRUE, escape = FALSE,
-                      landscape = FALSE,
-                      font_size = 12, format = kable_format ) %>%
-    kable_styling(  latex_options = c("hold_position", "scale_down"),
-                    bootstrap_options = c("striped", "hover","scale_down"))
-
-```
-
-\newpage
-
-```{r worstOMperfTable, echo = FALSE }
-
-
-worstOM_perfTable <- perfTable %>%
-                    filter( scenario == worstOM ) %>%
-                    arrange( desc(pBtGt.3B0) )
-
-
-worstOMTabCap <- "Rebuilding procedure performance under the operating model with 
-the worst conservation performance in the absence of fishing. RPs are ordered by 
-performance with respect to the conservation Objective 1, i.e. $P(B_t \geq 0.3 B_0)$."
-
-csasdown::csas_table( worstOM_perfTable,
-                      caption = worstOMTabCap,
-                      booktabs = TRUE, escape = FALSE,
-                      landscape = FALSE,
-                      font_size = 12, format = kable_format ) %>%
-    kable_styling(  latex_options = c("hold_position", "scale_down"),
-                    bootstrap_options = c("striped", "hover","scale_down"))
-
-```
-
-\newpage
-
-```{r pessimTable, echo = FALSE }
-
-
-pessimMtab <- perfTable %>%
-                  filter( mp == "NoFish", 
-                          grepl(pattern = "rw15_hiPondM", x = scenario) ) %>%
-                  select( scenario,
-                          pBtGt.3B0, 
-                          pBtGt.5B0,
-                          growthRate6yrs,
-                          growthRate11yrs,
-                          growthRate16yrs,
-                          B0,
-                          BtMP,
-                          DtMP,
-                          BnT,
-                          DnT) %>%
-                  arrange( DnT )
-
-
-pessimTabCap <- "Summaries of historical operating model dynamics in the 
-absence of fishing under the most pessimistic future $M$ trend scenario 
-**rw15**. Operating models are arranged by depletion relative to
-unfished biomass at the end of the projection period."
-
-csasdown::csas_table( pessimMtab,
-                      caption = pessimTabCap,
-                      booktabs = TRUE, escape = FALSE,
-                      landscape = FALSE,
-                      font_size = 12, format = kable_format ) %>%
-    kable_styling(  latex_options = c("hold_position", "scale_down"),
-                    bootstrap_options = c("striped", "hover","scale_down"))
-
-```
-
-\newpage
-
-```{r optimTable, echo = FALSE }
-
-
-optimMtab <- perfTable %>%
-                  filter( mp == "NoFish", 
-                          grepl(pattern = "rw15_hiPondM", x = scenario) ) %>%
-                  select( scenario,
-                          pBtGt.3B0, 
-                          pBtGt.5B0,
-                          growthRate6yrs,
-                          growthRate11yrs,
-                          growthRate16yrs,
-                          B0,
-                          BtMP,
-                          DtMP,
-                          BnT,
-                          DnT) %>%
-                  arrange( DnT )
-
-
-optimTabCap <- "Summaries of historical operating model dynamics in the 
-absence of fishing under the most optimistic future $M$ trend scenario
-**rw5**. Operating models are arranged by depletion relative to
-unfished biomass at the end of the projection period."
-
-csasdown::csas_table( optimMtab,
-                      caption = optimTabCap,
-                      booktabs = TRUE, escape = FALSE,
-                      landscape = FALSE,
-                      font_size = 12, format = kable_format ) %>%
-    kable_styling(  latex_options = c("hold_position", "scale_down"),
-                    bootstrap_options = c("striped", "hover","scale_down"))
-
-```
