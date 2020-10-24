@@ -2875,7 +2875,7 @@ solvePTm <- function( Bmsy, B0 )
       
       RevProj_pt[p,]    <- apply( X = RevProj_spt[,p,], FUN = sum, MARGIN = 2,
                                   na.rm = TRUE )
-      econYield_pt[p,]  <- RevProj_pt[p,] * (1 - opMod$crewShare) - effCost_pt[p,]
+      econYield_pt[p,]  <- RevProj_pt[p,]  - effCost_pt[p,]
 
       econYield_pt[p,]  <- econYield_pt[p,] * (1 + opMod$discountRate)^(-1 * (tMP:nT - tMP))
     }
@@ -4405,11 +4405,11 @@ combBarrierPen <- function( x, eps,
   # Calculate landed value per kg given price flexibility
   if( t >= tMP )
   {
-    pflex_s <- opMod$priceFlex_s
-    C_s     <- apply( X = C_spt[,,t], FUN = sum, MARGIN = 1 )
-    MSY_sp  <- rp$FmsyRefPts$YeqFmsy_sp
-    MSY_s   <- apply(X = MSY_sp, FUN = sum, MARGIN = 1)
-    v_st[,t] <- basePrice_st[,t] * ( 1 + pflex_s * ( C_s/MSY_s - 1 ) )
+    lambda_s  <- opMod$lambda_s
+    C_s       <- apply( X = C_spt[,,t], FUN = sum, MARGIN = 1 )
+    MSY_sp    <- rp$FmsyRefPts$YeqFmsy_sp
+    MSY_s     <- apply(X = MSY_sp, FUN = sum, MARGIN = 1)
+    v_st[,t]  <- basePrice_st[,t] * ( C_s/MSY_s ) ^(-1/lambda_s)
     
     for( p in 1:nP)
       effCost_pft[p,,t] <- E_pft[p,,t] * rp$EmeyRefPts$effortPrice_p[p]
@@ -4421,7 +4421,7 @@ combBarrierPen <- function( x, eps,
   # Calculate revenue
   for( p in 1:nP )
     for( f in 1:nF)
-      Rev_spft[,p,f,t] <- C_spft[,p,f,t] * v_st[,t]
+      Rev_spft[,p,f,t] <- C_spft[,p,f,t] * v_st[,t] * (1 - opMod$crewShare)
 
 
   # Now generate indices 
