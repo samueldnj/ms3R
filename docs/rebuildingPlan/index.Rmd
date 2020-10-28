@@ -76,6 +76,7 @@ opts_chunk$set(
 )
 options(xtable.comment = FALSE)
 options(kableExtra.latex.load_packages = FALSE)
+options(knitr.kable.NA = '-')
 ```
 
 ```{r load-libraries, cache=FALSE}

@@ -1,4 +1,10 @@
 # Conclusions
 
-Mandatory section and title.
+While the most and least optimistic operating models effectively show 
+the range of outcomes that are possible for the HG herring fishery, 
+we caution against using extreme cases for making management decisions 
+as they may create a misleading picture of expected fishery 
+performance. Extreme cases are rarely highly plausible, as they often 
+represent states of nature (or combinations thereof) that have low 
+probability of occuring. 
 
