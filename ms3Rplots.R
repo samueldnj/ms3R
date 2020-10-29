@@ -11,6 +11,36 @@
 # <><><><><><><><><><><><><><><><><><><><><><><><><><><>
 
 
+plotChokeHCRs <- function(  LCP = .1, UCP = .6,
+                            refHR = .1,
+                            chokeScale = .2 )
+{
+  BBmsy <- seq(from = 0, to = 1, length.out = 200 )
+
+  targHR <- rep(0,length.out = 100)
+
+  for( bIdx in 1:length(BBmsy) )
+  {
+    b <- BBmsy[bIdx]
+    
+    if( b >= LCP & b <= UCP )
+      targHR[bIdx] <- refHR * (b - LCP)/(UCP - LCP)
+
+    if( b >= UCP )
+      targHR[bIdx] <- refHR
+  }
+
+  chokeHR <- targHR * chokeScale
+
+  plot( x = c(0,1), y = c(0,refHR),
+        type = "n", xlab = expression(B/B[MSY]),
+        ylab = "Harvest Rate", las = 1 )
+    lines( x = BBmsy, y = targHR, lwd = 3 )
+    lines( x = BBmsy, y = chokeHR, lwd = 2, col = "red" )
+
+
+}
+
 # rmtext()
 # Refactored procedure to plot right hand inner
 # margin mtext with the bottom towards the middle
@@ -65,7 +95,7 @@ xaxisRot <- function( at = 1:10,
 # plotDynRefPoints_sp()
 # Plots distributions of stochastically optimised Bmsy
 # for a set of simulations
-plotDynBmsy_sp <- function( groupFolder = "omni_econYield_prelim",
+plotDynBmsy_sp <- function( groupFolder = "omni_econYield_constE_constElasticity",
                             mpFilter = "freeEff",
                             scenOrder = c("noCorr","corrRecDevs","corrPriceDevs","corrRecPrice") )
 {
@@ -108,6 +138,10 @@ plotDynBmsy_sp <- function( groupFolder = "omni_econYield_prelim",
 
   Bmsy_sp <- rp$FmsyRefPts$BeqFmsy_sp
 
+  Emey_p  <- rp$EmeyRefPts$Emey_p
+  Beq_spe <- rp$refCurves$EffCurves$Beq_spe
+  E       <- rp$refCurves$EffCurves$E
+
   mpJitter <- c(  totCat    = .25,
                   totProfit = -.25 )
 
@@ -118,15 +152,17 @@ plotDynBmsy_sp <- function( groupFolder = "omni_econYield_prelim",
   for( p in 1:nP )
     for( s in 1:nS )
     {
-      plot( x = c(0,2),
-            y = c(0.5,4.5), type = "n", axes = FALSE,
-            yaxs = "i")
-
       BmsyMS <- rp$EmsyMSRefPts$BeqEmsy_sp[s,p]
       relBmsyMS <- BmsyMS/Bmsy_sp[s,p]
 
-      # BmsyMS <- rp$EmeyRefPts$BeqEmsyMS_sp[s,p]
-      # relBmsyMS <- BmsyMS/Bmsy_sp[s,p]
+      # Calculate BmeyMS
+      BmeyMS    <- getSplineVal(x = E, y = Beq_spe[s,p,], p = Emey_p[p] )
+      relBmeyMS <- BmeyMS/Bmsy_sp[s,p]
+
+      plot( x = c(0,1.5 * max(relBmeyMS, relBmsyMS)),
+            y = c(0.5,4.5), type = "n", axes = FALSE,
+            yaxs = "i")
+    
 
       mfg <- par("mfg")
       if(mfg[1] == mfg[3])
@@ -137,6 +173,7 @@ plotDynBmsy_sp <- function( groupFolder = "omni_econYield_prelim",
       abline( h = 0.5 + 1:3, lwd = 2 )
       abline( v = c(1), lty = 2, lwd = 1)
       abline( v = c(relBmsyMS), lty = 2, lwd = 2, col = "darkgreen")
+      abline( v = c(relBmeyMS), lty = 2, lwd = 2, col = "salmon")
 
       for( k in 1:nModels )
       {
@@ -202,7 +239,7 @@ plotDynBmsy_sp <- function( groupFolder = "omni_econYield_prelim",
 # plotDynUmsy_sp()
 # Plots distribution of dynamically optimised harvest rates
 # for a set of simulations
-plotDynUmsy_sp <- function( groupFolder = "omni_econYield_prelim",
+plotDynUmsy_sp <- function( groupFolder = "omni_econYield_constE_constElasticity",
                             mpFilter = "freeEff",
                             scenOrder = c("noCorr","corrRecDevs","corrPriceDevs","corrRecPrice") )
 {
@@ -246,6 +283,15 @@ plotDynUmsy_sp <- function( groupFolder = "omni_econYield_prelim",
   Bmsy_sp <- rp$FmsyRefPts$BeqFmsy_sp
   MSY_sp  <- rp$FmsyRefPts$YeqFmsy_sp
 
+  Emey_p  <- rp$EmeyRefPts$Emey_p
+  Beq_spe <- rp$refCurves$EffCurves$Beq_spe
+  Yeq_spe <- rp$refCurves$EffCurves$Yeq_spe
+  E       <- rp$refCurves$EffCurves$E
+
+  Umey_sp <- array(0, dim = c(nS,nP))
+  dynUmey_sp <- Umey_sp
+
+
   Umsy_sp <- MSY_sp / Bmsy_sp
 
   mpJitter <- c(  totCat    = .25,
@@ -268,6 +314,17 @@ plotDynUmsy_sp <- function( groupFolder = "omni_econYield_prelim",
       UmsyMS    <- MSYMS/BmsyMS
       relUmsyMS <- UmsyMS/Umsy_sp[s,p]
 
+      # Calculate BmeyMS
+      BmeyMS    <- getSplineVal(x = E, y = Beq_spe[s,p,], p = Emey_p[p] )
+      relBmeyMS <- BmeyMS/Bmsy_sp[s,p]
+
+      # Calculate YmeyMS
+      YmeyMS    <- getSplineVal(x = E, y = Yeq_spe[s,p,], p = Emey_p[p] )
+      relYmeyMS <- YmeyMS/MSY_sp[s,p]
+
+      Umey_sp[s,p]  <- YmeyMS/BmeyMS
+      relUmeyMS     <- Umey_sp[s,p]/Umsy_sp[s,p]
+
       # BmsyMS <- rp$EmeyRefPts$BeqEmsyMS_sp[s,p]
       # relBmsyMS <- BmsyMS/Bmsy_sp[s,p]
 
@@ -280,6 +337,7 @@ plotDynUmsy_sp <- function( groupFolder = "omni_econYield_prelim",
       abline( h = 0.5 + 1:3, lwd = 2 )
       abline( v = c(1), lty = 2, lwd = 1)
       abline( v = c(relUmsyMS), lty = 2, lwd = 2, col = "darkgreen")
+      abline( v = c(relUmeyMS), lty = 2, lwd = 2, col = "salmon")
 
       for( k in 1:nModels )
       {
@@ -288,6 +346,8 @@ plotDynUmsy_sp <- function( groupFolder = "omni_econYield_prelim",
 
         relUdist <- Udist / Umsy_sp[s,p]
         relUmean <- Umean / Umsy_sp[s,p]
+
+        dynUmey_sp[s,p] <- Udist[2]
 
         scenName  <- info.df$scenario[k]
         mpName    <- info.df$mp[k]
@@ -323,12 +383,13 @@ plotDynUmsy_sp <- function( groupFolder = "omni_econYield_prelim",
                 legend = c( "maxCatch",
                             "maxProfits",
                             "central 95%",
-                            "MS Umsy"),
-                pch = c(21,24,NA,NA),
-                pt.bg = c("black","black",NA,NA),
-                col = c("black","black","grey50","darkgreen"),
-                lwd = c(NA,NA,3,2),
-                lty = c(NA,NA,1,2))
+                            "MS Umsy",
+                            "Umey"),
+                pch = c(21,24,NA,NA,NA),
+                pt.bg = c("black","black",NA,NA,NA),
+                col = c("black","black","grey50","darkgreen","salmon"),
+                lwd = c(NA,NA,3,2,2),
+                lty = c(NA,NA,1,2,2))
 
       if( mfg[1] == 1 )
         mtext( side = 3, text = speciesNames[s], font = 2, line = .5)
@@ -341,12 +402,15 @@ plotDynUmsy_sp <- function( groupFolder = "omni_econYield_prelim",
     mtext( side = 1, outer = TRUE, text = expression(U/U[MSY]),
             line = 2.5 )
 
+    write.csv(Umey_sp, file = "Umey_sp.csv")
+    write.csv(dynUmey_sp, file = "dynUmey_sp.csv")
+
 } # END plotDynUmsy_sp
 
 # plotDynUmsy_sp()
 # Plots distribution of dynamically optimised harvest rates
 # for a set of simulations
-plotDynMSY_sp <- function( groupFolder = "omni_econYield_prelim",
+plotDynMSY_sp <- function( groupFolder = "omni_econYield_constE_constElasticity",
                             mpFilter = "freeEff",
                             scenOrder = c("noCorr","corrRecDevs","corrPriceDevs","corrRecPrice") )
 {
@@ -390,6 +454,11 @@ plotDynMSY_sp <- function( groupFolder = "omni_econYield_prelim",
   Bmsy_sp <- rp$FmsyRefPts$BeqFmsy_sp
   MSY_sp  <- rp$FmsyRefPts$YeqFmsy_sp
 
+  Emey_p  <- rp$EmeyRefPts$Emey_p
+  Beq_spe <- rp$refCurves$EffCurves$Beq_spe
+  Yeq_spe <- rp$refCurves$EffCurves$Yeq_spe
+  E       <- rp$refCurves$EffCurves$E
+
 
   mpJitter <- c(  totCat    = .25,
                   totProfit = -.25 )
@@ -409,6 +478,10 @@ plotDynMSY_sp <- function( groupFolder = "omni_econYield_prelim",
 
       relMSYMS <- MSYMS/MSY_sp[s,p]
 
+      # Calculate YmeyMS
+      YmeyMS    <- getSplineVal(x = E, y = Yeq_spe[s,p,], p = Emey_p[p] )
+      relYmeyMS <- YmeyMS/MSY_sp[s,p]
+
       # BmsyMS <- rp$EmeyRefPts$BeqEmsyMS_sp[s,p]
       # relBmsyMS <- BmsyMS/Bmsy_sp[s,p]
 
@@ -421,6 +494,7 @@ plotDynMSY_sp <- function( groupFolder = "omni_econYield_prelim",
       abline( h = 0.5 + 1:3, lwd = 2 )
       abline( v = c(1), lty = 2, lwd = 1)
       abline( v = c(relMSYMS), lty = 2, lwd = 2, col = "darkgreen")
+      abline( v = c(relYmeyMS), lty = 2, lwd = 2, col = "salmon")
 
       for( k in 1:nModels )
       {
@@ -3537,12 +3611,112 @@ plotSSvsMSrefPts <- function( obj = blob )
 
 } # END plotSSvsMSrefPts
 
+plotInvDemandCurves <- function(  obj = blob,
+                                  maxC = NULL,
+                                  maxP = 10,
+                                  sIdx = 1, lambda_s = NULL )
+{
+  if(is.null(lambda_s))
+    lambda_s  <- blob$ctlList$opMod$lambda_s
+
+  price_s   <- blob$ctlList$opMod$price_s
+  Yeq_sp    <- blob$rp[[1]]$FmsyRefPts$YeqFmsy_sp
+  Yeq_s     <- apply( X = Yeq_sp, FUN = sum, MARGIN = 1)
+
+
+  nT  <- obj$om$nT
+  nP  <- obj$om$nP
+  nS  <- obj$om$nS
+  tMP <- obj$om$tMP
+  specCols <- RColorBrewer::brewer.pal(n = nS, "Dark2")
+  speciesNames <- blob$om$speciesNames
+
+  if(is.null(maxC))
+    maxC <- 3*max(Yeq_sp)
+
+  C <- seq(from = 1e-6, to = maxC, length.out = 100)
+  P_sc  <- array(0, dim = c(length(sIdx),100))
+
+  for(s in sIdx)
+    P_sc[s,] <- price_s[s] * ( C / Yeq_s[s] )^(-1/lambda_s[s])
+
+  plot( x = c(0,maxC), y = c(0,maxP), 
+        xlab = "Catch (kt)", ylab = "Unit Price ($)",
+        las = 1, type = "n")
+    for( s in sIdx )
+    {
+      lines( x = C, y = P_sc[s,], lty = 1, lwd = 3, col = specCols[s] )
+      
+    }
+
+    segments( x0 = Yeq_s[sIdx], y0 = -1, y1 = price_s[sIdx], lty = 2, col = specCols[sIdx])
+    segments( x0 = -1, x1 = Yeq_s[sIdx], y0 = price_s[sIdx], lty = 2, col = specCols[sIdx])
+
+
+    legend( x = "topright", bty = "n",
+            col = c(specCols[sIdx]),
+            lty = rep(1,length(sIdx)),
+            lwd = rep(3,length(sIdx)),
+            legend = c( speciesNames[sIdx]) )
+
+
+}
+
+plotFYieldCurves <- function( obj = blob,
+                              maxF = NULL,
+                              pIdx = 1, sIdx = 1 )
+{
+  # First, pull reference points and curves
+  rp            <- obj$rp[[1]]
+  refCurves     <- rp$refCurves
+  FmsyRefPts    <- rp$FmsyRefPts
+
+  nT  <- obj$om$nT
+  nP  <- obj$om$nP
+  nS  <- obj$om$nS
+  tMP <- obj$om$tMP
+
+  speciesNames <- blob$om$speciesNames
+  stockNames   <- blob$om$stockNames
+
+  specCols <- RColorBrewer::brewer.pal(n = nS, "Dark2")
+
+  # Now compute MSY for SS and MS curves
+  # MSY is still the same for SS, just need the effort
+  # that corresponds to it, which is Fmsy/qF
+
+  # get SS ref points
+  Fmsy_sp <- rp$FmsyRefPts$Fmsy_sp
+  MSY_sp  <- rp$FmsyRefPts$YeqFmsy_sp
+  Yeq_spf <- refCurves$Yeq_spf
+  F       <- refCurves$F
+
+  if(is.null(maxF))
+    maxF <- F[max(which(Yeq_spf[sIdx,pIdx,] > 0) )]
+
+  maxY <- max(Yeq_spf[sIdx,pIdx,])
+
+  Yeq_spf[Yeq_spf < 0] <- NA
+
+  plot( x = c(0,maxF), y = c(0,maxY), type = "n",
+        xlab = "Fishing Mortality (/yr)",
+        ylab = "Equilibrium Yield (kt)", las = 1)
+    lines( x = F, y = Yeq_spf[sIdx,pIdx,], lwd = 3,
+            col = specCols[sIdx] )
+    mtext( side = 3, text = speciesNames[sIdx], font = 2 )
+
+
+}
 
 # plotEffYieldCurves()
 # Function for plotting effort based
 # yield curves for each species and
 # the complex in a stock area.
-plotEffYieldCurves <- function( obj = blob, maxE = NULL )
+plotEffYieldCurves <- function( obj = blob, 
+                                maxE = NULL,
+                                pIdx = 1:3,
+                                sIdx = 1:3,
+                                plotCplx = TRUE )
 {
   # First, pull reference points and curves
   rp            <- obj$rp[[1]]
@@ -3592,17 +3766,22 @@ plotEffYieldCurves <- function( obj = blob, maxE = NULL )
   if(is.null(maxE))
     maxE <- Eseq[maxEval]
 
-  par( mfrow = c(3,1), mar = c(.1,1,.1,1), oma = c(3,4,1,1) )
-  for( p in 1:nP )
+  par( mfrow = c(length(pIdx),1), mar = c(.1,1,.1,1), oma = c(3,4,1,1) )
+  for( p in pIdx )
   {
+    if( plotCplx | length(sIdx) == nS )
+      maxY <- 1.05 * max(Yeq_pe[p,],na.rm = TRUE )
+    else
+      maxY <- max(Yeq_spe[,p,], na.rm = TRUE)
 
-    plot( x = c(0,maxE), y = c(0, max(Yeq_pe[p,],na.rm = T) ),
-          type = "n", xlab = "", ylab = "", axes = F, xaxs="i" )
+    plot( x = c(0,maxE), y = c(0, maxY ),
+          type = "n", xlab = "", ylab = "", axes = F, xaxs="i",
+          yaxs = "i" )
       axis(side = 2, las = 1)
       box()
       grid()
 
-      for( s in 1:nS )
+      for( s in sIdx )
       {
         lines( x = Eseq, y = Yeq_spe[s,p,],
                col = specCols[s], lty = 1, lwd = 2 )
@@ -3617,16 +3796,19 @@ plotEffYieldCurves <- function( obj = blob, maxE = NULL )
       rmtext( txt = stockNames[p], line = 0.02,
               font = 2, cex = 1.5, outer = TRUE )
 
-      lines(  x = Eseq, y = Yeq_pe[p,],
+      if(plotCplx)
+      {
+        lines(  x = Eseq, y = Yeq_pe[p,],
               col = "black", lty = 1, lwd = 3 )
 
-      segments( x0 = EmsyMS_p[p], col = "grey40",
-                y0 = 0, y1 = MSYMS_p[p], lty = 2  )
+        segments( x0 = EmsyMS_p[p], col = "grey40",
+                  y0 = 0, y1 = MSYMS_p[p], lty = 2  )
+ 
+        segments( x0 = 0, x1 = EmsyMS_p[p], col = "grey40",
+                  y0 = c(MSYMS_p[p],MSYMS_sp[,p]), lty = 2  )
+      }
 
-      segments( x0 = 0, x1 = EmsyMS_p[p], col = "grey40",
-                y0 = c(MSYMS_p[p],MSYMS_sp[,p]), lty = 2  )
-
-      if(  p == nP )
+      if(  p == 1)
         legend( x = "topright", bty = "n",
                 col = c(specCols,"black"),
                 lwd = c(2,2,2,3),
@@ -3649,7 +3831,11 @@ plotEffYieldCurves <- function( obj = blob, maxE = NULL )
 # Function for plotting effort based
 # yield curves for each species and
 # the complex in a stock area.
-plotEconYieldCurves <- function( obj = blob, maxE = 60 )
+plotEconYieldCurves <- function(  obj = blob, 
+                                  maxE = 60,
+                                  pIdx = 1:3,
+                                  sIdx = 1:3,
+                                  plotCplx = TRUE )
 {
   # First, pull reference points and curves
   rp            <- obj$rp[[1]]
@@ -3690,6 +3876,8 @@ plotEconYieldCurves <- function( obj = blob, maxE = 60 )
   Rev_spe     <- EmeyRefPts$econRev_spe
   econYeq_pe  <- EmeyRefPts$econYeq_pe
   effCost_pe  <- EmeyRefPts$effCost_pe
+  Ymey_sp     <- EmeyRefPts$Ymey_sp
+
 
   # remove zeroes
   Rev_spe[Rev_spe == 0] <- NA
@@ -3698,19 +3886,18 @@ plotEconYieldCurves <- function( obj = blob, maxE = 60 )
   specCols <- RColorBrewer::brewer.pal(n = nS, "Dark2")
 
   if(is.null(maxE))
-    maxE <- 10 * max(Emey_p)
+    maxE <- 10 * max(Emey_p[pIdx])
 
-  par( mfrow = c(3,1), mar = c(.1,1,.1,1), oma = c(3,4,1,1) )
-  for( p in 1:nP )
+  par( mfrow = c(length(pIdx),1), mar = c(.1,1,.1,1), oma = c(3,4,1,1) )
+  for( p in pIdx )
   {
-
     plot( x = c(0,maxE), y = c(0, max(econYeq_pe[p,],Rev_pe[p,],na.rm = T) ),
           type = "n", xlab = "", ylab = "", axes = F, xaxs="i" )
       axis(side = 2, las = 1)
       box()
       grid()
 
-      for( s in 1:nS )
+      for( s in sIdx )
       {
         lines( x = Eseq, y = Rev_spe[s,p,],
                col = specCols[s], lty = 1, lwd = 2 )
@@ -3725,17 +3912,23 @@ plotEconYieldCurves <- function( obj = blob, maxE = 60 )
       rmtext( txt = stockNames[p], line = 0.02,
               font = 2, cex = 1.5, outer = TRUE )
 
-      lines(  x = Eseq, y = Rev_pe[p,],
-              col = "black", lty = 1, lwd = 3 )
+      if(plotCplx)
+      {
+        lines(  x = Eseq, y = Rev_pe[p,],
+                col = "black", lty = 1, lwd = 3 )
 
-      lines(  x = Eseq, y = econYeq_pe[p,],
-              col = "black", lty = 2, lwd = 3 )
+        lines(  x = Eseq, y = econYeq_pe[p,],
+                col = "black", lty = 2, lwd = 3 )
+      
 
-      lines( x = Eseq, y = effCost_pe[p,] + crewShare * Rev_pe[p,], col = "red",
+      lines( x = Eseq, y = effCost_pe[p,], col = "red",
               lwd = 2 )
 
       abline( v = Emey_p[p], lty = 2, col = "steelblue")
       abline( v = EmsyMS_p[p], lty = 2, col = "grey40")
+      }
+
+
 
       # segments( x0 = EmsyMS_p[p], col = "grey40",
       #           y0 = 0, y1 = MSYMS_p[p], lty = 2  )
@@ -3743,7 +3936,7 @@ plotEconYieldCurves <- function( obj = blob, maxE = 60 )
       # segments( x0 = 0, x1 = EmsyMS_p[p], col = "grey40",
       #           y0 = c(MSYMS_p[p],MSYMS_sp[,p]), lty = 2  )
 
-      if(  p == 1 )
+      if(  p == 1 & length(sIdx) == nS )
         legend( x = "topright", bty = "n",
                 col = c(specCols,"black","red","black"),
                 lty = c(1,1,1,1,1,2),

@@ -126,7 +126,9 @@ solveSpline <- function(  Yvals, Xvals, value = 0, bounds = c(0,10),
   # area, solve for the effort related to
   # the given landings (average vessel landings
   # in 2009)
-  Yeq_spe <- refCurves$Yeq_spe
+  Yeq_spe     <- refCurves$Yeq_spe
+  Beq_spe     <- refCurves$Beq_spe
+  expBeq_spe  <- refCurves$expBeq_spe
   Yeq_spe[Yeq_spe < 0] <- NA
   Eff     <- refCurves$E
 
@@ -194,13 +196,30 @@ solveSpline <- function(  Yvals, Xvals, value = 0, bounds = c(0,10),
                         deriv = 1, bounds = c(0,50), MARGIN = c(1),
                         value = 0 )
 
-  Emey_p <- numeric(length = nP)
-  MEY_p  <- numeric(length = nP)
+  Emey_p  <- numeric(length = nP)
+  MEY_p   <- numeric(length = nP)
+  
+  # Get species specific vals
+
+  Bmey_sp   <- array(0, dim = c(nS,nP))
+  vBmey_sp  <- array(0, dim = c(nS,nP))
+  Ymey_sp   <- array(0, dim = c(nS,nP))
+
   for( p in 1:nP )
   {
     Emey_p[p] <-  meySolList[[p]]$soln
     MEY_p[p]  <-  meySolList[[p]]$val
+
+    # Now calculate Bmey, vBmey etc
+    for( s in 1:nS )
+    {
+      Bmey_sp[s,p]  <- getSplineVal(x = Eff, y = Beq_spe[s,p,], p = Emey_p[p] )
+      Ymey_sp[s,p]  <- getSplineVal(x = Eff, y = Yeq_spe[s,p,], p = Emey_p[p] )
+      vBmey_sp[s,p] <- getSplineVal(x = Eff, y = expBeq_spe[s,p,], p = Emey_p[p] )
+    }
   }
+
+
 
   econYieldCurves <- list()
   econYieldCurves$effCost_pe    <- effCost_pe
@@ -211,12 +230,16 @@ solveSpline <- function(  Yvals, Xvals, value = 0, bounds = c(0,10),
   econYieldCurves$econRev_pe    <- econRev_pe
   econYieldCurves$Emey_p        <- Emey_p
   econYieldCurves$MEY_p         <- MEY_p
+  econYieldCurves$Bmey_sp       <- Bmey_sp
+  econYieldCurves$Ymey_sp       <- Ymey_sp
+  econYieldCurves$vBmey_sp      <- vBmey_sp
   econYieldCurves$effortPrice_p <- effortPrice_p
 
 
   return( econYieldCurves )
 
 } # END .calcEconomicYieldCurves()
+
 
 
 calcJABBASelPars <- function( obj )

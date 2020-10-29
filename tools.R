@@ -10,6 +10,18 @@
 #
 # <><><><><><><><><><><><><><><><><><><><><><><><><><><>
 
+# getSplineVal()
+# Takes in 2 vectors of the same length, fits
+# a spline, and returns a given point value for
+# the dependent variable at x = p
+getSplineVal <- function( x, y, p)
+{
+  xySplineFun <- splinefun( x=x, y=y )  
+
+  y.p <- xySplineFun(p)
+  y.p
+}
+
 updateGoodReps <- function( groupFolder = "DLSurveys7_.5tau", 
                             prefix = "MPgrid" )
 {
