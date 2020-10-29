@@ -284,14 +284,6 @@ product was estimated using the conversion factor $\psi_{p,t}$.
 
 
 
-<!-- For example, when a sub-area biomass forecast was below the lower control point 
-($B_{p,t+1}  < 0.3 \overline{B}_{0,p}$) the target harvest rate was set to zero, 
-and when the stock was at or above the upper control point 
-($B_{p,t+1} \geq \overline{B}_{0,p}$) the target harvest rate was set to 10\%. The 
-harvest rate was linearly interpolated between 0\% and 10\% when biomass 
-was between these two control points. --> 
-
-
 ### Allocation rules
 
 Four different spatial and fishery allocation rules were defined to allow 
@@ -428,8 +420,7 @@ working group, for the most and least optimistic operating models,
 where optimism was measured by performance against the conservation
 objective (above) in the absence of fishing. We present only tables 
 showing perfromance metrics for the aggregated HG stock. Additional 
-performance metrics for sub-areas are provided in an appendix
-**(TO DO: Reference Appendix tables here)**
+performance metrics for sub-areas are provided in appendix B.
 
 While no rebuilding procedure met the conservation objective when 
 performance was averaged over the full operating model grid (Table 
