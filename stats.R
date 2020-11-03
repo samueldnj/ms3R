@@ -747,7 +747,6 @@ makeStatTable <- function( sims = 1, folder = "", ... )
       P_it        <- apply(P_ispt, MARGIN=c(1,4), FUN=sum, drop=FALSE, na.rm=T)
       deadP_it    <- apply(deadP_ispt, MARGIN=c(1,4), FUN=sum, drop=FALSE, na.rm=T)
 
-      browser()
 
       # Calculate aggreate harvest rate
       U_it   <- (C_it+P_it)/(SB_it + C_it + P_it)
@@ -983,7 +982,6 @@ makeStatTable <- function( sims = 1, folder = "", ... )
   Ind_it <- Quotient_it > prop
 
   probGtDep_isp <- apply( X = Ind_it, FUN = mean, MARGIN = 1)
-  browser()
 
   probGtDep_sp <- mean(Ind_it, na.rm = T)
       

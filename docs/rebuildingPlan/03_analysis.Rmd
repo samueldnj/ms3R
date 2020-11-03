@@ -191,6 +191,21 @@ high age-1 mortality rates will have little chance of rebuilding the
 stock in the short term despite the potential growth associated 
 with higher unfished biomass levels, even in the absence of fishing.
 
+Operating model data likelihood values were split into two distinct 
+groups, defined by the time-varying natural mortality hypothesis
+(Table \@ref(tab:omGridTable)). The historical OM scenario with the 
+minimum negative log likelihood (NLL) was the **a1Mmean_sr0.8_diffM** 
+model, indicating the lowest residual standard error. Reduced residual 
+error was driven primarily by the **diffM** hypothesis, which allowed 
+the Lou 2+ mortality to drop at the end of the historical period, causing 
+Lou spawning biomass to increase over that period, matching the Lou spawn 
+indices. As a result, the **diffM** scenarios had the lowest negative log 
+likelihood (NLL) function values, with differences 
+($\Delta(-\log\mathcal{L})$) from **a1Mmean_sr0.8_diffM** scenario 
+between 0 and 10.22 NLL units. In contrast, the **identM** scenario
+$\Delta(-\log\mathcal{L})$ values ranged between 35.03 and 41.50 NLL 
+units.
+
 
 
 ### Projection scenarios
@@ -425,38 +440,121 @@ performance metrics for sub-areas are provided in appendix B.
 Rebuilding performance was dominated by operating model dynamics.
 While no rebuilding procedure met the conservation objective when 
 performance was averaged over the full operating model grid (Table 
-\@ref(tab:eqWtdTable), the range of conservation objective
+\@ref(tab:eqWtdTable)), the range of conservation objective
 performance was quite small. The status-quo No Fishing procedure exceeded 
-the limit reference point in 49.4\% of simulated years and replicates, 
-while the fishing procedures ranged within 3\% of the No Fishing performance,
-from 49.2\% for open pond SOK fishery (**oSOK_HS30-100_HR0.1**) to 47.9\% 
-for the Seine-Roe fishery (**SR_HS30-100_HR0.1**). The small range of 
-conservation performance indicated that operating model dynamics were the 
-main drivers of recovery (or lack thereof), and not the choice of allocation 
-under the empirical forecast or harvest control rule.
+the limit reference point in 49.8\% of simulated years and replicates, 
+while the fishing procedures ranged from 49.6\% for open pond SOK 
+fishery (**oSOK_HS30-100_HR0.1**) to 48.3\% for the Seine-Roe fishery 
+(**SR_HS30-100_HR0.1**), all within 3.1\% of the No Fishing conservation 
+objective performance. The small range of conservation performance 
+indicated that operating model dynamics were the main drivers of 
+recovery (or lack thereof), and not the choice of allocation under the 
+empirical forecast or harvest control rule.
+
+As expected, spawn on kelp (SOK) fisheries had the least impact
+on stock rebuilding out of the four allocation rules, while still allowing
+for greater fishing opportunities than the commercial seine-roe fishery. 
+When averaged over all 72 operating models (Table 
+\@ref(tab:eqWtdTable-FisheryPerf)), the SOK fisheries had between six 
+(**cSOK+SR_HS30-100_HR.1**) and eight (**oSOK_HS30-100_HR.1**) years of 
+openings, out of a possible 15 years (Table 
+\@ref(tab:eqWtdTable-FisheryPerf), $\overline{N}_{SOK}$). In the open-pond 
+fishery, an average of 3.6 licenses ($\overline{L}_{SOK}$) were activated 
+when the fishery was open, landing an average of 26,206 lbs 
+of SOK product per opening ($\overline{K}$). Both of the closed pond SOK 
+allocation rules (**cSOK_HS30-100_HR.1**, **cSOK+SR_HS30-100_HR.1**) 
+activated an average of 2.9 licenses in open years, and landed an average 
+of around 21,000 lbs in those years. Overall, the ponded fish required to 
+achieve the SOK landings had a low chance of exceeding the reference 
+harvest rate of 10\% (Table \@ref(tab:eqWtdTable-FisheryPerf), 
+$P(U_t > 0.1)$), ranging between 0.3\% and 0.9\% in the pure SOK 
+fisheries. Harvest rates that exceeded the reference averaged around
+11.5\% (Table \@ref(tab:eqWtdTable-FisheryPerf), 
+$\mathbb{E}(U_t \vert U_t > 0.1)$). In contrast, the pure seine-roe 
+fishery catch exceeded the reference harvest rate 4.4\% of 
+the time, rising to 4.8\% in the combined **cSOK+SR_HS30-100_HR.1** 
+allocation rule, and the average harvest rate was 16.6\% in years where 
+the target was exceeded for both rules. Despite the higher impact the 
+seine-roe fleets had on the aggregate stock, there were significantly 
+fewer fishing opportunities because of the minimum TAC required for an 
+opening, with an average 0.5 years openings in the mixed 
+**cSOK+SR_HS30-100_HR.1** fishery, to 1.6 openings in the pure 
+seine-roe **SR_HS30-100_HR.1** fishery.
 
 Conservation performance in the absence of fishing ranked out almost
 identically to the 2019 stock status for the 18 historical operating 
-models within a fixed $M_t$ projection scenario. Operating models with
+models within a fixed $M_t$ projection scenario (Tables 
+\@ref(tab:pessimTable) and \@ref(tab:optimTable)). Operating models with
 higher depletion relative to unfished biomass in 2019 had higher
 probabilities of being above the limit reference point because they had
 lower $B_0$ values, meaning that biomass started closer to or above the
-limit reference point, and was also higher on the stock-recruit curve. As
-expected, the most extreme cases where operating models perceived a 
-large (high $B_0$) and unproductive (low stock-recruit steepness) stock 
-were unable to rebuild in the 15 year projection under any projection
-scenario and rebuilding procedure.
+limit reference point, and was also closer to the point on the 
+stock-recruit curve where, on average, recruitment was at its density 
+dependent maximum. As expected, the most pessimistic cases where operating 
+models perceived a large (high $B_0$) and unproductive (low stock-recruit 
+steepness) stock were unable to rebuild in the 15 year projection under 
+any projection scenario and rebuilding procedure. Further, when future 2+ 
+mortality rates were slow to return to the average level (**rw15**, Table 
+\@ref(tab:pessimTable)), biomass continued to decline for the first part 
+of the projection under the **am1.64_sr0.5_identM** and 
+**am1.64_sr0.5_diffM** historical scenarios because mortality exceeded the 
+low average recruitment associated with the low biomass depletion and 
+stock-recruit steepness early in the projection period.
 
-
-One reason that operating model dynamics dominated the rebuilding
+The major reason that operating model dynamics dominated the rebuilding
 performance was the choice of control points in the harvest control
 rule. Control points were scaled to the OM grid average unfished
-biomass, around $50.76$ kt when aggregated over the entire HG area, which
-was higher than the aggregate unfished biomass for 11 of the 18 historical
-operating models. While the lower control point of
+biomass, which was $\overline{B}_{0} = \sum_p \overline{B}_{0,p} = 50.76$ kt 
+when aggregated over the whole HG area, and was higher than the true 
+operating model aggregate unfished biomass for 11 of the 18 historical 
+operating model scenarios. While the lower control point of
 $0.3 \overline{B}_{0} = 15.23$ kt was theoretically achievable under every 
 operating model (i.e., lower than all aggregated historical grid $B_{0}$ 
-values), harvest rates would have been very low under the more
+values), the average biomass at the end of the projection period for
+all operating models indicated that target harvest rates were likely to be 
+low, despite assessment errors. As the projection went on, target 
+harvest rates continued to be much lower than the reference, on average,
+thanks to absolute biomass much lower than the upper control point; 
+for reference, average 2034 spawning biomass in the absence of
+fishing was at most 21.8 kt for all operating models (Table 
+\@ref(tab:optimTable), **a1M1.25_sr0.8_diffM_rw5**). Future biomass in 
+the more optimistic historical scenarios (**a1Mmean_sr0.8**) was 
+constrained by a low $B_0$ ceiling despite higher average recruitment 
+at low stock sizes. In contrast, biomass in the more pessimistic 
+scenarios (e.g., **a1M1.64_sr0.5**) was constrained by sustained low 
+recruitment associated with low biomass depletion and high natural 
+mortality, despite higher unfished biomass $B_0$, so true OM biomass 
+rarely exceeded the lower control point, requiring assessment errors to 
+open fishing in most years. Finally, scenarios in the middle of the 2019 
+depletion range (e.g., **a1M1.25**) had more room to grow and had higher 
+average recruitments for a given biomass, but biomass was unable to 
+increase fast enough to achieve the maximum harvest rates, largely because 
+of the initial conditions. 
+
+Under the most optimistic operating model scenario
+(**a1Mmean_sr0.8_diffM_rw5_loPondM**), there was very little 
+separation between the five rebuilding procedures according
+to the biomass metrics (Table \@ref(tab:bestOMperfTable)).
+As expected, given the high initial biomass depletion of 48.2\%
+of unfished, and the conservative control points discussed 
+above, the choice of rebuilding procedure had very little effect
+on the expected fishery performance. Probability of being above the
+limit reference point was around 98\%, and all rebuilding procedures
+allowed the stock to grow at an average rate of 9\% - 10\% over the 
+first six years, and about 4.5\5 - 5\% over the entire projection period
+(lower due to density dependence). Finaly biomass $B_{2034}$ was was 
+between 18.3 kt (**SR_HS30-100_HR0.1**) and 19.3 kt (**NoFish**),
+which were all within 5.5\% of the status quo No Fishing procedure.
+Fishery performance metrics also increased relative to the OM grid
+average under the **a1Mmean_sr0.8_diffM_rw5_loPondM**, but because of 
+the conservative control rule, the overall increase in fishery metrics 
+was lower compared to the increase in conservation performance metrics 
+over the grid average (Table \@ref(tab:bestOMperfTable-Fishing)).
+For example, there were only 1-2 more years with SOK openings, on 
+average, with an average of 4.1 - 4.8 licenses activated in an 
+open year.
+
+
 
 
 

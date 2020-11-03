@@ -16,9 +16,8 @@ pullHistDataLikelihood <- function( histFolder = "fit_parBatHGherringMCMC1")
   # Load hist file
   repList  <- .loadFit( histFolder )
 
-  browser()
 
-  totLikelihood <- repList$repOpt$totLike
+  totLikelihood <- mean(repList$posts$totLike)
 
   out.df <- data.frame( histFolder = histFolder, totLike = totLikelihood )
 
