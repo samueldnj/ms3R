@@ -183,10 +183,10 @@ $B_0 = 20.918$ kt (**a1Mmean_sr0.8_diffM**) to $B_0 = 122.666$ kt
 (**a1M1.64_sr0.5_identM**), biomass depletion in 2019 had an inverse 
 relationship with age-1 mortality. Because the dive survey design 
 was assumed to be an absolute survey (i.e. $q_{p,dive} \approx 1$) 
-by a strongly informative prior, estimates of 2019 biomass did not 
-scale like estimates of unfished biomass, causing stock status
-to drop as unfished biomass increased. Given these low initial
-biomass states, scenarios that combine low stock-recruit steepness and 
+with a strongly informative prior, estimates of 2019 biomass did not 
+scale like estimates of unfished biomass, and relative depletion
+dropped as unfished biomass increased. Given low initial relative
+depletion states, scenarios that combine low stock-recruit steepness and 
 high age-1 mortality rates will have little chance of rebuilding the
 stock in the short term despite the potential growth associated 
 with higher unfished biomass levels, even in the absence of fishing.
@@ -391,10 +391,10 @@ In the absence of a target biomass objective that was achievable under
 most operating models, or in the projection of 15 years for OMs that had
 high potential biomass levels, the technical working group requested that 
 biomass growth rates be calculated. Biomass growth rates were defined
-as the average exponential growth rate of spawning biomass over the
-interval $t_0,...,t_1$, i.e.,
+as the average percentage growth rate of spawning biomass over the
+interval $t_0,...,t_1$, derived from the exponential growth rate, i.e.,
 \begin{equation}
-\Gamma(t_0,t_1) = \frac{ \log B_{t_1}) - \log B_{t_0} }{ t_1 - t_0 },
+\Gamma(t_0,t_1) = exp(\frac{ \log B_{t_1}) - \log B_{t_0} }{ t_1 - t_0 })-1,
 \end{equation}
 where $B_{t} = \sum_p B_{p,t}$ is the aggregate biomass at time $t$, 
 and $t_0$ and $t_1$ are the first and last year, respectively, of the
@@ -422,6 +422,7 @@ objective (above) in the absence of fishing. We present only tables
 showing perfromance metrics for the aggregated HG stock. Additional 
 performance metrics for sub-areas are provided in appendix B.
 
+Rebuilding performance was dominated by operating model dynamics.
 While no rebuilding procedure met the conservation objective when 
 performance was averaged over the full operating model grid (Table 
 \@ref(tab:eqWtdTable), the range of conservation objective
@@ -434,10 +435,29 @@ conservation performance indicated that operating model dynamics were the
 main drivers of recovery (or lack thereof), and not the choice of allocation 
 under the empirical forecast or harvest control rule.
 
-Reasons:
-- $\overline{B}_{0,p}$ is quite high for half of the operating
-models, but $q$ values are pretty stable given survey designs, index
-blending and assumptions. 
+Conservation performance in the absence of fishing ranked out almost
+identically to the 2019 stock status for the 18 historical operating 
+models within a fixed $M_t$ projection scenario. Operating models with
+higher depletion relative to unfished biomass in 2019 had higher
+probabilities of being above the limit reference point because they had
+lower $B_0$ values, meaning that biomass started closer to or above the
+limit reference point, and was also higher on the stock-recruit curve. As
+expected, the most extreme cases where operating models perceived a 
+large (high $B_0$) and unproductive (low stock-recruit steepness) stock 
+were unable to rebuild in the 15 year projection under any projection
+scenario and rebuilding procedure.
+
+
+One reason that operating model dynamics dominated the rebuilding
+performance was the choice of control points in the harvest control
+rule. Control points were scaled to the OM grid average unfished
+biomass, around $50.76$ kt when aggregated over the entire HG area, which
+was higher than the aggregate unfished biomass for 11 of the 18 historical
+operating models. While the lower control point of
+$0.3 \overline{B}_{0} = 15.23$ kt was theoretically achievable under every 
+operating model (i.e., lower than all aggregated historical grid $B_{0}$ 
+values), harvest rates would have been very low under the more
+
 
 
 

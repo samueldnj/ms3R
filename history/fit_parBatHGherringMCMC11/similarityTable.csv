@@ -1,2 +1,2 @@
-"","dataScenario","modelHyp","iscamB0","siscahB0","iscamBT","siscahBT","iscamBT/B0","siscahBT/B0","AREstatus","AREB0","SimMetric","MAREBt","pdHess","meanAgeSE","meanIdxSE","meanResidSE"
-"1","HG_multistock","juveM1.25_steep0.67_diffMDevs","22.193","39.645","6.774","9.393","0.305","0.237","0.224","0.786","0.617","0.781","TRUE","0.45","0.5","0.48"
+"","dataScenario","modelHyp","iscamB0","siscahB0","iscamBT","siscahBT","iscamBT/B0","siscahBT/B0","AREstatus","AREB0","SimMetric","MAREBt","pdHess","meanAgeSE","meanIdxSE","meanResidSE","dataLikelihood"
+"1","HG_multistock","juveM1.25_steep0.67_diffMDevs","22.193","39.645","6.774","9.393","0.305","0.237","0.224","0.786","0.617","0.781","TRUE","0.45","0.5","0.48","187.033"

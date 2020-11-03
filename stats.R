@@ -466,12 +466,12 @@ makeStatTable <- function( sims = 1, folder = "", ... )
     SOK_ispt     <- apply(SOK_ispft[,,,6:7,,drop=FALSE], FUN=sum, MARGIN=c(1,2,3,5))
     
     # Harvest rate
-    U_ispt   <- (C_ispt+deadP_ispt)/(SB_ispt + C_ispt + P_ispt)
+    U_ispt   <- (C_ispt+P_ispt)/(SB_ispt + C_ispt + P_ispt)
     Uref_isp <- array(0.1, dim = c(nGoodReps,nS,nP))
 
     # Spawning biomass + ponded fish - dead ponded fish
     endSB_ispt <- om$endSB_ispt[allConvReps,,,,drop = FALSE]
-    # endSB_ispt <- SB_ispt + P_ispt - deadP_ispt
+    endSB_ispt[endSB_ispt == 0] <- NA
 
     # Calculate median biomass from 1975-1985
     fYear         <- obj$ctlList$opMod$fYear
@@ -740,15 +740,17 @@ makeStatTable <- function( sims = 1, folder = "", ... )
       
       # Calculate probability that Bt and Ct above certain thresholds
       SB_it       <- apply(SB_ispt, MARGIN=c(1,4), FUN=sum, drop=FALSE)
-      endSB_it    <- apply(endSB_ispt, MARGIN=c(1,4), FUN=sum, drop=FALSE)
+      endSB_it    <- apply(endSB_ispt, MARGIN=c(1,4), FUN=sum, drop=FALSE, na.rm = T)
       B0_i        <- apply(B0_isp, MARGIN=1, FUN=sum)
       histSB_i    <- apply(histSB_isp, MARGIN=1, FUN=sum)
       C_it        <- apply(C_ispt, MARGIN=c(1,4), FUN=sum, drop=FALSE, na.rm=T)
       P_it        <- apply(P_ispt, MARGIN=c(1,4), FUN=sum, drop=FALSE, na.rm=T)
       deadP_it    <- apply(deadP_ispt, MARGIN=c(1,4), FUN=sum, drop=FALSE, na.rm=T)
 
+      browser()
+
       # Calculate aggreate harvest rate
-      U_it   <- (C_it+deadP_it)/(SB_it + C_it + P_it)
+      U_it   <- (C_it+P_it)/(SB_it + C_it + P_it)
       Uref_i   <- rep(0.1, nGoodReps)
 
 
@@ -961,12 +963,12 @@ makeStatTable <- function( sims = 1, folder = "", ... )
 # Calculates the probability of a time series
 # being above a certain proportion of a reference
 # level. Used for depletion and overfishing statistics.
-.calcStatsProportionAgg <- function( TS_it = SB_it,
-                                  ref_i = B0_i,
-                                  tdx = tMP:nT,
-                                  prop = .4,
-                                  nS = 1,
-                                  nP = 1 )
+.calcStatsProportionAgg <- function(  TS_it = SB_it,
+                                      ref_i = B0_i,
+                                      tdx = tMP:nT,
+                                      prop = .4,
+                                      nS = 1,
+                                      nP = 1 )
 {
 
   # Reduce to time period
@@ -980,7 +982,10 @@ makeStatTable <- function( sims = 1, folder = "", ... )
   # Set an indicator array
   Ind_it <- Quotient_it > prop
 
-  probGtDep_sp <- mean(Ind_it)
+  probGtDep_isp <- apply( X = Ind_it, FUN = mean, MARGIN = 1)
+  browser()
+
+  probGtDep_sp <- mean(Ind_it, na.rm = T)
       
   return( probGtDep_sp )
 } # END .calcStatsProportionAgg
@@ -1011,7 +1016,9 @@ makeStatTable <- function( sims = 1, folder = "", ... )
   # Set an indicator array
   Ind_ispt <- Quotient_ispt > prop
 
-  probGtDep_sp <- apply( X = Ind_ispt, FUN = mean, MARGIN = c(2,3) )
+  probGtDep_isp <- apply( X = Ind_ispt, FUN = mean, MARGIN = c(1,2,3), na.rm = T )
+
+  probGtDep_sp <- apply( X = Ind_ispt, FUN = mean, MARGIN = c(2,3), na.rm = T )
       
   return( probGtDep_sp )
 } # END .calcStatsProportion

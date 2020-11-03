@@ -1,4 +1,4 @@
-# fitCtlFile.txt, written to parBatHGherringMCMC1 on 2020-10-20
+# fitCtlFile.txt, written to parBatHGherringMCMC1 on 2020-11-02
 parameter value
 ctrl$dataScenarioName 'HG_multistock'
 ctrl$modelHypName 'juveMmean_steep0.67_identMDevs'
