@@ -3841,21 +3841,51 @@ combBarrierPen <- function( x, eps,
   obj$om$ut_95          <- ctlList$opMod$ut_95
 
   # Fill in economic parameters
-  obj$om$basePrice_st[,tMP] <- ctlList$opMod$price_s[obj$om$speciesNames]
+  
+
+  obj$om$minPrice_s     <- 0.8 * ctlList$opMod$price_s[obj$om$speciesNames]
+  obj$om$maxPrice_s     <- 1.2 * ctlList$opMod$price_s[obj$om$speciesNames]
+  for( t in (tMP-11):(tMP-1))
+  {
+    obj$om$landVal_st[,t]   <- ctlList$opMod$price_s[obj$om$speciesNames]
+    obj$om$basePrice_st[,t] <- ctlList$opMod$price_s[obj$om$speciesNames]
+  }
 
   priceDevCovMat <- diag(ctlList$opMod$priceSD^2,nS)
   if(!is.null(ctlList$opMod$priceModel))
   {
     load(file = file.path("history",ctlList$opMod$priceModel))
-    priceDevCovMat <- cov(t(priceFlexModel$eps_st))
+    priceDevCovMat <- priceFlexModel$covEps
 
     if( !ctlList$opMod$corrPriceDevs)
       priceDevCovMat <- diag(diag(priceDevCovMat))
+
+    obj$om$minPrice_s     <- priceFlexModel$minP_s
+    obj$om$maxPrice_s     <- priceFlexModel$maxP_s
+
+    # historical prices
+    obj$om$landVal_st[,tMP - (11:1)]    <- priceFlexModel$P_st
+    obj$om$basePrice_st[,tMP - (11:1)]  <- priceFlexModel$refPrice_st
   }
+
+  # Make a series of logit base prices, for simulating inside
+  # bounds
+  obj$om$logitBasePrice_st <- obj$om$basePrice_st
+  for( t in (tMP-11):(tMP-1) )
+  {
+    P_s     <- obj$om$basePrice_st[,t]
+    minP_s  <- obj$om$minPrice_s 
+    maxP_s  <- obj$om$maxPrice_s 
+    obj$om$logitBasePrice_st[,t] <- log( (P_s - minP_s) / (maxP_s - P_s) )
+  }
+  
+  # Need to make price bounded by a range that is only slightly
+  # outside historical values, to avoid run-away prices
 
   obj$errors$priceDev_st[1:nS,1:nT] <- t( mvtnorm::rmvnorm( n = nT, mean = rep(0,nS),
                                                             sigma = priceDevCovMat,
                                                             method = "chol") )
+
 
   obj <- .calcTimes( obj )
 
@@ -3938,11 +3968,11 @@ combBarrierPen <- function( x, eps,
   om$qF_spft      <- array(0,  dim = c(nS,nP,nF,nT) )         # catchability (tv)
 
   # Economic sub-model pars
-  om$landVal_st     <- array(0,   dim = c(nS,nT))               # Landed value (after price flexibility) ($/kg)
-  om$basePrice_st   <- array(0,   dim = c(nS,nT))               # Base ex-vessel price ($/kg)
-  om$fleetRev_spft  <- array(0,   dim = c(nS,nP,nF,nT) )        # Fleet revenue by area/fleet
-  om$effCost_pft    <- array(0,   dim = c(nP,nF,nT) )           # Cost of effort by area/fleet
-  om$profit_pft     <- array(0,   dim = c(nP,nF,nT) )           # undiscounted profit
+  om$landVal_st     <- array(NA,   dim = c(nS,nT))               # Landed value (after price flexibility) ($/kg)
+  om$basePrice_st   <- array(NA,   dim = c(nS,nT))               # Base ex-vessel price ($/kg)
+  om$fleetRev_spft  <- array(NA,   dim = c(nS,nP,nF,nT) )        # Fleet revenue by area/fleet
+  om$effCost_pft    <- array(NA,   dim = c(nP,nF,nT) )           # Cost of effort by area/fleet
+  om$profit_pft     <- array(NA,   dim = c(nP,nF,nT) )           # undiscounted profit
 
 
 
@@ -4166,7 +4196,10 @@ combBarrierPen <- function( x, eps,
   # Economic model
   v_st              <- om$landVal_st
   basePrice_st      <- om$basePrice_st
+  logitBasePrice_st <- om$logitBasePrice_st
   effCost_pft       <- om$effCost_pft
+  minP_s            <- om$minPrice_s
+  maxP_s            <- om$maxPrice_s
 
   
   # Biological pars
@@ -4260,11 +4293,12 @@ combBarrierPen <- function( x, eps,
   SB_spt[,,t] <- apply(X = SB_asp, FUN = sum, MARGIN = c(2,3), na.rm = T )
 
   # update price data
-  if( t > tMP )
+  if( t >= tMP )
   {
-    i                 <- opMod$interestRate
-    basePrice_st[,t]  <- basePrice_st[,t-1] * (1 + i) * exp( err$priceDev_st[,t] )
-    
+    i                     <- opMod$interestRate
+    logitBasePrice_st[,t] <- logitBasePrice_st[,t-1] + err$priceDev_st[,t]
+    basePrice_st[,t]      <- minP_s + maxP_s/(1 + exp(-logitBasePrice_st[,t])) * (1 + i)^(t - tMP)
+  
   }
 
   # Now calculate effort for each area (for closed loop sim)
@@ -4403,7 +4437,7 @@ combBarrierPen <- function( x, eps,
 
 
   # Calculate landed value per kg given price flexibility
-  if( t >= tMP )
+  if( t >= tMP-11 )
   {
     lambda_s  <- opMod$lambda_s
     C_s       <- apply( X = C_spt[,,t], FUN = sum, MARGIN = 1 )
@@ -4603,6 +4637,7 @@ combBarrierPen <- function( x, eps,
   # economic model
   v_st              -> obj$om$landVal_st
   basePrice_st      -> obj$om$basePrice_st
+  logitBasePrice_st -> obj$om$logitBasePrice_st
   effCost_pft       -> obj$om$effCost_pft
 
 

@@ -239,6 +239,300 @@ plotDynBmsy_sp <- function( groupFolder = "omni_econYield_constE_constElasticity
 # plotDynUmsy_sp()
 # Plots distribution of dynamically optimised harvest rates
 # for a set of simulations
+plotDynEconYield_p <- function( groupFolder = "omni_econYield_constE_constElasticity",
+                                mpFilter = "freeEff",
+                                scenOrder = c("noCorr","corrRecDevs","corrPriceDevs","corrRecPrice") )
+{
+  # First, read info files from the relevant
+  # sims
+  simFolderList <- list.dirs( here::here("Outputs",groupFolder),
+                              recursive = FALSE, full.names = FALSE)
+
+  info.df <-  readBatchInfo( batchDir = here::here("Outputs",groupFolder) ) %>%
+                filter( grepl( mpFilter, mp ) ) %>%
+                arrange(scenario,mp)
+
+  scenLabels <- unique(info.df$scenario)
+
+
+  # Read in the modelStates we extracted
+  nModels <- nrow(info.df)
+  modelList <- vector(mode = "list", length = nModels)
+  names(modelList) <- info.df$simLabel
+  for( k in 1:nModels )
+  {
+    simLabel <- info.df$simLabel[k]
+    modelStatePath <- here::here("Outputs",groupFolder,simLabel,paste(simLabel,"_modelStates.RData",sep=""))
+    load(modelStatePath)
+
+    modelList[[k]] <- outList
+
+  }
+  outList <- NULL
+
+  # Get reference points
+  rp <- modelList[[1]]$rp
+  nS <- modelList[[1]]$nS
+  nP <- modelList[[1]]$nP
+  nT <- modelList[[1]]$nT
+  nF <- modelList[[1]]$nF
+
+  speciesNames <- modelList[[1]]$speciesNames
+  stockNames <- modelList[[1]]$stockNames
+
+  # Pull static eqbria here
+  MEY_p           <- rp$EmeyRefPts$MEY_p
+  Emsy_p          <- rp$EmsyMSRefPts$EmsyMS_p
+  Emey_p          <- rp$EmeyRefPts$Emey_p
+  econYeq_pe      <- rp$EmeyRefPts$econYeq_pe
+  E               <- rp$refCurves$EffCurves$E
+
+  # Scale by MEY
+  relMEY_p        <- rep(1,nP)
+
+  dynEconYield_kp  <- array( NA, dim = c(nModels,nP) )
+
+  econYeqEmsy_p <- rep(0,nP)
+  releconYeqEmsy_p <- rep(0,nP)
+
+
+  mpJitter <- c(  totCat    = .25,
+                  totProfit = -.25 )
+
+  par( mfrow = c( nP, 1 ),
+        oma = c(4,7,2,2),
+        mar = c(.1,.1,.1,.1) )
+
+  for( p in 1:nP )
+  {
+    econYeqEmsy_p[p]    <- getSplineVal(x = E, y = econYeq_pe[p,], p = Emsy_p[p])
+    releconYeqEmsy_p[p] <- econYeqEmsy_p[p]/MEY_p[p]
+
+    plot( x = c(-1,5),
+          y = c(0.5,4.5), type = "n", axes = FALSE,
+          yaxs = "i")
+
+    mfg <- par("mfg")
+    if(mfg[1] == mfg[3])
+      axis( side = 1 )
+    if( mfg[2] == 1 )
+      axis( side = 2, at = 1:4, labels = scenOrder, las = 1 )
+    box(lwd = 2)
+    abline( h = 0.5 + 1:3, lwd = 2 )
+    abline( v = c(1), lty = 2, lwd = 1)
+    abline( v = c(1), lty = 2, lwd = 2, col = "salmon")
+    abline( v = c(releconYeqEmsy_p[p]), lty = 2, lwd = 2, col = "darkgreen")
+
+    for( k in 1:nModels )
+    {
+
+      econYeqdist <- modelList[[k]]$stateDists$profit_ipft[,p,2]
+      econYeqmean <- modelList[[k]]$stateMeans$profit_ipft[p,2]
+
+      relYeqdist <- econYeqdist / MEY_p[p]
+      relYeqmean <- econYeqmean / MEY_p[p]
+
+      dynEconYield_kp[k,p] <- relYeqdist[2]
+
+      scenName  <- info.df$scenario[k]
+      mpName    <- info.df$mp[k]
+
+      yIdx <- which(scenOrder == scenName)
+      if( grepl(pattern = "totCat", x = mpName ) )
+      {
+        yJitter <- mpJitter["totCat"]
+        MPpch   <- 21
+      }
+      if( grepl(pattern = "totProfit", x = mpName ) )
+      {
+        yJitter <- mpJitter["totProfit"]
+        MPpch   <- 24
+      }
+
+      # Plot central 95%
+      segments( x0 = relYeqdist[1], x1 = relYeqdist[3],
+                y0 = yIdx + yJitter, lwd = 3, col = "grey50" )
+      # Plot median
+      points( x = relYeqdist[2], y = yIdx + yJitter,
+              pch = MPpch, cex = 2, bg = "black" )
+      # Plot mean
+      points( x = relYeqmean, y = yIdx + yJitter,
+              pch = MPpch, cex = 2, bg = NA, col = "red" )
+
+
+
+    }
+
+    if( p == 1 )
+      legend( x = "topright", bg = "white",
+              legend = c( "maxCatch",
+                          "maxProfits",
+                          "central 95%",
+                          "P(Emsy)",
+                          "MEY"),
+              pch = c(21,24,NA,NA,NA),
+              pt.bg = c("black","black",NA,NA,NA),
+              col = c("black","black","grey50","darkgreen","salmon"),
+              lwd = c(NA,NA,3,2,2),
+              lty = c(NA,NA,1,2,2))
+
+    if( mfg[2] == mfg[4] )
+      rmtext( txt = stockNames[p], font = 2, line = .02, outer = TRUE,
+              cex = 1.5)
+  }
+
+  mtext( side = 1, outer = TRUE, text = "Producer surplus relative to MEY",
+          line = 2.5 )
+
+  # write.csv(Umey_sp, file = "Umey_sp.csv")
+  # write.csv(dynUmey_sp, file = "dynUmey_sp.csv")
+
+} # END plotDynUmsy_sp
+
+# plotDynUmsy_sp()
+# Plots distribution of dynamically optimised harvest rates
+# for a set of simulations
+plotDynOptEffort_p <- function( groupFolder = "omni_econYield_constE_constElasticity",
+                                mpFilter = "freeEff",
+                                scenOrder = c("noCorr","corrRecDevs","corrPriceDevs","corrRecPrice") )
+{
+  # First, read info files from the relevant
+  # sims
+  simFolderList <- list.dirs( here::here("Outputs",groupFolder),
+                              recursive = FALSE, full.names = FALSE)
+
+  info.df <-  readBatchInfo( batchDir = here::here("Outputs",groupFolder) ) %>%
+                filter( grepl( mpFilter, mp ) ) %>%
+                arrange(scenario,mp)
+
+  scenLabels <- unique(info.df$scenario)
+
+
+  # Read in the modelStates we extracted
+  nModels <- nrow(info.df)
+  modelList <- vector(mode = "list", length = nModels)
+  names(modelList) <- info.df$simLabel
+  for( k in 1:nModels )
+  {
+    simLabel <- info.df$simLabel[k]
+    modelStatePath <- here::here("Outputs",groupFolder,simLabel,paste(simLabel,"_modelStates.RData",sep=""))
+    load(modelStatePath)
+
+    modelList[[k]] <- outList
+
+  }
+  outList <- NULL
+
+  # Get reference points
+  rp <- modelList[[1]]$rp
+  nS <- modelList[[1]]$nS
+  nP <- modelList[[1]]$nP
+  nT <- modelList[[1]]$nT
+  nF <- modelList[[1]]$nF
+
+  speciesNames <- modelList[[1]]$speciesNames
+  stockNames <- modelList[[1]]$stockNames
+
+  Emsy_p  <- rp$EmsyMSRefPts$EmsyMS_p
+  Emey_p  <- rp$EmeyRefPts$Emey_p
+
+  relEmey_p   <- Emey_p/Emsy_p
+
+  dynOptE_p <- rep(0,nP)
+
+
+  mpJitter <- c(  totCat    = .25,
+                  totProfit = -.25 )
+
+  par( mfrow = c( nP, 1 ),
+        oma = c(4,7,2,2),
+        mar = c(.1,.1,.1,.1) )
+
+  for( p in 1:nP )
+  {
+    plot( x = c(0,2),
+          y = c(0.5,4.5), type = "n", axes = FALSE,
+          yaxs = "i")
+
+    mfg <- par("mfg")
+    if(mfg[1] == mfg[3])
+      axis( side = 1 )
+    if( mfg[2] == 1 )
+      axis( side = 2, at = 1:4, labels = scenOrder, las = 1 )
+    box(lwd = 2)
+    abline( h = 0.5 + 1:3, lwd = 2 )
+    abline( v = c(1), lty = 2, lwd = 1)
+    abline( v = c(1), lty = 2, lwd = 2, col = "darkgreen")
+    abline( v = c(relEmey_p[p]), lty = 2, lwd = 2, col = "salmon")
+
+    for( k in 1:nModels )
+    {
+      Edist <- modelList[[k]]$stateDists$E_ipft[,p,2]
+      Emean <- modelList[[k]]$stateMeans$E_ipft[p,2]
+
+      relEdist <- Edist / Emsy_p[p]
+      relEmean <- Emean / Emsy_p[p]
+
+      dynOptE_p[p] <- Edist[2]
+
+      scenName  <- info.df$scenario[k]
+      mpName    <- info.df$mp[k]
+
+      yIdx <- which(scenOrder == scenName)
+      if( grepl(pattern = "totCat", x = mpName ) )
+      {
+        yJitter <- mpJitter["totCat"]
+        MPpch   <- 21
+      }
+      if( grepl(pattern = "totProfit", x = mpName ) )
+      {
+        yJitter <- mpJitter["totProfit"]
+        MPpch   <- 24
+      }
+
+      # Plot central 95%
+      segments( x0 = relEdist[1], x1 = relEdist[3],
+                y0 = yIdx + yJitter, lwd = 3, col = "grey50" )
+      # Plot median
+      points( x = relEdist[2], y = yIdx + yJitter,
+              pch = MPpch, cex = 2, bg = "black" )
+      # Plot mean
+      points( x = relEmean, y = yIdx + yJitter,
+              pch = MPpch, cex = 2, bg = NA, col = "red" )
+
+
+
+    }
+
+    if( p == 1 )
+      legend( x = "topright", bg = "white",
+              legend = c( "maxCatch",
+                          "maxProfits",
+                          "central 95%",
+                          "MS Umsy",
+                          "Umey"),
+              pch = c(21,24,NA,NA,NA),
+              pt.bg = c("black","black",NA,NA,NA),
+              col = c("black","black","grey50","darkgreen","salmon"),
+              lwd = c(NA,NA,3,2,2),
+              lty = c(NA,NA,1,2,2))
+
+    if( mfg[2] == mfg[4] )
+      rmtext( txt = stockNames[p], font = 2, line = .02, outer = TRUE,
+              cex = 1.5)
+  }
+
+  mtext( side = 1, outer = TRUE, text = expression(E/E[MSY]),
+          line = 2.5 )
+
+  # write.csv(Umey_sp, file = "Umey_sp.csv")
+  # write.csv(dynUmey_sp, file = "dynUmey_sp.csv")
+
+} # END plotDynUmsy_sp
+
+# plotDynUmsy_sp()
+# Plots distribution of dynamically optimised harvest rates
+# for a set of simulations
 plotDynUmsy_sp <- function( groupFolder = "omni_econYield_constE_constElasticity",
                             mpFilter = "freeEff",
                             scenOrder = c("noCorr","corrRecDevs","corrPriceDevs","corrRecPrice") )
@@ -1043,6 +1337,7 @@ plotTulipEcon_sp <- function( obj = NULL,
   basePrice_ist     <- obj$om$basePrice_ist
   effCost_ipft      <- obj$om$effCost_ipft  
 
+
   # Get control list
   ctlList <- obj$ctlList
 
@@ -1066,15 +1361,14 @@ plotTulipEcon_sp <- function( obj = NULL,
   
   basePrice_qst <- apply(X = basePrice_ist, FUN = quantile,
                           probs = c(0.025, 0.5, 0.975),
-                          MARGIN = c(2,3) )
+                          MARGIN = c(2,3), na.rm = T )
   landVal_qst   <- apply(X = landVal_ist, FUN = quantile,
                           probs = c(0.025, 0.5, 0.975),
-                          MARGIN = c(2,3) )
+                          MARGIN = c(2,3), na.rm = T )
   Rev_qspft     <- apply(X = Rev_ispft, FUN = quantile,
                           probs = c(0.025, 0.5, 0.975),
-                          MARGIN = c(2,3,4,5) )
+                          MARGIN = c(2,3,4,5), na.rm = T )
 
-  browser()
 
 
   # Make nP x nS array
@@ -1110,28 +1404,28 @@ plotTulipEcon_sp <- function( obj = NULL,
         if( price )
         {
           # Price when catch == MSY
-          polygon(  x = c(years[tMP:nT],years[nT:tMP]),
-                    y = c(basePrice_qst[1,s,tMP:nT],rev(basePrice_qst[3,s,tMP:nT])),
+          polygon(  x = c(years[(tMP-11):nT],years[nT:(tMP-11)]),
+                    y = c(basePrice_qst[1,s,(tMP-11):nT],rev(basePrice_qst[3,s,(tMP-11):nT])),
                     border = NA, 
                     col = scales::alpha("darkgreen",.3) )
-          lines( x = years[tMP:nT], y = basePrice_qst[2,s,tMP:nT],
+          lines( x = years[(tMP-11):nT], y = basePrice_qst[2,s,(tMP-11):nT],
                   lwd = 3, col = "darkgreen" )
 
           for( i in traceIdx )
-            lines( x = years[tMP:nT], y = basePrice_ist[i,s,tMP:nT],
+            lines( x = years[(tMP-11):nT], y = basePrice_ist[i,s,(tMP-11):nT],
                   lwd = .8, col = "darkgreen" )            
 
 
           # Price from elasticity of demand (downward sloping demand curve)
-          polygon(  x = c(years[tMP:nT],years[nT:tMP]),
-                    y = c(landVal_qst[1,s,tMP:nT],rev(landVal_qst[3,s,tMP:nT])),
+          polygon(  x = c(years[(tMP-11):nT],years[nT:(tMP-11)]),
+                    y = c(landVal_qst[1,s,(tMP-11):nT],rev(landVal_qst[3,s,(tMP-11):nT])),
                     border = NA, 
                     col = scales::alpha("salmon",.3) )
-          lines( x = years[tMP:nT], y = landVal_qst[2,s,tMP:nT],
+          lines( x = years[(tMP-11):nT], y = landVal_qst[2,s,(tMP-11):nT],
                   lwd = 3, col = "salmon" )
 
           for( i in traceIdx )
-            lines( x = years[tMP:nT], y = landVal_ist[i,s,tMP:nT],
+            lines( x = years[(tMP-11):nT], y = landVal_ist[i,s,(tMP-11):nT],
                   lwd = .8, col = "salmon" )    
 
 
@@ -1139,15 +1433,15 @@ plotTulipEcon_sp <- function( obj = NULL,
 
         if( revenue )
         {
-          polygon(  x = c(years[tMP:nT],years[nT:tMP]),
-                    y = c(Rev_qspft[1,s,p,2,tMP:nT],rev(Rev_qspft[3,s,p,2,tMP:nT])),
+          polygon(  x = c(years[(tMP-11):nT],years[nT:(tMP-11)]),
+                    y = c(Rev_qspft[1,s,p,2,(tMP-11):nT],rev(Rev_qspft[3,s,p,2,(tMP-11):nT])),
                     border = NA, 
                     col = scales::alpha("grey50",.3) )
-          lines( x = years[tMP:nT], y = Rev_qspft[2,s,p,2,tMP:nT],
+          lines( x = years[(tMP-11):nT], y = Rev_qspft[2,s,p,2,(tMP-11):nT],
                   lwd = 3, col = "grey50" )
 
           for( i in traceIdx )
-            lines( x = years[tMP:nT], y = Rev_ispft[i,s,p,2,tMP:nT],
+            lines( x = years[(tMP-11):nT], y = Rev_ispft[i,s,p,2,(tMP-11):nT],
                   lwd = .8, col = "grey50" )            
         }
 
