@@ -1,0 +1,41 @@
+\newpage
+# Figures
+
+```{r mapFig, fig.cap = mapFigCap}
+mapFigCap <- "A map of Haida Gwaii herring management sections corresponding to, from North to South, Cumshewa/Selwyn (023/024), Juan Perez/Skincuttle (021/025), and Louscoone (006)."
+
+knitr::include_graphics('figure/hgHerringMap.png')
+```
+
+
+```{r msefig, fig.cap = mseFigCap}
+mseFigCap <- "Schematic of the closed loop simulation approach taken here comprises operating model (OM) scenarios that represent alternative hypotheses of OYE biology, ecology, exploitation history and environmental conditions (Env) that are fit to historic data (dotted box). The operating model scenarios are used to simulate future estimates of the data which are fit after applying a Harvest Control Rule (HCR) to set the catch under each management procedure at each annual time step. The simulation repeats until the end of the projection period. The assessment model is run at each time step to evaluate management performance against the objectives (adapted from @cox2010a)."
+
+knitr::include_graphics('figure/mseFig.pdf')
+```
+
+\newpage
+
+
+```{r likeProfFig, fig.cap = likeProfFigCap}
+likeProfFigCap <- "Likelihood profile and unfished biomass estimates for a grid of age-1 M factor levels when stock-recruit steepness was fixed at $h = 0.67$ and annual natural mortality deviations were identical among areas. The three highlighted points show the three factor levels used in the operating model grid as explained in the figure legend, with 0.72 representing the age 2+ mean mortality rate used for the a1Mmean level."
+
+knitr::include_graphics('figure/likeProf.pdf')
+
+
+```
+
+\newpage
+
+
+
+```{r hcrfig, fig.cap = hcrFigCap}
+hcrFigCap <- "Harvest control rule diagram showing the functional relationship between harvest rate and stock status used for setting TACs in each sub-area under different RPs. "
+
+names <- c("HS50-60+HR0.1","HS30-100+HR0.1")
+
+plotMultiHCR(LCPs=c(.5,.3), UCPs=c(.6,1), hcrNames=names)
+
+
+```
+

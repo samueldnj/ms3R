@@ -1,0 +1,342 @@
+<!-- The following code should appear at the beginning of the first appendix.
+(if you have one)
+After that, all subsequent sections will be turned into appendices. -->
+
+<!-- `r if(knitr:::is_latex_output()) '% begin csasdown appendix'`
+`r if(knitr:::is_latex_output()) '# (APPENDIX) Appendix {-}'` -->
+
+# (APPENDIX) Appendix {-}
+\clearpage
+
+# Appendix A {#app:refPts}
+
+```{r loadAppAFuns, echo = FALSE, include = FALSE }
+source(here::here("docs/rebuildingPlan/figure/SISCAplots.R"))
+source(here::here("docs/rebuildingPlan/figure/SISCArefPts.R"))
+
+# load base OM
+load(here::here('history/fit_MSbase_MCMC/fit_MSbase_MCMC.RData'))
+
+```
+
+This appendix includes plots for equilibrium relationships for 
+reference points calculations, and,.... other parameter of interest 
+for the base operating model
+
+\clearpage
+
+```{r refPtsCS, fig.pos="H", fig.cap = refPtsCSCap}
+refPtsCSCap <- "Equilibrium relationships from the base operating model for Cumshewa/Selwyn showing a) Yield Per Recruit for increasing fishing mortality (F), b) Spawning biomass (SB) per recruit for increasing fishing mortality (F), c) Yield for increasing fishing mortality (F), d) Spawning biomass for increasing fishing mortality (F), e) Recruitment for different levels of spawning biomass, and f) Yield for different levels of spawning biomass. In all plots the green point indicates values at Fmsy."
+plotRefPts_p(repList = reports, pIdx=1)
+```
+
+\clearpage 
+
+
+```{r refPtsJPS, fig.pos="H", fig.cap = refPtsJPSCap}
+refPtsJPSCap <- "Equilibrium relationships from the base operating model for Juan Perez/Skincuttle showing a) Yield Per Recruit for increasing fishing mortality (F), b) Spawning biomass (SB) per recruit for increasing fishing mortality (F), c) Yield for increasing fishing mortality (F), d) Spawning biomass for increasing fishing mortality (F), e) Recruitment for different levels of spawning biomass, and f) Yield for different levels of spawning biomass. In all plots the green point indicates values at Fmsy."
+plotRefPts_p(repList = reports, pIdx=2)
+```
+
+\clearpage
+
+```{r refPtsLou, fig.pos="H", fig.cap = refPtsLouCap}
+refPtsLouCap <- "Equilibrium relationships from the base operating model for Louscoone showing a) Yield Per Recruit for increasing fishing mortality (F), b) Spawning biomass (SB) per recruit for increasing fishing mortality (F), c) Yield for increasing fishing mortality (F), d) Spawning biomass for increasing fishing mortality (F), e) Recruitment for different levels of spawning biomass, and f) Yield for different levels of spawning biomass. In all plots the green point indicates values at Fmsy."
+plotRefPts_p(repList = reports, pIdx=3)
+```
+
+\clearpage
+
+\blandscape
+
+# Appendix B {#app:subAreaResults}
+
+This appendix contains the rebuilding analysis performance metrics
+for each individual sub-area.
+
+```{r readPerfTabStocks, echo = FALSE, include = FALSE}
+perfTable <- read.csv("./data/fullStatTable_avgCtlPts.csv", stringsAsFactors = FALSE) 
+
+subAreaTable <- perfTable %>%
+                filter( stock != "aggregate" ) %>%
+                select( scenario,
+                        stock,
+                        mp,
+                        pBtGt.3B0, 
+                        pBtGt.5B0,
+                        nYrsSOK,
+                        avgLicSOK,
+                        "avgSOK\\_t" = avgSOK_t,
+                        "avgPonded\\_t" = avgPonded_t,
+                        pondAAV,
+                        nYrsComm,
+                        "avgCatch\\_t" = avgCatch_t,
+                        catchAAV,
+                        pUtGt.1HR,
+                        avgUtGt0.1HR,
+                        growthRate6yrs,
+                        growthRate11yrs,
+                        growthRate16yrs,
+                        B0,
+                        BhistT,
+                        DhistT,
+                        BtMP,
+                        DtMP,
+                        BnT,
+                        DnT) 
+
+stockOrder <- c("C/S","JP/S","Lou")
+
+MPorder <- c( "NoFish",
+              "oSOK_HS30-100_HR0.1",
+              "cSOK_HS30-100_HR0.1",
+              "cSOK+SR_HS30-100_HR0.1",
+              "SR_HS30-100_HR0.1")
+
+
+# Pull bestOM and worstOM from earlier - maybe we can fix them?
+
+```
+
+
+
+```{r eqWtdTableSubAreas, echo = FALSE }
+
+
+
+eqWtd_perfTable_subAreas <- subAreaTable %>%
+                            group_by( stock, mp ) %>%
+                            summarise_if( is.numeric, mean ) %>%
+                            mutate_if(is.numeric, round, 3) %>%
+                            arrange(    match(stock,stockOrder), 
+                                        match(mp,MPorder) ) %>%
+                            mutate( mp = sapply(  X = mp, FUN = replaceString,
+                                                  pattern = "_",
+                                                  replacement = "\\\\_") ) %>%
+                            ungroup()
+eqWtd_perfTable_Biomass <- eqWtd_perfTable_subAreas %>%
+                            select( RP = mp,
+                                    "$P(B_t \\geq .3B_0)$" = pBtGt.3B0, 
+                                    "$P(B_t \\geq .5B_0)$" = pBtGt.5B0, 
+                                    "$\\Gamma(2019,2024)$" = growthRate6yrs,
+                                    "$\\Gamma(2019,2029)$" = growthRate11yrs,
+                                    "$\\Gamma(2019,2034)$" = growthRate16yrs)
+
+write.csv(eqWtd_perfTable_Biomass, file = "./data/eqWtd_Areas_bio.csv")
+
+eqWtdTabCap <- "RP performance in individual sub-areas with respect to 
+biomass metrics, averaged over the full grid of 72 operating models 
+assuming an equal weighting. RPs are ordered by performance with respect 
+to the conservation Objective, i.e. $P(B_t \\geq 0.3 B_0)$."
+
+csasdown::csas_table( eqWtd_perfTable_Biomass,
+                      caption = eqWtdTabCap,
+                      booktabs = TRUE, escape = FALSE,
+                      landscape = FALSE,
+                      align = c("l",rep("c",5)),
+                      font_size = 6, format = kable_format ) %>%
+    kable_styling(  latex_options = c("hold_position", "scale_down"),
+                    bootstrap_options = c("striped", "hover","scale_down")) %>%
+    kableExtra::group_rows("C/S", 1, 5 ) %>%
+    kableExtra::group_rows("JP/S", 6, 10 ) %>%
+    kableExtra::group_rows("Lou", 11, 15 )
+
+eqWtd_perfTable_Fishing <- eqWtd_perfTable_subAreas %>%
+                            select( RP = mp,
+                                    "$N_{SOK}$"   = nYrsSOK,
+                                    "$\\bar{L}_{SOK}$" = avgLicSOK,
+                                    "$\\bar{K}$"   = "avgSOK\\_t",
+                                    "$\\bar{P}$"   = "avgPonded\\_t",
+                                    "$AAV(P_t)$"  = pondAAV,
+                                    "$N_{SR}$"    = nYrsComm,
+                                    "$\\bar{C}$"   = "avgCatch\\_t",
+                                    "$AAV(C_t)$"  = catchAAV,
+                                    "$P(U_t > .1)$"   = pUtGt.1HR,
+                                    "$mean(U_t \\vert U_t > .1)$" = avgUtGt0.1HR )
+
+write.csv(eqWtd_perfTable_Fishing, file = "./data/eqWtd_Areas_fishing.csv")
+
+eqWtdTabCap <- "RP performance for individual sub-areas with respect to 
+fishery metrics, averaged over the full grid of 72 operating models assuming 
+an equal weighting. RPs are ordered by performance with respect to 
+the conservation Objective 1, i.e. $P(B_t \\geq 0.3 B_0)$."
+
+csasdown::csas_table( eqWtd_perfTable_Fishing,
+                      caption = eqWtdTabCap,
+                      booktabs = TRUE, escape = FALSE,
+                      landscape = FALSE,
+                      align = c("l",rep("c",10)),
+                      font_size = 6, format = kable_format ) %>%
+    kable_styling(  latex_options = c("hold_position", "scale_down"),
+                    bootstrap_options = c("striped", "hover","scale_down")) %>%
+    kableExtra::group_rows("C/S", 1, 5 ) %>%
+    kableExtra::group_rows("JP/S", 6, 10 ) %>%
+    kableExtra::group_rows("Lou", 11, 15 )
+
+```
+
+
+\clearpage
+
+```{r bestOMTableSubAreas, echo = FALSE }
+
+
+
+bestOM_perfTable_subAreas <- subAreaTable %>%
+                                filter( scenario == bestOM ) %>%
+                                mutate_if(is.numeric, round, 3) %>%
+                                arrange(    match(stock,stockOrder), 
+                                            match(mp,MPorder) ) %>%
+                                mutate( mp = sapply(  X = mp, FUN = replaceString,
+                                                      pattern = "_",
+                                                      replacement = "\\\\_") )
+bestOM_perfTable_Biomass <- bestOM_perfTable_subAreas %>%
+                            select( RP = mp,
+                                    "$P(B_t \\geq .3B_0)$" = pBtGt.3B0, 
+                                    "$P(B_t \\geq .5B_0)$" = pBtGt.5B0, 
+                                    "$\\Gamma(2019,2024)$" = growthRate6yrs,
+                                    "$\\Gamma(2019,2029)$" = growthRate11yrs,
+                                    "$\\Gamma(2019,2034)$" = growthRate16yrs)
+
+write.csv(bestOM_perfTable_Biomass, file = "./data/bestOM_Areas_bio.csv")
+
+bestOMTabCap <- paste("Rebuilding procedure performance with respect
+to biomass metrics under the", printBestOM, "operating model scenario, 
+which had the best conservation performance in the absence of fishing. 
+RPs are ordered by performance with respect to the conservation 
+Objective, i.e. $P(B_t \\geq 0.3 B_0)$.")
+
+csasdown::csas_table( bestOM_perfTable_Biomass,
+                      caption = bestOMTabCap,
+                      booktabs = TRUE, escape = FALSE,
+                      landscape = FALSE,
+                      align = c("l",rep("c",5)),
+                      font_size = 6, format = kable_format ) %>%
+    kable_styling(  latex_options = c("hold_position", "scale_down"),
+                    bootstrap_options = c("striped", "hover","scale_down")) %>%
+    kableExtra::group_rows("C/S", 1, 5 ) %>%
+    kableExtra::group_rows("JP/S", 6, 10 ) %>%
+    kableExtra::group_rows("Lou", 11, 15 )
+
+bestOM_perfTable_Fishing <- bestOM_perfTable_subAreas %>%
+                            select( RP = mp,
+                                    "$N_{SOK}$"   = nYrsSOK,
+                                    "$\\bar{L}_{SOK}$" = avgLicSOK,
+                                    "$\\bar{K}$"   = "avgSOK\\_t",
+                                    "$\\bar{P}$"   = "avgPonded\\_t",
+                                    "$AAV(P_t)$"  = pondAAV,
+                                    "$N_{SR}$"    = nYrsComm,
+                                    "$\\bar{C}$"   = "avgCatch\\_t",
+                                    "$AAV(C_t)$"  = catchAAV,
+                                    "$P(U_t > .1)$"   = pUtGt.1HR,
+                                    "$mean(U_t \\vert U_t > .1)$" = avgUtGt0.1HR )
+write.csv(bestOM_perfTable_Fishing, file = "./data/bestOM_Areas_fishing.csv")
+
+bestOMTabCap <- paste("Rebuilding procedure performance for individual sub-areas
+with respect to fishery metrics under the", printBestOM, "operating model with 
+scenario, which had the best conservation performance in the absence of 
+fishing. RPs are ordered by performance with respect to the conservation 
+Objective, i.e. $P(B_t \\geq 0.3 B_0)$.")
+
+csasdown::csas_table( bestOM_perfTable_Fishing,
+                      caption = bestOMTabCap,
+                      booktabs = TRUE, escape = FALSE,
+                      landscape = FALSE,
+                      align = c("l",rep("c",10)),
+                      font_size = 6, format = kable_format ) %>%
+    kable_styling(  latex_options = c("hold_position", "scale_down"),
+                    bootstrap_options = c("striped", "hover","scale_down")) %>%
+    kableExtra::group_rows("C/S", 1, 5 ) %>%
+    kableExtra::group_rows("JP/S", 6, 10 ) %>%
+    kableExtra::group_rows("Lou", 11, 15 )
+
+```
+
+
+\clearpage
+
+```{r worstOMTableSubAreas, echo = FALSE }
+
+
+
+worstOM_perfTable_subAreas <- subAreaTable %>%
+                                filter( scenario == worstOM ) %>%
+                                mutate_if(is.numeric, round, 3) %>%
+                                arrange(    match(stock,stockOrder), 
+                                            match(mp,MPorder) ) %>%
+                                mutate( mp = sapply(  X = mp, FUN = replaceString,
+                                                      pattern = "_",
+                                                      replacement = "\\\\_") )
+worstOM_perfTable_Biomass <- worstOM_perfTable_subAreas %>%
+                            select( RP = mp,
+                                    "$P(B_t \\geq .3B_0)$" = pBtGt.3B0, 
+                                    "$P(B_t \\geq .5B_0)$" = pBtGt.5B0, 
+                                    "$\\Gamma(2019,2024)$" = growthRate6yrs,
+                                    "$\\Gamma(2019,2029)$" = growthRate11yrs,
+                                    "$\\Gamma(2019,2034)$" = growthRate16yrs)
+
+write.csv(worstOM_perfTable_Biomass, file = "./data/worstOM_Areas_bio.csv")
+
+worstOMTabCap <- paste("Rebuilding procedure performance with respect
+to biomass metrics under the", printWorstOM, "operating model scenario, 
+which had the worst conservation performance in the absence of fishing. 
+RPs are ordered by performance with respect to the conservation 
+Objective, i.e. $P(B_t \\geq 0.3 B_0)$.")
+
+csasdown::csas_table( worstOM_perfTable_Biomass,
+                      caption = worstOMTabCap,
+                      booktabs = TRUE, escape = FALSE,
+                      landscape = FALSE,
+                      align = c("l",rep("c",5)),
+                      font_size = 6, format = kable_format ) %>%
+    kable_styling(  latex_options = c("hold_position", "scale_down"),
+                    bootstrap_options = c("striped", "hover","scale_down")) %>%
+    kableExtra::group_rows("C/S", 1, 5 ) %>%
+    kableExtra::group_rows("JP/S", 6, 10 ) %>%
+    kableExtra::group_rows("Lou", 11, 15 )
+
+worstOM_perfTable_Fishing <- worstOM_perfTable_subAreas %>%
+                            select( RP = mp,
+                                    "$N_{SOK}$"   = nYrsSOK,
+                                    "$\\bar{L}_{SOK}$" = avgLicSOK,
+                                    "$\\bar{K}$"   = "avgSOK\\_t",
+                                    "$\\bar{P}$"   = "avgPonded\\_t",
+                                    "$AAV(P_t)$"  = pondAAV,
+                                    "$N_{SR}$"    = nYrsComm,
+                                    "$\\bar{C}$"   = "avgCatch\\_t",
+                                    "$AAV(C_t)$"  = catchAAV,
+                                    "$P(U_t > .1)$"   = pUtGt.1HR,
+                                    "$mean(U_t \\vert U_t > .1)$" = avgUtGt0.1HR )
+
+write.csv(worstOM_perfTable_Fishing, file = "./data/worstOM_Areas_fishing.csv")
+
+bestOMTabCap <- paste("Rebuilding procedure performance for individual sub-areas
+with respect to fishery metrics under the", printWorstOM, "operating model with 
+scenario, which had the worst conservation performance in the absence of 
+fishing. RPs are ordered by performance with respect to the conservation 
+Objective, i.e. $P(B_t \\geq 0.3 B_0)$.")
+
+csasdown::csas_table( worstOM_perfTable_Fishing,
+                      caption = worstOMTabCap,
+                      booktabs = TRUE, escape = FALSE,
+                      landscape = FALSE,
+                      align = c("l",rep("c",10)),
+                      font_size = 6, format = kable_format ) %>%
+    kable_styling(  latex_options = c("hold_position", "scale_down"),
+                    bootstrap_options = c("striped", "hover","scale_down")) %>%
+    kableExtra::group_rows("C/S", 1, 5 ) %>%
+    kableExtra::group_rows("JP/S", 6, 10 ) %>%
+    kableExtra::group_rows("Lou", 11, 15 )
+
+```
+
+
+\clearpage
+
+
+
+
+\elandscape
+
+<!-- At the end of your appendices add: -->
+<!-- `r if(knitr:::is_latex_output()) '% end csasdown appendix'` -->
