@@ -138,7 +138,7 @@ opMod$gammaM 0.997
 opMod$pulseMFrq 0
 opMod$pulseMSize 1
 opMod$pulseMfrac 0.3
-opMod$histFile "fit_parBatHGherringGrid10"
+opMod$histFile "fit_parBatHGherringMCMC10"
 opMod$posteriorSamples TRUE
 opMod$postSampleType 'random'
 opMod$postSampleSeed 1234

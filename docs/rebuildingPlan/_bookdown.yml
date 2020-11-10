@@ -1,4 +1,4 @@
-book_filename: "sr"
+book_filename: "hgHerring_execSumm"
 rmd_files: ["index.Rmd",
             "01_context.Rmd",
             #"02_background.Rmd",
@@ -6,6 +6,9 @@ rmd_files: ["index.Rmd",
             # "04_conclusions.Rmd",
             # "05_contributors.Rmd",
             # "06_approval.Rmd",
-            "07_appendix.Rmd",
-            "08_bibliography.Rmd"]
+            "07_tables.Rmd",
+            "08_figures.Rmd",
+            "09_appendix.Rmd",
+            "10_bibliography.Rmd"
+            ]
 delete_merged_file: true

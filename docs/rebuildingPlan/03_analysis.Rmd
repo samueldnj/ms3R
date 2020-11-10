@@ -7,51 +7,72 @@ source(here::here("ms3Rplots.R"))
 
 ```
 
+
+
 ## Evaluation of potential rebuilding strategies using closed loop simulation
 
 Fishery models play important roles in the design and operation of feedback 
 fishery management systems. Fishery operating models use data obtained from 
 scientific monitoring to estimate historical abundances and productivity 
-under alternative hypotheses for environmental conditions and Herring 
-biology. To speed up learning and to avoid putting stocks and fisheries 
-at risk in real experiments, we represent these alternative hypotheseses 
-using different operating model scenarios and run computer experiments on 
-simulated fishery management systems (Figure \@ref(fig:msefig)). Inferences 
-derived from assessments of stock status flow through a decision-making 
-process to determine what future impacts (e.g., harvests) are allowed on 
-the stock. These impacts combine with environmental variability and 
-density-dependent population dynamics to affect characteristics, 
-productivity, and abundance of the stock. Environment-stock interactions 
-are typically the most uncertain aspect of fishery management systems 
-because the dynamics are non-linear and only partially observable. Thus, 
-we may not know the importance of an impact on the stock until long after 
-it occurs. Using this type of closed-loop simulation, the authors’ 
-evaluated proposed rebuilding management procedures for Pacific Herring 
-in Haida Gwaii that attempt to meet rebuilding objectives following a 
-step-wise approach[@cox2010a]. The steps were as follows:
+under alternative hypotheses for, *inter alia*, environmental conditions and 
+fish stock biology. Alternative hypotheses are used to condition operating
+model scenarios that drive closed loop simulations of fishery management
+systems, which evaluate alternative management procedures in computer 
+experiments (Figure \@ref(fig:msefig)). These so called Management 
+Strategy Evaluations (MSEs) speed up adaptive learning about the fisheries 
+management system while avoiding putting fish stocks and fisheries at risk 
+in real adaptive management experiments. In a closed-loop simulation 
+experiment, annual inferences of stock status based on simulated data 
+flow through a decision rule, which sets the next year's fishery removals. 
+In the following year, removals are taken from the stock via simulated 
+fishing mortality, and new data is generated for application of the 
+procedure again the following year, and so on until the pre-determined 
+end of the computer experiment. In this way, the expected performance of a 
+simulated fishery management procedure can be estimated via pre-determined 
+performance metrics, indicating acceptable procedures with respect to 
+fishery objectives, and their relative rank. Simulated procedure 
+performance is ideally integrated over several operating model scenarios 
+representing major uncertainties that are difficult to resolve. For 
+example, environment-stock interactions such as recruitment and predation 
+mortality are among the most uncertain aspects of fishery management 
+systems because the dynamics are non-linear and only partially observable. 
+Therefore, multiple alternative hypotheses on recruitment and predation 
+(natural) mortality may be used to condition operating model scenarios 
+to ensure management procedures are robust to those uncertainties, as 
+the plausibility of those hypotheses may not be known until long after 
+a procedure is chosen. 
 
-1. Define a range of alternative management procedures (MPs) 
+In this paper, we used closed-loop simulation to evaluate the expected 
+performance of four proposed rebuilding procedures (RPs), measured 
+against rebuilding objectives for Pacific Herring in Haida Gwaii, using 
+the following step-wise approach [@cox2010a]:
+
+1. Define and rank conservation and fishery objectives that 
+rebuilding procedures must meet to be considered for application
+to the HG Pacific Herring fishery.
+
+2. Define a range of alternative management procedures (RPs) 
 defined by (i) **data** types and precision, (ii) **assessment 
 methods** for establishing stock status, (iii) **harvest control 
 rules (HCRs)** for setting annual catch limits; and (iv) **meta-rules** 
 for modifying annual catch limits given pre-defined constraints and 
 conditions as required. Meta-rules might involve time intervals, 
 constraints on fisheries, spatial and fishery allocation rules, and/or 
-rules for revising the MPs, as well as “exceptional circumstances” 
-that provide trigger points and subsequent actions when MPs are 
+rules for revising the RPs, as well as “exceptional circumstances” 
+that provide trigger points and subsequent actions when RPs are 
 considered unreliable.
 
-2. Specify an operating model (OM) to enable simulation of alternative 
+3. Specify an operating model (OM) to enable simulation of alternative 
 plausible scenarios for Haida Gwaii Herring population responses to 
 fishing and data generation mechanisms. This step involves first 
 fitting the operating model to available data to estimate model 
 parameters consistent with the stock history and structural assumptions 
 of OM scenarios.
 
-3. Project Haida Gwaii Herring stock dynamics and fishery harvesting 
-forward from its current state for each management procedure under each 
-alternative OM scenario. Each year and simulation replicate of the 
-projection involves the following steps:
+4. Project Haida Gwaii Herring sub-area population dynamics and fishery 
+harvest forward from its current state for each management procedure 
+under each alternative OM scenario. Each year and simulation replicate 
+of the projection involves the following steps:
 	i) Simulate the **data** available for stock assessment and append to 
   existing data sets;
 	ii) Apply the **assessment method** to the data to estimate quantities 
@@ -60,63 +81,41 @@ projection involves the following steps:
 	iv) Apply **meta-rules** such as area and fishery allocation rules;
 	v) Subtract the final catch limit from the simulated Herring population 
   as represented by the operating model;
-	vi) Return to Step 3a until final projection year
-	vii) Repeat Step 3a-f for 100 independent replicate simulations
+  vi) If not in the final projection year, return to 4.i, otherwise go 
+  to 4.vii
+	vii) Repeat steps 4.i-4.vi for 100 simulation replicates with independent
+  random seeds
 
-4. Calculate a set of quantitative performance measures based on the 
-100 simulation replicates that can be used to compare and rank MP 
-performance against the conservation and fishery objectives.
-
-```{r msefig, fig.pos="H", fig.cap = mseFigCap}
-mseFigCap <- "Schematic of the closed loop simulation approach taken 
-here comprises operating model (OM)scenarios that represent alternative 
-hypotheses of OYE biology, ecology, exploitation history and 
-environmental conditions (Env) that are fit to historic data 
-(dotted box). The operating model scenarios are used to simulate 
-future estimates of the data which are fit after applying a Harvest
-Control Rule (HCR) to set the catch under each management procedure 
-at each annual time step. The simulation repeats until the end of 
-the projection period. The assessment model is run at each time step 
-to evaluate management performance against the objectives 
-(adapted from @cox2010a)."
-
-knitr::include_graphics('figure/mseFig.pdf')
-```
+5. Calculate a set of quantitative performance measures based on the 
+100 simulation replicates that can be used to compare and rank RP 
+performance against conservation and fishery objectives.
 
 
 ## Operating model
 
-The SISCAH operating model (OM) is age-structured with multiple biologically
+The Spatially Integrated Statistical Catch-at-Age Herring (SISCAH) 
+Operating Model (OM) is an age-structured model with multiple biologically
 independent sub-areas (i.e., there is no biomass or recruitment exchange
 among areas in this version of the model). The Haida Gwaii herring stock is 
 currently managed across 5 sections that are grouped into the three sub-areas 
-(from north to south) - Cumshewa/Selwyn (*C/S*, 023/024), 
-Juan-Perez/Skincuttle (*JP/S*, 021/025), and Louscoone (*Lou*, 006) - for 
-operating model fitting (Figure 1). Available data at this spatial scale
-include: (i) fleet-specific landed catch and age-composition data (1951 - 
+(from north to south) - Cumshewa/Selwyn (*C/S*, 023/024), Juan-Perez/Skincuttle 
+(*JP/S*, 021/025), and Louscoone (*Lou*, 006) - for operating model fitting 
+(Figure \@ref(fig:mapFig)). Available data at this spatial scale include: 
+(i) fleet-specific landed catch and age-composition data (1951 - 
 2019) from the commercial reduction, seine-roe, and gillnet fisheries; 
 (ii) closed-pond spawn-on-kelp (SOK) landings; and (iii) fishery independent 
 spawn indices from the surface survey (1951 - 1987) and dive survey 
-(1988 - 2019). **Model notation and equations are given in Tables 1 and 2, 
-respectively. <- STILL INCLUDE THESE??**
-
-The SISCAH OM is structured in a hierarchical way to allow multi-level 
-hierarchical shrinkage priors on biological and fishery parameters that
-we assume are exchangeable among sub-areas. For example, age-at-50% 
-selectivity is likely to be similar among sub-areas because of common 
-factors affecting growth (e.g., food availability). Therefore, a shrinkage 
-prior would constrain age-at-50% selectivity parameters among the sub-areas 
-as deviations from a major stock mean value. The shrinkage prior typically 
-improves model convergence when data quality is poor, such as when sample 
-sizes are reduced from disaggregation into sub-areas [@johnson2018evaluating; 
-@benson2020performance]. 
+(1988 - 2019). Model notation, process model equations and statistical
+model equations are given in Tables \@ref(tab:SISCAnotation),
+\@ref(tab:SISCAprocModelEqns), and \@ref(tab:SISCAstatModelEqns), 
+respectively. 
 
 SISCAH includes both closed-pond and open-pond spawn-on-kelp fisheries. 
 Closed pond fisheries model the impoundment (ponding) of fish from the 
 spawning stock. Fish are captured via purse-seines and then towed 
 to and subsequently transferred into a closed net-pen (pond), within which 
 herring will spawn on blades of kelp (usually *Macrocystus integrifolia*) 
-[@schweigert2018synopsis-of-the]. Ponded fish are removed from the spawning 
+[@schweigert2018a]. Ponded fish are removed from the spawning 
 stock biomass for the remainder of the year, and then reunited with the
 main population after losses to pond-induced mortality. Closed pond SOK 
 fisheries are included as input data in the historical period, and 
@@ -124,19 +123,19 @@ simulated in the projection period.
 
 The instantaneous ponding induced mortality rate was fixed at 
 $M_{SOK} = 0.315$/yr in the history, based on an average observed loss of 
-27\% of ponded biomass [@shields1982herring]; however, the true value is 
+27\% of ponded biomass [@shields1982a]; however, the true value is 
 unknown and possibly dependent on environmental factors, general stock 
-health, tow distance, pond density, and operator handling [@shields1982herring;
-@schweigert2018synopsis-of-the]. Therefore, we tested an alternative
-higher ponding induced mortality rate in the projections, with 
+health, tow distance, pond density, and operator handling [@shields1982a;
+@schweigert2018a]. Therefore, we tested an alternative
+higher ponding induced mortality rate in closed-loop simulations, with 
 $M_{SOK} = 1.05$/yr, corresponding to 65\% dead ponded biomass 
-[@schweigert2018synopsis-of-the]. 
+[@schweigert2018a]. 
 
 In an open-pond fishery, herring are not impounded but are attracted to 
 a site where kelp is laid out to collect spawn, or alternatively, frames 
 strung with kelp are towed to sites where herring are already spawning. 
 Open-pond SOK harvesting induces lower mortality on mature fish, and its 
-impact on the stock is primarily through egg loss [@shelton2014assessing]. 
+impact on the stock is primarily through egg loss [@shelton2014a]. 
 Landings data for open-pond SOK fisheries are not available, so open pond
 SOK fisheries are only modeled in the projection time period. To simulate 
 an open pond SOK fishery in the projections, we reduced to $M_{SOK} = 0$ 
@@ -144,122 +143,171 @@ and replaced the biomass vulnerable to the Seine-Roe fishery with the
 total mature spawning biomass, because there is no impounding and 
 associated gear selectivity.
 
-
-
+A total of 72 operating model scenarios were defined, combining 18
+historical operating model scenarios, representing multiple biological
+hypotheses, with four projection operating model hypotheses, representing
+alternative future hypothetical levels of natural and ponding-induced
+mortality. 
 
 ### Historical scenarios
 
-Describe base OM and alternative OM grid here (18 OMs). Might be worth 
-including a table for this.
+The historical operating model scenarios were a grid of 18 HG herring
+stock hypotheses, comprising a fully factorial design over three factors 
+(Table \@ref(tab:omGridTable)). The OM factors for generating the grid were 
+age-1 natural mortality rates (3 levels), stock-recruit steepness (3 levels), 
+and whether projected time-varying mortality random walk deviations were 
+identical or correlated among sub-areas (2 levels). The age-1 and time-varying 
+natural mortality factor levels were chosen to increase variation in
+operating model estimates of unfished biomass and current stock status at
+those levels, and the time-varying natural mortality and steepness factor levels
+were chosen to maximise the variation in future population dynamics.
 
-See Figure \@ref(fig:refPtsCS) for reference points plots
+Age-1 natural mortality rate factor levels were, from lowest to highest, the 
+sub-area time-averaged 2+ rate (**a1Mmean**, around 0.72 on average), 1.25 
+(**a1M1.25**), or 1.64 (**a1M1.64**). The latter two age-1 rates were chosen 
+via a likelihood profile for a grid of rates ranging between 0.6 and 2.0 
+[@stokesbury2002a; @de-barros1998a], where 1.25 was the most likely value 
+(lowest data log-likelihood value), and 1.64 had the same log-likelihood 
+value as the **a1Mmean** operating model (Figure \@ref(fig:likeProfFig)). 
+Stock-recruit steepness values were low ($h = 0.5$, **sr0.5**), medium 
+($h = 0.67$, **sr0.67**), and high ($h = .8$, **sr0.8**), where the medium 
+value was taken from the current herring operating model prior mean value 
+for steepness, and $h=0.5$ and $h=0.8$ span a common range for stock-recruit 
+steepness. Finally, the time-varying M scenarios either treated $M_{2+,p,t}$ 
+random walk deviations as identical across areas when fitting operating 
+models (i.e., same trends but different scales; **identM**), or 
+independently estimated among sub-areas (i.e., different trends and 
+scales; **diffM**). For the **diffM** case, projected random walk 
+deviations were correlated, with the correlation matrix estimated from 
+historical deviations. Historical scenario labels were defined by 
+concatenating factor level labels for the corresponding operating model 
+hypotheses, separated by an underscore. For example, the hypothesis using 
+sub-area mean age-1 mortality, with low steepness, and different M 
+deviations had the label **a1Mmean_sr0.5_diffM**.
+
+Operating model fits to historical data indicated that age-1 mortality
+rates had the largest influence on 2019 HG herring stock status
+relative to unfished (Table \@ref(tab:omGridTable)). While unfished 
+biomass increased with increasing age-1 mortality, ranging from 
+$B_0 = 20.698$ kt (**a1Mmean_sr0.8_diffM**) to $B_0 = 117.366$ kt 
+(**a1M1.64_sr0.5_identM**), biomass depletion in 2019 had an inverse 
+relationship with age-1 mortality. Because the dive survey design 
+was assumed to be an absolute survey (i.e. $q_{p,dive} \approx 1$) 
+via a strongly informative prior, estimates of 2019 biomass did not 
+scale like estimates of unfished biomass, and relative depletion
+dropped as unfished biomass increased. Given low initial relative
+depletion states, scenarios that combine low stock-recruit steepness and 
+high age-1 mortality rates will have little chance of rebuilding the
+stock in the short term despite the potential growth associated 
+with higher unfished biomass levels, even in the absence of fishing.
+
+Operating model data negative log-likelihood (NLL, $- \log \mathcal{L}$) 
+values were split into two distinct groups, defined by the time-varying 
+natural mortality hypothesis (Table \@ref(tab:omGridTable)). The 
+historical OM scenario with the minimum NLL value was the 
+**a1Mmean_sr0.8_diffM** model, indicating the lowest residual standard 
+error. Reduced residual error was driven primarily by the **diffM** 
+hypothesis, which allowed the Lou 2+ mortality to drop at the end of the 
+historical period, causing Lou spawning biomass to increase over that 
+period, matching the Lou spawn indices. As a result, the **diffM** 
+scenarios had the lowest negative log likelihood (NLL) function values, 
+ranging in difference ($\Delta(-\log\mathcal{L})$) between 0 and 10.22 
+NLL units to the the **a1Mmean_sr0.8_diffM** scenario. In contrast, 
+the **identM** scenario $\Delta(-\log\mathcal{L})$ values ranged 
+between 35.03 and 41.50 NLL units.
+
+
 
 ### Projection scenarios
 
-We evaluated four operating model projection scenarios combining two 
-future trends in natural mortality with two SOK post-ponding mortality 
-rates. The natural mortality scenarios involve a random walk with a 
-trend that allows $M_{p,t}$ to decrease to the historical average
-$\bar{M}_{p}$ over periods of 5 years (**rw5**) or 15 years (**rw15**). 
-Both of these scenarios are somewhat optimistic given recent trends in 
-estimated natural mortality, but they do provide scenarios where 
-rebuilding procedure behaviour is revealed because fisheries would be 
-occurring. The post-ponding mortality ($M_{SOK}$) is randomly drawn in 
-the projections using a log-normal distribution 
-$logM_{SOK,t}~N(logM_{SOK},\sigma_{M_{SOK}})$ in either (i) a lower 
-post-ponding M scenario (**loPondM**), where $M_{SOK}=0.315$ 
-(corresponding to survival rate of 73\%) based on total mortality 
-estimates from closed-ponding in Haida Gwaii that exclude bird predation 
-and post-release mortality [@shields1982a], or (ii) a higher post-ponding 
-M scenario (**hiPondM**) where $M_{SOK}=1.05$ (corresponding to survival 
-rate of 35\%) based on the assumed mortality estimate (65 short tons) used 
-by DFO for allocating quota to closed ponds [@schweigert2018a]. For both 
-scenarios, the $logM_{SOK}$ distributions had a standard deviation of
-$\sigma_{M_{SOK}}=0.2$. Operating model scenarios were labeled by 
-concatenating the above factor names (i.e., **rw5+loPondM**, 
-**rw5+hiPondM**, **rw15+loPondM**, **rw15+hiPondM**). All scenarios 
-assumed zero post-ponding mortality for open-pond SOK fisheries, but 
-account for egg loss by removing open-ponded fish from the spawning 
-stock when generating recruitment.
+Four operating model projection scenarios were evaluated in addition to 
+the historical OM scenarios, combining two future trends in age 2+ natural 
+mortality rates with two SOK post-ponding mortality rates. Projected 
+natural mortality trend scenarios continued the historic random walk  
+with a trend that decreased age 2+ $M_{2+,p,t}$ to the historical average
+$\overline{M}_{2+,p}$ over periods of 5 years (**rw5**) or 15 years 
+(**rw15**). Although both projection scenarios were somewhat optimistic 
+given recent trends in estimated natural mortality, they do provide 
+scenarios where rebuilding procedure behaviour is revealed because 
+biomass increases to allow simulated fishery openings. 
 
-## Management procedures
+Future post-ponding mortality rate scenarios randomly draw annual 
+$M_{SOK}$ values using a log-normal distribution 
+$\log M_{SOK,t}~N(\log \overline{M}_{SOK},\sigma_{M_{SOK}})$ 
+in either (i) a lower post-ponding M scenario (**loPondM**), where 
+$\overline{M}_{SOK}=0.315$ (corresponding to survival rate of 73\%) based 
+on total mortality estimates from closed-ponding in Haida Gwaii that 
+exclude bird predation and post-release mortality [@shields1982a], or 
+(ii) a higher post-ponding M scenario (**hiPondM**) where 
+$\overline{M}_{SOK}=1.05$ (corresponding to survival rate of 35\%) based on 
+the assumed mortality estimate (65 short tons) used by DFO for allocating 
+quota to closed ponds [@schweigert2018a]. For both scenarios, the 
+$\log M_{SOK}$ distributions had a standard deviation of
+$\sigma_{M_{SOK}}=0.2$. All scenarios assumed zero post-ponding mortality 
+for open-pond SOK fisheries, but account for egg loss by removing 
+open-ponded fish from the spawning stock when generating recruitment.
 
-We evaluated 8 different fishing MPs that used an empirical assessment 
-method, two different HCRs (QUESTION: Do we want to show bout HCRs or 
-just the HCR with LCP=0.3B0 and UCP=B0) and 4 different area and 
-allocation rules. We also tested an MP with no fishing (**NoFish**). 
-Each MP is applied independently to each area, with the exception of 
-SOK licensing allocation rules due to a constraint on the total number 
-of annual licenses available for Haida Gwaii.
+The four operating model projection scenario labels were generated by
+concatenating the above factor names (i.e., **rw5_loPondM**, 
+**rw5_hiPondM**, **rw15_loPondM**, **rw15_hiPondM**), which are 
+appended to each of the 18 historical OM labels to generate labels 
+for all 72 operating models, e.g., **a1M1.64_sr0.5_identM_rw15_hiPondM**. 
+
+## Rebuilding procedures
+
+We evaluated 4 rebuilding procedures (RPs) that differed by rules 
+allocating catch among different types of fisheries, where total
+allowable catch was determined via the same empirical biomass forecast
+and precautionary harvest control rule. The status quo procedure was 
+also tested, where no fishing was allowed in any sub-area (**NoFish**). 
+Each RP was applied independently to each sub-area, except for SOK 
+licenses, which were allocated based on a constraint on the total 
+number of annual licenses available.
 
 ### Assessment methods
 
-Rebuilding procedures used a survey-based method to forecast stock status 
-and biomass (and therefore TACs) 1-year ahead in each area given the 
-spawn index estimate from the dive survey and the catch in the current 
-year, i.e.,
-
+Rebuilding procedures used a survey-based method to generate 1-year 
+ahead biomass forecasts in each sub-area. Forecasts in year $t+1$ were 
+calculated from the year $t$ spawn survey index and total catch as
 \begin{equation}
-  \hat{B}_{p,t+1}=I_{p,t}/\bar{q}_{p} + C_{p,t}
+  \widehat{B}_{p,t+1}=I_{p,t}/\overline{q}_{p} + C_{p,t}
 \end{equation}
-
-where $B_{p,t}$ is the estimated spawning biomass, $C_{p,t}$ is the total
-removals (dead fish) in biomass units, $\bar{q}_{p}$ is an average 
-catchability coefficient for the blended index weighted by the OM 
-grid (TO DO: Update based on weightings determined by TWG), $I_{p,t}$ is 
-the dive survey spawn index for area $p$ at time $t$. This forecast assumes 
-that biomass available for fishing next year will be the same as the 
-estimates of fishable biomass this year. This “naïve” forecast is needed 
-because the survey occurs after fishing in each year, while a spawn index 
-is needed before fishing to determine a TAC. This differs from current 
-practice where the assessment model makes a 1-year ahead forecast given 
-estimated biomass and forecasted recruitment. Future work may evaluate 
-such model-based rebuilding procedures if necessary. 
+where $\hat{B}_{p,t+1}$ is the forecasted spawning biomass in sub-area $p$
+at time $t+1$, $C_{p,t}$ is the total removals (dead fish) in biomass units 
+at time $t$, $\overline{q}_p = 0.8617,~0.8963,~0.7854$ for C/S, JP/S and Lou,
+respectively, are the blended survey catchability coefficients averaged 
+over dive and surface designs and the full OM grid, and $I_{p,t}$ 
+is the blended spawn survey index for area $p$ at time $t$. The forecast model 
+assumes that spawning biomass at time $t+1$ year will be the same as spawning 
+biomass at time $t$. This “naïve” forecast is necessary because, although a 
+spawn index is needed to determine total allowabl catch (TAC), the spawn the 
+survey occurs after fishing in each year. The empirical forecast differs from 
+current practice for BC herring, where the age-structured assessment model 
+makes a 1-year ahead forecast given estimated demographic parameters and 
+assumptions about future recruitment and mortality. Future work may evaluate 
+such model-based rebuilding procedures if desired by the technical working 
+group.
 
 ### Harvest control rules
 
-Two spatial harvest control rule were used to set the annual total 
-allowable catch (TAC) in each area (C\S, JP\S, Lou). The empirical 
-estimate of spawning biomass $\hat{B}_{p,t}$ for each area was used to 
-determine the target harvest rate via two ramped (hockey stick) harvest 
-control rules (Figure \@ref(fig:hcrfig)) with a reference (i.e., target) 
-harvest rate of 10\%, and different lower and upper control points (LCP, 
-UCP) for relative stock status (i.e., $B/B_{0}$):
+A spatial harvest control rule was used to set annual TACs in each area 
+(C/S, JP/S, Lou), where empirical forecasts of spawning biomass
+$\widehat{B}_{p,t+1}$ for each area were determined the target harvest 
+rate via a ramped (hockey stick) harvest control rule (HCR, Figure \@ref(fig:hcrfig)).
+The ramped HCR linearly interpolated target harvest rates $U_{p,t+1}$ 
+between 0\% at a lower control point (LCP) of 30\% of unfished biomass, and a 
+reference target harvest rate of 10\% at the upper control point of 100\% of 
+unfished biomass, labeled as **HS30-100_HR0.1**. Unfished biomass was defined 
+as the operating model posterior mean unfished biomass 
+$\overline{B}_{0,p} = 7.63,~39.18,~3.95$ kt for C/S, JP/S, and Lou, 
+respectively, averaged over the OM grid. The spatial harvest control rule 
+set the total TAC for each area as 
+$TAC_{p,t+1} = U_{p,t+1} \cdot \widehat{B}_{p,t+1}$, 
+which was then allocated between SOK and commercial Seine-Roe fisheries 
+according to the allocation rules defined below. For SOK fisheries, the 
+total biomass of ponded fish required to produce the full TAC of SOK 
+product was estimated using the conversion factor $\psi_{p,t}$.
 
-1. **HS50-60+HR0.1**: $LCP=0.5B_{0}$, $UCP=0.6B_{0}$, Reference Harvest 
-Rate $U = 10\%$
-2. **HS30-100+HR0.1**: $LCP=0.3B_{0}$, $UCP=B_{0}$, Reference Harvest 
-Rate $U = 10\%$
-
-Stock status is calculated as the empirical estimate of spawning 
-biomass $\hat{B}_{p,t+1}$ divided by the average operating model 
-unfished biomass $\bar{B}_{0_{p}}$, equally weighted according to 
-the OM grid.
-
-```{r hcrfig, fig.pos="H", fig.cap = hcrFigCap}
-hcrFigCap <- "Harvest control rule diagram showing the functional 
-relationship between harvest rate and stock status used for setting 
-TACs in each sub-area under different MPs. "
-
-names <- c("HS50-60+HR0.1", "HS30-100+HR0.1")
-
-plotMultiHCR(LCPs=c(.5,.3), UCPs=c(.6,1), hcrNames=names)
-
-
-```
-
-For example, for the **HS30-100+HR0.1** rule when the stock is below the 
-lower control point ($B/B_{0}<0.3B_{0}$) the target harvest rate was set 
-to zero, and when the stock was at or above the upper control point 
-($B/B_{0} \geq B_{0}$) the target harvest rate was set to 10\%. The 
-harvest rate was linearly interpolated between 0\% and 10\% when biomass 
-was between these two control points. The spatial harvest control rule 
-set the total TAC for each area, which was then allocated among SOK and 
-seine roe fisheries according to the allocation rules defined above under 
-each fishery scenario. For SOK fisheries, the total biomass of ponded fish 
-required to produce the full TAC of SOK product was estimated using the 
-conversion factor $\psi_{p,t}$ (TO DO: Insert Table with SISCAH OM 
-notation).
 
 
 ### Allocation rules
@@ -268,7 +316,7 @@ Four different spatial and fishery allocation rules were defined to allow
 different types of fisheries to take place in the C/S, JP/S, and Lou 
 sub-areas. None of the allocation rules allowed commercial fishing in 
 Louscoone. Details of the fishing scenarios and allocation rules for 
-total allowable catch (TAC) used in simulations are as follows:
+total allowable catch used in simulations are as follows:
 
 1.	Closed pond SOK fishery (**cSOK**): A maximum of 10 closed pond 
 licenses were allocated in Haida Gwaii across all 3-sub areas in each 
@@ -304,10 +352,51 @@ allocated to JP/S and the 593 t remaining TAC is allocated to seine roe
 fisheries. Note, however, that, as in 3), the seine roe fishery still 
 requires a minimum $TAC = 300$ t to open.
 
+## Rebuilding performance measures
+
+Stock status indicators were all measured using the true operating 
+model spawning biomass in each sub-area for a given OM scenario 
+(or sum over the three sub-areas for aggregated statistics) and catch 
+over 3 Herring generations (rounded to 15 years) from the first projection 
+year (2020 - 2034) [@dfo2020b]. A HG herring generation was defined as a 
+biomass weighted average of sub-area specific average spawner age 
+[@seber1997a], which was approximately 5 years. As in previous herring 
+MSE analyses, the conservation objective was to maintain greater than 
+75\% probability that total HG spawning biomass remains above a limit 
+reference point (LRP) equal to 30\% of total unfished biomass, i.e.,
+\begin{equation}
+  P\left(\sum_{p=1}^3 B_{p,t} > 0.3\sum_{p=1}^3 B_{0,p} \right) \geq 0.75,
+\end{equation}
+which was approximated by the proportion of projection years (across all 
+replicates) where aggregated spawning biomass exceeded 
+$0.3\sum_{p} B_{0_{p}}$. 
+
+In the absence of a target biomass objective that was achievable under 
+most operating models, or in the projection of 15 years for OMs that had
+high potential biomass levels, the technical working group requested that 
+biomass growth rates be calculated. Biomass growth rates were defined
+as the average percentage growth rate of spawning biomass over the
+interval $t_0,...,t_1$, derived from the exponential growth rate, i.e.,
+\begin{equation}
+\Gamma(t_0,t_1) = exp(\frac{ \log B_{t_1}) - \log B_{t_0} }{ t_1 - t_0 })-1,
+\end{equation}
+where $B_{t} = \sum_p B_{p,t}$ is the aggregate biomass at time $t$, 
+and $t_0$ and $t_1$ are the first and last year, respectively, of the
+interval over which the growth rate is calculated.
+
+Fishery performance statistics included (i) number of years with openings, 
+(ii) number of SOK licenses allowed to operate, (iii) average catch, 
+(iv) average interannual catch variability, and (v) proportion of years 
+where harvest rate exceeds the target. Fishery statistics were calculated 
+for each simulation replicate and then summarized via medians over all 
+100 replicates. Catch and SOK license statistics excluded years with no 
+fishing and therefore expressed median values for years when fisheries 
+were open. The equations for performance statistics 
+
 ## Bridging Analyses
 
 The previous MSE cycle for Haida Gwaii evaluated the performance of 
-candidate MPs over a 15-year projection period (2019-2033), using a 
+candidate RPs over a 15-year projection period (2019-2033), using a 
 density-dependent mortality (DDM) operating model as the reference 
 scenario for simulation testing [e.g. ISCAM DDM; @benson2020a; @dfo2020b]. 
 The DDM scenario assumes future natural mortality rates return to the 
@@ -319,13 +408,13 @@ model $B_0$ to simulate conditions where low spawning biomass may
 lead to serious harm for the stock. To compare the current MSE with 
 the previous MSE cycle, we fit the base SISCAH operating model with 
 (SSICAH 2019) and withouth the 2019 data (SISCAH 2018) and tested 
-modified versions of the SR MP applied for the aggregate area. The 
-aggregate SR MP (**aggSR**) uses the same survey-based assessment method 
+modified versions of the SR RP applied for the aggregate area. The 
+aggregate SR RP (**aggSR**) uses the same survey-based assessment method 
 to forecast stock status and biomass described above, except calculates 
 spawning biomass for the aggregate area, i.e.,:
 
 \begin{equation}
-  \hat{B}_{t+1}=I_{t}/q + C_{t}
+  \widehat{B}_{t+1}=I_{t}/q + C_{t}
 \end{equation}
 
 where $B_{t}$ is the estimated aggregate spawning biomass for Haida 
@@ -333,56 +422,206 @@ Gwaii, $C_{t}$ is the total removals (dead fish) in biomass units,
 $q$ is an average catchability coefficient for the blended index for 
 the operating model used (e.g. SISCAH 2019 and SISCAH 2018)
 
-We tested two versions of the aggSR MP, one with the same 
-**HS50-60+HR0.1** HCR used in the spatial MPs (**aggSR\_50-60HS+0.1HR**),
-(QUESTION: Do we need to show both of these or is the 30-60HS+0.1HR 
-sufficient) and a second using a HCR with a lower control point of 
-30\% (**aggSR\_30-60HS+0.1HR**) of operating model unfished biomass 
-($B_0$) that was used in the previous MSE cycle. In both cases the 
-TAC is allocated among areas in proportion to the spawning index biomass 
+We tested two versions of the aggSR RP, one with the same 
+**HS50-60+HR0.1** HCR used in the spatial RPs (**aggSR\_50-60HS+0.1HR**),
+and a second using a HCR with a lower control point of 
+30\% of aggregated operating model unfished biomass $B_0$
+(**aggSR\_30-60HS+0.1HR**) that was used in the previous MSE cycle. 
+In both cases the TAC is allocated among areas in proportion to the 
+spawning index biomass 
 in each area, i.e.
 \begin{equation}
-	TAC_{p,t+1}=TAC_{t+1}*I_{p,t}/I_{t} 
+	TAC_{p,t+1}=TAC_{t+1} \cdot I_{p,t}/I_{t} 
 \end{equation}
-Results of the bridging analysis are provided in Table 4.
+Results of the bridging analysis are provided in Table 6. Overall,
+the closed loop simulations on the SISCAH operating model are
+more optimistic with respect to conservation performance, which
+is caused by a higher relative depletion at the beginning of the 
+projection period. Higher depletions were caused by a combination
+of disaggregation of catch and survey data into sub-areas, the 
+blended survey index and the delta-log-normal likelihood used
+in the SISCAH OM, and, for the 2019 SISCAH fit, a new spawn survey
+data point which was higher than the 2018 survey index.
 
-## Rebuilding performance measures
 
-Stock status indicators were all measured using the true operating 
-model spawning stock biomass in each sub-area for a given OM scenario 
-(or sum over the three sub-areas for aggregated statistics) and catch 
-over 3 Herring generations from the first projection year (2020). We use 
-the average age in the unfished spawning stock to calculate a herring 
-generation via a weighted average of area-specific generation times 
-[@seber1997a], rounded to 15 years for 3 generations [@dfo2020b]. We 
-used a limited reference point (LRP) objective to maintain greater 
-than 75\% probability that total HG spawning biomass remains above 
-an LRP equal to 30\% of total unfished biomass, i.e.,
+## Rebuilding Procedure performance
 
-\begin{equation}
-  P(\sum B_{p,t} > 0.3\sum_{p} B_{0_{p}}) \geq 0.75
-\end{equation}
-This probability was approximated via the proportion of projection 
-years (across all replicates) where aggregated spawning biomass 
-exceeded $0.3\sum_{p} B_{0_{p}}$. Fishery performance statistics 
-included (i) number of years with openings, (ii) number of SOK licenses 
-allowed to operate, (iii) average catch, (iv) average interannual catch 
-variability, and v) proportion of years where harvest rate exceeds the 
-target. Fishery statistics were calculated for each simulation replicate 
-and then summarized via medians over all 100 replicates. Catch and SOK 
-license statistics excluded years with no fishing and therefore 
-expressed median values for years when fisheries were open. The equations 
-for performance statistics are provided in **Table X (TO DO: add PM 
-equations table) and projection results are shown in Table X (TO DO: add 
-PM Table)**.
+Rebuilding procedure performance metrics are presented averaged across
+the full grid of 72 operating models, and, as requested by the technical
+working group, for the most and least optimistic operating models, 
+where optimism was measured by performance against the conservation
+objective (above) in the absence of fishing. We present only tables 
+showing perfromance metrics for the aggregated HG stock. Additional 
+performance metrics for sub-areas are provided in appendix B.
 
-We present only tables showing perfromance metrics for the aggregated 
-areas with MPs using the HS30-100+HR0.1 HCR. Additional performance 
-metrics for sub-areas are provided in an appendix **(TO DO: Reference 
-Appendix tables here)**
+Rebuilding performance was dominated by operating model dynamics.
+While no rebuilding procedure met the conservation objective when 
+performance was averaged over the full operating model grid (Table 
+\@ref(tab:eqWtdTable)), the range of conservation objective
+performance was quite small. The status-quo No Fishing procedure exceeded 
+the limit reference point in 49.8\% of simulated years and replicates, 
+while the fishing procedures ranged from 49.6\% for open pond SOK 
+fishery (**oSOK_HS30-100_HR0.1**) to 48.3\% for the Seine-Roe fishery 
+(**SR_HS30-100_HR0.1**), all within 3.1\% of the No Fishing conservation 
+objective performance. The small range of conservation performance 
+indicated that operating model dynamics were the main drivers of 
+recovery (or lack thereof), and not the choice of allocation under the 
+empirical forecast or harvest control rule.
 
-## Management procedure performance
+As expected, spawn on kelp (SOK) fisheries had the least impact
+on stock rebuilding out of the four allocation rules, while still allowing
+for greater fishing opportunities than the commercial seine-roe fishery. 
+When averaged over all 72 operating models (Table 
+\@ref(tab:eqWtdTable-FisheryPerf)), the SOK fisheries had between six 
+(**cSOK+SR_HS30-100_HR.1**) and eight (**oSOK_HS30-100_HR.1**) years of 
+openings, out of a possible 15 years (Table 
+\@ref(tab:eqWtdTable-FisheryPerf), $\overline{N}_{SOK}$). In the open-pond 
+fishery, an average of 3.6 licenses ($\overline{L}_{SOK}$) were activated 
+when the fishery was open, landing an average of 26,206 lbs 
+of SOK product per opening ($\overline{K}$). Both of the closed pond SOK 
+allocation rules (**cSOK_HS30-100_HR.1**, **cSOK+SR_HS30-100_HR.1**) 
+activated an average of 2.9 licenses in open years, and landed an average 
+of around 21,000 lbs in those years. Overall, the ponded fish required to 
+achieve the SOK landings had a low chance of exceeding the reference 
+harvest rate of 10\% (Table \@ref(tab:eqWtdTable-FisheryPerf), 
+$P(U_t > 0.1)$), ranging between 0.3\% and 0.9\% in the pure SOK 
+fisheries. Harvest rates that exceeded the reference averaged around
+11.5\% (Table \@ref(tab:eqWtdTable-FisheryPerf), 
+$\mathbb{E}(U_t \vert U_t > 0.1)$). In contrast, the pure seine-roe 
+fishery catch exceeded the reference harvest rate 4.4\% of 
+the time, rising to 4.8\% in the combined **cSOK+SR_HS30-100_HR.1** 
+allocation rule, and the average harvest rate was 16.6\% in years where 
+the target was exceeded for both rules. Despite the higher impact the 
+seine-roe fleets had on the aggregate stock, there were significantly 
+fewer fishing opportunities because of the minimum TAC required for an 
+opening, with an average 0.5 years openings in the mixed 
+**cSOK+SR_HS30-100_HR.1** fishery, to 1.6 openings in the pure 
+seine-roe **SR_HS30-100_HR.1** fishery, both indicating that there
+were several simulation replicates with 0 openings.
 
-Discuss performance metrics results at aggregrate level... to be 
-completed once final  weighting of OM grid (or best-case/worst-case) 
-scenarios are determined.
+Conservation performance in the absence of fishing ranked out almost
+identically to the 2019 stock status for the 18 historical operating 
+models within a fixed $M_t$ projection scenario (Tables 
+\@ref(tab:pessimTable) and \@ref(tab:optimTable)). Operating models with
+higher depletion relative to unfished biomass in 2019 had higher
+probabilities of being above the limit reference point because they had
+lower $B_0$ values, meaning that biomass started closer to or above the
+limit reference point, and was also closer to the point on the 
+stock-recruit curve where, on average, recruitment was at its density 
+dependent maximum. As expected, the most pessimistic cases where operating 
+models perceived a large (high $B_0$) and unproductive (low stock-recruit 
+steepness) stock were unable to rebuild in the 15 year projection under 
+any projection scenario and rebuilding procedure. Further, when future 2+ 
+mortality rates were slow to return to the average level (**rw15**, Table 
+\@ref(tab:pessimTable)), biomass continued to decline for the first part 
+of the projection under the **am1.64_sr0.5_identM** and 
+**am1.64_sr0.5_diffM** historical scenarios because mortality exceeded the 
+low average recruitment associated with the low biomass depletion and 
+stock-recruit steepness early in the projection period.
+
+The major reason that operating model dynamics dominated the rebuilding
+performance was the choice of control points in the harvest control
+rule. Control points were scaled to the OM grid average unfished
+biomass, which was $\overline{B}_{0} = \sum_p \overline{B}_{0,p} = 50.76$ kt 
+when aggregated over the whole HG area, and was higher than the true 
+operating model aggregate unfished biomass for 11 of the 18 historical 
+operating model scenarios. While the lower control point of
+$0.3 \overline{B}_{0} = 15.23$ kt was theoretically achievable under every 
+operating model (i.e., lower than all aggregated historical grid $B_{0}$ 
+values), the average biomass at the end of the projection period for
+all operating models indicated that target harvest rates were likely to be 
+low, despite assessment errors. As the projection went on, target 
+harvest rates continued to be much lower than the reference, on average,
+thanks to absolute biomass much lower than the upper control point; 
+for reference, average 2034 spawning biomass in the absence of
+fishing was at most 21.8 kt for all operating models (Table 
+\@ref(tab:optimTable), **a1M1.25_sr0.8_diffM_rw5**). Future biomass in 
+the more optimistic historical scenarios (**a1Mmean_sr0.8**) was 
+constrained by a low $B_0$ ceiling despite higher average recruitment 
+at low stock sizes. In contrast, biomass in the more pessimistic 
+scenarios (e.g., **a1M1.64_sr0.5**) was constrained by sustained low 
+recruitment associated with low biomass depletion and high natural 
+mortality, despite higher unfished biomass $B_0$. In both cases, true OM 
+biomass was constrained to be either below or only slightly above the 
+lower control point, requiring assessment errors to open fishing in some 
+years. Finally, scenarios in the middle of the 2019 depletion range 
+(e.g., **a1M1.25**) had more room to grow and had higher 
+average recruitments for a given biomass, but biomass was unable to 
+grow fast enough to set TACs targeting the reference harvest rate, 
+largely because of the initial conditions. 
+
+Under the operating model scenario with the best conservation
+performance (best OM) under No Fishing (**a1Mmean_sr0.8_diffM_rw5_loPondM**), 
+there was very little separation between the five rebuilding procedures 
+according to the biomass metrics (Table \@ref(tab:bestOMperfTable)).
+As expected, given the high initial biomass depletion of 48.2\%
+of unfished, and the conservative control points discussed 
+above, the choice of rebuilding procedure had very little effect
+on the expected fishery performance. Probability of being above the
+limit reference point was around 98\%, and all rebuilding procedures
+allowed the stock to grow at an average rate of 9\% - 10\% over the 
+first six years, and about 4.5\5 - 5\% over the entire projection period
+(lower due to density dependence). Finaly biomass $B_{2034}$ was was 
+between 18.3 kt (**SR_HS30-100_HR0.1**) and 19.3 kt (**NoFish**),
+which were all within 5.5\% of the status quo No Fishing procedure.
+Fishery performance metrics also increased relative to the OM grid
+average under the **a1Mmean_sr0.8_diffM_rw5_loPondM**, but because of 
+the conservative control rule, the overall increase in fishery metrics 
+was lower compared to the increase in conservation performance metrics 
+over the grid average (Table \@ref(tab:bestOMperfTable-Fishing)).
+For example, there were 8 - 10 years with SOK openings, on average, 
+which is only 1-2 more years than the overall OM grid average. Similarly,
+the average number of licenses activated in an open year was 4.1 - 4.8,
+which was 1.2 licenses more than the grid average, and landed SOK
+product was 29 t - 35 t, only about 9 t more than
+the grid average. Increases in seine-roe fishery metrics were 
+similarly restrained by the conservative control rule, as well
+as the minimum TAC threshold. While median average catch was much 
+higher, around 1.2 kt for both the mixed (**cSOK+SR_HS30-100_HR0.1**)
+and pure (**SR_HS30-100_HR0.1**) seine-roe fishery, the number of 
+openings was still quite small, with an average of one opening in the 
+mixed fishery, and three openings in the pure seine-roe fishery,
+out of a possible 15. Finally, pure SOK fisheries had a 0.1 - 0.3 \% 
+chance of exceeding the reference harvest rate, with an average
+excessive harvest rate of 11\% - 13\%, similar to the
+grid average. In contrast, the two allocation rules that included seine-roe
+TAC exceeded the reference harvest rate more often than the grid
+average at 6.6\% - 6.8\% of the time, and when they did, the average 
+harvest rate was 16\%, slightly lower than the grid average.
+
+Under the operating model scenario with the worst conservation
+performance (worst OM) under No Fishing (**1M1.64_sr0.5_identM_rw15_loPondM**),
+the biomass metrics were all very similar between rebuilding procedures, 
+similar to the best OM (Table \@ref(tab:worstOMperfTable)). Probability 
+of exceeding the limit reference point was between 0.1\% and 0.2\%, and 
+percentage growth rates were all within 0.2 percentage points, and all
+negative given the high average natural mortality. Likewise, 
+absolute 2034 biomass under each RP was within 3.5\% of the No Fishing 
+procedure, which ended with an average spawning biomass of 7.96 kt.
+Fishery metrics for the worst OM were more similar among RPs than the 
+grid average and the best OM (Table \@ref(tab:worstOMperfTable-Fishing)). 
+The open-pond SOK (**oSOK_HS30-100_HR0.1**) fishery had an average of 3 
+openings, while the two RPs with closed pond fisheries 
+(**cSOK_HS30-100_HR0.1** and **cSOK+SR_HS30-100_HR0.1**) had an average
+of 2 openings. All SOK fisheries activated an average of 1 license
+per opening, landing an average of 7.3 t. Commercial Seine-roe
+fisheries were closed, on average, with a median average catch
+of zero. All fisheries had a small chance of exceeding the reference
+harvest rate of 10\%, ranging from 0.6 \% to 1.5\%, which were both
+smaller and larger chances than the best OM and grid average. In
+years where the harvest rate exceeded the reference, the average
+rates varied between 13\% and 16\%, similar to the grid average and
+best OM.
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,681 @@
+\newpage
+# Tables
+
+```{r SISCAnotation, echo = FALSE, message = FALSE, warnings = FALSE}
+notationTableCap <- "Notation used in the SISCAH OM."
+
+procModelEqnsCap  <- "Process model equations for the SISCAH OM."
+statModelEqnsCap   <- "Data likelihoods, model prior density functions, and the final objective function for the SISCAH OM. $\\mathcal{I}(X)$ is the indicator function that takes value 1 when the statement $X$ is true, and $0$ otherwise."
+# Should we just code in a tibble here??
+
+options(knitr.kable.NA = "")
+
+notationTable <- tibble::tribble( 
+    ~Symbol,           ~Value,           ~Description,
+    "$T$",              "$69$",          "Total number of time steps 1951 - 2019",
+    "$A$",              "$10$",          "Plus group age-class",
+    "$t$",              "$1,2,\\dots,T$","Time step",
+    "$t_{0,p}$",        "$(2,1,9)$",     "Initialisation time step for each sub-area",
+    "$a$",              "$1,2,\\dots,A$","Age-class index",
+    "$P$",              "$3$",           "Total number of sub-areas",
+    "$p$",              "$1,2,3$",       "Indicator of sub-area (C/S, JP/S, Lou)",
+    "$g$",              "$1,2,\\dots,6$","Gear index for (1) Reduction, (2) Seine-Roe, and (3) Gillnet fisheries,",
+    NA, NA,                              "(4) Surface and (5) dive spawn survey indices, and (6) the closed pond SOK fishery.", 
+    "$B_{0,p}$",        NA,              "Unfished spaning stock biomass for sub-area $p$",   
+    "$h_{p}$",          NA,              "Beverton-Holt stock-recruitment steepness for sub-area $p$",
+    "$R_{0,p}$",        NA,              "Unfished equilibrium recruitment",
+    "$R_{init,p}$",     NA,              "Initial recruitment parameter",
+    "$S_{a,p}$",        NA,              "Unfished equilibrium survivorship-at-age",
+    "$\\phi_{0,p}$",    NA,              "Unfished equilibrium spawning biomass per recruit",
+    "$\\beta_1,\\beta_2$","$10, 4.92$",  "Beta prior parameters for steepness",
+    "$\\omega_{p,t}$",  NA,              "Annual recruitment processs error log-deviations",
+    "$\\sigma_{R,p}$",  "$.89$",         "Standard error of $\\omega_{p,t}$ recruitment deviations",
+    "$q_{p,s}$",        NA,              "Catchability coefficient for the surface survey design in sub-area $p$",
+    "$q_{p,d}$",        NA,              "Catchability coefficient for the dive survey design in sub-area $p$",
+    "$q'_{p,t}$",       NA,              "Annual convex-combination of survey catchabilities",
+    "$\\eta_{p,t}$",    NA,              "Proportion of annual spawn survey index that was observed by the surface survey design",
+    "$\\mu^{\\log q}_{p,g}$", NA,        "Prior mean catchability on the log-scale for gear $g$ in sub-area $p$",
+    "$\\tau_{q,p,g}$",  NA,              "Log-normal prior standard deviation on catchability coefficient for gear $g$ in sub-area $p$",
+    "$M_{p,t_{0,p}}$",  NA,              "Initial natural mortality rate for area $p$",
+    "$\\epsilon_{p,t}$",NA,              "Annual log-deviations in natural mortality rate for area $p$",
+    "$\\sigma_{M}$",    "$.1$",          "Standard error in annual natural mortality log-devations for area $p$",
+    "$M_{p,t}$",         NA,             "Annual natural mortality rate for area $p$", 
+    "$w_{a,p,t}$",       NA,             "Annual average weight-at-age observations for area $p$",
+    "$a^{sel}_{p,g,50}$",NA,             "Age-at-50\\% selectivity for gear $g$ in sub-area $p$",
+    "$a^{sel}_{p,g,step}$",  NA,         "Difference between age-at-50\\% and age-at-95\\% selectivity for",
+    NA,                  NA,             "gear $g$ in sub-area $p$",
+    "$a^{sel}_{p,g,95}$",  NA,           "Age-at-95\\% selectivity for gear $g$ in sub-area $p$",
+    "$s_{a,p,g,t}$",     NA,             "Selectivity-at-age $a$ for area $p$ and gear $g$ in year $t$",
+    "$\\delta_g$",       NA,             "Fractional time-step at which catch from gear type $g$ is",
+    NA,NA,                               "removed from the population",
+    "$N_{a,p,t + \\delta_g}$",NA,        "Total numbers-at-age $a$ in area $p$ in year $t$ at fractional time-step $\\delta_g$",
+    "$N_{a,p,g,t + \\delta_g}$",  NA,    "Total numbers-at-age $a$ in area $p$ vulnerable to gear $g$ in ",
+    NA,                  NA,             "year $t$ at fractional time-step $\\delta_g$",
+    "$B_{p,t}$",         NA,             "Spawning biomass of area $p$ in year $t$",
+    "$C_{a,p,g,t}$",     NA,             "Expected catch-at-age $a$ in numbers from area $p$ by gear $g$ in year $t$",
+    "$C'_{a,p,g,t}$",    NA,             "Expected catch-at-age $a$ in biomass units from area $p$ by gear $g$ in year $t$",
+    "$U_{p,g,t}$",       NA,             "Harvest rate of population $p$ by gear $g$ in year $t$",
+    "$K_{p,t}$",         NA,             "Total landed weight of Spawn-on-Kelp product from area $p$ at time $t$",
+    "$P_{p,t}$",         NA,             "Biomass of fish ponded for Spawn-on-Kelp fishery from area $p$ at time $t$",
+    "$\\Psi_{p,t}$",     NA,             "Conversion factor from ponded fish to landed SOK",
+    "$\\mathfrak{F}$",   "$200$",        "Average fecundity of mature, female herring (eggs per gram of spawning biomass)",
+    "$p_{m,p,t}$",       NA,             "Proportion of individuals that are mature in area $p$ at time $t$",
+    "$p_{f,p,t}$",       "$.5$",         "Proportion of individuals that are female in area $p$ at time $t$",
+    "$p_{eff,p,t}$",     "$.35$",        "Proportion of individuals from area $p$ at time $t$ that will spawn in the closed pond",
+    "$\\gamma$",         "$0.0024$",     "Conversion factor from eggs to SOK product",
+    "$I_{p,g,t}$",       NA,             "Observed area $p$ spawn index for survey $g \\in \\{4,5\\}$ at time $t$",
+    "$\\hat{I}_{p,g,t}$",NA,             "Expected area $p$ spawn index for survey $g \\in \\{4,5\\}$ at time $t$",
+    "$\\tau_{p}$",       "$0.5$",        "Standard deviation of spawn index observation log-residuals",
+    "$u_{a,p,g,t}$",     NA,             "Observed composition data for age $a$ in area $p$ by gear $g$ at time $t$",
+    "$\\hat{u}_{a,p,g,t}$",NA,           "Expected composition data for age $a$ in area $p$ by gear $g$ at time $t$",
+    "$\\mathfrak{B}_{p,g,t}$",NA,         "Total number of age classes with age observations above 2\\% of the total sample size in year $t$",
+    "$\\tau^{age}_{p,g}$",NA,            "Conditional MLE of age composition sampling error",
+    "$\\mu_{M_0}$",      NA,             "Population mean initial natural mortality",
+    "$\\epsilon_{M,p}$", NA,             "log-deviation of $M_{p,t_{0,p}}$ from $\\mu_{M_0}$", 
+    "$\\mu_{a^{sel}_{g,50}}$", NA,       "Population mean age-at-50\\% selectivity for gear $g$",
+    "$\\epsilon_{a^{sel}_{p,g,50}}$",NA, "log-deviation of $s^{50}_p$ from $\\mu_{s^{50},g}$", 
+    "$\\mu_{a^{sel}_{g,Step}}$",NA,      "Population mean step from age-at-50\\% to age-at-95\\% selectivity for gear $g$",
+    "$\\epsilon_{a^{sel}_{p,g,Step}}$",NA,"log-deviation of $s^{Step}_p$ from $\\mu_{s^{Step},g}$", 
+    "$\\rho_g$",         NA,             "Correlation-at-lag-1 coefficient for age composition residuals",
+    "$\\mathfrak{C}$",   NA,             "Lag-1 correlation matrix for age composition residuals",
+    "$\\mathfrak{K}$",   NA,             "Dimension transformation matrix for age composition logistic normal likelihood",
+    "$\\iota_{p,g,t}$",  NA,             "Centred logistic normal age-composition log-residuals for sub-are $p$, gear $g$ at time step $t$",
+
+)
+
+
+csasdown::csas_table( notationTable  , escape = FALSE,
+                      booktabs = TRUE, font_size = 10,
+                      format = kable_format,
+                      linesep = "\\addlinespace",
+                      caption = notationTableCap,
+                      align = c("c","c","l")) %>%
+  kable_styling(  latex_options = c("hold_position", "scale_down"),
+                  bootstrap_options = c( "hover","scale_down"))
+
+
+```
+
+\clearpage
+
+```{r SISCAprocModelEqns, echo = FALSE, messages = FALSE, warnings = FALSE}
+
+procModelEqns  <- read.csv("data/procModelEqns.csv", header = TRUE, stringsAsFactors = FALSE)
+
+colnames(procModelEqns) <- c("No.", "Equation")
+
+csasdown::csas_table( procModelEqns, escape = FALSE,
+                      booktabs = TRUE, font_size = 10,
+                      format = kable_format,
+                      linesep = "\\addlinespace",
+                      caption = procModelEqnsCap,
+                      align = c("c","l")) %>%
+  kable_styling(latex_options = c( "hold_position","scale_down"),
+                bootstrap_options = c("striped", "hover")) %>%
+  kableExtra::group_rows("Model Parameters", 1, 5 ) %>%
+  kableExtra::group_rows("Unfished Equilibrium States", 6, 10 ) %>%
+  kableExtra::group_rows("Non-equilibrium Initial States", 11, 13 ) %>%
+  kableExtra::group_rows("Catch from discrete fisheries", 14, 22 ) %>%
+  kableExtra::group_rows("Mixed stock catch and catch-at-age", 23, 24 ) %>%
+  kableExtra::group_rows("Spawn-on-Kelp", 25, 30 ) %>%
+  kableExtra::group_rows("Spawning Biomass, Recruitment, and Numbers-at-age", 31, 33 )
+  
+
+
+```
+
+\clearpage
+
+
+```{r SISCAstatModelEqns, echo = FALSE, messages = FALSE, warnings = FALSE}
+
+# statModelEqns  <- read.csv("data/statModelEqns.csv", header = TRUE, stringsAsFactors = FALSE)
+
+statModelEqns <- tibble::tribble( 
+
+  ~No.,        ~ModelEquation,
+  # Observation model equations
+  # Expected spawn indices
+  "(O.1)",      "$\\displaystyle \\hat{I}_{p,t}   = q'_{p,t} \\cdot B_{p,t} \\cdot \\mathcal{P}_{p,t}$",
+  # Expected age comps
+  "(O.2)",      "$\\displaystyle \\hat{u}_{a,p,g,t} = \\frac{ C_{a,p,g,t} } { \\sum_{a'} C_{a',p,g,t}}$",
+
+  # Now calculate biomass observation resids
+  "(L.1)",      "$\\displaystyle z_{p,t} = \\log \\frac{ I_{p,t} }{ \\hat{I}_{p,t} }$",
+  "(L.2)",      "$\\displaystyle q'_{p,t} = \\eta_{p,t} q_{p,4} + (1 - \\eta_{p,t}) q_{p,5}$",
+  "(L.3)",      "$\\displaystyle n_{p} = \\sum_{t = t_{0,p}}^T \\mathcal{I} (I_{p,t} > 0)$",
+  "(L.4)",      "$\\displaystyle Z_{p} = \\frac{1}{\sqrt{2\\pi\tau^2_{p}}} \\sum_{t = t_{0,p}}^T \\mathcal{I} (I_{p,t} > 0) z_{p,t}^2 $",
+  "(L.5)",      "$\\displaystyle d_p = \\sum_t \\left( \\mathcal{I}(I_{p,t} > 0) \\log( \\mathcal{P}_{p,t}) + \\mathcal{I}(I_{p,t} = 0) \\log( 1 - \\mathcal{P}_{p,t}) \\right)$",
+  "(L.6)",      "$\\displaystyle l_{1} = \\frac12 \\sum_{p = 1}^3 \\left( n_{p} \\cdot \\log \\tau_{p}^2 +  Z_{p} + d_p  \\right) $",
+
+  # Age composition likelihood
+  "(A.1)",      "$\\displaystyle \\mathfrak{C}_g = \\left[ \\rho_g^{j - i} \\right]_{i,j}$",
+  "(A.2)",      "$\\displaystyle \\mathfrak{K} = \\left[ I_{A-1} \\vert 1 \\right]$",
+  "(A.3)",      "$\\displaystyle V_g = \\mathfrak{K} \\cdot C_g \\cdot \\mathfrak{K}^T$",
+  "(A.4)",      "$\\displaystyle W_{p,g,t} = \\frac{ \\mbox{mean} ( {n^{Age}_{p,g,t}} ) }{ n^{Age}_{p,g,t} }$",
+  "(A.5)",      "$\\displaystyle \\mathfrak{B}_{p,g,t} = \\sum_{a = 1}^A \\mathcal{I}( u_{a,p,g,t} > 0.02)$",
+  "(A.6)",      "$\\displaystyle \\vec {\\iota}_{p,g,t} = \\langle log(u_{a,p,g,t} / u_{\\mathfrak{B}_{p,g,t},p,g,t}) - log(\\hat{u}_{a,p,g,t}/\\hat{u}_{\\mathfrak{B}_{p,g,t},p,g,t} \\rangle_a$",
+  "(A.7)",      "$\\displaystyle \\hat{\\tau}^{age}_{p,g} = \\left( \\frac{ \\sum_{t} \\frac{1}{W_{p,g,t}^2}(\\vec{\\iota}_{p,g,t})^T \\cdot V_g^{-1} \\cdot \\vec{\\iota}_{p,g,t}}{\\sum_{t} \\mathfrak{B}_{p,g,t} } \\right)^{0.5}$",
+  "(A.8)",      "$\\displaystyle l_{2} = \\sum_{p,g} \\left( \\sum_{a,t} \\log u_{a,p,g,t} + \\log \\hat{\\tau}^{age}_{p,g} \\sum_{t} (\\mathfrak{B}_{p,g,t} - 1) + \\frac12 \\sum_t \\log \\vert V_g \\vert + \\sum_{t} (\\mathfrak{B}_{p,g,t} - 1)\\log W_{p,g,t} \\right)$",
+
+  # Process error priors
+  "(P.1)",      "$\\displaystyle p_{1} = \\sum_{p,t} \\omega_{p,t}^2$",
+  "(P.2)",      "$\\displaystyle p_{2} = \\sum_{a,p} \\left(\\omega^{init}_{a,p}\\right)^2$",
+  "(P.3)",      "$\\displaystyle p_{3} = \\sum_{p,t} \\epsilon_{p,t}^2$",
+  
+  # Shrinkage priors
+  "(P.4)",      "$\\displaystyle p_{4} = \\left( \\sum_{p} \\epsilon_{M,p}^2 \\right) + \\frac{1}{2 s_M^2} (\\log M_0 - \\log m_M )^2$",
+  "(P.5)",      "$\\displaystyle p_{5} = \\sum_g \\left( \\left( \\sum_{p} \\epsilon_{s,50,p,g}^2 + \\epsilon_{s,Step,p,g}^2 \\right) + \\frac{1}{2 (s_g^{s^{50}})^2} (\\log s^{50}_g - \\log( m_g^{ s^{50} }) )^2 + \\frac{1}{2 (s_g^{s^{Step}})^2} (\\log s^{Step}_g - \\log( m_g^{ s^{Step} }) )^2 \\right) $",
+
+  # Other priors
+  "(P.6)",      "$\\displaystyle Catchability priors$",
+  "(P.7)",      "$\\displaystyle Corr Coeff $",
+  "(P.8)",      "$\\displaystyle logisticRegressionPars $",
+
+  # Objective function
+  "(F.1)",      "$f = l_1 + l_2  + p_1 + p_2 + p_3 + p_4 + p_5 + p_6 + p_7 + p_8$",
+)
+
+colnames(statModelEqns) <- c("No.", "Equation")
+
+csasdown::csas_table( statModelEqns, escape = FALSE,
+                      booktabs = TRUE, font_size = 10,
+                      format = kable_format,
+                      linesep = "\\addlinespace",
+                      caption = statModelEqnsCap,
+                      align = c("c","l")) %>%
+  kable_styling(latex_options = c( "hold_position","scale_down"),
+                bootstrap_options = c("striped", "hover"))  %>%
+  kableExtra::group_rows("Observation model", 1, 2 ) %>%
+  kableExtra::group_rows("Spawn index data likelihood", 3, 8 ) %>%
+  kableExtra::group_rows("Age composition data likelihood", 9, 16 ) %>%
+  kableExtra::group_rows("Process error prior density functions", 17, 19 ) %>%
+  kableExtra::group_rows("Hierarchical shrinkage prior density functions", 20, 21 ) %>%
+  kableExtra::group_rows("Priors on other parameters", 22, 24 ) %>%
+  kableExtra::group_rows("Objective function (negative posterior density)", 25, 25 )
+
+
+
+
+
+```
+
+\clearpage
+
+
+
+```{r readPerfTab, echo = FALSE, include = FALSE}
+perfTable <- read.csv("./data/fullStatTable_avgCtlPts.csv", stringsAsFactors = FALSE) %>%
+              filter( stock == "aggregate" ) %>%
+              select( scenario,
+                      mp,
+                      pBtGt.3B0, 
+                      pBtGt.5B0,
+                      nYrsSOK,
+                      avgLicSOK,
+                      "avgSOK\\_t" = avgSOK_t,
+                      "avgPonded\\_t" = avgPonded_t,
+                      pondAAV,
+                      nYrsComm,
+                      "avgCatch\\_t" = avgCatch_t,
+                      catchAAV,
+                      pUtGt.1HR,
+                      avgUtGt0.1HR,
+                      growthRate6yrs,
+                      growthRate11yrs,
+                      growthRate16yrs,
+                      B0,
+                      BhistT,
+                      DhistT,
+                      BtMP,
+                      DtMP,
+                      BnT,
+                      DnT) 
+
+
+MPorder <- c( "NoFish",
+              "oSOK_HS30-100_HR0.1",
+              "cSOK_HS30-100_HR0.1",
+              "cSOK+SR_HS30-100_HR0.1",
+              "SR_HS30-100_HR0.1")
+```
+
+```{r omGridTable, echo = FALSE }
+
+remString <- function( x, pattern )
+{
+  newX <- stringr::str_split(string = x, pattern = pattern )[[1]][1]
+
+  newX
+}
+# Replace all underscores with \\_
+replaceString <- function( string, pattern= "_", replacement = "\\\\_" )
+{
+  string <- gsub(pattern,replacement,string)
+
+  string
+}
+
+dataLikeTable <- read.csv( "./data/ModelDataLikelihoods.csv", 
+                            stringsAsFactors = FALSE) %>%
+                  select( scenario = scenName,
+                          dataLike = totLike )
+
+histOMs <- perfTable %>%
+            filter( mp == "NoFish", 
+                    grepl(pattern = "rw15_hiPondM", x = scenario) ) %>%
+            select( scenario,
+                    B0,
+                    BhistT,
+                    DhistT ) %>%
+            arrange( DhistT, by = "scenario" ) %>%
+            mutate( scenario = sapply( X =scenario, 
+                                       FUN = remString,
+                                       pattern = "_rw15_hiPondM") ) %>%
+            left_join( dataLikeTable ) %>%
+            mutate( dataLike = round(dataLike - min(dataLike),2),
+                    scenario = sapply( X = scenario,
+                                        FUN = replaceString,
+                                        pattern = "_",
+                                        replacement = "\\\\_") )
+
+colnames(histOMs) <- c( "Scenario",
+                        "$B_0$",
+                        "$B_{2019}$",
+                        "$B_{2019}/B_0$",
+                        "$\\Delta( -\\log \\mathcal{L} )$")
+
+write.csv(histOMs, file = "./data/histOMs.csv")
+
+histOMtabCap <- "The full grid of 18 historical operating model
+scenarios, showing unfished biomass ($B_0$), 2019 biomass ($B_{2019}$)
+and 2019 biomass depletion ($B_{2019}/B_{0}$) - all for the aggregated 
+HG stock - and negative log likelihood differences 
+($\\Delta(-\\log\\mathcal{L})$) from the OM scenario with the minimum
+negative log likelihood. Historical OM scenarios area rranged in 
+ascending order of 2019 biomass depletion relative to unfished."
+
+csasdown::csas_table( histOMs,
+                      caption = histOMtabCap,
+                      booktabs = TRUE, escape = FALSE,
+                      landscape = FALSE,
+                      font_size = 12, format = kable_format,
+                      align = c("l","c","c","c","c") ) %>%
+    kable_styling(  latex_options = c("hold_position", "scale_down"),
+                    bootstrap_options = c("striped", "hover","scale_down"))
+
+```
+
+\newpage
+
+\blandscape
+
+```{r eqWtdTable, echo = FALSE }
+
+
+# Get best/worst OMs for later
+noFish_allOMs <- perfTable %>%
+                  filter( mp == "NoFish" ) %>%
+                  arrange( desc(pBtGt.3B0) )
+
+bestOM <- noFish_allOMs$scenario[1]
+printBestOM <- gsub(pattern = "_", replacement = "\\\\_", x = bestOM)
+worstOM <- noFish_allOMs$scenario[72]
+printWorstOM <- gsub(pattern = "_", replacement = "\\\\_", x = worstOM)
+
+
+
+eqWtd_perfTableFull <- perfTable %>%
+                        group_by( mp ) %>%
+                        summarise_if( is.numeric, mean, na.rm = T ) %>%
+                        mutate_if(is.numeric, round, 3) %>%
+                        arrange( match(mp,MPorder) ) %>%
+                        mutate( mp = sapply(  X = mp, FUN = replaceString,
+                                              pattern = "_",
+                                              replacement = "\\\\_") ) 
+eqWtd_perfTable_Biomass <- eqWtd_perfTableFull %>%
+                            select( RP = mp,
+                                    "$P(B_t \\geq .3B_0)$" = pBtGt.3B0, 
+                                    "$P(B_t \\geq .5B_0)$" = pBtGt.5B0, 
+                                    "$\\Gamma(2019,2024)$" = growthRate6yrs,
+                                    "$\\Gamma(2019,2029)$" = growthRate11yrs,
+                                    "$\\Gamma(2019,2034)$" = growthRate16yrs,
+                                    "$B_{2034}$" = BnT)
+
+
+write.csv(eqWtd_perfTable_Biomass, file = "./data/eqWtd_Bio.csv")
+
+eqWtdTabCap <- "RP performance with respect to biomass metrics, averaged 
+over the full grid of 72 operating models assuming an equal weighting. RPs 
+are ordered by performance with respect to the conservation Objective 
+1, i.e. $P(B_t \\geq 0.3 B_0)$."
+
+csasdown::csas_table( eqWtd_perfTable_Biomass,
+                      caption = eqWtdTabCap,
+                      booktabs = TRUE, escape = FALSE,
+                      landscape = FALSE,
+                      align = c("l",rep("c",6)),
+                      font_size = 8, format = kable_format ) %>%
+    kable_styling(  latex_options = c("hold_position", "scale_down"),
+                    bootstrap_options = c("striped", "hover","scale_down"))
+
+```
+
+
+```{r eqWtdTable-FisheryPerf, echo = FALSE}
+
+eqWtd_perfTable_Fishing <- eqWtd_perfTableFull %>%
+                            select( RP = mp,
+                                    "$N_{SOK}$"   = nYrsSOK,
+                                    "$\\bar{L}_{SOK}$" = avgLicSOK,
+                                    "$\\bar{K}$"   = "avgSOK\\_t",
+                                    "$\\bar{P}$"   = "avgPonded\\_t",
+                                    "$AAV(P_t)$"  = pondAAV,
+                                    "$N_{SR}$"    = nYrsComm,
+                                    "$\\bar{C}$"   = "avgCatch\\_t",
+                                    "$AAV(C_t)$"  = catchAAV,
+                                    "$P(U_t > .1)$"   = pUtGt.1HR,
+                                    "$\\mathbb{E}(U_t \\vert U_t > .1)$" = avgUtGt0.1HR )
+
+
+eqWtdTabCap <- "RP performance with respect to fishery metrics, 
+averaged over the full grid of 72 operating models assuming an 
+equal weighting. RPs are ordered by performance with respect to 
+the conservation Objective 1, i.e. $P(B_t \\geq 0.3 B_0)$."
+
+write.csv(eqWtd_perfTable_Fishing, file = "./data/eqWtd_Fishing.csv")
+
+csasdown::csas_table( eqWtd_perfTable_Fishing,
+                      caption = eqWtdTabCap,
+                      booktabs = TRUE, escape = FALSE,
+                      landscape = FALSE,
+                      align = c("l",rep("c",10)),
+                      font_size = 8, format = kable_format ) %>%
+    kable_styling(  latex_options = c("hold_position", "scale_down"),
+                    bootstrap_options = c("striped", "hover","scale_down"))
+
+```
+
+\newpage
+
+```{r pessimTable, echo = FALSE }
+
+
+pessimMtab <- perfTable %>%
+                  filter( mp == "NoFish", 
+                          grepl(pattern = "rw15_hiPondM", x = scenario) ) %>%
+                  select( Scenario = scenario,
+                          pBtGt.3B0, 
+                          pBtGt.5B0,
+                          growthRate6yrs,
+                          growthRate11yrs,
+                          growthRate16yrs,
+                          B0,
+                          BhistT,
+                          DhistT,
+                          BnT,
+                          DnT) %>%
+                  arrange( pBtGt.3B0 ) %>%
+                  mutate( Scenario = sapply( X =Scenario, 
+                                       FUN = remString,
+                                       pattern = "_hiPondM"),
+                          Scenario = sapply( X = Scenario,
+                                              FUN = replaceString,
+                                              pattern = "_",
+                                              replacement = "\\\\_")) %>%
+                  rename( "$P(B_t \\geq .3B_0)$" = pBtGt.3B0, 
+                          "$P(B_t \\geq .5B_0)$" = pBtGt.5B0,
+                          "$\\Gamma(2019,2024)$" = growthRate6yrs,
+                          "$\\Gamma(2019,2029)$" = growthRate11yrs,
+                          "$\\Gamma(2019,2034)$" = growthRate16yrs,
+                          "$B_0$" = B0,
+                          "$B_{2019}$" = BhistT,
+                          "$B_{2019}/B_0$" = DhistT,
+                          "$B_{2034}$" = BnT,
+                          "$B_{2034}/B_0$" = DnT  )
+
+
+
+
+pessimTabCap <- "Summaries of historical operating model dynamics in the 
+absence of fishing under the most pessimistic future $M$ trend scenario 
+\\textbf{rw15}. Operating models are arranged by performance with respect 
+to the conservation Objective 1, i.e. $P(B_t \\geq 0.3 B_0)$."
+
+write.csv(pessimMtab, file = "./data/pessimMtab.csv")
+
+csasdown::csas_table( pessimMtab,
+                      caption = pessimTabCap,
+                      booktabs = TRUE, escape = FALSE,
+                      landscape = FALSE,
+                      align = c("l",rep("c",10)),
+                      font_size = 8, format = kable_format ) %>%
+    kable_styling(  latex_options = c("hold_position", "scale_down"),
+                    bootstrap_options = c("striped", "hover","scale_down"))
+
+```
+
+\newpage
+
+```{r optimTable, echo = FALSE }
+
+
+optimMtab <- perfTable %>%
+                  filter( mp == "NoFish",
+                          grepl(pattern = "rw5_loPondM", x = scenario) ) %>%
+                  select( scenario,
+                          pBtGt.3B0, 
+                          pBtGt.5B0,
+                          growthRate6yrs,
+                          growthRate11yrs,
+                          growthRate16yrs,
+                          B0,
+                          BhistT,
+                          DhistT,
+                          BnT,
+                          DnT) %>%
+                  arrange( pBtGt.3B0 ) %>%
+                  mutate( scenario = sapply(  X = scenario, 
+                                              FUN = remString,
+                                              pattern = "_loPondM"),
+                          scenario = sapply( X = scenario,
+                                              FUN = replaceString,
+                                              pattern = "_",
+                                              replacement = "\\\\_")) %>%
+                  rename( Scenario = scenario,
+                          "$P(B_t \\geq .3B_0)$" = pBtGt.3B0, 
+                          "$P(B_t \\geq .5B_0)$" = pBtGt.5B0,
+                          "$\\Gamma(2019,2024)$" = growthRate6yrs,
+                          "$\\Gamma(2019,2029)$" = growthRate11yrs,
+                          "$\\Gamma(2019,2034)$" = growthRate16yrs,
+                          "$B_0$" = B0,
+                          "$B_{2019}$" = BhistT,
+                          "$B_{2019}/B_0$" = DhistT,
+                          "$B_{2034}$" = BnT,
+                          "$B_{2034}/B_0$" = DnT  )
+
+
+write.csv(optimMtab, file = "./data/optimMtab.csv")
+
+optimTabCap <- "Summaries of historical operating model dynamics in the 
+absence of fishing under the most optimistic future $M$ trend scenario
+\\textbf{rw5}. Operating models are arranged by performance with respect 
+to the conservation Objective 1, i.e. $P(B_t \\geq 0.3 B_0)$."
+
+csasdown::csas_table( optimMtab,
+                      caption = optimTabCap,
+                      booktabs = TRUE, escape = FALSE,
+                      landscape = FALSE,
+                      align = c("l",rep("c",10)),
+                      font_size = 8, format = kable_format ) %>%
+    kable_styling(  latex_options = c("hold_position", "scale_down"),
+                    bootstrap_options = c("striped", "hover","scale_down"))
+
+```
+
+
+\newpage
+
+
+```{r bestOMperfTable, echo = FALSE }
+
+
+bestOM_perfTable <- perfTable %>%
+                    filter( scenario == bestOM ) %>%
+                    arrange( match(mp,MPorder) ) %>%
+                    mutate( scenario = NULL,
+                            mp = sapply(  X = mp, FUN = replaceString,
+                                          pattern = "_",
+                                          replacement = "\\\\_") )
+
+
+bestOM_perfTable_Biomass <- bestOM_perfTable %>%
+                              select( RP = mp,
+                                    "$P(B_t \\geq .3B_0)$" = pBtGt.3B0, 
+                                    "$P(B_t \\geq .5B_0)$" = pBtGt.5B0, 
+                                    "$\\Gamma(2019,2024)$" = growthRate6yrs,
+                                    "$\\Gamma(2019,2029)$" = growthRate11yrs,
+                                    "$\\Gamma(2019,2034)$" = growthRate16yrs,
+                                    "$B_{2034}$" = BnT )
+
+
+write.csv(bestOM_perfTable_Biomass, file = "./data/bestOM_bio.csv")
+
+bestOMTabCap <- paste("Rebuilding procedure performance with respect
+to biomass metrics under the", printBestOM, "operating model with scenario, 
+which had the best conservation performance in the absence of fishing. RPs are ordered 
+by performance with respect to the conservation Objective 1, i.e. 
+$P(B_t \\geq 0.3 B_0)$.")
+
+csasdown::csas_table( bestOM_perfTable_Biomass,
+                      caption = bestOMTabCap,
+                      booktabs = TRUE, escape = FALSE,
+                      landscape = FALSE,
+                      align = c("l",rep("c",6)),
+                      font_size = 8, format = kable_format ) %>%
+    kable_styling(  latex_options = c("hold_position", "scale_down"),
+                    bootstrap_options = c("striped", "hover","scale_down"))
+
+```
+
+
+```{r bestOMperfTable-Fishing, echo = FALSE }
+
+
+bestOM_perfTable_Fishing <- bestOM_perfTable %>%
+                              select( RP = mp,
+                                      "$N_{SOK}$"   = nYrsSOK,
+                                      "$\\bar{L}_{SOK}$" = avgLicSOK,
+                                      "$\\bar{K}$"   = "avgSOK\\_t",
+                                      "$\\bar{P}$"   = "avgPonded\\_t",
+                                      "$AAV(P_t)$"  = pondAAV,
+                                      "$N_{SR}$"    = nYrsComm,
+                                      "$\\bar{C}$"   = "avgCatch\\_t",
+                                      "$AAV(C_t)$"  = catchAAV,
+                                      "$P(U_t > .1)$"   = pUtGt.1HR,
+                                      "$\\mathbb{E}(U_t \\vert U_t > .1)$" = avgUtGt0.1HR )
+
+
+write.csv(bestOM_perfTable_Fishing, file = "./data/bestOM_fishing.csv")
+
+bestOMTabCap <- paste("Rebuilding procedure performance with respect
+to fishery metrics under the", printBestOM, "operating model with scenario, 
+which had the best conservation performance in the absence of fishing. RPs are ordered 
+by performance with respect to the conservation Objective 1, i.e. 
+$P(B_t \\geq 0.3 B_0)$.")
+
+csasdown::csas_table( bestOM_perfTable_Fishing,
+                      caption = bestOMTabCap,
+                      booktabs = TRUE, escape = FALSE,
+                      landscape = FALSE,
+                      align = c("l",rep("c",10)),
+                      font_size = 8, format = kable_format ) %>%
+    kable_styling(  latex_options = c("hold_position", "scale_down"),
+                    bootstrap_options = c("striped", "hover","scale_down"))
+
+```
+
+\newpage
+
+```{r worstOMperfTable, echo = FALSE }
+
+
+worstOM_perfTable <- perfTable %>%
+                    filter( scenario == worstOM ) %>%
+                    arrange( match(mp,MPorder) ) %>%
+                    mutate( scenario = NULL,
+                            mp = sapply(  X = mp, FUN = replaceString,
+                                          pattern = "_",
+                                          replacement = "\\\\_") )
+
+
+worstOM_perfTable_Biomass <- worstOM_perfTable %>%
+                              select( RP = mp,
+                                    "$P(B_t \\geq .3B_0)$" = pBtGt.3B0, 
+                                    "$P(B_t \\geq .5B_0)$" = pBtGt.5B0, 
+                                    "$\\Gamma(2019,2024)$" = growthRate6yrs,
+                                    "$\\Gamma(2019,2029)$" = growthRate11yrs,
+                                    "$\\Gamma(2019,2034)$" = growthRate16yrs,
+                                    "$B_{2034}$" = BnT)
+
+
+
+write.csv(worstOM_perfTable_Biomass, file = "./data/worstOM_bio.csv")
+
+worstOMTabCap <- paste("Rebuilding procedure performance with respect
+to biomass metrics under the", printWorstOM, "operating model with scenario, 
+which had the worst conservation performance in the absence of fishing. RPs are ordered 
+by performance with respect to the conservation Objective 1, i.e. 
+$P(B_t \\geq 0.3 B_0)$.")
+
+csasdown::csas_table( worstOM_perfTable_Biomass,
+                      caption = worstOMTabCap,
+                      booktabs = TRUE, escape = FALSE,
+                      landscape = FALSE,
+                      align = c("l",rep("c",6)),
+                      font_size = 8, format = kable_format ) %>%
+    kable_styling(  latex_options = c("hold_position", "scale_down"),
+                    bootstrap_options = c("striped", "hover","scale_down"))
+
+```
+
+
+```{r worstOMperfTable-Fishing, echo = FALSE }
+
+
+worstOM_perfTable_Fishing <- worstOM_perfTable %>%
+                              select( RP = mp,
+                                      "$N_{SOK}$"   = nYrsSOK,
+                                      "$\\bar{L}_{SOK}$" = avgLicSOK,
+                                      "$\\bar{K}$"   = "avgSOK\\_t",
+                                      "$\\bar{P}$"   = "avgPonded\\_t",
+                                      "$AAV(P_t)$"  = pondAAV,
+                                      "$N_{SR}$"    = nYrsComm,
+                                      "$\\bar{C}$"   = "avgCatch\\_t",
+                                      "$AAV(C_t)$"  = catchAAV,
+                                      "$P(U_t > .1)$"   = pUtGt.1HR,
+                                      "$\\mathbb{E}(U_t \\vert U_t > .1)$" = avgUtGt0.1HR )
+
+write.csv(worstOM_perfTable_Fishing, file = "./data/worstOM_fishing.csv")
+
+worstOMTabCap <- paste("Rebuilding procedure performance with respect
+to fishery metrics under the", printWorstOM, "operating model with scenario, 
+which had the worst conservation performance in the absence of fishing. RPs are ordered 
+by performance with respect to the conservation Objective 1, i.e. 
+$P(B_t \\geq 0.3 B_0)$.")
+
+csasdown::csas_table( worstOM_perfTable_Fishing,
+                      caption = worstOMTabCap,
+                      booktabs = TRUE, escape = FALSE,
+                      landscape = FALSE,
+                      align = c("l",rep("c",10)),
+                      font_size = 8, format = kable_format ) %>%
+    kable_styling(  latex_options = c("hold_position", "scale_down"),
+                    bootstrap_options = c("striped", "hover","scale_down"))
+
+```
+
+
+\elandscape
+
+

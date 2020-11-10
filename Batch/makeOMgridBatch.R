@@ -4,7 +4,7 @@ areaM   <- c("identMDevs","diffMDevs")
 rw      <- c(15,5)
 PondM   <- c("lo","hi")
 
-histFolderNames <- paste("fit_parBatHGherringGrid",1:16,sep = "")
+histFolderNames <- paste("fit_parBatHGherringMCMC",1:18,sep = "")
 
 outFile <- "HGherringGrid.bch"
 
@@ -69,7 +69,7 @@ for( k in 1:nrow(omGrid))
         sep = "", append = T, file = outFile )
   cat(  "scenario$scenario", k, "$opMod$histFile '", histOMLabel, "'\n", 
         sep = "", append = T, file = outFile )
-  cat(  "scenario$scenario", k, "$opMod$projMtrend ", rwLevel, "\n", 
+  cat(  "scenario$scenario", k, "$opMod$projMtrendT ", rwLevel, "\n", 
         sep = "", append = T, file = outFile )
   cat(  "scenario$scenario", k, "$opMod$projMtype '", projMtype, "'\n", 
         sep = "", append = T, file = outFile )

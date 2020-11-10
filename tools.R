@@ -10,6 +10,23 @@
 #
 # <><><><><><><><><><><><><><><><><><><><><><><><><><><>
 
+# pullHistDataLikelihood()
+pullHistDataLikelihood <- function( histFolder = "fit_parBatHGherringMCMC1")
+{
+  # Load hist file
+  repList  <- .loadFit( histFolder )
+
+
+  totLikelihood <- mean(repList$posts$totLike)
+
+  out.df <- data.frame( histFolder = histFolder, totLike = totLikelihood )
+
+  out.df
+} # END pullHistDataLikelihood
+
+
+
+
 # .saveBlob()
 # Saves the blob to a sim folder
 .saveBlob <- function( blob, ctlTable, outFolder )
