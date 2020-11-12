@@ -11,6 +11,188 @@
 #
 # <><><><><><><><><><><><><><><><><><><><><><><><><><><>
 
+dynEqbriaTab <- function( groupFolder = "omni_econYield_constE_Nov6",
+                          mpFilter = "freeEff",
+                          scenOrder = c("noCorr","corrRecDevs","corrPriceDevs","corrRecPrice"))
+{
+  # First, read info files from the relevant
+  # sims
+  simFolderList <- list.dirs( here::here("Outputs",groupFolder),
+                              recursive = FALSE, full.names = FALSE)
+
+  info.df <-  readBatchInfo( batchDir = here::here("Outputs",groupFolder) ) %>%
+                filter( grepl( mpFilter, mp ) ) %>%
+                arrange(scenario,mp)
+
+  scenLabels <- unique(info.df$scenario)
+
+
+  # Read in the modelStates we extracted
+  nModels <- nrow(info.df)
+  modelList <- vector(mode = "list", length = nModels)
+  names(modelList) <- info.df$simLabel
+  for( k in 1:nModels )
+  {
+    simLabel <- info.df$simLabel[k]
+    modelStatePath <- here::here("Outputs",groupFolder,simLabel,paste(simLabel,"_modelStates.RData",sep=""))
+    load(modelStatePath)
+
+    modelList[[k]] <- outList
+
+  }
+  outList <- NULL
+
+  # Get reference points
+  rp <- modelList[[1]]$rp
+  nS <- modelList[[1]]$nS
+  nP <- modelList[[1]]$nP
+  nT <- modelList[[1]]$nT
+  nF <- modelList[[1]]$nF
+
+  speciesNames <- modelList[[1]]$speciesNames
+  stockNames <- modelList[[1]]$stockNames
+
+  objFuns <- c("totCat","totProfit")
+
+  egHeaders <- expand.grid(scen = scenOrder,objFun = objFuns) %>%
+                mutate_all(as.character) %>%
+                arrange(match(scen, scenOrder))
+
+  colHeaders <- apply(X = egHeaders, FUN = paste, collapse = ".", MARGIN = 1)
+
+
+  colHeaders <- c(  "species",
+                    "stock",
+                    "Xmsy",
+                    "Xmey",
+                    colHeaders,
+                    "var" )
+
+  specEqTab <- matrix(NA, nrow = nS * nP, ncol = length(colHeaders) )
+  areaEqTab <- matrix(NA, nrow = nP, ncol = length(colHeaders) )
+  colnames(specEqTab) <- colHeaders
+  colnames(areaEqTab) <- colHeaders
+
+  specEqTab <- as.data.frame(specEqTab)
+  areaEqTab <- as.data.frame(areaEqTab)
+
+  areaEqTab$species <- "DER"
+  areaEqTab$stock   <- stockNames
+
+  
+  # equlibria:
+  # - Species specific
+  #     Biomass 
+  dynEqBio  <- specEqTab
+  dynEqBio$var <- "SSB"
+  #     Catch
+  dynEqCat  <- specEqTab
+  dynEqCat$var <- "Ct"
+  #     HR
+  dynEqHR   <- specEqTab
+  dynEqHR$var <- "Ut"
+  # - Area sum
+  #     Effort
+  dynEqEff  <- areaEqTab
+  dynEqEff$var <- "Et"
+  #     Producer Surplus
+  dynEqPrSp <- areaEqTab
+  dynEqPrSp$var <- "ProdSurplus"
+
+
+
+  # Pull static RPs
+  # Species
+  Bmsy_sp     <- rp$EmsyMSRefPts$BeqEmsy_sp
+  Bmey_sp     <- rp$EmeyRefPts$Bmey_sp
+  Ymey_sp     <- rp$EmeyRefPts$Ymey_sp
+  MSY_sp      <- rp$EmsyMSRefPts$YeqEmsy_sp
+
+  # Area
+  Emey_p      <- rp$EmeyRefPts$Emey_p
+  Emsy_p      <- rp$EmsyMSRefPts$EmsyMS_p
+  MEY_p       <- rp$EmeyRefPts$MEY_p
+
+  # Want to solve for econ yield at MSY
+  econYeq_pe  <- rp$EmeyRefPts$econYeq_pe
+  E           <- rp$refCurves$EffCurves$E
+
+  econYmsy_p  <- array(NA, dim = c(nP))
+
+  Umsy_sp     <- MSY_sp / Bmsy_sp
+  Umey_sp     <- Ymey_sp / Bmey_sp
+
+  
+  # Loop over areas, then species
+  for( k in 1:nModels)
+  {
+    # Get scenario name and objective function
+    scenName  <- info.df$scenario[k]
+    mpName    <- info.df$mp[k]
+    objFun <- str_split(mpName,"_")[[1]][2]
+    objFun <- str_split(objFun,"1")[[1]][1]
+
+    colName <- paste(scenName,objFun,sep = ".")
+
+    for( p in 1:nP )
+    {
+      # Do species tables first
+      for( s in 1:nS )
+      {
+        specRowIdx <- s + (p-1) * nS
+
+        dynEqBio[specRowIdx,"species"] <- speciesNames[s]
+        dynEqCat[specRowIdx,"species"] <- speciesNames[s]
+        dynEqHR[specRowIdx,"species"] <- speciesNames[s]
+
+        dynEqBio[specRowIdx,"stock"] <- stockNames[s]
+        dynEqCat[specRowIdx,"stock"] <- stockNames[s]
+        dynEqHR[specRowIdx,"stock"] <- stockNames[s]
+
+        # Fill static equilibria
+        dynEqBio[specRowIdx,"Xmsy"] <- Bmsy_sp[s,p]
+        dynEqBio[specRowIdx,"Xmey"] <- Bmey_sp[s,p]
+
+        dynEqCat[specRowIdx,"Xmsy"] <- MSY_sp[s,p]
+        dynEqCat[specRowIdx,"Xmey"] <- Ymey_sp[s,p]      
+
+        dynEqHR[specRowIdx,"Xmsy"]  <- Umsy_sp[s,p]
+        dynEqHR[specRowIdx,"Xmey"]  <- Umey_sp[s,p]
+
+
+        # Now pull dynamic eqbria
+        dynB <- modelList[[k]]$stateDists$SB_ispt[2,s,p]
+        dynU <- modelList[[k]]$stateDists$U_ispt[2,s,p]
+        dynC <- modelList[[k]]$stateDists$C_ispt[2,s,p]
+
+        dynEqBio[specRowIdx,colName]  <- dynB
+        dynEqCat[specRowIdx,colName]  <- dynC
+        dynEqHR[specRowIdx,colName]   <- dynU
+      }
+
+      # Then do area tables
+      econYmsy_p[p] <- getSplineVal( x = E, y = econYeq_pe[p,], p = Emsy_p[p])
+
+      # Effort table
+      dynEqEff[p,"Xmsy"] <- Emsy_p[p]
+      dynEqEff[p,"Xmey"] <- Emey_p[p]
+
+      # Producer surplus
+      dynEqPrSp[p,"Xmsy"] <- econYmsy_p[p]
+      dynEqPrSp[p,"Xmey"] <- MEY_p[p]
+
+      # Now get dynamic values
+      dynEqPrSp[p,colName]  <- modelList[[k]]$stateDists$profit_ipft[2,p,2]
+      dynEqEff[p,colName]   <- modelList[[k]]$stateDists$E_ipft[2,p,2]
+
+    }
+  }
+  
+  browser()
+
+}
+
+
 # pullModelStates()
 # Loads blob pulls catch, effort and biomass 
 # time series, and calculates distributions

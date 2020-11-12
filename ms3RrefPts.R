@@ -178,7 +178,7 @@ solveSpline <- function(  Yvals, Xvals, value = 0, bounds = c(0,10),
     {
       landVal_spe[s,p,] <- price_s[s] * ( Yeq_spe[s,p,] / YeqFmsy_sp[s,p] )^(-1/lambda_s[s])
       econRev_spe[s,p,] <- Yeq_spe[s,p,] * landVal_spe[s,p,] * (1 - crewShare)
-      econYeq_spe[s,p,] <- Yeq_spe[s,p,] * landVal_spe[s,p,]  - effCost_pe[p,]
+      econYeq_spe[s,p,] <- Yeq_spe[s,p,] * landVal_spe[s,p,] * (1 - crewShare)  - effCost_pe[p,]
     }
     
   }
