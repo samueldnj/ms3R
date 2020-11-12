@@ -95,7 +95,7 @@ xaxisRot <- function( at = 1:10,
 # plotDynRefPoints_sp()
 # Plots distributions of stochastically optimised Bmsy
 # for a set of simulations
-plotDynBmsy_sp <- function( groupFolder = "omni_econYield_constE_constElasticity",
+plotDynBmsy_sp <- function( groupFolder = "omni_econYield_constE_Nov6",
                             mpFilter = "freeEff",
                             scenOrder = c("noCorr","corrRecDevs","corrPriceDevs","corrRecPrice") )
 {
@@ -159,7 +159,7 @@ plotDynBmsy_sp <- function( groupFolder = "omni_econYield_constE_constElasticity
       BmeyMS    <- getSplineVal(x = E, y = Beq_spe[s,p,], p = Emey_p[p] )
       relBmeyMS <- BmeyMS/Bmsy_sp[s,p]
 
-      plot( x = c(0,1.5 * max(relBmeyMS, relBmsyMS)),
+      plot( x = c(0,3.5),
             y = c(0.5,4.5), type = "n", axes = FALSE,
             yaxs = "i")
     
@@ -239,7 +239,7 @@ plotDynBmsy_sp <- function( groupFolder = "omni_econYield_constE_constElasticity
 # plotDynUmsy_sp()
 # Plots distribution of dynamically optimised harvest rates
 # for a set of simulations
-plotDynEconYield_p <- function( groupFolder = "omni_econYield_constE_constElasticity",
+plotDynEconYield_p <- function( groupFolder = "omni_econYield_constE_Nov6",
                                 mpFilter = "freeEff",
                                 scenOrder = c("noCorr","corrRecDevs","corrPriceDevs","corrRecPrice") )
 {
@@ -308,7 +308,7 @@ plotDynEconYield_p <- function( groupFolder = "omni_econYield_constE_constElasti
     econYeqEmsy_p[p]    <- getSplineVal(x = E, y = econYeq_pe[p,], p = Emsy_p[p])
     releconYeqEmsy_p[p] <- econYeqEmsy_p[p]/MEY_p[p]
 
-    plot( x = c(-1,5),
+    plot( x = c(-1,2),
           y = c(0.5,4.5), type = "n", axes = FALSE,
           yaxs = "i")
 
@@ -392,7 +392,7 @@ plotDynEconYield_p <- function( groupFolder = "omni_econYield_constE_constElasti
 # plotDynUmsy_sp()
 # Plots distribution of dynamically optimised harvest rates
 # for a set of simulations
-plotDynOptEffort_p <- function( groupFolder = "omni_econYield_constE_constElasticity",
+plotDynOptEffort_p <- function( groupFolder = "omni_econYield_constE_Nov6",
                                 mpFilter = "freeEff",
                                 scenOrder = c("noCorr","corrRecDevs","corrPriceDevs","corrRecPrice") )
 {
@@ -533,7 +533,7 @@ plotDynOptEffort_p <- function( groupFolder = "omni_econYield_constE_constElasti
 # plotDynUmsy_sp()
 # Plots distribution of dynamically optimised harvest rates
 # for a set of simulations
-plotDynUmsy_sp <- function( groupFolder = "omni_econYield_constE_constElasticity",
+plotDynUmsy_sp <- function( groupFolder = "omni_econYield_constE_Nov6",
                             mpFilter = "freeEff",
                             scenOrder = c("noCorr","corrRecDevs","corrPriceDevs","corrRecPrice") )
 {
@@ -704,7 +704,7 @@ plotDynUmsy_sp <- function( groupFolder = "omni_econYield_constE_constElasticity
 # plotDynUmsy_sp()
 # Plots distribution of dynamically optimised harvest rates
 # for a set of simulations
-plotDynMSY_sp <- function( groupFolder = "omni_econYield_constE_constElasticity",
+plotDynMSY_sp <- function( groupFolder = "omni_econYield_constE_Nov6",
                             mpFilter = "freeEff",
                             scenOrder = c("noCorr","corrRecDevs","corrPriceDevs","corrRecPrice") )
 {
@@ -1315,7 +1315,7 @@ plotRetroBio_Scenario <- function(  groupFolder = "DERTACS_reruns_sep24",
 # are at the area level aggregated over species.
 plotTulipEcon_sp <- function( obj = NULL,
                               simNum = 1,
-                              groupFolder = "",
+                              groupFolder = "omni_econYield_constE_Nov6",
                               price = TRUE,
                               revenue = TRUE )
 {
@@ -5509,7 +5509,7 @@ plotTulipEconYield <- function( obj = blob,
 
   Rev_ipt       <- apply( X = Rev_ispt, FUN = sum, MARGIN = c(1,3,4), 
                           na.rm = T )
-  Prof_ipt      <- (1 - crewShare)*Rev_ipt - effCost_ipt
+  Prof_ipt      <- Rev_ipt - effCost_ipt
 
   # Make Polygons
   Rev_qpt       <- apply( X = Rev_ipt, FUN = quantile, MARGIN = c(2,3),
@@ -5518,6 +5518,7 @@ plotTulipEconYield <- function( obj = blob,
                           probs = c(0.025, 0.5, 0.975), na.rm = T )
   Prof_qpt      <- apply( X = Prof_ipt, FUN = quantile, MARGIN = c(2,3),
                           probs = c(0.025, 0.5, 0.975), na.rm = T )
+
 
 
 

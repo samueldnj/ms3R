@@ -16,7 +16,7 @@
 # time series, and calculates distributions
 # of each inside a nominated time period
 pullModelStates <- function(  sim         = 2,
-                              groupFolder = "omni_econYield_prelim",
+                              groupFolder = "omni_econYield_constE_Nov6",
                               stateVars   = c("C_ispt","SB_ispt","E_ipft"),
                               output      = FALSE,
                               distPeriod  = 2041:2060 )
