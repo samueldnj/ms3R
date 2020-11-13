@@ -90,7 +90,7 @@ mp$omni$hiDepProb 0.05
 mp$omni$expParMult 1
 mp$omni$inputF NULL
 mp$omni$inputE NULL
-mp$omni$leastSquaresWt .1
+mp$omni$leastSquaresWt .01
 mp$omni$avgCatWt 0.
 mp$omni$totCatWt 1.0
 mp$omni$sumCatWt .0
