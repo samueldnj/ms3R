@@ -2413,6 +2413,7 @@ solvePTm <- function( Bmsy, B0 )
     # simulation
     projInt <- nT - tMP + 1
     nKnots  <- mp$omni$nKnots
+
     if( nKnots == 1 )
       space <- nT - tMP + 1
     else
@@ -2453,7 +2454,7 @@ solvePTm <- function( Bmsy, B0 )
         for( s in 1:nS )
           for( p in 1:nP )
           {
-            if( nKnots > 1 )
+            if( nKnots > 1 & nKnots < pT )
             {
               splineF <- spline( x = x, y = knotF_spk[s,p,], n = projInt)$y
               splineF <- splineF * rp$FmsyRefPts$Fmsy_sp[s,p]
@@ -2462,6 +2463,8 @@ solvePTm <- function( Bmsy, B0 )
 
               obj$om$F_spft[s,p,2,tMP:nT] <- parMult*splineF
             } 
+            if( nKnots == pT )
+              obj$om$F_spft[s,p,2,tMP:nT] <- parMult*knotF_spk[s,p,]
             if( nKnots == 1 )
               obj$om$F_spft[s,p,2,tMP:nT] <- knotF_spk[s,p,1]
           }
