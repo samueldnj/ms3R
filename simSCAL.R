@@ -2826,7 +2826,7 @@ solvePTm <- function( Bmsy, B0 )
     totCbar <- mean( apply(X = Cproj_spt, FUN = sum, MARGIN = 3 ) )
 
     # Total obj function for each stock/species
-    objFun_sp <- -  avgCatWt * log(1e2*Cbar_sp) + 
+    objFun_sp <- -  avgCatWt * log(Cbar_sp) + 
                     (closedWt * closedCount_sp)^mp$omni$linBeta
 
     # if( mp$omni$penType == "barrier" )
@@ -2887,8 +2887,8 @@ solvePTm <- function( Bmsy, B0 )
 
    
     objFun    <-  sum(objFun_sp) -
-                  totCatWt * log(1e2*totCbar) -
-                  sumCatWt * log(1e2*Csum)
+                  totCatWt * log(totCbar) -
+                  sumCatWt * log(Csum)
 
     if(totProfitWt > 0)
       objFun <- objFun  -

@@ -78,8 +78,8 @@ mp$omni$fixEff FALSE
 mp$omni$avgEffYrs 5
 mp$omni$nKnots 21
 mp$omni$maxF 1.0
-mp$omni$maxE 10
-mp$omni$minE 1
+mp$omni$maxE 5
+mp$omni$minE 0.01
 mp$omni$maxAAV .25
 mp$omni$maxRelEffDiff .2
 mp$omni$maxRelCatDiff .3
