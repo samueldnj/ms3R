@@ -32,9 +32,12 @@ knitr::include_graphics('figure/likeProf.pdf')
 ```{r hcrfig, fig.cap = hcrFigCap}
 hcrFigCap <- "Harvest control rule diagram showing the functional relationship between harvest rate and stock status used for setting TACs in each sub-area under different RPs. "
 
-names <- c("HS50-60+HR0.1","HS30-100+HR0.1")
+names <- c("HS30-100+HR0.1","HS30-60+HR0.1")
 
-plotMultiHCR(LCPs=c(.5,.3), UCPs=c(.6,1), hcrNames=names)
+xlab <- expression(paste("Relative Depletion (",B[t]/B[0], ")",sep = ""))
+
+plotMultiHCR(LCPs=c(.3,.3), UCPs=c(1,.6), hcrNames=names, xlab = xlab)
+
 
 
 ```

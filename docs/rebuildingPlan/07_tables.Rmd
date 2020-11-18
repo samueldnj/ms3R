@@ -144,7 +144,7 @@ statModelEqns <- tibble::tribble(
   "(L.1)",      "$\\displaystyle z_{p,t} = \\log \\frac{ I_{p,t} }{ \\hat{I}_{p,t} }$",
   "(L.2)",      "$\\displaystyle q'_{p,t} = \\eta_{p,t} q_{p,4} + (1 - \\eta_{p,t}) q_{p,5}$",
   "(L.3)",      "$\\displaystyle n_{p} = \\sum_{t = t_{0,p}}^T \\mathcal{I} (I_{p,t} > 0)$",
-  "(L.4)",      "$\\displaystyle Z_{p} = \\frac{1}{\sqrt{2\\pi\tau^2_{p}}} \\sum_{t = t_{0,p}}^T \\mathcal{I} (I_{p,t} > 0) z_{p,t}^2 $",
+  "(L.4)",      "$\\displaystyle Z_{p} = \\frac{1}{\\tau^2_{p}} \\sum_{t = t_{0,p}}^T \\mathcal{I} (I_{p,t} > 0) z_{p,t}^2 $",
   "(L.5)",      "$\\displaystyle d_p = \\sum_t \\left( \\mathcal{I}(I_{p,t} > 0) \\log( \\mathcal{P}_{p,t}) + \\mathcal{I}(I_{p,t} = 0) \\log( 1 - \\mathcal{P}_{p,t}) \\right)$",
   "(L.6)",      "$\\displaystyle l_{1} = \\frac12 \\sum_{p = 1}^3 \\left( n_{p} \\cdot \\log \\tau_{p}^2 +  Z_{p} + d_p  \\right) $",
 
@@ -213,11 +213,11 @@ perfTable <- read.csv("./data/fullStatTable_avgCtlPts.csv", stringsAsFactors = F
                       pBtGt.5B0,
                       nYrsSOK,
                       avgLicSOK,
-                      "avgSOK\\_t" = avgSOK_t,
-                      "avgPonded\\_t" = avgPonded_t,
+                      avgSOK_t,
+                      avgPonded_t,
                       pondAAV,
                       nYrsComm,
-                      "avgCatch\\_t" = avgCatch_t,
+                      avgCatch_t,
                       catchAAV,
                       pUtGt.1HR,
                       avgUtGt0.1HR,
@@ -273,7 +273,10 @@ histOMs <- perfTable %>%
                                        FUN = remString,
                                        pattern = "_rw15_hiPondM") ) %>%
             left_join( dataLikeTable ) %>%
-            mutate( dataLike = round(dataLike - min(dataLike),2),
+            mutate( B0 = round(B0,1),
+                    BhistT = round(BhistT,1),
+                    DhistT = round(DhistT,2),
+                    dataLike = round(dataLike - min(dataLike),2),
                     scenario = sapply( X = scenario,
                                         FUN = replaceString,
                                         pattern = "_",
@@ -328,8 +331,26 @@ printWorstOM <- gsub(pattern = "_", replacement = "\\\\_", x = worstOM)
 eqWtd_perfTableFull <- perfTable %>%
                         group_by( mp ) %>%
                         summarise_if( is.numeric, mean, na.rm = T ) %>%
-                        mutate_if(is.numeric, round, 3) %>%
+                        mutate( pBtGt.3B0 = round(pBtGt.3B0,2),
+                                pBtGt.5B0 = round(pBtGt.5B0,2),
+                                growthRate6yrs = round(100*growthRate6yrs,1),
+                                growthRate11yrs = round(100*growthRate11yrs,1),
+                                growthRate16yrs = round(100*growthRate16yrs,1),
+                                BnT = round(BnT,1),
+                                nYrsSOK = round(nYrsSOK,1),
+                                avgLicSOK = round(avgLicSOK,1),
+                                avgSOK_t = round(2.2*avgSOK_t,1),
+                                avgPonded_t = round(avgPonded_t,1),
+                                pondAAV = round(pondAAV,1),
+                                nYrsComm = round(nYrsComm,1),
+                                avgCatch_t = round(avgCatch_t,1),
+                                catchAAV = round(catchAAV,1),
+                                pUtGt.1HR = round(pUtGt.1HR,2),
+                                avgUtGt0.1HR = round(avgUtGt0.1HR,3) )  %>%
                         arrange( match(mp,MPorder) ) %>%
+                        rename( "avgSOK\\_t" = avgSOK_t, 
+                                "avgPonded\\_t" = avgPonded_t, 
+                                "avgCatch\\_t" = avgCatch_t ) %>%
                         mutate( mp = sapply(  X = mp, FUN = replaceString,
                                               pattern = "_",
                                               replacement = "\\\\_") ) 
@@ -416,6 +437,16 @@ pessimMtab <- perfTable %>%
                           BnT,
                           DnT) %>%
                   arrange( pBtGt.3B0 ) %>%
+                  mutate( pBtGt.3B0 = round(pBtGt.3B0,3),
+                          pBtGt.5B0 = round(pBtGt.5B0,3),
+                          growthRate6yrs = round(100*growthRate6yrs,1),
+                          growthRate11yrs = round(100*growthRate11yrs,1),
+                          growthRate16yrs = round(100*growthRate16yrs,1),
+                          B0 = round(B0,1),
+                          BnT = round(BnT,1),
+                          DnT = round(DnT,2),
+                          BhistT = round(BhistT,1),
+                          DhistT = round(DhistT,2))  %>%
                   mutate( Scenario = sapply( X =Scenario, 
                                        FUN = remString,
                                        pattern = "_hiPondM"),
@@ -475,6 +506,16 @@ optimMtab <- perfTable %>%
                           BnT,
                           DnT) %>%
                   arrange( pBtGt.3B0 ) %>%
+                  mutate( pBtGt.3B0 = round(pBtGt.3B0,2),
+                          pBtGt.5B0 = round(pBtGt.5B0,2),
+                          growthRate6yrs = round(100*growthRate6yrs,1),
+                          growthRate11yrs = round(100*growthRate11yrs,1),
+                          growthRate16yrs = round(100*growthRate16yrs,1),
+                          B0 = round(B0,1),
+                          BnT = round(BnT,1),
+                          DnT = round(DnT,2),
+                          BhistT = round(BhistT,1),
+                          DhistT = round(DhistT,2))  %>%
                   mutate( scenario = sapply(  X = scenario, 
                                               FUN = remString,
                                               pattern = "_loPondM"),
@@ -523,6 +564,25 @@ csasdown::csas_table( optimMtab,
 bestOM_perfTable <- perfTable %>%
                     filter( scenario == bestOM ) %>%
                     arrange( match(mp,MPorder) ) %>%
+                    mutate( pBtGt.3B0 = round(pBtGt.3B0,2),
+                            pBtGt.5B0 = round(pBtGt.5B0,2),
+                            growthRate6yrs = round(100*growthRate6yrs,1),
+                            growthRate11yrs = round(100*growthRate11yrs,1),
+                            growthRate16yrs = round(100*growthRate16yrs,1),
+                            BnT = round(BnT,1),
+                            nYrsSOK = round(nYrsSOK,1),
+                            avgLicSOK = round(avgLicSOK,1),
+                            avgSOK_t = round(2.2*avgSOK_t,1),
+                            avgPonded_t = round(avgPonded_t,1),
+                            pondAAV = round(pondAAV,1),
+                            nYrsComm = round(nYrsComm,1),
+                            avgCatch_t = round(avgCatch_t,1),
+                            catchAAV = round(catchAAV,1),
+                            pUtGt.1HR = round(pUtGt.1HR,3),
+                            avgUtGt0.1HR = round(avgUtGt0.1HR,3) )  %>%
+                    rename( "avgSOK\\_t" = avgSOK_t, 
+                            "avgPonded\\_t" = avgPonded_t, 
+                            "avgCatch\\_t" = avgCatch_t ) %>%
                     mutate( scenario = NULL,
                             mp = sapply(  X = mp, FUN = replaceString,
                                           pattern = "_",
@@ -603,6 +663,25 @@ csasdown::csas_table( bestOM_perfTable_Fishing,
 worstOM_perfTable <- perfTable %>%
                     filter( scenario == worstOM ) %>%
                     arrange( match(mp,MPorder) ) %>%
+                    mutate( pBtGt.3B0 = round(pBtGt.3B0,3),
+                            pBtGt.5B0 = round(pBtGt.5B0,3),
+                            growthRate6yrs = round(100*growthRate6yrs,1),
+                            growthRate11yrs = round(100*growthRate11yrs,1),
+                            growthRate16yrs = round(100*growthRate16yrs,1),
+                            BnT = round(BnT,1),
+                            nYrsSOK = round(nYrsSOK,1),
+                            avgLicSOK = round(avgLicSOK,1),
+                            avgSOK_t = round(2.2*avgSOK_t,1),
+                            avgPonded_t = round(avgPonded_t,1),
+                            pondAAV = round(pondAAV,1),
+                            nYrsComm = round(nYrsComm,1),
+                            avgCatch_t = round(avgCatch_t,1),
+                            catchAAV = round(catchAAV,1),
+                            pUtGt.1HR = round(pUtGt.1HR,3),
+                            avgUtGt0.1HR = round(avgUtGt0.1HR,3) )  %>%
+                    rename( "avgSOK\\_t" = avgSOK_t, 
+                            "avgPonded\\_t" = avgPonded_t, 
+                            "avgCatch\\_t" = avgCatch_t ) %>%
                     mutate( scenario = NULL,
                             mp = sapply(  X = mp, FUN = replaceString,
                                           pattern = "_",

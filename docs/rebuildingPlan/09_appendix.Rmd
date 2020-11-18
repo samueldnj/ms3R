@@ -5,51 +5,12 @@ After that, all subsequent sections will be turned into appendices. -->
 <!-- `r if(knitr:::is_latex_output()) '% begin csasdown appendix'`
 `r if(knitr:::is_latex_output()) '# (APPENDIX) Appendix {-}'` -->
 
+\blandscape
 # (APPENDIX) Appendix {-}
 \clearpage
 
-# Appendix A {#app:refPts}
 
-```{r loadAppAFuns, echo = FALSE, include = FALSE }
-source(here::here("docs/rebuildingPlan/figure/SISCAplots.R"))
-source(here::here("docs/rebuildingPlan/figure/SISCArefPts.R"))
-
-# load base OM
-load(here::here('history/fit_MSbase_MCMC/fit_MSbase_MCMC.RData'))
-
-```
-
-This appendix includes plots for equilibrium relationships for 
-reference points calculations, and,.... other parameter of interest 
-for the base operating model
-
-\clearpage
-
-```{r refPtsCS, fig.pos="H", fig.cap = refPtsCSCap}
-refPtsCSCap <- "Equilibrium relationships from the base operating model for Cumshewa/Selwyn showing a) Yield Per Recruit for increasing fishing mortality (F), b) Spawning biomass (SB) per recruit for increasing fishing mortality (F), c) Yield for increasing fishing mortality (F), d) Spawning biomass for increasing fishing mortality (F), e) Recruitment for different levels of spawning biomass, and f) Yield for different levels of spawning biomass. In all plots the green point indicates values at Fmsy."
-plotRefPts_p(repList = reports, pIdx=1)
-```
-
-\clearpage 
-
-
-```{r refPtsJPS, fig.pos="H", fig.cap = refPtsJPSCap}
-refPtsJPSCap <- "Equilibrium relationships from the base operating model for Juan Perez/Skincuttle showing a) Yield Per Recruit for increasing fishing mortality (F), b) Spawning biomass (SB) per recruit for increasing fishing mortality (F), c) Yield for increasing fishing mortality (F), d) Spawning biomass for increasing fishing mortality (F), e) Recruitment for different levels of spawning biomass, and f) Yield for different levels of spawning biomass. In all plots the green point indicates values at Fmsy."
-plotRefPts_p(repList = reports, pIdx=2)
-```
-
-\clearpage
-
-```{r refPtsLou, fig.pos="H", fig.cap = refPtsLouCap}
-refPtsLouCap <- "Equilibrium relationships from the base operating model for Louscoone showing a) Yield Per Recruit for increasing fishing mortality (F), b) Spawning biomass (SB) per recruit for increasing fishing mortality (F), c) Yield for increasing fishing mortality (F), d) Spawning biomass for increasing fishing mortality (F), e) Recruitment for different levels of spawning biomass, and f) Yield for different levels of spawning biomass. In all plots the green point indicates values at Fmsy."
-plotRefPts_p(repList = reports, pIdx=3)
-```
-
-\clearpage
-
-\blandscape
-
-# Appendix B {#app:subAreaResults}
+# Appendix A {#app:subAreaResults}
 
 This appendix contains the rebuilding analysis performance metrics
 for each individual sub-area.
@@ -66,11 +27,11 @@ subAreaTable <- perfTable %>%
                         pBtGt.5B0,
                         nYrsSOK,
                         avgLicSOK,
-                        "avgSOK\\_t" = avgSOK_t,
-                        "avgPonded\\_t" = avgPonded_t,
+                        avgSOK_t,
+                        avgPonded_t,
                         pondAAV,
                         nYrsComm,
-                        "avgCatch\\_t" = avgCatch_t,
+                        avgCatch_t,
                         catchAAV,
                         pUtGt.1HR,
                         avgUtGt0.1HR,
@@ -107,7 +68,25 @@ MPorder <- c( "NoFish",
 eqWtd_perfTable_subAreas <- subAreaTable %>%
                             group_by( stock, mp ) %>%
                             summarise_if( is.numeric, mean ) %>%
-                            mutate_if(is.numeric, round, 3) %>%
+                            mutate( pBtGt.3B0 = round(pBtGt.3B0,2),
+                                    pBtGt.5B0 = round(pBtGt.5B0,2),
+                                    growthRate6yrs = round(100*growthRate6yrs,1),
+                                    growthRate11yrs = round(100*growthRate11yrs,1),
+                                    growthRate16yrs = round(100*growthRate16yrs,1),
+                                    BnT = round(BnT,1),
+                                    nYrsSOK = round(nYrsSOK,1),
+                                    avgLicSOK = round(avgLicSOK,1),
+                                    avgSOK_t = round(2.2*avgSOK_t,1),
+                                    avgPonded_t = round(avgPonded_t,1),
+                                    pondAAV = round(pondAAV,1),
+                                    nYrsComm = round(nYrsComm,1),
+                                    avgCatch_t = round(avgCatch_t,1),
+                                    catchAAV = round(catchAAV,1),
+                                    pUtGt.1HR = round(pUtGt.1HR,2),
+                                    avgUtGt0.1HR = round(avgUtGt0.1HR,3) )  %>%
+                            rename( "avgSOK\\_t" = avgSOK_t, 
+                                    "avgPonded\\_t" = avgPonded_t, 
+                                    "avgCatch\\_t" = avgCatch_t ) %>%
                             arrange(    match(stock,stockOrder), 
                                         match(mp,MPorder) ) %>%
                             mutate( mp = sapply(  X = mp, FUN = replaceString,
@@ -120,7 +99,8 @@ eqWtd_perfTable_Biomass <- eqWtd_perfTable_subAreas %>%
                                     "$P(B_t \\geq .5B_0)$" = pBtGt.5B0, 
                                     "$\\Gamma(2019,2024)$" = growthRate6yrs,
                                     "$\\Gamma(2019,2029)$" = growthRate11yrs,
-                                    "$\\Gamma(2019,2034)$" = growthRate16yrs)
+                                    "$\\Gamma(2019,2034)$" = growthRate16yrs,
+                                    "$B_{2034}$" = BnT)
 
 write.csv(eqWtd_perfTable_Biomass, file = "./data/eqWtd_Areas_bio.csv")
 
@@ -184,7 +164,25 @@ csasdown::csas_table( eqWtd_perfTable_Fishing,
 
 bestOM_perfTable_subAreas <- subAreaTable %>%
                                 filter( scenario == bestOM ) %>%
-                                mutate_if(is.numeric, round, 3) %>%
+                                mutate( pBtGt.3B0 = round(pBtGt.3B0,2),
+                                        pBtGt.5B0 = round(pBtGt.5B0,2),
+                                        growthRate6yrs = round(100*growthRate6yrs,1),
+                                        growthRate11yrs = round(100*growthRate11yrs,1),
+                                        growthRate16yrs = round(100*growthRate16yrs,1),
+                                        BnT = round(BnT,1),
+                                        nYrsSOK = round(nYrsSOK,1),
+                                        avgLicSOK = round(avgLicSOK,1),
+                                        avgSOK_t = round(2.2*avgSOK_t,1),
+                                        avgPonded_t = round(avgPonded_t,1),
+                                        pondAAV = round(pondAAV,1),
+                                        nYrsComm = round(nYrsComm,1),
+                                        avgCatch_t = round(avgCatch_t,1),
+                                        catchAAV = round(catchAAV,1),
+                                        pUtGt.1HR = round(pUtGt.1HR,3),
+                                        avgUtGt0.1HR = round(avgUtGt0.1HR,3) )  %>%
+                                rename( "avgSOK\\_t" = avgSOK_t, 
+                                        "avgPonded\\_t" = avgPonded_t, 
+                                        "avgCatch\\_t" = avgCatch_t ) %>%
                                 arrange(    match(stock,stockOrder), 
                                             match(mp,MPorder) ) %>%
                                 mutate( mp = sapply(  X = mp, FUN = replaceString,
@@ -196,7 +194,8 @@ bestOM_perfTable_Biomass <- bestOM_perfTable_subAreas %>%
                                     "$P(B_t \\geq .5B_0)$" = pBtGt.5B0, 
                                     "$\\Gamma(2019,2024)$" = growthRate6yrs,
                                     "$\\Gamma(2019,2029)$" = growthRate11yrs,
-                                    "$\\Gamma(2019,2034)$" = growthRate16yrs)
+                                    "$\\Gamma(2019,2034)$" = growthRate16yrs,
+                                    "$B_{2034}$" = BnT)
 
 write.csv(bestOM_perfTable_Biomass, file = "./data/bestOM_Areas_bio.csv")
 
@@ -261,7 +260,25 @@ csasdown::csas_table( bestOM_perfTable_Fishing,
 
 worstOM_perfTable_subAreas <- subAreaTable %>%
                                 filter( scenario == worstOM ) %>%
-                                mutate_if(is.numeric, round, 3) %>%
+                                mutate( pBtGt.3B0 = round(pBtGt.3B0,3),
+                                        pBtGt.5B0 = round(pBtGt.5B0,3),
+                                        growthRate6yrs = round(100*growthRate6yrs,1),
+                                        growthRate11yrs = round(100*growthRate11yrs,1),
+                                        growthRate16yrs = round(100*growthRate16yrs,1),
+                                        BnT = round(BnT,1),
+                                        nYrsSOK = round(nYrsSOK,1),
+                                        avgLicSOK = round(avgLicSOK,1),
+                                        avgSOK_t = round(2.2*avgSOK_t,1),
+                                        avgPonded_t = round(avgPonded_t,1),
+                                        pondAAV = round(pondAAV,1),
+                                        nYrsComm = round(nYrsComm,1),
+                                        avgCatch_t = round(avgCatch_t,1),
+                                        catchAAV = round(catchAAV,1),
+                                        pUtGt.1HR = round(pUtGt.1HR,3),
+                                        avgUtGt0.1HR = round(avgUtGt0.1HR,3) )  %>%
+                                rename( "avgSOK\\_t" = avgSOK_t, 
+                                        "avgPonded\\_t" = avgPonded_t, 
+                                        "avgCatch\\_t" = avgCatch_t ) %>%
                                 arrange(    match(stock,stockOrder), 
                                             match(mp,MPorder) ) %>%
                                 mutate( mp = sapply(  X = mp, FUN = replaceString,
@@ -273,7 +290,8 @@ worstOM_perfTable_Biomass <- worstOM_perfTable_subAreas %>%
                                     "$P(B_t \\geq .5B_0)$" = pBtGt.5B0, 
                                     "$\\Gamma(2019,2024)$" = growthRate6yrs,
                                     "$\\Gamma(2019,2029)$" = growthRate11yrs,
-                                    "$\\Gamma(2019,2034)$" = growthRate16yrs)
+                                    "$\\Gamma(2019,2034)$" = growthRate16yrs,
+                                    "$B_{2034}$" = BnT )
 
 write.csv(worstOM_perfTable_Biomass, file = "./data/worstOM_Areas_bio.csv")
 

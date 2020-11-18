@@ -90,24 +90,27 @@ multiSimBtIt <- function( iRep = 1,
             
 } # END multiSimBtCtRt()
 
-plotMultiHCR <- function(LCPs, UCPs, hcrNames)
+plotMultiHCR <- function(LCPs, UCPs, hcrNames, xlab)
 {
   # number of plots
   nI <- length(LCPs)
 
-  par(mfrow=c(1,nI), mgp=c(1.4,0.6,0), mar=c(3,3,1,1))
+  par(mfrow=c(1,nI), mgp=c(1.4,0.6,0), mar=c(2,3,1,1), oma = c(2,1,0,0))
   for(i in 1:nI)
-    plotHockeyStickHCR(LCP = LCPs[i], UCP = UCPs[i], hcrName=hcrNames[i])
+    plotHockeyStickHCR(LCP = LCPs[i], UCP = UCPs[i], 
+                        hcrName=hcrNames[i])
+
+  mtext( side = 1, text = xlab, outer = TRUE)
 
 }
 
 # plotHockeyStickHCR
 plotHockeyStickHCR <- function( LCP = .5, UCP = .6, refHR = .1, 
                                 refHRaxis = NULL, hcrName='',
-                                refHRlab='Reference Harvest Rate', mpLab=NULL,
+                                refHRlab='', mpLab=NULL,
                                 refB = 1, yAXT='n',
                                 yLim = NULL,
-                                xLab=NULL, yLab='Harvest Rate')
+                                xLab='', yLab='Harvest Rate')
                                 # xLab = expression(paste("Stock Status (",B[t]/B[MSY],")",sep = "")),
                                 # yLab = "Target Fishing Mortality (F)" )
 {
