@@ -100,8 +100,8 @@ mp$omni$loDepBmsyWt 1
 mp$omni$probDepWt 0.0
 mp$omni$closedWt 0
 mp$omni$AAVWt 0
-mp$omni$catDiffWt 1.0
-mp$omni$effDiffWt 0
+mp$omni$catDiffWt .0
+mp$omni$effDiffWt 1.0
 mp$omni$initCatDiffWt .0
 mp$omni$initEffDiffWt 1
 mp$omni$penType "linear"
