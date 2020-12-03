@@ -38,11 +38,11 @@ abstract: |
     from first to fourth place, dominated by the data-pooling methods. 
 
 date: \today
-bibliography: bib/library.bib
+bibliography: ./bib/library.bib
 natbib: true
 journal: Fisheries Research
-biblio-style: apalike
-csl: csl/fisheries-research.csl 
+biblio-style: elsarticle-harv
+csl:  ./csl/elsevier-harvard.csl
 layout: review,authoryear
 geometry: letterpaper
 toc: true
@@ -55,7 +55,12 @@ params:
   history: "fit_parBatfitAAL12"
 numbersections: true
 appendix: false
-output: 
+output:
+  rticles::elsevier_article:
+    citation_package: natbib
+    keep_tex: true
+    fig_caption: true
+    latex_engine: pdflatex
   pdf_document:
     citation_package: natbib
     keep_tex: true
@@ -68,7 +73,6 @@ output:
     latex_engine: pdflatex
     template: ~/Work/write/templates/tex/elsevier2.latex
   bookdown::pdf_book:
-    base_format: rticles::elsevier_article
     citation_package: natbib
     keep_tex: true
     fig_caption: true
