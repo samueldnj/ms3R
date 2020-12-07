@@ -74,6 +74,7 @@ mp$hcr$LCP .4
 mp$hcr$UCP .6
 mp$hcr$maxDeltaTACup .2
 mp$hcr$scaleFrefMS TRUE
+mp$hcr$inputHRfile "omni_econYield_splineE_short/dynEqHR.csv"
 mp$omni$fixEff FALSE
 mp$omni$avgEffYrs 5
 mp$omni$nKnots 21

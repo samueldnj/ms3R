@@ -57,7 +57,6 @@ calcRefPts <- function( obj )
                                 refCurves = refCurves$EffCurves )
 
 
-
   
   obj$refPts <- list()
   obj$refPts$refCurves    <- refCurves

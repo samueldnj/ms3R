@@ -11,7 +11,7 @@
 #
 # <><><><><><><><><><><><><><><><><><><><><><><><><><><>
 
-dynEqbriaTab <- function( groupFolder = "omni_econYield_constE_Nov6",
+dynEqbriaTab <- function( groupFolder = "omni_econYield_splineE_short",
                           mpFilter = "freeEff",
                           scenOrder = c("noCorr","corrRecDevs","corrPriceDevs","corrRecPrice"))
 {
@@ -145,9 +145,9 @@ dynEqbriaTab <- function( groupFolder = "omni_econYield_constE_Nov6",
         dynEqCat[specRowIdx,"species"] <- speciesNames[s]
         dynEqHR[specRowIdx,"species"] <- speciesNames[s]
 
-        dynEqBio[specRowIdx,"stock"] <- stockNames[s]
-        dynEqCat[specRowIdx,"stock"] <- stockNames[s]
-        dynEqHR[specRowIdx,"stock"] <- stockNames[s]
+        dynEqBio[specRowIdx,"stock"] <- stockNames[p]
+        dynEqCat[specRowIdx,"stock"] <- stockNames[p]
+        dynEqHR[specRowIdx,"stock"] <- stockNames[p]
 
         # Fill static equilibria
         dynEqBio[specRowIdx,"Xmsy"] <- Bmsy_sp[s,p]
@@ -187,9 +187,24 @@ dynEqbriaTab <- function( groupFolder = "omni_econYield_constE_Nov6",
 
     }
   }
-  
-  browser()
 
+  # Save tables
+  outFolder <- here::here("Outputs",groupFolder)
+  # Bio
+  write.csv(dynEqBio, file = file.path(outFolder,"dynEqBio.csv"))
+  write.csv(dynEqCat, file = file.path(outFolder,"dynEqCat.csv"))
+  write.csv(dynEqHR, file = file.path(outFolder,"dynEqHR.csv"))
+  write.csv(dynEqEff, file = file.path(outFolder,"dynEqEff.csv"))
+  write.csv(dynEqPrSp, file = file.path(outFolder,"dynEqPrSp.csv"))
+
+  outList <- list(  dynEqBio  = dynEqBio,
+                    dynEqCat  = dynEqCat,
+                    dynEqHR   = dynEqHR,
+                    dynEqEff  = dynEqEff,
+                    dynEqPrSp = dynEqPrSp )
+  
+  
+  outList
 }
 
 
@@ -197,8 +212,8 @@ dynEqbriaTab <- function( groupFolder = "omni_econYield_constE_Nov6",
 # Loads blob pulls catch, effort and biomass 
 # time series, and calculates distributions
 # of each inside a nominated time period
-pullModelStates <- function(  sim         = 2,
-                              groupFolder = "omni_econYield_constE_Nov6",
+pullModelStates <- function(  sim         = 1,
+                              groupFolder = "omni_econYield_splineE_short",
                               stateVars   = c("C_ispt","SB_ispt","E_ipft"),
                               output      = FALSE,
                               distPeriod  = 2041:2060 )

@@ -190,8 +190,6 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   # Get HCR quantities
   Fref_sp <- hcr$Fref_spt[,,t]
 
-  # if multiplying by MS multiplier, apply now
-
 
   # Model dims
   nS  <- obj$om$nS
@@ -224,8 +222,6 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   # Now apply "F" as a harvest rate, since
   # we don't have M information
   hcr$TAC_spt[,,t] <- hcr$targetF_spt[,,t] * projVB_sp
-
-
 
   propTAC_sp <- array(1, dim = c(nS,nP) )
 
@@ -1724,16 +1720,19 @@ solvePTm <- function( Bmsy, B0 )
   for( s in 1:nS )
     for( p in 1:nP )
     {
-      obj$mp$assess$retroSB_tspt[pt:pT,s,p,t]     <- tmpObj$om$SB_spt[s,p,t]
-      obj$mp$assess$retroVB_tspft[pt:pT,s,p,,t]   <- tmpObj$om$vB_spft[s,p,,t] 
+      obj$mp$assess$retroSB_tspt[pt,s,p,1:t]     <- tmpObj$om$SB_spt[s,p,1:t]
+      obj$mp$assess$retroVB_tspft[pt,s,p,,1:t]   <- tmpObj$om$vB_spft[s,p,,1:t] 
       
     }
 
-  if( ctlList$mp$hcr$Fref == "Umsy" )
-    obj$mp$hcr$Fref_spt[,,t]      <- obj$rp$FmsyRefPts$Umsy_sp
+  if( ctlList$mp$hcr$Fsource != "inputFile" )
+  {
+    if( ctlList$mp$hcr$Fref == "Umsy" )
+      obj$mp$hcr$Fref_spt[,,t]      <- obj$rp$FmsyRefPts$Umsy_sp
 
-  if( ctlList$mp$hcr$Fref == "Fmsy" )
-    obj$mp$hcr$Fref_spt[,,t]      <- obj$rp$FmsyRefPts$Fmsy_sp
+    if( ctlList$mp$hcr$Fref == "Fmsy" )
+      obj$mp$hcr$Fref_spt[,,t]      <- obj$rp$FmsyRefPts$Fmsy_sp
+  }
 
   if( ctlList$mp$hcr$Bref == "Bmsy" )
     obj$mp$hcr$Bref_spt[,,t]      <- obj$rp$FmsyRefPts$BeqFmsy_sp  
@@ -3714,6 +3713,29 @@ combBarrierPen <- function( x, eps,
     }
   }
 
+  # Pull in inputFile Fref values if set to that
+  if(ctlList$mp$hcr$Fsource == "inputFile" )
+  {
+    inputFile <- read.csv(ctlList$mp$hcr$inputHRfile)
+
+    inputHRs  <- inputFile[,c("species","stock",ctlList$mp$hcr$fileColName)]
+
+    # Now make a matrix
+    inputHR_sp <- array( 0, dim = c(nS,nP),
+                            dimnames = list(  species = speciesNames,
+                                              stock = stockNames) )
+    for( rIdx in 1:nrow(inputHRs) )
+    {
+      sp <- inputHRs$species[rIdx]
+      st <- inputHRs$stock[rIdx]
+      inputHR_sp[sp,st] <- inputHRs[rIdx,ctlList$mp$hcr$fileColName]
+    }
+
+    # Now place in Fref
+    for( t in tMP:nT )
+      obj$mp$hcr$Fref_spt[,,t] <- inputHR_sp
+  }
+
 
   # Now we have enough info to calculate reference points
   stime <- Sys.time()
@@ -3884,10 +3906,10 @@ combBarrierPen <- function( x, eps,
   
   # Need to make price bounded by a range that is only slightly
   # outside historical values, to avoid run-away prices
-
-  obj$errors$priceDev_st[1:nS,1:nT] <- t( mvtnorm::rmvnorm( n = nT, mean = rep(0,nS),
-                                                            sigma = priceDevCovMat,
-                                                            method = "chol") )
+  if(!is.null(ctlList$ctl$noProcErr))
+    obj$errors$priceDev_st[1:nS,1:nT] <- t( mvtnorm::rmvnorm( n = nT, mean = rep(0,nS),
+                                                              sigma = priceDevCovMat,
+                                                              method = "chol") )
 
 
   obj <- .calcTimes( obj )

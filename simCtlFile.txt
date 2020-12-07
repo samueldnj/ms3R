@@ -8,8 +8,8 @@ ctl$optimOutput FALSE
 ctl$maxEval 1e4
 ctl$maxIter 1e4
 ctl$rSeed 123
-ctl$totReps 3
-ctl$nGoodReps 7
+ctl$totReps 10
+ctl$nGoodReps 10
 ctl$omni FALSE
 ctl$perfConF FALSE
 ctl$noProcErr FALSE
@@ -66,8 +66,10 @@ mp$data$speciesPooling FALSE
 mp$data$idxType c(2,2,1,1)
 mp$data$source "OM"
 mp$hcr$refPtType "MS"
-mp$hcr$Fsource "est"
+mp$hcr$Fsource "inputFile"
 mp$hcr$type "conF"
+mp$hcr$inputHRfile "Outputs/omni_econYield_splineE_short/dynEqHR.csv"
+mp$hcr$fileColName "noCorr.totCat"
 mp$hcr$Bref "Bmsy"
 mp$hcr$Fref "Umsy"
 mp$hcr$LCP .4
@@ -126,8 +128,7 @@ opMod$price_s c(Dover=1.04,English=1.16,Rock=0.87,Petrale=2.590,Arrowtooth=0.990
 opMod$varCostPerKt 0.176
 opMod$discountRate 0.05
 opMod$interestRate 0.0
-#opMod$lambda_s c(1.925763,1.412575,1.235383)
-opMod$lambda_s c(0.5,0.5,0.5)
+opMod$lambda_s c(1.925763,1.412575,1.235383)
 opMod$priceSD 0.05
 opMod$econBaseYear 2009
 opMod$crewShare .3
