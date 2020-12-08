@@ -281,8 +281,9 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
                   UCP_ispt      = array(NA, dim = c(nReps, nS, nP, nT) ),        # Upper control point
                   TAC_ispt      = array(NA, dim = c(nReps, nS, nP, nT ) ),       # TAC summed across all fleets
                   propTAC_ispt  = array(NA, dim = c(nReps, nS, nP, nT ) ),       # proportion of TAC for disaggregating pooled TACs
-                  TAC_ispft     = array(NA, dim = c(nReps, nS, nP, nF, nT ) ), # TAC allocated by fleet
-                  sokEff_ispft  = array(NA, dim = c(nReps, nS, nP, nF, nT ) )       # number of SOK licenses
+                  TAC_ispft     = array(NA, dim = c(nReps, nS, nP, nF, nT ) ),   # TAC allocated by fleet
+                  sokEff_ispft  = array(NA, dim = c(nReps, nS, nP, nF, nT ) ),   # number of SOK licenses
+                  maxTAC_ispft  = array(NA, dim = c(nReps, nS, nP, nF, nT ) )    # maximum TAC before SOK or SR caps are applied
                   )  
 
 
@@ -481,6 +482,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     blob$mp$hcr$propTAC_ispt[i,,,]    <- simObj$mp$hcr$propTAC_spt
     blob$mp$hcr$TAC_ispft[i,,,,]      <- simObj$mp$hcr$TAC_spft
     blob$mp$hcr$sokEff_ispft[i,,,,]   <- simObj$mp$hcr$sokEff_spft
+    blob$mp$hcr$maxTAC_ispft[i,,,,]   <- simObj$mp$hcr$maxTAC_spft
 
     # Retrospective AM outputs
     blob$mp$assess$retroR_itspt[i,,,,]        <- simObj$mp$assess$retroR_tspt

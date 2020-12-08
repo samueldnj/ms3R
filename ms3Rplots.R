@@ -174,6 +174,7 @@ plotTACallocationError <- function( obj = blob,
 
 
 
+
 # Envelopes of simulated assessment errors
 plotTulipAssError <- function(  obj = blob,
                                 groupFolder = "diffCV_fixedF_longGrid",
@@ -3108,6 +3109,131 @@ plotTulipEffort_p <- function( obj = blob, nTrace = 3 )
   mtext( side = 2, outer = TRUE, text = "Trawl Effort (fishing hours?)",
           line = 2, font = 2)
 } # END plotTulipEffort_p()
+
+# plotTulipSOKEffort_p()
+# Effort over time gridded
+# by stock area - envelopes
+plotTulipSOKEffort_p <- function( obj = blob, 
+                                  nTrace = 3,
+                                  proj = TRUE,
+                                  traces = NULL )
+{
+  goodReps <- obj$goodReps
+
+  E_ipft <- obj$mp$hcr$sokEff_ispft[goodReps,1,,,]
+
+  tMP     <- obj$om$tMP
+  nS      <- obj$om$nS
+  nP      <- obj$om$nP 
+  nT      <- obj$om$nT
+  nF      <- obj$om$nF
+  nReps   <- dim(E_ipft)[1]
+
+  Eagg_ift <- apply(X = E_ipft, FUN = sum, MARGIN = c(1,3,4), na.rm = T)
+
+  Etot_ipft <- array(0, dim = dim(E_ipft) + c(0,1,0,0) )
+  Etot_ipft[,1:nP,,] <- E_ipft
+  Etot_ipft[,nP+1,,] <- Eagg_ift
+
+  
+  E_ipft <- Etot_ipft
+
+
+  # Pull scenario and MP labels
+  scenarioName <- obj$ctlList$ctl$scenarioName
+  mpName <- obj$ctlList$ctl$mpName
+
+  stamp <- paste0(scenarioName,":",mpName)
+
+  E_qpft <- apply(  X = E_ipft, FUN = quantile,
+                    MARGIN = c(2,3,4), probs = c(0.025, 0.5, 0.975),
+                    na.rm = TRUE )
+
+  if( is.null(traces))
+    traces <- sample( 1:nReps, size = min(nTrace,nReps)  )
+
+
+  speciesNames  <- obj$om$speciesNames
+  stockNames    <- c("C/S","JP/S","Lou","Aggregate")
+  fleetNames    <- obj$om$fleetNames
+  fYear         <- obj$ctlList$opMod$fYear
+
+  yrs <- seq( from = fYear, by = 1, length.out = nT)
+
+  if(proj)
+    tdx <- (tMP - 1):nT
+  else tdx <- 1:nT
+
+  fleetCols <- RColorBrewer::brewer.pal( nF, "Dark2" )
+
+  par(  mfcol = c(nP+1,1), 
+        mar = c(1,1.5,1,1.5),
+        oma = c(3,4,3,3) )
+
+  for( p in 1:(nP+1) )
+  {
+    plot( x = range(yrs[tdx]),
+          y = c(0,max(E_qpft[,p,,tdx],na.rm = T) ),
+          type = "n", axes = F )
+      mfg <- par("mfg")
+      # Plot axes and facet labels
+      if( mfg[1] == mfg[3] )
+        axis( side = 1 )
+      axis( side = 2, las = 1 )
+      box()
+      grid()
+      for( f in 6:7 )
+      {
+        # Skip if the fleet doesn't fish
+        if( all(E_qpft[,,f,] == 0) )
+          next
+
+        polygon( x = c(yrs,rev(yrs)), y = c(E_qpft[1,p,f,],rev(E_qpft[3,p,f,])), 
+                  col = scales::alpha(fleetCols[f], alpha = .3), border = NA )
+          for( tIdx in traces )
+            lines( x = yrs, y = E_ipft[tIdx,p,f,], col = fleetCols[f], lwd = .8 )
+
+        lines( x = yrs, y = E_qpft[2,p,f,], col = fleetCols[f], lwd = 3)
+        
+      }
+      if( mfg[2] == mfg[4] )
+      {
+        rmtext( line = 0.25, txt = stockNames[p], font = 2, outer = FALSE, cex = 1.5 )
+      }
+      abline( v = yrs[tMP] - 0.5, lty = 2, lwd = 0.5 )
+  }
+  mtext( side = 2, outer = TRUE, text = "Active SOK licenses",
+          line = 2, font = 2)
+  mtext( side = 1, text = stamp, col = "grey60", outer = TRUE, 
+          line = 1, adj = .75, cex = .5 )
+} # END plotTulipSOKEffort_p()
+
+# rmtext()
+# Refactored procedure to plot right hand inner
+# margin mtext with the bottom towards the middle
+# of the plot
+rmtext <- function( line = 1, 
+                    txt = "Sample", 
+                    font = 1,
+                    cex = 1,
+                    outer = FALSE,
+                    yadj = .5)
+{
+  corners <- par("usr") #Gets the four corners of plot area (x1, x2, y1, y2)
+  if( outer )
+    par(xpd = NA) #Draw outside the figure region
+  if( !outer )
+    par(xpd = TRUE)
+
+  xRange <- corners[2] - corners[1]
+
+  text( x = corners[2]+line, 
+        y = yadj * sum(corners[3:4]), 
+        labels = txt, srt = 270,
+        font = font, cex = cex )
+  par(xpd = FALSE)
+} # END rmtext()
+
 
 # plotEffort_p()
 # Effort over time gridded
