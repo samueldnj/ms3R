@@ -1,7 +1,7 @@
 # simCtlFile.txt, saved to ms3R root working directory
 parameter value
-ctl$scenarioName "DER_setupEcon"
-ctl$mpName "omni_totCat"
+ctl$scenarioName "determinstic"
+ctl$mpName "totProfit"
 ctl$quiet FALSE
 ctl$phaseMessages FALSE
 ctl$optimOutput FALSE
@@ -10,9 +10,9 @@ ctl$maxIter 1e4
 ctl$rSeed 123
 ctl$totReps 10
 ctl$nGoodReps 10
-ctl$omni FALSE
+ctl$omni TRUE
 ctl$perfConF FALSE
-ctl$noProcErr FALSE
+ctl$noProcErr TRUE
 ctl$nCores NULL
 mp$assess$assInt 1
 mp$assess$method "PerfectInfo"
@@ -71,7 +71,7 @@ mp$hcr$type "conF"
 mp$hcr$inputHRfile "Outputs/omni_econYield_splineE_short/dynEqHR.csv"
 mp$hcr$fileColName "noCorr.totCat"
 mp$hcr$Bref "Bmsy"
-mp$hcr$Fref "Umsy"
+mp$hcr$Fref "inputF"
 mp$hcr$LCP .4
 mp$hcr$UCP .6
 mp$hcr$maxDeltaTACup .2
@@ -92,13 +92,13 @@ mp$omni$hiDepProb 0.05
 mp$omni$expParMult 1
 mp$omni$inputF NULL
 mp$omni$inputE NULL
-mp$omni$leastSquaresWt .1
+mp$omni$leastSquaresWt 0
 mp$omni$avgCatWt 0.
-mp$omni$totCatWt 1.0
+mp$omni$totCatWt .0
 mp$omni$sumCatWt .0
-mp$omni$totProfitWt .0
+mp$omni$totProfitWt 1.0
 mp$omni$hiDepBmsyWt .0
-mp$omni$loDepBmsyWt .1
+mp$omni$loDepBmsyWt .0
 mp$omni$probDepWt 0.0
 mp$omni$closedWt 0
 mp$omni$AAVWt 0
@@ -122,11 +122,11 @@ opMod$priceCorr .6
 opMod$ut_50 .85
 opMod$ut_95 .75
 opMod$effortMod "Max"
-opMod$pT 32
+opMod$pT 60
 opMod$histFile "fit_base_MCMC"
 opMod$price_s c(Dover=1.04,English=1.16,Rock=0.87,Petrale=2.590,Arrowtooth=0.990)
 opMod$varCostPerKt 0.176
-opMod$discountRate 0.05
+opMod$discountRate 0.0
 opMod$interestRate 0.0
 opMod$lambda_s c(1.925763,1.412575,1.235383)
 opMod$priceSD 0.05

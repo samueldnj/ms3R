@@ -221,7 +221,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   
   # Now apply "F" as a harvest rate, since
   # we don't have M information
-  hcr$TAC_spt[,,t] <- hcr$targetF_spt[,,t] * projVB_sp
+  hcr$TAC_spt[,,t] <- hcr$targetF_spt[,,t] * projSB_sp
 
   propTAC_sp <- array(1, dim = c(nS,nP) )
 
@@ -1725,14 +1725,11 @@ solvePTm <- function( Bmsy, B0 )
       
     }
 
-  if( ctlList$mp$hcr$Fsource != "inputFile" )
-  {
-    if( ctlList$mp$hcr$Fref == "Umsy" )
-      obj$mp$hcr$Fref_spt[,,t]      <- obj$rp$FmsyRefPts$Umsy_sp
+  if( ctlList$mp$hcr$Fref == "Umsy" )
+    obj$mp$hcr$Fref_spt[,,t]      <- obj$rp$FmsyRefPts$Umsy_sp
 
-    if( ctlList$mp$hcr$Fref == "Fmsy" )
-      obj$mp$hcr$Fref_spt[,,t]      <- obj$rp$FmsyRefPts$Fmsy_sp
-  }
+  if( ctlList$mp$hcr$Fref == "Fmsy" )
+    obj$mp$hcr$Fref_spt[,,t]      <- obj$rp$FmsyRefPts$Fmsy_sp
 
   if( ctlList$mp$hcr$Bref == "Bmsy" )
     obj$mp$hcr$Bref_spt[,,t]      <- obj$rp$FmsyRefPts$BeqFmsy_sp  
@@ -3736,7 +3733,6 @@ combBarrierPen <- function( x, eps,
       obj$mp$hcr$Fref_spt[,,t] <- inputHR_sp
   }
 
-
   # Now we have enough info to calculate reference points
   stime <- Sys.time()
   message(" (.condMS3pop) Calculating Fmsy and Emsy reference points\n")
@@ -3906,11 +3902,13 @@ combBarrierPen <- function( x, eps,
   
   # Need to make price bounded by a range that is only slightly
   # outside historical values, to avoid run-away prices
-  if(!is.null(ctlList$ctl$noProcErr))
+  if(!ctlList$ctl$noProcErr)
     obj$errors$priceDev_st[1:nS,1:nT] <- t( mvtnorm::rmvnorm( n = nT, mean = rep(0,nS),
                                                               sigma = priceDevCovMat,
                                                               method = "chol") )
 
+
+  browser()
 
   obj <- .calcTimes( obj )
 

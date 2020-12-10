@@ -7,32 +7,30 @@
 
 library(parallel)
 source("ms3R.r")
-source("makeResultPlots.R")
+# source("makeResultPlots.R")
 
-batchControlFiles <- c( "omniRuns_econYield.bch",
-                        "sensRuns_MSYCV.bch",
-                        "sensRuns_hierSD.bch",
-                        "sensRuns_obsErr.bch",
-                        "sensRuns_UmsyCV.bch"
-                        )
+batchControlFiles <- c( "perfInfo_catProfMax_corrOMs.bch",
+                        "EmsyTest.bch",
+                        "EmeyTest.bch",
+                        "omniRuns_econYield_det.bch"
+                      )
                        
 nBatchJobs <- length( batchControlFiles )
 
 
-baseControlFiles  <- rep( "simCtlFileBase.txt",5)
+baseControlFiles  <- rep( "simCtlFileBase.txt",nBatchJobs)
                         
 
-prefixes       <- c(  "DERTACs_reruns_Oct10_",
-                      "sens_MSYCV",
-                      "sens_hierSD",
-                      "sens_projObsErr",
-                      "sens_UmsySD" )
+prefixes       <- c(  "perfInfo_corrOMs",
+                      "EmsyTesy",
+                      "EmeyTest",
+                      "detOmniRuns")
 
 saveDirName       <- prefixes
 
 baseLine <- c( NULL,NULL,NULL,NULL )
                         
-nCores <- rep(23,5)
+nCores <- rep(6,5)
 
 # Create a directory to hold completed mseR batch
 # jobs

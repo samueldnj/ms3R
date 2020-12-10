@@ -539,6 +539,7 @@ calcJABBASelPars <- function( obj )
 
   Beq_spf       <- Req_spf
   expBeq_spf    <- Req_spf
+  totBeq_spf    <- Req_spf
   Yeq_spf       <- Req_spf
   ypr_spf       <- Req_spf
   ssbpr_spf     <- Req_spf
@@ -552,6 +553,7 @@ calcJABBASelPars <- function( obj )
     Req_spf[,,i]      <- tmp$Req_sp
     Beq_spf[,,i]      <- tmp$Beq_sp
     expBeq_spf[,,i]   <- tmp$expBeq_sp
+    totBeq_spf[,,i]   <- tmp$totBeq_sp
     Yeq_spf[,,i]      <- tmp$Yeq_sp
     ypr_spf[,,i]      <- tmp$ypr_sp
     ssbpr_spf[,,i]    <- tmp$ssbpr_sp
@@ -567,6 +569,7 @@ calcJABBASelPars <- function( obj )
   surv_axspe    <- array( NA, dim = c(nA,nX,nS,nP,nFs) )
 
   Beq_spe       <- Req_spe
+  totBeq_spe    <- Req_spe
   expBeq_spe    <- Req_spe
   Yeq_spe       <- Req_spe
   ypr_spe       <- Req_spe
@@ -580,6 +583,7 @@ calcJABBASelPars <- function( obj )
     Req_spe[,,i]      <- tmp$Req_sp
     Beq_spe[,,i]      <- tmp$Beq_sp
     expBeq_spe[,,i]   <- tmp$expBeq_sp
+    totBeq_spe[,,i]   <- tmp$totBeq_sp
     Yeq_spe[,,i]      <- tmp$Yeq_sp
     ypr_spe[,,i]      <- tmp$ypr_sp
     ssbpr_spe[,,i]    <- tmp$ssbpr_sp
@@ -593,6 +597,7 @@ calcJABBASelPars <- function( obj )
     refCurves$ypr_spf     <- ypr_spf
     refCurves$Req_spf     <- Req_spf
     refCurves$Beq_spf     <- Beq_spf
+    refCurves$totBeq_spf  <- totBeq_spf
     refCurves$expBeq_spf  <- expBeq_spf
     refCurves$Yeq_spf     <- Yeq_spf
     refCurves$Ueq_spf     <- Yeq_spf
@@ -604,6 +609,7 @@ calcJABBASelPars <- function( obj )
     refCurves$EffCurves$ypr_spe     <- ypr_spe
     refCurves$EffCurves$Req_spe     <- Req_spe
     refCurves$EffCurves$Beq_spe     <- Beq_spe
+    refCurves$EffCurves$totBeq_spe  <- totBeq_spe
     refCurves$EffCurves$expBeq_spe  <- expBeq_spe
     refCurves$EffCurves$Yeq_spe     <- Yeq_spe
     refCurves$EffCurves$Ueq_spe     <- Yeq_spe
@@ -641,7 +647,7 @@ calcJABBASelPars <- function( obj )
     equil$Yeq_sp     <- recruits_sp * yprList$ypr_sp
     equil$ypr_sp     <- yprList$ypr_sp
     equil$ssbpr_sp   <- yprList$ssbpr_sp
-    equil$Ueq_sp     <- equil$Yeq_sp / equil$totBeq_sp
+    equil$Ueq_sp     <- equil$Yeq_sp / equil$Beq_sp
     equil$surv_axsp  <- tmp$Surv_axsp
 
   return(equil)
@@ -882,6 +888,7 @@ calcJABBASelPars <- function( obj )
                         BeqEmsy_sp    = spMat,
                         ReqEmsy_sp    = spMat,
                         expBeqEmsy_sp = spMat,
+                        totBeqEmsy_sp = spMat,
                         Umsy_sp       = spMat )
 
   EmsyMSRefPts <- list( yprEmsy_sp    = spMat,
@@ -889,6 +896,7 @@ calcJABBASelPars <- function( obj )
                         BeqEmsy_sp    = spMat,
                         ReqEmsy_sp    = spMat,
                         expBeqEmsy_sp = spMat,
+                        totBeqEmsy_sp = spMat,
                         Umsy_sp       = spMat,
                         YeqEmsy_p     = rep(0,nP) )
 
@@ -907,6 +915,7 @@ calcJABBASelPars <- function( obj )
       EmsyRefPts$YeqEmsy_sp[s,p]    <- tmp$Yeq_sp[s,p]
       EmsyRefPts$BeqEmsy_sp[s,p]    <- tmp$Beq_sp[s,p]
       EmsyRefPts$expBeqEmsy_sp[s,p] <- tmp$expBeq_sp[s,p]
+      EmsyRefPts$totBeqEmsy_sp[s,p] <- tmp$totBeq_sp[s,p]
       EmsyRefPts$NeqEmsy_sp[s,p]    <- tmp$Neq_sp[s,p]
       EmsyRefPts$ReqEmsy_sp[s,p]    <- tmp$Req_sp[s,p]
       EmsyRefPts$Umsy_sp[s,p]       <- tmp$Ueq_sp[s,p]
@@ -916,6 +925,7 @@ calcJABBASelPars <- function( obj )
       EmsyMSRefPts$YeqEmsy_sp[s,p]    <- tmpMS$Yeq_sp[s,p]
       EmsyMSRefPts$BeqEmsy_sp[s,p]    <- tmpMS$Beq_sp[s,p]
       EmsyMSRefPts$expBeqEmsy_sp[s,p] <- tmpMS$expBeq_sp[s,p]
+      EmsyMSRefPts$totBeqEmsy_sp[s,p] <- tmpMS$totBeq_sp[s,p]
       EmsyMSRefPts$NeqEmsy_sp[s,p]    <- tmpMS$Neq_sp[s,p]
       EmsyMSRefPts$ReqEmsy_sp[s,p]    <- tmpMS$Req_sp[s,p]
       EmsyMSRefPts$Umsy_sp[s,p]       <- tmpMS$Ueq_sp[s,p]
@@ -981,6 +991,7 @@ calcJABBASelPars <- function( obj )
                         BeqFmsy_sp    = spMat,
                         ReqFmsy_sp    = spMat,
                         expBeqFmsy_sp = spMat,
+                        totBeqFmsy_sp = spMat,
                         Umsy_sp       = spMat )
 
   
@@ -996,6 +1007,7 @@ calcJABBASelPars <- function( obj )
       FmsyRefPts$YeqFmsy_sp[s,p]    <- tmp$Yeq_sp[s,p]
       FmsyRefPts$BeqFmsy_sp[s,p]    <- tmp$Beq_sp[s,p]
       FmsyRefPts$expBeqFmsy_sp[s,p] <- tmp$expBeq_sp[s,p]
+      FmsyRefPts$totBeqFmsy_sp[s,p] <- tmp$totBeq_sp[s,p]
       FmsyRefPts$NeqFmsy_sp[s,p]    <- tmp$Neq_sp[s,p]
       FmsyRefPts$ReqFmsy_sp[s,p]    <- tmp$Req_sp[s,p]
       FmsyRefPts$Umsy_sp[s,p]       <- tmp$Ueq_sp[s,p]
