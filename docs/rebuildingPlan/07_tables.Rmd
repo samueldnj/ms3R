@@ -212,8 +212,8 @@ perfTable <- read.csv("./data/fullStatTable_avgCtlPts_addedCols.csv", stringsAsF
                       pBtGt.3B0, 
                       pBtGt.5B0,
                       pBtGtB0,
-                      pBtGtHistSB,
                       pBtGt.5HistSB,
+                      pBtGtHistSB,
                       nYrsSOK,
                       avgLicSOK,
                       avgSOK_t,
@@ -335,11 +335,17 @@ printWorstOM <- gsub(pattern = "_", replacement = "\\\\_", x = worstOM)
 eqWtd_perfTableFull <- perfTable %>%
                         group_by( mp ) %>%
                         summarise_if( is.numeric, mean, na.rm = T ) %>%
-                        mutate( pBtGt.3B0 = round(pBtGt.3B0,2),
-                                pBtGt.5B0 = round(pBtGt.5B0,2),
+                        mutate( pBtGt.3B0   = round(pBtGt.3B0,2),
+                                pBtGt.5B0   = round(pBtGt.5B0,2),
+                                pBtGtB0     = round(pBtGtB0,2),
+                                pBtGtHistSB = round(pBtGtHistSB,2),
+                                pBtGt.5HistSB = round(pBtGt.5HistSB,2),
                                 growthRate6yrs = round(100*growthRate6yrs,1),
                                 growthRate11yrs = round(100*growthRate11yrs,1),
                                 growthRate16yrs = round(100*growthRate16yrs,1),
+                                B0 = round(B0,1),
+                                BhistT = round(BhistT,1),
+                                B7585 = round(B7585,1),
                                 BnT = round(BnT,1),
                                 nYrsSOK = round(nYrsSOK,1),
                                 avgLicSOK = round(avgLicSOK,1),
@@ -358,10 +364,16 @@ eqWtd_perfTableFull <- perfTable %>%
                         mutate( mp = sapply(  X = mp, FUN = replaceString,
                                               pattern = "_",
                                               replacement = "\\\\_") ) 
+
+write.csv(eqWtd_perfTableFull, file = "./data/eqWtd_Full.csv")
+
 eqWtd_perfTable_Biomass <- eqWtd_perfTableFull %>%
                             select( RP = mp,
-                                    "$P(B_t \\geq .3B_0)$" = pBtGt.3B0, 
-                                    "$P(B_t \\geq .5B_0)$" = pBtGt.5B0, 
+                                    "$P(B_t \\geq 0.3 B_0)$"  = pBtGt.3B0, 
+                                    "$P(B_t \\geq 0.5 B_0)$"  = pBtGt.5B0, 
+                                    "$P(B_t \\geq B_0)$"      = pBtGtB0, 
+                                    "$P(B_t \\geq 0.5 B_{1975:1985})$"  = pBtGt.5HistSB, 
+                                    "$P(B_t \\geq B_{1975:1985})$"      = pBtGtHistSB, 
                                     "$\\Gamma(2019,2024)$" = growthRate6yrs,
                                     "$\\Gamma(2019,2029)$" = growthRate11yrs,
                                     "$\\Gamma(2019,2034)$" = growthRate16yrs,
@@ -570,10 +582,16 @@ bestOM_perfTable <- perfTable %>%
                     arrange( match(mp,MPorder) ) %>%
                     mutate( pBtGt.3B0 = round(pBtGt.3B0,2),
                             pBtGt.5B0 = round(pBtGt.5B0,2),
+                            pBtGtB0 = round(pBtGtB0,2),
+                            pBtGtHistSB = round(pBtGtHistSB,2),
+                            pBtGt.5HistSB = round(pBtGt.5HistSB,2),
                             growthRate6yrs = round(100*growthRate6yrs,1),
                             growthRate11yrs = round(100*growthRate11yrs,1),
                             growthRate16yrs = round(100*growthRate16yrs,1),
                             BnT = round(BnT,1),
+                            B0 = round(B0,1),
+                            BhistT = round(BhistT,1),
+                            B7585 = round(B7585,1),
                             nYrsSOK = round(nYrsSOK,1),
                             avgLicSOK = round(avgLicSOK,1),
                             avgSOK_t = round(2.2*avgSOK_t,1),
@@ -592,11 +610,15 @@ bestOM_perfTable <- perfTable %>%
                                           pattern = "_",
                                           replacement = "\\\\_") )
 
+write.csv(bestOM_perfTable, file = "./data/bestOM_fullTable.csv")
 
 bestOM_perfTable_Biomass <- bestOM_perfTable %>%
                               select( RP = mp,
-                                    "$P(B_t \\geq .3B_0)$" = pBtGt.3B0, 
-                                    "$P(B_t \\geq .5B_0)$" = pBtGt.5B0, 
+                                    "$P(B_t \\geq 0.3 B_0)$"  = pBtGt.3B0, 
+                                    "$P(B_t \\geq 0.5 B_0)$"  = pBtGt.5B0, 
+                                    "$P(B_t \\geq B_0)$"      = pBtGtB0, 
+                                    "$P(B_t \\geq 0.5 B_{1975:1985})$"  = pBtGt.5HistSB, 
+                                    "$P(B_t \\geq B_{1975:1985})$"      = pBtGtHistSB, 
                                     "$\\Gamma(2019,2024)$" = growthRate6yrs,
                                     "$\\Gamma(2019,2029)$" = growthRate11yrs,
                                     "$\\Gamma(2019,2034)$" = growthRate16yrs,
@@ -669,10 +691,16 @@ worstOM_perfTable <- perfTable %>%
                     arrange( match(mp,MPorder) ) %>%
                     mutate( pBtGt.3B0 = round(pBtGt.3B0,3),
                             pBtGt.5B0 = round(pBtGt.5B0,3),
+                            pBtGtB0 = round(pBtGtB0,3),
+                            pBtGt.5HistSB = round(pBtGt.5HistSB,3),
+                            pBtGt.5B0 = round(pBtGt.5B0,3),
                             growthRate6yrs = round(100*growthRate6yrs,1),
                             growthRate11yrs = round(100*growthRate11yrs,1),
                             growthRate16yrs = round(100*growthRate16yrs,1),
                             BnT = round(BnT,1),
+                            B0 = round(B0,1),
+                            BhistT = round(BhistT,1),
+                            B7585 = round(B7585,1),
                             nYrsSOK = round(nYrsSOK,1),
                             avgLicSOK = round(avgLicSOK,1),
                             avgSOK_t = round(2.2*avgSOK_t,1),
@@ -691,11 +719,16 @@ worstOM_perfTable <- perfTable %>%
                                           pattern = "_",
                                           replacement = "\\\\_") )
 
+write.csv(worstOM_perfTable, file = "./data/worstOM_fullTable.csv")
+
 
 worstOM_perfTable_Biomass <- worstOM_perfTable %>%
                               select( RP = mp,
-                                    "$P(B_t \\geq .3B_0)$" = pBtGt.3B0, 
-                                    "$P(B_t \\geq .5B_0)$" = pBtGt.5B0, 
+                                    "$P(B_t \\geq 0.3 B_0)$"  = pBtGt.3B0, 
+                                    "$P(B_t \\geq 0.5 B_0)$"  = pBtGt.5B0, 
+                                    "$P(B_t \\geq B_0)$"    = pBtGtB0, 
+                                    "$P(B_t \\geq 0.5 B_{1975:1985})$"  = pBtGt.5HistSB, 
+                                    "$P(B_t \\geq B_{1975:1985})$"      = pBtGtHistSB, 
                                     "$\\Gamma(2019,2024)$" = growthRate6yrs,
                                     "$\\Gamma(2019,2029)$" = growthRate11yrs,
                                     "$\\Gamma(2019,2034)$" = growthRate16yrs,

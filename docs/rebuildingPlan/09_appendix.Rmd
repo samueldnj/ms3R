@@ -16,7 +16,7 @@ This appendix contains the rebuilding analysis performance metrics
 for each individual sub-area.
 
 ```{r readPerfTabStocks, echo = FALSE, include = FALSE}
-perfTable <- read.csv("./data/fullStatTable_avgCtlPts.csv", stringsAsFactors = FALSE) 
+perfTable <- read.csv("./data/fullStatTable_avgCtlPts_addedCols.csv", stringsAsFactors = FALSE) 
 
 subAreaTable <- perfTable %>%
                 filter( stock != "aggregate" ) %>%
@@ -25,6 +25,9 @@ subAreaTable <- perfTable %>%
                         mp,
                         pBtGt.3B0, 
                         pBtGt.5B0,
+                        pBtGtB0,
+                        pBtGt.5HistSB,
+                        pBtGtHistSB,
                         nYrsSOK,
                         avgLicSOK,
                         avgSOK_t,
@@ -39,6 +42,7 @@ subAreaTable <- perfTable %>%
                         growthRate11yrs,
                         growthRate16yrs,
                         B0,
+                        B7585,
                         BhistT,
                         DhistT,
                         BtMP,
@@ -70,10 +74,16 @@ eqWtd_perfTable_subAreas <- subAreaTable %>%
                             summarise_if( is.numeric, mean ) %>%
                             mutate( pBtGt.3B0 = round(pBtGt.3B0,2),
                                     pBtGt.5B0 = round(pBtGt.5B0,2),
+                                    pBtGtB0 = round(pBtGtB0,2),
+                                    pBtGt.5HistSB = round(pBtGt.5HistSB,2),
+                                    pBtGtHistSB = round(pBtGtHistSB,2),
                                     growthRate6yrs = round(100*growthRate6yrs,1),
                                     growthRate11yrs = round(100*growthRate11yrs,1),
                                     growthRate16yrs = round(100*growthRate16yrs,1),
                                     BnT = round(BnT,1),
+                                    B0 = round(B0,1),
+                                    B7585 = round(B7585,1),
+                                    BhistT = round(BhistT,1),
                                     nYrsSOK = round(nYrsSOK,1),
                                     avgLicSOK = round(avgLicSOK,1),
                                     avgSOK_t = round(2.2*avgSOK_t,1),
@@ -93,10 +103,16 @@ eqWtd_perfTable_subAreas <- subAreaTable %>%
                                                   pattern = "_",
                                                   replacement = "\\\\_") ) %>%
                             ungroup()
+
+write.csv(eqWtd_perfTable_subAreas, file = "./data/eqWtd_Areas_fullTable.csv")
+
 eqWtd_perfTable_Biomass <- eqWtd_perfTable_subAreas %>%
                             select( RP = mp,
-                                    "$P(B_t \\geq .3B_0)$" = pBtGt.3B0, 
-                                    "$P(B_t \\geq .5B_0)$" = pBtGt.5B0, 
+                                    "$P(B_t \\geq 0.3 B_0)$"  = pBtGt.3B0, 
+                                    "$P(B_t \\geq 0.5 B_0)$"  = pBtGt.5B0, 
+                                    "$P(B_t \\geq B_0)$"      = pBtGtB0, 
+                                    "$P(B_t \\geq 0.5 B_{1975:1985})$"  = pBtGt.5HistSB, 
+                                    "$P(B_t \\geq B_{1975:1985})$"      = pBtGtHistSB, 
                                     "$\\Gamma(2019,2024)$" = growthRate6yrs,
                                     "$\\Gamma(2019,2029)$" = growthRate11yrs,
                                     "$\\Gamma(2019,2034)$" = growthRate16yrs,
@@ -166,10 +182,16 @@ bestOM_perfTable_subAreas <- subAreaTable %>%
                                 filter( scenario == bestOM ) %>%
                                 mutate( pBtGt.3B0 = round(pBtGt.3B0,2),
                                         pBtGt.5B0 = round(pBtGt.5B0,2),
+                                        pBtGtB0 = round(pBtGtB0,2),
+                                        pBtGt.5HistSB = round(pBtGt.5HistSB,2),
+                                        pBtGtHistSB = round(pBtGtHistSB,2),
                                         growthRate6yrs = round(100*growthRate6yrs,1),
                                         growthRate11yrs = round(100*growthRate11yrs,1),
                                         growthRate16yrs = round(100*growthRate16yrs,1),
                                         BnT = round(BnT,1),
+                                        BhistT = round(BhistT,1),
+                                        B0 = round(B0,1),
+                                        B7585 = round(B7585,1),
                                         nYrsSOK = round(nYrsSOK,1),
                                         avgLicSOK = round(avgLicSOK,1),
                                         avgSOK_t = round(2.2*avgSOK_t,1),
@@ -188,10 +210,16 @@ bestOM_perfTable_subAreas <- subAreaTable %>%
                                 mutate( mp = sapply(  X = mp, FUN = replaceString,
                                                       pattern = "_",
                                                       replacement = "\\\\_") )
+
+write.csv(bestOM_perfTable_subAreas, file = "./data/bestOM_Areas_fullTable.csv")
+
 bestOM_perfTable_Biomass <- bestOM_perfTable_subAreas %>%
                             select( RP = mp,
-                                    "$P(B_t \\geq .3B_0)$" = pBtGt.3B0, 
-                                    "$P(B_t \\geq .5B_0)$" = pBtGt.5B0, 
+                                    "$P(B_t \\geq 0.3 B_0)$"  = pBtGt.3B0, 
+                                    "$P(B_t \\geq 0.5 B_0)$"  = pBtGt.5B0, 
+                                    "$P(B_t \\geq B_0)$"      = pBtGtB0, 
+                                    "$P(B_t \\geq 0.5 B_{1975:1985})$"  = pBtGt.5HistSB, 
+                                    "$P(B_t \\geq B_{1975:1985})$"      = pBtGtHistSB, 
                                     "$\\Gamma(2019,2024)$" = growthRate6yrs,
                                     "$\\Gamma(2019,2029)$" = growthRate11yrs,
                                     "$\\Gamma(2019,2034)$" = growthRate16yrs,
@@ -262,10 +290,16 @@ worstOM_perfTable_subAreas <- subAreaTable %>%
                                 filter( scenario == worstOM ) %>%
                                 mutate( pBtGt.3B0 = round(pBtGt.3B0,3),
                                         pBtGt.5B0 = round(pBtGt.5B0,3),
+                                        pBtGtB0 = round(pBtGtB0,2),
+                                        pBtGt.5HistSB = round(pBtGt.5HistSB,2),
+                                        pBtGtHistSB = round(pBtGtHistSB,2),
                                         growthRate6yrs = round(100*growthRate6yrs,1),
                                         growthRate11yrs = round(100*growthRate11yrs,1),
                                         growthRate16yrs = round(100*growthRate16yrs,1),
                                         BnT = round(BnT,1),
+                                        B0 = round(B0,1),
+                                        BhistT = round(BhistT,1),
+                                        B7585 = round(B7585,1),
                                         nYrsSOK = round(nYrsSOK,1),
                                         avgLicSOK = round(avgLicSOK,1),
                                         avgSOK_t = round(2.2*avgSOK_t,1),
@@ -284,10 +318,16 @@ worstOM_perfTable_subAreas <- subAreaTable %>%
                                 mutate( mp = sapply(  X = mp, FUN = replaceString,
                                                       pattern = "_",
                                                       replacement = "\\\\_") )
+
+write.csv(worstOM_perfTable_subAreas, file = "./data/worstOM_Areas_fullTable.csv")
+
 worstOM_perfTable_Biomass <- worstOM_perfTable_subAreas %>%
                             select( RP = mp,
-                                    "$P(B_t \\geq .3B_0)$" = pBtGt.3B0, 
-                                    "$P(B_t \\geq .5B_0)$" = pBtGt.5B0, 
+                                    "$P(B_t \\geq 0.3 B_0)$"  = pBtGt.3B0, 
+                                    "$P(B_t \\geq 0.5 B_0)$"  = pBtGt.5B0, 
+                                    "$P(B_t \\geq B_0)$"      = pBtGtB0, 
+                                    "$P(B_t \\geq 0.5 B_{1975:1985})$"  = pBtGt.5HistSB, 
+                                    "$P(B_t \\geq B_{1975:1985})$"      = pBtGtHistSB, 
                                     "$\\Gamma(2019,2024)$" = growthRate6yrs,
                                     "$\\Gamma(2019,2029)$" = growthRate11yrs,
                                     "$\\Gamma(2019,2034)$" = growthRate16yrs,
