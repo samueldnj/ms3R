@@ -380,6 +380,7 @@ makeStatTable <- function( sims = 1, folder = "", ... )
                   "pBtGt.3B0", 
                   "pBtGt.5B0", 
                   "pBtGt.6B0",
+                  "pBtGtB0",
                   "pCtGt650t",
                   "pUtGt.1HR",
                   "avgUtGt0.1HR",
@@ -397,6 +398,7 @@ makeStatTable <- function( sims = 1, folder = "", ... )
                   "growthRate11yrs",
                   "growthRate16yrs",
                   "B0",
+                  "B7585",
                   "BtMP",
                   "DtMP",
                   "BhistT",
@@ -423,7 +425,7 @@ makeStatTable <- function( sims = 1, folder = "", ... )
 
 
   # Pull reference points
-  B0_isp <- array(NA, dim=c(nGoodReps,nS,nP))
+  B0_isp        <- array(NA, dim=c(nGoodReps,nS,nP))
   for(i in 1:nGoodReps)
   {
     rp          <- obj$rp[[i]]
@@ -476,7 +478,7 @@ makeStatTable <- function( sims = 1, folder = "", ... )
     # Calculate median biomass from 1975-1985
     fYear         <- obj$ctlList$opMod$fYear
     yrIdx         <- (1975-fYear+1):(1985-fYear+1)     
-    histSB_isp <- apply(SB_ispt[,,,yrIdx,drop=FALSE], FUN=median, MARGIN=c(1,2,3))
+    histSB_isp    <- apply(SB_ispt[,,,yrIdx,drop=FALSE], FUN=median, MARGIN=c(1,2,3))
     
     # Calculate probability that Bt above LRP
     pBtGt.3B0_sp <- .calcStatsProportion(   TS_ispt = endSB_ispt,
@@ -506,6 +508,13 @@ makeStatTable <- function( sims = 1, folder = "", ... )
                                             prop = .5,
                                             nS = nS,
                                             nP = nP )
+
+    pBtGtB0_sp <- .calcStatsProportion( TS_ispt = endSB_ispt,
+                                        ref_isp = B0_isp,
+                                        tdx = tMP:nT,
+                                        prop = 1,
+                                        nS = nS,
+                                        nP = nP )
 
     pBtGt.6B0_sp <- .calcStatsProportion(   TS_ispt = endSB_ispt,
                                             ref_isp = B0_isp,
@@ -691,6 +700,7 @@ makeStatTable <- function( sims = 1, folder = "", ... )
         statTable[rowIdx,"pBtGt.5HistSB"] <- round(pBtGt.5HistSB_sp[s,p],3)
         statTable[rowIdx,"pBtGt.5B0"]     <- round(pBtGt.5B0_sp[s,p],3)
         statTable[rowIdx,"pBtGt.6B0"]     <- round(pBtGt.6B0_sp[s,p],3)
+        statTable[rowIdx,"pBtGtB0"]       <- round(pBtGtB0_sp[s,p],3)
         
         # statTable[rowIdx,"pBtGtBmsy"]       <- round(pBtGtBmsy_sp[s,p],2)
         # statTable[rowIdx,"pCtGtMSY"]        <- round(pCtGtMSY_sp[s,p],2)
@@ -718,6 +728,7 @@ makeStatTable <- function( sims = 1, folder = "", ... )
         statTable[rowIdx,"growthRate16yrs"] <- round(medG15_sp[s,p],3)
 
         statTable[rowIdx,"B0"]              <- round(mean(B0_isp[,s,p],na.rm = T),3)
+        statTable[rowIdx,"B7585"]           <- round(mean(histSB_isp[,s,p],na.rm = T),3)
         statTable[rowIdx,"BtMP"]            <- round(mean(endSB_ispt[,s,p,tMP],na.rm = T),3)
         statTable[rowIdx,"DtMP"]            <- round(mean(endSB_ispt[,s,p,tMP]/B0_isp[,s,p],na.rm = T),3)
         statTable[rowIdx,"BhistT"]          <- round(mean(endSB_ispt[,s,p,tMP-1],na.rm = T),3)
@@ -780,6 +791,13 @@ makeStatTable <- function( sims = 1, folder = "", ... )
                                                   prop = .5,
                                                   nS = 1,
                                                   nP = 1 )
+
+      pBtGtB0_agg <- .calcStatsProportionAgg( TS_it = endSB_it,
+                                              ref_i = B0_i,
+                                              tdx = tMP:nT,
+                                              prop = 1,
+                                              nS = 1,
+                                              nP = 1 )
 
       pBtGt.6B0_agg <- .calcStatsProportionAgg(   TS_it = endSB_it,
                                                   ref_i = B0_i,
@@ -918,10 +936,11 @@ makeStatTable <- function( sims = 1, folder = "", ... )
       aggRow[,"pBtGt.5HistSB"] <- round(pBtGt.5HistSB_agg,3)
       aggRow[,"pBtGt.5B0"]     <- round(pBtGt.5B0_agg,3)
       aggRow[,"pBtGt.6B0"]     <- round(pBtGt.6B0_agg,3)
-      
+      aggRow[,"pBtGtB0"]       <- round(pBtGtB0_agg,3)
+
       # commercial catch
-      aggRow[,"pUtGt.1HR"]       <- round(pUGt.1_agg,3)
-      aggRow[,"avgUtGt0.1HR"]    <- round(overFishUbar_agg,2)
+      aggRow[,"pUtGt.1HR"]     <- round(pUGt.1_agg,3)
+      aggRow[,"avgUtGt0.1HR"]  <- round(overFishUbar_agg,2)
       aggRow[,"pCtGt650t"]     <- round(pCtGt650_agg,2)
       aggRow[,"nYrsComm"]      <- round(commYrsBar_agg,1)
       aggRow[,"avgCatch_t"]    <- round(Cbar_agg*1e3,1)
@@ -943,6 +962,7 @@ makeStatTable <- function( sims = 1, folder = "", ... )
       aggRow[,"growthRate16yrs"]   <- round(medG15_agg,3)
 
       aggRow[,"B0"]              <- round(mean(B0_i,na.rm = T),3)
+      aggRow[,"B7585"]           <- round(mean(histSB_i,na.rm = T),3)
       aggRow[,"BtMP"]            <- round(mean(endSB_it[,tMP],na.rm = T),3)
       aggRow[,"DtMP"]            <- round(mean(endSB_it[,tMP]/B0_i,na.rm = T),3)
       aggRow[,"BhistT"]          <- round(mean(endSB_it[,tMP-1],na.rm = T),3)

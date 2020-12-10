@@ -205,12 +205,15 @@ csasdown::csas_table( statModelEqns, escape = FALSE,
 
 
 ```{r readPerfTab, echo = FALSE, include = FALSE}
-perfTable <- read.csv("./data/fullStatTable_avgCtlPts.csv", stringsAsFactors = FALSE) %>%
+perfTable <- read.csv("./data/fullStatTable_avgCtlPts_addedCols.csv", stringsAsFactors = FALSE) %>%
               filter( stock == "aggregate" ) %>%
               select( scenario,
                       mp,
                       pBtGt.3B0, 
                       pBtGt.5B0,
+                      pBtGtB0,
+                      pBtGtHistSB,
+                      pBtGt.5HistSB,
                       nYrsSOK,
                       avgLicSOK,
                       avgSOK_t,
@@ -225,6 +228,7 @@ perfTable <- read.csv("./data/fullStatTable_avgCtlPts.csv", stringsAsFactors = F
                       growthRate11yrs,
                       growthRate16yrs,
                       B0,
+                      B7585,
                       BhistT,
                       DhistT,
                       BtMP,
