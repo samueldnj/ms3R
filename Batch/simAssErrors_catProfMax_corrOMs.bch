@@ -1,0 +1,107 @@
+# Batch File
+parameter value
+#
+## Scenarios
+#
+# Scenario 1 : noCorr
+#
+scenario$scenario1$ctl$scenarioName 'noCorr'
+scenario$scenario1$ctl$nGoodReps 100
+scenario$scenario1$ctl$totReps 100
+scenario$scenario1$ctl$omni FALSE
+scenario$scenario1$ctl$nCores NULL
+scenario$scenario1$opMod$pT 32
+scenario$scenario1$opMod$corrRecDevs FALSE
+scenario$scenario1$opMod$corrPriceDevs FALSE
+#
+# Scenario 2 : corrRec
+#
+scenario$scenario2$ctl$scenarioName 'corrRecDevs'
+scenario$scenario2$ctl$nGoodReps 100
+scenario$scenario2$ctl$totReps 100
+scenario$scenario2$ctl$omni FALSE
+scenario$scenario2$ctl$nCores NULL
+scenario$scenario2$opMod$pT 32
+scenario$scenario2$opMod$corrRecDevs TRUE
+scenario$scenario2$opMod$corrPriceDevs FALSE
+#
+# Scenario 3 : corrPrice
+#
+scenario$scenario3$ctl$scenarioName 'corrPriceDevs'
+scenario$scenario3$ctl$nGoodReps 100
+scenario$scenario3$ctl$totReps 100
+scenario$scenario3$ctl$omni FALSE
+scenario$scenario3$ctl$nCores NULL
+scenario$scenario3$opMod$pT 32
+scenario$scenario3$opMod$corrRecDevs FALSE
+scenario$scenario3$opMod$corrPriceDevs TRUE
+#
+# Scenario 4 : corrRecPrice
+#
+scenario$scenario4$ctl$scenarioName 'corrRecPrice'
+scenario$scenario4$ctl$nGoodReps 100
+scenario$scenario4$ctl$totReps 100
+scenario$scenario4$ctl$omni FALSE
+scenario$scenario4$ctl$nCores NULL
+scenario$scenario4$opMod$pT 32
+scenario$scenario4$opMod$corrRecDevs TRUE
+scenario$scenario4$opMod$corrPriceDevs TRUE
+#
+#
+## Management Procedures
+#
+# MP 1 : perfInfo_MSY
+#
+mp$mp1$ctl$mpName 'perfInfo_MSY'
+mp$mp1$mp$hcr$fileColName 'Xmsy'
+mp$mp1$mp$hcr$Fref "inputF"
+mp$mp1$mp$hcr$Fsource "inputFile"
+mp$mp1$mp$assess$method "simAssErrors"
+mp$mp1$mp$assess$simErrType "fixed"
+#
+# MP 2 : perfInfo_MEY
+#
+mp$mp2$ctl$mpName 'perfInfo_MEY'
+mp$mp2$mp$hcr$fileColName 'Xmey'
+mp$mp2$mp$hcr$Fref "inputF"
+mp$mp2$mp$hcr$Fsource "inputFile"
+mp$mp2$mp$assess$method "simAssErrors"
+mp$mp2$mp$assess$simErrType "fixed"
+#
+# MP 3 : perfInfo_noCorr.MEY
+#
+mp$mp3$ctl$mpName 'perfInfo_noCorr.MEY'
+mp$mp3$mp$hcr$fileColName 'noCorr.totProfit'
+mp$mp3$mp$hcr$Fref "inputF"
+mp$mp3$mp$hcr$Fsource "inputFile"
+mp$mp3$mp$assess$method "simAssErrors"
+mp$mp3$mp$assess$simErrType "fixed"
+#
+# MP 4 : perfInfo_corrRec.MEY
+#
+mp$mp4$ctl$mpName 'perfInfo_corrRec.MEY'
+mp$mp4$mp$hcr$fileColName 'corrRecDevs.totProfit'
+mp$mp4$mp$hcr$Fref "inputF"
+mp$mp4$mp$hcr$Fsource "inputFile"
+mp$mp4$mp$assess$method "simAssErrors"
+mp$mp4$mp$assess$simErrType "fixed"
+#
+# MP 5 : perfInfo_corrPrice.MEY
+#
+mp$mp5$ctl$mpName 'perfInfo_corrPrice.MEY'
+mp$mp5$mp$hcr$fileColName 'corrPriceDevs.totProfit'
+mp$mp5$mp$hcr$Fref "inputF"
+mp$mp5$mp$hcr$Fsource "inputFile"
+mp$mp5$mp$assess$method "simAssErrors"
+mp$mp5$mp$assess$simErrType "fixed"
+#
+# MP 6 : perfInfo_corrRecPr.MEY
+#
+mp$mp6$ctl$mpName 'perfInfo_corrRecPr.MEY'
+mp$mp6$mp$hcr$fileColName 'corrRecPrice.totProfit'
+mp$mp6$mp$hcr$Fref "inputF"
+mp$mp6$mp$hcr$Fsource "inputFile"
+mp$mp6$mp$assess$method "simAssErrors"
+mp$mp6$mp$assess$simErrType "fixed"
+#
+## <END FILE>

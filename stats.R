@@ -417,6 +417,144 @@ calcProbOverfished <- function( groupFolder="DERTACS_reruns_sep24",
 } # END calcProbOverfished
 
 
+calc_AssErrDist <- function(  groupFolder="DERTACs_reruns_Oct10_",
+                              prefix = "parBat",
+                              scenName = "DERfit_AsSsIdx",
+                              mpName = "hierMultiStock_omF_MSrefPts" )
+{
+  # First get info files so we can load the right 
+  # loss objects
+  # First, read info files from the relevant
+  # sims
+  simFolderList <- list.dirs( here::here("Outputs",groupFolder),
+                              recursive = FALSE, full.names = FALSE)
+
+  simFolderList <- simFolderList[grepl(prefix, simFolderList)]
+
+  info.df <-  readBatchInfo( batchDir = here::here("Outputs",groupFolder) ) %>%
+              filter( grepl(prefix,simLabel),
+                      scenario %in% scenName,
+                      mp %in% mpName )
+
+  # Break up MP names into factor levels
+  # MP labels are AM_Fsrce_eqbm
+  splitMP <- function(  mpLab, 
+                        breaks = "_",
+                        factorNames = c("AM","Fsrce","eqbm") )
+  {
+    splitMP <- stringr::str_split(mpLab, breaks)[[1]]
+
+    outList <- vector(  mode = "list", 
+                        length = length(splitMP) )
+    names(outList) <- factorNames
+    for( k in 1:length(splitMP))
+      outList[[k]] <- splitMP[k]
+
+    unlist(outList)
+  }
+
+  MPfactors <- lapply( X = info.df$mp, FUN = splitMP )
+  MPfactors <- do.call(rbind, MPfactors) %>% as.data.frame()
+
+  # Read in the performance tables
+  mpTable <- cbind( info.df, MPfactors ) %>%
+              mutate( perfPath = here::here("Outputs",groupFolder,simLabel,"simPerfStats.csv"),
+                      path = here::here("Outputs",groupFolder,simLabel) )
+
+  blobFiles <- file.path(mpTable$path,paste(mpTable$simLabel,".RData",sep = ""))
+  names(blobFiles) <- mpTable$simLabel
+  
+  nSims <- length(blobFiles)
+  retroEstList <- vector(mode ="list", length = nSims)
+  names(retroEstList) <- mpTable$simLabel
+
+  errList <- vector(mode = "list", length = length(retroEstList))
+  names(errList) <- names(retroEstList)
+
+
+
+  for( i in 1:nSims )
+  {
+    # load blob
+    simID <- mpTable$simLabel[i]
+    load(blobFiles[[simID]])
+
+    # Save info
+    retroEstList[[simID]]$SB_ispt        <- blob$om$SB_ispt
+    retroEstList[[simID]]$retroSB_itspt  <- blob$mp$assess$retroSB_itspt
+
+
+    if( i == 1 )
+    {
+      pT      <- blob$ctlList$opMod$pT
+      nS      <- blob$om$nS
+      nP      <- blob$om$nP
+      nT      <- blob$om$nT
+      nF      <- blob$om$nF
+      tMP     <- blob$om$tMP
+      nReps   <- dim(retroEstList[[i]]$SB_ispt)[1]
+      species <- blob$om$speciesNames
+      stock   <- blob$om$stockNames
+
+      assErr_ispt <- array(NA, dim = c(nReps,nS,nP,nT) )
+    }
+
+    blob <- NULL
+    gc()
+
+    errList[[simID]]$assErr_ispt <- assErr_ispt
+
+    
+    for( t in tMP:nT )
+    {
+      pTdx <- t - tMP + 1
+      errList[[simID]]$assErr_ispt[,,,t] <-  log(retroEstList[[simID]]$retroSB_itspt[,pTdx,,,t]/retroEstList[[simID]]$SB_ispt[,,,t])
+    }
+
+    # Now, we want to remove the nSxnP structure so we can calculate correlation
+    # and covariance
+    errList[[simID]]$assErr_itSP <- array(NA, dim = c(nReps,pT, nS*nP) )
+    errList[[simID]]$cov_i       <- array(NA, dim = c(nReps,nS*nP,nS*nP))
+    errList[[simID]]$cor_i       <- array(NA, dim = c(nReps,nS*nP,nS*nP))
+    errList[[simID]]$mu_i        <- array(NA, dim = c(nReps,nS*nP))
+    errList[[simID]]$sd_i        <- array(NA, dim = c(nReps,nS*nP))
+    for( i in 1:nReps )
+    {
+      for( s in 1:nS )
+        for( p in 1:nP )
+        {
+          spIdx <- (s-1) * nP + p
+          errList[[simID]]$assErr_itSP[i,1:pT,spIdx] <- errList[[simID]]$assErr_ispt[i,s,p,tMP:nT]
+        }
+
+      errList[[simID]]$cov_i[i,,] <- cov(errList[[simID]]$assErr_itSP[i,,])
+      errList[[simID]]$cor_i[i,,] <- cor(errList[[simID]]$assErr_itSP[i,,])
+      errList[[simID]]$mu_i[i,]   <- apply(X = errList[[simID]]$assErr_itSP[i,,], FUN = mean, MARGIN = 2)
+      errList[[simID]]$sd_i[i,]   <- apply(X = errList[[simID]]$assErr_itSP[i,,], FUN = sd, MARGIN = 2)
+
+    }
+
+    # Now look at distribution of correlations, covariance and mean errors
+    errList[[simID]]$cov_q <- apply(  X = errList[[simID]]$cov_i, FUN = quantile, 
+                                      probs = c(0.025, 0.5, 0.975),
+                                      MARGIN = c(2,3) )
+    errList[[simID]]$cor_q <- apply(  X = errList[[simID]]$cor_i, FUN = quantile, 
+                                      probs = c(0.025, 0.5, 0.975),
+                                      MARGIN = c(2,3) )
+    errList[[simID]]$mu_q <- apply(  X = errList[[simID]]$mu_i, FUN = quantile, 
+                                      probs = c(0.025, 0.5, 0.975),
+                                      MARGIN = c(2) )
+    errList[[simID]]$sd_q <- apply(  X = errList[[simID]]$sd_i, FUN = quantile, 
+                                      probs = c(0.025, 0.5, 0.975),
+                                      MARGIN = c(2) )
+  }
+
+  # Save assErr list
+  save(errList, file = "assErrDists.RData")
+
+  errList
+
+}
 
 calcMSE_AMestimates <- function(  groupFolder="DERTACS_reruns_sep24",
                                   prefix = "parBat" )
@@ -1788,7 +1926,8 @@ makeStatTable <- function(  sim = 1, folder = "",
                   "pBtGtBmsy",
                   "pCtGtMSY", "pFtGtFmsy",
                   "avgCatch","AAV", "avgTACu",
-                  "medDiscProfits", "medEff",
+                  "medDiscRent", "medEff",
+                  "VAR5pc",
                   "pHistLowCatch" )
 
   statTable <- matrix( NA,  ncol = length(colLabels),
@@ -1897,8 +2036,9 @@ makeStatTable <- function(  sim = 1, folder = "",
       discProfit_ipft[,,,t] <- profit_ipft[,,,t] * (1 + discRate)^(-(t - tMP))
 
 
-    discTotalProfit_ip     <- apply( X = discProfit_ipft[,,2,tMP:nT], FUN = sum, MARGIN = c(1,2) )
-    medDiscTotalProfit_p   <- apply( X = discTotalProfit_ip, FUN = median, MARGIN = c(2), na.rm = T )
+    discTotalProfit_ip      <- apply( X = discProfit_ipft[,,2,tMP:nT], FUN = sum, MARGIN = c(1,2) )
+    VAR5pc_p                <- apply( X = discTotalProfit_ip, FUN = quantile, probs = 0.05, MARGIN = c(2), na.rm = T )
+    medDiscTotalProfit_p    <- apply( X = discTotalProfit_ip, FUN = median, MARGIN = c(2), na.rm = T )
 
     E_ipft    <- obj$om$E_ipft[1:maxGoodReps,,,]
     medEff_ip <- apply( X = E_ipft[,,2,], FUN = median, MARGIN = c(1,2),na.rm = T)
@@ -1929,7 +2069,8 @@ makeStatTable <- function(  sim = 1, folder = "",
         statTable[rowIdx,"avgCatch"]        <- round(Cbar_sp[s,p],2)
         statTable[rowIdx,"AAV"]             <- round(AAV_sp[s,p],2)
         statTable[rowIdx,"avgTACu"]         <- round(TACubar_sp[s,p],2)
-        statTable[rowIdx,"medDiscProfits"]  <- round(medDiscTotalProfit_p[p],2)
+        statTable[rowIdx,"medDiscRent"]     <- round(medDiscTotalProfit_p[p],2)
+        statTable[rowIdx,"VAR5pc"]          <- round(VAR5pc_p[p],2)
         statTable[rowIdx,"medEff"]          <- round(medEff_p[p],2)
         statTable[rowIdx,"pHistLowCatch"]   <- round(1 - pCtLtHistMinC_sp[s,p],2)
 

@@ -442,6 +442,9 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   if( methodID == "PerfectInfo" )
     obj <- .AM_perfectInfo(obj,t)
 
+  if( methodID == "simAssErrors" )
+    obj <- .AM_simAssErrors(obj,t)
+
   if( methodID == "hierProd" )
     obj <- .AM_hierProd(obj,t)
 
@@ -1741,6 +1744,60 @@ solvePTm <- function( Bmsy, B0 )
   return(obj)
 } # END .AM_perfectInfo()
 
+# Apply a perfect info AM - returns
+# actual future spawning biomass as the retro
+.AM_simAssErrors <- function( obj, t )
+{
+  # Pull control list
+  ctlList <- obj$ctlList
+
+  # Get complex dims
+  nS  <- obj$om$nS
+  nP  <- obj$om$nP
+  nF  <- obj$om$nF
+  tMP <- obj$om$tMP
+
+  # Calculate projection year
+  pt <- t - tMP + 1
+  pT <- ctlList$opMod$pT
+
+  obj$mp$hcr$TAC_spt[,,t] <- 0
+  tmpObj <- .ageSexOpMod( obj, t )
+
+  assErrors_sp <- obj$errors$simAssErrors_spt[,,t]
+  # Make unbiased. Not great, but I don't want to deal with
+  # the U estimates
+  if( ctlList$mp$assess$simErrType == "fixed")
+    assErrors_sp <- assErrors_sp - apply(X = obj$errors$simAssErrors_spt, FUN = mean, MARGIN = c(1,2), na.rm =T)
+
+
+  for( s in 1:nS )
+    for( p in 1:nP )
+    {
+      obj$mp$assess$retroSB_tspt[pt,s,p,1:t]     <- tmpObj$om$SB_spt[s,p,1:t]
+      obj$mp$assess$retroVB_tspft[pt,s,p,,1:t]   <- tmpObj$om$vB_spft[s,p,,1:t] 
+      
+    }
+
+  obj$mp$assess$retroSB_tspt[pt,,,t] <- obj$mp$assess$retroSB_tspt[pt,,,t] * exp(assErrors_sp)
+  obj$mp$assess$retroVB_tspt[pt,,,t] <- obj$mp$assess$retroVB_tspt[pt,,,t] * exp(assErrors_sp)
+
+  if( ctlList$mp$hcr$Fref == "Umsy" )
+    obj$mp$hcr$Fref_spt[,,t]      <- obj$rp$FmsyRefPts$Umsy_sp
+
+  if( ctlList$mp$hcr$Fref == "Fmsy" )
+    obj$mp$hcr$Fref_spt[,,t]      <- obj$rp$FmsyRefPts$Fmsy_sp
+
+  if( ctlList$mp$hcr$Bref == "Bmsy" )
+    obj$mp$hcr$Bref_spt[,,t]      <- obj$rp$FmsyRefPts$BeqFmsy_sp  
+
+  if( ctlList$mp$hcr$Bref == "B0" )
+    obj$mp$hcr$Bref_spt[,,t]      <- obj$om$B0_sp
+  
+
+  return(obj)
+} # END .AM_simAssErrors()
+
 
 # .mgmtProc()
 # Runs replications of the closed loop
@@ -1971,8 +2028,9 @@ solvePTm <- function( Bmsy, B0 )
       probPosSD_sp  <- apply( X = simObj[[i]]$mp$assess$posSDs_tsp, FUN = mean, MARGIN = c(2,3))
       probPDHess_sp <- apply( X = simObj[[i]]$mp$assess$pdHess_tsp, FUN = mean, MARGIN = c(2,3))
 
-      if(ctlList$mp$assess$method %in% c("idxBased","PerfectInfo"))
+      if(ctlList$mp$assess$method %in% c("idxBased","PerfectInfo","simAssErrors"))
       {
+        browser()
         blob$goodReps_isp[i,,] <- TRUE
       } else{
         for( s in 1:nS )
@@ -2064,7 +2122,7 @@ solvePTm <- function( Bmsy, B0 )
 
       # Condition history of simulation model
       # and draw random errors for projection
-      simObj <- .condMS3pop( simObj )
+      simObj <- .condMS3pop( simObj, iRep = i )
 
       # Calculate effort dynamics parameters
       simObj <- .calcHistEffortDynamics( simObj )
@@ -2160,7 +2218,7 @@ solvePTm <- function( Bmsy, B0 )
       probPosSD_sp  <- apply( X = simObj$mp$assess$posSDs_tsp, FUN = mean, MARGIN = c(2,3))
       probPDHess_sp <- apply( X = simObj$mp$assess$pdHess_tsp, FUN = mean, MARGIN = c(2,3))
 
-      if(ctlList$mp$assess$method %in% c("idxBased","PerfectInfo"))
+      if(ctlList$mp$assess$method %in% c("idxBased","PerfectInfo","simAssErrors"))
       {
         blob$goodReps_isp[i,,] <- TRUE
       } else{
@@ -3586,7 +3644,7 @@ combBarrierPen <- function( x, eps,
 # .condMS3pop()
 # Conditions OM for historical period from a hierSCAL report
 # object.
-.condMS3pop <- function( obj )
+.condMS3pop <- function( obj, iRep )
 {
 
   ctlList <- obj$ctlList
@@ -3907,8 +3965,28 @@ combBarrierPen <- function( x, eps,
                                                               sigma = priceDevCovMat,
                                                               method = "chol") )
 
+  if(ctlList$mp$assess$method == "simAssErrors")
+  {
+    # Read in assessment errors file
+    load( ctlList$mp$assess$simErrFile )
 
-  browser()
+    if( ctlList$mp$assess$simErrType == "fixed" )
+    {
+      obj$errors$simAssErrors_spt <- errList[[1]]$assErr_ispt[iRep,,,]
+
+    }
+
+    if( ctlList$mp$assess$simErrType == "random" )
+    {
+      # Use distributional properties of errors from model fit 
+      # to draw correlated assessment errors - assume unbiased so
+      # that we don't need to include HR bias to compensate for biomass
+      # bias
+      cat("Random simulated assessment errors not yet implemented...\n")
+      browser()
+    }
+
+  }
 
   obj <- .calcTimes( obj )
 
@@ -4068,6 +4146,7 @@ combBarrierPen <- function( x, eps,
   errors$omegaRinit_asp   <- array(0, dim = c(nA,nS,nP) )
   errors$delta_spft       <- array(0, dim = c(nS+1,nP+1,nF,nT) )
   errors$priceDev_st      <- array(0, dim = c(nS,nT))
+  errors$simAssErrors_spt   <- array(0, dim = c(nS,nP,nT))
 
 
 
