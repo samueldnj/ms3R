@@ -173,8 +173,6 @@ plotTACallocationError <- function( obj = blob,
 }
 
 
-
-
 # Envelopes of simulated assessment errors
 plotTulipAssError <- function(  obj = blob,
                                 groupFolder = "diffCV_fixedF_longGrid",
@@ -2634,21 +2632,198 @@ plotTulipTACu <- function( obj = blob, nTrace = 3, fIdx=1 )
   mtext( side = 1, outer = TRUE, text = "Year",
           line = 2, font = 2)
 
-}
+} # END plotTulipTACu
 
-# Biomass envelopes
+
+# plotDistN_SOK()
+# Distribution of N_SOK values across
+# all simulation replicates.
+plotDistN_SOK <- function( obj = blob )
+{
+  goodReps <- obj$goodReps
+
+  tMP     <- obj$om$tMP
+  nS      <- obj$om$nS
+  nP      <- obj$om$nP 
+  nT      <- obj$om$nT
+  nReps   <- length(goodReps)
+
+  stockNames    <- dimnames(obj$ctlList$opMod$histRpt$I_pgt)[[1]]
+
+  stockNames <- c(stockNames,"Agg")
+
+
+  P_ispft   <- obj$om$P_ispft[goodReps,,,6:7,tMP:nT,drop = FALSE]
+  P_ispt    <- apply(X = P_ispft[,1,,,,drop = FALSE], FUN = sum, MARGIN = c(1,2,3,5) )
+
+  P_it      <- apply(X = P_ispt, FUN = sum, MARGIN = c(1,4))
+
+  P_ispt[P_ispt > 0] <- 1
+  P_it[P_it > 0] <- 1
+
+  stamp <- paste(obj$ctlList$ctl$scenarioName,":",obj$ctlList$ctl$mpName,sep = "")
+
+
+  # Get granular dist
+  Nsok_isp <- apply( X = P_ispt, FUN = sum, MARGIN = c(1,2,3), na.rm = T)
+
+  Nsok_qsp <- apply(X = Nsok_isp, FUN = quantile, probs = c(0.025,.25, .5, .75, .975),
+                      MARGIN = c(2,3))
+
+  # Get aggregate distribution as well
+  Nsok_i <- apply(X = P_it, FUN = sum, MARGIN = 1)
+  Nsok_q <- quantile(Nsok_i, probs = c(.025, .25, .5, .75, .975) )
+
+  # Make a bar plot
+
+  plot( x = c(.5,4.5), y = c(0,max(Nsok_i, Nsok_isp)),
+        type = "n", axes = FALSE, xlab = "Population", ylab = "Number of years with SOK fishing" )
+    axis( side = 1, at = 1:4, labels = stockNames )
+    axis( side = 2, las = 1 )
+    box()
+    grid()
+    for( p in 1:nP )
+    {
+      # rect( xleft = p - .3, xright= p + .3,
+      #       ybottom = 0, ytop = Nsok_qsp[2,1,p], border = NA,
+      #       col = "grey60" )
+      
+      segments( x0 = p, x1 = p, 
+                y0 = Nsok_qsp[1,1,p],
+                y1 = Nsok_qsp[5,1,p], col = "black", lwd = 2 )
+      rect( xleft = p-.1, xright = p+.1, 
+            ybottom = Nsok_qsp[2,1,p], border = "black",
+            ytop = Nsok_qsp[4,1,p], col = "white", lwd = 2 )
+      segments( x0 = p-.1, x1 = p + .1, y0 = Nsok_qsp[3,1,p], col = "black", lwd = 2 )
+    }
+    segments( x0 = nP + 1, x1 = nP + 1, 
+              y0 = Nsok_q[1],
+              y1 = Nsok_q[5], col = "black", lwd = 2 )
+    rect( xleft = nP + 1 - .1, xright= nP + 1 + .1,
+          ybottom = Nsok_q[2], ytop = Nsok_q[4], border = "black",
+          col = "white", lwd = 2 )
+    segments( x0 = nP + 1-.1, x1 = nP + 1 + .1, y0 = Nsok_q[3], col = "black", lwd = 2 )
+
+
+    mtext(  side = 1, adj = .9, line = 2, cex = .6,
+            text = stamp, col = "grey60" )
+
+} # END plotDistN_SOK
+
+plotTulipPondedFish <- function(  obj = blob,
+                                  nTrace = 3,
+                                  traces = NULL,
+                                  leg = TRUE,
+                                  proj = FALSE )
+{
+  goodReps <- obj$goodReps
+
+  tMP     <- obj$om$tMP
+  nS      <- obj$om$nS
+  nP      <- obj$om$nP 
+  nT      <- obj$om$nT
+  nReps   <- length(goodReps)
+
+
+  P_ispft   <- obj$om$P_ispft[goodReps,,,6:7,,drop = FALSE]
+  P_ispt    <- apply(X = P_ispft[,1,,,,drop = FALSE], FUN = sum, MARGIN = c(1,2,3,5) )
+
+  P_qspt    <- apply( X = P_ispt, FUN = quantile, probs = c(0.025, 0.5, 0.975),
+                      MARGIN = c(2,3,4) )
+
+  if( is.null(traces))
+    traces <- sample( 1:nReps, size = min(nTrace,nReps)  )
+
+  stamp <- paste(obj$ctlList$ctl$scenarioName,":",obj$ctlList$ctl$mpName,sep = "")
+
+  speciesNames  <- obj$om$speciesNames
+  stockNames    <- dimnames(obj$ctlList$opMod$histRpt$I_pgt)[[1]]
+  fYear         <- obj$ctlList$opMod$fYear
+
+  yrs <- seq( from = fYear, by = 1, length.out = nT)
+  tMin <-1
+
+  if( proj )
+    tMin <- tMP - 1
+
+  par(  mfcol = c(nP,nS), 
+        mar = c(1,1.5,1,1.5),
+        oma = c(4,3,3,3) )
+
+
+  for(s in 1:nS)
+  {
+    for( p in 1:nP )
+    {
+      plot( x = range(yrs[tMin:nT]),
+            y = c(0,max(P_qspt[,s,p,tMin:nT], na.rm = T) ),
+            type = "n", axes = F)
+
+      mfg <- par("mfg")
+      if( mfg[1] == mfg[3] )
+        axis( side = 1 )
+      if( mfg[1] == 1 )
+        mtext( side = 3, text = speciesNames[s], font = 2, line = 0 )
+      axis( side = 2, las = 1 )
+      if( mfg[2] == mfg[4] )
+        rmtext( outer = TRUE, cex = 1.5, txt = stockNames[p],
+                font = 2, line = 1)
+      box()
+      grid()
+      polygon(  x = c(yrs, rev(yrs)),
+                y = c(P_qspt[1,s,p,], rev(P_qspt[3,s,p,])),
+                col = "grey65", border = NA )
+      lines( x = yrs, y = P_qspt[2,s,p,], lwd = 3 )
+
+      for( tIdx in traces )
+        lines( x = yrs, y = P_ispt[tIdx,s,p,], lwd = .8 )
+
+      abline( v = yrs[tMP], col = "grey30", lty = 3 )
+    
+
+      if( mfg[1] == 1 & mfg[2] == 1 & leg )
+        legend( x = "topleft", bty = "n",
+                legend = c( "Median Ponded Fish", 
+                            "Central 95%",
+                            "Replicate Traces"),
+                col = c(  "black", "grey65", "black"),
+                pch = c(NA,15, NA ),
+                lty = c(1, NA, 1),
+                lwd = c(3, NA, .8 ) )
+    }
+  }
+  mtext( side = 2, outer = TRUE, text = "Ponded Fish (kt)",
+          line = 1.5, font = 2)
+
+  mtext( side = 1, outer = TRUE, text = "Year",
+          line = 2, font = 2)
+
+  mtext(  outer = TRUE, side = 1, adj = .8, line = 3, cex = .6,
+            text = stamp, col = "grey60" )
+
+} # END plotTulipPondedFish
+
+# Biomass envelopes - with catch
+# if chosen
 plotTulipBt <- function(  obj = blob, nTrace = 3,
+                          traces = NULL,
                           dep = FALSE,
                           ref = "B0",
                           var = "SB_ispt",
                           Ct  = FALSE,
                           leg = TRUE,
+                          proj = FALSE,
                           tMin = NULL )
 {
   goodReps <- obj$goodReps
 
   SB_ispt   <- obj$om[[var]][goodReps,,,,drop = FALSE]
   C_ispt    <- obj$om$C_ispt[goodReps,,,,drop = FALSE]
+
+  SB_ispt[SB_ispt == 0] <- NA
+
+  LCP_p <- obj$ctlList$mp$hcr$LCP * obj$ctlList$mp$hcr$B0Wtd_p
+
 
   tMP     <- obj$om$tMP
   nS      <- obj$om$nS
@@ -2673,6 +2848,9 @@ plotTulipBt <- function(  obj = blob, nTrace = 3,
   if(is.null(tMin))
     tMin <-1
 
+  if( proj )
+    tMin <- tMP - 1
+
   if( dep )
   {
 
@@ -2686,9 +2864,10 @@ plotTulipBt <- function(  obj = blob, nTrace = 3,
           C_ispt[,s,p,]  <- C_ispt[,s,p,] / B0_sp[s,p]
 
         }
+      LCP_p     <- LCP_p / B0_sp[1,]
       BmsySS_sp <- BmsySS_sp / B0_sp
       B0_sp     <- B0_sp / B0_sp
-
+      
 
     }
 
@@ -2701,6 +2880,7 @@ plotTulipBt <- function(  obj = blob, nTrace = 3,
           C_ispt[,s,p,]  <- C_ispt[,s,p,] / Bmsy_sp[s,p]
         }
 
+      LCP_p     <- LCP_p / Bmsy_sp[1,]
       B0_sp     <- B0_sp / Bmsy_sp
       BmsySS_sp <- BmsySS_sp / Bmsy_sp
       
@@ -2728,7 +2908,10 @@ plotTulipBt <- function(  obj = blob, nTrace = 3,
                     MARGIN = c(2,3,4), probs = c(0.025, 0.5, 0.975),
                     na.rm = T )
 
-  traces <- sample( 1:nReps, size = min(nTrace,nReps)  )
+  SB_qspt[SB_qspt == 0] <- NA 
+
+  if( is.null(traces))
+    traces <- sample( 1:nReps, size = min(nTrace,nReps)  )
 
   stamp <- paste(obj$ctlList$ctl$scenarioName,":",obj$ctlList$ctl$mpName,sep = "")
 
@@ -2752,13 +2935,8 @@ plotTulipBt <- function(  obj = blob, nTrace = 3,
         mtext( side = 3, text = speciesNames[s], font = 2, line = 0 )
       axis( side = 2, las = 1 )
       if( mfg[2] == mfg[4] )
-      {
-        corners <- par("usr") #Gets the four corners of plot area (x1, x2, y1, y2)
-        par(xpd = TRUE) #Draw outside plot area
-        text(x = corners[2]+0.5, y = mean(corners[3:4]), stockNames[p], srt = 270,
-              font = 2, cex = 1.5 )
-        par(xpd = FALSE)
-      }
+        rmtext( outer = TRUE, cex = 1.5, txt = stockNames[p],
+                font = 2, line = 0.5)
       box()
       grid()
       polygon(  x = c(yrs, rev(yrs)),
@@ -2780,8 +2958,9 @@ plotTulipBt <- function(  obj = blob, nTrace = 3,
       }
 
       abline( v = yrs[tMP], col = "grey30", lty = 3 )
-      abline( h = B0_sp[s,p], lty = 2, col = "grey50", lwd = 2  )
-      abline( h = 0.3*B0_sp[s,p], lty = 3, col = "darkgreen", lwd = 2)
+      abline( h = B0_sp[s,p], lty = 3, col = "grey50", lwd = 2  )
+      abline( h = 0.3*B0_sp[s,p], lty = 2, col = "red", lwd = 3)
+      abline( h = LCP_p[p], lty = 2, col = "salmon", lwd = 3)
       # abline( h = BmsySS_sp[s,p], lty = 3, col = "darkgreen", lwd = 2)
 
       if( mfg[1] == 1 & mfg[2] == 1 & leg )
@@ -2789,14 +2968,15 @@ plotTulipBt <- function(  obj = blob, nTrace = 3,
                 legend = c( "Median Spawning Biomass", 
                             "Central 95%",
                             "Replicate Traces",
-                            "Unfished",
-                            "0.3B0"),
+                            "Unfished Biomass",
+                            expression(paste("LRP = 0.3",B[0])),
+                            "Lower control point" ),
                             # expression(B[MSY,MS])),
                 col = c(  "black", "grey65", "black",
-                          "grey50", "darkgreen" ),
-                pch = c(NA,15, NA, NA, NA,NA),
-                lty = c(1, NA, 1, 2, 3, 3),
-                lwd = c(3, NA, .8, 2, 2, 2 ) )
+                          "grey50", "red","salmon" ),
+                pch = c(NA,15, NA, NA, NA,NA,NA),
+                lty = c(1, NA, 1, 3, 2, 2),
+                lwd = c(3, NA, .8, 2, 3, 3 ) )
     }
   }
   mtext( side = 2, outer = TRUE, text = yAxisLab,
