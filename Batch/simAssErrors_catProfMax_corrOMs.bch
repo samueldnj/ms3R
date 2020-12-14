@@ -50,54 +50,54 @@ scenario$scenario4$opMod$corrPriceDevs TRUE
 #
 ## Management Procedures
 #
-# MP 1 : perfInfo_MSY
+# MP 1 : simAssError_MSY
 #
-mp$mp1$ctl$mpName 'perfInfo_MSY'
+mp$mp1$ctl$mpName 'simAssError_MSY'
 mp$mp1$mp$hcr$fileColName 'Xmsy'
 mp$mp1$mp$hcr$Fref "inputF"
 mp$mp1$mp$hcr$Fsource "inputFile"
 mp$mp1$mp$assess$method "simAssErrors"
 mp$mp1$mp$assess$simErrType "fixed"
 #
-# MP 2 : perfInfo_MEY
+# MP 2 : simAssError_MEY
 #
-mp$mp2$ctl$mpName 'perfInfo_MEY'
+mp$mp2$ctl$mpName 'simAssError_MEY'
 mp$mp2$mp$hcr$fileColName 'Xmey'
 mp$mp2$mp$hcr$Fref "inputF"
 mp$mp2$mp$hcr$Fsource "inputFile"
 mp$mp2$mp$assess$method "simAssErrors"
 mp$mp2$mp$assess$simErrType "fixed"
 #
-# MP 3 : perfInfo_noCorr.MEY
+# MP 3 : simAssError_noCorr.MEY
 #
-mp$mp3$ctl$mpName 'perfInfo_noCorr.MEY'
+mp$mp3$ctl$mpName 'simAssError_noCorr.MEY'
 mp$mp3$mp$hcr$fileColName 'noCorr.totProfit'
 mp$mp3$mp$hcr$Fref "inputF"
 mp$mp3$mp$hcr$Fsource "inputFile"
 mp$mp3$mp$assess$method "simAssErrors"
 mp$mp3$mp$assess$simErrType "fixed"
 #
-# MP 4 : perfInfo_corrRec.MEY
+# MP 4 : simAssError_corrRec.MEY
 #
-mp$mp4$ctl$mpName 'perfInfo_corrRec.MEY'
+mp$mp4$ctl$mpName 'simAssError_corrRec.MEY'
 mp$mp4$mp$hcr$fileColName 'corrRecDevs.totProfit'
 mp$mp4$mp$hcr$Fref "inputF"
 mp$mp4$mp$hcr$Fsource "inputFile"
 mp$mp4$mp$assess$method "simAssErrors"
 mp$mp4$mp$assess$simErrType "fixed"
 #
-# MP 5 : perfInfo_corrPrice.MEY
+# MP 5 : simAssError_corrPrice.MEY
 #
-mp$mp5$ctl$mpName 'perfInfo_corrPrice.MEY'
+mp$mp5$ctl$mpName 'simAssError_corrPrice.MEY'
 mp$mp5$mp$hcr$fileColName 'corrPriceDevs.totProfit'
 mp$mp5$mp$hcr$Fref "inputF"
 mp$mp5$mp$hcr$Fsource "inputFile"
 mp$mp5$mp$assess$method "simAssErrors"
 mp$mp5$mp$assess$simErrType "fixed"
 #
-# MP 6 : perfInfo_corrRecPr.MEY
+# MP 6 : simAssError_corrRecPr.MEY
 #
-mp$mp6$ctl$mpName 'perfInfo_corrRecPr.MEY'
+mp$mp6$ctl$mpName 'simAssError_corrRecPr.MEY'
 mp$mp6$mp$hcr$fileColName 'corrRecPrice.totProfit'
 mp$mp6$mp$hcr$Fref "inputF"
 mp$mp6$mp$hcr$Fsource "inputFile"

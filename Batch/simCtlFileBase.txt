@@ -19,6 +19,8 @@ mp$assess$method "hierProd"
 mp$assess$idxPoints 3
 mp$assess$idxScalar 1
 mp$assess$idxFleets 4
+mp$assess$simErrFile "assErrDists.RData"
+mp$assess$simErrType "fixed"
 mp$assess$spSingleStock FALSE
 mp$assess$spPosPenFactor 1e3
 mp$assess$sptauq .4
