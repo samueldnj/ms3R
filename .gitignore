@@ -15,6 +15,9 @@
 *.o
 *.so
 
+# Batch control files
+./Batch/job*.txt
+
 # Outputs of ms3R
 ./Outputs/sim*
 
