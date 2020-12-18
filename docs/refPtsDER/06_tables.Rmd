@@ -1,0 +1,173 @@
+\clearpage
+# Tables
+
+```{r loadStuff, echo = FALSE, include = FALSE, warning = FALSE}
+.loadFit(params$fit, baseDir = params$baseDir)
+
+repObj <- c(reports$repOpt, reports$data)
+repObj <- calcRefPts(repObj)
+repObj <- renameReportArrays(repObj = repObj, datObj = reports$data )
+
+fYear   <- reports$fYear
+nS      <- repObj$nS
+nP      <- repObj$nP
+nT      <- repObj$nT
+nF      <- repObj$nF
+species <- reports$ctlList$data$species
+stock   <- reports$ctlList$data$stock
+fleets  <- reports$gearLabs
+
+```
+
+```{r tableCaps, echo = FALSE, include = FALSE, warning = FALSE}
+
+procModelEqnsCap  <- "Hierarchical age/sex-structured stock assessment model
+equations."
+
+statModelEqnsCap  <- "AM statistical model equations for DER complex data 
+likelihoods, and single- and multi-level prior distributions."
+
+parEstTableCap <- "Estimates of biological population parameters, 
+single-species reference points, and stock status in 2016 for all nine 
+DER complex stocks."
+
+```
+
+
+```{r modelEqnTab, echo = FALSE, messages = FALSE, warnings = FALSE}
+
+procModelEqns  <- read.csv("data/procModelEqns.csv", header = TRUE, stringsAsFactors = FALSE)
+
+colnames(procModelEqns) <- c("No.", "Equation")
+
+csasdown::csas_table( procModelEqns, escape = FALSE,
+                      booktabs = TRUE, font_size = 10,
+                      format = kable_format,
+                      # linesep = "\\addlinespace",
+                      caption = procModelEqnsCap,
+                      align = c("c","l")) %>%
+  kable_styling(latex_options = c("striped", "hold_position","scale_down"),
+                bootstrap_options = c("striped", "hover")) %>%
+  kableExtra::group_rows("Unfished Equilibrium States", 1, 5 ) %>%
+  kableExtra::group_rows("Numbers-at-age", 6, 7 ) %>%
+  kableExtra::group_rows("Biomass", 8, 11 ) %>%
+  kableExtra::group_rows("Catch", 12, 16 ) %>%
+  kableExtra::group_rows("Individual Growth", 17, 19 )
+  
+
+
+```
+
+\clearpage
+
+```{r hierSCALstatModelEqns, echo = FALSE, messages = FALSE, warnings = FALSE}
+
+# statModelEqns  <- read.csv("data/statModelEqns.csv", header = TRUE, stringsAsFactors = FALSE)
+
+statModelEqns <- tibble::tribble( 
+
+  ~No.,        ~ModelEquation,
+  # Observation model equations
+  # Expected spawn indices
+  "(O.1)",      "$\\displaystyle \\hat{I}_{s,p,f,t}   = q_{s,p,f,t} \\cdot B_{s,p,f,t} $",
+  # Expected age comps
+  "(O.2)",      "$\\displaystyle \\hat{u}_{a,x,s,p,f,t} = \\frac{ C_{a,x,s,p,f,t} } { \\sum_{a'} C_{a',x,s,p,f,t}}$",
+  # Expected len comps
+  "(O.2)",      "$\\displaystyle \\hat{u}'_{l,x,s,p,f,t} = \\frac{ \\mathcal{P}_{l,a,x,s,p} \\cdot s_{l,s,p,f} \\cdot N_{a,x,s,p,t} } { \\sum_{l'} \\mathcal{P}_{l',a,x,s,p} \\cdot s_{l',s,p,f} \\cdot N_{a,x,s,p,t}}$",
+
+  # Now calculate biomass observation resids
+  # "(L.1)",      "$\\displaystyle z_{p,t} = \\log \\frac{ I_{p,t} }{ \\hat{I}_{p,t} }$",
+  # "(L.2)",      "$\\displaystyle q'_{p,t} = \\eta_{p,t} q_{p,4} + (1 - \\eta_{p,t}) q_{p,5}$",
+  # "(L.3)",      "$\\displaystyle n_{p} = \\sum_{t = t_{0,p}}^T \\mathcal{I} (I_{p,t} > 0)$",
+  # "(L.4)",      "$\\displaystyle Z_{p} = \\frac{1}{2\\tau^2_{p}} \\sum_{t = t_{0,p}}^T \\mathcal{I} (I_{p,t} > 0) z_{p,t}^2 $",
+  # "(L.5)",      "$\\displaystyle d_p = \\sum_t \\left( \\mathcal{I}(I_{p,t} > 0) \\log( \\mathcal{P}_{p,t}) + \\mathcal{I}(I_{p,t} = 0) \\log( 1 - \\mathcal{P}_{p,t}) \\right)$",
+  # "(L.6)",      "$\\displaystyle l_{1} = \\frac12 \\sum_{p = 1}^3 \\left( n_{p} \\cdot \\log \\tau_{p}^2 +  Z_{p} + d_p  \\right) $",
+
+  # # Age composition likelihood
+  # "(A.1)",      "$\\displaystyle \\mathfrak{C}_g = \\left[ \\rho_g^{j - i} \\right]_{i,j}$",
+  # "(A.2)",      "$\\displaystyle \\mathfrak{K} = \\left[ I_{A-1} \\vert 1 \\right]$",
+  # "(A.3)",      "$\\displaystyle V_g = \\mathfrak{K} \\cdot C_g \\cdot \\mathfrak{K}^T$",
+  # "(A.4)",      "$\\displaystyle W_{p,g,t} = \\frac{ \\mbox{mean} ( {n^{Age}_{p,g,t}} ) }{ n^{Age}_{p,g,t} }$",
+  # "(A.5)",      "$\\displaystyle \\mathfrak{B}_{p,g,t} = \\sum_{a = 1}^A \\mathcal{I}( u_{a,p,g,t} > 0.02)$",
+  # "(A.6)",      "$\\displaystyle \\vec {\\iota}_{p,g,t} = \\langle log(u_{a,p,g,t} / u_{\\mathfrak{B}_{p,g,t},p,g,t}) - log(\\hat{u}_{a,p,g,t}/\\hat{u}_{\\mathfrak{B}_{p,g,t},p,g,t} \\rangle_a$",
+  # "(A.7)",      "$\\displaystyle \\hat{\\tau}^{age}_{p,g} = \\left( \\frac{ \\sum_{t} \\frac{1}{W_{p,g,t}^2}(\\vec{\\iota}_{p,g,t})^T \\cdot V_g^{-1} \\cdot \\vec{\\iota}_{p,g,t}}{\\sum_{t} \\mathfrak{B}_{p,g,t} } \\right)^{0.5}$",
+  # "(A.8)",      "$\\displaystyle l_{2} = \\sum_{p,g} \\left( \\sum_{a,t} \\log u_{a,p,g,t} + \\log \\hat{\\tau}^{age}_{p,g} \\sum_{t} (\\mathfrak{B}_{p,g,t} - 1) + \\frac12 \\sum_t \\log \\vert V_g \\vert + \\sum_{t} (\\mathfrak{B}_{p,g,t} - 1)\\log W_{p,g,t} \\right)$",
+
+  # # Process error priors
+  # "(P.1)",      "$\\displaystyle p_{1} = \\sum_{p,t} \\omega_{p,t}^2$",
+  # "(P.2)",      "$\\displaystyle p_{2} = \\sum_{a,p} \\left(\\omega^{init}_{a,p}\\right)^2$",
+  # "(P.3)",      "$\\displaystyle p_{3} = \\sum_{p,t} \\epsilon_{p,t}^2$",
+  
+  # # Shrinkage priors
+  # "(P.4)",      "$\\displaystyle p_{4} = \\left( \\sum_{p} \\epsilon_{M,p}^2 \\right) + \\frac{1}{2 s_M^2} (\\log M_0 - \\log m_M )^2$",
+  # "(P.5)",      "$\\displaystyle p_{5} = \\sum_g \\left( \\left( \\sum_{p} \\epsilon_{s,50,p,g}^2 + \\epsilon_{s,Step,p,g}^2 \\right) + \\frac{1}{2 (s_g^{s^{50}})^2} (\\log s^{50}_g - \\log( m_g^{ s^{50} }) )^2 + \\frac{1}{2 (s_g^{s^{Step}})^2} (\\log s^{Step}_g - \\log( m_g^{ s^{Step} }) )^2 \\right) $",
+
+  # # Other priors
+  # "(P.6)",      "$\\displaystyle Catchability priors$",
+  # "(P.6)",      "$\\displaystyle Obs Err SD $",
+  # "(P.7)",      "$\\displaystyle Corr Coeff $",
+  # "(P.8)",      "$\\displaystyle logisticRegressionPars $",
+
+  # Objective function
+  "(F.1)",      "$f = l_1 + l_2  + p_1 + p_2 + p_3 + p_4 + p_5 + p_6 + p_7 + p_8$",
+)
+
+colnames(statModelEqns) <- c("No.", "Equation")
+
+csasdown::csas_table( statModelEqns, escape = FALSE,
+                      booktabs = TRUE, font_size = 10,
+                      format = kable_format,
+                      linesep = "\\addlinespace",
+                      caption = statModelEqnsCap,
+                      align = c("c","l")) %>%
+  kable_styling(latex_options = c("striped", "hold_position","scale_down"),
+                bootstrap_options = c("striped", "hover"))  %>%
+  kableExtra::group_rows("Observation models", 1, 3 ) 
+  # kableExtra::group_rows("Spawn index data likelihood", 3, 8 ) %>%
+  # kableExtra::group_rows("Age composition data likelihood", 9, 16 ) %>%
+  # kableExtra::group_rows("Process error prior density functions", 17, 19 ) %>%
+  # kableExtra::group_rows("Hierarchical shrinkage prior density functions", 20, 21 ) %>%
+  # kableExtra::group_rows("Priors on other parameters", 22, 24 ) %>%
+  # kableExtra::group_rows("Objective function (negative posterior density)", 25, 25 )
+
+
+
+
+
+```
+
+\clearpage
+
+```{r modelFitTable, echo = FALSE, warning = FALSE}
+
+parEstTable <- makeParEstTable(reports)
+parEstTable <- parEstTable[,-1]
+
+colnames(parEstTable) <- c( "Stock",
+                            "$B_0$",
+                            "$R_0$",
+                            "$M_m$",
+                            "$M_f$",
+                            "$h$",
+                            "$B_{MSY}$",
+                            "$F_{MSY}$",
+                            "$U_{MSY}$",
+                            "$MSY$",
+                            "$B_{2016}$",
+                            "$B_{2016}/B_0$",
+                            "$B_{2016}/B_{MSY}$" )
+
+csasdown::csas_table( parEstTable, escape = FALSE,
+                      booktabs = TRUE, font_size = 10,
+                      format = kable_format,
+                      # linesep = "\\addlinespace",
+                      caption = parEstTableCap,
+                      align = c("c","l")) %>%
+  kable_styling(latex_options = c("striped", "hold_position","scale_down"),
+                bootstrap_options = c("striped", "hover"))  %>%
+  kableExtra::group_rows("Dover Sole", 1, 3 ) %>%
+  kableExtra::group_rows("English Sole", 4, 6 ) %>%
+  kableExtra::group_rows("Rock Sole", 7, 9 ) 
+
+```
+

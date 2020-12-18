@@ -58,24 +58,24 @@ calcRefPts <- function( obj )
 
 
   
-  obj$refPts <- list()
-  obj$refPts$refCurves    <- refCurves
-  obj$refPts$FmsyRefPts   <- FmsyRefPts
-  obj$refPts$EmsyRefPts   <- tmpEmsyRefPts$EmsyRefPts
-  obj$refPts$EmsyMSRefPts <- tmpEmsyRefPts$EmsyMSRefPts
-  obj$refPts$EmeyRefPts   <- econYieldCurves
+  refPts <- list()
+  refPts$refCurves    <- refCurves
+  refPts$FmsyRefPts   <- FmsyRefPts
+  refPts$EmsyRefPts   <- tmpEmsyRefPts$EmsyRefPts
+  refPts$EmsyMSRefPts <- tmpEmsyRefPts$EmsyMSRefPts
+  refPts$EmeyRefPts   <- econYieldCurves
   # Get survivorship
-  obj$refPts$Surv_axsp    <- tmp$Surv_axsp
-  obj$refPts$ssbpr_sp     <- yprList$ssbpr_sp
-  obj$refPts$R0_sp        <- R0_sp  
-  obj$refPts$rec.a_sp     <- obj$rec.a_sp
-  obj$refPts$rec.b_sp     <- obj$rec.b_sp
-  obj$refPts$B0_sp        <- refCurves$Beq_spf[,,1]
+  refPts$Surv_axsp    <- tmp$Surv_axsp
+  refPts$ssbpr_sp     <- yprList$ssbpr_sp
+  refPts$R0_sp        <- R0_sp  
+  refPts$rec.a_sp     <- obj$rec.a_sp
+  refPts$rec.b_sp     <- obj$rec.b_sp
+  refPts$B0_sp        <- refCurves$Beq_spf[,,1]
 
   # Get EBSB pars for JABBA-Select application
-  obj$refPts$EBSBpars <- EBSBpars
+  refPts$EBSBpars <- EBSBpars
 
-  return(obj$refPts)
+  return(refPts)
 
 } # END calcRefPts()
 
@@ -151,7 +151,6 @@ solveSpline <- function(  Yvals, Xvals, value = 0, bounds = c(0,10),
   # fuel, using the landings and fuel cost per kt
   effortPrice_p <- opMod$varCostPerKt * C_p / eff_p
 
-
   # Array for holding effort cost
   effCost_pe <- array(NA, dim       = c(nP, length(Eff)),
                           dimnames  = list( stock = stockNames,
@@ -165,12 +164,11 @@ solveSpline <- function(  Yvals, Xvals, value = 0, bounds = c(0,10),
   landVal_spe <- array(0,dim = dim(Yeq_spe), dimnames = dimnames(Yeq_spe))
 
   # Yeq_spe[is.na(Yeq_spe)]  <- 0
+  specNames  <- dimnames(Yeq_spe)[[1]]
+  price_s     <- opMod$price_s[specNames]
 
   for( p in 1:nP )
   {
-    specNames  <- dimnames(Yeq_spe)[[1]]
-    price_s     <- opMod$price_s[specNames]
-
     effCost_pe[p,] <- effortPrice_p[p] * Eff
 
     for( s in 1:nS )
@@ -218,6 +216,113 @@ solveSpline <- function(  Yvals, Xvals, value = 0, bounds = c(0,10),
     }
   }
 
+  if(is.null(opMod$cwMEY))
+    opMod$cwMEY <- FALSE
+
+  if( opMod$cwMEY )
+  {
+
+    # Need to define an objective function for
+    # optimising coastwide effort with a joint
+    # downward sloping demand curve - can extend
+    # to a proportion estimator later to 
+    EmeyCW_optObj <- optim( par = log(Emey_p),
+                            fn = coastWideEconObjFun,
+                            method = "BFGS",
+                            prop = FALSE,
+                            baseE = 1,
+                            # control = list(trace = 6),
+                            optimise = TRUE,
+                            lambda_s = lambda_s,
+                            price_s = price_s,
+                            effortPrice_p = effortPrice_p,
+                            MSY_sp = YeqFmsy_sp,
+                            refCurves = refCurves,
+                            crewShare = crewShare,
+                            nF = nF, nS = nS, nP = nP )
+
+    cwMEYlist <- coastWideEconObjFun( lnE_p = EmeyCW_optObj$par,
+                                      prop = FALSE,
+                                      baseE = 1,
+                                      optimise = FALSE,
+                                      lambda_s = lambda_s,
+                                      price_s = price_s,
+                                      effortPrice_p = effortPrice_p,
+                                      MSY_sp = YeqFmsy_sp,
+                                      refCurves = refCurves,
+                                      crewShare = crewShare,
+                                      nF = nF, nS = nS, nP = nP)
+
+    cwMEY_p <- cwMEYlist$Rent_p
+    cwEmey_p <- cwMEYlist$E_p
+
+    
+    cwRev_spe     <- array(NA, dim = dim(Yeq_spe))
+    cwRent_pe     <- array(NA, dim = dim(econYeq_pe))
+    cwEffCost_pe  <- array(NA, dim = dim(econYeq_pe))
+    cwRent_e      <- array(NA, dim = length(Eff) )
+    cwYeq_spe     <- array(NA, dim = dim(Yeq_spe))
+
+    cwRev_spe[,,1]    <- 0
+    cwRent_pe[,1]     <- 0
+    cwRent_e[1]       <- 0
+    cwYeq_spe[,,1]    <- 0
+    cwEffCost_pe[,1]  <- 0
+
+    for( eIdx in 2:length(Eff) )
+    {
+      e <- Eff[eIdx]
+
+      # First, optimise allocation of effort
+      optObj <- optim(  par = rep(0,nP),
+                        fn = coastWideEconObjFun,
+                        method = "BFGS",
+                        prop = TRUE,
+                        baseE = e,
+                        # control = list(trace = 6),
+                        optimise = TRUE,
+                        lambda_s = lambda_s,
+                        price_s = price_s,
+                        effortPrice_p = effortPrice_p,
+                        MSY_sp = YeqFmsy_sp,
+                        refCurves = refCurves,
+                        crewShare = crewShare,
+                        nF = nF, nS = nS, nP = nP )
+
+      cwMEYlist <- coastWideEconObjFun( lnE_p = EmeyCW_optObj$par,
+                                        prop = TRUE,
+                                        baseE = e,
+                                        optimise = FALSE,
+                                        lambda_s = lambda_s,
+                                        price_s = price_s,
+                                        effortPrice_p = effortPrice_p,
+                                        MSY_sp = YeqFmsy_sp,
+                                        refCurves = refCurves,
+                                        crewShare = crewShare,
+                                        nF = nF, nS = nS, nP = nP)
+
+
+      cwRev_spe[,,eIdx]     <- cwMEYlist$Rev_sp
+      cwRent_pe[,eIdx]      <- cwMEYlist$Rent_p
+      cwRent_e[eIdx]        <- cwMEYlist$totRent
+      cwYeq_spe[,,eIdx]     <- cwMEYlist$C_sp
+      cwEffCost_pe[,eIdx]   <- cwMEYlist$effCost_p
+      cwEff_pe[,eIdx]       <- cwMEYlist$E_p
+
+    }
+
+    cwEconYieldCurves <- list()
+    cwEconYieldCurves$Eff           <- Eff
+    cwEconYieldCurves$cwMEY_p       <- cwMEY_p
+    cwEconYieldCurves$cwEmey_p      <- cwEmey_p
+    cwEconYieldCurves$cwRev_spe     <- cwRev_spe
+    cwEconYieldCurves$cwRent_pe     <- cwRent_pe
+    cwEconYieldCurves$cwRent_e      <- cwRent_e
+    cwEconYieldCurves$cwYeq_spe     <- cwYeq_spe
+    cwEconYieldCurves$cwEffCost_pe  <- cwEffCost_pe
+    cwEconYieldCurves$cwEffCost_pe  <- cwEffCost_pe  
+  }
+
 
 
   econYieldCurves <- list()
@@ -233,12 +338,90 @@ solveSpline <- function(  Yvals, Xvals, value = 0, bounds = c(0,10),
   econYieldCurves$Ymey_sp       <- Ymey_sp
   econYieldCurves$vBmey_sp      <- vBmey_sp
   econYieldCurves$effortPrice_p <- effortPrice_p
+  
+  if( opMod$cwMEY )
+    econYieldCurves$cwEconYieldCurves <- cwEconYieldCurves
+
+  
+
 
 
   return( econYieldCurves )
 
 } # END .calcEconomicYieldCurves()
 
+# coastwideEconObjFun()
+# Objective function/economic model for coastwide
+# econ yield, assuming a joint demand curve for
+# each species
+coastWideEconObjFun <- function(  lnE_p = c(0,0,0),
+                                  prop = FALSE,
+                                  baseE = 10,
+                                  optimise = TRUE,
+                                  lambda_s = c(1,1,1),
+                                  price_s,
+                                  effortPrice_p,
+                                  MSY_sp,
+                                  refCurves,
+                                  crewShare,
+                                  nF, nS, nP )
+{
+  # First, take exponent of effort
+  E_p <- exp(lnE_p)
+
+  # Convert to proportions and multiply by base
+  if( prop )
+    E_p <- baseE * E_p / (sum(E_p))
+  
+  # Now compute catch, revenue, and econ yield at this
+  # effort
+  Eff     <- refCurves$E
+  Yeq_spe <- refCurves$Yeq_spe
+
+  C_sp    <- array(NA, dim = c(nS,nP))  
+  Rev_sp  <- array(NA, dim = c(nS,nP))  
+
+  for( s in 1:nS )
+    for(p in 1:nP )
+      C_sp[s,p] <- getSplineVal(x = Eff, y = Yeq_spe[s,p,], p = E_p[p] )
+
+  # Calculate coastwide catch
+  C_s   <- apply( X = C_sp,   FUN = sum, MARGIN = 1 )
+  MSY_s <- apply( X = MSY_sp, FUN = sum, MARGIN = 1 )
+
+  # use coastwide catch to figure out species landed value
+  landVal_s <- price_s * ( C_s / MSY_s )^(-1/lambda_s)
+
+  for( s in 1:nS )
+    for( p in 1:nP )
+    {
+      Rev_sp[s,p] <-  C_sp[s,p] * landVal_s[s] * (1 - crewShare)
+    }
+
+  # Calculate revenue and rent
+  Rev_p   <- apply(X = Rev_sp, FUN = sum, MARGIN = 2 )
+  Rent_p  <- Rev_p - E_p * effortPrice_p
+
+  totRent <- sum(Rent_p)
+
+  outList <- list(  landVal_s = landVal_s,
+                    E_p = E_p,
+                    C_sp = C_sp,
+                    Rev_sp = Rev_sp,
+                    effCost_p = effortPrice_p * E_p,
+                    crewShare = crewShare,
+                    Rev_p = Rev_p,
+                    Rent_p = Rent_p,
+                    totRent = totRent )
+
+  if(optimise)
+    return(-totRent )
+
+
+  return( outList )
+
+
+} # END coastWideEconObjFun()
 
 
 calcJABBASelPars <- function( obj )
@@ -506,11 +689,11 @@ calcJABBASelPars <- function( obj )
 # yield and recruitment as a function of input fishing mortality rates
 # inputs:   obj = list of biological parameters
 # ouputs:   refCurves = list() of reference curves (vectors)
-.calcRefCurves <- function( obj, nFs = 1000, fleetIdx = 2 )
+.calcRefCurves <- function( obj, nFs = 200, fleetIdx = 2 )
 {
   # First, compute max F (tolerance of 1e-5)
   nT   <- dim(obj$om$qF_spft)[4]
-  maxF <- max( 10*obj$M_xsp )
+  maxF <- max( 4*obj$M_xsp )
   maxE <- max( maxF / obj$om$qF_spft[,,2,nT])
 
   # We're going to need to fill each species' ref curves,

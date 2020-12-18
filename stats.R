@@ -11,8 +11,9 @@
 #
 # <><><><><><><><><><><><><><><><><><><><><><><><><><><>
 
-dynEqbriaTab <- function( groupFolder = "omni_econYield_splineE_short",
+dynEqbriaTab <- function( groupFolder = "omni_econYield_splineE_long",
                           mpFilter = "freeEff",
+                          econYieldFile = "cwEconYieldBlob.Rdata",
                           scenOrder = c("noCorr","corrRecDevs","corrPriceDevs","corrRecPrice"))
 {
   # First, read info files from the relevant
@@ -42,8 +43,11 @@ dynEqbriaTab <- function( groupFolder = "omni_econYield_splineE_short",
   }
   outList <- NULL
 
+  load(econYieldFile)
+  baseBlob <- blob
+
   # Get reference points
-  rp <- modelList[[1]]$rp
+  rp <- baseBlob$rp[[1]]
   nS <- modelList[[1]]$nS
   nP <- modelList[[1]]$nP
   nT <- modelList[[1]]$nT
@@ -104,23 +108,30 @@ dynEqbriaTab <- function( groupFolder = "omni_econYield_splineE_short",
   # Pull static RPs
   # Species
   Bmsy_sp     <- rp$EmsyMSRefPts$BeqEmsy_sp
-  Bmey_sp     <- rp$EmeyRefPts$Bmey_sp
-  Ymey_sp     <- rp$EmeyRefPts$Ymey_sp
+  # Bmey_sp     <- rp$EmeyRefPts$Bmey_sp
+  # Ymey_sp     <- rp$EmeyRefPts$Ymey_sp
   MSY_sp      <- rp$EmsyMSRefPts$YeqEmsy_sp
 
   # Area
-  Emey_p      <- rp$EmeyRefPts$Emey_p
+  Emey_p      <- rp$EmeyRefPts$cwEconYieldCurves$cwEmey_p
   Emsy_p      <- rp$EmsyMSRefPts$EmsyMS_p
-  MEY_p       <- rp$EmeyRefPts$MEY_p
+  MEY_p       <- rp$EmeyRefPts$cwEconYieldCurves$cwMEY_p
 
+  # Solve for Bmey with coastwide demand curve
+  Beq_spe     <- rp$refCurves$EffCurves$Beq_spe
+  Yeq_spe     <- rp$refCurves$EffCurves$Yeq_spe
   # Want to solve for econ yield at MSY
   econYeq_pe  <- rp$EmeyRefPts$econYeq_pe
+
   E           <- rp$refCurves$EffCurves$E
 
   econYmsy_p  <- array(NA, dim = c(nP))
+  Bmey_sp     <- array(NA, dim = c(nS,nP))
+  Ymey_sp     <- array(NA, dim = c(nS,nP))
+  Umey_sp     <- array(NA, dim = c(nS,nP))
 
   Umsy_sp     <- MSY_sp / Bmsy_sp
-  Umey_sp     <- Ymey_sp / Bmey_sp
+  
 
   
   # Loop over areas, then species
@@ -140,6 +151,12 @@ dynEqbriaTab <- function( groupFolder = "omni_econYield_splineE_short",
       for( s in 1:nS )
       {
         specRowIdx <- s + (p-1) * nS
+
+        # Solve for biomass/catch at Emey
+        Bmey_sp[s,p] <- getSplineVal( x = E, y = Beq_spe[s,p,], p = Emey_p[p] )
+        Ymey_sp[s,p] <- getSplineVal( x = E, y = Yeq_spe[s,p,], p = Emey_p[p] )
+
+        Umey_sp[s,p] <- Ymey_sp[s,p] / Bmey_sp[s,p]
 
         dynEqBio[specRowIdx,"species"] <- speciesNames[s]
         dynEqCat[specRowIdx,"species"] <- speciesNames[s]
@@ -168,6 +185,8 @@ dynEqbriaTab <- function( groupFolder = "omni_econYield_splineE_short",
         dynEqBio[specRowIdx,colName]  <- dynB
         dynEqCat[specRowIdx,colName]  <- dynC
         dynEqHR[specRowIdx,colName]   <- dynU
+
+
       }
 
       # Then do area tables
@@ -213,7 +232,7 @@ dynEqbriaTab <- function( groupFolder = "omni_econYield_splineE_short",
 # time series, and calculates distributions
 # of each inside a nominated time period
 pullModelStates <- function(  sim         = 1,
-                              groupFolder = "omni_econYield_splineE_short",
+                              groupFolder = "omni_econYield_splineE_long",
                               stateVars   = c("C_ispt","SB_ispt","E_ipft"),
                               output      = FALSE,
                               distPeriod  = 2041:2060 )

@@ -10,7 +10,212 @@
 #
 # <><><><><><><><><><><><><><><><><><><><><><><><><><><>
 
+# plotCWeconYield()
+# Plot function for economic yield curves
+# assuming a coastwide demand curve but spatially
+# heterogeneous fishing effort/costs of fishing/catch
+plotCWeconYield <- function(  obj,
+                              maxE = 120,
+                              plotCplx = TRUE )
+{
+  rp <- obj$rp[[1]]
 
+  # Bail out of function if info missing
+  if( is.null(rp$EmeyRefPts$cwEconYieldCurves))
+  {
+    cat("Simulation object did not calculate CW econ yield equilibria.")
+    return()
+  }
+
+  # Otherwise, grab info, follow other yield curve plots, but
+  # this time there's an aggregate curve too
+  
+  opMod <- obj$ctlList$opMod
+
+  refCurves         <- rp$refCurves
+  EmsyRefPts        <- rp$EmsyRefPts
+  EmsyMSRefPts      <- rp$EmsyMSRefPts
+  FmsyRefPts        <- rp$FmsyRefPts
+  EmeyRefPts        <- obj$rp[[1]]$EmeyRefPts
+  cwEconYieldCurves <- EmeyRefPts$cwEconYieldCurves
+  
+
+  nT  <- obj$om$nT
+  nP  <- obj$om$nP
+  nS  <- obj$om$nS
+  tMP <- obj$om$tMP
+
+  # Pull qF
+  qF_sp       <- blob$om$qF_ispft[1,,,2,nT]
+  
+  speciesNames <- blob$om$speciesNames
+  stockNames   <- blob$om$stockNames
+
+  # Now compute MSY for SS and MS curves
+  # MSY is still the same for SS, just need the effort
+  # that corresponds to it, which is Fmsy/qF
+  Eseq      <- as.numeric(dimnames(EmeyRefPts$econRev_pe)[[2]])
+
+  EmsyMS_p  <- EmsyMSRefPts$EmsyMS_p
+  MSYMS_sp  <- EmsyMSRefPts$YeqEmsy_sp
+
+  EmsySS_p  <- EmsyRefPts$Emsy_sp
+  MSYSS_sp  <- EmsyRefPts$YeqEmsy_sp
+
+  # Emey_p      <- EmeyRefPts$Emey_p
+  # MEY_p       <- EmeyRefPts$MEY_p
+  # Rev_pe      <- EmeyRefPts$econRev_pe
+  # Rev_spe     <- EmeyRefPts$econRev_spe
+  # econYeq_pe  <- EmeyRefPts$econYeq_pe
+  # effCost_pe  <- EmeyRefPts$effCost_pe
+  # Ymey_sp     <- EmeyRefPts$Ymey_sp
+
+  eff_p <- obj$om$E_ipft[1,,2,54]
+  C_p   <- apply( X = obj$om$C_ispt[1,,,54], FUN = sum, MARGIN = 2 )
+
+  # Now, we need to convert solveEff_p to the cost of
+  # fuel, using the landings and fuel cost per kt
+  effortPrice_p <- opMod$varCostPerKt * C_p / eff_p
+
+  browser()
+  Rev_spe     <- cwEconYieldCurves$cwRev_spe
+  Emey_p      <- cwEconYieldCurves$cwEmey_p
+  MEY_p       <- cwEconYieldCurves$cwMEY_p
+  Yeq_spe     <- cwEconYieldCurves$Yeq_spe
+  Rent_pe     <- cwEconYieldCurves$cwRent_pe
+  Rent_e      <- cwEconYieldCurves$cwRent_e
+  effCost_pe  <- cwEconYieldCurves$cwEffCost_pe
+  E_pe        <- array(NA, dim = dim(effCost_pe))
+  Eff         <- cwEconYieldCurves$Eff
+
+  for( p in 1:nP )
+    E_pe[p,] <- effCost_pe[p,] / effortPrice_p[p]
+
+  Rev_pe    <- apply(X = Rev_spe, FUN = sum, MARGIN = c(2,3), na.rm = TRUE )
+  Rev_se    <- apply(X = Rev_spe, FUN = sum, MARGIN = c(1,3), na.rm = TRUE )
+  Rev_e     <- apply(X = Rev_spe, FUN = sum, MARGIN = c(3), na.rm = TRUE )
+  effCost_e <- apply(X = effCost_pe, FUN = sum, MARGIN = 2 )
+
+
+  # remove zeroes
+  Rev_spe[Rev_spe == 0] <- NA
+  Rev_spe[,,1] <- 0
+
+  specCols <- RColorBrewer::brewer.pal(n = nS, "Dark2")
+
+
+
+  if(is.null(maxE))
+    maxE <- 10 * max(Emey_p[pIdx])
+
+  par( mfrow = c(nP+1,1), mar = c(.1,1,.1,1), oma = c(3,4,1,1) )
+  for( p in 1:nP )
+  {
+    plot( x = c(0,maxE), y = c(0, max(Rent_pe[p,],Rev_pe[p,],na.rm = T) ),
+          type = "n", xlab = "", ylab = "", axes = F, xaxs="i" )
+      axis(side = 2, las = 1)
+      box()
+      grid()
+
+      for( s in 1:nS )
+      {
+        lines( x = E_pe[p,], y = Rev_spe[s,p,],
+               col = specCols[s], lty = 1, lwd = 2 )
+        # lines( x = Eseq, y = Beq_spe[s,p,],
+        #        col = specCols[s], lty = 2, lwd = 2 )
+
+      }
+      mfg <- par("mfg")
+      if( mfg[1] == mfg[3])
+        axis(side = 1)
+
+      rmtext( txt = stockNames[p], line = 0.02,
+              font = 2, cex = 1.5, outer = TRUE )
+
+      if( plotCplx )
+      {
+        lines(  x = E_pe[p,], y = Rev_pe[p,],
+                col = "black", lty = 1, lwd = 3 )
+
+        lines(  x = E_pe[p,], y = Rent_pe[p,],
+                col = "black", lty = 2, lwd = 3 )
+      
+
+      lines( x = E_pe[p,], y = effCost_pe[p,], col = "red",
+              lwd = 2 )
+
+      abline( v = Emey_p[p], lty = 2, col = "steelblue")
+      abline( v = EmsyMS_p[p], lty = 2, col = "grey40")
+      }
+
+
+
+      # segments( x0 = EmsyMS_p[p], col = "grey40",
+      #           y0 = 0, y1 = MSYMS_p[p], lty = 2  )
+
+      # segments( x0 = 0, x1 = EmsyMS_p[p], col = "grey40",
+      #           y0 = c(MSYMS_p[p],MSYMS_sp[,p]), lty = 2  )
+
+      if(  p == 1 )
+        legend( x = "topright", bty = "n",
+                col = c(specCols,"black","red","black"),
+                lty = c(1,1,1,1,1,2),
+                lwd = c(2,2,2,2,2,2),
+                legend = c( paste(speciesNames," Revenue",sep = ""),
+                            "Complex Revenue",
+                            "Variable Costs",
+                            "Total Profits") )
+
+  }
+
+  plot( x = c(0,maxE), y = c(0, max(Rent_e,Rev_e,na.rm = T) ),
+          type = "n", xlab = "", ylab = "", axes = F, xaxs="i" )
+      axis(side = 2, las = 1)
+      box()
+      grid()
+
+      for( s in 1:nS )
+      {
+        lines( x = Eff, y = Rev_se[s,],
+               col = specCols[s], lty = 1, lwd = 2 )
+      }
+
+      mfg <- par("mfg")
+      if( mfg[1] == mfg[3])
+        axis(side = 1)
+
+      rmtext( txt = "Coast-wide", line = 0.02,
+              font = 2, cex = 1.5, outer = TRUE )
+
+      if( plotCplx )
+      {
+        lines(  x = Eff, y = Rev_e,
+                col = "black", lty = 1, lwd = 3 )
+
+        lines(  x = Eff, y = Rent_e,
+                col = "black", lty = 2, lwd = 3 )
+      
+
+        lines( x = Eff, y = effCost_e, col = "red",
+                lwd = 2 )
+
+        abline( v = sum(Emey_p), lty = 2, col = "steelblue")
+        abline( v = sum(EmsyMS_p), lty = 2, col = "grey40")
+      }
+      
+
+
+
+  mtext( outer = TRUE, side = 1, text = "Commercial Trawl Effort (1000 hrs)", line = 2 )
+  mtext( outer = TRUE, side = 2, text = "Cost, Revenue, and Profit ($ x 1e6)", line = 2 )
+
+
+
+}
+
+# plotChokeHCRs()
+# Plot function for making HCRs with an example choke
+# effect
 plotChokeHCRs <- function(  LCP = .1, UCP = .6,
                             refHR = .1,
                             chokeScale = .2 )
@@ -39,7 +244,7 @@ plotChokeHCRs <- function(  LCP = .1, UCP = .6,
     lines( x = BBmsy, y = chokeHR, lwd = 2, col = "red" )
 
 
-}
+} # END plotChokeHCRs()
 
 # rmtext()
 # Refactored procedure to plot right hand inner

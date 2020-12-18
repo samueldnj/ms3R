@@ -10,6 +10,35 @@
 #
 # <><><><><><><><><><><><><><><><><><><><><><><><><><><>
 
+# redoEconYield()
+# recalculates economic yield parameters, good for
+# appending coastwide curves post-simulation, avoiding
+# optim calls between sims
+redoEconYield <- function( obj, iRep = 1, cwMEY = TRUE )
+{
+  # Pull things we need to do it
+  repObj  <- obj$ctlList$opMod$histRpt
+  opMod   <- obj$ctlList$opMod
+
+  opMod$cwMEY <- cwMEY
+
+  rp      <- obj$rp[[iRep]]
+
+  repObj$opMod    <- opMod
+  repObj$om       <- list()
+  repObj$om$C_spt <- obj$om$C_ispt[iRep,,,]
+  repObj$om$E_pft <- obj$om$E_ipft[iRep,,,]
+
+  econYieldCurves <- .calcEconomicYieldCurves(  repObj, 
+                                                rp$refCurves$EffCurves,
+                                                rp$FmsyRefPts )
+
+  obj$rp[[iRep]]$EmeyRefPts <- econYieldCurves
+
+  obj
+} # END redoEconYield
+
+
 # getSplineVal()
 # Takes in 2 vectors of the same length, fits
 # a spline, and returns a given point value for

@@ -1,0 +1,94 @@
+# Results
+
+```{r loadFit, include = FALSE, echo = FALSE}
+.loadFit(params$fit, baseDir = params$baseDir)
+```
+
+## Stock assessment model fit
+
+The stock assessment model was fit to the biomass indices and compositional
+data outlined in the methods. Because the main application of the simulation
+model was to generate realistic catches in the projections under each 
+scenario/objective function, we focused the evaluation of model fit on 
+biomass indices, and to a lesser extent, commercial age data. 
+
+The fits to biomass indices were good overall. Fits for all series
+were almost unbiased, with mean residuals at most 0.07 in absolute value. 
+Despite low bias, there were significant trends in residuals for the modern 
+commercial CPUE index for all QCS stocks, and WCVI Rock sole, as well as for 
+the Hecate Strait assemblage survey for all three species (Figure 2); poor 
+fits to these indices was not completely unexpected, as one was a fishery 
+dependent commercial catch-rate series with underlying targeting behaviour, 
+while the fishery independent Hecate Strait Assemblage survey had a fixed 
+station design with very large survey blocks. There were no trends in the 
+residuals for the historical CPUE series, but this is due to the 
+time-varying catchability applied to that series. Finally, the Synoptic 
+survey residuals were unbiased and did not exhibit any significant trends.
+
+Biomass time series and single-species biological reference point estimates 
+indicate that all DER complex stocks were in a healthy state in 2016 (Table 3). 
+Three out of nine stocks exhibited 1-way trip dynamics (HSHG and QCS Dover, 
+and QCS Rock, Figure 3), where biomass only depleted over the period 1956 - 
+2016, while the remaining stocks showed signs of growth, usually after the mid 
+1990s, which could indicate that the growth was more related to the switch 
+between historical and modern commerical CPUE indices. Indeed, the two smaller 
+English sole stocks (QCS and WCVI) exhibit large jumps in biomass as soon as 
+the historical CPUE series ends, jumping almost all the way back to unfished 
+levels in QCS. While these dynamics may indicate spurious recruitment dynamics
+for these two stocks in the mid 1990s, the absolute size of the stocks is a 
+very small proportion of the overall complex and so is is considered a minor
+issue for the results of this paper.
+
+F vs Effort plots
+
+Correlation in recruitment deviations
+
+## Price model
+
+- Elasticity of demand - inverse demand
+- covariance/correlation in price devs
+
+```{r loadPriceModel, echo = FALSE, include = FALSE}
+load("./data/DERcplxPriceFlexModel.Rdata")
+```
+
+## Steady-state reference points
+
+### Multi-species maximum biological yield
+
+The optimal harvest rate and spawning-stock biomass from the multi-species 
+complex yield curves followed a similar pattern across the three areas 
+(Figure 5). In all areas, the fishing effort maximising multi-species yield
+for the area led to a slightly higher harvest rate for Dover sole when 
+compared to the single-species optimal harvest rate. In contrast, the 
+harvest rates maximising multi-species yield for both English and rock soles 
+were slightly lower than the rates maximising single-species yield. In the 
+HSHG area, where all three species had the highest biomasses, the 
+multi-species optimal effort lay close to the single-species optimal 
+effort, meaning that there was very little foregone yield for each species 
+in order to maximise the total complex yield. In contrast, the other 
+two areas each had a species with a yield curve that had a peak far to 
+the right of the peaks of the other two curves, indicating a lower 
+catchability scalar between effort and fishing mortality for English sole 
+in QCS, and rock sole in WCVI. Although English (QCS) and rock (WCVI) soles 
+are proportionally further under-exploited under the multi-species 
+optimal effort than the least catchable species (rock sole) in HSHG, 
+the yield lost to under-exploitation is trivial given the absolute 
+size of each is an order of magnitude smaller than the larger
+stocks in those areas.
+
+### Multi-species maximum economic yield
+
+
+
+## Dynamic reference points
+
+### Multi-species maximum biological yield
+
+### Multi-species maximum economic yield
+
+#### Dead-weight loss
+
+
+
+

@@ -1,0 +1,5 @@
+book_filename: "refPtsDER_TandF"
+rmd_files: ["index.Rmd",
+            "06_tables.Rmd",
+            "07_figures.Rmd" ]
+delete_merged_file: true

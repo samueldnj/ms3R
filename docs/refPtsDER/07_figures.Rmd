@@ -1,0 +1,78 @@
+\clearpage
+# Figures
+
+
+
+```{r figCaptions, echo = FALSE, include = FALSE, warning = FALSE }
+DERcplxMapCap <- "Mininum trawlable survey biomass $B_{trawl}$ estimates for DER 
+complex species on the BC coast, aggregated to a 10km square grid.
+Estimates are produced by scaling average trawl survey ($kg/m^2$) 
+density values in each grid cell by the cell's area in $m^2$. 
+Locations that do not show a coloured grid cell do not have any 
+survey blocks from which to calculate relative biomass. Survey density 
+for each grid cell is calculated from data for the Hecate Strait 
+Assemblage Survey and the BC Groundfish Trawl Synoptic Survey, stored 
+in the GFBio data base maintained at the Pacific Biological Station 
+of Fisheries and Oceans, Canada. Thick black lines delineate the major 
+statistical areas 3CD and 5ABCDE used for groundfish management BC, while
+the dashed grey lines makr out latitude and longitude, indicating the
+rotation of the coordinates to save space. The full colour figure 
+is available in the online version of the article."
+
+
+dataSummFigCap <- "A summary of DER complex data available for fitting the 
+assessment model. Panels show species from left to right, and rows show
+stock areas from north to south. Each panel is split into four cells, with
+the top three showing a filled circle when a biomass index, age-composition,
+length-composition, or length-conditional age-composition exists for 
+each fleet (colours) for the indicated year. The bottom cell shows commercial 
+catch (relative to the maximum catch) in grey bars."
+
+SBsptCaption <- "Spawning biomass (red solid line), unfished biomass (red 
+horizontal dashed line), catch (grey bars), and scaled biomass indices 
+(coloured points), for all stocks and species. Indices are scaled by the 
+fleet catchability and the ratio of spawning biomass to vulnerable biomass, 
+i.e. $ I^{scaled}_{s,p,f,t} = \\frac{I_{s,p,f,t} SSB_{s,p,t}}{q_{s,p,f,t} B_{s,p,f,t}}$."
+
+idxResidsCap <- "Standardised residuals for commercial CPUE and survey 
+trawlable biomass indices."
+
+econYieldCurveCap <- "Steady state net profits, species and complex revenue,
+and variable costs of fishing as functions of fishing effort for the nine 
+DER complex management units, as well as across all three species within 
+each stock area. Each panel shows the three individual DER complex species 
+revenue curves in different colours, and the complex revenue curve found 
+by summing the three species curves as a solid black line. Variable fishing 
+costs, including fuel and crew share, are shown as a red line, while total 
+profits are shown as the dashed black line."
+```
+
+```{r fig1-DERcomplexSurveyBio, echo = FALSE, warning = FALSE, fig.cap = DERcplxMapCap }
+figPath <- file.path("./figure/fig1-DERcomplexSurveyBio.pdf")
+knitr::include_graphics(figPath)
+```
+
+\blandscape
+```{r fig2-dataSummmary, echo = FALSE, warning = FALSE, fig.cap = dataSummFigCap, fig.width = 9, out.width = "9in" }
+plotDataSummary(reports, dataCells = c( "Indices",
+                                        "Ages",
+                                        "Lengths",
+                                        "Catch"))
+```
+
+
+```{r fig3-SpawnBioPlots, echo = FALSE, warning = FALSE, fig.cap = SBsptCaption, fig.width = 9, out.width = "9in" }
+plotSBspt( reports, pub = TRUE)
+```
+
+```{r fig4-idxResids, echo = FALSE, warning = FALSE, fig.cap = idxResidsCap, fig.width = 9, out.width = "9in" }
+plotIdxResidsGrid( reports)
+```
+
+
+\elandscape
+
+```{r fig2-DERcomplexEconYieldCurves, echo = FALSE, warning = FALSE, fig.cap = econYieldCurveCap }
+figPath <- file.path("./figure/fig2-DERcomplexEconYieldCurves.pdf")
+knitr::include_graphics(figPath)
+```

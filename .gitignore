@@ -5,15 +5,24 @@
 # ---- Temporary R and TMB files --- #
 *.DS_Store
 *.Rapp.history
+*.Rhistory
 
 # History plot folders
 ./history/fit_*/plots
 ./history/fit_*/hierSCAL.o
+
+# compiled files
 *.o
 *.so
 
 # Outputs of ms3R
 ./Outputs/sim*
 
-
-
+# Documentation
+docs/*/knitr*.png
+docs/*/knitr*.pdf
+docs/*/*.log
+docs/*/data/*/*.html
+docs/*/data/*/*.o
+docs/*/data/*/*.so
+docs/*/data/*/*.cpp

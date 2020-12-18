@@ -1,0 +1,124 @@
+---  
+title: "Do correlations in price and recruitment affect economic and biological risk in spatially heterogeneous, multi-species fisheries?"
+author: 
+  - Samuel D. N. Johnson (corresponding)
+  - Sean P. Cox
+  - Duncan Knowler
+affil:
+  - School of Resource and Environmental Management,
+    Simon Fraser University,
+    8888 University Drive,
+    BC, Canada
+email:
+  - samuelj@sfu.ca
+  - spcox@sfu.ca
+  - djk@sfu.ca
+abstract: Abstact to be filled in
+date: \today
+bibliography: /Users/sdnjohnson/Work/Library/library.bib
+natbib: true
+biblio-style: plainnat
+csl: /Users/sdnjohnson/Work/write/templates/csl/cjfas.csl 
+geometry: letterpaper
+toc: false
+fontsize: 12pt
+lineno: true
+csl-refs: true
+params:
+  fit: "fit_base_MCMC"
+  baseDir: "Documentation/refPtsDER/data"
+numbersections: true
+appendix: false
+output: 
+  pdf_document:
+    citation_package: natbib
+    keep_tex: true
+    fig_caption: true
+    latex_engine: pdflatex
+    template: ~/Work/write/templates/tex/basic.latex
+  bookdown::pdf_document2:
+    citation_package: natbib
+    keep_tex: true
+    fig_caption: true
+    latex_engine: pdflatex
+    template: ~/Work/write/templates/tex/basic.latex
+  html_document:
+    self_contained: true
+    df_print: kable
+    keep_md: true
+  bookdown::html_document2:
+    self_contained: true
+    df_print: kable
+    keep_md: true
+  word_document:
+    df_print: kable
+    reference_docx: /Users/sdnjohnson/Work/write/templates/docx/basic.docx
+  bookdown::word_document2:
+    df_print: kable
+    reference_docx: /Users/sdnjohnson/Work/write/templates/docx/basic.docx
+---
+
+```{r setup, echo=FALSE, cache=FALSE, message=FALSE, results='hide', warning=FALSE}
+library(knitr)
+if (is_latex_output()) {
+  knitr_figs_dir <- "knitr-figs-pdf"
+  knitr_cache_dir <- "knitr-cache-pdf"
+  fig_out_type <- "pdf"
+  kable_format <- "latex"
+} else {
+  knitr_figs_dir <- "knitr-figs-docx"
+  knitr_cache_dir <- "knitr-cache-docx"
+  fig_out_type <- "png"
+  kable_format <- "pandoc"
+}
+fig_asp <- 0.618
+fig_width <- 6
+fig_out_width <- "6in"
+fig_dpi <- 180
+fig_align <- "center"
+fig_pos <- "htb"
+opts_chunk$set(
+  collapse = TRUE,
+  warning = FALSE,
+  message = FALSE,
+  comment = "#>",
+  fig.path = knitr_figs_dir,
+  cache.path = knitr_cache_dir,
+  fig.asp = fig_asp,
+  fig.width = fig_width,
+  out.width = fig_out_width,
+  echo = FALSE,
+  #  autodep = TRUE,
+  #  cache = TRUE,
+  cache.comments = FALSE,
+  dev = fig_out_type,
+  dpi = fig_dpi,
+  fig.align = fig_align,
+  fig.pos = fig_pos
+)
+options(xtable.comment = FALSE)
+options(kableExtra.latex.load_packages = FALSE)
+options(knitr.kable.NA = '')
+
+
+source(here::here("SCALfuns.R"))
+source(here::here("SCALtools.R"))
+source(here::here("plots.R"))
+source(here::here("refPts.R"))
+source(here::here("mseRtools.R"))
+
+```
+
+```{r load-libraries, cache=FALSE}
+# add other packages here:
+library(kableExtra)
+library(tidyverse)
+library(coda)
+library(MASS)
+library(chemometrics)
+library(mvtnorm)
+library(RColorBrewer)
+```
+
+
+

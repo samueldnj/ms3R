@@ -1,0 +1,270 @@
+# Introduction
+
+Managers of multi-species fisheries attempt to balance the harvest of 
+complex combinations of interacting species that have different 
+productivities, abundances, and availability to fishing gear 
+[@may1979management]. When those species are also spatially heterogeneous 
+across multiple fishing areas, the correct balance of harvests is likely
+to differ among areas [@goethel2017accounting; @punt2018estimates]. These 
+factors are often ignored when setting fishery management objectives, and 
+each species in a multi-species fishery 
+may instead have objectives based on single-species biological reference 
+points, such as maximum sustainable yield (MSY) or a proxy 
+[@collie2001biological], or an extension of biological reference points such 
+as maximum economic yield (MEY) [@hoshino2018estimating]. Economic yield 
+(as opposed to absolute catch) is one part of the 'triple bottom line' 
+of fisheries management (the other two being biological conservation and 
+social outcomes), and are increasinly considered as a decision axis in 
+fisheries management frameworks [@benson2018options; 
+@stephenson2017practical].
+
+Management objectives for multi-species fisheries depend on the type of 
+interactions in the exploited system, and therefore the multi-species 
+biological reference points that are relevant to those systems differ 
+[@moffitt2016moving]. For example, a fishery that targets multiple species 
+with trophic interactions may prefer to harvest the higher trophic level 
+species, so managers of that fishery may choose reference points that
+preserve the prey in favour of a higher numerical response of
+the predator [@may1979management]. In the same system, achieving
+MSY of the prey species may be impossible in the presence of the predator, 
+as the predation mortality may already be well above level associated 
+with MSY in the absence of that predator [@may1979management],
+so managers that want to increase prey species yield may choose
+reference points in line with objectives to lower predator abundance 
+and decrease predation mortality in favour of higher fishery yield
+of the prey species. In multi-species fisheries where competitive 
+interactions are present, multi-species reference points may not be 
+very different from single-species reference points. For example, 
+fishing one of two species that share a prey resource may affect the 
+growth of both through differences in prey abundance, which could increase 
+the yield per recruit of the exploited species, but likely has a small 
+effect on the shape of the equilibrium yield curves and the optimal
+fishing mortality rate [@collie2001biological].
+
+Despite the existence of several multi-species and eco-system models that 
+include ecological interactions [@holsman2016comparison; @moffitt2016moving], 
+it may be impossible to achieve objectives associated with multi-species 
+reference points if those species are caught in the same fishing events 
+[@kasperski2015optimal]. Those species are then said to have 
+technical interactions, and the incidental catch of another species is 
+then referred to as *byproduct* when the catch can be landed, and *bycatch* 
+when it must be discarded for legal reasons or when it is unmarketable. 
+If byproduct/bycatch species are included in a complex for which 
+multi-species reference points including ecological interactions are 
+derived, but the technical interactions are not considered, then incidental 
+catch  will often lead to sub-optimal fishery outcomes [@ono2017management]. 
+For example, a choke effect could occur if catch limits are set to meet 
+target fishing mortality rates that ignore technical interactions, where 
+easier to catch species have their catch limits fulfilled faster and thereby
+limit fishing opportunities for other species that may have higher catch 
+or be more valuable limits [@baudron2015adverse].
+
+<!-- Data limitations also frustrate attempts to estimate single- or multi-species 
+reference points and achieve associated objectives. Estimating reference 
+points in a single species context requires sufficient data for fitting age 
+structured models, as age data provides signals to help estimate fishery 
+selectivity, total mortality, and recruitment. When age data are limited, 
+strong assumptions about selectivity, mortality or recruitment parameters 
+must be made, or lower complexity models that may overlook important processes 
+(such as age-specific mortality or maturation delays) must be used, which 
+can lead to biased estimates of stock status and biological reference points. 
+Alternatively, length compositions are sometimes used when age data is missing 
+[@rudd2017accounting], but those data are sometimes concentrated around the 
+asymptotic length of a species, especially for fast growing 
+species that are rarely encountered by surveys or commercial effort at 
+young ages. Without observations of young fish that clearly signal 
+discrete year classes, recruitment, mortality, and selectivity estimates 
+are difficult to resolve using length data only. Multi-species reference 
+points derived from complex multi-species models that include ecological 
+interactions have even higher data requirements, such as diet data that 
+are more costly to collect and often require additional survey effort over 
+standard fishery monitoring [@holsman2016comparison]. All of this makes 
+multi-species reference points based on ecological interactions practically 
+out of reach for fisheries where data that can help resolve those 
+interactions is lacking. For both single- and multi-species cases, 
+increased uncertainty in recruitment, mortality, and selectivity 
+parameters increases the uncertainty in reference point estimates that 
+rely on those parameters, which may in turn create bias in the expected 
+outcomes from management actions. -->
+
+Technical interactions are easily incorporated into multi-species
+reference points in most cases [@pikitch1987use]. For
+example, commercial catchability scalars can be derived by comparing
+species specific fishing mortality to a common index of fishing effort, 
+data which is readily available whenever commercial CPUE data
+is available. Effort can be further broken down by target species when 
+fine scale set-by-set effort and catch composition data is available, 
+resulting in different technical interactions depending on the
+target species [@punt2011calculating; @punt2020multispecies].
+The resulting commercial catchability scalars are then able to capture
+the relative strength of technical interactions within a multi-species
+system, which result in bycatch or byproduct, and can represent the
+above mentioned choke effects that managers and harvesters must contend 
+with [@baudron2015adverse]. Multi-species effort-yield relationships are 
+then straightforward to derive [@pikitch1987use], but calculation of 
+optima may require simulation if the system is especially complex
+[@punt2011calculating]. 
+
+In some jurisdictions, management objectives include maximising the 
+economic yield of multi-species fisheries, which requires additional
+bio-economic modelling for the derivation of net economic benefit 
+[@kasperski2015optimal; @hoshino2018estimating]. Multi-species reference 
+points with technical interactions are commonly used as the basis for 
+bio-economic modelling, and ecological interactions are sometimes 
+ignored. Costs of fishing and landed values are readily added 
+to multi-species effort-yield relationships with technical interactions as 
+outlined above, and evaluation of net benefits are straigtforward if cost 
+functions are simple (e.g., linear in effort). More sophistication is 
+required as the complexity of the economic model increases, e.g., including 
+behaviour at the level of individual vessels such as entry/exit from the 
+fishery, targeting of individual species, or opportunity costs 
+[@kasperski2015optimal; @kasperski2016optimal; @punt2011calculating; 
+@punt2020multispecies], sometimes requiring simulation to solve for optima, 
+which pertains more to specific systems under study than general cases.
+
+Spatial heterogeneity (patchiness) of a species also affects biological
+reference points and economic yield [@goethel2017accounting; 
+@smith2012new], as different relative abundances of species among areas may 
+imply different management objectives or different harvester preferences 
+[@sanchirico1999bioeconomics; @sanchirico2001dynamics; 
+@sanchirico2005optimal; @sanchirico2007sustainable]. If spatial patches and 
+fishing effort are defined at a large spatio-temporal scale, then different 
+relative abundances may imply different relative catchabilities, and 
+therefore different multispecies effort-yield relationships. Spatially 
+heterogeneous costs of fishing then combine with spatially heterogeneous 
+effort-yield relationships to affect net economic benefits in each patch. 
+Despite the spatial differences between the optimal values, there are several 
+similarities to the non-spatial case. For example, maximum economic yield 
+calculations within each patch are similar to the single-area calculations 
+when effort allocation is independent among areas and there is no dispersal 
+of fish between areas [@sanchirico2005optimal; @hoshino2018estimating].
+When effort is unregulated (i.e., an open access system), analytical models 
+of spatially heterogeneous single-species fisheries show that effort will 
+increase until net benefits are dissipated like a single-area fishery 
+[@sanchirico2001dynamics; @clark2010mathematical]. When effort is limited 
+by regulation (e.g., total number of licenses or a tax on landings), then 
+the optimal effort allocation varies depending on the regulations in each 
+spatial unit and any underlying dispersal process [@sanchirico2005optimal].
+Under any regulation scheme, it is unlikely that aggregate management 
+approaches will be economically efficient if ignorant of underlying 
+spatial dynamics or structure [@smith2009economics; @goethel2017accounting].
+
+<!-- Despite recent research interest in including spatial and multi-species 
+extensions to economic analyses [@smith2012new], general (analytical) 
+economic results are sometimes of limited practical use for setting 
+objectives and/or choosing reference points in commercial fisheries 
+controlled by catch shares (e.g., individual transferrable quotas). Often,
+simplifying assumptions must be made so that analytical techniques can be
+applied, such as simpler population dynamics models, ignoring stochasticity, 
+or restricting to a simple fishery dynamics regime 
+such as open access or a single operator. While simpler population dynamics
+(usually logistic models) are the most popular choice for bio-economic 
+analyses, they are the least problematic in terms of applications to 
+real fisheries systems, as the relative rankings of outcomes (e.g., profits) 
+are preserved under the simplified dynamics. In some cases, restricting to 
+simpler fishery dynamics, such as open access [@sanchirico1999bioeconomics] 
+or escapement goals [@costello2008optimal] is often unrealistic when 
+fisheries are controlled by catch shares; however, if friction due 
+to quota transfers is ignored, using catch shares to manage a fishery with
+output controls such as individual transferrable quotas can be considered
+a "sole operator". 
+
+While general results are more widely applicable and can guide decisions and 
+research at a high level, system specific results have strategic value for 
+the system in which they are derived [@hoshino2018estimating; 
+@benson2018options]. For example, a study of the multi-species northern prawn 
+fishery in Australia found that the choice of population dynamics model for 
+individual species (often determined by available data) has a large effect on 
+the management advice for all species, given a control rule derived from a 
+multi-species bio-economic model [@punt2011calculating]. In the spatially 
+heterogeneous multi-species snow and Tanner crab fishery in Alaska, the choice 
+of a spatial or non-spatial assessment had little effect on the estimates of
+absolute biomass levels, but differences in technical interactions between
+areas in the spatial models implied different optimal fishing effort levels
+and allocations than non-spatial models [@punt2020multispecies], where spatial
+heterogeneity implied different fishery profitabilities under all fishing 
+strategies (including those based on maximimising economic yield) than the 
+non-spatial case. 
+ -->
+
+There is little research on the effect of correlation among spatially
+heterogeneous species on biological reference points and economic yield.
+For example, there may be correlation in recruitments among species and 
+areas, implicitly representing responses to environmental effects 
+[@dichmont2006management], and there may be correlations in annual market 
+price deviations, either positive when demand changes significantly (e.g., 
+reductions in demand due to environmental disasters or restrictions
+on restaurant trade), or negative when species are substitutable.
+While there have been several studies on the effects of environmental
+covariates on recruitment [@haltuch2019unraveling] and autocorrelation
+in recruitment success [@maunder2019modeling], there are few studies that 
+aim to understand the effect of spatial correlation in recruitment for 
+multiple target species on biological reference points, fishery objectives, 
+and whether there is a risk if those correlations are ignored. In one
+example, ignoring simulated spatial correlation in recruitment success 
+produced positively biased stock status estimates for Australia's Northern 
+Prawn fishery [@dichmont2006management3]. To our knowledge, there are no
+studies establishing an effect of correlated temporal price deviations on
+optimal economic yield, partly because stochasticity is sometimes ignored
+for MEY calculations in the economic literature [@sanchirico2007sustainable; 
+@kasperski2015optimal], and landed values are often considered fixed in
+analyses in the fisheries literature [@punt2020multispecies; 
+@punt2011calculating].
+
+<!-- Despite more commonly having higher model complexity in biological aspects, 
+there are some economic components of bio-economic models in the fisheries 
+literature that are often simplified. For example, most fisheries economic 
+yield calculations apply an average revenue model, where a species' ex-vessel 
+price is the same, regardless of the quantity landed or the annual quota. 
+While there is evidence that this may be true within a year because 
+operators can negotiate contract prices with processors based in individual
+quota allocations [@kasperski2015optimal], the landed value likely changes 
+from year to year, especially if the quota changes significantly for a high 
+value species. Including price responses to catch or quota could in fact
+lead to transfers of consumer to producer surplus, as harvesters will
+tend to catch less to increase their profit margins through higher landed 
+values and lower costs of fishing [@pascoe2018offsetting]. Similarly, cost 
+functions are also usually simplified in fisheries literature.
+While it is difficult to capture all fishing costs, some cost functions are 
+simply linear with fishing effort, excluding capital costs, social costs 
+(e.g. market failures), and ignoring whether a fishery is even able to 
+achieve certain effort levels given limits on capital. Based on this, 
+MEY estimates can be characterised as upper bounds on the true value 
+[@punt2020multispecies]. -->
+
+In this paper, we compared the economic and biological risk of fishing 
+strategies that either accounted for or ignored correlation in market 
+prices and recruitment deviations using closed loop simulation. The 
+simulated fishery modeled three species of right-eyed flounders 
+(*Pleuronectidae Spp.*) - Dover sole (*Microstomus pacificus*), English 
+sole (*Parophrys vetulus*), and (Southern) Rock sole (*Lepidopsetta 
+bilineata*) - fished in three heterogeneous areas by a common trawl 
+fishery off the coast of British Columbia, Canada. Steady-state 
+multi-species maximum yield reference points incorporated technical 
+interactions of the three species to relate species- and area-specific 
+yield curves to a common trawl effort [@pikitch1987use],
+and multi-species economic yield calculations incorporated spatially 
+heterogeneous costs of fishing and quantity dependent landed value when 
+deriving net economic benefits from those steady state solutions. 
+Incorporating correlation in reference point calculations required solving 
+for dynamic optima via stochastic optimisation of fishing effort in 
+eight projection scenarios, where the objective function either maximised 
+yield or discounted profit, and simulated dynamics included correlation
+in recruitment process deviations and/or market price fluctuations. Risk 
+was measured by comparing distributional properties of biomass and profit 
+outcomes when optimal harvest rates were used to set TACs in closed loop 
+simulation under correlation scenarios in the presence or absence of 
+uncertainty about stock status.
+
+Steady state multi-species MSY and MEY reference points were estimated by 
+fitting a hierarchical, multi-species, age-structured stock assessment 
+model to data from the BC flatfish fishery, which was also used as the
+operating model for the closed-loop simulations. Some flatfish stocks lacked 
+biological data, and so a hierarchical model was used to share information 
+on productivity, growth, mortality, fishery selectivity, and survey
+catchability between species and areas, reducing bias while preserving 
+stock-specific estimates in each spatial patch [@johnson2018evaluating]. 
+Furthermore, the joint modeling framework makes it easy to estimate 
+commercial catchability scalars, which are required for incorporating 
+technical interactions in multi-species effort/yield relationships and 
+reference point calculations [@pikitch1987use]. 

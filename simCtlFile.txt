@@ -139,4 +139,5 @@ opMod$obsErrMult .75
 opMod$phaseInObsErrMult 6
 opMod$commCPUEdata "history/DERPAcpue"
 opMod$switchCommCatchability FALSE
+opMod$cwMEY TRUE
 # <End File>

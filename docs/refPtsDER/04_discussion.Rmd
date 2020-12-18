@@ -1,0 +1,23 @@
+# Discussion
+
+In this paper we fit a hierarchical age-structured stock assessment to 5 species of flatfish, each with 3 stocks.
+
+Challenges:
+  - Fitting to length comps (you better get the biology right (ref))
+  - overwhelming the likelihood with compositional data
+  - integrating growth vs leaving it out
+
+Limitations:
+  - No movement
+  - No technical/trophic interactions (bycatch ratios??)
+  - 
+
+Conclusion:
+  - Despite limitations, these hierarchical stock assessment models are a viable method of extending assessments to management units where data are limited or non-existent
+  - 
+
+Future work: 
+    - using this as an operating model to test multi-speces management objectives - could use simpler AM, such as multispecies coastwide, or a DD or SP model.
+    - Adding movement hypotheses
+    - Adding bycatch - especially for testing above multi-species management objectives, want to have choke effects as an emergent property
+    - Adding high-grading

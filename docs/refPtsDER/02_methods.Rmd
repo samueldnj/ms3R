@@ -1,0 +1,430 @@
+# Methods
+
+## Study system and data
+
+British Columbia's multi-species complex of right-eyed flounders is 
+a technically interacting, spatially heterogeneous group of flatfishes 
+managed across the whole BC coast. Although there are several right-eyed 
+flounders in BC waters, we focus here on Dover sole, English sole, and 
+Rock sole. Taken together, these species comprise a multi-stock complex 
+(DER complex) managed in three spatially distinct stock areas (Figure 1) 
+[@PRIFMP2015], which are described in @johnson2020hierarchical-st. Biomass
+index and biological data were obtained via a data request to the GFFOS
+(fishery dependent) and GFBio (fishery independent) data bases at the 
+Fisheries and Oceans, Canada, Pacific Biological Station in Nanaimo, BC, 
+Canada.
+
+Each area had two standardised commercial catch rate (catch-per-unit-effort,
+CPUE) series and at least one survey biomass index time series for each 
+species (Figure 2). The two commercial fishery catch-per-unit-effort series 
+span 1956 - 2016, split between a historical trawl fishery (1956 - 1995) and 
+a modern trawl fishery (1996 - 2016), with the split corresponding to pre- 
+and post-implementation of an at-sea-observer program, respectively. The 
+fishery independent trawl survey biomass indices were the biennial Hecate 
+Strait Assemblage survey in the HSHG area (1984 - 2002), and the Groundfish 
+Multi-species Synoptic Survey, with separate biennial legs in all three 
+stock areas (2003 - 2016).
+
+While some species had relatively long time series of age and length
+composition data with annual samples larger than 100 observations, some 
+areas had very few or none at all (Figure 2). For example, QCS English sole 
+and WCVI English and Rock soles had no age composition data at all, and only
+a small number of years with more than 100 length samples that were mostly 
+from the Synoptic survey. QCS Rock sole had more compositional data,
+with sporadic fishery dependent age data from the late 1980s to the
+mid 2000s and fishery independent samples from the Synoptic survey ending
+around 2011; length compositions for QCS rock spanned the entire period 
+1956 - 2016, with a few short gaps. Dover sole in QCS and WCVI had 
+very sparse length data before 1996, after which the modern
+commercial trawl and Synoptic survey length data runs until 2016 in both
+areas, but ages are minimal. Finally, all three species had the most 
+compositional data collected in the HSHG area, where fishery dependent
+lengths run from 1976 for Dover, and 1956 for English and Rock, and there
+are samples from the mid 1990s onwards for the Hecate Strait and Synoptic
+surveys. Age compositions are absent for HSHG Dover sole before 1995, but 
+both English and Rock sole have reasonable age composition coverage from 
+the historical trawl fishery, beginning in 1980 (English) and 1970 (Rock).
+
+Survey biological and index data were filtered to remove survey blocks 
+where compositional data had a higher than expected proportion of 
+young and small fish. Exploratory analyses showed that some samples of 
+age-/length-compositions in the HSHG and QCS areas had a second mode at
+young ages and small lengths, possibly indicating a nursery area in some 
+survey blocks. Blocks were removed when the average size of fish caught by 
+the survey was below 20cm (Dover), 15cm (English), and 20cm (Rock).
+
+Time series of effort targeting DER complex species were found by taking 
+the average ratio of catch to unstandardized catch rates, i.e.,
+\begin{equation}
+E_{p,f,t} = \frac{\sum_{s} \mathcal{I} (I'_{s,p,f,t} > 0) \frac{C_{s,p,f,t}}{I'_{s,p,f,t}}}{\sum_{s} \mathcal{I} (I'_{s,p,f,t} > 0) }
+\end{equation}
+where $E_{p,f,t}$ is the derived trawl effort in area $p$ by fleet $f$ in 
+time step $t$ (1000 hours), $C_{s,p,f,t}$ is trawl catch of species $s$,
+$I'_{s,p,f,t}$ is unstandardized CPUE, and $\mathcal{I}(X)$ is the
+indicator function that takes value 1 when $X$ is true, and 0 otherwise. 
+By taking the average over indices that exist, issues with missing
+data for some species in some areas and years were avoided.
+
+ADD INFO ON PRICE DATA
+
+## Hierarchical age/sex-structured stock assessment model
+
+The stock assessment model (AM) was a sex-structured statistical 
+catch-at-age/length model, extended to jointly model population dynamics 
+for the multi-species DER complex across three spatial areas (Table 1). 
+The three spatial areas were modeled as independent stocks $p = 1,2,3$ 
+(HSHG, QCS, WCVI) of each sole species $s = 1,2,3$ (Dover, English, Rock) 
+with no movement of spawning biomass or recruits between areas. Independence 
+between areas may be unrealistic, at least for Dover sole given its spatial 
+extent in survey observations, but it is how the three species are currently 
+managed. Further, the three species are modeled without ecological 
+interactions, which is realistic for Dover and English soles, as although both 
+species are benthophagus, there is evidence that they belong to different 
+feeding guilds [@pikitch1987use; @wakefield1984feeding]. There is evidence 
+in other areas that rock soles feed on unsettled juveniles of other flatfishes 
+[@wakefield1984feeding], so there may be some predation mortality at young 
+ages that is not explicitly accounted for in reference point calculations, 
+but the effect of juvenile loss on the population dynamics in the 
+assessment model history is likely approximated by the recruitment deviations
+$\epsilon_{R,s,p,t}$ year-to-year, and to a lesser extent by stock-recruitment 
+steepness $h_{s,p}$ on average.
+
+The initial age structure of all DER complex stocks was assumed to be
+at unfished equilibrium in 1956 (Table 1, EQ.1 - EQ.5), with ages $a = 1$ to 
+a plus group $a = A_s$ for each species $s$. Annual age-1 recruitment
+$R_{s,p,t}$ was driven by a Beverton-Holt stock-recruitment relationship 
+(A.2), and split equally between males and females (A.1). Total mortality 
+of sex $x$, age $a$ fish in area $p$ of species $s$ in year $t$ was the sum 
+of natural mortality $M_{x,s,p}$ and selected fishing mortality
+$s_{a,x,s,p,f} \cdot F_{s,p,f,t}$, summed over fleets $f$ (C.3). 
+Selectivity-at-age $s_{a,x,s,p,f}$ was computed as the mean 
+selectivity-at-length $s_{l,s,p,f}$, weighted by the probability of 
+length-at-age $\mathcal{P}_{a,l,x,s,p,f}$ (C.4). Selectivity-at-length was 
+assumed to be the same logistic function for both sexes, relying on 
+sexually dimorphic growth to produce different selectivity-at-age for 
+each sex (C.5).
+
+<!-- The AM included an integrated Von Bertalanffy growth model to explicitly
+model the age-at-length distribution for both males and females (Table 1,
+G.1 - G.3), which was fit to age and length composition data simultaneously
+[@piner2016evaluation; @francis2016estimating; @schnute1981versatile]. 
+Growth model parameters were estimated by fitting the AM to 
+length-conditional age data, where age observations were considered as 
+randomly sampled from each length bin, the prevalence of which depended on 
+selectivity-at-length. This can provide less biased estimates of growth
+model parameters, as as the sampling bias caused by selectivity was 
+explicitly accounted for [@piner2016evaluation; @piner2018bias].  -->
+
+Multi-level hierarchical priors were assumed for biological and observation
+model parameters that were considered to be exchangable among areas and 
+species (Table 2) [@thorson2015giants]. Hierarchical priors share 
+information from data-rich to data-poor stocks, reducing parameter bias 
+and uncertainty for data poor stocks through parameter shrinkage induced 
+by the prior distributions [@johnson2018evaluating]. Exchangability 
+was assumed for stock-recruit steepness, natural mortality, trawl survey 
+catchability, and length-at-50\% and length-at-95\% selectivity for each 
+within each fleet (commercial trawl, Assemblage Survey, and Synoptic survey) 
+among stocks of the same species. 
+
+Fishery CPUE and survey biomass indices were all assumed to be linear
+in biomass (i.e. no hyperstability or hyperdepletion), and observation 
+errors were assumed follow a log-normal data likelihood. The catchability
+parameter for historical commercial trawl CPUE was a time-varying random 
+walk in log-space, capturing increases in CPUE while most stocks were being 
+fished down early in the time series, which presumably occurred as 
+harvesters began to target and learn how to fish the DER complex species 
+more efficiently.
+
+Compositional data were assumed to follow a logistic normal distribution 
+[@schnute2007compositional]. In addition, age- and length-compositions were 
+assumed to have a lag-1 correlation in the residuals [@francis2014replacing]. 
+Expected age compositions were derived from fishery catch-at-age, while 
+expected length compositions were derived from vulnerable numbers-at-age 
+by applying an age-length key derived from the integrated growth model 
+[@francis2016growth].
+
+The AM was defined in Template Model Builder [@kristensen2015tmb], and
+optimisation of the objective function was performed using the nlminb()
+function in the R statistical package [@rproject2015]. We determined
+that the AM was converged when the maximum gradient component was smaller
+than $10^{-3}$ in absolute value, and the Hessian matrix of the estimates
+was positive definite. Model posterior distributions were sampled using
+Hamiltonian Monte-Carlo (a.k.a. No U-Turn Sampling) via the tmbStan package
+[@monnahan2017faster; @monnahan2018no].
+
+Commercial catchability scalars were required to relate the fishing
+effort targeting DER complex species to fishing mortality estimated
+by the AM. Because the AM was conditioned on catch, those scalars 
+were found via linear regression, assuming
+\begin{equation}
+\log \hat{F}_{s,p,t} = \log \overline{q}^{F}_{s,p} + \log E_{p,t} + \delta^{F}_{s,p,t},
+\end{equation}
+where $\hat{F}_{s,p,t}$ is fishing mortality estimated by the AM,
+$\overline{q}^{F}_{s,p}$ is the commercial catchability scalar, 
+and $\delta^{F}_{s,p,t}$ is a normally distributed residual error with 
+mean zero, for species $s$, area $p$, and time step $t$.
+
+## Steady-state reference points
+
+
+### Multi-species maximum sustainable yield
+
+The fishing effort/mortality model implies a multi-species MSY for 
+the trawl fishery in each area $p$, depending on individual species $s$
+productivity, commercial trawl catchability $q^{F}_{s,p}$, and the relative 
+catchabilities among species in the area [@pikitch1987use; 
+@punt2011calculating], i.e.,
+\begin{equation*}
+MSY_{MS,p} = \max_{E} Y_{MS} 
+    \left( E, q^{F}_{1,p}, q^{F}_{2,p}, q^{F}_{3,p}, Q_p \right),
+\end{equation*}
+where $E$ is the total commercial trawl fishing effort, $q_{s,p}$ 
+is the commerical trawl catchability coefficient scaling fishing 
+effort to fishing mortality for species $s$ 
+in area $p$, and $Q_p$ is the set of life-history parameters for 
+all DER complex species in area $p$. The function $Y_{MS}$ is the 
+total multi-species yield in area $p$ as a function of fishing 
+effort $E_p$, defined as the sum of species-specific equilibrium yields
+\begin{equation*}
+Y_{MS} \left(E_p, q^{F}_{1,p}, q^{F}_{2,p}, q^{F}_{3,p}, Q_p \right)
+ = \sum^3_{s=1} Y_{SS,s,p} (E_p, q_{s,p}, Q_{s,p} ),
+\end{equation*}
+where $Q_{s,p}$ is the subset of $Q_p$ containing life history 
+parameters for species $s$ in area $p$, and the function $Y_{SS,s,p}$ 
+is the traditional single-species yield curve expressed as a 
+function of effort rather than fishing mortality (Figure 2, 
+coloured lines).
+
+The level of fishing effort producing multi-species maximum 
+yield $MSY_{MS,p}$ in area $p$ is defined as 
+\begin{equation*}
+E_{MSY,p} = {\argmax}_{E} Y_{MS} 
+    \left( E, q^{F}_{1,p}, q^{F}_{2,p}, q^{F}_{3,p}, Q_p \right),
+\end{equation*}
+with arguments defined above. The fishing effort level $E_{MSY,p}$ has 
+an associated equilibrium biomass $B_{MSY,MS,s,p}$ and yield 
+\begin{equation*}
+MSY_{MS,s,p} = Y_{SS,s,p} (E_{MSY,p}, q^{F}_{s,p}, Q_{s,p} )
+\end{equation*}
+for each species $s$, which differ from the single-species $B_{MSY}$ 
+and $MSY$ when commercial catchability scalars differ between species.
+
+
+### Maximum economic yield
+
+Economic yield is defined as the sum of net resource rent over all areas
+\begin{equation}
+\pi(\vec{E}) = \sum_{p = 1}^{3} \left( (1 - \psi) \sum_{s} v_{s} \left(\sum_{p} C_{s,p}(E_{p}) \right) \cdot C_{s,p}(E_{p}) \right) - c_{p} \cdot E_{p},
+\end{equation}
+where $\pi$ is the equilibrium net resource rent for all of BC,
+$\vec{E} = \langle E_p \vert p = 1,2,3 \rangle$ is a vector giving trawl
+effort in each area, $\psi = .3$ is the crew share of revenue 
+[@nelson2011pacific-commerc], $v_{s}(\sum_p C_{s,p})$ 
+is the unit price per kilogram of species $s$, taken from an inverse demand
+curve as a function of total catch $\sum_p C_{s,p}(E_p)$ (quantity supplied) at 
+effort $E_p$, and $c_{p}$ is the fuel cost-per-unit-effort of fishing in area $p$.
+
+The unit price $v_s$ ($/kg) of each species $s$ followed a downward sloping 
+inverse demand curve for total species $s$ catch, with a constant elasticity of 
+demand, i.e.,
+\begin{equation} 
+v_{s}(\sum_{p} C_{s,p}) = v^*_{s} \left( \frac{\sum_p C_{s,p}}{ \sum_p MSY_{SS,s,p}}  \right) ^{1/\lambda_s}
+\end{equation}
+where $v^*{s}$ was a hypothetical base price of species $s$ associated 
+with the sum of single-species MSY, and $\lambda_s < 0$ is the elasticity
+of demand [@varian1992microeconomic], both found by fitting to average 
+ex-vessel prices and catch data between 2006 and 2016, adjusted for an 
+inflation rate of 2\% per annum. Modeling price as a decreasing function 
+of quantity supplied captured the incentive of harvesters to reduce catch 
+and keep prices higher through artificial scarcity, which may result in 
+a transfer of benefits (surplus) from consumers to producers 
+[@pascoe2018offsetting]. 
+
+The variable fishing costs in each area $p$ were derived 
+from 2009 BC groundfish trawl financial data [@nelson2011pacific-commerc].
+Variable fishing cost-per-unit-effort was derived from average vessel
+variable costs and landings via
+\begin{equation}
+c_{p} = \frac{.087}{.496} \cdot \frac{\sum_s C_{s,p,2009}}{E_{p,2009}},
+\end{equation}
+where \$$.087$ (millions) is an average vessel's fuel costs in 2009, $0.496$ 
+kt was the average landings, $C_{s,p,2009}$ is the DER complex catch in 
+kilotonnes in 2009, and $E_{p,2009}$ is the mean trawl effort targeting DER 
+complex species in 2009. Fishing costs excluded variable freight/marketing 
+costs, and fixed capital expenses such as purchase, repairs, and debt 
+servicing. Therefore, the above definition of fishery profits is positively 
+biased (i.e., an upper bound for economic yield). The problem of including 
+fixed costs is that it is difficult 
+to assign these costs to a specific species (or in this case, mult-species 
+complex) as most vessels fish for different groundfish species at different 
+times of year, and sometimes with different gear types. Therefore, in the
+interest of simplicity fixed costs are removed from the profit calculation
+and are assumed to be constant with effort, and so do not affect the optimal 
+value of effort.
+
+The maximum economic yield (MEY) was found by substituting the single species 
+yield $Y_{SS,s,p}$ into the expression for the resource rent $pi$ (NUM) above, 
+and optimising over the vector $\vec{E}$,
+\begin{equation}
+Y^{econ}_{MS} (\vec{E}, q^{F}, Q, \vec{c}, \vec{v} ) 
+  &= \sum_p \left[ (1 - \psi) \cdot \sum^3_{s=1} v_s \cdot Y_{SS,s,p} (E_p, q_{s,p}, Q_{s,p} ) \right] - c_p E_p,
+\end{equation}
+where the function $Y_{SS,s,p}$ and its arguments are as above. Then 
+the MEY is given by
+\begin{equation}
+MEY = \max_{\vec{E}} Y^{econ}_{MS} (\vec{E}, q^{F}, Q, \vec{c}, \vec{v} )
+\end{equation}
+and the associated optimal vector of fishing effort is
+\begin{equation}
+\vec{E}_{MEY} = {\argmax}_{\vec{E}} Y^{econ}_{MS} (\vec{E}, q^{F}, Q, \vec{c}, v_1, v_2, v_3 ).
+\end{equation}
+
+For illustrative purposes, equilibrium relationships between fishing effort and 
+resource rent for individual areas were derived under the joint inverse demand 
+curves $v_s$. To incorporate the effect of spatially heterogeneous catch on 
+unit price, a grid search was conducted over 100 levels of total coastwide effort 
+equally spaced from 0 - 100,000 hours of trawling, assuming that a fixed positive
+level of total BC effort would be allocated among areas to maximise rent. For each 
+effort grid point, the allocation of effort to each area was computed via 
+Newton-Rhapson optimisation, from which area-specific equilibria were derived.
+
+
+
+## Dynamic reference points
+
+Dynamic reference points were estimated via a stochastic optimisation of
+fishing effort $E_{p,t}$ under future non-equilibrium fishery dynamics. 
+Eight separate scenarios were simulated, which were the factorial 
+combination of two objective functions and four projection scenarios. For 
+all optimisations, population dynamics were projected 80 years from the 
+last year of the AM (2017 - 2096). Projections were repeated over 150 
+replicates, which differed by the random number seed used to draw 
+recruitment process deviations and random walk deviations for the unit 
+price at $MSY$ of each species in each simulation, i.e., for a projection 
+with no correlation
+\begin{align*}
+R_{s,p,t} = \overline{R}_{s,p,t} \cdot e^{\sigma_{s,p} \cdot \epsilon_{s,p,t} - 0.5 \sigma^2_{s,p} }, \\
+v^{*}_{s,t}   = (1 + i) \left( v^{*}_{s,t-1} e^{\tau_s \cdot \delta_{s,t}}   \right),
+\end{align*}
+where $\overline{R}_{s,p,t}$ is the expected Beverton-Holt recruitment,
+$\epsilon_{s,p,t} \sim N(0,1)$ is the standardised recruitment process
+error, $\sigma_{s,p}$ is the recruitment process error standard deviation,
+$v^{*}_{s,t}$ is the baseline price of species $s$ at MSY (before
+price flexibility is applied), $i=0.02$ is an annual inflation rate,
+$\delta_{s,t} \sim N(0,1)$ is the annual random walk jump in ex-vessel 
+prices (log-scale), and $\tau_s$ is the log standard deviation in the 
+ex-vessel price random walk. The time-varyin baseline price was then used
+in the BC wide price elasticity model
+\begin{equation} 
+v_{s,t}(C_{s,t}) = v^*_{s,t} \left( 1 + f_s \left( \frac{C_{s,t}}{\sum_p MSY_{SS,s,p}} - 1  \right)  \right),
+\end{equation}
+where $C_{s,t} = \sum_{p} C_{s,p,t}$ is the total BC wide catch of species
+$s$ at time $t$.
+
+The two alternative objective functions for the optimisations allocated 
+effort to either maximise total multi-species catch
+\begin{equation*}
+C^{obj} = \sum_{t = 2017}^{2096} \sum_{s} \sum_{p}  C_{s,p,t},
+\end{equation*}
+or maximise discounted fishery profits (economic yield) 
+\begin{equation*}
+\pi^{obj} = \sum_{t = 2017}^{2096} (1 + d)^{-(t - 2017)} \sum_{p} \left[  \left( \sum_s v_{s,t} C_{s,p,t} \right) - c_{p,t} E_{p,t} \right], 
+\end{equation*}
+where $c_{p,t} = c_p \cdot (1 + i)^{t - 2017}$ is the variable fishing 
+cost-per-unit-effort adjusted for annual inflation $i$, and $d = 0.05$ 
+is the annual discount rate.
+
+While total effort was unconstrained in the projections, each scenario 
+constrained inter-annual changes in effort to 20\% per year. This constraint
+reflected the potential for new licenses in the fishery, but a lag time 
+required for a capital investment (e.g., new and larger vessels) or license 
+reductions, such as buybacks. While the effort is eventually unbounded, the 
+optimisation method treats the fishery as a single firm, rather than an
+open access regime, so the fishery profits will not be dissipated
+in this case. See Appendix A for the details of the optimisation.
+
+The four stochastic projection scenarios were defined based on correlations
+in recruitment process deviations and market price random walk deviations.
+The base scenario **noCorr** had no correlation in either process 
+(described above), **priceCorr** included correlations in the price
+random walk, **recCorr** included correlations in recruitment across
+all nine DER complex stocks, and **allCorr** included both sources of 
+correlation. For price, the correlation matrix was derived from the time
+series of price data, and for recruitment process deviations, correlation 
+matrices were derived from the AM estimates of recruitment deviation series.
+
+Optimal $E_{MSY,MS,p}$ and $E_{MEY,p}$ values were estimated as the median 
+effort in each area across the distribution of effort time series under 
+each objective function and projection scenario, and compared to the
+steady-state solutions found via the yield curve analysis outlined above.
+Median values were taken over the time period 2027 - 2036, which allowed 
+enough time for the effort to stabilise after any initial transient period,
+but also avoided the end effect where the objective function that maximises
+catch will start to overfish towards the end of the projection period. 
+Loss of consumer and producer surplus was also estimated for each effort 
+and correlation scenario by comparing the economic yield 
+replicate-by-replicate under the two objective functions over the
+same period [@pascoe2018offsetting].
+
+## Risk of including/ignoring correlation
+
+The above steady-state and dynamic reference points give expected
+fishery outcomes when fishing effort can be directly controlled;
+however, most modern fisheries are managed using output controls like
+quota systems with total allowable catches (TACs). In output control
+fisheries, TACs are set by taking the product of a target harvest rate 
+and an estimate of biomass, and the total number of fishing sets or trawl 
+hours are not limited by any regulation. To test the relative risks of
+ignoring or incorporating correlation into fishery management, we used
+closed loop simulation to simulate setting catch limits using harvest
+rates that were based on the MSY and MEY dynamic optima.
+
+The AM was used to condition the operating model (OM) in a closed loop 
+simulator to test the risk of ignoring or including correlation when
+setting target harvest rates. 
+- Add stuff about closed-loop sim here - how in depth??
+
+The closed loop simulation cross tested harvest strategies that accounted 
+for or ignored correlation with the operating model scenarios used
+to derive those strategies under dynamic conditions above. In total, there 
+were 64 OM/AM combinations, comprising the four OM correlation scenarios, the 
+eight target harvest rates maximising catch or profit under those four 
+correlation scenarios, and two levels of uncertainty in biomass when 
+setting TACs. We did not derive harvest rates from the steady state equilibria, as these were 
+practically identical to dynamic equilibria in the absence of correlation.
+
+At each time step in the closed loop simulation, TACs were set using
+a constant harvest rate, i.e.
+\[
+TAC_{s,p,t} = \hat{B}_{s,p,t} \cdot U^*_{s,p},
+\] 
+where $\hat{B}_{s,p,t}$ is a biomass forecast for species $s$
+in area $p$ at time $t$, and $U^*_{s,p}$ is the optimal harvest rate
+derived from the dynamic optimisation above. Biomass forecasts were
+either known perfectly, i.e. $\hat{B}_{s,p,t} = B_{s,p,t}$ for 
+the **perfInfo** uncertainty scenario, or with a log-normal assessment 
+error $\hat{B}_{s,p,t} = B_{s,p,t}\cdot e^{\delta_{s,p,t}}$ under 
+the **assErr** uncertainty scenario, where the assessment error 
+distribution is detailed in Appendix B (not yet complete).
+
+Risk was defined as the difference in outcomes (biomass/profit) between 
+reference cases for each operating model scenario, and the remaining 
+cases that were tested on that OM. Reference cases for each OM correlation
+scenario were the strategies that used optimal harvest rates for that 
+scenario with perfect biomass forecasts; for example, the reference cases 
+for the price correlation scenario were the two simulations that used MSY 
+and MEY harvest rates found via dynamic optimisation of the **priceCorr** 
+OM scenario. Given that correlation will have an effect on the distribution 
+of the price and recruitment deviations, and therefore more of an effect on 
+the tails than the mean or median outcome, we measure risk as the 5th 
+percentile of the biomass for each species in an area and coastwide, and 
+the 5th percentile of economic yield in an area and coastwide. Using a 
+percentile as a risk metric is known as *Value-at-risk-p* (VAR-p), and is
+commonly used in economic analyses [REF]. VAR-p is a non-parametric 
+definition of risk, which is important here given that the
+outcomes of our simulations are non-linear combinations of parameters
+multiple randomly drawn components.
+
+
+
+

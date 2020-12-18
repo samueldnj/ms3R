@@ -1,0 +1,57 @@
+\clearpage
+
+```{r loadStuffApp, echo = FALSE, include = FALSE, warning = FALSE}
+.loadFit(params$fit, baseDir = params$baseDir)
+
+repObj <- c(reports$repOpt, reports$data)
+repObj <- calcRefPts(repObj)
+repObj <- renameReportArrays(repObj = repObj, datObj = reports$data )
+
+fYear   <- reports$fYear
+nS      <- repObj$nS
+nP      <- repObj$nP
+nT      <- repObj$nT
+nF      <- repObj$nF
+species <- reports$ctlList$data$species
+stock   <- reports$ctlList$data$stock
+fleets  <- reports$gearLabs
+
+```
+
+# (APPENDIX) Appendices {-}
+
+# Appendix A: Fits to compositional data
+
+
+```{r ageFitAvg, echo = FALSE, fig.cap = "ageFitAvgDover HSHG"}
+
+plotCompFitAvg( repObj = repObj,
+                            initYear = 1956,
+                            sIdx = 1, pIdx = 1,
+                            sex = "female",
+                            comps = "age"  )
+```
+
+\clearpage
+
+```{r ageFitAvg2, echo = FALSE, fig.cap = "ageFitAvgEnglish HSHG"}
+
+plotCompFitAvg( repObj = repObj,
+                            initYear = 1956,
+                            sIdx = 2, pIdx = 1,
+                            sex = "female",
+                            comps = "age" )
+```
+
+\clearpage
+
+```{r ageFitAvg3, echo = FALSE, fig.cap = "ageFitAvg Rock HSHG"}
+
+plotCompFitAvg( repObj = repObj,
+                            initYear = 1956,
+                            sIdx = 3, pIdx = 1,
+                            sex = "female",
+                            comps = "age" )
+```
+
+

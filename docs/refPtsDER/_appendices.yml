@@ -1,0 +1,4 @@
+book_filename: "refPtsDER_appdx"
+rmd_files: [ "index.Rmd",
+             "08_appendices.Rmd"]
+delete_merged_file: true
