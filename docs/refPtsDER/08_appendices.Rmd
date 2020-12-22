@@ -38,17 +38,43 @@ plotCompFitAvg( repObj = repObj,
 
 # Appendix B: DER complex time-varying inverse demand curves
 
-Ex-vessel unit prices ($/kg) for each DER complex species $s$ were 
-assumed to follow an inverse demand curve
+We assumed that ex-vessel unit prices ($/kg) for each DER complex 
+species $s$ followed a time-varying inverse demand curve
 \begin{equation}
-v_{s}(\sum_{p} C_{s,p}) = v^*_{s} \left( \frac{\sum_p C_{s,p}}{ \sum_p MSY_{SS,s,p}}  \right) ^{1/\lambda_s},
+v_{s,t}(\sum_{p} C_{s,p,t}) = v^*_{s,t} \left( \frac{\sum_p C_{s,p,t}}{ \sum_p MSY_{SS,s,p}}  \right) ^{1/\lambda_s},
 \end{equation}
-where $v_s$ was the ex-vessel unit price, $C_{s,p}$ was the catch of
-species $s$ in area $p$, $v^*_s$ was the reference ex-vessel unit price of 
-species $s$, which was realised when coast-wide catch $\sum_p C_{s,p}$ 
-(quantity supplied) was equal to the sum of area-specific maximum 
+where $v_{s,t}$ was the ex-vessel unit price, $C_{s,p,t}$ was catch,
+$v^*_{s,t}$ was the reference ex-vessel unit price realised when coast-wide 
+catch $\sum_p C_{s,p,t}$ (quantity supplied) was equal to the sum of area-specific maximum 
 sustainable yield $\sum_p MSY_{s,p}$, and $\lambda_s$ was the constant 
-elasticity of demand reducing price with quantity supplied.
+elasticity of demand reducing price with quantity supplied, with indices for
+species $s$, area $p$, and year $t$. The reference price $v^*_{s,t}$ varied 
+via a simple random walk in logit-space
+\begin{align}
+\logit \upsilon^*_{s,t} &= \logit \upsilon^*_{s,t-1} + \delta_{s,t}, \\
+v^*_{s,t} &= 0.5 \cdot P^{min}_{s} + \frac{\mathcal{P}^{max}_s - \mathcal{P}^{min}_s}{1 + exp(-\logit \upsilon^*{s,t})}
+\end{align}
+where $\upsilon^*_{s,t}$ was the unbounded logit-scale parameter transformed
+to the reference price $v^*_{s,t}$, $\delta_{s,t}$ was a normal deviation, 
+and $v^*_{s,t}$ was bounded between half of $P^{\min}_s$ and twice
+$P^{\max}_s$, the lowest and highest observed prices, respectively, of 
+species $s$ between 2006 and 2016.
 
-To fit to the ex-vessel price data from 2006 - 2016, we included a 
-time-varying reference price $v^*_{s,t}$, which
+Elasticity of demand $\lambda_s$, and the covariance of the random walk 
+deviations $\delta_{s,t}$ were estimated by fitting the time-varying
+inverse demand curve to catch and price data from 2006 - 2016. Leading
+parameters $\lambda_s$, $\delta_{s,t}$, and the 2016 reference price
+$v^*_{s,2016}$ were estimated via Newton-Rhapson optimisation of the
+objective function
+\begin{equation}
+\mathcal{O} = \frac{33}{2} \left( \frac{\left( \log P_{s,t} - \log v_{s,t} \right)^2}{33} + 1 \right) + \sum_{s,t} \delta_{s,t}^2,
+\end{equation} 
+where $P_{s,t}$ is the observed ex-vessel prices for DER complex species
+from 2006 to 2016, and $v_{s,t}$ are the expected prices given by Equation 
+REF above. Random walk deviations $\delta_{s,t}$ were allowed to vary with 
+a standard deviation of 1.0, which allowed the residual error 
+$\log P_{s,t} - \log v_{s,t}$ to approach zero, solving for the random walk 
+jumps required to produce the observed prices $P_{s,t}$ at the observed 
+quantities supplied $C_{s,p,t}$ given a constant elasticity of 
+demand $\lambda_s$. Covariance of $\delta_{s,t}$ was estimated directly from
+the optimised solution.
