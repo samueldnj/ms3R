@@ -9,10 +9,11 @@ library(parallel)
 source("ms3R.r")
 # source("makeResultPlots.R")
 
-batchControlFiles <- c( "perfInfo_catProfMax_corrOMs.bch",
+batchControlFiles <- c( "omniRuns_econYield.bch"
+                        "perfInfo_catProfMax_corrOMs.bch",
                         "EmsyTest.bch",
                         "EmeyTest.bch",
-                        "omniRuns_econYield_det.bch"
+                        
                       )
                        
 nBatchJobs <- length( batchControlFiles )
