@@ -1,0 +1,11 @@
+## Info file for ms3R simulation
+## Written 1608672393
+# scenario
+noCorr
+# mp
+simAssError_MSY
+# path
+/Users/sdnjohnson/Work/code/models/stockAssessment/multiSpecies/ms3R/Outputs/sim_baseRun
+# simLabel
+sim_baseRun
+## End File

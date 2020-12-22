@@ -10,6 +10,95 @@
 #
 # <><><><><><><><><><><><><><><><><><><><><><><><><><><>
 
+plotCWeffort <- function( obj,
+                          maxE = NULL )
+{
+  rp <- obj$rp[[1]]
+
+  # Bail out of function if info missing
+  if( is.null(rp$EmeyRefPts$cwEconYieldCurves))
+  {
+    cat("Simulation object did not calculate CW econ yield equilibria.")
+    return()
+  }
+
+  # Otherwise, grab info, follow other yield curve plots, but
+  # this time there's an aggregate curve too
+  
+  opMod <- obj$ctlList$opMod
+
+  refCurves         <- rp$refCurves
+  EmsyRefPts        <- rp$EmsyRefPts
+  EmsyMSRefPts      <- rp$EmsyMSRefPts
+  FmsyRefPts        <- rp$FmsyRefPts
+  EmeyRefPts        <- obj$rp[[1]]$EmeyRefPts
+  cwEconYieldCurves <- EmeyRefPts$cwEconYieldCurves
+  
+
+  nT  <- obj$om$nT
+  nP  <- obj$om$nP
+  nS  <- obj$om$nS
+  tMP <- obj$om$tMP
+
+  # Pull qF
+  qF_sp       <- blob$om$qF_ispft[1,,,2,nT]
+  
+  speciesNames <- blob$om$speciesNames
+  stockNames   <- blob$om$stockNames
+
+  # Now compute MSY for SS and MS curves
+  # MSY is still the same for SS, just need the effort
+  # that corresponds to it, which is Fmsy/qF
+  Eseq      <- as.numeric(dimnames(EmeyRefPts$econRev_pe)[[2]])
+
+  EmsyMS_p  <- EmsyMSRefPts$EmsyMS_p
+  MSYMS_sp  <- EmsyMSRefPts$YeqEmsy_sp
+
+  EmsySS_p  <- EmsyRefPts$Emsy_sp
+  MSYSS_sp  <- EmsyRefPts$YeqEmsy_sp
+
+  eff_p <- obj$om$E_ipft[1,,2,54]
+  C_p   <- apply( X = obj$om$C_ispt[1,,,54], FUN = sum, MARGIN = 2 )
+
+  # Now, we need to convert solveEff_p to the cost of
+  # fuel, using the landings and fuel cost per kt
+  effortPrice_p <- opMod$varCostPerKt * C_p / eff_p
+
+  
+  Rev_spe     <- cwEconYieldCurves$cwRev_spe
+  Emey_p      <- cwEconYieldCurves$cwEmey_p
+  MEY_p       <- cwEconYieldCurves$cwMEY_p
+  Yeq_spe     <- cwEconYieldCurves$Yeq_spe
+  Rent_pe     <- cwEconYieldCurves$cwRent_pe
+  Rent_e      <- cwEconYieldCurves$cwRent_e
+  effCost_pe  <- cwEconYieldCurves$cwEffCost_pe
+  E_pe        <- array(NA, dim = dim(effCost_pe))
+  Eff         <- cwEconYieldCurves$Eff
+
+  for( p in 1:nP )
+    E_pe[p,] <- effCost_pe[p,] / effortPrice_p[p]
+  
+  Eff         <- cwEconYieldCurves$Eff
+
+  propE_pe    <- E_pe
+  for( p in 1:nP )
+    propE_pe[p,] <- E_pe[p,]/Eff
+
+  propE_pe[,1] <- NA  # Remove 0/0s
+
+  if( is.null(maxE) )
+    maxE <- max(Eff)
+
+  # Now, plot effort on X axis, and the area efforts
+  # on the y-axis (or the proportions)
+  plot( x = c(0,maxE), y = c(0,1),
+        type = "n", xlab = "Total trawl effort (x1000 hrs)",
+        ylab = "Proportion of total effort" )
+    for(p in 1:nP )
+      lines( x = Eff, y = propE_pe[p,],
+              col = p )
+}
+
 # plotCWeconYield()
 # Plot function for economic yield curves
 # assuming a coastwide demand curve but spatially
@@ -77,7 +166,6 @@ plotCWeconYield <- function(  obj,
   # fuel, using the landings and fuel cost per kt
   effortPrice_p <- opMod$varCostPerKt * C_p / eff_p
 
-  browser()
   Rev_spe     <- cwEconYieldCurves$cwRev_spe
   Emey_p      <- cwEconYieldCurves$cwEmey_p
   MEY_p       <- cwEconYieldCurves$cwMEY_p
@@ -2975,7 +3063,7 @@ plotAMschematic <- function(  species = c("Dover","English","Rock"),
 # plotDataSummary()
 # Data summary for each species and stock, uses the
 # hierSCAL report object
-plotDataSummary <- function(  blob,
+plotDataSummary <- function(  obj,
                               fleetLabs = c(  "Historical",
                                               "Modern",
                                               "HS Ass.",
@@ -2983,7 +3071,7 @@ plotDataSummary <- function(  blob,
                               dataCells = c(  "Indices",
                                               "Catch") )
 {
-  reports <- blob$ctlList$opMod$histRpt
+  reports <- obj$ctlList$opMod$histRpt
 
   datObj <- reports
   repObj <- reports

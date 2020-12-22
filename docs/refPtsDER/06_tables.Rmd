@@ -1,23 +1,7 @@
 \clearpage
 # Tables
 
-```{r loadStuff, echo = FALSE, include = FALSE, warning = FALSE}
-.loadFit(params$fit, baseDir = params$baseDir)
 
-repObj <- c(reports$repOpt, reports$data)
-repObj <- calcRefPts(repObj)
-repObj <- renameReportArrays(repObj = repObj, datObj = reports$data )
-
-fYear   <- reports$fYear
-nS      <- repObj$nS
-nP      <- repObj$nP
-nT      <- repObj$nT
-nF      <- repObj$nF
-species <- reports$ctlList$data$species
-stock   <- reports$ctlList$data$stock
-fleets  <- reports$gearLabs
-
-```
 
 ```{r tableCaps, echo = FALSE, include = FALSE, warning = FALSE}
 

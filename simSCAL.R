@@ -3936,6 +3936,10 @@ combBarrierPen <- function( x, eps,
     load(file = file.path("history",ctlList$opMod$priceModel))
     priceDevCovMat <- priceFlexModel$covEps
 
+    # Overwrite lambda_s
+    obj$ctlList$opMod$lambda_s <- priceFlexModel$lambda_s
+
+    # Just take variance if not interested in correlations
     if( !ctlList$opMod$corrPriceDevs)
       priceDevCovMat <- diag(diag(priceDevCovMat))
 

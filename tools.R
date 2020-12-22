@@ -342,9 +342,12 @@ readBatchInfo <- function(batchDir = here("Outputs") )
 #               or character giving the name of the folder
 # ouputs:   NULL
 # usage:    Prior to plotting simulation outputs
-.loadSim <- function( sim = 1, folder = "" )
+.loadSim <- function( sim = 1, 
+                      baseDir = "Outputs",
+                      groupFolder = "",
+                      folder = "" )
 {
-  simFolder <- here::here(file.path("Outputs",folder))
+  simFolder <- here::here(file.path(baseDir,groupFolder,folder))
 
   # List directories in project folder, remove "." from list
   if(is.numeric(sim))
@@ -408,6 +411,10 @@ readBatchInfo <- function(batchDir = here("Outputs") )
 } # END .loadLoss()
 
 
+## -------------------------------------------- ##
+# ---  Some helper functions from hierSCAL   --- #
+## -------------------------------------------- ##
+
 # loadFit()
 # Loads the nominated fit reports object into memory, 
 # so that plot functions can be called
@@ -415,9 +422,10 @@ readBatchInfo <- function(batchDir = here("Outputs") )
 #               or character giving the name of the folder
 # ouputs:   NULL
 # usage:    Prior to plotting simulation outputs
-.loadFit <- function( fit = 1 )
+.loadFit <- function( fit = 1,
+                      baseDir = "history" )
 {
-  fitFolder <- here::here("history")
+  fitFolder <- here::here(baseDir)
 
   # List directories in project folder, remove "." from list
   if(is.numeric(fit))
@@ -440,6 +448,174 @@ readBatchInfo <- function(batchDir = here("Outputs") )
 
   return( reports )
 } # END .loadFit()
+
+# renameReportArrays()
+# Updates the dimension names of the arrays in the 
+# report lists, as a way of making plot code more efficient later.
+renameReportArrays <- function( repObj = repInit, datObj = data )
+{
+  # Just go down the list, but first do the objects with the same names
+  repNames <- names(repObj)
+  datNames <- names(datObj)
+
+  bothNames <- repNames[ repNames %in% datNames ]
+
+  for( itemName in bothNames )
+  {
+    dimnames(repObj[[itemName]]) <- dimnames(datObj[[itemName]])
+  }
+
+  # Recover names
+  specNames   <- dimnames(datObj$I_spft)[[1]]
+  stockNames  <- dimnames(datObj$I_spft)[[2]]
+  gearNames   <- dimnames(datObj$I_spft)[[3]]
+  yearNames   <- dimnames(datObj$I_spft)[[4]]
+  lenNames    <- dimnames(datObj$len_lxspft)[[1]]
+  ageNames    <- dimnames(datObj$age_axspft)[[1]]
+  sexNames    <- dimnames(datObj$age_axspft)[[2]]
+  fltGrpNames <- c("commTrawl","HSAss","Synoptic")
+
+  nS <- length(specNames)
+  nP <- length(stockNames)
+
+  # Create species/stock names vector
+  specStock <- character(length = nS*nP)
+  for( s in 1:nS )
+    for( p in 1:nP )
+      specStock[(s-1) * nP + p] <- paste( specNames[s],"_", stockNames[p],sep = "")
+
+
+  # Ok, that's the data taken care of. There are still all the
+  # new arrays that we created
+  # Predicted data
+  dimnames(repObj$I_spft_hat)       <- dimnames(datObj$I_spft)
+  dimnames(repObj$aDist_axspft_hat) <- dimnames(datObj$age_axspft)
+  dimnames(repObj$lDist_lxspft_hat) <- dimnames(datObj$len_lxspft)
+  # State arrays
+  dimnames(repObj$B_axspt)          <- dimnames(datObj$age_axspft)[c(1:4,6)]
+  dimnames(repObj$N_axspt)          <- dimnames(datObj$age_axspft)[c(1:4,6)]
+  dimnames(repObj$B_spt)            <- dimnames(datObj$age_axspft)[c(3,4,6)]
+  dimnames(repObj$R_spt)            <- dimnames(datObj$age_axspft)[c(3,4,6)]
+  dimnames(repObj$SB_spt)           <- dimnames(datObj$age_axspft)[c(3,4,6)]
+  dimnames(repObj$vB_spft)          <- list(  species = specNames,
+                                              stock = stockNames,
+                                              fleet = gearNames,
+                                              year = yearNames )
+  dimnames(repObj$predC_spft)       <- dimnames(datObj$age_axspft)[c(3:6)]
+  dimnames(repObj$predCw_spft)      <- dimnames(datObj$age_axspft)[c(3:6)]
+  dimnames(repObj$C_axspft)         <- dimnames(datObj$age_axspft)
+  dimnames(repObj$Cw_axspft)        <- dimnames(datObj$age_axspft)
+  dimnames(repObj$F_spft)           <- dimnames(datObj$age_axspft)[c(3:6)]
+  dimnames(repObj$Z_axspt)          <- dimnames(datObj$age_axspft)[c(1:4,6)]
+  # Biological parameters
+  dimnames(repObj$R0_sp)          <- dimnames(datObj$age_axspft)[c(3,4)]
+  dimnames(repObj$B0_sp)          <- dimnames(datObj$age_axspft)[c(3,4)]
+  dimnames(repObj$h_sp)           <- dimnames(datObj$age_axspft)[c(3,4)]
+  dimnames(repObj$phi_sp)         <- dimnames(datObj$age_axspft)[c(3,4)]
+  dimnames(repObj$reca_sp)        <- dimnames(datObj$age_axspft)[c(3,4)]
+  dimnames(repObj$recb_sp)        <- dimnames(datObj$age_axspft)[c(3,4)]
+  dimnames(repObj$sigmaR_sp)      <- dimnames(datObj$age_axspft)[c(3,4)]
+  dimnames(repObj$omegaRmat_spt)  <- list(  specStock = specStock, 
+                                            year = yearNames )
+  dimnames(repObj$recCorrMat_sp)  <- list(  specStock = specStock,
+                                            specStock = specStock )
+
+
+  # Observation models
+  dimnames(repObj$q_spf)        <- dimnames(datObj$age_axspft)[c(3:5)]  
+  dimnames(repObj$q_spft)       <- dimnames(datObj$age_axspft)[c(3:6)]  
+  dimnames(repObj$tau2Obs_spf)  <- list(  species = specNames,
+                                          stock = stockNames,
+                                          fleet = gearNames )  
+  dimnames(repObj$tauObs_spf)   <- list(  species = specNames,
+                                          stock = stockNames,
+                                          fleet = gearNames )
+  dimnames(repObj$sel_lspft)    <- list(  len = lenNames, 
+                                          species = specNames,
+                                          stock = stockNames,
+                                          fleet = gearNames,
+                                          year = yearNames )
+  dimnames(repObj$sel_axspft)     <- list(  age = ageNames, 
+                                            sex = sexNames,
+                                            species = specNames,
+                                            stock = stockNames,
+                                            fleet = gearNames,
+                                            year = yearNames )
+
+
+  dimnames(repObj$ageRes_axspft)   <- dimnames(datObj$age_axspft)
+  dimnames(repObj$tau2Age_spf)   <- list( species = specNames,
+                                          stock = stockNames,
+                                          fleet = gearNames )  
+  dimnames(repObj$lenRes_lxspft)   <- dimnames(datObj$len_lxspft)
+  dimnames(repObj$tau2Len_spf)   <- list( species = specNames,
+                                          stock = stockNames,
+                                          fleet = gearNames )  
+
+  dimnames(repObj$probLenAge_laxsp)      <- list( len = lenNames,
+                                                  age = ageNames,
+                                                  sex = sexNames,
+                                                  species = specNames,
+                                                  stock = stockNames )
+
+  dimnames(repObj$probAgeLen_laxspft)      <- list( len = lenNames,
+                                                    age = ageNames,
+                                                    sex = sexNames,
+                                                    species = specNames,
+                                                    stock = stockNames,
+                                                    fleet = gearNames,
+                                                    year = yearNames )
+
+  dimnames(repObj$ageAtLenResids_laxspft)      <- list( len = lenNames,
+                                                        age = ageNames,
+                                                        sex = sexNames,
+                                                        species = specNames,
+                                                        stock = stockNames,
+                                                        fleet = gearNames,
+                                                        year = yearNames )
+
+  dimnames(repObj$lenAge_axsp) <- list( age = ageNames,
+                                        sex = sexNames,
+                                        species = specNames,
+                                        stock = stockNames )
+
+  # Growth model parameters
+  # vectors
+  names(repObj$A1_s)      <- specNames
+  names(repObj$A2_s)      <- specNames
+  names(repObj$L1_s)      <- specNames
+  
+  names(repObj$sigmaLa_s) <- specNames
+  names(repObj$sigmaLb_s) <- specNames
+  # arrays
+  dimnames(repObj$L2_sp)    <- list(  species = specNames,
+                                      stock = stockNames )
+  dimnames(repObj$L2_xs)    <- list(  sex = sexNames,
+                                      species = specNames )
+  dimnames(repObj$vonK_sp)  <- list(  species = specNames,
+                                      stock = stockNames  )
+
+  dimnames(repObj$vonK_xs)  <- list(  sex = sexNames,
+                                      species = specNames )
+
+  dimnames(repObj$L1_xsp)   <- list(  sex = sexNames,
+                                      species = specNames,
+                                      stock = stockNames )
+  dimnames(repObj$L2_xsp)   <- list(  sex = sexNames,
+                                      species = specNames,
+                                      stock = stockNames )
+  dimnames(repObj$vonK_xsp) <- list(  sex = sexNames,
+                                      species = specNames,
+                                      stock = stockNames )
+  dimnames(repObj$M_xsp)    <- list(  sex = sexNames,
+                                      species = specNames,
+                                      stock = stockNames )
+
+
+
+
+  return(repObj)
+} # END renameReportArrays()
 
 
 #-----------------------------------------------------------------------------##

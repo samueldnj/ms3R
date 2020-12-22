@@ -126,11 +126,11 @@ opMod$ut_95 .75
 opMod$effortMod "Max"
 opMod$pT 80
 opMod$histFile "fit_base_MCMC"
-opMod$price_s c(Dover=1.04,English=1.16,Rock=0.87,Petrale=2.590,Arrowtooth=0.990)
+opMod$price_s c(Dover=0.53,English=1.32,Rock=0.69,Petrale=2.590,Arrowtooth=0.990)
 opMod$varCostPerKt 0.176
 opMod$discountRate 0.05
 opMod$interestRate 0.0
-opMod$lambda_s c(1.925763,1.412575,1.235383)
+opMod$lambda_s c(2.245818,4.749872,2.477819)
 opMod$priceSD 0.05
 opMod$econBaseYear 2009
 opMod$crewShare .3

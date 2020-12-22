@@ -1,9 +1,5 @@
 # Results
 
-```{r loadFit, include = FALSE, echo = FALSE}
-.loadFit(params$fit, baseDir = params$baseDir)
-```
-
 ## Stock assessment model fit
 
 The stock assessment model was fit to the biomass indices and compositional
@@ -17,13 +13,14 @@ were almost unbiased, with mean residuals at most 0.07 in absolute value.
 Despite low bias, there were significant trends in residuals for the modern 
 commercial CPUE index for all QCS stocks, and WCVI Rock sole, as well as for 
 the Hecate Strait assemblage survey for all three species (Figure 2); poor 
-fits to these indices was not completely unexpected, as one was a fishery 
-dependent commercial catch-rate series with underlying targeting behaviour, 
-while the fishery independent Hecate Strait Assemblage survey had a fixed 
-station design with very large survey blocks. There were no trends in the 
-residuals for the historical CPUE series, but this is due to the 
-time-varying catchability applied to that series. Finally, the Synoptic 
-survey residuals were unbiased and did not exhibit any significant trends.
+fits to these indices was not completely unexpected, as the modern trawl CPUE 
+was a fishery dependent commercial catch-rate series with underlying 
+targeting behaviour, while the fishery independent Hecate Strait Assemblage 
+survey had a fixed station design with very large survey blocks. There were 
+no trends in the residuals for the historical CPUE series, but this is due 
+to the time-varying catchability applied to that series. Finally, the 
+Synoptic survey residuals were unbiased and did not exhibit any 
+significant trends.
 
 Biomass time series and single-species biological reference point estimates 
 indicate that all DER complex stocks were in a healthy state in 2016 (Table 3). 
@@ -43,9 +40,12 @@ F vs Effort plots
 
 Correlation in recruitment deviations
 
-## Price model
+## DER complex inverse demand curves
+
+
 
 - Elasticity of demand - inverse demand
+
 - covariance/correlation in price devs
 
 ```{r loadPriceModel, echo = FALSE, include = FALSE}

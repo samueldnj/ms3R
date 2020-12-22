@@ -1,23 +1,5 @@
 \clearpage
 
-```{r loadStuffApp, echo = FALSE, include = FALSE, warning = FALSE}
-.loadFit(params$fit, baseDir = params$baseDir)
-
-repObj <- c(reports$repOpt, reports$data)
-repObj <- calcRefPts(repObj)
-repObj <- renameReportArrays(repObj = repObj, datObj = reports$data )
-
-fYear   <- reports$fYear
-nS      <- repObj$nS
-nP      <- repObj$nP
-nT      <- repObj$nT
-nF      <- repObj$nF
-species <- reports$ctlList$data$species
-stock   <- reports$ctlList$data$stock
-fleets  <- reports$gearLabs
-
-```
-
 # (APPENDIX) Appendices {-}
 
 # Appendix A: Fits to compositional data
@@ -54,4 +36,19 @@ plotCompFitAvg( repObj = repObj,
                             comps = "age" )
 ```
 
+# Appendix B: DER complex time-varying inverse demand curves
 
+Ex-vessel unit prices ($/kg) for each DER complex species $s$ were 
+assumed to follow an inverse demand curve
+\begin{equation}
+v_{s}(\sum_{p} C_{s,p}) = v^*_{s} \left( \frac{\sum_p C_{s,p}}{ \sum_p MSY_{SS,s,p}}  \right) ^{1/\lambda_s},
+\end{equation}
+where $v_s$ was the ex-vessel unit price, $C_{s,p}$ was the catch of
+species $s$ in area $p$, $v^*_s$ was the reference ex-vessel unit price of 
+species $s$, which was realised when coast-wide catch $\sum_p C_{s,p}$ 
+(quantity supplied) was equal to the sum of area-specific maximum 
+sustainable yield $\sum_p MSY_{s,p}$, and $\lambda_s$ was the constant 
+elasticity of demand reducing price with quantity supplied.
+
+To fit to the ex-vessel price data from 2006 - 2016, we included a 
+time-varying reference price $v^*_{s,t}$, which

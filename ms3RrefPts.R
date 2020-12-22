@@ -128,14 +128,24 @@ solveSpline <- function(  Yvals, Xvals, value = 0, bounds = c(0,10),
   Yeq_spe     <- refCurves$Yeq_spe
   Beq_spe     <- refCurves$Beq_spe
   expBeq_spe  <- refCurves$expBeq_spe
-  Yeq_spe[Yeq_spe < 0] <- NA
+  Yeq_spe[Yeq_spe < 0] <- 0
   Eff     <- refCurves$E
 
   stockNames <- dimnames(Yeq_spe)[[2]]
 
+  if(!is.null(obj$opMod$priceModel))
+  {
+    load(file = file.path("history",obj$opMod$priceModel))
+    obj$opMod$lambda_s <- priceFlexModel$lambda_s
+    obj$opMod$price_s[1:nS] <- round(priceFlexModel$refPrice_st[,11],2)
+
+  }
+
   opMod     <- obj$opMod
   crewShare <- opMod$crewShare
   lambda_s  <- opMod$lambda_s
+
+
 
   # Calc total system yield
   totYeq_pe <- apply(X = Yeq_spe, FUN = sum, MARGIN = c(2,3), na.rm = T)
@@ -260,6 +270,7 @@ solveSpline <- function(  Yvals, Xvals, value = 0, bounds = c(0,10),
     cwRev_spe     <- array(NA, dim = dim(Yeq_spe))
     cwRent_pe     <- array(NA, dim = dim(econYeq_pe))
     cwEffCost_pe  <- array(NA, dim = dim(econYeq_pe))
+    cwEff_pe      <- array(NA, dim = dim(econYeq_pe))
     cwRent_e      <- array(NA, dim = length(Eff) )
     cwYeq_spe     <- array(NA, dim = dim(Yeq_spe))
 
@@ -268,13 +279,14 @@ solveSpline <- function(  Yvals, Xvals, value = 0, bounds = c(0,10),
     cwRent_e[1]       <- 0
     cwYeq_spe[,,1]    <- 0
     cwEffCost_pe[,1]  <- 0
+    cwEff_pe[,1]      <- 0
 
     for( eIdx in 2:length(Eff) )
     {
       e <- Eff[eIdx]
 
       # First, optimise allocation of effort
-      optObj <- optim(  par = rep(0,nP),
+      optObj <- try(optim(  par = rep(0,3),
                         fn = coastWideEconObjFun,
                         method = "BFGS",
                         prop = TRUE,
@@ -287,7 +299,9 @@ solveSpline <- function(  Yvals, Xvals, value = 0, bounds = c(0,10),
                         MSY_sp = YeqFmsy_sp,
                         refCurves = refCurves,
                         crewShare = crewShare,
-                        nF = nF, nS = nS, nP = nP )
+                        nF = nF, nS = nS, nP = nP ))
+      if(class(optObj)== "try-error")
+        break
 
       cwMEYlist <- coastWideEconObjFun( lnE_p = EmeyCW_optObj$par,
                                         prop = TRUE,
@@ -384,6 +398,8 @@ coastWideEconObjFun <- function(  lnE_p = c(0,0,0),
   for( s in 1:nS )
     for(p in 1:nP )
       C_sp[s,p] <- getSplineVal(x = Eff, y = Yeq_spe[s,p,], p = E_p[p] )
+
+  C_sp[C_sp < 0] <- 0
 
   # Calculate coastwide catch
   C_s   <- apply( X = C_sp,   FUN = sum, MARGIN = 1 )
@@ -689,12 +705,13 @@ calcJABBASelPars <- function( obj )
 # yield and recruitment as a function of input fishing mortality rates
 # inputs:   obj = list of biological parameters
 # ouputs:   refCurves = list() of reference curves (vectors)
-.calcRefCurves <- function( obj, nFs = 200, fleetIdx = 2 )
+.calcRefCurves <- function( obj, nFs = 500, 
+                            maxE = 350, 
+                            fleetIdx = 2 )
 {
   # First, compute max F (tolerance of 1e-5)
   nT   <- dim(obj$om$qF_spft)[4]
-  maxF <- max( 4*obj$M_xsp )
-  maxE <- max( maxF / obj$om$qF_spft[,,2,nT])
+  maxF <- max( 5*obj$M_xsp )
 
   # We're going to need to fill each species' ref curves,
   # so labeling and dimensions are needed

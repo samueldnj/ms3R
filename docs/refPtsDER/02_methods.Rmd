@@ -19,11 +19,11 @@ CPUE) series and at least one survey biomass index time series for each
 species (Figure 2). The two commercial fishery catch-per-unit-effort series 
 span 1956 - 2016, split between a historical trawl fishery (1956 - 1995) and 
 a modern trawl fishery (1996 - 2016), with the split corresponding to pre- 
-and post-implementation of an at-sea-observer program, respectively. The 
+and post-implementation of an at-sea-observer programme, respectively. The 
 fishery independent trawl survey biomass indices were the biennial Hecate 
 Strait Assemblage survey in the HSHG area (1984 - 2002), and the Groundfish 
-Multi-species Synoptic Survey, with separate biennial legs in all three 
-stock areas (2003 - 2016).
+Multi-species Synoptic Survey, which alternated biennially between the 
+three areas (2003 - 2016).
 
 While some species had relatively long time series of age and length
 composition data with annual samples larger than 100 observations, some 
@@ -47,7 +47,7 @@ the historical trawl fishery, beginning in 1980 (English) and 1970 (Rock).
 
 Survey biological and index data were filtered to remove survey blocks 
 where compositional data had a higher than expected proportion of 
-young and small fish. Exploratory analyses showed that some samples of 
+young/small fish. Exploratory analyses showed that some samples of 
 age-/length-compositions in the HSHG and QCS areas had a second mode at
 young ages and small lengths, possibly indicating a nursery area in some 
 survey blocks. Blocks were removed when the average size of fish caught by 
@@ -56,16 +56,25 @@ the survey was below 20cm (Dover), 15cm (English), and 20cm (Rock).
 Time series of effort targeting DER complex species were found by taking 
 the average ratio of catch to unstandardized catch rates, i.e.,
 \begin{equation}
-E_{p,f,t} = \frac{\sum_{s} \mathcal{I} (I'_{s,p,f,t} > 0) \frac{C_{s,p,f,t}}{I'_{s,p,f,t}}}{\sum_{s} \mathcal{I} (I'_{s,p,f,t} > 0) }
+E_{p,f,t} = \frac{\sum_{s} \mathbb{1} (I'_{s,p,f,t} > 0) \frac{C_{s,p,f,t}}{I'_{s,p,f,t}}}{\sum_{s} \mathbb{1} (I'_{s,p,f,t} > 0) }
 \end{equation}
 where $E_{p,f,t}$ is the derived trawl effort in area $p$ by fleet $f$ in 
 time step $t$ (1000 hours), $C_{s,p,f,t}$ is trawl catch of species $s$,
-$I'_{s,p,f,t}$ is unstandardized CPUE, and $\mathcal{I}(X)$ is the
+$I'_{s,p,f,t}$ is unstandardized CPUE, and $\mathbb{1}(X)$ is the
 indicator function that takes value 1 when $X$ is true, and 0 otherwise. 
 By taking the average over indices that exist, issues with missing
 data for some species in some areas and years were avoided.
 
-ADD INFO ON PRICE DATA
+Average ex-vessel unit price-per-kilogram data for the DER complex was 
+obtained from dockside fish-slips for the BC trawl fishery from 2006 - 2016. 
+All prices were calculated as total ex-vessel revenues divided by total 
+landings, and adjusted to 2016 values assuming a 2\% annual rate of 
+inflation. All ex-vessel prices were specific to the bottom trawl fishery 
+except for English Sole in 2016, which was an outlier with a trawl ex-vessel 
+price almost three times the 2006 - 2016 average, and so was replaced with
+the 2016 ex-vessel price for English sole averaged across all available gear
+types. Fuel costs of fishing data were taken from a 2009 economic analysis 
+of the BC trawl fishery [@nelson2011pacific-commerc].
 
 ## Hierarchical age/sex-structured stock assessment model
 
@@ -164,6 +173,8 @@ $\overline{q}^{F}_{s,p}$ is the commercial catchability scalar,
 and $\delta^{F}_{s,p,t}$ is a normally distributed residual error with 
 mean zero, for species $s$, area $p$, and time step $t$.
 
+
+
 ## Steady-state reference points
 
 
@@ -214,19 +225,20 @@ and $MSY$ when commercial catchability scalars differ between species.
 
 Economic yield is defined as the sum of net resource rent over all areas
 \begin{equation}
-\pi(\vec{E}) = \sum_{p = 1}^{3} \left( (1 - \psi) \sum_{s} v_{s} \left(\sum_{p} C_{s,p}(E_{p}) \right) \cdot C_{s,p}(E_{p}) \right) - c_{p} \cdot E_{p},
+\pi(\vec{E}) = \sum_{p = 1}^{3} \left( (1 - \psi) \sum_{s} v_{s} \left(\sum_{p'=1}^3 C_{s,p'}(E_{p'}) \right) \cdot C_{s,p}(E_{p}) \right) - c_{p} \cdot E_{p},
 \end{equation}
 where $\pi$ is the equilibrium net resource rent for all of BC,
-$\vec{E} = \langle E_p \vert p = 1,2,3 \rangle$ is a vector giving trawl
+$\vec{E} = \langle E_p \vert p = 1,2,3 \rangle$ is a vector of trawl
 effort in each area, $\psi = .3$ is the crew share of revenue 
 [@nelson2011pacific-commerc], $v_{s}(\sum_p C_{s,p})$ 
 is the unit price per kilogram of species $s$, taken from an inverse demand
 curve as a function of total catch $\sum_p C_{s,p}(E_p)$ (quantity supplied) at 
-effort $E_p$, and $c_{p}$ is the fuel cost-per-unit-effort of fishing in area $p$.
+effort $E_p$, and $c_{p}$ is the fuel cost-per-unit-effort of fishing in area
+$p$ (or $p'$ for the inner summation).
 
 The unit price $v_s$ ($/kg) of each species $s$ followed a downward sloping 
-inverse demand curve for total species $s$ catch, with a constant elasticity of 
-demand, i.e.,
+inverse demand curve for total species $s$ catch, with a constant elasticity 
+of demand, i.e.,
 \begin{equation} 
 v_{s}(\sum_{p} C_{s,p}) = v^*_{s} \left( \frac{\sum_p C_{s,p}}{ \sum_p MSY_{SS,s,p}}  \right) ^{1/\lambda_s}
 \end{equation}
@@ -267,7 +279,7 @@ yield $Y_{SS,s,p}$ into the expression for the resource rent $pi$ (NUM) above,
 and optimising over the vector $\vec{E}$,
 \begin{equation}
 Y^{econ}_{MS} (\vec{E}, q^{F}, Q, \vec{c}, \vec{v} ) 
-  &= \sum_p \left[ (1 - \psi) \cdot \sum^3_{s=1} v_s \cdot Y_{SS,s,p} (E_p, q_{s,p}, Q_{s,p} ) \right] - c_p E_p,
+  = \sum_p \left[ (1 - \psi) \cdot \sum^3_{s=1} v_s \cdot Y_{SS,s,p} (E_p, q_{s,p}, Q_{s,p} ) \right] - c_p E_p,
 \end{equation}
 where the function $Y_{SS,s,p}$ and its arguments are as above. Then 
 the MEY is given by
@@ -279,14 +291,15 @@ and the associated optimal vector of fishing effort is
 \vec{E}_{MEY} = {\argmax}_{\vec{E}} Y^{econ}_{MS} (\vec{E}, q^{F}, Q, \vec{c}, v_1, v_2, v_3 ).
 \end{equation}
 
-For illustrative purposes, equilibrium relationships between fishing effort and 
-resource rent for individual areas were derived under the joint inverse demand 
-curves $v_s$. To incorporate the effect of spatially heterogeneous catch on 
-unit price, a grid search was conducted over 100 levels of total coastwide effort 
-equally spaced from 0 - 100,000 hours of trawling, assuming that a fixed positive
-level of total BC effort would be allocated among areas to maximise rent. For each 
-effort grid point, the allocation of effort to each area was computed via 
-Newton-Rhapson optimisation, from which area-specific equilibria were derived.
+For illustrative purposes, equilibrium relationships between fishing effort 
+and resource rent for individual areas were derived under the joint inverse 
+demand curves $v_s$. To incorporate the effect of spatially heterogeneous 
+catch on unit price, a grid search was conducted over 100 levels of total 
+coastwide effort equally spaced from 0 - 100,000 hours of trawling, 
+assuming that a fixed positive level of total BC effort would be allocated 
+among areas to maximise rent. For each effort grid point, the allocation 
+of effort to each area was computed via Newton-Rhapson optimisation, from 
+which area-specific equilibria were derived.
 
 
 
@@ -297,7 +310,7 @@ fishing effort $E_{p,t}$ under future non-equilibrium fishery dynamics.
 Eight separate scenarios were simulated, which were the factorial 
 combination of two objective functions and four projection scenarios. For 
 all optimisations, population dynamics were projected 80 years from the 
-last year of the AM (2017 - 2096). Projections were repeated over 150 
+last year of the AM (2017 - 2096). Projections were repeated over 100 
 replicates, which differed by the random number seed used to draw 
 recruitment process deviations and random walk deviations for the unit 
 price at $MSY$ of each species in each simulation, i.e., for a projection 
@@ -309,11 +322,10 @@ v^{*}_{s,t}   = (1 + i) \left( v^{*}_{s,t-1} e^{\tau_s \cdot \delta_{s,t}}   \ri
 where $\overline{R}_{s,p,t}$ is the expected Beverton-Holt recruitment,
 $\epsilon_{s,p,t} \sim N(0,1)$ is the standardised recruitment process
 error, $\sigma_{s,p}$ is the recruitment process error standard deviation,
-$v^{*}_{s,t}$ is the baseline price of species $s$ at MSY (before
-price flexibility is applied), $i=0.02$ is an annual inflation rate,
-$\delta_{s,t} \sim N(0,1)$ is the annual random walk jump in ex-vessel 
-prices (log-scale), and $\tau_s$ is the log standard deviation in the 
-ex-vessel price random walk. The time-varyin baseline price was then used
+$v^{*}_{s,t}$ is the reference price of species $s$ when catch is at 
+MSY, $i=0.02$ is an annual inflation rate, $\delta_{s,t} \sim N(0,1)$ is 
+the annual random walk jump in ex-vessel prices (logit-scale), and $\tau_s$ 
+is the log standard deviation in the ex-vessel price random walk. The time-varyin baseline price was then used
 in the BC wide price elasticity model
 \begin{equation} 
 v_{s,t}(C_{s,t}) = v^*_{s,t} \left( 1 + f_s \left( \frac{C_{s,t}}{\sum_p MSY_{SS,s,p}} - 1  \right)  \right),

@@ -8,18 +8,18 @@
 *.Rhistory
 
 # History plot folders
-./history/fit_*/plots
-./history/fit_*/hierSCAL.o
+history/fit_*/plots
+history/fit_*/hierSCAL.o
 
 # compiled files
 *.o
 *.so
 
 # Batch control files
-./Batch/job*.txt
+Batch/job*.txt
 
 # Outputs of ms3R
-./Outputs/sim*
+Outputs/sim*
 
 # Documentation
 docs/*/knitr*.png

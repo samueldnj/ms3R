@@ -26,7 +26,9 @@ lineno: true
 csl-refs: true
 params:
   fit: "fit_base_MCMC"
-  baseDir: "Documentation/refPtsDER/data"
+  sim: "sim_baseRun"
+  baseDir: "docs/refPtsDER/data"
+  redoPlots: TRUE
 numbersections: true
 appendix: false
 output: 
@@ -101,11 +103,13 @@ options(kableExtra.latex.load_packages = FALSE)
 options(knitr.kable.NA = '')
 
 
-source(here::here("SCALfuns.R"))
-source(here::here("SCALtools.R"))
-source(here::here("plots.R"))
-source(here::here("refPts.R"))
+source(here::here("docs/refPtsDER/SCALscripts","SCALfuns.R"))
+source(here::here("docs/refPtsDER/SCALscripts","plots.R"))
+source(here::here("docs/refPtsDER/SCALscripts","SCALrefPts.R"))
 source(here::here("mseRtools.R"))
+source(here::here("tools.R"))
+
+
 
 ```
 
@@ -118,6 +122,35 @@ library(MASS)
 library(chemometrics)
 library(mvtnorm)
 library(RColorBrewer)
+```
+
+```{r loadStuff, echo = FALSE, include = FALSE, warning = FALSE}
+reports <- .loadFit(params$fit, baseDir = params$baseDir )
+
+repObj <- c(reports$repOpt, reports$data)
+repObj <- calcRefPts(repObj)
+repObj <- renameReportArrays(repObj = repObj, datObj = reports$data )
+
+fYear   <- reports$fYear
+nS      <- repObj$nS
+nP      <- repObj$nP
+nT      <- repObj$nT
+nF      <- repObj$nF
+species <- reports$ctlList$data$species
+stock   <- reports$ctlList$data$stock
+fleets  <- reports$gearLabs
+
+
+source(here::here("stats.R"))
+source(here::here("ms3Rplots.R"))
+source(here::here("ms3RrefPts.R"))
+
+# Also want to load a base version of
+# the OM for all its info... can we just pull the
+# repObj from there????
+.loadSim(sim = params$sim, baseDir = params$baseDir )
+simObj <- blob
+
 ```
 
 
