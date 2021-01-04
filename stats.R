@@ -11,6 +11,174 @@
 #
 # <><><><><><><><><><><><><><><><><><><><><><><><><><><>
 
+# makeStatMSEqbriaTab()
+# Uses reference points object from a simulation
+# to create a table of multispecies catch and economic 
+# reference points.
+makeStatMSEqbriaTab <- function( obj = blob )
+{
+  rp <- obj$rp[[1]]
+
+  nS <- obj$om$nS
+  nP <- obj$om$nP
+  nT <- obj$om$nT
+  nF <- obj$om$nF
+  tMP<- obj$om$tMP
+
+  stockNames    <- obj$om$stockNames
+  speciesNames  <- obj$om$speciesNames
+
+  EmeyRefPts    <- rp$EmeyRefPts
+  EmsyMSRefPts  <- rp$EmsyMSRefPts
+
+  Emey_p  <- EmeyRefPts$Emey_p
+  MEY_p   <- EmeyRefPts$MEY_p
+  Bmey_sp <- EmeyRefPts$Bmey_sp
+  Ymey_sp <- EmeyRefPts$Ymey_sp
+
+  Emsy_p  <- EmsyMSRefPts$EmsyMS_p
+  MSY_sp  <- EmsyMSRefPts$YeqEmsy_sp
+  Bmsy_sp <- EmsyMSRefPts$BeqEmsy_sp
+
+  qF_spf     <- obj$om$qF_ispft[1,,,,tMP]
+
+  # gonna have to solve for rent at Emsy_p
+  E           <- rp$refCurves$EffCurves$E
+  econYmsy_p  <- array(NA, dim = c(nP))
+  econYeq_pe  <- rp$EmeyRefPts$econYeq_pe
+  for( p in 1:nP )
+    econYmsy_p[p] <- getSplineVal( x = E, y = econYeq_pe[p,], p = Emsy_p[p])
+
+
+  colNames <- c("Stock",
+                "Species",
+                "qComm",
+                "Emsy",
+                "RentMSY",
+                "MSY",
+                "Bmsy",
+                "Umsy",
+                "Emey",
+                "MEY",
+                "Cmey",
+                "Bmey",
+                "Umey")
+
+  tableFrame <- matrix( NA, nrow = 12, ncol = length(colNames))
+  colnames(tableFrame) <- colNames
+
+  tableFrame <- as.data.frame(tableFrame)
+
+  for( p in 1:nP )
+  {
+    stockRow  <- (p-1) * (nS+1) + 1
+
+    tableFrame$Stock[stockRow]    <- stockNames[p]
+
+    tableFrame$Emsy[stockRow]     <- round(Emsy_p[p],2)
+    tableFrame$RentMSY[stockRow]  <- round(econYmsy_p[p],2)
+
+    tableFrame$Emey[stockRow]     <- round(Emey_p[p],2)
+    tableFrame$MEY[stockRow]      <- round(MEY_p[p],2)
+
+    for( s in 1:nS )
+    {
+      specRow   <- (p-1) * (nS+1) + s + 1
+
+      tableFrame$Species[specRow]   <- speciesNames[s]
+      tableFrame$qComm[specRow]     <- signif(qF_spf[s,p,2],2)
+
+      tableFrame$MSY[specRow]       <- round(MSY_sp[s,p],2)
+      tableFrame$Bmsy[specRow]      <- round(Bmsy_sp[s,p],2)
+      tableFrame$Umsy[specRow]      <- round(MSY_sp[s,p]/Bmsy_sp[s,p],2)
+
+      tableFrame$Cmey[specRow]      <- round(Ymey_sp[s,p],2)
+      tableFrame$Bmey[specRow]      <- round(Bmey_sp[s,p],2)
+      tableFrame$Umey[specRow]      <- round(Ymey_sp[s,p]/Bmey_sp[s,p],2)
+    }
+
+
+  }
+
+  return(tableFrame)
+} # END makeStatMSEqbriaTab()
+
+# makeParEstTable
+makeParEstTable <- function( obj )
+{
+  repObj  <- obj$ctlList$opMod$histRpt
+  rp      <- obj$rp[[1]]
+  # Pull number of species/stocks from 
+  # the blob
+  nS <- repObj$nS
+  nP <- repObj$nP
+  nT <- repObj$nT
+
+  species <- obj$om$speciesNames
+  stock   <- obj$om$stockNames
+
+  FmsyRefPts <- rp$FmsyRefPts
+
+  # need to combine these all into a table - also want B0/R0 etc
+  B0_sp       <- round(repObj$B0_sp,2)
+  R0_sp       <- round(repObj$R0_sp,2)
+  h_sp        <- round(repObj$h_sp,2)
+  M_xsp       <- round(repObj$M_xsp,2)
+  Bmsy_sp     <- round(FmsyRefPts$BeqFmsy_sp,2)
+  Fmsy_sp     <- round(FmsyRefPts$Fmsy_sp,2)
+  MSY_sp      <- round(FmsyRefPts$YeqFmsy_sp,2)
+  Umsy_sp     <- round(MSY_sp/Bmsy_sp,2)
+  SSBT_sp     <- round(repObj$SB_spt[,,nT,drop = FALSE],2)
+  DT_sp       <- round(SSBT_sp[,,1]/B0_sp,2)
+  DmsyT_sp    <- round(SSBT_sp[,,1]/Bmsy_sp,2)
+  
+  nTabRow <- nS * nP
+  
+  
+  tabColNames <- c( "Species",
+                    "Stock",
+                    "B0",
+                    "R0",
+                    "M_m",
+                    "M_f",
+                    "h",
+                    "Bmsy",
+                    "Umsy",
+                    "MSY",
+                    "SSB_T",
+                    "D_T",
+                    "Dmsy_T" )
+  
+  refPtsTab <- matrix(NA, nrow = nTabRow, ncol = length(tabColNames) )
+  colnames(refPtsTab) <- tabColNames
+
+  refPtsTab <- as.data.frame(refPtsTab)
+  for( s in 1:nS )
+    for(p in 1:nP )
+    {
+      rowIdx <- (s - 1) * nP + p
+      refPtsTab$Species[rowIdx]   <- species[s]
+      refPtsTab$Stock[rowIdx]     <- stock[p]
+      refPtsTab$B0[rowIdx]        <- B0_sp[s,p]
+      refPtsTab$R0[rowIdx]        <- R0_sp[s,p]
+      refPtsTab$M_m[rowIdx]       <- M_xsp[1,s,p]
+      refPtsTab$M_f[rowIdx]       <- M_xsp[2,s,p]
+      refPtsTab$h[rowIdx]         <- h_sp[s,p]
+      refPtsTab$Bmsy[rowIdx]      <- Bmsy_sp[s,p]
+      refPtsTab$Umsy[rowIdx]      <- Umsy_sp[s,p]
+      refPtsTab$MSY[rowIdx]       <- MSY_sp[s,p]
+      refPtsTab$SSB_T[rowIdx]     <- SSBT_sp[s,p,1]
+      refPtsTab$D_T[rowIdx]       <- DT_sp[s,p]
+      refPtsTab$Dmsy_T[rowIdx]    <- DmsyT_sp[s,p]
+    }
+
+
+  refPtsTab
+} # END makeParEstTab
+
+# dynEqbriaTab()
+# Collects output from omniscient manager simulations
+# and turns them into tables of dynamic equilibria
 dynEqbriaTab <- function( groupFolder = "omni_econYield_splineE_long",
                           mpFilter = "freeEff",
                           econYieldFile = "cwEconYieldBlob.Rdata",
@@ -189,7 +357,7 @@ dynEqbriaTab <- function( groupFolder = "omni_econYield_splineE_long",
 
       }
 
-      # Then do area tables
+      # Then do area tables 
       econYmsy_p[p] <- getSplineVal( x = E, y = econYeq_pe[p,], p = Emsy_p[p])
 
       # Effort table

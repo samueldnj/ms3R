@@ -10,6 +10,134 @@
 #
 # <><><><><><><><><><><><><><><><><><><><><><><><><><><>
 
+plotFvsEffHist_p <- function( obj = blob, 
+                              fIdx = 2,
+                              iRep = 1 )
+{
+  # Get effort and fishing mortality
+  E_pft     <- obj$om$E_ipft[iRep,,,1:61]
+  F_spft    <- obj$om$F_ispft[iRep,,,,1:61]
+  qF_spf    <- obj$om$qF_ispft[iRep,,,,62]
+
+  maxEff      <- max(E_pft[,fIdx,], na.rm = T)
+  rangeEff_p  <- apply( X = E_pft[,fIdx,], FUN = range, na.rm = T, MARGIN = 1)
+
+
+
+
+  specCols    <- wes_palette("Rushmore1", 5, type = "discrete")[3:5]
+  stockNames  <- obj$om$stockNames
+  speciesNames<- obj$om$speciesNames
+
+  nP <- obj$om$nP
+  nS <- obj$om$nS
+
+
+  par( mfrow = c(nP,1), oma = c(4,4,1,3), mar = c(.5,.5,.5,.5) )
+
+  for( p in 1:nP )
+  {
+    plot( x = c(0,maxEff), y = c(0,max(max(rangeEff_p[,p]) * qF_spf[,,fIdx],F_spft[,p,fIdx,41:61])),
+          type = "n", axes = FALSE, xlab = "", ylab = "")
+    mfg <- par("mfg")
+    axis(side = 2, las = 1)
+    if(mfg[1] == mfg[3])
+      axis(side = 1)
+    grid()
+    box()
+
+    effSeq <- seq(from = rangeEff_p[1,p], 
+                  to = rangeEff_p[2,p], length.out = 3)
+
+    for( s in 1:nS )
+    {
+      points( x = E_pft[p,fIdx,41:61], y = F_spft[s,p,fIdx,41:61],
+              pch = 20+s, cex = 2, col = specCols[s], lwd = 2 )
+      lines( x = effSeq, y = qF_spf[s,p,fIdx]*effSeq,
+              lty = s, col = specCols[s], lwd = 2)
+
+    }
+    if( p == 1 )
+      legend( x = "topright", bty = "n",
+              legend = speciesNames,
+              pch = 20 + 1:nS,
+              lty = 1:s,
+              lwd = 2, pt.lwd = 2, cex = 2,
+              col = specCols)
+    rmtext( outer = TRUE, line = .1, txt = stockNames[p], font = 2, cex = 1.5)
+  }
+  mtext(line = 2, side = 1, outer = TRUE, text = "Commercial Trawl Effort (x1000 hours)")
+  mtext(line = 2, side = 2, outer = TRUE, text = "Fishing Mortality")
+
+
+
+
+} # END plotFvsEffHist_p()
+
+
+
+
+# plotPriceCatchTS()
+# Plots price and catch series for the inverse
+# demand curve models.
+plotPriceCatchTS <- function( priceModel = priceFlexModel,
+                              i = 0.02,
+                              baseYr = 2016,
+                              firstYr = 2006,
+                              specNames = c("Dover","English","Rock") )
+{
+  # Pull catch
+  C_st <- priceModel$C_st
+
+  P_st <- priceModel$P_st
+  yrCols <- seq(  from = firstYr, 
+                  by = 1, 
+                  length.out = ncol(P_st) )
+  dimnames(P_st)[[2]] <- yrCols
+
+  for(s in 1:nrow(P_st) )
+    P_st[s,] <- P_st[s,] * (1 + i)^(baseYr - as.numeric(dimnames(P_st)[[2]]))
+
+  
+  specJitter <- c(-.2,0,.2)
+  specDens   <- c(15,15,-1)
+  specAngles <- c(45,-45,0)
+
+  # First, let's plot the price data
+  par( oma = c(2,2,1,3))
+  plot(x = c(firstYr,2016), y = c(0,1.2*max(P_st,C_st)), type = "n",
+        xlab = "Year", ylab = "Unit Price ($/kg)", las = 1,
+        yaxs = "i" )
+    for( s in 1:3 )
+    {
+      rect( xleft = firstYr:2016 + specJitter[s] - .1,
+            xright = firstYr:2016 + specJitter[s] + .1,
+            ybottom = 0, ytop = C_st[s,], border = "grey50",
+            fill = "grey50",
+            col = "grey50", lwd = 2, density = specDens[s], angle = specAngles[s] )
+    }
+    for( s in 1:3 )
+    {
+      lines(  x = firstYr:2016, y = P_st[s,],
+              col = "grey20", lwd = 3, lty = s )
+    }
+    axis( side = 4, las = 1)
+    rmtext( outer = TRUE, txt = "Catch (kt)", line = .05 )
+    legend( x = "topright", bty = "n",
+            legend = paste(specNames,"catch"),
+            col = "grey20",
+            fill = c("grey50","grey50","grey50"),
+            border = "grey50",
+            density = c(15,15,NA),
+            angle = c(45,-45,0) )
+    legend( x = "topleft", bty = "n",
+            legend = paste(specNames, "price"),
+            col = "grey20",
+            lty = 1:3, lwd = 3 )
+
+} # END plotPriceCatchTS()
+
+# plotCWeffort()
 plotCWeffort <- function( obj,
                           maxE = NULL )
 {
@@ -97,7 +225,7 @@ plotCWeffort <- function( obj,
     for(p in 1:nP )
       lines( x = Eff, y = propE_pe[p,],
               col = p )
-}
+} # END plotCWeffort
 
 # plotCWeconYield()
 # Plot function for economic yield curves
@@ -189,7 +317,7 @@ plotCWeconYield <- function(  obj,
   Rev_spe[Rev_spe == 0] <- NA
   Rev_spe[,,1] <- 0
 
-  specCols <- RColorBrewer::brewer.pal(n = nS, "Dark2")
+  specCols <- wes_palette("Rushmore1", 5, type = "discrete")[3:5]
 
 
 
@@ -685,7 +813,7 @@ plotDynEconYield_p <- function( groupFolder = "omni_econYield_constE_Nov6",
 # plotDynUmsy_sp()
 # Plots distribution of dynamically optimised harvest rates
 # for a set of simulations
-plotDynOptEffort_p <- function( groupFolder = "omni_econYield_constE_Nov6",
+plotDynOptEffort_p <- function( groupFolder = "omni_econYield_splineE_long",
                                 mpFilter = "freeEff",
                                 scenOrder = c("noCorr","corrRecDevs","corrPriceDevs","corrRecPrice") )
 {
@@ -826,7 +954,7 @@ plotDynOptEffort_p <- function( groupFolder = "omni_econYield_constE_Nov6",
 # plotDynUmsy_sp()
 # Plots distribution of dynamically optimised harvest rates
 # for a set of simulations
-plotDynUmsy_sp <- function( groupFolder = "omni_econYield_constE_Nov6",
+plotDynUmsy_sp <- function( groupFolder = "omni_econYield_splineE_long",
                             mpFilter = "freeEff",
                             scenOrder = c("noCorr","corrRecDevs","corrPriceDevs","corrRecPrice") )
 {
@@ -958,8 +1086,8 @@ plotDynUmsy_sp <- function( groupFolder = "omni_econYield_constE_Nov6",
         points( x = relUdist[2], y = yIdx + yJitter,
                 pch = MPpch, cex = 2, bg = "black" )
         # Plot mean
-        points( x = relUmean, y = yIdx + yJitter,
-                pch = MPpch, cex = 2, bg = NA, col = "red" )
+        # points( x = relUmean, y = yIdx + yJitter,
+        #         pch = MPpch, cex = 2, bg = NA, col = "red" )
 
 
 
@@ -3101,7 +3229,7 @@ plotDataSummary <- function(  obj,
 
 
 
-  fleetCols <- RColorBrewer::brewer.pal(nF,"Set2")
+  fleetCols <- RColorBrewer::brewer.pal(nF,"Dark2")
 
   checkPosObs <- function( arr, out = 16 )
   {
@@ -4200,9 +4328,11 @@ plotSSvsMSrefPts <- function( obj = blob )
 } # END plotSSvsMSrefPts
 
 plotInvDemandCurves <- function(  obj = blob,
-                                  maxC = NULL,
-                                  maxP = 10,
-                                  sIdx = 1, lambda_s = NULL )
+                                  maxC = 3.5,
+                                  maxP = 4,
+                                  minQ = 0.05,
+                                  sIdx = 1, 
+                                  lambda_s = NULL )
 {
   if(is.null(lambda_s))
     lambda_s  <- blob$ctlList$opMod$lambda_s
@@ -4216,37 +4346,131 @@ plotInvDemandCurves <- function(  obj = blob,
   nP  <- obj$om$nP
   nS  <- obj$om$nS
   tMP <- obj$om$tMP
-  specCols <- RColorBrewer::brewer.pal(n = nS, "Dark2")
+  specCols <- wes_palette("Rushmore1", 5, type = "discrete")[3:5]
   speciesNames <- blob$om$speciesNames
 
   if(is.null(maxC))
     maxC <- 3*max(Yeq_sp)
 
-  C <- seq(from = 1e-6, to = maxC, length.out = 100)
+  C <- seq(from = minQ, to = maxC, length.out = 100)
   P_sc  <- array(0, dim = c(length(sIdx),100))
 
   for(s in sIdx)
     P_sc[s,] <- price_s[s] * ( C / Yeq_s[s] )^(-1/lambda_s[s])
 
   plot( x = c(0,maxC), y = c(0,maxP), 
-        xlab = "Catch (kt)", ylab = "Unit Price ($)",
-        las = 1, type = "n")
+        xlab = "Catch (kt)", ylab = "Unit price ($/kg)",
+        las = 1, type = "n", yaxs = "i", xaxs = "i")
+    
     for( s in sIdx )
-    {
       lines( x = C, y = P_sc[s,], lty = 1, lwd = 3, col = specCols[s] )
-      
-    }
 
     segments( x0 = Yeq_s[sIdx], y0 = -1, y1 = price_s[sIdx], lty = 2, col = specCols[sIdx])
     segments( x0 = -1, x1 = Yeq_s[sIdx], y0 = price_s[sIdx], lty = 2, col = specCols[sIdx])
 
 
-    legend( x = "topright", bty = "n",
+    legend( x = "topleft", bty = "n",
             col = c(specCols[sIdx]),
             lty = rep(1,length(sIdx)),
             lwd = rep(3,length(sIdx)),
-            legend = c( speciesNames[sIdx]) )
+            legend = paste0(speciesNames[sIdx],", lambda = ",round(lambda_s[sIdx],2) ))
 
+
+} # END plotInvDemandCurves()
+
+# plotUnitPriceTS()
+# 
+plotUnitPriceTS <- function( priceModel = priceFlexModel )
+{
+  refPrice_st <- priceModel$refPrice_st
+  P_st        <- priceModel$P_st
+
+  yrs <- 2006:2016
+
+  specJitter <- c(-.2,0,.2)
+  nS <- 3
+
+  specCols <- wes_palette("Rushmore1", 5, type = "discrete")[3:5]
+  speciesNames <- c("Dover","English","Rock")
+
+  plot( x = range(yrs), y = c(0,max(P_st,refPrice_st)),
+        type = "n", las = 1, xlab = "", ylab = "" )
+    grid()
+    mtext( side = 1, text = "Year", line = 2.5 )
+    mtext( side = 2, text = "Unit price ($/kg)", line = 2.5 )
+    for( s in 1:3 )
+    {
+      lines(  x = yrs + specJitter[s], y = refPrice_st[s,],
+              col = "grey70", lwd = 1, lty = s  )
+      points( x = yrs + specJitter[s], y = refPrice_st[s,],
+              pch = 21, cex = .8, col = specCols[s],
+              bg = "white" )
+      segments( x0 = yrs + specJitter[s],
+                y0 = refPrice_st[s,],
+                y1 = P_st[s,],
+                lty = 1, lwd = .8, col = "grey70" )
+      points( x = yrs + specJitter[s], y = P_st[s,],
+              pch = 16, cex = .8, col = specCols[s] )
+    }
+} # END plotUnitPriceTS()
+
+# plotPriceDevTS()
+# plots the time series of reference price RW jumps
+plotPriceDevTS <- function( priceModel = priceFlexModel )
+{
+  eps_st <- priceModel$eps_st
+
+  meanDev_s <- round(apply(X = eps_st, FUN = mean, MARGIN = 1),2)
+
+  yrs <- 2006:2016
+
+  specJitter <- c(-.2,0,.2)
+  nS <- 3
+
+  specCols <- wes_palette("Rushmore1", 5, type = "discrete")[3:5]
+  speciesNames <- c("Dover","English","Rock")
+
+  plot( x = range(yrs), y = 2.5*c(-1,1),
+        type = "n", las = 1, xlab = "", ylab = "" )
+    grid()
+    abline(h = 0, lty = 2, lwd = 1.5 )
+    for( s in 1:nS )
+    {
+      points( x = yrs + specJitter[s],
+              y = eps_st[s,],
+              col = specCols[s], pch = s, cex = 1.5 )
+      # Add regression lines?
+    }
+
+    legend( x = "topleft", bty = "n",
+            legend = paste0(speciesNames,", m = ", meanDev_s),
+            pch = 1:3,
+            col = specCols)
+
+} # END plotPriceDevTS
+
+# plotEconModelDash
+# A dashboard of the economic model fit
+plotEconModelDash <- function( obj = blob,
+                                priceModel = priceFlexModel )
+{
+  par(mfrow = c(2,2), mar = c(3,3,2,1), oma = c(2,2,2,2) )
+
+  # Inverse demand curves
+  plotInvDemandCurves(obj = obj,sIdx = 1:3)
+  mtext( side = 3, "2016 demand curves", font = 2)
+  mtext( side = 1, text = "Catch (kt)", line = 2.5 )
+  mtext( side = 2, text = "Unit price ($/kg)", line = 2.5)
+
+  # Time series of reference prices
+  plotUnitPriceTS(priceModel)
+  mtext(side = 3, text = "Price time series", font = 2)
+
+  # Deviations
+  plotPriceDevTS(priceModel)
+    mtext( side = 1, text= "Year", line = 2.5 )
+    mtext( side = 2, text= expression(delta[s][t]), line = 2.5 )
+    mtext( side = 3, text = "RW deviations", font = 2)
 
 }
 
@@ -4267,7 +4491,7 @@ plotFYieldCurves <- function( obj = blob,
   speciesNames <- blob$om$speciesNames
   stockNames   <- blob$om$stockNames
 
-  specCols <- RColorBrewer::brewer.pal(n = nS, "Dark2")
+  specCols <- wes_palette("Rushmore1", 5, type = "discrete")[3:5]
 
   # Now compute MSY for SS and MS curves
   # MSY is still the same for SS, just need the effort
@@ -4349,7 +4573,7 @@ plotEffYieldCurves <- function( obj = blob,
                   MARGIN = 2 )
   maxEval <- max(which(Yeq_e > 0))
 
-  specCols <- RColorBrewer::brewer.pal(n = nS, "Dark2")
+  specCols <- wes_palette("Rushmore1", 5, type = "discrete")[3:5]
 
   if(is.null(maxE))
     maxE <- Eseq[maxEval]
@@ -4471,7 +4695,7 @@ plotEconYieldCurves <- function(  obj = blob,
   Rev_spe[Rev_spe == 0] <- NA
   Rev_spe[,,1] <- 0
 
-  specCols <- RColorBrewer::brewer.pal(n = nS, "Dark2")
+  specCols <- wes_palette("Rushmore1", 5, type = "discrete")[3:5]
 
   if(is.null(maxE))
     maxE <- 10 * max(Emey_p[pIdx])
@@ -6728,7 +6952,7 @@ plotEBSBratio <- function( obj = blob )
         oma = c(3,3,2,2) )
 
 
-  fleetCols <- RColorBrewer::brewer.pal(nF,"Set1")
+  fleetCols <- RColorBrewer::brewer.pal(nF,"Dark2")
 
   for( s in 1:(nS+1) )
     for( p in 1:(nP+1) )
@@ -7306,6 +7530,8 @@ plotRE_spt <- function( repObj, omObj,
   nT <- repObj$nT
 
 
+  library(wesanderson)
+  specCols <- wes_palette("Rushmore1", 5, type = "discrete")[3:5]
 
   true_spt <- repObj[[AMseries]]
   est_spt  <- omObj[[OMseries]][iRep,,,]
@@ -7314,7 +7540,7 @@ plotRE_spt <- function( repObj, omObj,
                           est  = est_spt[,,1:nT],
                           marg = c(1,2,3) )
 
-  specCols <- RColorBrewer::brewer.pal(n = nS, "Dark2")
+  # specCols <- wes_palette("Rushmore1", 5, type = "discrete")[3:5]
   stockLty <- 1:nP
 
   yRange <- range(re_qspt, na.rm = TRUE)
@@ -7356,7 +7582,7 @@ plotRE_spft <- function( repObj, omObj, series = "C_spft", iRep )
                             est  = est_spft[,,,1:nT],
                             marg = c(1,2,4) )
 
-  specCols <- RColorBrewer::brewer.pal(n = nS, "Dark2")
+  specCols <- wes_palette("Rushmore1", 5, type = "discrete")[3:5]
   stockLty <- 1:nP
 
   yRange <- range(re_qspt, na.rm = TRUE)
@@ -7399,7 +7625,7 @@ plotRE_axspt <- function( repObj, omObj, series = "N_axspt", iRep )
                             est  = est_axspt[,,,,1:nT],
                             marg = c(3:5) )
 
-  specCols <- RColorBrewer::brewer.pal(n = nS, "Dark2")
+  specCols <- wes_palette("Rushmore1", 5, type = "discrete")[3:5]
   stockLty <- 1:nP
 
   yRange <- range(re_qspt, na.rm = TRUE)

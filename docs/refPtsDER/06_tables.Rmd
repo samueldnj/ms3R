@@ -15,6 +15,14 @@ parEstTableCap <- "Estimates of biological population parameters,
 single-species reference points, and stock status in 2016 for all nine 
 DER complex stocks."
 
+ssRefPtsTabCap <- "Maximum likelihood estimates of maximum sustainable
+multispecies yield ($MSY_{MS}$) and maximum economic yield ($MEY$) 
+reference points for the British Columbia DER complex of flatfish. 
+Effort (1000s of trawl hours) and rent (millons CAD\\$) are calculated 
+by area, while catch ($MSY$, $C_{MEY}$, kt), biomass ($B_{MSY}$, 
+$B_{MEY}$, kt), and harvest rate ($U_{MSY}$, $U_{MEY}$, unitless) 
+are calculated by species within an area."
+
 ```
 
 
@@ -124,17 +132,20 @@ csasdown::csas_table( statModelEqns, escape = FALSE,
 
 ```{r modelFitTable, echo = FALSE, warning = FALSE}
 
-parEstTable <- makeParEstTable(reports)
-parEstTable <- parEstTable[,-1]
+parEstTable <- makeParEstTable(simObj) %>%
+                arrange(  match( Stock, c("HSHG","QCS","WCVI")),
+                          match( Species, c("Dover","English","Rock")))
 
-colnames(parEstTable) <- c( "Stock",
+parEstTable <- parEstTable[,-2]
+
+
+colnames(parEstTable) <- c( "Species",
                             "$B_0$",
                             "$R_0$",
                             "$M_m$",
                             "$M_f$",
                             "$h$",
                             "$B_{MSY}$",
-                            "$F_{MSY}$",
                             "$U_{MSY}$",
                             "$MSY$",
                             "$B_{2016}$",
@@ -146,12 +157,50 @@ csasdown::csas_table( parEstTable, escape = FALSE,
                       format = kable_format,
                       # linesep = "\\addlinespace",
                       caption = parEstTableCap,
-                      align = c("c","l")) %>%
-  kable_styling(latex_options = c("striped", "hold_position","scale_down"),
+                      align = c("l",rep("c",ncol(parEstTable)-1))) %>%
+  kable_styling(latex_options = c("hold_position","scale_down"),
                 bootstrap_options = c("striped", "hover"))  %>%
-  kableExtra::group_rows("Dover Sole", 1, 3 ) %>%
-  kableExtra::group_rows("English Sole", 4, 6 ) %>%
-  kableExtra::group_rows("Rock Sole", 7, 9 ) 
+  kableExtra::group_rows("HSHG", 1, 3 ) %>%
+  kableExtra::group_rows("QCS", 4, 6 ) %>%
+  kableExtra::group_rows("WCVI", 7, 9 ) 
 
 ```
 
+\clearpage
+
+\blandscape
+
+```{r ssRefPtsTable, echo = FALSE, warning = FALSE}
+
+ssRefPtsTab <- makeStatMSEqbriaTab(blob)
+
+colnames(ssRefPtsTab) <- c( "Stock",
+                            "Species",
+                            "$q^F$",
+                            "$E_{MSY}$",
+                            "$\\pi \\left( \\sum MSY_{MS} \\right)$",
+                            "$MSY_{MS}$",
+                            "$B_{MSY,MS}$",
+                            "$U_{MSY,MS}$",
+                            "$E_{MEY}$",
+                            "$MEY$",
+                            "$C_{MEY}$",
+                            "$B_{MEY}$",
+                            "$U_{MEY}$")
+
+csasdown::csas_table( ssRefPtsTab, escape = FALSE,
+                      booktabs = TRUE, font_size = 10,
+                      format = kable_format,
+                      # linesep = "\\addlinespace",
+                      caption = ssRefPtsTabCap,
+                      align = c("l","l",rep("c",ncol(ssRefPtsTab)-2))) %>%
+  kable_styling(latex_options = c("striped", "hold_position","scale_down"),
+                bootstrap_options = c("striped", "hover"))  %>%
+  add_header_above( header = c( " " = 3,
+                                "DER complex maximum yield" = 5,
+                                "Maximum Economic Yield" = 5),
+                    bold = TRUE)
+
+```
+
+\elandscape

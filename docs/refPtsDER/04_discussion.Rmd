@@ -16,6 +16,15 @@ Conclusion:
   - Despite limitations, these hierarchical stock assessment models are a viable method of extending assessments to management units where data are limited or non-existent
   - 
 
+For the DER complex, there is little reason not to target
+multi-species yield objectives. Even assuming that technical interactions 
+can be overcome by targeting and single-species MSY_SS can be achieved
+independently for all DER complex stocks, there is little benefit in doing
+so. The complex wide catch yield is only 110 tonnes lower for MSY_MS
+than the sum of the single species MSY_SS values, and extra targeted fishing 
+effort and lower prices caused by the elasticity of demand may dissipate 
+any resource rent gains that the higher catch would bring. 
+
 Future work: 
     - using this as an operating model to test multi-speces management objectives - could use simpler AM, such as multispecies coastwide, or a DD or SP model.
     - Adding movement hypotheses

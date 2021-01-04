@@ -116,6 +116,7 @@ source(here::here("tools.R"))
 ```{r load-libraries, cache=FALSE}
 # add other packages here:
 library(kableExtra)
+library(wesanderson)
 library(tidyverse)
 library(coda)
 library(MASS)
@@ -151,6 +152,9 @@ source(here::here("ms3RrefPts.R"))
 .loadSim(sim = params$sim, baseDir = params$baseDir )
 simObj <- blob
 
+
+# Load priceModel
+load("./data/DERcplxPriceFlexModel.RData")
 ```
 
 

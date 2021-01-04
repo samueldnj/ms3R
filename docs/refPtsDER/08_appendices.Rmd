@@ -1,5 +1,6 @@
 \clearpage
 
+
 # (APPENDIX) Appendices {-}
 
 # Appendix A: Fits to compositional data
@@ -51,16 +52,16 @@ elasticity of demand reducing price with quantity supplied, with indices for
 species $s$, area $p$, and year $t$. The reference price $v^*_{s,t}$ varied 
 via a simple random walk in logit-space
 \begin{align}
-\logit \upsilon^*_{s,t} &= \logit \upsilon^*_{s,t-1} + \delta_{s,t}, \\
-v^*_{s,t} &= 0.5 \cdot P^{min}_{s} + \frac{\mathcal{P}^{max}_s - \mathcal{P}^{min}_s}{1 + exp(-\logit \upsilon^*{s,t})}
+\logit \upsilon_{s,t} &= \logit \upsilon_{s,t-1} + \delta_{s,t}, \\
+v^*_{s,t} &= 0.5 \cdot P^{min}_{s} + \frac{\mathcal{P}^{max}_s - \mathcal{P}^{min}_s}{1 + exp(-\logit \upsilon{s,t})}
 \end{align}
-where $\upsilon^*_{s,t}$ was the unbounded logit-scale parameter transformed
+where $\upsilon_{s,t}$ was the unbounded logit-scale parameter transformed
 to the reference price $v^*_{s,t}$, $\delta_{s,t}$ was a normal deviation, 
 and $v^*_{s,t}$ was bounded between half of $P^{\min}_s$ and twice
 $P^{\max}_s$, the lowest and highest observed prices, respectively, of 
 species $s$ between 2006 and 2016.
 
-Elasticity of demand $\lambda_s$, and the covariance of the random walk 
+Price elasticity of demand $\lambda_s$, and the covariance of the random walk 
 deviations $\delta_{s,t}$ were estimated by fitting the time-varying
 inverse demand curve to catch and price data from 2006 - 2016. Leading
 parameters $\lambda_s$, $\delta_{s,t}$, and the 2016 reference price
@@ -76,5 +77,10 @@ a standard deviation of 1.0, which allowed the residual error
 $\log P_{s,t} - \log v_{s,t}$ to approach zero, solving for the random walk 
 jumps required to produce the observed prices $P_{s,t}$ at the observed 
 quantities supplied $C_{s,p,t}$ given a constant elasticity of 
-demand $\lambda_s$. Covariance of $\delta_{s,t}$ was estimated directly from
-the optimised solution.
+demand $\lambda_s$. Covariance $\Sigma$ of the random walk jumps
+$\delta_{s,t}$ was derived from the estimated jumps themselves, rather
+than within the model.
+
+
+
+

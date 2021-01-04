@@ -12,7 +12,7 @@ The fits to biomass indices were overall satisfactory. Fits for all series
 were almost unbiased, with mean residuals at most 0.07 in absolute value. 
 Despite low bias, there were significant trends in residuals for the modern 
 commercial CPUE index for all QCS stocks, and WCVI Rock sole, as well as for 
-the Hecate Strait assemblage survey for all three species (Figure 2); poor 
+the Hecate Strait assemblage survey for all three species (Figure 4); poor 
 fits to these indices was not completely unexpected, as the modern trawl CPUE 
 was a fishery dependent commercial catch-rate series with underlying 
 targeting behaviour, while the fishery independent Hecate Strait Assemblage 
@@ -27,65 +27,143 @@ significant trends.
 Biomass time series and single-species biological reference point estimates 
 indicate that all DER complex stocks were in a healthy state in 2016 (Table 3). 
 Three out of nine stocks exhibited 1-way trip dynamics (HSHG and QCS Dover, 
-and QCS Rock, Figure 3), where biomass only depleted over the period 1956 - 
+and QCS Rock, Figure 5), where biomass only depleted over the period 1956 - 
 2016, while the remaining stocks showed signs of growth, usually after the mid 
 1990s, which could indicate that the growth was more related to the switch 
 between historical and modern commerical CPUE indices. Indeed, the two smaller 
-English sole stocks (QCS and WCVI) exhibit large jumps in biomass as soon as 
-the historical CPUE series ends, jumping almost all the way back to unfished 
-levels in QCS. While these dynamics may indicate spurious recruitment dynamics
-for these two stocks in the mid 1990s, the absolute size of the stocks is a 
-very small proportion of the overall complex and so is is considered a minor
-issue for the results of this paper.
+English sole stocks (QCS and WCVI) exhibit large jumps in biomass in 1996/1997,
+right as the historical trawl CPUE ends and modern trawl CPUE begins, jumping 
+almost all the way back to unfished levels in QCS. While these dynamics may 
+indicate spurious recruitment dynamics for these two stocks in the mid 
+1990s, the absolute size of the stocks is a very small proportion of the 
+overall complex and so is is considered a minor issue for the results of 
+this paper.
 
-Commercial catchability scalars were estimated as the average
-log-residual between fishing mortality rates and trawl effort
-for the modern trawl fleet.
+Commercial catchability scalars for the modern trawl fleet were estimated
+as the mean log-residual between fishing mortality and trawl effort [eqref].
+Estimates were similar among species in the HSHG (0.022 - 0.026) and 
+QCS (0.014 - 0.016) areas, but more different in WCVI (0.012 - 0.025)
+(Table X). Estimates of fishing mortality were distributed evenly around
+the mean catchability relationship for the 1996 - 2016 period, with the
+exception of some outliers in WCVI at around 22 thousand hours of trawling
+in 1996, where Rock sole's observed relationship was almost twice the 
+mean, and Dover and English were about half as catchable (Figure 6). These 
+outliers may show a non-linear relationship between effort and mortality, 
+counter to our assumption but also a realistic case, either from improved 
+targeting  behaviour (increasing relationship, e.g., Rock sole), or 
+over-depletion (decreasing relationship, e.g., Dover and English soles), 
+but these data are not powerful enough to draw any such conclusions. Given
+the closure of the BC trawl fishery in 1995 due to overfishing concerns
+and poor reporting, it is likely that the outliers show overdepletion 
+and/or poor record keeping at the beginning of the at-sea observer program.
 
 Correlation in recruitment deviations
 
-## DER complex inverse demand curves
+## DER complex time-varying inverse demand curves
 
+Fitting the time varying inverse demand curve model (Appendix B) to
+ex-vessel unit price data showed that all three DER complex species
+had relatively elastic demand (i.e., $\lambda_s > 1$ for all species
+$s$; Figure 6, demand curves). Over time, reference prices steadily 
+dropped from around $1 per kg in 2006 to lows around $0.50/kg - $0.75/kg
+in 2011/2012 (Figure 6, Price time series), before increasing for 2-3 
+years, with English sole reaching its maximum recorded ex-vessel and 
+reference price estimate in 2013. In 2014, all three species reference 
+prices dropped again and converged around $0.50/kg, before increasing 
+again to the some of the highest observed prices in 2015 (Dover), 
+or 2016 (English, Rock). As expected from the reference point and
+biomass estimates (Table 3) observed ex-vessel prices are, with the
+exception of Dover sole in 2006, above the reference price, indicating
+that catches are generally below the coast-wide maximum sustainable
+yield for each species. Observed prices for English and Rock sole were
+generally much higher then reference prices, which is again expected
+given the price elasticity of demand is much higher for Dover sole,
+leading to a flatter demand curve (Figure 6).
 
+TODO: SCALE deltas by their standard deviation (post-fit estimate)
 
-- Elasticity of demand - inverse demand
+The blocks of decreasing and increasing reference prices are reflected
+in the random walk deviations (Figure 6, RW deviations). Early in the 
+period $\delta_{s,t} < 0$ for all three species, becoming positive 
+for 2010-2013, and so on. While random walks were closed to unbiased 
+with mean deviations of at most 0.08 in absolute value, random walk 
+jumps became more variable over time, with devaitions larger than 
+1.0 only occuring in the last three years of the period. While the
+blocking and shift in variation could signal model misspecification 
+(e.g., some latent unmodeled process), they could also be caused by 
+the small sample size.
 
-- covariance/correlation in price devs
-
-```{r loadPriceModel, echo = FALSE, include = FALSE}
-load("./data/DERcplxPriceFlexModel.Rdata")
-```
 
 ## Steady-state reference points
 
-### Multi-species maximum biological yield
+### Multi-species maximum yield
 
-The optimal harvest rate and spawning-stock biomass from the multi-species 
-complex yield curves followed a similar pattern across the three areas 
-(Figure 5). In all areas, the fishing effort maximising multi-species yield
-for the area led to a slightly higher harvest rate for Dover sole when 
-compared to the single-species optimal harvest rate. In contrast, the 
-harvest rates maximising multi-species yield for both English and rock soles 
-were slightly lower than the rates maximising single-species yield. In the 
-HSHG area, where all three species had the highest biomasses, the 
-multi-species optimal effort lay close to the single-species optimal 
-effort, meaning that there was very little foregone yield for each species 
-in order to maximise the total complex yield. In contrast, the other 
-two areas each had a species with a yield curve that had a peak far to 
-the right of the peaks of the other two curves, indicating a lower 
-catchability scalar between effort and fishing mortality for English sole 
-in QCS, and rock sole in WCVI. Although English (QCS) and rock (WCVI) soles 
-are proportionally further under-exploited under the multi-species 
-optimal effort than the least catchable species (rock sole) in HSHG, 
-the yield lost to under-exploitation is trivial given the absolute 
-size of each is an order of magnitude smaller than the larger
-stocks in those areas.
+Multi-species effort/yield relationships, and the harvest rates that 
+maximised multi-species complex yield, followed a similar pattern in 
+HSHG and QCS, but differed in WCVI (Figure 8, compare Tables 3 and 4). 
+In HSHG and QCS areas, the optimal effort $E_{MSY,p}$ produced lower 
+optimal harvest rates for Dover sole and English sole (marginally) when 
+compared to single species optimal harvest rates, while Rock sole
+optimal harvest rates maximising multi-species yield were 20\% - 30\% 
+higher than harvest rates maxmising Rock sole yield alone (compare
+$U_{MSY}$, Tables 3 and 4). In the WCVI area, $E_{MSY}$ led to a 5\%
+higher English sole harvest rate when maximising DER complex yield than
+English sole yield alone, while Dover sole harvest rates differed by 
+less than a percentage point between the single-species and multi-species
+optima, and Rock sole was slightly lower. Despite some large differences 
+in optimal harvest rates, differences in MSY_SS and MSY_MS were subtle 
+for all stocks, with a decrease of at most 5\% from MSY_SS to MSY_MS
+to a total catch of XX.
+
+Resource rent at MSY was around $620,000 CAD summed across the three
+areas. The area with the highest resource rent was HSHG, attained at
+the lowest effort of the three areas (Table 3). The QCS and WCVI
+areas both had roughly equal equilibrium resource rents at MSY, with
+QCS around 9% higher rent at 11% higher fishing effort.
+
 
 ### Multi-species maximum economic yield
 
+Maximum economic yield (resource rent) for the DER complex trawl fishery 
+was around $1.58m CAD (Table 4). Fishing effort achieving MEY was about 
+one third of the effort level achieving MSY_MS for all areas. Similarly, 
+the optimal harvest rates for MEY were around 40\% of the harvest rates 
+for MSY_MS. Despite the large drop in effort and harvest rates, 
+catches dropped by an average of [X\%], but as little as 9\% for HSHG
+Rock sole, again given the higher equilibrium biomass at the lower
+fishing effort. The total drop in DER complex equilibrium catch between 
+MSY_MS and MEY was approximately 1.1 kt.
+
+Once again, MEY was highest in the HSHG area at the lowest effort,
+reflecting the higher biomass of all species in that area (Table 4). While
+E_MEY in QCS was higher than in WCVI by a similar proportion to the
+corresponding E_MSY values, the resource rent was about 40\% higher in 
+the WCVI area. The higher WCVI rent is thanks largely to the higher 
+Dover sole biomass in the WCVI, along with a higher price elasticity 
+of demand for Dover sole, producing a higher landed value of Dover sole 
+that compensated for the higher costs of fishing in the WCVI area.
+
+At the assumed fuel costs, the resource rents of the DER complex fishery 
+are dependent on technical interactions to remain positive. While it is 
+profitable to fish each species individually at low effort levels, as 
+effort increases at least one revenue curve drops below the marginal 
+cost line before $E_{MEY}$ is reached (Figure 9). 
+
+The optimal allocation of fishing effort among areas was independent of 
+the total effort. For any fixed level of coast-wide effort $E$, the 
+allocation was always 
+$\langle E_1, E_2, E_3 \rangle = \langle p_1E, p_2E, p_3E \rangle$,
+which we still need time to interpret... (pull ps from the table), check
+if it matches Emsy proportions... Indicates that the allocation
+is fixed based on the $\lambda_s$ and $q^{F}_{s,p}$ values, so perhaps 
+the system is overdetermined? [No movement or ecological interactions,
+which may break this]. This allocation was insensitive to random initial 
+valuesfor the optimisation
 
 
 ## Dynamic reference points
+
+
 
 ### Multi-species maximum biological yield
 
