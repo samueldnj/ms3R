@@ -19,7 +19,7 @@ batchControlFiles <- c( "MPgrid_DLSurveys_Long.bch"
 nBatchJobs <- length( batchControlFiles )
 
 
-baseControlFiles  <- rep( "simCtlFileBase.txt",nBatchJobs)
+baseControlFiles  <- rep( "simCtlFileBase_AAL12.txt",nBatchJobs)
                         
 
 prefixes       <- c(  "DERTACs_Reruns_Jan5",
