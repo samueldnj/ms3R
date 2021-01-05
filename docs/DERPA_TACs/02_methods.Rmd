@@ -246,19 +246,20 @@ performance caused by different prior choices.
 
 ### Data generation for assessment models
 
-Time series of catch and biomass indices were simulated in the historical 
-and projection periods for fitting assessment models. While it is more
-usual to use the actual historical data in most closed loop simulations, we 
-decided that given that pooled data must be simulated, simulating all data 
-series removed any effect of the difference between simulated and real data
+Time series of catch, commercial CPUE, and relative biomass indices were 
+simulated in the historical and projection periods for fitting assessment 
+models. While it is more usual to use the actual historical data in most 
+closed loop simulations, we decided that given that pooled data must be 
+simulated, simulating all data series removed any effect of the difference 
+between simulated and real data
 on performance between pooled and non-pooled AMs. The Historical fishery CPUE 
 and Hecate Strait Assemblage survey were simulated only for the periods shown 
 in Figure 2, but the Modern fishery CPUE and Synoptic trawl survey biomass 
 index were also simulated in the projection period. Both commercial CPUE 
 series were simulated without additional observation error deviations, as 
-catch rates are biased indices of abundnace, but both fishery independent 
-trawl survey indices had log-normally distributed observation error 
-deviations with precision based on the conditioning assessment 
+catch rates are biased approximations of a relative index, but both fishery 
+independent trawl survey indices had log-normally distributed observation 
+error deviations with precision based on the conditioning assessment 
 (Table A.1, Appendix A).
 
 Biomass indices for individual stocks depended on the nature of 

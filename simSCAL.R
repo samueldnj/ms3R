@@ -4594,8 +4594,8 @@ combBarrierPen <- function( x, eps,
 
         # Save true observations and those with error
         Ierr_spft[s,p,f,t] <- Iperf_spft[s,p,f,t]
-        if( idxType == 1 ) 
-         Ierr_spft[s,p,f,t] <- Ierr_spft[s,p,f,t] * exp(tau * err$delta_spft[s,p,f,t] - 0.5 * tau^2)
+        # if( idxType == 1 ) 
+        Ierr_spft[s,p,f,t] <- Ierr_spft[s,p,f,t] * exp(tau * err$delta_spft[s,p,f,t] - 0.5 * tau^2)
       } 
   }
   # }
@@ -4626,8 +4626,8 @@ combBarrierPen <- function( x, eps,
         # Add error
         Ierr_spft[nS+1,p,f,t] <- Iperf_spft[nS+1,p,f,t]
         
-        if(idxType == 1 )
-         Ierr_spft[nS+1,p,f,t] <- Iperf_spft[nS+1,p,f,t] * exp( tau * err$delta_spft[nS+1,p,f,t] - 0.5 * tau^2)
+        # if( idxType == 1 )
+        Ierr_spft[nS+1,p,f,t] <- Iperf_spft[nS+1,p,f,t] * exp( tau * err$delta_spft[nS+1,p,f,t] - 0.5 * tau^2)
 
       }
     }
@@ -4659,8 +4659,8 @@ combBarrierPen <- function( x, eps,
 
 
         Ierr_spft[s,nP+1,f,t] <- Iperf_spft[s,nP+1,f,t]
-        if(idxType == 1)
-          Ierr_spft[s,nP+1,f,t] <- Iperf_spft[s,nP+1,f,t] * exp( tau * err$delta_spft[s,nP+1,f,t] - 0.5 * tau^2)
+        # if( idxType == 1)
+        Ierr_spft[s,nP+1,f,t] <- Iperf_spft[s,nP+1,f,t] * exp( tau * err$delta_spft[s,nP+1,f,t] - 0.5 * tau^2)
 
 
       }
@@ -4691,8 +4691,8 @@ combBarrierPen <- function( x, eps,
       }
 
       Ierr_spft[nS+1,nP+1,f,t] <- Iperf_spft[nS+1,nP+1,f,t]
-      if( idxType == 1 )
-        Ierr_spft[nS+1,nP+1,f,t] <- Iperf_spft[nS+1,nP+1,f,t] * exp( tau * err$delta_spft[nS+1,nP+1,f,t] - 0.5 * tau^2)
+      # if( idxType == 1 )
+      Ierr_spft[nS+1,nP+1,f,t] <- Iperf_spft[nS+1,nP+1,f,t] * exp( tau * err$delta_spft[nS+1,nP+1,f,t] - 0.5 * tau^2)
     }
 
     if(any(is.nan(Iperf_spft)))
