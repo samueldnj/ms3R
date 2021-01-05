@@ -255,31 +255,29 @@ between simulated and real data
 on performance between pooled and non-pooled AMs. The Historical fishery CPUE 
 and Hecate Strait Assemblage survey were simulated only for the periods shown 
 in Figure 2, but the Modern fishery CPUE and Synoptic trawl survey biomass 
-index were also simulated in the projection period. Both commercial CPUE 
-series were simulated without additional observation error deviations, as 
-catch rates are biased approximations of a relative index, but both fishery 
-independent trawl survey indices had log-normally distributed observation 
-error deviations with precision based on the conditioning assessment 
-(Table A.1, Appendix A).
+index were also simulated in the projection period. All biomass indices were
+simulated with log-normally distributed observation error deviations with 
+precision based on the conditioning assessment (Table A.1, Appendix A).
 
-Biomass indices for individual stocks depended on the nature of 
-the index. Assemblage and Synoptic Survey biomass indices were 
-defined as trawlable biomass
+Biomass indices for individual stocks were all simulated as relative
+biomass with observation error
 \begin{equation}\label{eq:startIdx}
 \bar{I}_{s,p,f,t} = q_{s,p,f} \cdot B_{s,p,f,t},
 \end{equation}
 where $\bar{I}_{s,p,f,t}$ is the index without observation error,
-$q_{s,p,f}$ is the survey trawl efficiency for species $s$ 
+$q_{s,p,f}$ is the catchability coefficient for species $s$ 
 and stock-area $p$, and $B_{s,p,f,t}$ is the biomass of 
-species $s$ in stock-area $p$ vulnerable to survey $f$ in 
-year $t$. Commercial CPUE indices were defined as
-\begin{equation}
-I_{s,p,f,t} = \frac{C_{s,p,f,t}}{E_{p,f,t}},
-\end{equation}
-where $C_{s,p,f,t}$ was commercial catch by fleet $f$ of 
-species $s$ from area $p$ at time $t$, and $E_{p,f,t}$ was 
-commercial fishing effort in area $p$ from fleet $f$ at
-time $t$, with both catch and effort required to be positive. 
+species $s$ in stock-area $p$ vulnerable to fleet $f$ in 
+year $t$. For the Assemblage and Synoptic fishery independent
+surveys ($f = 3,4$), the catchability coefficients $q_{s,p,f}$ were 
+trawl efficiency estimates from the conditioning assessment. For 
+commercial CPUE, catchability coefficients were estimated by the
+conditioning assessment by assuming that catch rates were an unbiased 
+relative index. While the assumption that catch rates were an unbiased
+relative index likely increased the information contained in the 
+simulated CPUE indices over the real data, the large CVs estimated
+by the conditioning assessment retain realistic variation despite
+removing any systematic bias from the simulated indices.
 
 The method for generating pooled catch and biomass index data depended on 
 the data type. Catch data were pooled by summation, and the index data were 

@@ -25,12 +25,12 @@ given by
 N_{a,x,s,p,t} = \left \{ \begin{array} {ll}
                           0.5 R_{s,p,t}  & a = 1, \\
                           N_{a-1,x,s,p,t-1} \cdot e^{-Z_{a-1,x,s,p,t-1}} & 1 < a < A, \\
-                          N_{a-1,x,s,p,t-1} \cdot e^{-Z_{a-1,x,s,p,t-1}} + N_{a,x,s,p,t-1}\cdot e^{-Z_{a,x,s,p,t-1}} & a = A_s,
+                          N_{a-1,x,s,p,t-1} \cdot e^{-Z_{a-1,x,s,p,t-1}} + N_{a,x,s,p,t-1}\cdot e^{-Z_{a,x,s,p,t-1}} & a = A^{(s)},
                           \end{array}
                 \right.
 \end{equation*}
 where $R_t$ is age-1 recruitment in year $t$, $Z_{a,x,s,p,t}$
-is the instantaneous total mortality rate, and $A_s$ is the plus
+is the instantaneous total mortality rate, and $A^{(s)}$ is the plus
 group age for species $s$.
 
 Numbers-at-age were scaled to biomass-at-age by sex/species/area-
@@ -90,7 +90,7 @@ given by
 N_{a,x,s,p,1956} = \left \{ \begin{array} {ll}
                           0.5 R_{s,p,0}  & a = 1, \\
                           N_{a-1,x,s,p,1956} \cdot e^{-M_{x,s,p}} & 1 < a < A, \\
-                          N_{a-1,x,s,p,1956} \cdot \frac{e^{-M_{x,s,p}}}{1 - e^{-M_{x,s,p}}} & a = A,
+                          N_{a-1,x,s,p,1956} \cdot \frac{e^{-M_{x,s,p}}}{1 - e^{-M_{x,s,p}}} & a = A^{(s)},
                           \end{array}
                 \right.
 \end{equation*}
@@ -110,7 +110,8 @@ S_a = \left( 1 + \exp \left( \frac{-\ln 19 (L_a - l^{sel}_{50})}{l^{sel}_{95} - 
 where $L_a$ is length-at-age, defined above, and $l^{sel}_{50}$
 and $l^{sel}_{95}$ are the length-at-50\% and length-at-95\% selectivity,
 respectively; stock, species and fleet subscripts are left off for concision.
-Catch-at-age was then found via the Baranov catch equation
+Catch-at-age (in biomass units) was then found via the Baranov catch 
+equation
 \begin{equation*}
 C_{a,x,s,p,f,t} = (1 - e^{-Z_{a,x,s,p,f,t}}) \cdot N_{a,x,s,p,t} w_{a,x,s,p} \frac{F_{a,x,s,p,f,t}}{Z_{a,x,s,p,f,t}},
 \end{equation*}
@@ -123,9 +124,7 @@ Z_{a,x,s,p,f,t} = M_{x,s,p} + S_{a,x,s,p,f} \cdot F_{a,x,s,p,f,t}.
 
 Operating model observation error standard deviations were derived
 from estimates from fitting a hierarchical age-structured model to 
-DER complex data. To improve AM convergence in the simulations, we 
-multipled all estimates by $0.75$ to improve observation model 
-precision (multiplier found by trial and error).
+DER complex data.
 
 
 ```{r loadSimForObsErrTable, echo = FALSE, include = FALSE}
@@ -139,7 +138,7 @@ biomass indices"
 ```{r obsErrTab, echo = FALSE}
 tauObs_spf <- blob$ctlList$opMod$histRpt$tauObs_spf
 tauObs_spf[tauObs_spf == 1] <- NA
-tauObs_spf <- round(tauObs_spf * 0.75,3)
+tauObs_spf <- round(tauObs_spf,3)
 
 tauObs.df <- reshape2::melt(tauObs_spf)
 

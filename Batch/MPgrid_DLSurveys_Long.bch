@@ -61,7 +61,7 @@ mp$mp1$mp$hcr$scaleFrefMS TRUE
 mp$mp1$mp$data$spatialPooling FALSE
 mp$mp1$mp$data$speciesPooling FALSE
 mp$mp1$mp$assess$spSingleStock TRUE
-mp$mp1$mp$assess$spYrFirstIdx 20
+mp$mp1$mp$assess$spYrFirstIdx 1
 mp$mp1$mp$assess$spTVqFleets NULL
 mp$mp1$mp$assess$spShrinkqFleets NULL
 mp$mp1$mp$assess$spCondMLEqFleets NULL
@@ -70,7 +70,7 @@ mp$mp1$mp$assess$spFleetWeights c(1.0,1.0,1.0,1.0)
 mp$mp1$mp$assess$spsigmaProc .05
 mp$mp1$mp$assess$spsdUmsy .3
 mp$mp1$mp$assess$spCVMSY .2
-mp$mp1$mp$assess$spsdlnq_f c(.5,.5,.2,.2)
+mp$mp1$mp$assess$spsdlnq_f c(.2,.2,.2,.2)
 mp$mp1$mp$assess$sptauObs_spf .3
 mp$mp1$mp$assess$spInitPE 25
 mp$mp1$mp$assess$spPhzUmsy 3
@@ -103,11 +103,11 @@ mp$mp2$mp$assess$sptauq .4
 mp$mp2$mp$assess$spsigU .1
 mp$mp2$mp$assess$spFleetWeights c(1.0,1.0,1.0,1.0)
 mp$mp2$mp$assess$spShrinkqFleets c(3,4)
-mp$mp2$mp$assess$spYrFirstIdx 20
+mp$mp2$mp$assess$spYrFirstIdx 1
 mp$mp2$mp$assess$spsigmaProc .05
 mp$mp2$mp$assess$spsdUmsy .3
 mp$mp2$mp$assess$spCVMSY .2
-mp$mp2$mp$assess$spsdlnq_f c(.5,.5,.2,.2)
+mp$mp2$mp$assess$spsdlnq_f c(.2,.2,.2,.2)
 mp$mp2$mp$assess$sptauObs_spf .3
 mp$mp2$mp$assess$spInitPE 25
 mp$mp2$mp$assess$spPhzUmsy 3
@@ -139,7 +139,7 @@ mp$mp3$mp$assess$spSingleStock TRUE
 mp$mp3$mp$assess$spPosPenFactor 1e3
 mp$mp3$mp$assess$spFleetWeights c(1,1,1.0,1.0)
 mp$mp3$mp$assess$spShrinkqFleets NULL
-mp$mp3$mp$assess$spYrFirstIdx 20
+mp$mp3$mp$assess$spYrFirstIdx 1
 mp$mp3$mp$assess$spTVqFleets NULL
 mp$mp3$mp$assess$spCondMLEqFleets NULL
 mp$mp3$mp$assess$spCondMLEobsErrFleets NULL
@@ -149,7 +149,7 @@ mp$mp3$mp$assess$spsigmaProc .05
 mp$mp3$mp$assess$sptauqdev .1
 mp$mp3$mp$assess$spsdUmsy .3
 mp$mp3$mp$assess$spCVMSY .2
-mp$mp3$mp$assess$spsdlnq_f c(10,1,1,.5)
+mp$mp3$mp$assess$spsdlnq_f c(1,1,1,.5)
 mp$mp3$mp$assess$sptauObs_spf .2
 mp$mp3$mp$assess$spInitPE 25
 mp$mp3$mp$assess$spPhzUmsy 3
@@ -181,7 +181,7 @@ mp$mp4$mp$assess$spSingleStock TRUE
 mp$mp4$mp$assess$spPosPenFactor 1e3
 mp$mp4$mp$assess$spFleetWeights c(1,1,1.0,1.0)
 mp$mp4$mp$assess$spShrinkqFleets NULL
-mp$mp4$mp$assess$spYrFirstIdx 20
+mp$mp4$mp$assess$spYrFirstIdx 1
 mp$mp4$mp$assess$spTVqFleets NULL
 mp$mp4$mp$assess$spCondMLEqFleets NULL
 mp$mp4$mp$assess$spCondMLEobsErrFleets NULL
@@ -191,7 +191,7 @@ mp$mp4$mp$assess$spsigmaProc .05
 mp$mp4$mp$assess$sptauqdev .1
 mp$mp4$mp$assess$spsdUmsy .3
 mp$mp4$mp$assess$spCVMSY .2
-mp$mp4$mp$assess$spsdlnq_f c(10,1,1,.5)
+mp$mp4$mp$assess$spsdlnq_f c(1,1,1,.5)
 mp$mp4$mp$assess$sptauObs_spf .2
 mp$mp4$mp$assess$spInitPE 25
 mp$mp4$mp$assess$spPhzepslnUmsy_s -6
@@ -223,7 +223,7 @@ mp$mp5$mp$assess$spSingleStock TRUE
 mp$mp5$mp$assess$spPosPenFactor 1e3
 mp$mp5$mp$assess$spFleetWeights c(1,1,1.0,1.0)
 mp$mp5$mp$assess$spShrinkqFleets NULL
-mp$mp5$mp$assess$spYrFirstIdx 20
+mp$mp5$mp$assess$spYrFirstIdx 1
 mp$mp5$mp$assess$spTVqFleets NULL
 mp$mp5$mp$assess$spCondMLEqFleets NULL
 mp$mp5$mp$assess$spCondMLEobsErrFleets NULL
@@ -233,7 +233,7 @@ mp$mp5$mp$assess$spsigmaProc .05
 mp$mp5$mp$assess$sptauqdev .1
 mp$mp5$mp$assess$spsdUmsy .3
 mp$mp5$mp$assess$spCVMSY .2
-mp$mp5$mp$assess$spsdlnq_f c(10,1,1,.5)
+mp$mp5$mp$assess$spsdlnq_f c(1,1,1,.5)
 mp$mp5$mp$assess$sptauObs_spf .2
 mp$mp5$mp$assess$spInitPE 25
 mp$mp5$mp$assess$spPhzUmsy 3

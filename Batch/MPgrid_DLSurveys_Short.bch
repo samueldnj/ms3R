@@ -7,8 +7,8 @@ parameter value
 #
 scenario$scenario1$ctl$scenarioName 'DERfit_HcMcAsSsIdx'
 scenario$scenario1$opMod$pT 32
-scenario$scenario1$ctl$nGoodReps 30
-scenario$scenario1$ctl$totReps 10
+scenario$scenario1$ctl$nGoodReps 200
+scenario$scenario1$ctl$totReps 200
 scenario$scenario1$mp$assess$spFleets c(1,2,3,4)
 scenario$scenario1$mp$assess$spLateStart FALSE
 #
@@ -16,8 +16,8 @@ scenario$scenario1$mp$assess$spLateStart FALSE
 #
 scenario$scenario2$ctl$scenarioName 'DERfit_McAsSsIdx'
 scenario$scenario2$opMod$pT 32
-scenario$scenario2$ctl$nGoodReps 30
-scenario$scenario2$ctl$totReps 10
+scenario$scenario2$ctl$nGoodReps 200
+scenario$scenario2$ctl$totReps 200
 scenario$scenario2$mp$assess$spFleets c(2,3,4)
 scenario$scenario2$mp$assess$spLateStart TRUE
 #
@@ -25,8 +25,8 @@ scenario$scenario2$mp$assess$spLateStart TRUE
 ##
 #scenario$scenario3$ctl$scenarioName 'DERfit_McSsIdx'
 #scenario$scenario3$opMod$pT 32
-#scenario$scenario3$ctl$nGoodReps 30
-#scenario$scenario3$ctl$totReps 10
+#scenario$scenario3$ctl$nGoodReps 200
+#scenario$scenario3$ctl$totReps 200
 #scenario$scenario3$mp$assess$spFleets c(2,4)
 #scenario$scenario3$mp$assess$spLateStart TRUE
 ##
@@ -34,8 +34,8 @@ scenario$scenario2$mp$assess$spLateStart TRUE
 #
 scenario$scenario3$ctl$scenarioName 'DERfit_AsSsIdx'
 scenario$scenario3$opMod$pT 32
-scenario$scenario3$ctl$nGoodReps 30
-scenario$scenario3$ctl$totReps 10
+scenario$scenario3$ctl$nGoodReps 200
+scenario$scenario3$ctl$totReps 200
 scenario$scenario3$mp$assess$spFleets c(3,4)
 scenario$scenario3$mp$assess$spLateStart TRUE
 #
@@ -43,8 +43,8 @@ scenario$scenario3$mp$assess$spLateStart TRUE
 ##
 #scenario$scenario5$ctl$scenarioName 'DERfit_HcMcIdx'
 #scenario$scenario5$opMod$pT 32
-#scenario$scenario5$ctl$nGoodReps 30
-#scenario$scenario5$ctl$totReps 10
+#scenario$scenario5$ctl$nGoodReps 200
+#scenario$scenario5$ctl$totReps 200
 #scenario$scenario5$mp$assess$spFleets c(1,2)
 #scenario$scenario5$mp$assess$spLateStart FALSE
 ##
@@ -61,7 +61,7 @@ mp$mp1$mp$hcr$scaleFrefMS TRUE
 mp$mp1$mp$data$spatialPooling FALSE
 mp$mp1$mp$data$speciesPooling FALSE
 mp$mp1$mp$assess$spSingleStock TRUE
-mp$mp1$mp$assess$spYrFirstIdx 20
+mp$mp1$mp$assess$spYrFirstIdx 1
 mp$mp1$mp$assess$spTVqFleets NULL
 mp$mp1$mp$assess$spShrinkqFleets NULL
 mp$mp1$mp$assess$spCondMLEqFleets NULL
@@ -103,7 +103,7 @@ mp$mp2$mp$assess$sptauq .4
 mp$mp2$mp$assess$spsigU .1
 mp$mp2$mp$assess$spFleetWeights c(1.0,1.0,1.0,1.0)
 mp$mp2$mp$assess$spShrinkqFleets c(3,4)
-mp$mp2$mp$assess$spYrFirstIdx 20
+mp$mp2$mp$assess$spYrFirstIdx 1
 mp$mp2$mp$assess$spsigmaProc .05
 mp$mp2$mp$assess$spsdUmsy .3
 mp$mp2$mp$assess$spCVMSY .2
@@ -139,7 +139,7 @@ mp$mp3$mp$assess$spSingleStock TRUE
 mp$mp3$mp$assess$spPosPenFactor 1e3
 mp$mp3$mp$assess$spFleetWeights c(1,1,1.0,1.0)
 mp$mp3$mp$assess$spShrinkqFleets NULL
-mp$mp3$mp$assess$spYrFirstIdx 20
+mp$mp3$mp$assess$spYrFirstIdx 1
 mp$mp3$mp$assess$spTVqFleets NULL
 mp$mp3$mp$assess$spCondMLEqFleets NULL
 mp$mp3$mp$assess$spCondMLEobsErrFleets NULL
@@ -181,7 +181,7 @@ mp$mp4$mp$assess$spSingleStock TRUE
 mp$mp4$mp$assess$spPosPenFactor 1e3
 mp$mp4$mp$assess$spFleetWeights c(1,1,1.0,1.0)
 mp$mp4$mp$assess$spShrinkqFleets NULL
-mp$mp4$mp$assess$spYrFirstIdx 20
+mp$mp4$mp$assess$spYrFirstIdx 1
 mp$mp4$mp$assess$spTVqFleets NULL
 mp$mp4$mp$assess$spCondMLEqFleets NULL
 mp$mp4$mp$assess$spCondMLEobsErrFleets NULL
@@ -223,7 +223,7 @@ mp$mp5$mp$assess$spSingleStock TRUE
 mp$mp5$mp$assess$spPosPenFactor 1e3
 mp$mp5$mp$assess$spFleetWeights c(1,1,1.0,1.0)
 mp$mp5$mp$assess$spShrinkqFleets NULL
-mp$mp5$mp$assess$spYrFirstIdx 20
+mp$mp5$mp$assess$spYrFirstIdx 1
 mp$mp5$mp$assess$spTVqFleets NULL
 mp$mp5$mp$assess$spCondMLEqFleets NULL
 mp$mp5$mp$assess$spCondMLEobsErrFleets NULL
