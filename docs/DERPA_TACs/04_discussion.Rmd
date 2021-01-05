@@ -1,18 +1,19 @@
 # Discussion
 
 In this paper, we demonstrated that hierarchical stock assessment
-models may improve management performance in a data-limited, multi-species 
-flatfish fishery. When available data quantity was moderate or low 
-(indicated here by time-series length), biomass and harvest rate estimates 
-from hierarchical stock assessment models resulted in catches that were 
-closer to an omniscient manager's optimal reference series compared to catch 
-limits derived from single-stock and data-pooling assessment methods. Under 
-high data quantity scenarios, data-pooling methods outperformed hierarchical 
-models, but the latter still outperformed single-stock assessment methods. 
-This suggests that hierarchical assessment methods could be a better 
-approach to making catch limit decisions than conventional single-species 
-methods under typical fisheries data quality conditions, such as short or 
-noisy time series of fishery-independent observations.
+models may improve management performance in a spatially-replicated 
+multi-species flatfish fishery. When available data quantity was moderate 
+or low (indicated here by time-series length), biomass and harvest rate 
+estimates from hierarchical stock assessment models resulted in catches 
+that were closer to an omniscient manager's optimal reference series compared 
+to catch limits derived from single-stock and data-pooling assessment methods. 
+Under high data quantity scenarios, data-pooling methods outperformed 
+hierarchical models, but the latter still outperformed single-stock 
+assessment methods. This suggests that hierarchical assessment methods 
+could be a better approach to making catch limit decisions than 
+conventional single-species methods under typical fisheries data quality 
+conditions, such as short or noisy time series of fishery-independent 
+observations or uninformative catch series.
 
 Our results arise from models that are necessarily a simplification
 of the real stock-management system. The harvest rules applied to DER complex 
@@ -47,20 +48,21 @@ meet target catch levels. For example, individual survival or growth may change
 in response to varied fishing pressure due to unmodeled linkages 
 [@collie2001biological]. Yet, including such ecological interactions would 
 imply a highly data rich scenario, which is counter to our focus on 
-data-limited, multi-species fisheries. Furthermore, accounting for potential 
-ecological interactions would require multiple OMs to test performance against 
-a range of plausible hypotheses since ecological uncertainties are much 
-broader in complexity and scope than technical interactions alone. Nevertheless, 
-future work combining technical interactions with minimum realistic models 
-for ecological interactions could help determine the extent to which assessment 
+surplus production models applied to multi-species fisheries. Furthermore, 
+accounting for potential ecological interactions would require multiple 
+OMs to test performance against a range of plausible hypotheses, since 
+ecological uncertainties are much broader in complexity and scope than 
+technical interactions alone. Nevertheless, future work combining technical 
+interactions with minimum realistic models for ecological interactions 
+could help determine the extent to which assessment 
 approaches affect these more complex multi-species fisheries outcomes 
 [@punt1995effects]. For example, while diet overlap between the three
 species is small off the coast of Oregon, the major Rock sole prey 
 was recently settled pleuronectiform fishes, which may include Dover and
 English sole young and therefore shift the complex equilibrium as fishing
 pressure is applied, reducing predation mortality for Dover and English
-sole and prey availability for Rock sole [@wakefield1984feeding; 
-@collie2001biological].
+sole young, and reducing prey availability for Rock sole 
+[@wakefield1984feeding; @collie2001biological].
 
 Our effort model applied to the DER complex was also a simplification of
 reality, where effort was limited only by the TACs in each area. 
@@ -94,10 +96,11 @@ growth, natural mortality, and stock-recruit steepness by using a
 delay-difference or age-structured model formulation [@deriso1980harvesting; 
 @schnute1985general; @fournier1982general], which may partially offset 
 the advantages of data-pooling and hierarchical assessment methods 
-exhibited above. However, in data-limited contexts where biological data 
-are of low sample size, there would be even greater reliance on 
-strong *a-priori* assumptions for additional parameters in models of 
-higher complexity, which we predict would lead to similar results.
+exhibited above. However, in the contexts where biological 
+data are missing or of low sample size, there would be even greater 
+reliance on strong *a-priori* assumptions for additional parameters 
+in models of higher complexity, which we predict would lead to 
+similar results.
 
 Despite the limitations above, our results indicate that even in fisheries 
 with long time series of catch and effort data, hierarchical multi-species 
@@ -126,12 +129,12 @@ Single-species and Hierarchical models, but the hierarchical shrinkage
 prior structure defined for productivity parameters led to target harvest 
 rate estimates that, while biased, combined with biased biomass estimates 
 to produce TACs that were closer to the omniscient manager's. Therefore, 
-while improved performance relative to single-stock models under lower 
+while improved performance relative to single-species models under lower 
 data quantity conditions is consistent with our previous study, where 
 statistical performance of hierarchical multi-stock assessments improved 
 with decreasing data quantity and quality [@johnson2018evaluating], the 
 improved management performance of Hierarchical methods was due to a
-fundamentally different mechanism. This difference can be explained
+fundamentally different mechanism. This difference may be explained
 by a different assessment model parameterisation, increased
 complex size, and a different and simplified experimental design.
 
@@ -233,8 +236,8 @@ harvest strategies and management procedures for data-limited, multi-species
 fisheries. Otherwise, management procedures based on single-species approaches 
 that rely heavily on prior knowledge (inducing bias) and ignore technical 
 interactions (making objectives impossible to achieve) may give a misleading 
-picture of the expected management performance in data-limited, multi-species 
-fisheries.
+picture of the expected management performance in multi-species, spatially
+heterogeneous fisheries.
 
 # Acknowledgements
 

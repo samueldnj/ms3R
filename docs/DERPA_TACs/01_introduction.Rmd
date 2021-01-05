@@ -34,19 +34,21 @@ Setting catch limits for individual species in any fishery usually
 requires an estimate of species abundance, which continues to be
 a central challenge of fisheries stock assessment 
 [@hilborn1992quantitative; @quinn2003ruminations; @maunder2015contemporary], 
-especially when species data are insufficient for stock assessment models. 
-Where such data limitations exist, data pooling is sometimes used to 
-extend stock assessments to complexes of similar, interacting stocks of 
-fish [@appeldoorn1996model]. A couple of examples include pooling data 
-for a single species across multiple spatial strata when finer scale data 
+especially when species data are of low statistical power,
+such as short noisy time series of observations, or uninformative
+catch series [@johnson2018evaluating]. Where such low power data 
+exists, data pooling is sometimes used to extend stock 
+assessments to complexes of similar, interacting stocks of 
+fish [@appeldoorn1996model]. Examples include pooling data for a single 
+species across multiple spatial strata when finer scale data 
 are unavailable or when fish are believed to move between areas at a 
 sufficiently high rate [@benson2015evaluating; @punt2018estimates], and 
 pooling data for multiple species of the same taxonomic group within an area 
 when data are insufficient for individual species or during development
 of new fisheries [@demartini2019hazards]. Data-pooled estimates of 
-productivity represent means across the species complex,implying that
+productivity represent means across the species complex, implying that
 resulting catch limits will tend to overfish unproductive species and 
-underfish productive ones [@gaichas2012assembly]. 
+underfish productive ones [@gaichas2012assembly].
 
 In multi-species and/or multi-area contexts, hierarchical stock assessment 
 models, which treat each area/species combination as a discrete yet 
@@ -69,7 +71,7 @@ will almost certainly increase assessment bias [@jiao2009hierarchical;
 
 Although hierarchical stock assessments are expected to produce better
 estimates of species biomass and productivity than single-species
-methods in data-limited contexts, it remains unclear whether 
+methods in contexts, it remains unclear whether 
 such improved statistical performance translates into better 
 management outcomes [@johnson2018evaluating]. Aside from some related 
 simulations determining the benefits of manually sharing information 

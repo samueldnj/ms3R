@@ -33,7 +33,7 @@ ramped up in each area from the end of the historical period, stabilising
 around area-specific $E_{MSY}$ after about 12 years (Figure 5, blue closed 
 circles). As is common when maximising catch over a finite time horizon, 
 a reduction in biomass and an increase in effort was observed towards the end 
-of the 80 year projection period, where penalties from lower biomasses and  
+of the 80 year projection period, where penalties from lower biomasses and 
 overfishing the stock relative to the multi-species optimal harvest 
 rate are lower than the catch increases; however, the omniscient manager 
 avoids a complete crash of the complex thanks to the penalty on avoiding the 
@@ -142,18 +142,19 @@ overall, with median catch loss close to zero for the 2028 - 2037 period
 
 ### Biomass risk
 
-There was little risk of overfishing under any data scenario and AM
-combination (Table 4). No AM pushed stocks into a critically overfished 
-state where $B_{s,p,t} < 0.4 B_{MSY,SS,s,p}$ under the High and Mod data 
-scenarios, while under the Low scenario a small probability of being 
-critically overfished was observed under the Species Pooling (max 1\%) and 
-Spatial Pooling (max 6\%) AMs. As expected, there were higher probabilities 
-of being overfished ($B_{s,p,t} < 0.8 B_{MSY,SS,s,p}$) under all scenarios,
+There was little risk of any stock being in an overfished state under 
+any data scenario and AM combination (Table 4). No AM pushed stocks into 
+a critically overfished state where $B_{s,p,t} < 0.4 B_{MSY,SS,s,p}$ under 
+the High and Mod data scenarios, while under the Low scenario a small 
+probability of being critically overfished was observed under the Species 
+Pooling (max 1\%) and Spatial Pooling (max 6\%) AMs. As expected, there 
+were higher probabilities of being overfished 
+($B_{s,p,t} < 0.8 B_{MSY,SS,s,p}$) under all scenarios,
 with the highest observed at 22\% under the Spatial Pooling AM and Low 
-scenario. The Single-species AM never overfished any stock under any data 
-scenario, as it always underestimated at least one species' biomass in each
-area, producing a choke constraint and high catch loss as discussed
-above.
+scenario. The Single-species AM rarely pushed any stock into an over-fished
+state under any data scenario, as biomass was usually underestimated for at 
+least one species in each area, producing a choke constraint and higher 
+catch loss as discussed above.
 
 ### Catch-Biomass trade-offs
 

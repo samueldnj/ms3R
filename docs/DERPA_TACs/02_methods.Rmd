@@ -2,10 +2,10 @@
 
 ## British Columbia's flatfish fishery
 
-British Columbia's multi-species complex of right-eyed flounders is 
-a technically interacting group of flatfishes managed over the
+The multi-species complex of right-eyed flounders in British Columbia
+(BC) is a technically interacting group of flatfishes managed over the
 BC coast (Figure 1). Although there are several right-eyed flounders in 
-these waters, we focus on the three species, indexed by $s$, Dover 
+BC waters, we focus on the three species, indexed by $s$, Dover 
 sole ($s = 1$), English sole ($s = 2$), and southern Rock sole 
 ($s = 3$), which we hereafter refer to as Rock sole. Taken together, 
 these species comprise a multi-stock complex (DER complex), managed as 
@@ -19,7 +19,11 @@ The second stock area - Queen Charlotte Sound (QCS, $p = 2$) - extends
 from the southern tip of Haida Gwaii to the northern tip of Vancouver 
 Island. Finally, the third area - West Coast of Vancouver Island (WCVI, 
 $p = 3$) - extends from the northern tip of Vancouver Island south to 
-Juan de Fuca Strait.
+Juan de Fuca Strait. These areas are aggregates of PFMA major statistical
+areas, and are primarily delineated by management breaks, although
+there are oceanographic features that may separate each of the stocks
+as defined here (e.g., gullies in the QCS area, and strong currents at 
+the northern tip of Vancouver Island).
 
 Each species/area combination had commercial trawl catch for the entire 
 history (1956 - 2016), two commercial catch rate series, and at least one 
@@ -63,11 +67,11 @@ fishing effort was allowed to increase until at least one
 species-/area-specific TAC was fully caught.
 
 The simulation projected population dynamics for each species in each
-area (total nine stocks) forward in time for $32$ years (two Dover sole 
-generations), with annual simulated assessments, harvest decisions, and 
-catch removed from the population from 2017 - 2048. The following four 
-steps summarise the closed-loop simulation procedure for each 
-projection year $t$:
+area (total nine stocks) forward in time for $32$ years, or two Dover sole 
+generations [longest generation time; @seber1997estimation], with annual 
+simulated assessments, harvest decisions, and catch removed from the 
+population from 2017 - 2048. The following four steps summarise the 
+closed-loop simulation procedure for each projection year $t$:
 
 1. Update stochastic population dynamics and
 generate new realized catch $C_{s,p,t}(E_{p,t})$ in each
@@ -78,9 +82,9 @@ area from effort (eq \ref{eq:FqE});
 spawning biomass for the upcoming year $\widehat{B}_{s,p,t+1}$ and
 an optimal harvest rate $\widehat{U}_{MSY,s,p}$ (eq \ref{eq:amBio});
 4. Scale the estimated optimal harvest rate to an estimated multi-species 
-optimal harvest rate, and use it with the biomass forecast generate a total 
-allowable catch $TAC_{s,p,t+1}$, allocated among species/areas if using 
-a pooled method (eqs \ref{eq:startHR} - \ref{eq:endHR});
+optimal harvest rate, and use it with the biomass forecast to generate a 
+total allowable catch $TAC_{s,p,t+1}$, allocated among species/areas if 
+using a pooled method (eqs \ref{eq:startHR} - \ref{eq:endHR});
 5. Allocate effort $E_{p,t+1}$ to fully realise at least
 one TAC from step 4 in each stock area (eq \ref{eq:maxE}).
 
@@ -181,8 +185,8 @@ limit on the total amount of fishing effort expended by license holders.
 
 At each time step $t$, simulated annual assessments were used to 
 estimate the expected future spawning biomass estimate $\widehat{B}_{t+1}$ 
-via a state-space Schaefer production model [@schaefer1957some; 
-@punt2002evaluation], modified to better approximate the 
+via a state-space Schaefer production model [@schaefer1954some; 
+@punt2003extending], modified to better approximate the 
 biomass-yield relationship underlying the age-/sex-structured 
 operating model [@pella1969generalized; @winker2018jabba].
 We extended the @johnson2018evaluating hierarchical state-space 
@@ -193,14 +197,13 @@ or data-pooled stocks, via the biomass equation
 B_{s,p,t+1} = \left[ B_{s,p,t} + U_{MSY,s,p} \cdot \frac{m_{s,p}}{m_{s,p}-1} 
                   \cdot B_{s,p,t} \cdot \left(1 - \frac{1}{m_{s,p}} \cdot \left( \frac{B_{s,p,t}}{B_{MSY,s,p}} \right)^{m_{s,p} - 1}\right) - C_{s,p,t}\right] e^{\zeta_{s,p,t}},
 \end{equation}
-where $MSY_{s,p}$ (optimal single-species yield) and
-$U_{MSY,s,p}$ (optimal single-species harvest rate) are the 
-leading biological model parameters, 
-$B_{MSY,s,p} = MSY_{s,p} / U_{MSY,s,p}$ is the biomass at which $MSY_{s,p}$ 
-is acheived under the optimal harvest rate, $m_{s,p}$ is the 
-Pella-Tomlinson parameter controlling skew in the biomass/yield 
-relationship (derived from operating model yield curves), 
-and $\zeta_{s,p,t}$ are annual process error deviations. 
+where the management parameters $MSY_{s,p}$ (optimal single-species 
+yield) and $U_{MSY,s,p}$ (optimal single-species harvest rate) are 
+the leading model parameters, $B_{MSY,s,p} = MSY_{s,p} / U_{MSY,s,p}$ 
+is the biomass at which $MSY_{s,p}$ is acheived under the optimal 
+harvest rate, $m_{s,p}$ is the Pella-Tomlinson parameter controlling 
+skew in the biomass/yield relationship (derived from operating model 
+yield curves), and $\zeta_{s,p,t}$ are annual process error deviations. 
 
 In total, we defined the following five potential assessment 
 model configurations (Figure 3):
@@ -351,7 +354,10 @@ U_{MSY,MS,s} &= \frac{\sum_p MSY_{MS,s,p}}{\sum_p B_{MSY,MS,s,p}}, \\
 U_{MSY,SS,s} &= \frac{\sum_p MSY_{SS,s,p}}{\sum_p B_{MSY,SS,s,p}},
 \end{align}
 where the notation is as defined above, with species pooled and 
-totally pooled rates defined analogously. Assessment model estimates of 
+totally pooled rates defined analogously. For setting TACs under pooled
+assessments, the harvest rate scalar from single- to multi-species $U_{MSY}$
+in eq 13 used the ratio of pooled $U_{MSY,MS}$ and $U_{MSY,SS}$ values 
+defined as in equations 15 and 16. Assessment model estimates of 
 pooled optimal harvest rates were then scaled by the ratio of the 
 pooled operating model optimal harvest rates.
 
@@ -543,7 +549,7 @@ stock assessment models. Therefore, we focused most sensitivity analyses
 on fixed prior standard deviations for AM leading  parameters $MSY$ 
 and $U_{MSY}$, and the hierarchical shrinkage prior SDs $\tau_q$ and
 $\sigma_{U_{MSY}}$ (Table 4). Sensitivity of performance to future 
-increases in fishery independent survey precision were tested, where 
+increases in fishery independent survey precision was tested, where 
 the Synoptic survey observation error variance was reduced with a 
 linear ramp-down over the first 5 years of the projection period to 
 simulate a gradual increase in survey effort.

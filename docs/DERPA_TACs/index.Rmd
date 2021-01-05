@@ -1,5 +1,5 @@
 ---  
-title: "Hierarchical surplus production stock assessment models improves management performance in multi-species, spatially-replicated, data-limited fisheries."
+title: "Hierarchical surplus production stock assessment models improve management performance in multi-species, spatially-replicated fisheries."
 author:
   - name: Samuel D. N. Johnson
     email: samuelj@sfu.ca
@@ -18,12 +18,12 @@ abstract: |
     Managers of multi-species fisheries aim to balance harvest of target 
     and non-target species that vary in abundance, productivity, and 
     degree of technical interactions. In this paper, we evaluated
-    management performance of five data-limited stock assessment 
-    methods used in such a multi-species context. Data-limited methods 
-    included single-species and hierarchical multi-species models at the
-    extremes, as well as methods that pooled data across species and spatial 
-    strata. Operating models included technical interactions between species
-    intended to produce choke effects often observed in output controlled 
+    management performance of five surplus production stock assessment 
+    methods used in such a multi-species context. Production models included 
+    single-species and hierarchical multi-species models, as well as methods 
+    that pooled data across species and spatial strata. Operating models 
+    included technical interactions between species intended to produce 
+    choke effects often observed in output controlled 
     multi-species fisheries. Average annual yield of each method under three
     data scenarios were compared to annual yield obtained by a simulated
     omniscient manager. Yield and conservation performance of hierarchical 

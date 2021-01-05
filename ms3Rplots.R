@@ -1737,7 +1737,7 @@ plotRetroBio_Scenario <- function(  groupFolder = "DERTACS_reruns_sep24",
 plotTulipEcon_sp <- function( obj = NULL,
                               simNum = 1,
                               nTrace = 3,
-                              groupFolder = "omni_econYield_constE_Nov6",
+                              groupFolder = "omni_econYield_splineE_long_Jan4",
                               price = TRUE,
                               revenue = TRUE )
 {
