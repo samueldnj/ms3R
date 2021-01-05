@@ -3734,6 +3734,11 @@ combBarrierPen <- function( x, eps,
   obj$om$q_spft[,,,histdx]        <- repObj$q_spft
   obj$om$q_spf                    <- repObj$q_spf
 
+  if( ! ctlList$mp$data$tvq )
+    for( t in histdx)
+      obj$om$q_spft[,,,t] <- obj$om$q_spf
+
+
   # Now commercial fishing mortality catchability
   for( s in 1:nS )
     obj$om$qF_spft[s,,,histdx]      <- repObj$F_spft[s,,,] / obj$om$E_pft[,,histdx]

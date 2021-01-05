@@ -65,8 +65,9 @@ mp$data$idxOn c(2,4)
 mp$data$obsInt_i c(1,2)
 mp$data$spatialPooling FALSE
 mp$data$speciesPooling FALSE
-mp$data$idxType c(2,2,1,1)
+mp$data$idxType c(1,1,1,1)
 mp$data$source "OM"
+mp$data$tvq FALSE
 mp$hcr$refPtType "MS"
 mp$hcr$Fsource "est"
 mp$hcr$type "conF"

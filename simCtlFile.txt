@@ -67,6 +67,7 @@ mp$data$spatialPooling FALSE
 mp$data$speciesPooling FALSE
 mp$data$idxType c(2,2,1,1)
 mp$data$source "OM"
+mp$data$tvq FALSE
 mp$hcr$refPtType "MS"
 mp$hcr$Fsource "inputFile"
 mp$hcr$type "conF"
