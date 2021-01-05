@@ -33,7 +33,7 @@ mp$assess$spCondMLEqFleets NULL
 mp$assess$spCondMLEobsErrFleets NULL
 mp$assess$spSolveInitBio FALSE
 mp$assess$spLateStart FALSE
-mp$assess$spYrFirstIdx 15
+mp$assess$spYrFirstIdx 1
 mp$assess$spsigmaProc .1
 mp$assess$sptauqdev .01
 mp$assess$spsdUmsy .4

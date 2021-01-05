@@ -8,7 +8,7 @@ parameter value
 scenario$scenario1$ctl$scenarioName 'DERfit_HcMcAsSsIdx'
 scenario$scenario1$opMod$pT 32
 scenario$scenario1$ctl$nGoodReps 30
-scenario$scenario1$ctl$totReps 30
+scenario$scenario1$ctl$totReps 10
 scenario$scenario1$mp$assess$spFleets c(1,2,3,4)
 scenario$scenario1$mp$assess$spLateStart FALSE
 #
@@ -17,7 +17,7 @@ scenario$scenario1$mp$assess$spLateStart FALSE
 scenario$scenario2$ctl$scenarioName 'DERfit_McAsSsIdx'
 scenario$scenario2$opMod$pT 32
 scenario$scenario2$ctl$nGoodReps 30
-scenario$scenario2$ctl$totReps 30
+scenario$scenario2$ctl$totReps 10
 scenario$scenario2$mp$assess$spFleets c(2,3,4)
 scenario$scenario2$mp$assess$spLateStart TRUE
 #
@@ -26,7 +26,7 @@ scenario$scenario2$mp$assess$spLateStart TRUE
 #scenario$scenario3$ctl$scenarioName 'DERfit_McSsIdx'
 #scenario$scenario3$opMod$pT 32
 #scenario$scenario3$ctl$nGoodReps 30
-#scenario$scenario3$ctl$totReps 30
+#scenario$scenario3$ctl$totReps 10
 #scenario$scenario3$mp$assess$spFleets c(2,4)
 #scenario$scenario3$mp$assess$spLateStart TRUE
 ##
@@ -35,7 +35,7 @@ scenario$scenario2$mp$assess$spLateStart TRUE
 scenario$scenario3$ctl$scenarioName 'DERfit_AsSsIdx'
 scenario$scenario3$opMod$pT 32
 scenario$scenario3$ctl$nGoodReps 30
-scenario$scenario3$ctl$totReps 30
+scenario$scenario3$ctl$totReps 10
 scenario$scenario3$mp$assess$spFleets c(3,4)
 scenario$scenario3$mp$assess$spLateStart TRUE
 #
@@ -44,7 +44,7 @@ scenario$scenario3$mp$assess$spLateStart TRUE
 #scenario$scenario5$ctl$scenarioName 'DERfit_HcMcIdx'
 #scenario$scenario5$opMod$pT 32
 #scenario$scenario5$ctl$nGoodReps 30
-#scenario$scenario5$ctl$totReps 30
+#scenario$scenario5$ctl$totReps 10
 #scenario$scenario5$mp$assess$spFleets c(1,2)
 #scenario$scenario5$mp$assess$spLateStart FALSE
 ##
@@ -70,7 +70,7 @@ mp$mp1$mp$assess$spFleetWeights c(1.0,1.0,1.0,1.0)
 mp$mp1$mp$assess$spsigmaProc .05
 mp$mp1$mp$assess$spsdUmsy .3
 mp$mp1$mp$assess$spCVMSY .2
-mp$mp1$mp$assess$spsdlnq_f c(.5,.5,.2,.2)
+mp$mp1$mp$assess$spsdlnq_f c(.2,.2,.2,.2)
 mp$mp1$mp$assess$sptauObs_spf .3
 mp$mp1$mp$assess$spInitPE 25
 mp$mp1$mp$assess$spPhzUmsy 3
@@ -107,7 +107,7 @@ mp$mp2$mp$assess$spYrFirstIdx 20
 mp$mp2$mp$assess$spsigmaProc .05
 mp$mp2$mp$assess$spsdUmsy .3
 mp$mp2$mp$assess$spCVMSY .2
-mp$mp2$mp$assess$spsdlnq_f c(.5,.5,.2,.2)
+mp$mp2$mp$assess$spsdlnq_f c(.2,.2,.2,.2)
 mp$mp2$mp$assess$sptauObs_spf .3
 mp$mp2$mp$assess$spInitPE 25
 mp$mp2$mp$assess$spPhzUmsy 3
@@ -149,7 +149,7 @@ mp$mp3$mp$assess$spsigmaProc .05
 mp$mp3$mp$assess$sptauqdev .1
 mp$mp3$mp$assess$spsdUmsy .3
 mp$mp3$mp$assess$spCVMSY .2
-mp$mp3$mp$assess$spsdlnq_f c(10,1,1,.5)
+mp$mp3$mp$assess$spsdlnq_f c(1,1,1,.5)
 mp$mp3$mp$assess$sptauObs_spf .2
 mp$mp3$mp$assess$spInitPE 25
 mp$mp3$mp$assess$spPhzUmsy 3
@@ -191,7 +191,7 @@ mp$mp4$mp$assess$spsigmaProc .05
 mp$mp4$mp$assess$sptauqdev .1
 mp$mp4$mp$assess$spsdUmsy .3
 mp$mp4$mp$assess$spCVMSY .2
-mp$mp4$mp$assess$spsdlnq_f c(10,1,1,.5)
+mp$mp4$mp$assess$spsdlnq_f c(1,1,1,.5)
 mp$mp4$mp$assess$sptauObs_spf .2
 mp$mp4$mp$assess$spInitPE 25
 mp$mp4$mp$assess$spPhzepslnUmsy_s -6
@@ -233,7 +233,7 @@ mp$mp5$mp$assess$spsigmaProc .05
 mp$mp5$mp$assess$sptauqdev .1
 mp$mp5$mp$assess$spsdUmsy .3
 mp$mp5$mp$assess$spCVMSY .2
-mp$mp5$mp$assess$spsdlnq_f c(10,1,1,.5)
+mp$mp5$mp$assess$spsdlnq_f c(1,1,1,.5)
 mp$mp5$mp$assess$sptauObs_spf .2
 mp$mp5$mp$assess$spInitPE 25
 mp$mp5$mp$assess$spPhzUmsy 3
