@@ -138,6 +138,27 @@ fundamentally different mechanism. This difference may be explained
 by a different assessment model parameterisation, increased
 complex size, and a different and simplified experimental design.
 
+The benefits of parameter shrinkage induced by the hierarchical 
+stock assessments relies on the similar life histories of DER complex 
+species. Similar life histories allow joint distributions of productivity 
+and catchability parameters to be more precise, drawing estimates
+close to the prior mean when data have low statistical power. Using
+hierarchical models to improve individual stock (replicate) parameter 
+estimates assumes that those parameters are exchangeable, that is, any 
+permutation of the replicates would leave the joint probability 
+distribution of those parameters unchanged [@thorson2015giants;
+@gelman2014bayesian]. If, for example, a species with a very different 
+life history was included, such as a slow growing and late-maturing 
+rockfish from the Sebastes genus, then that species would have much lower 
+productivity ($U_{MSY}$) than any of the DER complex flatfish, and would 
+likely have a much different survey trawl efficiency as well, depending 
+on its preferred habitat. Such disparate life histories and catchabilities 
+would require a decrease in the precision of the joint distribution of
+the hierarchically modeled parameters to preserve exchangeability, 
+and therefore may reduce or completely eliminate the benefits of 
+parameter shrinkage for any complex containing species with disparate
+life histories.
+
 Hierarchical and Single-species models were sensitive to changes in prior 
 precision for assessment model productivity parameters under the Low data 
 quantity scenario. The Hierarchical model went from lowest median catch 

@@ -52,7 +52,7 @@ csl-refs: true
 params:
   groupFolder: "DERTACs_reruns_Oct10"
   baseline: "sim_omni_totCat_200reps"
-  history: "fit_parBatfitAAL12"
+  history: "fit_baseMCMC"
 numbersections: true
 appendix: false
 output:

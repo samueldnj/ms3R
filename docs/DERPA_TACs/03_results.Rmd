@@ -158,8 +158,8 @@ catch loss as discussed above.
 
 ### Catch-Biomass trade-offs
 
-Distributions of catch and biomass relative to $MSY_{MS}$ and
-$B_{MSY,MS}$, respectively, were produced for the time
+Distributions of catch and biomass relative to $MSY_{SS}$ and
+$B_{MSY,SS}$, respectively, were produced for the time
 period $2028 \leq t \leq 2037$ for each assessment model and Scenario
 combination. The medians of those relative catch and biomass 
 distributions were visually compared to each other and to the 
@@ -208,6 +208,9 @@ set by all methods were depleting a standing stock and benefited from
 its surplus production. Under these conditions, an increase in catch 
 almost linearly caused a decrease in biomass as the compensatory 
 effect of density dependence was minimal. 
+
+Median catch and biomass for the omniscient manager were both higher than both
+the multi
 
 
 ## Sensitivity of results to prior standard deviations

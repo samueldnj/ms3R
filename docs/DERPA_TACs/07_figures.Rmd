@@ -331,23 +331,23 @@ knitr::include_graphics(figPath)
 \clearpage
 
 ```{r fig11-catchBioTradeoff, echo = FALSE, warning = FALSE, fig.cap = catchBioTradeoffCap, fig.width = 9, out.width = "9in"  }
-# plotBatchCatchBioTradeoff(  groupFolder = params$groupFolder,
-#                             prefix = "parBat",
-#                             period = 73:82,
-#                             lossList = NULL,
-#                             qProbs = c(.025,.5,.975),
-#                             refPts = "MSrefPts",
-#                             AMlabs = rev(c( "Single-stock" = "singleStock",
-#                                             "Hierarchical" = "hierMultiStock",
-#                                             "Species Pooling" = "speciesPooling",
-#                                             "Spatial Pooling" = "spatialPooling",
-#                                             "Total Pooling" = "totalAgg" )),
-#                             scenLabs = c( High  = "DERfit_HcMcAsSsIdx",
-#                                           Low = "DERfit_AsSsIdx" ),
-#                             minSampSize = 100  )
+plotBatchCatchBioTradeoff(  groupFolder = params$groupFolder,
+                            prefix = "parBat",
+                            period = 73:82,
+                            lossList = NULL,
+                            qProbs = c(.025,.5,.975),
+                            refPts = "SSrefPts",
+                            AMlabs = rev(c( "Single-species"  = "singleStock",
+                                            "Hierarchical"    = "hierMultiStock",
+                                            "Species Pooling" = "speciesPooling",
+                                            "Spatial Pooling" = "spatialPooling",
+                                            "Total Pooling" = "totalAgg" )),
+                            scenLabs = c( High  = "DERfit_HcMcAsSsIdx",
+                                          Low = "DERfit_AsSsIdx" ),
+                            minSampSize = 100  )
 
-figPath <- file.path("./data/fig11-catchBioTradeoff.pdf")
-knitr::include_graphics(figPath)
+# figPath <- file.path("./data/fig11-catchBioTradeoff.pdf")
+# knitr::include_graphics(figPath)
 ```
 
 \clearpage

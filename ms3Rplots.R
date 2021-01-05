@@ -1281,7 +1281,7 @@ plotBatchCatchBioTradeoff <- function(  groupFolder = "DERTACS_reruns_sep24",
                                         period = 73:82,
                                         lossList = NULL,
                                         qProbs = c(.025,.5,.975),
-                                        refPts = "MSrefPts",
+                                        refPts = "SSrefPts",
                                         dim1 = 1:3, # Species
                                         dim2 = 1:3, # Stock
                                         AMlabs = c( SS = "singleStock",
@@ -1505,13 +1505,13 @@ plotBatchCatchBioTradeoff <- function(  groupFolder = "DERTACS_reruns_sep24",
                   col = "grey30" )
         
 
-        points( x = BmsySS_sp[s,p]/Bmsy_sp[s,p], y = MSYSS_sp[s,p]/MSY_sp[s,p],
-                col = "darkgreen", pch = 21, cex = 1.5,
-                lwd = 1.5 )
-
         points( x = BmsyMS_sp[s,p]/Bmsy_sp[s,p], y = MSYMS_sp[s,p]/MSY_sp[s,p],
-                col = "steelblue", pch = 16, cex = 1.5,
+                col = "steelblue", pch = 16, cex = 2,
                 lwd = 1.5 )      
+
+        points( x = BmsySS_sp[s,p]/Bmsy_sp[s,p], y = MSYSS_sp[s,p]/MSY_sp[s,p],
+                col = "darkgreen", pch = 9, cex = 2,
+                lwd = 1.5 )
 
 
         for( scenIdx in 1:nScen )
