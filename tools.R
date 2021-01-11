@@ -286,8 +286,6 @@ updateGoodReps <- function( groupFolder = "DLSurveys7_.5tau",
 # a given groupFolder
 readBatchInfo <- function(batchDir = here("Outputs") )
 {
-
-  browser()
   
   batchFitDirs <- list.dirs(batchDir,recursive = FALSE)
   batchFitDirs <- batchFitDirs[grepl(x = batchFitDirs, pattern = "sim_")]

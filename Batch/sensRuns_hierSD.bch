@@ -82,8 +82,6 @@ mp$mp1$mp$hcr$scaleFrefMS TRUE
 mp$mp1$mp$data$spatialPooling FALSE
 mp$mp1$mp$data$speciesPooling FALSE
 mp$mp1$mp$assess$spSingleStock FALSE
-mp$mp1$mp$assess$sptauq .4
-mp$mp1$mp$assess$spsigU .1
 mp$mp1$mp$assess$spFleetWeights c(1.0,1.0,1.0,1.0)
 mp$mp1$mp$assess$spShrinkqFleets c(3,4)
 mp$mp1$mp$assess$spYrFirstIdx 1

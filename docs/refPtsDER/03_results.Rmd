@@ -22,7 +22,7 @@ to the time-varying catchability applied to that series. Finally, the
 Synoptic survey residuals were unbiased and did not exhibit any 
 significant trends.
 
-**Age fits*
+**Age fits**
 
 Biomass time series and single-species biological reference point estimates 
 indicate that all DER complex stocks were in a healthy state in 2016 (Table 3). 
@@ -93,6 +93,8 @@ blocking and shift in variation could signal model misspecification
 (e.g., some latent unmodeled process), they could also be caused by 
 the small sample size.
 
+[Show correlation in price devs here.]
+
 
 ## Steady-state reference points
 
@@ -154,20 +156,17 @@ the total effort. For any fixed level of coast-wide effort $E$, the
 allocation was always 
 $\langle E_1, E_2, E_3 \rangle = \langle p_1E, p_2E, p_3E \rangle$,
 which we still need time to interpret... (pull ps from the table), check
-if it matches Emsy proportions... Indicates that the allocation
+if it matches Emsy/Emey proportions... Indicates that the allocation
 is fixed based on the $\lambda_s$ and $q^{F}_{s,p}$ values, so perhaps 
 the system is overdetermined? [No movement or ecological interactions,
 which may break this]. This allocation was insensitive to random initial 
-valuesfor the optimisation
+values for the optimisation.
 
 
 ## Dynamic reference points
 
+ 
 
-
-### Multi-species maximum biological yield
-
-### Multi-species maximum economic yield
 
 #### Dead-weight loss
 

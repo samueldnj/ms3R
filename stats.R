@@ -528,7 +528,7 @@ pullModelStates <- function(  sim         = 1,
 # calcProbOverfished()
 # Calculates mean and range of probability of being
 # overfished wrt single species reference points
-calcProbOverfished <- function( groupFolder="DERTACS_reruns_sep24",
+calcProbOverfished <- function( groupFolder="DERTACS_reruns_Oct10",
                                 prefix = "parBat" )
 {
   # First get info files so we can load the right 
@@ -549,7 +549,10 @@ calcProbOverfished <- function( groupFolder="DERTACS_reruns_sep24",
                       maxProbBtLt.4Bmsy = NA,
                       pBtLt.8Bmsy = NA,
                       minProbBtLt.8Bmsy = NA,
-                      maxProbBtLt.8Bmsy = NA )
+                      maxProbBtLt.8Bmsy = NA,
+                      pFtGtFmsy = NA,
+                      minProbFtGtFmsy = NA,
+                      maxProbFtGtFmsy = NA )
 
   # Break up MP names into factor levels
   # MP labels are AM_Fsrce_eqbm
@@ -587,6 +590,9 @@ calcProbOverfished <- function( groupFolder="DERTACS_reruns_sep24",
     info.df$pBtLt.8Bmsy[k]        <- round(mean(1 - perfTables[[k]]$PBtGt.8Bmsy ),2)
     info.df$minProbBtLt.8Bmsy[k]  <- round(min(1 - perfTables[[k]]$PBtGt.8Bmsy ),2)
     info.df$maxProbBtLt.8Bmsy[k]  <- round(max(1 - perfTables[[k]]$PBtGt.8Bmsy ),2)
+    info.df$pFtGtFmsy[k]          <- round(mean(perfTables[[k]]$pFtGtFmsy ),2)
+    info.df$minProbFtGtFmsy[k]    <- round(min(perfTables[[k]]$pFtGtFmsy ),2)
+    info.df$maxProbFtGtFmsy[k]    <- round(max(perfTables[[k]]$pFtGtFmsy ),2)
   }
 
   probOverfishedTable <- info.df %>%
@@ -597,7 +603,10 @@ calcProbOverfished <- function( groupFolder="DERTACS_reruns_sep24",
                                           maxProbBtLt.4Bmsy, 
                                           pBtLt.8Bmsy,
                                           minProbBtLt.8Bmsy,
-                                          maxProbBtLt.8Bmsy )
+                                          maxProbBtLt.8Bmsy,
+                                          pFtGtFmsy,
+                                          minProbFtGtFmsy,
+                                          maxProbFtGtFmsy )
 
 
   probOverfishedTable
@@ -1559,7 +1568,7 @@ calcLossRank <- function( groupFolder = "DERTACS_reruns_sep24",
 # to abs/rel biomass/catch loss WITHIN A REPLICATE. Outputs
 # a table with scenarios as rows and
 # AMs as columns
-calcPairedLossRank <- function( groupFolder = "DERTACS_reruns_sep24",
+calcPairedLossRank <- function( groupFolder = "DERTACS_reruns_Jan5",
                                 lossVar = "C_ispt",
                                 lossType = "abs",
                                 prefix = "parBat",
@@ -1731,7 +1740,7 @@ calcRankVec <- function( x )
 # on relative and absolute scale
 calcLoss <- function( sim         = 2,
                       baseline    = "sim_omni_totCat_200reps",
-                      groupFolder = "DERTACS_reruns_sep24",
+                      groupFolder = "DERTACS_reruns_Jan5",
                       lossVars    = c("C_ispt","SB_ispt"),
                       output      = TRUE )
 {

@@ -91,7 +91,7 @@ in the system [@de-la-Mare1998Tidier-fisherie].
 
 In this paper, we investigated whether hierarchical stock assessment models 
 improved management performance in a simulated multi-species, spatially
-replicated, data-limited fishery. The simulated fishery was modeled on a 
+replicated fishery. The simulated fishery was modeled on a 
 spatially heterogeneous complex of Dover sole (*Microstomus pacificus*), 
 English sole (*Parophrys vetulus*), and southern Rock sole 
 (*Lepidopsetta bilineata*) off the coast of British Columbia, Canada, 

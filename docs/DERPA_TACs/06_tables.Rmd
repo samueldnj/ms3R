@@ -249,8 +249,6 @@ kable(  omniPerfTab, escape = FALSE,
 
 ```
 
-\elandscape
-
 \clearpage
 
 
@@ -280,7 +278,8 @@ probOverfishingTable <- calcProbOverfished(  params$groupFolder,
 summRank.df <- summRank.df %>% 
                 left_join( probOverfishingTable ) %>%
                 mutate( probCrit = paste( sprintf("%.2f",pBtLt.4Bmsy), " (", sprintf("%.2f",minProbBtLt.4Bmsy), ", ", sprintf("%.2f",maxProbBtLt.4Bmsy),  ")", sep = ""),
-                        probCaut = paste( sprintf("%.2f",pBtLt.8Bmsy), " (", sprintf("%.2f",minProbBtLt.8Bmsy), ", ", sprintf("%.2f",maxProbBtLt.8Bmsy), ")", sep = "") )
+                        probCaut = paste( sprintf("%.2f",pBtLt.8Bmsy), " (", sprintf("%.2f",minProbBtLt.8Bmsy), ", ", sprintf("%.2f",maxProbBtLt.8Bmsy), ")", sep = ""),
+                        probHiF  = paste( sprintf("%.2f",pFtGtFmsy), " (", sprintf("%.2f",minProbFtGtFmsy), ", ", sprintf("%.2f",maxProbFtGtFmsy), ")", sep = "") )
 
 fullRank.df <- lossRankTables$rank.df %>%
                 mutate( AM = str_replace_all(AM, AMlabs))
@@ -296,7 +295,7 @@ lossRankTable <- summRank.df %>%
                   filter( scenario %in% c("High","Mod","Low")) %>%
                   arrange(match(scenario, c("High", "Mod", "Low")),
                             avgRank) %>%
-                  dplyr::select( scenario, AM, modalRank, avgRank, probCrit, probCaut ) 
+                  dplyr::select( scenario, AM, modalRank, avgRank, probCrit, probCaut, probHiF ) 
 
 rankList <- vector(mode = "list", length = nrow(lossRankTable))
 for(k in 1:nrow(lossRankTable))
@@ -312,7 +311,8 @@ for(k in 1:nrow(lossRankTable))
 colnames(lossRankTable) <- c( "Scenario","AM",
                               "Modal Rank", "Average Rank", 
                               "$P(B_t < 0.4 B_{MSY,SS})$",
-                              "$P(B_t < 0.8 B_{MSY,SS})$")
+                              "$P(B_t < 0.8 B_{MSY,SS})$",
+                              "$P(F_t > F_{MSY,SS})$")
 
 
 kable(  lossRankTable[,-1], escape = FALSE, 
@@ -322,10 +322,12 @@ kable(  lossRankTable[,-1], escape = FALSE,
                 bootstrap_options = c("striped", "hover")) %>%
   pack_rows( "High",1,5 ) %>%
   pack_rows( "Mod",6,10 ) %>%
-  pack_rows( "Poor",11,15 ) %>%
+  pack_rows( "Low",11,15 ) %>%
   add_header_above( c(" " = 1,
                       "Catch Loss Rankings" = 2,
-                      "Biomass risk" = 2 ) )
+                      "Biomass" = 2,
+                      "Fishing Mortality" = 1 ) )
 ```
 
+\elandscape
 \clearpage

@@ -15,6 +15,48 @@ conventional single-species methods under typical fisheries data quality
 conditions, such as short or noisy time series of fishery-independent 
 observations or uninformative catch series.
 
+Ranking performance according to catch loss highlighted a fundamental 
+trade-off between multi-species and single-species fishery objectives. 
+We measured management performance via comparison to an omniscient 
+manager simulation with the objective of maximising complex yield. 
+This implies that the simulated DER complex management objectives were
+targeting the multi-species optima derived from technical interactions. 
+While targeting multi-species optima does increase complex yield overall, 
+there are cases where the fishing mortality rates exceed single-species
+$F_{MSY}$, which is defined as overfishing in a single-species context. 
+An obvious question is, would the rankings continue to hold if catch 
+limits targeted individual stocks' single-species $U_{MSY}$? Further, 
+would the rankings change if ranking of AM performance was based on the 
+risk of overfishing, or being in an overfished state, relative to 
+single-species reference points? Targeting single-species harvest 
+rates would likely lead to higher instances of choke effects, given the 
+ignorance of technical interactions, but would probably not affect the 
+rankings since the estimated optimal harvest for hierarchical models 
+had compensatory biases in biomass and harvest rates, which would hold
+for the single-species harvest rates as well. On the other hand, 
+single-species and pooled models lacked the compensatory biases
+in biomass and harvest rates, and pooled models had issues achieving
+target TACs stemming from the catch allocation model. If ranking by
+the probability of overfishing or being in an overfished state, our
+results show that under the High and Mod scenarios the Hierarchical
+model would still tie for first, but would fall to third under the
+Low scenario, with the single-species model taking first place. However, 
+even at the highest probability of exceeding single-species $F_{MSY}$ 
+under the hierarchical AMs, there was no chance of pushing stocks into
+a critically overfished state, and at most 6\% chance of pushing
+any DER complex stocks into an overfished state of less than 80\%
+of $B_{MSY,SS}$, which would be acceptable management performance
+in most fisheries. Furthermore, choosing single-species AMs would forgo
+a large amount of catch, which may align with the objectives of
+some stakeholders, but probably not harvesters themselves. This highlights 
+that measuring multi-species fisheries performance according to 
+single-species objectives (i.e., reference points) may be overly 
+conservative, and that while some overfishing may be required to 
+achieve multi-species yield objectives, that overfishing can be 
+sustainable. While it is possible to *a priori* define commercial 
+catchabilities so that multi-species optima would produce critically 
+overfished stocks, that was not the case for the simulated DER complex. 
+
 Our results arise from models that are necessarily a simplification
 of the real stock-management system. The harvest rules applied to DER complex 
 species were relatively simple and may require more detail or complexity 
@@ -215,6 +257,8 @@ creating a more complex relationship between effort and complex
 yield; but, the existence of a choke species would still indicate 
 a mismatch between an individual species' TAC and the optimal exploitation 
 rate for meeting the management objectives for the multi-species complex.
+
+
 
 
 <!-- A logical next step for practical application of hierarchical AMs in 

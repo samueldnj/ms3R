@@ -1,5 +1,6 @@
 # Methods
 
+
 ## British Columbia's flatfish fishery
 
 The multi-species complex of right-eyed flounders in British Columbia
@@ -519,7 +520,7 @@ stocks within an OM/AM combination, from which the modal rank and average
 rank were calculated.
 
 
-#### Biomass risk
+#### Biomass and overfishing risk
 
 Biomass risk was measured by the probability of stock biomass being below
 both 80\% and 40\% of single-species operating model $B_{MSY,SS,s,p}$. The 
@@ -536,7 +537,9 @@ P(B_{s,p,t} < \lambda B_{MSY,SS,s,p} ) = \frac{1}{3200} \sum_{i = 1}^{100}\sum_{
 where $i,s,p,t$ are replicates meeting the 95\% convergence criteria, 
 species, stocks and time steps, respectively, $\lambda = 0.4,0.8$, 
 and $\mathbb{1}$ is the indicator function that takes value $1$ when 
-its argument is true, and zero otherwise.
+its argument is true, and zero otherwise. Overfishing risk was similarly 
+calculated as the probability of fishing mortality exceeding single-species 
+operating model $F_{MSY,SS,s,p}$.
 
 
 ## Sensitivity analyses

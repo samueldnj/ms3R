@@ -2,7 +2,7 @@
 
 ## Study system and data
 
-British Columbia's multi-species complex of right-eyed flounders is 
+BC's multi-species complex of right-eyed flounders is 
 a technically interacting, spatially heterogeneous group of flatfishes 
 managed across the whole BC coast. Although there are several right-eyed 
 flounders in BC waters, we focus here on Dover sole, English sole, and 
@@ -364,10 +364,7 @@ compared to the steady-state solutions found via the yield curve analysis
 outlined above. Median values were taken over the time period 2027 - 2036, 
 which allowed enough time for the effort to stabilise after any initial 
 transient period, but also avoided end effects caused by a finite projection
-time horizon. Loss of consumer and 
-producer surplus was also estimated for each effort and correlation scenario by comparing the economic yield 
-replicate-by-replicate under the two objective functions over the
-same period [@pascoe2018offsetting].
+time horizon. 
 
 ## Risk of including/ignoring correlation
 
@@ -425,7 +422,7 @@ the 5th percentile of economic yield in an area and coastwide. Using a
 percentile as a risk metric is known as *Value-at-risk-p* (VAR-p), and is
 commonly used in economic analyses [REF]. VAR-p is a non-parametric 
 definition of risk, which is important here given that the
-outcomes of our simulations are non-linear combinations of parameters
+outcomes of our simulations are non-linear combinations of
 multiple randomly drawn components.
 
 

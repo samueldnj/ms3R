@@ -50,9 +50,9 @@ fontsize: 12pt
 linenumbers: true
 csl-refs: true
 params:
-  groupFolder: "DERTACs_reruns_Oct10"
+  groupFolder: "DERTACs_Reruns_Jan5"
   baseline: "sim_omni_totCat_200reps"
-  history: "fit_baseMCMC"
+  history: "fit_parBatfitAAL12"
 numbersections: true
 appendix: false
 output:

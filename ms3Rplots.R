@@ -1276,7 +1276,7 @@ plotDynMSY_sp <- function( groupFolder = "omni_econYield_constE_Nov6",
 # plotBatchCatchBioTradeoff()
 # Plots of catch/biomass tradeoffs for a given
 # batch
-plotBatchCatchBioTradeoff <- function(  groupFolder = "DERTACS_reruns_sep24",
+plotBatchCatchBioTradeoff <- function(  groupFolder = "DERTACS_reruns_Oct10",
                                         prefix = "parBat",
                                         period = 73:82,
                                         lossList = NULL,
@@ -1333,7 +1333,8 @@ plotBatchCatchBioTradeoff <- function(  groupFolder = "DERTACS_reruns_sep24",
   nSims <- length(lossList)
 
   # Now get reference points, any of the blobs will do
-  .loadSim( mpTable$simLabel[1], groupFolder )
+  .loadSim( mpTable$simLabel[1], groupFolder = groupFolder )
+
   rp <- blob$rp[[1]]
   BmsySS_sp <- rp$FmsyRefPts$BeqFmsy_sp
   MSYSS_sp  <- rp$FmsyRefPts$YeqFmsy_sp
@@ -2604,14 +2605,11 @@ plotSensBatchSummary_SAisp <- function( groupFolder = "sensRuns_BmsyCV",
                                                     SpePool = "speciesPooling",
                                                     SpaPool = "spatialPooling",
                                                     TA = "totalAgg" ),
-                                        scenLabs = c( Comm1_BmsyCV0.1  = "Comm1_BmsyCV0.1",
-                                                      Surv_BmsyCV0.1  = "Surv_BmsyCV0.1",
-                                                      Comm1_BmsyCV0.5  = "Comm1_BmsyCV0.5",
-                                                      Surv_BmsyCV0.5  = "Surv_BmsyCV0.5",
-                                                      Comm1_BmsyCV1.0  = "Comm1_BmsyCV1.0",
-                                                      Surv_BmsyCV1.0  = "Surv_BmsyCV1.0" ),
+                                        scenLabs = c( High_hierSD0.1  = "High_shrinkSD0.1",
+                                                      High_hierSD0.2  = "High_shrinkSD0.2",
+                                                      High_hierSD0.5  = "High_shrinkSD0.5"),
                                         clearBadReps = FALSE,
-                                        scenSplitString = "BmsyCV",
+                                        scenSplitString = "shrinkSD",
                                         xlab = "Bmsy CV",
                                         noPar = FALSE,
                                         plotPts = FALSE,
@@ -2634,6 +2632,9 @@ plotSensBatchSummary_SAisp <- function( groupFolder = "sensRuns_BmsyCV",
   if(is.null(lossList))
     lossList      <- cumLossList$lossList
   info.df <- cumLossList$info.df
+
+
+  browser()
 
 
   # Calc median cumulative loss
@@ -3697,31 +3698,33 @@ plotBatchLossDists_Scenario <- function(  groupFolder = "DERTACS_reruns_sep24",
 
 plotSensRuns_pub <- function()
 {
-  scenLabs <- list( MSYCVrich  = c( Rich_MSYCV0.1  = "Rich_MSYCV0.1",
-                                    Rich_MSYCV0.5  = "Rich_MSYCV0.5",
-                                    Rich_MSYCV1.0  = "Rich_MSYCV1.0"),
-                    MSYCVpoor  = c( Poor_MSYCV0.1  = "Poor_MSYCV0.1",
-                                    Poor_MSYCV0.5  = "Poor_MSYCV0.5",
-                                    Poor_MSYCV1.0  = "Poor_MSYCV1.0" ),
-                    UmsyCVrich = c( Rich_UmsyCV0.1  = "Rich_UmsyCV0.1",
-                                    Rich_UmsyCV0.5  = "Rich_UmsyCV0.5",
-                                    Rich_UmsyCV1.0  = "Rich_UmsyCV1.0"),
-                    UmsyCVpoor = c( Poor_UmsyCV0.1  = "Poor_UmsyCV0.1",
-                                    Poor_UmsyCV0.5  = "Poor_UmsyCV0.5",
-                                    Poor_UmsyCV1.0  = "Poor_UmsyCV1.0" ),
-                    hierSDrich = c( Rich_hierSD0.1  = "Rich_shrinkSD0.1",
-                                    Rich_hierSD0.2  = "Rich_shrinkSD0.2",
-                                    Rich_hierSD0.5  = "Rich_shrinkSD0.5"),
-                    hierSDpoor = c( Poor_hierSD0.1  = "Poor_shrinkSD0.1",
-                                    Poor_hierSD0.2  = "Poor_shrinkSD0.2",
-                                    Poor_hierSD0.5  = "Poor_shrinkSD0.5" ),
-                    obsErrrich = c( Rich_obsErr0.1  = "Rich_obsErr0.1",
-                                    Rich_obsErr0.5  = "Rich_obsErr0.5",
-                                    Rich_obsErr1.0  = "Rich_obsErr1.0"),
-                    obsErrpoor = c( Poor_obsErr0.1  = "Poor_obsErr0.1",
-                                    Poor_obsErr0.5  = "Poor_obsErr0.5",
-                                    Poor_obsErr1.0  = "Poor_obsErr1.0" )
+  scenLabs <- list( MSYCVhigh  = c( High_MSYCV0.1  = "High_MSYCV0.1",
+                                    High_MSYCV0.5  = "High_MSYCV0.5",
+                                    High_MSYCV1.0  = "High_MSYCV1.0"),
+                    MSYCVlow  = c( Low_MSYCV0.1  = "Low_MSYCV0.1",
+                                    Low_MSYCV0.5  = "Low_MSYCV0.5",
+                                    Low_MSYCV1.0  = "Low_MSYCV1.0" ),
+                    UmsyCVhigh = c( High_UmsyCV0.1  = "High_UmsyCV0.1",
+                                    High_UmsyCV0.5  = "High_UmsyCV0.5",
+                                    High_UmsyCV1.0  = "High_UmsyCV1.0"),
+                    UmsyCVlow = c( Low_UmsyCV0.1  = "Low_UmsyCV0.1",
+                                    Low_UmsyCV0.5  = "Low_UmsyCV0.5",
+                                    Low_UmsyCV1.0  = "Low_UmsyCV1.0" ),
+                    hierSDhigh = c( High_hierSD0.1  = "High_shrinkSD0.1",
+                                    High_hierSD0.2  = "High_shrinkSD0.2",
+                                    High_hierSD0.5  = "High_shrinkSD0.5"),
+                    hierSDlow = c( Low_hierSD0.1  = "Low_shrinkSD0.1",
+                                    Low_hierSD0.2  = "Low_shrinkSD0.2",
+                                    Low_hierSD0.5  = "Low_shrinkSD0.5" ),
+                    obsErrhigh = c( High_obsErr0.1  = "High_obsErr0.1",
+                                    High_obsErr0.5  = "High_obsErr0.5",
+                                    High_obsErr1.0  = "High_obsErr1.0"),
+                    obsErrlow = c( Low_obsErr0.1  = "Low_obsErr0.1",
+                                    Low_obsErr0.5  = "Low_obsErr0.5",
+                                    Low_obsErr1.0  = "Low_obsErr1.0" )
                      )
+
+  browser()
 
   scenSplitString <- c( MSY     = "MSYCV",
                         Umsy    = "UmsyCV",
@@ -3733,7 +3736,7 @@ plotSensRuns_pub <- function()
               hierSD = expression(paste( tau[q], " and ", sigma[U[MSY]] ) ),
               obsErr = expression(tau) )
 
-  groupFolders <- c("sens_MSYCV", "sens_UmsySD","sens_hierSD", "sens_projObsErr")
+  groupFolders <- c("sensRuns_MSYCV_Jan5", "sensRuns_UmsySD_Jan5","sensRuns_hierSD_Jan5", "sensRuns_projObsErr_Jan5")
 
 
   par( mfcol = c(2,4), oma = c(6,3,2,1), mar = c(.1,2,.1,1) )
@@ -3761,7 +3764,7 @@ plotSensRuns_pub <- function()
                              )
 
     if( sensIdx == 4)
-      rmtext( txt = "Rich", font = 2, line = .05, outer = TRUE, cex = 1.5 )
+      rmtext( txt = "High", font = 2, line = .05, outer = TRUE, cex = 1.5 )
 
     plotSensBatchSummary_SAisp( groupFolder = groupFolders[sensIdx],
                                 prefix = "parBat",
@@ -3784,7 +3787,7 @@ plotSensRuns_pub <- function()
                              )
 
     if( sensIdx == 4)
-      rmtext( txt = "Poor", font = 2, line = .05, outer = TRUE, cex = 1.5 )
+      rmtext( txt = "Low", font = 2, line = .05, outer = TRUE, cex = 1.5 )
     
 
     # mtext( side = 1, text = xlab[sensIdx], font = 2, line = 3)
@@ -3798,7 +3801,7 @@ plotSensRuns_pub <- function()
     legend( x       = "bottom",
             horiz   = TRUE,
             bty     = "n",
-            legend  = rev(c("Single-stock","Hierarchical","Species Pooling","Spatial Pooling","Total Pooling")),
+            legend  = rev(c("Single-species","Hierarchical","Species Pooling","Spatial Pooling","Total Pooling")),
             lty     = 1:5,
             pch     = 21:25,
             bg      = NA,

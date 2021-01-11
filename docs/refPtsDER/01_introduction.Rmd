@@ -12,11 +12,11 @@ may instead have objectives based on single-species biological reference
 points, such as maximum sustainable yield (MSY) or a proxy 
 [@collie2001biological], or an extension of biological reference points such 
 as maximum economic yield (MEY) [@hoshino2018estimating]. Economic yield 
-(as opposed to absolute catch) is one part of the 'triple bottom line' 
-of fisheries management (the other two being biological conservation and 
-social outcomes), and are increasinly considered as a decision axis in 
-fisheries management frameworks [@benson2018options; 
-@stephenson2017practical].
+(also know as resource rent, as opposed to absolute catch) is one part of 
+the 'triple bottom line' of fisheries management (the other two being 
+biological conservation and social outcomes), and are increasinly 
+considered as a decision axis in fisheries management 
+frameworks [@benson2018options; @stephenson2017practical].
 
 Management objectives for multi-species fisheries depend on the type of 
 interactions in the exploited system, and therefore the multi-species 
@@ -106,15 +106,16 @@ optima may require simulation if the system is especially complex
 [@punt2011calculating]. 
 
 In some jurisdictions, management objectives include maximising the 
-economic yield of multi-species fisheries, which requires additional
-bio-economic modelling for the derivation of net economic benefit 
-[@kasperski2015optimal; @hoshino2018estimating]. Multi-species reference 
-points with technical interactions are commonly used as the basis for 
-bio-economic modelling, and ecological interactions are sometimes 
-ignored. Costs of fishing and landed values are readily added 
-to multi-species effort-yield relationships with technical interactions as 
-outlined above, and evaluation of net benefits are straigtforward if cost 
-functions are simple (e.g., linear in effort). More sophistication is 
+economic yield from multi-species fisheries, which requires additional
+bio-economic modelling for the derivation of net economic benefit,
+or resource rent [@kasperski2015optimal; @hoshino2018estimating]. 
+Multi-species reference points with technical interactions are 
+commonly used as the basis for bio-economic modelling, and 
+ecological interactions are sometimes ignored. Costs of fishing and 
+landed values are readily added to multi-species effort-yield 
+relationships with technical interactions as outlined above, and evaluation 
+of net benefits are straigtforward if cost functions are simple (e.g., 
+linear in fishing effort). More sophistication is 
 required as the complexity of the economic model increases, e.g., including 
 behaviour at the level of individual vessels such as entry/exit from the 
 fishery, targeting of individual species, or opportunity costs 
@@ -132,7 +133,7 @@ fishing effort are defined at a large spatio-temporal scale, then different
 relative abundances may imply different relative catchabilities, and 
 therefore different multispecies effort-yield relationships. Spatially 
 heterogeneous costs of fishing then combine with spatially heterogeneous 
-effort-yield relationships to affect net economic benefits in each patch. 
+effort-yield relationships to affect resource rents in each patch. 
 Despite the spatial differences between the optimal values, there are several 
 similarities to the non-spatial case. For example, maximum economic yield 
 calculations within each patch are similar to the single-area calculations 
@@ -196,7 +197,7 @@ price deviations, either positive when demand changes significantly (e.g.,
 reductions in demand due to environmental disasters or restrictions
 on restaurant trade), or negative when species are substitutable.
 While there have been several studies on the effects of environmental
-covariates on recruitment [@haltuch2019unraveling] and autocorrelation
+covariates on recruitment [@haltuch2019unraveling], and autocorrelation
 in recruitment success [@maunder2019modeling], there are few studies that 
 aim to understand the effect of spatial correlation in recruitment for 
 multiple target species on biological reference points, fishery objectives, 
@@ -232,29 +233,30 @@ achieve certain effort levels given limits on capital. Based on this,
 MEY estimates can be characterised as upper bounds on the true value 
 [@punt2020multispecies]. -->
 
-In this paper, we compared the economic and biological risk of fishing 
-strategies that either accounted for or ignored correlation in market 
-prices and recruitment deviations using closed loop simulation. The 
-simulated fishery modeled three species of right-eyed flounders 
-(*Pleuronectidae Spp.*) - Dover sole (*Microstomus pacificus*), English 
-sole (*Parophrys vetulus*), and (Southern) Rock sole (*Lepidopsetta 
-bilineata*) - fished in three heterogeneous areas by a common trawl 
-fishery off the coast of British Columbia, Canada. Steady-state 
+In this paper, we asked whether there was increased risk of lost
+resource rent or lost catch yield if fishery managers ignored correlation 
+in market prices and recruitment deviations when setting catch limits
+in multi-species fisheries. We used closed loop simulation to simulate
+a three species complex of right-eyed flounders (*Pleuronectidae Spp.*) - 
+Dover sole (*Microstomus pacificus*), English sole (*Parophrys vetulus*), 
+and (Southern) Rock sole (*Lepidopsetta bilineata*) - fished in three 
+spatially heterogeneous areas by a common trawl 
+fishery off the coast of British Columbia (BC), Canada. Steady-state 
 multi-species maximum yield reference points incorporated technical 
 interactions of the three species to relate species- and area-specific 
 yield curves to a common trawl effort [@pikitch1987use],
 and multi-species economic yield calculations incorporated spatially 
-heterogeneous costs of fishing and quantity dependent landed value when 
-deriving net economic benefits from those steady state solutions. 
+heterogeneous costs of fishing and downward sloping demand curves when 
+deriving resource rent from those steady state solutions. 
 Incorporating correlation in reference point calculations required solving 
 for dynamic optima via stochastic optimisation of fishing effort in 
 eight projection scenarios, where the objective function either maximised 
-yield or discounted profit, and simulated dynamics included correlation
+yield or discounted rent, and simulated dynamics included correlation
 in recruitment process deviations and/or market price fluctuations. Risk 
-was measured by comparing distributional properties of biomass and profit 
-outcomes when optimal harvest rates were used to set TACs in closed loop 
-simulation under correlation scenarios in the presence or absence of 
-uncertainty about stock status.
+was measured by comparing distributional properties of biomass, catch, 
+and rent outcomes when optimal harvest rates were used to set TACs 
+in closed loop simulation under correlation scenarios in the presence 
+or absence of uncertainty about stock status.
 
 Steady state multi-species MSY and MEY reference points were estimated by 
 fitting a hierarchical, multi-species, age-structured stock assessment 

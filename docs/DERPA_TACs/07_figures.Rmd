@@ -234,95 +234,86 @@ knitr::include_graphics(figPath)
 
 
 ```{r fig6-lossRankDists, echo = FALSE, warning = FALSE, fig.cap = lossRankCap, fig.width = 9, out.width = "9in"  }
-# plotRankDists(  groupFolder = params$groupFolder,
-#                 prefix = "parBat",
-#                 lossType = "abs",
-#                 var = "C_ispt",
-#                 period = 73:82,
-#                 lossList = NULL,
-#                 dim1 = 1:3,   # species (D,E,R, DP)
-#                 dim2 = 1:3,   # stocks (H,Q,W, CW)
-#                 qProbs = c(.025,.5,.975),
-#                 refPts = "MSrefPts",
-#                 AMlabs = rev(c( "Single-stock" = "singleStock",
-#                                 "Hierarchical" = "hierMultiStock",
-#                                 "Species Pooling" = "speciesPooling",
-#                                 "Spatial Pooling" = "spatialPooling",
-#                                 "Total Pooling" = "totalAgg" )),
-#                 scenLabs = c( High  = "DERfit_HcMcAsSsIdx",
-#                               Mod  = "DERfit_McAsSsIdx",
-#                               Low = "DERfit_AsSsIdx" ),
-#                 clearBadReps = TRUE,
-#                 minSampSize = 100,
-#                 rotxlabs = 0,
-#                 xlab = TRUE,
-#                 vertLines = TRUE,
-#                 nGoodReps = 100 )
+plotRankDists(  groupFolder = params$groupFolder,
+                prefix = "parBat",
+                lossType = "abs",
+                var = "C_ispt",
+                period = 73:82,
+                lossList = NULL,
+                dim1 = 1:3,   # species (D,E,R, DP)
+                dim2 = 1:3,   # stocks (H,Q,W, CW)
+                qProbs = c(.025,.5,.975),
+                refPts = "MSrefPts",
+                AMlabs = rev(c( "Single-species"  = "singleStock",
+                                "Hierarchical"    = "hierMultiStock",
+                                "Species Pooling" = "speciesPooling",
+                                "Spatial Pooling" = "spatialPooling",
+                                "Total Pooling"   = "totalAgg" )),
+                scenLabs = c( High  = "DERfit_HcMcAsSsIdx",
+                              Mod  = "DERfit_McAsSsIdx",
+                              Low = "DERfit_AsSsIdx" ),
+                clearBadReps = TRUE,
+                minSampSize = 100,
+                rotxlabs = 0,
+                xlab = TRUE,
+                vertLines = TRUE,
+                nGoodReps = 100 )
 
-figPath <- file.path("./data/fig6-lossRankDists.pdf")
-knitr::include_graphics(figPath)
+# figPath <- file.path("./data/fig6-lossRankDists.pdf")
+# knitr::include_graphics(figPath)
 
 ```
 
-<!-- {r loadSSLow, echo = FALSE, include = FALSE, warning = FALSE}
-.loadSim("sim_parBatDERTACs_reruns_Oct10_16", folder= params$groupFolder)
-
-
- -->
 
 \clearpage
 
 ```{r fig7-retroBioSingleRepSSLow, echo = FALSE, warning = FALSE, fig.cap = retroBioSingleRepSSLowCap, fig.width = 9, out.width = "9in" }
-# plotRetroSBagg(  obj = blob, iRep = 1, plotStamp = FALSE )
-figPath <- file.path("./data/fig7-retroBioSingleRepSSLow.pdf")
-knitr::include_graphics(figPath)
+.loadSim("sim_parBatDERTACs_Reruns_Jan511", folder= params$groupFolder)
+plotRetroSBagg(  obj = blob, iRep = 1, plotStamp = FALSE )
+# figPath <- file.path("./data/fig7-retroBioSingleRepSSLow.pdf")
+# knitr::include_graphics(figPath)
 
 ```
 
 \clearpage
 
 ```{r fig8-tulipCatLossSSLow, echo = FALSE, warning = FALSE, fig.cap = tulipCatLossSSLowCap, fig.width = 9, out.width = "9in" }
-# plotLossTulip(  sim = "sim_parBatDERTACs_reruns_Oct10_16", 
-#                 groupFolder   = params$groupFolder,
-#                 lossType      = "abs",
-#                 var           = "C_ispt",
-#                 dim1          = 1:2,
-#                 dim2          = 1:3,
-#                 save          = FALSE,
-#                 clearBadReps  = TRUE )
+plotLossTulip(  sim = "sim_parBatDERTACs_Reruns_Jan511", 
+                groupFolder   = params$groupFolder,
+                lossType      = "abs",
+                var           = "C_ispt",
+                dim1          = 1:2,
+                dim2          = 1:3,
+                save          = FALSE,
+                clearBadReps  = TRUE )
 
-figPath <- file.path("./data/fig8-tulipCatLossSSLow.pdf")
-knitr::include_graphics(figPath)
+# figPath <- file.path("./data/fig8-tulipCatLossSSLow.pdf")
+# knitr::include_graphics(figPath)
 
 ```
 
-<!-- {r loadHMSLow, echo = FALSE, include = FALSE, warning = FALSE}
-.loadSim("sim_parBatDERTACs_reruns_Oct10_17", folder= params$groupFolder)
-
-
-
- -->
 \clearpage
 
 ```{r fig9-retroBioSingleRepHMSLow, echo = FALSE, warning = FALSE, fig.cap = retroBioSingleRepHMSLowCap, fig.width = 9, out.width = "9in" }
-# plotRetroSBagg(  obj = blob, iRep = 1, plotStamp = FALSE )
-figPath <- file.path("./data/fig9-retroBioSingleRepHMSLow.pdf")
-knitr::include_graphics(figPath)
+.loadSim("sim_parBatDERTACs_Reruns_Jan512", folder= params$groupFolder)
+plotRetroSBagg(  obj = blob, iRep = 1, plotStamp = FALSE )
+# figPath <- file.path("./data/fig9-retroBioSingleRepHMSLow.pdf")
+# knitr::include_graphics(figPath)
 
 ```
 
 ```{r fig10-tulipCatLossHMSLow, echo = FALSE, warning = FALSE, fig.cap = tulipCatLossHMSLowCap, fig.width = 9, out.width = "9in" }
-# plotLossTulip(  sim = "sim_parBatDERTACs_reruns_Oct10_17", 
-#                 groupFolder   = params$groupFolder,
-#                 lossType      = "abs",
-#                 var           = "C_ispt",
-#                 dim1          = 1:2,
-#                 dim2          = 1:3,
-#                 save          = FALSE,
-#                 clearBadReps  = TRUE )
+plotLossTulip(  sim = "sim_parBatDERTACs_Reruns_Jan512", 
+                groupFolder   = params$groupFolder,
+                lossType      = "abs",
+                var           = "C_ispt",
+                dim1          = 1:2,
+                dim2          = 1:3,
+                save          = FALSE,
+                clearBadReps  = TRUE )
 
-figPath <- file.path("./data/fig10-tulipCatLossHMSLow.pdf")
-knitr::include_graphics(figPath)
+# figPath <- file.path("./data/fig10-tulipCatLossHMSLow.pdf")
+# knitr::include_graphics(figPath)
 
 ```
 
@@ -353,10 +344,10 @@ plotBatchCatchBioTradeoff(  groupFolder = params$groupFolder,
 \clearpage
 
 ```{r fig12-regLossSensitivityRuns, echo = FALSE, warning = FALSE, fig.cap = batchLossSensSummaryCap, fig.width = 9, out.width = "9in", fig.asp = 0.7  }
-# plotSensRuns_pub()
+plotSensRuns_pub()
 
-figPath <- file.path("./data/fig12-regLossSensitivityRuns.pdf")
-knitr::include_graphics(figPath)
+# figPath <- file.path("./data/fig12-regLossSensitivityRuns.pdf")
+# knitr::include_graphics(figPath)
 
 ```
 

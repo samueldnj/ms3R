@@ -9,10 +9,8 @@ library(parallel)
 source("ms3R.r")
 # source("makeResultPlots.R")
 
-batchControlFiles <- c( "MPgrid_DLSurveys_Long.bch"
-                        "sensRuns_hierSD.bch",
+batchControlFiles <- c( "sensRuns_hierSD.bch",
                         "sensRuns_MSYCV.bch",
-                        "sensRuns_obsErr.bch",
                         "sensRuns_UmsyCV.bch"
                       )
                        
@@ -22,10 +20,8 @@ nBatchJobs <- length( batchControlFiles )
 baseControlFiles  <- rep( "simCtlFileBase_AAL12.txt",nBatchJobs)
                         
 
-prefixes       <- c(  "DERTACs_Reruns_Jan5",
-                      "sensRuns_hierSD_Jan5",
+prefixes       <- c(  "sensRuns_hierSD_Jan5",
                       "sensRuns_MSYCV_Jan5",
-                      "sensRuns_obsErr_Jan5",
                       "sensRuns_UmsyCV_Jan5")
 
 saveDirName       <- prefixes
