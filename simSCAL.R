@@ -3054,7 +3054,7 @@ solvePTm <- function( Bmsy, B0 )
   
   # If using deterministic runs, just start at zero
   # to avoid sensitivity to initial values
-  if( ctlList$ctrl$noProcErr )
+  if( ctlList$ctl$noProcErr )
     initPars <- rep(0,nPars)
 
   # # Multiply by the appropriate scalar
