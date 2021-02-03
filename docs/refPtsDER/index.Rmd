@@ -1,5 +1,5 @@
 ---  
-title: "Do correlations in price and recruitment affect economic and biological risk in spatially heterogeneous, multi-species fisheries?"
+title: "What is the biological and economic risk of correlation in price and recruitment in spatially heterogeneous, multi-species fisheries?"
 author: 
   - Samuel D. N. Johnson (corresponding)
   - Sean P. Cox
@@ -108,6 +108,7 @@ source(here::here("docs/refPtsDER/SCALscripts","plots.R"))
 source(here::here("docs/refPtsDER/SCALscripts","SCALrefPts.R"))
 source(here::here("mseRtools.R"))
 source(here::here("tools.R"))
+source(here::here("ms3Rplots.R"))
 
 
 

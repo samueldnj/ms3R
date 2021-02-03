@@ -3047,16 +3047,15 @@ solvePTm <- function( Bmsy, B0 )
   if( ctlList$opMod$effortMod == "targeting" )
     nPars <- nS * nPars
 
-  # Pull average historical effort from fleet 2 and average Fmsy
-  histEbar  <- mean(  obj$om$E_pft[,2,1:(tMP - 1)],
-                      na.rm = T )
-
-  Fmsybar   <- mean( obj$rp$FmsyRefPts$Fmsy_sp)
-
-
   # Might need to refine this later, but for now we
-  # use a random vector
-  initPars <- rnorm(n = nPars, sd = 1)
+  # use a random vector. .3 SD should be plenty of variation
+  # for initial pars
+  initPars <- rnorm(n = nPars, sd = .3)
+  
+  # If using deterministic runs, just start at zero
+  # to avoid sensitivity to initial values
+  if( ctlList$ctrl$noProcErr )
+    initPars <- rep(0,nPars)
 
   # # Multiply by the appropriate scalar
   # if( ctlList$opMod$effortMod %in% c("Max","dynModel") )
@@ -3961,6 +3960,7 @@ combBarrierPen <- function( x, eps,
   obj$om$logitBasePrice_st <- obj$om$basePrice_st
   for( t in (tMP-11):(tMP-1) )
   {
+
     P_s     <- obj$om$basePrice_st[,t]
     minP_s  <- obj$om$minPrice_s 
     maxP_s  <- obj$om$maxPrice_s 
@@ -4550,11 +4550,13 @@ combBarrierPen <- function( x, eps,
   # Calculate landed value per kg given price flexibility
   if( t >= tMP-11 )
   {
+
     lambda_s  <- opMod$lambda_s
     C_s       <- apply( X = C_spt[,,t], FUN = sum, MARGIN = 1 )
     MSY_sp    <- rp$FmsyRefPts$YeqFmsy_sp
     MSY_s     <- apply(X = MSY_sp, FUN = sum, MARGIN = 1)
     v_st[,t]  <- basePrice_st[,t] * ( C_s/MSY_s ) ^(-1/lambda_s)
+
     
     for( p in 1:nP)
       effCost_pft[p,,t] <- E_pft[p,,t] * rp$EmeyRefPts$effortPrice_p[p]

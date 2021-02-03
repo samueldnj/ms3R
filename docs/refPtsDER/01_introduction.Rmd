@@ -12,10 +12,10 @@ may instead have objectives based on single-species biological reference
 points, such as maximum sustainable yield (MSY) or a proxy 
 [@collie2001biological], or an extension of biological reference points such 
 as maximum economic yield (MEY) [@hoshino2018estimating]. Economic yield 
-(also know as resource rent, as opposed to absolute catch) is one part of 
-the 'triple bottom line' of fisheries management (the other two being 
-biological conservation and social outcomes), and are increasinly 
-considered as a decision axis in fisheries management 
+(also known as resource rent or producer surplus, as opposed to absolute 
+catch) is one part of the 'triple bottom line' of fisheries management 
+(the other two being biological conservation and social outcomes), and 
+are increasinly considered as a decision axis in fisheries management 
 frameworks [@benson2018options; @stephenson2017practical].
 
 Management objectives for multi-species fisheries depend on the type of 

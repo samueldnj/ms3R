@@ -91,7 +91,7 @@ managed. Further, the three species are modeled without ecological
 interactions, which is realistic for Dover and English soles, as although both 
 species are benthophagus, there is evidence that they belong to different 
 feeding guilds [@pikitch1987use; @wakefield1984feeding]. There is evidence 
-in other areas that rock soles feed on unsettled juveniles of other flatfishes 
+in other areas that Rock soles feed on unsettled juveniles of other flatfishes 
 [@wakefield1984feeding], so there may be some predation mortality at young 
 ages that is not explicitly accounted for in reference point calculations, 
 but the effect of juvenile loss on the population dynamics in the 
@@ -147,11 +147,11 @@ more efficiently.
 
 Compositional data were assumed to follow a logistic normal distribution 
 [@schnute2007compositional]. In addition, age- and length-compositions were 
-assumed to have a lag-1 correlation in the residuals [@francis2014replacing]. 
-Expected age compositions were derived from fishery catch-at-age, while 
-expected length compositions were derived from vulnerable numbers-at-age 
-by applying an age-length key derived from the integrated growth model 
-[@francis2016growth].
+assumed to have a lag-1 auto-correlation in the residuals 
+[@francis2014replacing]. Expected age compositions were computed from 
+fishery catch-at-age, while expected length compositions were computed 
+from vulnerable numbers-at-age by applying an age-length key derived from 
+the integrated growth model [@francis2016growth].
 
 The AM was defined in Template Model Builder [@kristensen2015tmb], and
 optimisation of the objective function was performed using the nlminb()
@@ -160,7 +160,13 @@ that the AM was converged when the maximum gradient component was smaller
 than $10^{-3}$ in absolute value, and the Hessian matrix of the estimates
 was positive definite. Model posterior distributions were sampled using
 Hamiltonian Monte-Carlo (a.k.a. No U-Turn Sampling) via the tmbStan package
-[@monnahan2017faster; @monnahan2018no].
+[@monnahan2017faster; @monnahan2018no], drawing 4 chains of 1000 samples
+each. Posterior chains were considered converged when $\widehat{R} < 1.01$ 
+and effective sample sizes were greater than 400 (i.e., 100 samples per 
+chain) for leading biological paremeters (e.g., $B_0$). Convergence
+criteria for non-leading parameters (e.g., process error deviations
+and hierarchical deviations) were more relaxed, with $\widehat{R} < 1.05$
+and effective sample sizes greater than 360 (i.e., 90 samples per chain).
 
 Commercial catchability scalars were required to relate the fishing
 effort targeting DER complex species to fishing mortality estimated
@@ -177,17 +183,18 @@ mean zero, for species $s$, area $p$, and time step $t$.
 ## Economic yield and inverse demand curves
 
 Economic yield was defined as net resource rent over all species and areas
-\begin{equation}
+\begin{equation} \label{eq:resRent}
 \pi(\vec{E}) = \sum_{p = 1}^{3} \left( (1 - \psi) \sum_{s} v_{s} \left(\sum_{p'=1}^3 C_{s,p'}(E_{p'}) \right) \cdot C_{s,p}(E_{p}) \right) - c_{p} \cdot E_{p},
 \end{equation}
-where $\pi$ is the equilibrium net resource rent for BC,
+where $\pi$ is the net resource rent for BC,
 $\vec{E} = \langle E_p \vert p = 1,2,3 \rangle$ is a vector of trawl
 effort in each area, $\psi = .3$ is the crew share of revenue 
 [@nelson2011pacific-commerc], $v_{s}(\sum_p C_{s,p})$ 
 is the unit price per kilogram of species $s$, taken from an inverse demand
-curve as a function of total catch $\sum_p C_{s,p}(E_p)$ (quantity supplied) at 
-effort $E_p$, and $c_{p}$ is the fuel cost-per-unit-effort of fishing in area
-$p$ (or $p'$ for the inner summation).
+curve as a function of total catch $\sum_p C_{s,p}(E_p)$ (quantity supplied) 
+at effort $E_p$ (dependent on numbers-at-age in each area $p$), 
+and $c_{p}$ is the fuel cost-per-unit-effort of fishing in area $p$ 
+(or $p'$ for the inner summation).
 
 The unit price $v_s$ ($/kg) of each species $s$ followed a downward sloping 
 inverse demand curve for total species $s$ catch
@@ -274,8 +281,8 @@ and $MSY$ when commercial catchability scalars differ between species.
 ### Maximum economic yield
 
 The maximum economic yield (MEY) was found by substituting the single species 
-yield $Y_{SS,s,p}$ into the expression for the resource rent $pi$ (NUM) above, 
-and optimising over the vector $\vec{E}$,
+yield $Y_{SS,s,p}$ into the expression for the resource rent $pi$ 
+(\ref{eq:resRent}) above, and optimising over the vector $\vec{E}$,
 \begin{equation}
 Y^{econ}_{MS} (\vec{E}, q^{F}, Q, \vec{c}, \vec{v} ) 
   = \sum_p \left[ (1 - \psi) \cdot \sum^3_{s=1} v_s \cdot Y_{SS,s,p} (E_p, q_{s,p}, Q_{s,p} ) \right] - c_p E_p,
@@ -309,19 +316,23 @@ fishing effort $E_{p,t}$ under future non-equilibrium fishery dynamics.
 Eight separate scenarios were simulated, which were the factorial 
 combination of two objective functions and four projection scenarios. For 
 all optimisations, population dynamics were projected 80 years from the 
-last year of the AM (2017 - 2096). Projections were repeated over 100 
-replicates, which differed by the random number seed used to draw 
-recruitment process deviations and random walk deviations for the reference
-unit price $v^*_{s,t}$ at $MSY$ of each species in each simulation, e.g., 
-for a projection with no correlation the recruitments were given by
+last year of the AM (2017 - 2096), conditioned on maximum likelihood 
+estimates. Projections were repeated over 100 replicates, and differed by 
+the random number seed used to draw recruitment process deviations and 
+random walk deviations for the reference unit price $v^*_{s,t}$ at $MSY$ 
+of each species in each simulation, e.g., for a projection with no 
+correlation the recruitments were given by
 \begin{align*}
 R_{s,p,t} = \overline{R}_{s,p,t} \cdot e^{\sigma_{s,p} \cdot \epsilon_{s,p,t} - 0.5 \sigma^2_{s,p} }, \\
 \end{align*}
 where $\overline{R}_{s,p,t}$ is the expected Beverton-Holt recruitment,
 $\epsilon_{s,p,t} \sim N(0,1)$ is the standardised recruitment process
 error, $\sigma_{s,p}$ is the recruitment process error standard deviation.
-Future ex-vessel unit prices varied according to the covariance estimated
-when fitting the model in Appendix B to ex-vessel unit price data from
+Note that recruitment process deviations were simulated for all stocks from
+earlier than 2017, as the AM was unable to estimate deviations up to the
+end of the AM history given the age composition data. Future ex-vessel 
+unit prices varied according to the covariance estimated when fitting 
+the price model in Appendix B to ex-vessel unit price data from
 2006 - 2016.
 
 The two alternative objective functions for the optimisations allocated 
@@ -340,11 +351,11 @@ is the annual discount rate.
 While total effort was unconstrained in the projections, each scenario 
 constrained inter-annual changes in effort to 20\% per year. This constraint
 reflected the potential for new licenses in the fishery, but a lag time 
-required for a capital investment (e.g., new and larger vessels) or license 
-reductions, such as buybacks. While the effort is eventually unbounded, the 
-optimisation method treats the fishery as a single firm, rather than an
-open access regime, so the fishery profits will not be dissipated
-in this case. See Appendix A for the details of the optimisation.
+required for a capital investment (e.g., in new and larger vessels) or 
+license reductions (e.g., buybacks). While the effort is eventually 
+unbounded, the optimisation method treats the fishery as a single firm, 
+rather than an open access regime, so it is possible that fishery profits 
+will not be dissipated. See Appendix A for the details of the optimisation.
 
 The four stochastic projection scenarios were defined based on correlations
 in recruitment process deviations and market price random walk deviations.
@@ -358,12 +369,12 @@ matrices were derived from the AM estimates of recruitment deviation series.
 
 Optimal $E_{MSY,MS,p}$ and $E_{MEY,p}$, and associated biomasses, catches,
 resource rents, and harvest rates were estimated as the median of each
-values across the distribution of effort time series under 
-each objective function and projection scenario. Dynamic optima were 
-compared to the steady-state solutions found via the yield curve analysis 
-outlined above. Median values were taken over the time period 2027 - 2036, 
-which allowed enough time for the effort to stabilise after any initial 
-transient period, but also avoided end effects caused by a finite projection
+value across the distribution of effort time series under each objective 
+function and projection scenario. Dynamic optima were compared to the 
+steady-state solutions found via the yield curve analysis outlined above. 
+Median values were taken over the time period 2040 - 2060, which allowed 
+enough time for the effort to stabilise after any initial transient 
+period, but also avoided end effects caused by a finite projection
 time horizon. 
 
 ## Risk of including/ignoring correlation
@@ -419,11 +430,9 @@ of the price and recruitment deviations, and therefore more of an effect on
 the tails than the mean or median outcome, we measure risk as the 5th 
 percentile of the biomass for each species in an area and coastwide, and 
 the 5th percentile of economic yield in an area and coastwide. Using a 
-percentile as a risk metric is known as *Value-at-risk-p* (VAR-p), and is
-commonly used in economic analyses [REF]. VAR-p is a non-parametric 
-definition of risk, which is important here given that the
-outcomes of our simulations are non-linear combinations of
-multiple randomly drawn components.
+percentile as a risk metric is known as *Value-at-risk-p* (VAR-p), which
+is a non-parametric definition of riks commonly used in economic 
+analyses [REF].
 
 
 

@@ -259,7 +259,7 @@ lossRankTables <- makePairedLossRankTable(  groupFolder = params$groupFolder,
                                             clearBadReps = TRUE,
                                             minSampSize = 100 )
 # Replace Scenario names and AM names
-AMlabs <- c(  "singleStock"= "Single Species",
+AMlabs <- c(  "singleStock"= "Single-species",
               "hierMultiStock"= "Hierarchical Multi-species",
               "speciesPooling"= "Species Pooling",
               "spatialPooling"= "Spatial Pooling",

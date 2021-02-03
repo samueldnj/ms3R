@@ -37,7 +37,7 @@ of the 80 year projection period, where penalties from lower biomasses and
 overfishing the stock relative to the multi-species optimal harvest 
 rate are lower than the catch increases; however, the omniscient manager 
 avoids a complete crash of the complex thanks to the penalty on avoiding the 
-critically overfished state at 40\% of single species $B_{MSY,SS}$.
+critically overfished state at 40\% of single-species $B_{MSY,SS}$.
 
 Each area had similar relationships between single-species and multi-species
 optimal biomass levels, with one species overfished, one underfished, and one
@@ -68,44 +68,49 @@ for sustained periods.
 
 ### Rankings by catch loss
 
-Due to low convergence rates for HSHG Rock sole in the High scenario,
-and QCS and WCVI Rock sole under the Mod scenario (Figure S1), all 
-Rock sole results are excluded from catch loss rankings.
+Due to low convergence rates for HSHG and QCS Rock sole and WCVI Dover 
+sole in the High scenario, and WCVI Rock sole under the Mod 
+scenario (Figure S1), results from those management units are excluded 
+from catch loss rankings.
 
-Hierarchical Multi-species assessment models ranked highest under the Low 
-and Mod data quantity scenarios (Table 4). Under the Low data 
+Hierarchical Multi-species assessment models ranked highest under all 
+data quantity scenarios (Table 4). Under the Low data 
 quantity scenario, the Hierarchical model had the lowest cumulative absolute 
 catch loss in over 40\% of replicate/stock/species combinations (Figure 6), 
 ranking highest by average and modal rank in the aggregate. When split
 across individual species/areas, the modal rank for the hierarchical AM
 remained at 1, but there was more variability in the ranking distributions
-in the HSHG area, leading to a drop in average rank  (Figure S1,
-online supplement). As data quantity increased for the Mod scenario, the 
-modal rank and average rank of the hierarchical model remained the highest 
-out of all AMs in the aggregate, ranking 1st in almost 60% of cases (Figure 
-6), while the variability in rankings in the HSHG area was reduced (Figure 
-S1), pushing the average rank higher than under the Low scenario. It was 
-only under the High scenario that the Hierarchical model rank fell, to 
-fourth place by average rank, and equal last with the Single-species AM by 
-modal rank, driven by consistently poor performance in the QCS and WCVI 
-areas (Figure S1).
+in the HSHG area (e.g. Dover sole), leading to a drop in average rank 
+(Figure S1, online supplement). As data quantity increased for the Mod 
+scenario, the modal rank and average rank of the hierarchical model 
+remained the highest out of all AMs in the aggregate, ranking 1st in just
+under 40% of cases (Figure 6), while the variability in rankings in the 
+HSHG area increased (Figure S1), pushing the average rank a littler
+lower than under the Low scenario. Results under the High scenario 
+were similar to the Mod scenario, where the Hierarchical model was ranked
+first in about 40\% of cases, and a slightly higher average rank than the 
+Mod scenario, driven largely by a reduction in catch loss for WCVI English 
+sole (Figure S1).
 
+When ordered by average rank, Species Pooling AMs came second after 
+the hierarchical AMs under all data quantity scenarios (Table 4).
 Under the High data quantity scenario, the the data pooling methods ranked 
-highest in both modal and average ranks (Table 4, High). Species and Spatial 
+highest in both modal and average ranks (Table 4, High). Total and Spatial 
 Pooling methods performed similarly under the High scenario, with
-only a small difference between average ranks, and the similar frequencies
-between modal and second highest observed ranks (Figure 6, High scenario),
-a pattern reflected in individual stock rank distributions (Figure S1).
-The Total Pooling AM's rank of 3rd place reflected its rank distribution, 
-where the modal rank of 3 was observed in around 50\% of cases in the 
-aggregate (Figure 6), and was also the modal rank for all individual stock 
-distributions (Figure S1). As data were removed for the Mod data quantity 
-scenario, the average and modal ranks of all pooled methods dropped, but
-the relative ordering remained the same. The Single-species method had the 
+only a small difference between average ranks, but quite different 
+rank distributions, where Spatial pooling catch loss rankings were 
+almost uniformly distributed, but Total pooling ranks had a clear mode
+in 4th place (Figure 6, High scenario), which was reflected in individual 
+stock rank distributions (Figure S1). The Total Pooling AM's 4th place 
+rank was observed in around 40\% of cases in the aggregate (Figure 6), 
+and was also the modal rank for most individual stock distributions (Figure 
+S1). As data were removed for the Mod data quantity scenario, the Spatial
+Pooling AM dropped from 3rd to 4th place, driven largely by increased
+catch loss in the QCS area. The Single-species method had the 
 worst rank under all data quantity scenarios, with a consistent modal rank 
 of 5th across all scenarios (Figure 6), with most consistently inferior 
-performance observed under the Mod data quantity scenario, where the 
-average rank was 4.59 (Table 4).
+performance observed under the High data quantity scenario, where the 
+average rank was 4.63 (Table 4).
 
 Choke effects both increased and reduced catch loss, depending
 on the assessment errors. On the one hand, there were several cases
@@ -256,40 +261,37 @@ increasing prior uncertainty. Linear model slope parameter $p$-values
 for each AM were also calculated to determine if an effect was significant 
 or not, where we define significance as $p < 0.1$.
 
-The Hierarchical Multi-species model was insensitive to increasing 
-$MSY$ prior CVs in the Low scenario, but the most sensitive under the High 
-scenario (Figure 12, first column), where cumulative catch loss decreased by
-more than 1 standard deviation as the $MSY$ prior CV, appearing to
-be equal in median catch loss with the Total Pooling method. The Single-species 
-method had significant changes under both scenarios, with catch loss 
-decreasing by about 0.4 standard deviations (High) and 1 standard 
-deviation (Low). The Total and Spatial Pooling methods had no significant 
-response to the $MSY$ CV under both Low and High scenarios, while the 
-Species Pooling method increased catch loss by 0.3 standard deviations 
-with decreasing $MSY$ CV under the High scenario, and dropped about 1.5 
-standard deviations in catch loss under the Low scenario.
+While all AMs except the Total Pooling AM were slightly sensitive to $MSY$
+prior CVs under the high scenario, there was no change in the relative
+rankings of the AMs (Figure 12, first column). Under the Low scenario, 
+only the Single-species and Species Pooling AMs were sensitive to $MSY$ 
+CVs, with catch loss dropping about a standard deviation as CVs decreased
+from 1.0 to 0.1 for both AMs, with Species Pooling AMs moving from
+fourth to second lowest mean catch loss, but the relative ranking of all
+other AMs remained the same.
 
-The Hierarchical AM was significantly sensitive to the $U_{MSY}$ prior 
-standard deviation under the Low scenario (Figure 12, second column). 
-Hierarchical AM catch loss droppped by more than 2 standard deviations 
-in catch loss as $SD(U_{MSY})$ decreased from 1.0 to 0.1. Over the same 
-range, the Single-species AM had a significant increase in catch loss by 
-about 1 standard deviation with decreasing $SD(U_{MSY})$. The changes in 
-both Single-species and Hierarchical AMs' catch loss, and stabilty of all 
-other methods, under the Low scenario indicate a change in ranking, where 
-the Hierarchical AM drops from first to last place as $SD(U_{MSY})$ 
-approaches 1.0, while the Single-species AM goes from last to fourth 
-(when measured using median catch loss). No AM was significantly sensitive 
-to the $U_{MSY}$ prior standard deviation under the High scenario, but the 
-Single-species method catch loss decreased by about 0.5 standard deviations. 
+Hierarchical and Single-species AMs were sensitive to the $U_{MSY}$ prior 
+standard deviation under both scenarios, and the Species Pooling AM
+was also sensitive under the Low scenario (Figure 12, second column, 
+$p > 0.05$). However, under the High scenario, no sensitivity led to a 
+change in ranking for any AMs over the range of $U_{MSY}$ prior standard 
+deviations tested, as most AMs showed a catch loss change of less than
+0.5 standard deviations, except for the Single-species AM, which
+was again an outlier. Under the Low scenario, the Total Pooling
+and Single-species AMs remained at the bottom of the rankings, despite
+a decrease off around 1.5 standard deviations for the Single-species AM.
+At the same time, Spatial Pooling, Species Pooling, and Hierarchical AMs 
+catch losses under the Low scenario appeared to converge as prior 
+standard deviations increased from 0.1 to 1.0. 
+
 
 Interestingly, the Hierarchical Multi-species assessment models reacted 
 differently to changing catchability and $U_{MSY}$ hierarchical shrinkage 
 priors under the High and Low scenarios (Figure 12, third column). As 
 $\sigma_{U_{MSY}}$ and $\tau_q$ increased from 0.1 to 0.5, average catch 
-loss increased by about 0.5 standard deviations under the High scenario 
-($p = 0.04$), mostly driven by assessment errors in the QCS and WCVI areas,
-leading to a widening range of catch trajectories as hierarhical prior
+loss increased by about 1 standard deviation under the High scenario 
+($p < 0.01$), mostly driven by assessment errors in the QCS and WCVI areas,
+leading to a widening range of catch trajectories as hierarchical prior
 standard deviations increased. Under the Low scenario, median absolute 
 catch-loss dropped by about 1 standard devation, indicating that TACs were 
 closer to the omniscient manager as hyper-prior SDs increased. The improved 
@@ -301,14 +303,15 @@ interactions produced beneficial choke effects, reducing catch loss overall.
 
 Finally, there was low sensitivity to the reduction in Synoptic survey
 standard errors (Figure 12, fourth column). Under the High scenario, the 
-Species and Spatial Pooling methods had significant improvements of 
-around 0.3 standard deviations with decreasing standard error ($p < 0.01$), 
-but all other AMs had a flat response and/or insignificant effects 
-($p \geq .19$). Under the Low scenario, only the Species Pooling AM catch 
+all but the Spatial Pooling AM had significant improvements of 
+around 0.3-0.5 standard deviations with decreasing standard error 
+($p < 0.05$), while the Spatial pooling had a non-significant change 
+($p = 0.18$). Under the Low scenario, only the Species Pooling AM catch 
 loss improved significantly, dropping around 0.25 standard deviations with
-decreasing Synoptic survey standard error ($p = 0.01$). For both scenarios,
-the decreases in catch loss appear to be caused by a slight improvement 
-in pooled TAC allocation with increased survey precision, but choke
-constraints were still present.
+decreasing Synoptic survey standard error ($p < 0.01$), and switching places
+with the Hierarchical AM for the lowest average catch loss. For both 
+scenarios, the decreases in catch loss appear to be caused by a 
+slight improvement in pooled TAC allocation with increased survey 
+precision, but choke constraints were still present.
 
 

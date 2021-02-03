@@ -15,34 +15,34 @@ footnote:
   - code: 1
     text: Corresponding author
 abstract: |
-    Managers of multi-species fisheries aim to balance harvest of target 
-    and non-target species that vary in abundance, productivity, and 
+    Managers of multi-species fisheries aim to balance harvest of target
+    and non-target species that vary in abundance, productivity, and
     degree of technical interactions. In this paper, we evaluated
-    management performance of five surplus production stock assessment 
-    methods used in such a multi-species context. Production models included 
-    single-species and hierarchical multi-species models, as well as methods 
-    that pooled data across species and spatial strata. Operating models 
-    included technical interactions between species intended to produce 
-    choke effects often observed in output controlled 
-    multi-species fisheries. Average annual yield of each method under three
-    data scenarios were compared to annual yield obtained by a simulated
-    omniscient manager. Yield and conservation performance of hierarchical 
-    multi-species models was superior to all other methods under low and
-    moderate data scenarios, and superior to single-species models under 
-    the higher data quantity scenario. These results were robust to a 
-    wide range of prior precision in assessment model biomass parameters, 
-    hierarchical prior precision for catchability and productivity, and 
-    future survey precision; however, results were sensitive to prior 
-    precision in assessment model productivity parameters under the low
-    data scenario, where the hierarchical multi-species method dropped
-    from first to fourth place, dominated by the data-pooling methods. 
+    management performance of five surplus production stock assessment
+    methods used in such a multi-species context. Production models
+    included single-species and hierarchical multi-species models, as well
+    as methods that pooled data across species and spatial strata.
+    Operating models included technical interactions between species
+    intended to produce choke effects often observed in output controlled
+    multi-species fisheries. Average annual yield of each method under
+    three data scenarios were compared to annual yield obtained by a
+    simulated omniscient manager. Yield and conservation performance of
+    hierarchical multi-species models was superior to all other methods
+    under low, moderate, and high data quantity scenarios. Results were
+    robust to a wide range of prior precision in assessment model biomass
+    parameters, hierarchical prior precision for catchability and
+    productivity, and future survey precision; however, results were
+    sensitive to prior precision in assessment model productivity
+    parameters under the low data scenario, where the hierarchical
+    multi-species method dropped was no longer a clear best model,
+    with similar performance to the data pooling models.
 
 date: \today
-bibliography: ./bib/library.bib
+bibliography: bib/library.bib
 natbib: true
 journal: Fisheries Research
 biblio-style: elsarticle-harv
-csl:  ./csl/elsevier-harvard.csl
+csl:  csl/elsevier-harvard.csl
 layout: review,authoryear
 geometry: letterpaper
 toc: true
@@ -116,7 +116,7 @@ library(knitr)
 if (is_latex_output()) {
   knitr_figs_dir <- "knitr-figs-pdf"
   knitr_cache_dir <- "knitr-cache-pdf"
-  fig_out_type <- "pdf"
+  fig_out_type <- "postscript"
   kable_format <- "latex"
 } else {
   knitr_figs_dir <- "knitr-figs-docx"

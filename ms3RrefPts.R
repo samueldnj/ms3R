@@ -274,6 +274,10 @@ solveSpline <- function(  Yvals, Xvals, value = 0, bounds = c(0,10),
     cwRent_e      <- array(NA, dim = length(Eff) )
     cwYeq_spe     <- array(NA, dim = dim(Yeq_spe))
 
+    cwBmey_sp     <- array(NA, dim = dim(Bmey_sp))
+    cwYmey_sp     <- array(NA, dim = dim(Bmey_sp))
+    cwvBmey_sp    <- array(NA, dim = dim(Bmey_sp))
+
     cwRev_spe[,,1]    <- 0
     cwRent_pe[,1]     <- 0
     cwRent_e[1]       <- 0
@@ -324,11 +328,25 @@ solveSpline <- function(  Yvals, Xvals, value = 0, bounds = c(0,10),
       cwEff_pe[,eIdx]       <- cwMEYlist$E_p
 
     }
+    # Numerically solve for biomass and catch at MEY
+    for( p in 1:nP )
+    {
+      # Now calculate Bmey, vBmey etc
+      for( s in 1:nS )
+      {
+        cwBmey_sp[s,p]  <- getSplineVal(x = Eff, y = Beq_spe[s,p,], p = cwEmey_p[p] )
+        cwYmey_sp[s,p]  <- getSplineVal(x = Eff, y = Yeq_spe[s,p,], p = cwEmey_p[p] )
+        cwvBmey_sp[s,p] <- getSplineVal(x = Eff, y = expBeq_spe[s,p,], p = cwEmey_p[p] )
+      }
+    }
 
     cwEconYieldCurves <- list()
     cwEconYieldCurves$Eff           <- Eff
     cwEconYieldCurves$cwMEY_p       <- cwMEY_p
     cwEconYieldCurves$cwEmey_p      <- cwEmey_p
+    cwEconYieldCurves$cwBmey_sp     <- cwBmey_sp
+    cwEconYieldCurves$cwYmey_sp     <- cwYmey_sp
+    cwEconYieldCurves$cwvBmey_sp    <- cwvBmey_sp
     cwEconYieldCurves$cwRev_spe     <- cwRev_spe
     cwEconYieldCurves$cwRent_pe     <- cwRent_pe
     cwEconYieldCurves$cwRent_e      <- cwRent_e
@@ -372,7 +390,7 @@ coastWideEconObjFun <- function(  lnE_p = c(0,0,0),
                                   prop = FALSE,
                                   baseE = 10,
                                   optimise = TRUE,
-                                  lambda_s = c(1,1,1),
+                                  lambda_s = c(Inf,Inf,Inf),
                                   price_s,
                                   effortPrice_p,
                                   MSY_sp,

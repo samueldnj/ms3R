@@ -11,6 +11,87 @@
 #
 # <><><><><><><><><><><><><><><><><><><><><><><><><><><>
 
+# makeDynEqbriaTab( )
+# Uses reference points object from a simulation
+# to create a table of multispecies catch and economic 
+# reference points.
+makeDynEqbriaTab <- function( folder = "./Outputs/omni_econYield_splineE_long_Jan4",
+                              scenario = "noCorr" )
+{
+  csvFiles <- list.files(folder)
+  csvFiles <- csvFiles[grepl(x = csvFiles, pattern = ".csv")]
+
+  nFiles <- length(csvFiles)
+  tabLabs <- unlist(stringr::str_split(csvFiles,".csv"))[2*(1:nFiles)-1]
+
+  csvPath <- file.path(folder,csvFiles)
+  tabs <- lapply(X = csvPath, FUN = read.csv, header = TRUE)
+  names(tabs) <- tabLabs
+
+  stockNames    <- unique(tabs$dynEqHR$stock)
+  speciesNames  <- unique(tabs$dynEqHR$species)
+
+  nS <- length(speciesNames)
+  nP <- length(stockNames)
+
+  
+  colNames <- c("Stock",
+                "Species",
+                "Emsy",
+                "RentMSY",
+                "MSY",
+                "Bmsy",
+                "Umsy",
+                "Emey",
+                "MEY",
+                "Cmey",
+                "Bmey",
+                "Umey")
+
+  tableFrame <- matrix( NA, nrow = 12, ncol = length(colNames))
+  colnames(tableFrame) <- colNames
+
+  tableFrame <- as.data.frame(tableFrame)
+  msyCol <- paste0(scenario,".totCat")
+  meyCol <- paste0(scenario,".totProfit")
+
+  for( p in 1:nP )
+  {
+    stockRow  <- (p-1) * (nS+1) + 1  
+
+    tableFrame$Stock[stockRow]    <- stockNames[p]
+
+    tableFrame$Emsy[stockRow]     <- round(tabs$dynEqEff[p,msyCol],2)
+    tableFrame$RentMSY[stockRow]  <- round(tabs$dynEqPrSp[p,msyCol],2)
+
+    tableFrame$Emey[stockRow]     <- round(tabs$dynEqEff[p,meyCol],2)
+    tableFrame$MEY[stockRow]      <- round(tabs$dynEqPrSp[p,meyCol],2)
+
+    for( s in 1:nS )
+    {
+      specRow   <- (p-1) * (nS+1) + s + 1
+
+      tableFrame$Species[specRow]   <- speciesNames[s]
+
+      tabRow <- (p - 1) * nS + s
+
+      tableFrame$MSY[specRow]       <- round(tabs$dynEqCat[tabRow,msyCol],2)
+      tableFrame$Bmsy[specRow]      <- round(tabs$dynEqBio[tabRow,msyCol],2)
+      tableFrame$Umsy[specRow]      <- round(tabs$dynEqHR[tabRow,msyCol],2)
+
+      tableFrame$Cmey[specRow]      <- round(tabs$dynEqCat[tabRow,meyCol],2)
+      tableFrame$Bmey[specRow]      <- round(tabs$dynEqBio[tabRow,meyCol],2)
+      tableFrame$Umey[specRow]      <- round(tabs$dynEqHR[tabRow,meyCol],2)
+    }
+
+
+  }
+
+  tableFrame
+
+} # END makeDynEqbriaTab()
+
+
 # makeStatMSEqbriaTab()
 # Uses reference points object from a simulation
 # to create a table of multispecies catch and economic 
@@ -31,10 +112,20 @@ makeStatMSEqbriaTab <- function( obj = blob )
   EmeyRefPts    <- rp$EmeyRefPts
   EmsyMSRefPts  <- rp$EmsyMSRefPts
 
-  Emey_p  <- EmeyRefPts$Emey_p
-  MEY_p   <- EmeyRefPts$MEY_p
-  Bmey_sp <- EmeyRefPts$Bmey_sp
-  Ymey_sp <- EmeyRefPts$Ymey_sp
+  # Get CW ref pts
+  if(!is.null(EmeyRefPts$cwEconYieldCurves))
+  {
+    # browser()
+    Emey_p      <- EmeyRefPts$cwEconYieldCurves$cwEmey_p
+    MEY_p       <- EmeyRefPts$cwEconYieldCurves$cwMEY_p
+    Bmey_sp     <- EmeyRefPts$cwEconYieldCurves$cwBmey_sp
+    Ymey_sp     <- EmeyRefPts$cwEconYieldCurves$cwYmey_sp    
+  } else {
+    Emey_p  <- EmeyRefPts$Emey_p
+    MEY_p   <- EmeyRefPts$MEY_p
+    Bmey_sp <- EmeyRefPts$Bmey_sp
+    Ymey_sp <- EmeyRefPts$Ymey_sp  
+  }
 
   Emsy_p  <- EmsyMSRefPts$EmsyMS_p
   MSY_sp  <- EmsyMSRefPts$YeqEmsy_sp
@@ -428,8 +519,13 @@ pullModelStates <- function(  sim         = 1,
   crewShare      <- simObj$ctlList$opMod$crewShare
   discRate       <- simObj$ctlList$opMod$discountRate
 
+  C_ispt <- simObj$om$C_ispt
+  v_ist  <- simObj$om$landVal_ist
+  nS <- simObj$om$nS
+  nP <- simObj$om$nP
+
   profit_ipft    <- array(0, dim = dim(rev_ipft))
-  profit_ipft    <- (1 - crewShare)*rev_ipft - effCost_ipft
+  profit_ipft    <- rev_ipft - effCost_ipft
   
 
   fYear <- simObj$ctlList$opMod$fYear
@@ -613,7 +709,7 @@ calcProbOverfished <- function( groupFolder="DERTACS_reruns_Oct10",
 } # END calcProbOverfished
 
 
-calc_AssErrDist <- function(  groupFolder="DERTACs_reruns_Oct10_",
+calc_AssErrDist <- function(  groupFolder="DERTACs_reruns_Jan5",
                               prefix = "parBat",
                               scenName = "DERfit_AsSsIdx",
                               mpName = "hierMultiStock_omF_MSrefPts" )
@@ -752,7 +848,7 @@ calc_AssErrDist <- function(  groupFolder="DERTACs_reruns_Oct10_",
 
 }
 
-calcMSE_AMestimates <- function(  groupFolder="DERTACS_reruns_sep24",
+calcMSE_AMestimates <- function(  groupFolder="DERTACS_Reruns_Jan5",
                                   prefix = "parBat" )
 {
   # First get info files so we can load the right 
@@ -2225,7 +2321,7 @@ makeStatTable <- function(  sim = 1, folder = "",
     discRate       <- opMod$discountRate
 
     profit_ipft    <- array(0, dim = dim(rev_ipft))
-    profit_ipft    <- (1 - crewShare)*rev_ipft - effCost_ipft
+    profit_ipft    <- rev_ipft - effCost_ipft
     
     discProfit_ipft  <- profit_ipft
     for( t in tMP:nT )

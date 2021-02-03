@@ -78,7 +78,15 @@ revenue curves in different colours, the multi-species revenue curve found
 by summing the three species curves as a solid black line, fuel costs as 
 a solid red line, and net resource rent as a dashed black line."
 
-
+dynOptUCap <- "Medians and distributions of harvest rates under the
+stochastic optimisation between 2040 and 2060 when maximising complex
+catch (circles) and producer surplus (triangles). Horizontal axes are 
+scaled to single-species equilibrium $U_{MSY,SS}$, indicated by a vertical
+dashed black line, with $U_{MSY,MS}$ indicated as a vertical green
+dashed line, and $U_{MEY}$ shown as a vertical pink dashed line. Grey
+horizontal bars show the central 95\\% of simulated harvest rates. Large
+cells show species (columns) and stock-areas (rows), while smaller cells
+show each correlation scenario, labelled on the y-axis."
 ```
 
 ```{r fig1-DERcomplexSurveyBio, echo = FALSE, warning = FALSE, fig.cap = DERcplxMapCap }
@@ -201,6 +209,19 @@ if(params$redoPlots | !file.exists(figPath))
   plotCWeconYield(  obj = simObj, 
                     maxE = 80,
                     plotCplx = TRUE )
+  dev.off()
+}
+knitr::include_graphics(figPath)
+```
+
+
+```{r fig10-dynUmsy, echo = FALSE, warning = FALSE, fig.cap = dynOptUCap }
+figPath <- file.path("./figure/fig10-dynUmsy.pdf")
+if(params$redoPlots | !file.exists(figPath))
+{
+  graphics.off()
+  pdf(file = figPath, width = 11, height = 8.5)
+  plotDynUmsy_sp()
   dev.off()
 }
 knitr::include_graphics(figPath)

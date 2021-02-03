@@ -44,7 +44,7 @@ determined the rate of allometric growth, and $L_{a,x,s,p}$ was
 the length in cm of a fish of age $a$, sex $x$, species $s$ and 
 stock $p$. Length-at-age was given by the following Schnute 
 formulation of the von-Bertalanffy growth curve [@schnute1981versatile; 
-@francis2016estimating] 
+@francis2016growth] 
 \begin{equation*}
 L_{a} = \overline{L}_{A_1} - (\overline{L}_{A_2} - \overline{L}_{A_1}) \cdot 
             \left( \frac{e^{-k A_1} - e^{-k a} )} {e^{-k A_1} - e^{-k A_2} } \right) 

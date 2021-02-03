@@ -23,7 +23,12 @@ independently for all DER complex stocks, there is little benefit in doing
 so. The complex wide catch yield is only 110 tonnes lower for MSY_MS
 than the sum of the single species MSY_SS values, and extra targeted fishing 
 effort and lower prices caused by the elasticity of demand may dissipate 
-any resource rent gains that the higher catch would bring. 
+any resource rent gains that the higher catch would bring.
+
+The intersection dynamic optima distributions with steady-state solutions 
+under all scenarios and objective functions indicated that dynamic 
+optima are not statistically different from steady-state optima in the 
+presence of recruitment process error and price variation.
 
 Future work: 
     - using this as an operating model to test multi-speces management objectives - could use simpler AM, such as multispecies coastwide, or a DD or SP model.

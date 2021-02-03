@@ -1,4 +1,4 @@
-# simCtlFile.txt, written to sim_baseRunon 1608672393
+# simCtlFile.txt, written to sim_baseRunon 1608703998
 parameter value
 ctl$scenarioName 'noCorr'
 ctl$mpName 'simAssError_MSY'
@@ -127,11 +127,11 @@ opMod$ut_95 .75
 opMod$effortMod "Max"
 opMod$pT 32
 opMod$histFile "fit_base_MCMC"
-opMod$price_s c(Dover=0.53,English=1.32,Rock=0.69,Petrale=2.590,Arrowtooth=0.990)
+opMod$price_s c(Dover=0.62,English=1.21,Rock=0.66,Petrale=2.590,Arrowtooth=0.990)
 opMod$varCostPerKt 0.176
 opMod$discountRate 0.05
 opMod$interestRate 0.0
-opMod$lambda_s c(2.245818,4.749872,2.477819)
+opMod$lambda_s c(5.396910,2.679747,2.291622)
 opMod$priceSD 0.05
 opMod$econBaseYear 2009
 opMod$crewShare .3

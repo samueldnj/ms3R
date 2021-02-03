@@ -252,12 +252,12 @@ simulated in the historical and projection periods for fitting assessment
 models. While it is more usual to use the actual historical data in most 
 closed loop simulations, we decided that given that pooled data must be 
 simulated, simulating all data series removed any effect of the difference 
-between simulated and real data
-on performance between pooled and non-pooled AMs. The Historical fishery CPUE 
-and Hecate Strait Assemblage survey were simulated only for the periods shown 
-in Figure 2, but the Modern fishery CPUE and Synoptic trawl survey biomass 
-index were also simulated in the projection period. All biomass indices were
-simulated with log-normally distributed observation error deviations with 
+between simulated and real data on performance between pooled and non-pooled 
+AMs. The Historical fishery CPUE and Hecate Strait Assemblage survey were 
+simulated only for the periods shown in Figure 2, but the Modern fishery 
+CPUE and Synoptic trawl survey biomass index were also simulated in the 
+projection period. All biomass indices were simulated with log-normally 
+distributed observation error deviations with 
 precision based on the conditioning assessment (Table A.1, Appendix A).
 
 Biomass indices for individual stocks were all simulated as relative
@@ -277,33 +277,27 @@ conditioning assessment by assuming that catch rates were an unbiased
 relative index. While the assumption that catch rates were an unbiased
 relative index likely increased the information contained in the 
 simulated CPUE indices over the real data, the large CVs estimated
-by the conditioning assessment retain realistic variation despite
-removing any systematic bias from the simulated indices.
+by the conditioning assessment retain realistic variation. Moreover, 
+simulating commercial data as relative biomass reduced differences
+in the variability and bias of the data simulated in the OM history 
+and data simulated in the projection.
 
-The method for generating pooled catch and biomass index data depended on 
-the data type. Catch data were pooled by summation, and the index data were 
-pooled according to the stock-specific definition above. For Assemblage 
-and Synoptic survey biomass indices, pooled indices without 
-observation error were defined as
+The method for generating pooled catch and biomass index data was
+analogous to the unpooled data, but combined via summation. Catch
+data was summed without any scaling, and biomass indices without 
+observation error were summed after scaling by catchability (trawl
+efficiency in the surveys), i.e.,
 \begin{align} 
 \bar{I}^{pooled}_{s,f,t}  & = \sum_{p} \mathbb{1}(I_{s,p,f,t} > 0) \cdot q_{s,p,f} \cdot B_{s,p,f,t} \\
 \bar{I}^{pooled}_{p,f,t}  & = \sum_{s} \mathbb{1}(I_{s,p,f,t} > 0) \cdot q_{s,p,f} \cdot B_{s,p,f,t} \\
-\bar{I}^{pooled}_{f,t}    & = \sum_{s,p} \mathbb{1}(I_{s,p,f,t} > 0) \cdot q_{s,p,f} \cdot B_{s,p,f,t}
+\bar{I}^{pooled}_{f,t}    & = \sum_{s,p} \mathbb{1}(I_{s,p,f,t} > 0) \cdot q_{s,p,f} \cdot B_{s,p,f,t} \label{eq:endIdx}
 \end{align}
-where $f = 3,4$, $\bar{I}^{pooled}_{s,f,t}$ is the spatially pooled index 
+where $f = 1,..,4$, $\bar{I}^{pooled}_{s,f,t}$ is the spatially pooled index 
 for species $s$, $\bar{I}^{pooled}_{p,f,t}$ is a species pooled index for 
 area $p$, $\bar{I}^{pooled}_{f,t}$ is the totally aggregated index (all 
 without error), and $\mathbb{1}(I_{s,p,f,t} > 0)$ is the indicator 
 function that takes value $1$ when survey $f$ in area $p$ took samples in 
-year $t$, and 0 otherwise. Pooled commercial CPUE indices were simulated 
-as
-\begin{align} 
-I^{pooled}_{s,f,t}  & = \frac{\sum_{p} C_{s,p,f,t}}{\sum_{p} E_{p,f,t} } \\
-I^{pooled}_{p,f,t}  & = \frac{\sum_{s} C_{s,p,f,t}}{ E_{p,f,t} } \\
-I^{pooled}_{f,t}    & = \frac{\sum_{s,p} C_{s,p,f,t}}{ \sum_{p} E_{p,f,t} } \label{eq:endIdx}
-\end{align}
-where $f = 1,2$, $C_{s,p,f,t}$ is catch, and $E_{p,f,t}$ is commercial trawl 
-effort, with subscripts as defined above.
+year $t$, and 0 otherwise.
 
 ### Target harvest rates and total allowable catch
 
@@ -453,7 +447,7 @@ quantitative objectives under any process error conditions
 than equilibrium based metrics [@punt2016management] because most stocks
 were in a healthy state in 2016 (i.e. above single-species $B_{MSY}$, 
 Table 2) and, therefore, the time-path of fishery development was
-important [@walters1988experimental].
+important [@walters1998evaluation].
 
 The omniscient manager was implemented as an optimisation
 of future fishing effort by area (Appendix B), with the objective

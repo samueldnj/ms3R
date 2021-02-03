@@ -193,13 +193,40 @@ csasdown::csas_table( ssRefPtsTab, escape = FALSE,
                       format = kable_format,
                       # linesep = "\\addlinespace",
                       caption = ssRefPtsTabCap,
-                      align = c("l","l",rep("c",ncol(ssRefPtsTab)-2))) %>%
+                      align = c( "l", "l", rep("c",ncol(ssRefPtsTab)-2))) %>%
   kable_styling(latex_options = c("striped", "hold_position","scale_down"),
                 bootstrap_options = c("striped", "hover"))  %>%
   add_header_above( header = c( " " = 3,
                                 "DER complex maximum yield" = 5,
                                 "Maximum Economic Yield" = 5),
                     bold = TRUE)
+
+```
+
+\clearpage
+
+
+```{r dynEqTables, echo = FALSE, warning = FALSE}
+noCorrEqbriaTab <- makeDynEqbriaTab(  "./data/dynEqbriaTables",
+                                      scenario = "noCorr")
+
+
+
+csasdown::csas_table(  noCorrEqbriaTab, escape = FALSE,
+                      booktabs = TRUE,
+                      font_size = 10,
+                      format = kable_format,
+                      caption = "DynEqbria_noCorr",
+                      align = c("l","l",rep("c",ncol(noCorrEqbriaTab)-2)) ) %>%
+      kable_styling(latex_options = c("striped", "hold_position","scale_down"),
+                bootstrap_options = c("striped", "hover")) %>%
+      add_header_above( header = c( " " = 2,
+                                "Dynamic MSY" = 5,
+                                "Dynamic MEY" = 5),
+                    bold = TRUE)
+
+
+
 
 ```
 

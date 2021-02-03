@@ -29,14 +29,14 @@ limits targeted individual stocks' single-species $U_{MSY}$? Further,
 would the rankings change if ranking of AM performance was based on the 
 risk of overfishing, or being in an overfished state, relative to 
 single-species reference points? Targeting single-species harvest 
-rates would likely lead to higher instances of choke effects, given the 
-ignorance of technical interactions, but would probably not affect the 
-rankings since the estimated optimal harvest for hierarchical models 
-had compensatory biases in biomass and harvest rates, which would hold
-for the single-species harvest rates as well. On the other hand, 
-single-species and pooled models lacked the compensatory biases
-in biomass and harvest rates, and pooled models had issues achieving
-target TACs stemming from the catch allocation model. If ranking by
+rates would likely lead to higher instances of choke effects since
+technical interactions are being ignored. Further, targeting 
+single-species yields would probably not affect the rankings based on
+AM performance, since the estimated optimal harvest for hierarchical models 
+had compensatory biases in biomass and harvest rates which would hold
+for the single-species harvest rates as well, while single-species and 
+pooled models lacked those compensatory biases, and pooled models had 
+issues achieving target TACs given the allocation mode. If ranking by
 the probability of overfishing or being in an overfished state, our
 results show that under the High and Mod scenarios the Hierarchical
 model would still tie for first, but would fall to third under the
@@ -53,9 +53,11 @@ that measuring multi-species fisheries performance according to
 single-species objectives (i.e., reference points) may be overly 
 conservative, and that while some overfishing may be required to 
 achieve multi-species yield objectives, that overfishing can be 
-sustainable. While it is possible to *a priori* define commercial 
-catchabilities so that multi-species optima would produce critically 
-overfished stocks, that was not the case for the simulated DER complex. 
+sustainable. While it is certainly possible to come up with a set of 
+commercial catchabilities that would produce critically overfished 
+stocks while maximising complex yield, that was not the case for the 
+DER complex simulated here, and it is unclear if such a mix would
+be a realistic scenario.
 
 Our results arise from models that are necessarily a simplification
 of the real stock-management system. The harvest rules applied to DER complex 
@@ -79,6 +81,25 @@ Finally, the TAC allocation model for data-pooled methods was only one
 example from a large set of potential options. Understanding the relative 
 risks of data-pooling would require testing alternative allocation 
 methods, which was beyond the scope of this paper.
+
+Replacing commercial fishery catch rates with relative biomass 
+in the simulations increased the statistical power of commercial index
+data and skewed results under the High scenario. Under previous 
+versions of the simulations where commercial indices were simulated as 
+catch rates, but without observation error, the Hierarchical method
+ranked lower than the three Pooling AMs under the High scenario, but still
+higher than the Single-species model. The change in performance is largely
+caused by learning or targeting behaviour of harvesters in Historical 
+(1956 - 1996) trawl fishery that caused indices to increase for some
+DER complex stocks while estimated biomass was decreasing in the model, 
+indicating time-varying catchability for that fleet. Time-varying 
+catchability was less of an issue for Pooled AMs because data pooling 
+is intended to increase sample size and reduce variability. 
+Replacing catch rates with relative biomass indices simulated with 
+a constant catchability reduced the advantage of data pooling under 
+the High scenario, allowing Hierarchical models to achieve the lowest
+catch loss under all three scenarios.
+
 
 We only considered multi-species technical interactions, which although
 an important part of exploited system dynamics, are not the entire

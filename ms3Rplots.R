@@ -320,6 +320,7 @@ plotCWeconYield <- function(  obj,
   specCols <- wes_palette("Rushmore1", 5, type = "discrete")[3:5]
 
 
+  browser()
 
   if(is.null(maxE))
     maxE <- 10 * max(Emey_p[pIdx])
@@ -954,7 +955,7 @@ plotDynOptEffort_p <- function( groupFolder = "omni_econYield_splineE_long",
 # plotDynUmsy_sp()
 # Plots distribution of dynamically optimised harvest rates
 # for a set of simulations
-plotDynUmsy_sp <- function( groupFolder = "omni_econYield_splineE_long",
+plotDynUmsy_sp <- function( groupFolder = "omni_econYield_splineE_long_Jan4",
                             mpFilter = "freeEff",
                             scenOrder = c("noCorr","corrRecDevs","corrPriceDevs","corrRecPrice") )
 {
@@ -1095,10 +1096,10 @@ plotDynUmsy_sp <- function( groupFolder = "omni_econYield_splineE_long",
 
       if( s == 1 & p == 1 )
         legend( x = "topright", bg = "white",
-                legend = c( "maxCatch",
-                            "maxProfits",
-                            "central 95%",
-                            "MS Umsy",
+                legend = c( "Catch",
+                            "Pr. Sp.",
+                            "Central 95%",
+                            "UmsyMS",
                             "Umey"),
                 pch = c(21,24,NA,NA,NA),
                 pt.bg = c("black","black",NA,NA,NA),
@@ -2593,7 +2594,7 @@ plotBatchConvergenceRate <- function( groupFolder = "DERTACS_reruns_sep24",
 
 
 # plot
-plotSensBatchSummary_SAisp <- function( groupFolder = "sensRuns_BmsyCV",
+plotSensBatchSummary_SAisp <- function( groupFolder = "sensRuns_UmsyCV_Jan5",
                                         prefix = "parBat",
                                         lossType = "abs",
                                         var = "C_ispt",
@@ -2616,6 +2617,7 @@ plotSensBatchSummary_SAisp <- function( groupFolder = "sensRuns_BmsyCV",
                                         printLeg = TRUE
                                       )
 {
+  # browser()
   # First, make cumulative loss array
   cumLossList <- makeCumulativeLossArray_SAisp( groupFolder = groupFolder,
                                                   prefix = prefix,
@@ -2628,13 +2630,11 @@ plotSensBatchSummary_SAisp <- function( groupFolder = "sensRuns_BmsyCV",
                                                   scenLabs = scenLabs,
                                                   clearBadReps = clearBadReps )
 
+
   cumLoss_SAisp <- cumLossList$cumLossArray_SAisp
   if(is.null(lossList))
     lossList      <- cumLossList$lossList
   info.df <- cumLossList$info.df
-
-
-  browser()
 
 
   # Calc median cumulative loss
@@ -3704,12 +3704,12 @@ plotSensRuns_pub <- function()
                     MSYCVlow  = c( Low_MSYCV0.1  = "Low_MSYCV0.1",
                                     Low_MSYCV0.5  = "Low_MSYCV0.5",
                                     Low_MSYCV1.0  = "Low_MSYCV1.0" ),
-                    UmsyCVhigh = c( High_UmsyCV0.1  = "High_UmsyCV0.1",
-                                    High_UmsyCV0.5  = "High_UmsyCV0.5",
-                                    High_UmsyCV1.0  = "High_UmsyCV1.0"),
-                    UmsyCVlow = c( Low_UmsyCV0.1  = "Low_UmsyCV0.1",
-                                    Low_UmsyCV0.5  = "Low_UmsyCV0.5",
-                                    Low_UmsyCV1.0  = "Low_UmsyCV1.0" ),
+                    UmsyCVhigh = c( High_UmsyCV0.1  = "Rich_UmsyCV0.1",
+                                    High_UmsyCV0.5  = "Rich_UmsyCV0.5",
+                                    High_UmsyCV1.0  = "Rich_UmsyCV1.0"),
+                    UmsyCVlow = c( Low_UmsyCV0.1  = "Poor_UmsyCV0.1",
+                                    Low_UmsyCV0.5  = "Poor_UmsyCV0.5",
+                                    Low_UmsyCV1.0  = "Poor_UmsyCV1.0" ),
                     hierSDhigh = c( High_hierSD0.1  = "High_shrinkSD0.1",
                                     High_hierSD0.2  = "High_shrinkSD0.2",
                                     High_hierSD0.5  = "High_shrinkSD0.5"),
@@ -3724,8 +3724,6 @@ plotSensRuns_pub <- function()
                                     Low_obsErr1.0  = "Low_obsErr1.0" )
                      )
 
-  browser()
-
   scenSplitString <- c( MSY     = "MSYCV",
                         Umsy    = "UmsyCV",
                         hierSD  = "shrinkSD",
@@ -3736,7 +3734,7 @@ plotSensRuns_pub <- function()
               hierSD = expression(paste( tau[q], " and ", sigma[U[MSY]] ) ),
               obsErr = expression(tau) )
 
-  groupFolders <- c("sensRuns_MSYCV_Jan5", "sensRuns_UmsySD_Jan5","sensRuns_hierSD_Jan5", "sensRuns_projObsErr_Jan5")
+  groupFolders <- c("sensRuns_MSYCV_Jan5", "sensRuns_UmsyCV_Jan5","sensRuns_hierSD_Jan5", "sensRuns_obsErr_Jan5")
 
 
   par( mfcol = c(2,4), oma = c(6,3,2,1), mar = c(.1,2,.1,1) )
@@ -4132,7 +4130,7 @@ plotTotLossDists <- function( sim = 1,
 # been calculated first, and saved
 # into the sim folder
 plotLossTulip <- function(  sim = 2, 
-                            groupFolder   = "DERTACS_reruns_sep24",
+                            groupFolder   = "DERTACS_Reruns_Jan5",
                             lossType      = "abs",
                             var           = "C_ispt",
                             dim1          = 1:2,
@@ -4239,7 +4237,7 @@ plotLossTulip <- function(  sim = 2,
 
       polygon(  x = c(years,rev(years)),
                 y = c(loss_qspt[1,s,p,],rev(loss_qspt[3,s,p,])),
-                border = NA, col = scales::alpha("grey10",.4) )
+                border = NA, col = "grey65" )
       lines(  x = years, y = loss_qspt[2,s,p,],
               col = "black", lwd = 3 )
       for( traceIdx in traces )
@@ -6389,7 +6387,7 @@ plotTulipEffort_p <- function(  obj = blob,
     envelopeFleet <- 1
 
   if( combineFisheries )
-    fleetCols <- "grey20"
+    fleetCols <- "gray65"
 
 
   par(  mfcol = c(nP,1), 
@@ -6418,11 +6416,11 @@ plotTulipEffort_p <- function(  obj = blob,
         if(f == envelopeFleet )
         {
           polygon( x = c(yrs,rev(yrs)), y = c(E_qpft[1,p,f,],rev(E_qpft[3,p,f,])), 
-                  col = scales::alpha(fleetCols[f], alpha = .3), border = NA )
+                  col = fleetCols[f], border = NA )
           for( tIdx in traces )
-            lines( x = yrs, y = E_ipft[tIdx,p,f,], col = fleetCols[f], lwd = .8 )
+            lines( x = yrs, y = E_ipft[tIdx,p,f,], col = "black", lwd = .8 )
         }
-        lines( x = yrs, y = E_qpft[2,p,f,], col = fleetCols[f], lwd = 3)
+        lines( x = yrs, y = E_qpft[2,p,f,], col = "black", lwd = 3)
         
       }
       par(xpd = TRUE)

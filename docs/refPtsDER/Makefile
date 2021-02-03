@@ -2,7 +2,7 @@ export PATH := /Library/TeX/texbin:$(PATH)    # add LaTeX path
 export PATH := /usr/local/bin:~/.local/bin:$(PATH) # add pandoc-citeproc-preamble
 
 # Cluster targets
-pdf: index.pdf tandf.pdf appendices.pdf
+pdf: index.pdf tandf.pdf appendices.pdf supplemental.pdf
 docx: index.docx tandf.pdf appendices.pdf
 
 # coauthor renders
@@ -35,7 +35,11 @@ tandf.pdf: index.Rmd Makefile
 appendices.pdf: index.Rmd Makefile
 	Rscript -e 'bookdown::render_book(input = "index.Rmd", clean = TRUE, output_format = "bookdown::pdf_document2", config_file = "_appendices.yml")'
 
+
 # docx
 appendices.docx: index.Rmd Makefile
 	Rscript -e 'bookdown::render_book(input = "index.Rmd", clean = TRUE, output_format = "bookdown::word_document2", config_file = "_appendices.yml")'
 
+
+supplemental.pdf: index.Rmd Makefile
+	Rscript -e 'bookdown::render_book(input = "index.Rmd", clean = TRUE, output_format = "bookdown::pdf_document2", config_file = "_supplemental.yml")'

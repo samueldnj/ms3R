@@ -24,6 +24,8 @@ significant trends.
 
 **Age fits**
 
+**MCMC diagnostics (Rhats, bulk and tail ESS)**
+
 Biomass time series and single-species biological reference point estimates 
 indicate that all DER complex stocks were in a healthy state in 2016 (Table 3). 
 Three out of nine stocks exhibited 1-way trip dynamics (HSHG and QCS Dover, 
@@ -160,15 +162,80 @@ if it matches Emsy/Emey proportions... Indicates that the allocation
 is fixed based on the $\lambda_s$ and $q^{F}_{s,p}$ values, so perhaps 
 the system is overdetermined? [No movement or ecological interactions,
 which may break this]. This allocation was insensitive to random initial 
-values for the optimisation.
+values for the optimisation. Sean says it should be scaled to productivity?
 
 
 ## Dynamic reference points
 
+[Show effort series plots - talk about variability?]
+
+Distributions of harvest rates from 2040 - 2060 were similar within 
+objective functions and across correlation scenarios (Figure 10). For 
+objective functions that maximsed total catch, median harvest rates 
+were almost identical to steady-state optimal harvest rates (Table 4),
+while distributions showed high variability. While variability of 
+producer surplus maximising harvest rates under was lower, distributions
+still intersected with steady-state $U_{MEY}$ values, and median
+dynamic harvest rates were between 7\% and 40\% higher than steady-state 
+optimal harvest rates.
+
+As expected, correlation had a larger effect on the variance of harvest 
+rate distributions than on the median harvest rates, as correlation affects
+the shape of distributions more than the scale. Median harvest rates were
+insensitive to the correlation scenario, differing by at most a percentage
+point (compare Table 5 and Tables S1 - S3). Correlation effects were most 
+noticeable (i.e., visually) under recruitment correlation, and less 
+noticeable under price correlation (Figure 10). Insensitivity to price 
+correlation is likely partially caused by the bounds placed on fish prices 
+to avoid unrealistically high net-present values of producer surplus under 
+some simulation replicates. 
+[**concrete differences in percentiles**]
  
+Median producer surplus under both objective functions was higher than 
+the steady-state solution (compare producer surplus columns, Tables 4 and 
+5), despite almost identical efforts and harvest rates under the
+catch maximising objective function. When maximising catch under
+the stochastic optimisation, median producer surplus was over three times 
+the steady state estimate in HSHG, around two times in QCS, and 9\% lower
+in WCVI. The objective function maximising producer surplus also produced
+higher producer surplus in general, achieving 88\% higher surplus in HSHG, 
+50\% higher in QCS, and 14\% higher in WCVI. Higher producer surplus in
+general is caused by the [**ability of prices to climb higher through price
+variation than under steady state, which relies on price elasticity of 
+demand alone to increase surplus. Further, there is a maximum price of 
+200\% of the historically observed max, but a minimum of 50\% of the 
+historically observed min price, putting some asymmetry in the price 
+dist after integrating over 100 possible futures.**] 
+
+While most median quantities were insensitive to correlation, 
+there were some notable differences in median producer surplus in
+the HSHG area when correlation was added to price. 
 
 
-#### Dead-weight loss
+## Targeting optimal harvest rates in practice
+
+We present results from the closed loop simulation under perfect
+information and simulated assessment errors for three harvest rates
+under each correlation scenario, namely the two steady state solutions
+and one dynamic approximation to $U_{MEY}$. Given that median harvest 
+rates for dynamic approximations to $U_{MSY,MS}$ were almost identical 
+to the steady state solution, we do not present results from closed 
+loop simulations that applied dynamic $U_{MSY,MS}$ harvest rates to 
+DER complex stocks. Although differences in steady-state and median 
+dynamic $U_{MEY}$ harvest rates were not statistically significant, 
+we present results based on applying both the steady state $U_{MEY}$ 
+and its dynamic approximation under the full price and recruitment
+correlation scenario, because fishery management decisions are often 
+made based on mean or median values, with variability sometimes ignored 
+or used to justify additional precautionary controls. However, the
+four dynamic approximations to $U_{MEY}$ differed by at most one
+percentage point, so one approximation will give sufficiently
+representative results.
+
+
+
+
+
 
 
 
