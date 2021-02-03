@@ -6,8 +6,8 @@ parameter value
 # Scenario 1 : constElast
 #
 scenario$scenario1$ctl$scenarioName 'constElast_det'
-scenario$scenario1$ctl$nGoodReps 10
-scenario$scenario1$ctl$totReps 10
+scenario$scenario1$ctl$nGoodReps 3
+scenario$scenario1$ctl$totReps 3
 scenario$scenario1$ctl$omni TRUE
 scenario$scenario1$ctl$noProcErr TRUE
 scenario$scenario1$ctl$perfConF FALSE
@@ -23,8 +23,8 @@ scenario$scenario1$opMod$discountRate 0.0
 # Scenario 2 : constElast
 #
 scenario$scenario2$ctl$scenarioName 'constElast_det'
-scenario$scenario2$ctl$nGoodReps 10
-scenario$scenario2$ctl$totReps 10
+scenario$scenario2$ctl$nGoodReps 3
+scenario$scenario2$ctl$totReps 3
 scenario$scenario2$ctl$omni TRUE
 scenario$scenario2$ctl$noProcErr TRUE
 scenario$scenario2$ctl$perfConF FALSE
