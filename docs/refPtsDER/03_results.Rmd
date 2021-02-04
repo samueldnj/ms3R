@@ -205,7 +205,8 @@ variation than under steady state, which relies on price elasticity of
 demand alone to increase surplus. Further, there is a maximum price of 
 200\% of the historically observed max, but a minimum of 50\% of the 
 historically observed min price, putting some asymmetry in the price 
-dist after integrating over 100 possible futures.**] 
+dist after integrating over 100 possible futures. Testing using
+deterministic runs will show whether this is true.**] 
 
 While most median quantities were insensitive to correlation, 
 there were some notable differences in median producer surplus in
@@ -216,21 +217,22 @@ the HSHG area when correlation was added to price.
 
 We present results from the closed loop simulation under perfect
 information and simulated assessment errors for three harvest rates
-under each correlation scenario, namely the two steady state solutions
-and one dynamic approximation to $U_{MEY}$. Given that median harvest 
-rates for dynamic approximations to $U_{MSY,MS}$ were almost identical 
-to the steady state solution, we do not present results from closed 
-loop simulations that applied dynamic $U_{MSY,MS}$ harvest rates to 
-DER complex stocks. Although differences in steady-state and median 
-dynamic $U_{MEY}$ harvest rates were not statistically significant, 
-we present results based on applying both the steady state $U_{MEY}$ 
-and its dynamic approximation under the full price and recruitment
-correlation scenario, because fishery management decisions are often 
-made based on mean or median values, with variability sometimes ignored 
-or used to justify additional precautionary controls. However, the
-four dynamic approximations to $U_{MEY}$ differed by at most one
-percentage point, so one approximation will give sufficiently
-representative results.
+under each correlation scenario, namely the steady state $U_{MSY,MS}$ 
+and $U_{MEY}$ estimates, and the dynamic approximation to $U_{MEY}$. 
+Given that median harvest rates for dynamic approximations to 
+$U_{MSY,MS}$ were almost identical to the steady state solution, we 
+do not present results from closed loop simulations that applied 
+dynamic $U_{MSY,MS}$ harvest rates to DER complex stocks. Although 
+differences in steady-state and median dynamic $U_{MEY}$ harvest 
+rates were not statistically significant, we present results based on 
+applying both the steady state $U_{MEY}$ and its dynamic approximation 
+under the full price and recruitment correlation (**corrRecPrice**) 
+scenario. Both are presented because fishery management decisions are 
+often made based on mean or median stock assessment outputs, with 
+variability sometimes ignored or used to justify additional precautionary 
+controls. However, the four dynamic approximations to $U_{MEY}$ differed 
+by at most one percentage point across the four scenarios, so one 
+approximation will give sufficiently representative results.
 
 
 
