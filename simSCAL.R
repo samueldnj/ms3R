@@ -1771,6 +1771,7 @@ solvePTm <- function( Bmsy, B0 )
     assErrors_sp <- assErrors_sp - apply(X = obj$errors$simAssErrors_spt, FUN = mean, MARGIN = c(1,2), na.rm =T)
 
 
+
   for( s in 1:nS )
     for( p in 1:nP )
     {
@@ -3991,8 +3992,37 @@ combBarrierPen <- function( x, eps,
       # to draw correlated assessment errors - assume unbiased so
       # that we don't need to include HR bias to compensate for biomass
       # bias
-      cat("Random simulated assessment errors not yet implemented...\n")
-      browser()
+      # cat("Random simulated assessment errors not yet implemented...\n")
+      # browser()
+
+      fitErrs_spt <- errList[[1]]$assErr_ispt[iRep,,,]
+
+      # Need to make a matrix to estimate correlation
+      errMat_tSP <- array(NA, dim = c(pT,nS*nP) )
+      for( s in 1:nS )
+        for(p in 1:nP )
+        {
+          # Not really important, but this method groups
+          # multiple species within an area - easier for
+          # looking spatially
+          colIdx <- (p-1)*nS + s
+          errMat_tSP[,colIdx] <- fitErrs_spt[s,p,tMP:nT]
+        }
+
+      # Now calculate correlation
+      corrErrs        <- cor(errMat_tSP)
+      covErrs         <- cov(errMat_tSP)
+      mvtNormErrs_tSP <- mvtnorm::rmvnorm(  n = pT, mean = rep(0,nS*nP),
+                                        sigma = covErrs,
+                                        method = "chol") 
+
+      for( s in 1:nS )
+        for(p in 1:nP )
+        {
+          colIdx <- (p-1)*nS + s
+          obj$errors$simAssErrors_spt[s,p,tMP:nT] <- mvtNormErrs_tSP[1:pT,colIdx]
+        }
+
     }
 
   }

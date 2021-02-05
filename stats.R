@@ -77,11 +77,11 @@ makeDynEqbriaTab <- function( folder = "./Outputs/omni_econYield_splineE_long_Ja
 
       tableFrame$MSY[specRow]       <- round(tabs$dynEqCat[tabRow,msyCol],2)
       tableFrame$Bmsy[specRow]      <- round(tabs$dynEqBio[tabRow,msyCol],2)
-      tableFrame$Umsy[specRow]      <- round(tabs$dynEqHR[tabRow,msyCol],2)
+      tableFrame$Umsy[specRow]      <- round(tabs$dynEqHR[tabRow,msyCol],3)
 
       tableFrame$Cmey[specRow]      <- round(tabs$dynEqCat[tabRow,meyCol],2)
       tableFrame$Bmey[specRow]      <- round(tabs$dynEqBio[tabRow,meyCol],2)
-      tableFrame$Umey[specRow]      <- round(tabs$dynEqHR[tabRow,meyCol],2)
+      tableFrame$Umey[specRow]      <- round(tabs$dynEqHR[tabRow,meyCol],3)
     }
 
 
@@ -181,11 +181,11 @@ makeStatMSEqbriaTab <- function( obj = blob )
 
       tableFrame$MSY[specRow]       <- round(MSY_sp[s,p],2)
       tableFrame$Bmsy[specRow]      <- round(Bmsy_sp[s,p],2)
-      tableFrame$Umsy[specRow]      <- round(MSY_sp[s,p]/Bmsy_sp[s,p],2)
+      tableFrame$Umsy[specRow]      <- round(MSY_sp[s,p]/Bmsy_sp[s,p],3)
 
       tableFrame$Cmey[specRow]      <- round(Ymey_sp[s,p],2)
       tableFrame$Bmey[specRow]      <- round(Bmey_sp[s,p],2)
-      tableFrame$Umey[specRow]      <- round(Ymey_sp[s,p]/Bmey_sp[s,p],2)
+      tableFrame$Umey[specRow]      <- round(Ymey_sp[s,p]/Bmey_sp[s,p],3)
     }
 
 

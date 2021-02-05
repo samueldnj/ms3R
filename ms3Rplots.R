@@ -319,9 +319,6 @@ plotCWeconYield <- function(  obj,
 
   specCols <- wes_palette("Rushmore1", 5, type = "discrete")[3:5]
 
-
-  browser()
-
   if(is.null(maxE))
     maxE <- 10 * max(Emey_p[pIdx])
 
@@ -957,6 +954,7 @@ plotDynOptEffort_p <- function( groupFolder = "omni_econYield_splineE_long",
 # for a set of simulations
 plotDynUmsy_sp <- function( groupFolder = "omni_econYield_splineE_long_Jan4",
                             mpFilter = "freeEff",
+                            baseRP = "sim_baseRun",
                             scenOrder = c("noCorr","corrRecDevs","corrPriceDevs","corrRecPrice") )
 {
   # First, read info files from the relevant
@@ -993,13 +991,27 @@ plotDynUmsy_sp <- function( groupFolder = "omni_econYield_splineE_long_Jan4",
   nT <- modelList[[1]]$nT
   nF <- modelList[[1]]$nF
 
+  if(!is.null(baseRP))
+  {
+    .loadSim(baseRP)
+    rp <- blob$rp[[1]]
+    blob <- NULL
+    gc()
+  }
+
   speciesNames <- modelList[[1]]$speciesNames
   stockNames <- modelList[[1]]$stockNames
 
   Bmsy_sp <- rp$FmsyRefPts$BeqFmsy_sp
   MSY_sp  <- rp$FmsyRefPts$YeqFmsy_sp
 
-  Emey_p  <- rp$EmeyRefPts$Emey_p
+  if( is.null(rp$EmeyRefPts$cwEconYieldCurves) )
+  {
+    Emey_p  <- rp$EmeyRefPts$Emey_p
+  } else {
+    Emey_p  <- rp$EmeyRefPts$cwEconYieldCurves$cwEmey_p
+  }
+
   Beq_spe <- rp$refCurves$EffCurves$Beq_spe
   Yeq_spe <- rp$refCurves$EffCurves$Yeq_spe
   E       <- rp$refCurves$EffCurves$E
@@ -1048,7 +1060,7 @@ plotDynUmsy_sp <- function( groupFolder = "omni_econYield_splineE_long_Jan4",
       if(mfg[1] == mfg[3])
         axis( side = 1 )
       if( mfg[2] == 1 )
-        axis( side = 2, at = 1:4, labels = scenOrder, las = 1 )
+        axis( side = 2, at = 1:length(scenOrder), labels = scenOrder, las = 1 )
       box(lwd = 2)
       abline( h = 0.5 + 1:3, lwd = 2 )
       abline( v = c(1), lty = 2, lwd = 1)

@@ -31,21 +31,20 @@ indicate that all DER complex stocks were in a healthy state in 2016 (Table 3).
 Three out of nine stocks exhibited 1-way trip dynamics (HSHG and QCS Dover, 
 and QCS Rock, Figure 5), where biomass only depleted over the period 1956 - 
 2016, while the remaining stocks showed signs of growth, usually after the mid 
-1990s, which could indicate that the growth was more related to the switch 
-between historical and modern commerical CPUE indices. Indeed, the two smaller 
-English sole stocks (QCS and WCVI) exhibit large jumps in biomass in 1996/1997,
+1990s, which could indicate that the estimated trend was spurious and
+more related to a switch in indices. Indeed, the two smaller English sole 
+stocks (QCS and WCVI) exhibit large jumps in biomass in 1996/1997,
 right as the historical trawl CPUE ends and modern trawl CPUE begins, jumping 
 almost all the way back to unfished levels in QCS. While these dynamics may 
 indicate spurious recruitment dynamics for these two stocks in the mid 
 1990s, the absolute size of the stocks is a very small proportion of the 
-overall complex and so is is considered a minor issue for the results of 
-this paper.
+overall complex and so is is considered a minor issue for this paper.
 
 Commercial catchability scalars for the modern trawl fleet were estimated
 as the mean log-residual between fishing mortality and trawl effort [eqref].
 Estimates were similar among species in the HSHG (0.022 - 0.026) and 
 QCS (0.014 - 0.016) areas, but more different in WCVI (0.012 - 0.025)
-(Table X). Estimates of fishing mortality were distributed evenly around
+(Table 4). Estimates of fishing mortality were distributed evenly around
 the mean catchability relationship for the 1996 - 2016 period, with the
 exception of some outliers in WCVI at around 22 thousand hours of trawling
 in 1996, where Rock sole's observed relationship was almost twice the 
@@ -59,16 +58,16 @@ the closure of the BC trawl fishery in 1995 due to overfishing concerns
 and poor reporting, it is likely that the outliers show overdepletion 
 and/or poor record keeping at the beginning of the at-sea observer program.
 
-Correlation in recruitment deviations
+*Correlation in recruitment deviations*
 
 ## DER complex time-varying inverse demand curves
 
 Fitting the time varying inverse demand curve model (Appendix B) to
 ex-vessel unit price data showed that all three DER complex species
 had relatively elastic demand (i.e., $\lambda_s > 1$ for all species
-$s$; Figure 6, demand curves). Over time, reference prices steadily 
+$s$; Figure 7, demand curves). Over time, reference prices steadily 
 dropped from around $1 per kg in 2006 to lows around $0.50/kg - $0.75/kg
-in 2011/2012 (Figure 6, Price time series), before increasing for 2-3 
+in 2011/2012 (Figure 7, Price time series), before increasing for 2-3 
 years, with English sole reaching its maximum recorded ex-vessel and 
 reference price estimate in 2013. In 2014, all three species reference 
 prices dropped again and converged around $0.50/kg, before increasing 
@@ -80,12 +79,12 @@ that catches are generally below the coast-wide maximum sustainable
 yield for each species. Observed prices for English and Rock sole were
 generally much higher then reference prices, which is again expected
 given the price elasticity of demand is much higher for Dover sole,
-leading to a flatter demand curve (Figure 6).
+leading to a flatter demand curve (Figure 7).
 
 TODO: SCALE deltas by their standard deviation (post-fit estimate)
 
 The blocks of decreasing and increasing reference prices are reflected
-in the random walk deviations (Figure 6, RW deviations). Early in the 
+in the random walk deviations (Figure 7, RW deviations). Early in the 
 period $\delta_{s,t} < 0$ for all three species, becoming positive 
 for 2010-2013, and so on. While random walks were closed to unbiased 
 with mean deviations of at most 0.08 in absolute value, random walk 
@@ -128,25 +127,26 @@ QCS around 9% higher rent at 11% higher fishing effort.
 
 ### Multi-species maximum economic yield
 
-Maximum economic yield (resource rent) for the DER complex trawl fishery 
-was around $1.58m CAD (Table 4). Fishing effort achieving MEY was about 
-one third of the effort level achieving MSY_MS for all areas. Similarly, 
-the optimal harvest rates for MEY were around 40\% of the harvest rates 
-for MSY_MS. Despite the large drop in effort and harvest rates, 
-catch differences were small given the higher equilibrium biomass at 
-the lower fishing effort. The total difference in DER complex 
+Maximum economic yield (annual resource rent in 2016 dollars) for the 
+DER complex trawl fishery was around $1.58m CAD (Table 4). Fishing effort 
+achieving MEY was about one third of the effort level achieving MSY_MS for 
+all areas. Similarly, the optimal harvest rates for MEY were around 40\% 
+of the harvest rates for MSY_MS. Despite the large drop in effort and 
+harvest rates, catch differences were small given the higher equilibrium 
+biomass at the lower fishing effort. The total difference in DER complex 
 equilibrium catch between $MSY_{MS}$ and $C_{MEY}$ was approximately 
 1.1 kt, with individual stock catches differing by an average of [X\%], 
 with a minimum difference of 9\% for HSHG Rock sole. 
 
-Once again, MEY was highest in the HSHG area at the lowest effort,
+Similar to above, MEY was highest in the HSHG area at the lowest effort,
 reflecting the higher biomass of all species in that area (Table 4). While
 $E_{MEY}$ in QCS was higher than in WCVI by a similar proportion to the
 corresponding $E_{MSY}$ values, the resource rent was about 40\% higher in 
-the WCVI area. The higher WCVI rent is thanks largely to the higher 
-Dover sole biomass in the WCVI, along with a higher price elasticity 
-of demand for Dover sole, which increased the landed value of Dover sole 
-and compensated for the higher costs of fishing in the WCVI area.
+the WCVI area. Higher WCVI rent is largely caused by the higher Dover sole 
+biomass relative to English and Rock sole biomasses in the WCVI, along 
+with the higher price elasticity of demand for Dover sole making prices
+more stable as catch is increased, compensating for higher simulated 
+fuel costs of fishing in the WCVI area.
 
 [Reference to supplemental material for base run without PED?]
 
@@ -157,14 +157,22 @@ effort increases at least one revenue curve drops below the marginal
 cost line before $E_{MEY}$ is reached (Figure 9). 
 
 The optimal allocation of fishing effort among areas was independent of 
-the total effort. For any fixed level of coast-wide effort $E$, the 
-optimal allocation was always 
-$\langle E_1, E_2, E_3 \rangle = \langle 0.25E, 0.42E, 0.33E \rangle$.
-This allocation was almost identical to the ratio of inverse average 
-commercial catchabilty $q^{F}_{s,p}$ values (Table 4), and similar to 
-the proportion of total effort allocated at $E_{MSY}$, indicating that 
-the allocation is likely fixed based on $q^{F}_{s,p}$ values, and 
-the price elasticity of demand has at most a minor effect.
+the total effort, and appeared largely determined by the distribution
+of commercial catchability scalars within an area. For any fixed level 
+of coast-wide effort $E$, the optimal allocation was always 
+$\langle E_1, E_2, E_3 \rangle = \langle 0.251E, 0.419E, 0.330E \rangle$.
+This allocation was very close to the vector 
+$\vec{\rho} = \langle 0.256, 0.416, 0.328 \rangle$ of relative 
+inverse average commercial catchabilty scalars within an area, defined by
+\begin{align*}
+\rho_p &= \frac{\mu_{q^{(F)},p}^{(inv)}}{\sum_p \mu_{q^{(F)},p}^{(inv)}}, \\
+\mu_{q^F,p}^{inv} & = \frac{1}{3} \sum_s \frac{1}{q^{(F)}_{s,p}}, \\
+\end{align*}
+indicating that the allocation is likely fixed based on $q^{F}_{s,p}$ 
+values, and the price elasticity of demand $\lambda_s$ has a minor effect
+[reference to supplement - look at effect of PED by removing it].
+The optimal allocation was also similar to the relative proportions of 
+$E_{MSY,MS,p}$, which were allocated as $\langle 0.27,0.385,0.345 \rangle$.
 
 
 
@@ -174,68 +182,79 @@ the price elasticity of demand has at most a minor effect.
 
 Distributions of harvest rates from 2040 - 2060 were similar within 
 objective functions and across correlation scenarios (Figure 10). For 
-objective functions that maximsed total catch, median harvest rates 
+objective functions that maximised total catch, median harvest rates 
 were almost identical to steady-state optimal harvest rates (Table 4),
-while distributions showed high variability. While variability of 
-resource rent maximising harvest rates under was lower, distributions
-still intersected with steady-state $U_{MEY}$ values, and median
-dynamic harvest rates were between 7\% and 40\% higher than steady-state 
-optimal harvest rates.
+while their distributions showed high variability. Despite lower 
+variability of harvest rates under rent maximisation, distributions
+still intersected with steady-state $U_{MEY}$ values, but median
+harvest rates were consistently higher than steady-state optimal harvest 
+rates by between 7\% and 40\%.
 
 As expected, correlation had a larger effect on the variance of harvest 
 rate distributions than on the median harvest rates, as correlation affects
-the shape of distributions more than the scale. Median harvest rates were
-insensitive to the correlation scenario, differing by at most a percentage
-point (compare Table 5 and Tables S1 - S3). Correlation effects were most 
+the shape of distributions more than the scale. Median harvest rates for
+catch maximisation were insensitive to the correlation scenario, differing 
+by around half a percent across all scenarios (compare Table 5 and Tables 
+S1 - S3). In contrast, median rent maximising harvest rates were somewhat 
+sensitive to correlation in price, increasing by 4\% - 5\% in HSHG and 
+around 2\% in QCS and WCVI when price correlation was simulated. 
+[**concrete differences in percentiles**]
+
+[*Correlation effects were most 
 noticeable (i.e., visually) under recruitment correlation, and less 
-noticeable under price correlation (Figure 10). Insensitivity to price 
+noticeable under price correlation (Figure 10). 
+Insensitivity of the
+distribution to price 
 correlation is likely partially caused by the bounds placed on fish prices 
 to avoid unrealistically high net-present values of resource rents under 
-some simulation replicates. 
-[**concrete differences in percentiles**]
+some simulation replicates.*]
+
  
-Median resource rents under both objective functions was higher than 
-the steady-state solution (compare resource rents columns, Tables 4 and 
-5), despite almost identical efforts and harvest rates under the
-catch maximising objective function. When maximising catch under
-the stochastic optimisation, median rent was over three times 
-the steady state estimate in HSHG, around two times in QCS, and 9\% lower
-in WCVI. The rent maximising objective function also produced
-higher resource rents in general, extracting 88\% higher rents in HSHG, 
-50\% higher in QCS, and 14\% higher in WCVI. Higher resource rents in
-general are caused by the [**ability of prices to climb higher through price
-variation than under steady state, which relies on price elasticity of 
-demand alone to increase surplus. Further, there is a maximum price of 
-200\% of the historically observed max, but a minimum of 50\% of the 
+Median annual (undiscounted - nominal?) resource rents under both 
+objective functions were higher than the steady-state solution (compare 
+resource rents columns, Tables 4 and 5), despite almost identical efforts 
+and harvest rates under the catch maximising objective function. When 
+maximising catch under the stochastic optimisation, median rent was over 
+three times the steady state estimate in HSHG, around two times in QCS, 
+and 9\% lower in WCVI. The rent maximising objective function also produced
+higher resource rents than steady state solutions, extracting 88\% higher 
+rents in HSHG, 50\% higher in QCS, and 14\% higher in WCVI. Higher resource 
+rents in general are caused by the [**ability of prices to climb higher 
+through price variation than under steady state, which relies on price 
+elasticity of demand alone to increase surplus. Further, there is a maximum 
+price of 200\% of the historically observed max, but a minimum of 50\% of the 
 historically observed min price, putting some asymmetry in the price 
 dist after integrating over 100 possible futures. Testing using
-deterministic runs will show whether this is true.**] 
+deterministic runs will show whether this is true.**] - also, is there
+an effect of maximising the total discounted rent here? Maybe try
+a deterministic run without discounting to see.
 
 While most median quantities were insensitive to correlation, 
 there were some notable differences in median resource rents in
-the HSHG area when correlation was added to price. 
+the HSHG area in the presence of price correlation. 
 
 
 ## Targeting optimal harvest rates in practice
 
 We present results from the closed loop simulation under perfect
-information and simulated assessment errors for three harvest rates
-under each correlation scenario, namely the steady state $U_{MSY,MS}$ 
-and $U_{MEY}$ estimates, and the dynamic approximation to $U_{MEY}$. 
-Given that median harvest rates for dynamic approximations to 
-$U_{MSY,MS}$ were almost identical to the steady state solution, we 
-do not present results from closed loop simulations that applied 
-dynamic $U_{MSY,MS}$ harvest rates to DER complex stocks. Although 
-differences in steady-state and median dynamic $U_{MEY}$ harvest 
-rates were not statistically significant, we present results based on 
-applying both the steady state $U_{MEY}$ and its dynamic approximation 
-under the full price and recruitment correlation (**corrRecPrice**) 
-scenario. Both are presented because fishery management decisions are 
-often made based on mean or median stock assessment outputs, with 
-variability sometimes ignored or used to justify additional precautionary 
-controls. However, the four dynamic approximations to $U_{MEY}$ differed 
-by at most one percentage point across the four scenarios, so one 
-approximation will give sufficiently representative results.
+information and simulated assessment errors for four harvest rates
+under each correlation scenario. The four harvest rates we present
+are the steady state $U_{MSY,MS}$ and $U_{MEY}$ estimates, and 
+the two dynamic approximations to $U_{MEY}$ estimated when recruitment
+correlation was simulated (i.e., **allCorr** and **recCorr** 
+scenarios). We do not present dynamic approximations to the $U_{MSY,MS}$
+harvest rates, given that median harvest rates derived from the catch 
+maximising objective function were almost identical to the steady 
+state solution. However, while the differences in steady-state and median 
+dynamic $U_{MEY}$ harvest rates were not statistically significant, we 
+present results based on the three distinct estimates because fishery 
+management decisions are often made based on mean or median stock 
+assessment outputs, with variability sometimes ignored or used to 
+justify additional precautionary controls, and differences of 5\% -
+40\% in harvest rates would create significant differences in management
+outcomes. 
+
+
 
 
 

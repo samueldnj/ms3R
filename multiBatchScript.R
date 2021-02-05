@@ -9,20 +9,18 @@ library(parallel)
 source("ms3R.r")
 # source("makeResultPlots.R")
 
-batchControlFiles <- c( "sensRuns_hierSD.bch",
-                        "sensRuns_MSYCV.bch",
-                        "sensRuns_UmsyCV.bch"
+batchControlFiles <- c( "perfInfo_catProfMax_corrOMs.bch",
+                        "simAssErrors_catProfMax_corrOMs.bch"
                       )
                        
 nBatchJobs <- length( batchControlFiles )
 
 
-baseControlFiles  <- rep( "simCtlFileBase_AAL12.txt",nBatchJobs)
+baseControlFiles  <- rep( "simCtlFileBase.txt",nBatchJobs)
                         
 
-prefixes       <- c(  "sensRuns_hierSD_Jan5",
-                      "sensRuns_MSYCV_Jan5",
-                      "sensRuns_UmsyCV_Jan5")
+prefixes       <- c(  "perfInfo_corrOMs",
+                      "simAssErrs_corrOMs")
 
 saveDirName       <- prefixes
 
