@@ -182,7 +182,8 @@ mean zero, for species $s$, area $p$, and time step $t$.
 
 ## Economic yield and inverse demand curves
 
-Economic yield was defined as net resource rent over all species and areas
+Economic yield was defined as net resource rent, or producer surplus, over 
+all species and areas
 \begin{equation} \label{eq:resRent}
 \pi(\vec{E}) = \sum_{p = 1}^{3} \left( (1 - \psi) \sum_{s} v_{s} \left(\sum_{p'=1}^3 C_{s,p'}(E_{p'}) \right) \cdot C_{s,p}(E_{p}) \right) - c_{p} \cdot E_{p},
 \end{equation}
@@ -281,18 +282,20 @@ and $MSY$ when commercial catchability scalars differ between species.
 ### Maximum economic yield
 
 The maximum economic yield (MEY) was found by substituting the single species 
-yield $Y_{SS,s,p}$ into the expression for the resource rent $pi$ 
+yield $Y_{SS,s,p}$ into the expression for the net resource rent $pi$ 
 (\ref{eq:resRent}) above, and optimising over the vector $\vec{E}$,
-\begin{equation}
+\begin{equation}\label{eq:econYield}
 Y^{econ}_{MS} (\vec{E}, q^{F}, Q, \vec{c}, \vec{v} ) 
   = \sum_p \left[ (1 - \psi) \cdot \sum^3_{s=1} v_s \cdot Y_{SS,s,p} (E_p, q_{s,p}, Q_{s,p} ) \right] - c_p E_p,
 \end{equation}
-where the function $Y_{SS,s,p}$ and its arguments are as above. Then 
-the MEY is given by
+where the function $Y_{SS,s,p}$ and its arguments are as above. The
+resource rent equation \eqref{eq:econYield} defines a hyper-surface
+in 4 dimensional space, and MEY was found via Newton-Rhapson optimisation 
+to find the maximum
 \begin{equation}
-MEY = \max_{\vec{E}} Y^{econ}_{MS} (\vec{E}, q^{F}, Q, \vec{c}, \vec{v} )
+MEY = \max_{\vec{E}} Y^{econ}_{MS} (\vec{E}, q^{F}, Q, \vec{c}, \vec{v} ),
 \end{equation}
-and the associated optimal vector of fishing effort is
+and the associated vector of optimal fishing effort 
 \begin{equation}
 \vec{E}_{MEY} = {\argmax}_{\vec{E}} Y^{econ}_{MS} (\vec{E}, q^{F}, Q, \vec{c}, v_1, v_2, v_3 ).
 \end{equation}
@@ -364,7 +367,7 @@ The base scenario **noCorr** had no correlation in either process
 random walk, **recCorr** included correlations in recruitment across
 all nine DER complex stocks, and **allCorr** included both sources of 
 correlation. For price, the correlation matrix was derived from the time
-series of price data, and for recruitment process deviations, correlation 
+series of price data, and recruitment process deviation correlation 
 matrices were derived from the AM estimates of recruitment deviation series.
 
 Optimal $E_{MSY,MS,p}$ and $E_{MEY,p}$, and associated biomasses, catches,

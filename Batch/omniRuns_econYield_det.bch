@@ -15,7 +15,7 @@ scenario$scenario1$ctl$nCores NULL
 scenario$scenario1$opMod$pT 80
 scenario$scenario1$opMod$corrRecDevs FALSE
 scenario$scenario1$opMod$corrPriceDevs FALSE
-scenario$scenario1$opMod$priceModel NULL
+scenario$scenario1$opMod$priceModel c(NULL)
 scenario$scenario1$opMod$lambda_s c(5.396910,2.679747,2.291622)
 scenario$scenario1$mp$omni$nKnots 10
 scenario$scenario1$opMod$discountRate 0.0

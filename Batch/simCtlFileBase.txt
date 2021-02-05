@@ -121,7 +121,7 @@ opMod$commGears c(2)
 opMod$corrRecDevs FALSE
 opMod$corrPriceDevs FALSE
 opMod$cwMEY FALSE
-opMod$priceModel "DERcplxPriceFlexModel.Rdata"
+opMod$priceModel NULL
 opMod$priceCorr .6
 opMod$ut_50 .85
 opMod$ut_95 .75

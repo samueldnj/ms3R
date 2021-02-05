@@ -491,10 +491,10 @@ dynEqbriaTab <- function( groupFolder = "omni_econYield_splineE_long_Jan4",
 # time series, and calculates distributions
 # of each inside a nominated time period
 pullModelStates <- function(  sim         = 1,
-                              groupFolder = "omni_econYield_splineE_long_Jan4",
+                              groupFolder = "detRuns_varEff",
                               stateVars   = c("C_ispt","SB_ispt","E_ipft"),
                               output      = FALSE,
-                              distPeriod  = 2041:2060 )
+                              distPeriod  = 2050:2070 )
 {
   # First, load the sim that we want
   # to calculate loss for

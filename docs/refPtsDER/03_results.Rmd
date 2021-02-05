@@ -133,19 +133,22 @@ was around $1.58m CAD (Table 4). Fishing effort achieving MEY was about
 one third of the effort level achieving MSY_MS for all areas. Similarly, 
 the optimal harvest rates for MEY were around 40\% of the harvest rates 
 for MSY_MS. Despite the large drop in effort and harvest rates, 
-catches dropped by an average of [X\%], but as little as 9\% for HSHG
-Rock sole, again given the higher equilibrium biomass at the lower
-fishing effort. The total drop in DER complex equilibrium catch between 
-MSY_MS and MEY was approximately 1.1 kt.
+catch differences were small given the higher equilibrium biomass at 
+the lower fishing effort. The total difference in DER complex 
+equilibrium catch between $MSY_{MS}$ and $C_{MEY}$ was approximately 
+1.1 kt, with individual stock catches differing by an average of [X\%], 
+with a minimum difference of 9\% for HSHG Rock sole. 
 
 Once again, MEY was highest in the HSHG area at the lowest effort,
 reflecting the higher biomass of all species in that area (Table 4). While
-E_MEY in QCS was higher than in WCVI by a similar proportion to the
-corresponding E_MSY values, the resource rent was about 40\% higher in 
+$E_{MEY}$ in QCS was higher than in WCVI by a similar proportion to the
+corresponding $E_{MSY}$ values, the resource rent was about 40\% higher in 
 the WCVI area. The higher WCVI rent is thanks largely to the higher 
 Dover sole biomass in the WCVI, along with a higher price elasticity 
-of demand for Dover sole, producing a higher landed value of Dover sole 
-that compensated for the higher costs of fishing in the WCVI area.
+of demand for Dover sole, which increased the landed value of Dover sole 
+and compensated for the higher costs of fishing in the WCVI area.
+
+[Reference to supplemental material for base run without PED?]
 
 At the assumed fuel costs, the resource rents of the DER complex fishery 
 are dependent on technical interactions to remain positive. While it is 
@@ -155,14 +158,14 @@ cost line before $E_{MEY}$ is reached (Figure 9).
 
 The optimal allocation of fishing effort among areas was independent of 
 the total effort. For any fixed level of coast-wide effort $E$, the 
-allocation was always 
-$\langle E_1, E_2, E_3 \rangle = \langle p_1E, p_2E, p_3E \rangle$,
-which we still need time to interpret... (pull ps from the table), check
-if it matches Emsy/Emey proportions... Indicates that the allocation
-is fixed based on the $\lambda_s$ and $q^{F}_{s,p}$ values, so perhaps 
-the system is overdetermined? [No movement or ecological interactions,
-which may break this]. This allocation was insensitive to random initial 
-values for the optimisation. Sean says it should be scaled to productivity?
+optimal allocation was always 
+$\langle E_1, E_2, E_3 \rangle = \langle 0.25E, 0.42E, 0.33E \rangle$.
+This allocation was almost identical to the ratio of inverse average 
+commercial catchabilty $q^{F}_{s,p}$ values (Table 4), and similar to 
+the proportion of total effort allocated at $E_{MSY}$, indicating that 
+the allocation is likely fixed based on $q^{F}_{s,p}$ values, and 
+the price elasticity of demand has at most a minor effect.
+
 
 
 ## Dynamic reference points
@@ -174,7 +177,7 @@ objective functions and across correlation scenarios (Figure 10). For
 objective functions that maximsed total catch, median harvest rates 
 were almost identical to steady-state optimal harvest rates (Table 4),
 while distributions showed high variability. While variability of 
-producer surplus maximising harvest rates under was lower, distributions
+resource rent maximising harvest rates under was lower, distributions
 still intersected with steady-state $U_{MEY}$ values, and median
 dynamic harvest rates were between 7\% and 40\% higher than steady-state 
 optimal harvest rates.
@@ -187,20 +190,20 @@ point (compare Table 5 and Tables S1 - S3). Correlation effects were most
 noticeable (i.e., visually) under recruitment correlation, and less 
 noticeable under price correlation (Figure 10). Insensitivity to price 
 correlation is likely partially caused by the bounds placed on fish prices 
-to avoid unrealistically high net-present values of producer surplus under 
+to avoid unrealistically high net-present values of resource rents under 
 some simulation replicates. 
 [**concrete differences in percentiles**]
  
-Median producer surplus under both objective functions was higher than 
-the steady-state solution (compare producer surplus columns, Tables 4 and 
+Median resource rents under both objective functions was higher than 
+the steady-state solution (compare resource rents columns, Tables 4 and 
 5), despite almost identical efforts and harvest rates under the
 catch maximising objective function. When maximising catch under
-the stochastic optimisation, median producer surplus was over three times 
+the stochastic optimisation, median rent was over three times 
 the steady state estimate in HSHG, around two times in QCS, and 9\% lower
-in WCVI. The objective function maximising producer surplus also produced
-higher producer surplus in general, achieving 88\% higher surplus in HSHG, 
-50\% higher in QCS, and 14\% higher in WCVI. Higher producer surplus in
-general is caused by the [**ability of prices to climb higher through price
+in WCVI. The rent maximising objective function also produced
+higher resource rents in general, extracting 88\% higher rents in HSHG, 
+50\% higher in QCS, and 14\% higher in WCVI. Higher resource rents in
+general are caused by the [**ability of prices to climb higher through price
 variation than under steady state, which relies on price elasticity of 
 demand alone to increase surplus. Further, there is a maximum price of 
 200\% of the historically observed max, but a minimum of 50\% of the 
@@ -209,7 +212,7 @@ dist after integrating over 100 possible futures. Testing using
 deterministic runs will show whether this is true.**] 
 
 While most median quantities were insensitive to correlation, 
-there were some notable differences in median producer surplus in
+there were some notable differences in median resource rents in
 the HSHG area when correlation was added to price. 
 
 

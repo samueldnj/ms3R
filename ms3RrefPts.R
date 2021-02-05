@@ -352,7 +352,7 @@ solveSpline <- function(  Yvals, Xvals, value = 0, bounds = c(0,10),
     cwEconYieldCurves$cwRent_e      <- cwRent_e
     cwEconYieldCurves$cwYeq_spe     <- cwYeq_spe
     cwEconYieldCurves$cwEffCost_pe  <- cwEffCost_pe
-    cwEconYieldCurves$cwEffCost_pe  <- cwEffCost_pe  
+    cwEconYieldCurves$cwEff_pe      <- cwEff_pe  
   }
 
 

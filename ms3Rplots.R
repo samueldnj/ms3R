@@ -517,9 +517,9 @@ xaxisRot <- function( at = 1:10,
 # plotDynRefPoints_sp()
 # Plots distributions of stochastically optimised Bmsy
 # for a set of simulations
-plotDynBmsy_sp <- function( groupFolder = "omni_econYield_constE_Nov6",
-                            mpFilter = "freeEff",
-                            scenOrder = c("noCorr","corrRecDevs","corrPriceDevs","corrRecPrice") )
+plotDynBmsy_sp <- function( groupFolder = "detRuns_varEff",
+                            mpFilter = "omni",
+                            scenOrder = c("infElast_det","constElast_det") )
 {
   # First, read info files from the relevant
   # sims
@@ -590,7 +590,7 @@ plotDynBmsy_sp <- function( groupFolder = "omni_econYield_constE_Nov6",
       if(mfg[1] == mfg[3])
         axis( side = 1 )
       if( mfg[2] == 1 )
-        axis( side = 2, at = 1:4, labels = scenOrder, las = 1 )
+        axis( side = 2, at = 1:length(scenOrder), labels = scenOrder, las = 1 )
       box(lwd = 2)
       abline( h = 0.5 + 1:3, lwd = 2 )
       abline( v = c(1), lty = 2, lwd = 1)
