@@ -71,7 +71,7 @@ mp$data$tvq FALSE
 mp$hcr$refPtType "MS"
 mp$hcr$Fsource "est"
 mp$hcr$type "conF"
-mp$hcr$inputHRfile "Outputs/omni_econYield_splineE_long/dynEqHR.csv"
+mp$hcr$inputHRfile "dynEqHR.csv"
 mp$hcr$fileColName "noCorr.totCat"
 mp$hcr$Bref "Bmsy"
 mp$hcr$Fref "Umsy"
