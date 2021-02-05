@@ -17,7 +17,7 @@ scenario$scenario1$opMod$corrRecDevs FALSE
 scenario$scenario1$opMod$corrPriceDevs FALSE
 scenario$scenario1$opMod$priceModel c(NULL)
 scenario$scenario1$opMod$lambda_s c(5.396910,2.679747,2.291622)
-scenario$scenario1$mp$omni$nKnots 10
+scenario$scenario1$mp$omni$nKnots 17
 scenario$scenario1$opMod$discountRate 0.0
 #
 # Scenario 2 : constElast
@@ -34,7 +34,7 @@ scenario$scenario2$opMod$corrRecDevs FALSE
 scenario$scenario2$opMod$corrPriceDevs FALSE
 scenario$scenario2$opMod$priceModel NULL
 scenario$scenario2$opMod$lambda_s c(Inf,Inf,Inf)
-scenario$scenario2$mp$omni$nKnots 10
+scenario$scenario2$mp$omni$nKnots 17
 scenario$scenario2$opMod$discountRate 0.0
 #
 #
