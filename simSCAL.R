@@ -2615,8 +2615,7 @@ solvePTm <- function( Bmsy, B0 )
         }
 
         for( s in 1:nS )
-          for( p in 1:nP)
-            obj$om$F_spft[s,p,2,tMP:nT] <- obj$om$E_pft[p,2,tMP:nT] * om$qF_spft[s,p,2,tMP:nT]
+            obj$om$F_spft[s,,2,tMP:nT] <- obj$om$E_pft[,2,tMP:nT] * om$qF_spft[s,,2,tMP:nT]
       }
 
     }

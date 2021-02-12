@@ -1,20 +1,33 @@
 # Discussion
 
-In this paper we fit a hierarchical age-structured stock assessment to 5 species of flatfish, each with 3 stocks.
+In this paper, we estimated steady-state and dynamic optimal harvest
+rates maximising multi-species catch and resource rent under various 
+correlation scenarios for a simulated multi-species, spatially 
+heterogeneous flatfish fishery off the coast of BC, Canada. Optimal 
+harvest rates were used to set TACs in closed-loop simulations assuming 
+both perfect and imperfect knowledge of stock biomass, estimating the 
+risk of including or excluding price and recruitment correlation when 
+setting multi-species management objectives.
 
-Challenges:
-  - Fitting to length comps (you better get the biology right (ref))
-  - overwhelming the likelihood with compositional data
-  - integrating growth vs leaving it out
-
-Limitations:
-  - No movement
-  - No technical/trophic interactions (bycatch ratios??)
-  - 
-
-Conclusion:
-  - Despite limitations, these hierarchical stock assessment models are a viable method of extending assessments to management units where data are limited or non-existent
-  - 
+- Limitations
+    - Only technical interacions, no ecological interactions or movement
+    - Short price history
+    - Some spurious population dynamics estimates
+    - ...
+- While correlation had a noticeable effect on expected NPV, the influence of
+correlation on dynamically optimised harvest rates was very subtle, and 
+therefore the risk of incorrectly including or ignoring correlation was very 
+low (VAR5\% differed by $\approx$ 10k over 32 years).
+    - Correlation in price had a small effect on MEY harvest rates, but 
+    the effect of correlation recruitment was trivial.
+    - Correlation effect, especially recruitment corr, was likely limited
+    by lack of ecological interactions/movement among stocks/species. In 
+    multi-stock contexts with spatial movement (e.g. ABFT), where TACs in
+    one area could affect the effective harvest rate induced
+    by another area's TACs, positive correlation in recruitments would 
+    likely strengthen feedback links between areas, creating more
+    significant differences between target harvest rates under 
+    correlated and uncorrelated scenarios.
 
 For the DER complex, there is little reason not to target
 multi-species yield objectives. Even assuming that technical interactions 

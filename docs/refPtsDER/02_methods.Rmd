@@ -370,17 +370,21 @@ correlation. For price, the correlation matrix was derived from the time
 series of price data, and recruitment process deviation correlation 
 matrices were derived from the AM estimates of recruitment deviation series.
 
-Optimal $E_{MSY,MS,p}$ and $E_{MEY,p}$, and associated biomasses, catches,
-resource rents, and harvest rates were estimated as the median of each
-value across the distribution of effort time series under each objective 
-function and projection scenario. Dynamic optima were compared to the 
-steady-state solutions found via the yield curve analysis outlined above. 
-Median values were taken over the time period 2040 - 2060, which allowed 
+Dynamic optimal efforts $E^*_{MSY,MS,p}$ and $E^*_{MEY,p}$, and 
+associated biomasses, catches, resource rents, and harvest rates (denoted
+by adding an asterisk to the variable denoting steady-state optima) were 
+estimated as the median of each quantity across the distribution of effort 
+time series under each objective function and projection scenario. Median 
+values were taken over the time period 2040 - 2060, which allowed 
 enough time for the effort to stabilise after any initial transient 
 period, but also avoided end effects caused by a finite projection
-time horizon. 
+time horizon. Dynamic optima were then compared to the steady-state optima 
+found via the numerical yield curve analysis outlined above, and the 
+tails of catch and resource rent distributions were compared between
+correlation scenarios to understand the effect of correlation on fishery 
+risk.
 
-## Risk of including/ignoring correlation
+## Risks of correlation in practice
 
 The above steady-state and dynamic reference points give expected
 fishery outcomes when fishing effort can be directly controlled;
@@ -395,47 +399,45 @@ rates that were based on the MSY and MEY dynamic optima.
 
 The AM was used to condition the operating model (OM) in a closed loop 
 simulator to test the risk of ignoring or including correlation when
-setting target harvest rates. 
-- Add stuff about closed-loop sim here - how in depth??
-
-The closed loop simulation cross tested harvest strategies that accounted 
-for or ignored correlation with the operating model scenarios used
-to derive those strategies under dynamic conditions above. In total, there 
-were 64 OM/AM combinations, comprising the four OM correlation scenarios, the 
-eight target harvest rates maximising catch or profit under those four 
-correlation scenarios, and two levels of uncertainty in biomass when 
-setting TACs. We did not derive harvest rates from the steady state equilibria, as these were 
-practically identical to dynamic equilibria in the absence of correlation.
+setting target harvest rates. Our closed loop simulator accounted
+for technical interactions by setting TACs (explained below), and then 
+increasing fishing effort independently in each area until at least one
+species' TAC was exhausted [@johnson2021hierarchical]. The closed loop 
+simulation cross tested harvest strategies that accounted for or ignored 
+correlation with the operating model scenarios used to derive those 
+strategies under dynamic conditions above. In total, based on
+similarity of results, we tested 16 out of 80 potential OM/AM 
+combinations, comprising four OM correlation scenarios, ten target 
+harvest (two steady-state and eight dynamic optima), and two levels of 
+uncertainty in biomass when setting TACs.
 
 At each time step in the closed loop simulation, TACs were set using
 a constant harvest rate, i.e.
 \[
-TAC_{s,p,t} = \hat{B}_{s,p,t} \cdot U^*_{s,p},
+TAC_{s,p,t} = \hat{B}_{s,p,t} \cdot U_{s,p},
 \] 
 where $\hat{B}_{s,p,t}$ is a biomass forecast for species $s$
-in area $p$ at time $t$, and $U^*_{s,p}$ is the optimal harvest rate
-derived from the dynamic optimisation above. Biomass forecasts were
-either known perfectly, i.e. $\hat{B}_{s,p,t} = B_{s,p,t}$ for 
-the **perfInfo** uncertainty scenario, or with a log-normal assessment 
-error $\hat{B}_{s,p,t} = B_{s,p,t}\cdot e^{\delta_{s,p,t}}$ under 
-the **assErr** uncertainty scenario, where the assessment error 
-distribution is detailed in Appendix B (not yet complete).
+in area $p$ at time $t$, and $U_{s,p}$ is the optimal harvest rate
+either derived from steady state solutions, or from the dynamic 
+optimisation above. Biomass forecasts were either known perfectly, i.e. 
+$\hat{B}_{s,p,t} = B_{s,p,t}$ for the **perfInfo** uncertainty scenario, 
+or with a log-normal assessment error 
+$\hat{B}_{s,p,t} = B_{s,p,t}\cdot e^{\delta_{s,p,t}}$ under 
+the **assErr** uncertainty scenario. The assessment error distribution was
+derived from assessment errors in previous work [@johnson2021hierarchical], 
+where we used closed loop simulations to test a hierarchical surplus 
+production assessment model on the DER complex (see section S.2 for
+details).
 
-Risk was defined as the difference in outcomes (biomass/profit) between 
-reference cases for each operating model scenario, and the remaining 
-cases that were tested on that OM. Reference cases for each OM correlation
-scenario were the strategies that used optimal harvest rates for that 
-scenario with perfect biomass forecasts; for example, the reference cases 
-for the price correlation scenario were the two simulations that used MSY 
-and MEY harvest rates found via dynamic optimisation of the **priceCorr** 
-OM scenario. Given that correlation will have an effect on the distribution 
-of the price and recruitment deviations, and therefore more of an effect on 
-the tails than the mean or median outcome, we measure risk as the 5th 
-percentile of the biomass for each species in an area and coastwide, and 
-the 5th percentile of economic yield in an area and coastwide. Using a 
-percentile as a risk metric is known as *Value-at-risk-p* (VAR-p), which
-is a non-parametric definition of riks commonly used in economic 
-analyses [REF].
+Risk was defined as the difference in outcomes (biomass/rent) between 
+target harvest rates under each operating model scenario. Given that 
+correlation will have an effect on the distribution of the price and 
+recruitment deviations, and therefore more of an effect on 
+the tails than the mean or median outcome, we measure risk as the
+difference in the 5th percentiles of distributions of biomass and 
+net present value. Using a percentile $p$ as a risk metric is known 
+as *Value-at-risk-$p$* ($VAR-p$), which is a non-parametric definition 
+of risk commonly used in economic analyses [REF].
 
 
 

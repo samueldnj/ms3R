@@ -23,6 +23,22 @@ by area, while catch ($MSY$, $C_{MEY}$, kt), biomass ($B_{MSY}$,
 $B_{MEY}$, kt), and harvest rate ($U_{MSY}$, $U_{MEY}$, unitless) 
 are calculated by species within an area."
 
+propEffTabCap <- "Proportions of inverse average catchability and 
+the estimated optimal allocation of effort among areas."
+
+dynEqNoCorrTabCap <- "Median values of dynamic approximations to 
+maximum sustainable multispecies yield ($MSY_{MS}$) and maximum economic 
+yield ($MEY$) reference points for the British Columbia DER complex of 
+flatfish under the noCorr scenario. Effort (1000s of trawl hours) and 
+rent (millons CAD\\$) are calculated by area, while catch ($MSY$, 
+$C_{MEY}$, kt), biomass ($B_{MSY}$, $B_{MEY}$, kt), and harvest 
+rate ($U_{MSY}$, $U_{MEY}$, \\%) are calculated by species within an area."
+
+discRentTabCap <- "Median and central 90\\% of the distribution of total 
+discounted resource rent from the DER complex in the projection period,
+over all simulation replicates for the simulated errors and perfect info 
+closed loop simulations. Total resource rent is summed over all DER complex 
+species and stock areas, and discounted by an annual rate of 5\\%."
 ```
 
 
@@ -172,7 +188,8 @@ csasdown::csas_table( parEstTable, escape = FALSE,
 
 ```{r ssRefPtsTable, echo = FALSE, warning = FALSE}
 
-ssRefPtsTab <- makeStatMSEqbriaTab(blob)
+statRefPts <- makeStatMSEqbriaTab(blob)
+ssRefPtsTab <- statRefPts
 
 colnames(ssRefPtsTab) <- c( "Stock",
                             "Species",
@@ -203,20 +220,83 @@ csasdown::csas_table( ssRefPtsTab, escape = FALSE,
 
 ```
 
+\elandscape
+
 \clearpage
 
+```{r propEffTable, echo = FALSE, warning = FALSE}
 
-```{r dynEqTables, echo = FALSE, warning = FALSE}
+# We're gonna bodge this up from a couple sources.
+qComm  <- statRefPts$qComm
+qCommHSHG <- mean(qComm[2:4])
+qCommQCS  <- mean(qComm[6:8])
+qCommWCVI <- mean(qComm[10:12])
+
+meanqComm <- c(1/qCommHSHG,1/qCommQCS,1/qCommWCVI)
+meanqComm <- meanqComm/sum(meanqComm)
+
+propEmey_p <- statRefPts$Emey[c(1,5,9)]
+propEmey_p <- propEmey_p/sum(propEmey_p)
+propEmsy_p <- statRefPts$Emsy[c(1,5,9)]
+propEmsy_p <- propEmsy_p/sum(propEmsy_p)
+
+
+# Get non-eqbm table too
 noCorrEqbriaTab <- makeDynEqbriaTab(  "./data/dynEqbriaTables",
                                       scenario = "noCorr")
 
+propDynEmey_p <- noCorrEqbriaTab$Emey[c(1,5,9)]
+propDynEmey_p <- propDynEmey_p/sum(propDynEmey_p)
+propDynEmsy_p <- noCorrEqbriaTab$Emsy[c(1,5,9)]
+propDynEmsy_p <- propDynEmsy_p/sum(propDynEmsy_p)
 
+
+propEffTable <- matrix( nrow = 3, ncol = 6)
+colnames(propEffTable) <- c(  "Area",
+                              "$1/\\bar{q}^{(F)}$",
+                              "$E_{MSY,MS}$",
+                              "$E_{MEY}$",
+                              "$E^*_{MSY,MS}$",
+                              "$E^*_{MEY}$" )
+propEffTable <- as.data.frame(propEffTable)
+propEffTable[,"Area"] <- c("HSHG","QCS","WCVI")
+propEffTable[,2] <- round(meanqComm,3)
+propEffTable[,3] <- round(propEmsy_p,3)
+propEffTable[,4] <- round(propEmey_p,3)
+propEffTable[,5] <- round(propDynEmsy_p,3)
+propEffTable[,6] <- round(propDynEmey_p,3)
+
+csasdown::csas_table(  propEffTable, escape = FALSE,
+                      booktabs = TRUE,
+                      font_size = 10,
+                      format = kable_format,
+                      caption = propEffTabCap,
+                      align = c("l","l",rep("c",ncol(propEffTable)-2)) ) %>%
+      kable_styling(latex_options = c("striped", "hold_position","scale_down"),
+                bootstrap_options = c("striped", "hover")) %>%
+      add_header_above( header = c( " " = 2,
+                                "Steady State" = 2,
+                                "Dynamic (noCorr)" = 2),
+                    bold = TRUE)
+
+
+```
+
+\clearpage
+
+\blandscape
+
+
+
+```{r dynEqTables, echo = FALSE, warning = FALSE}
+# noCorrEqbriaTab <- makeDynEqbriaTab(  "./data/dynEqbriaTables",
+#                                       scenario = "noCorr")
 
 csasdown::csas_table(  noCorrEqbriaTab, escape = FALSE,
                       booktabs = TRUE,
                       font_size = 10,
                       format = kable_format,
-                      caption = "DynEqbria_noCorr",
+                      caption = dynEqNoCorrTabCap,
                       align = c("l","l",rep("c",ncol(noCorrEqbriaTab)-2)) ) %>%
       kable_styling(latex_options = c("striped", "hold_position","scale_down"),
                 bootstrap_options = c("striped", "hover")) %>%
@@ -231,3 +311,82 @@ csasdown::csas_table(  noCorrEqbriaTab, escape = FALSE,
 ```
 
 \elandscape
+
+\clearpage
+
+```{r closedLoopDiscRentTables, echo = FALSE, warning = FALSE}
+perfInfoTab <- read.csv("./data/perfInfoPerfTables/dynEqDiscRentDist.csv",
+                        row.names = 1, stringsAsFactors = FALSE)[,-c(1,3:13)]
+
+simErrTab   <- read.csv("./data/simAssErrPerfTables/dynEqDiscRentDist.csv",
+                          row.names = 1, stringsAsFactors = FALSE)[,-c(1,3:13)]
+
+scenNames <- c("noCorr","corrRecDevs","corrPriceDevs","corrRecPrice")
+mpNames <- c("MSY","MEY","corrRec.MEY","corrRecPr.MEY")
+
+mpScenGrid <- expand.grid(corrScen = scenNames, MP = mpNames)
+mpScenGrid$scenMPname <- paste(mpScenGrid$corrScen,mpScenGrid$MP,sep = ".")
+
+
+# Need to transpose, make stocks into colnames,
+# turn row-names into scenario and HR columns
+perfInfoTab <- t(perfInfoTab)
+colnames(perfInfoTab) <- perfInfoTab[1,]
+perfInfoTab <- perfInfoTab[-1,]
+perfInfoTab <- as.data.frame(perfInfoTab)
+scenMPnames <- rownames(perfInfoTab)
+perfInfoTab$scenMPname <- scenMPnames
+
+simErrTab <- t(simErrTab)
+colnames(simErrTab) <- simErrTab[1,]
+simErrTab <- simErrTab[-1,]
+simErrTab <- as.data.frame(simErrTab)
+scenMPnames <- rownames(simErrTab)
+simErrTab$scenMPname <- scenMPnames
+
+perfInfoTab <- perfInfoTab %>% 
+                left_join( mpScenGrid, by = "scenMPname") %>%
+                dplyr::select( MP,
+                        corrScen,
+                        cwPerfInfo = BC ) %>%
+                arrange(  match(MP,mpNames),
+                          match(corrScen,scenNames) )
+
+discRentTab <- simErrTab %>% 
+                left_join( mpScenGrid, by = "scenMPname") %>%
+                dplyr::select( corrScen,
+                        MP,
+                        cwSimErr = BC ) %>%
+                arrange(  match(corrScen,scenNames),
+                          match(MP,mpNames) ) %>%
+                left_join( perfInfoTab, by = c("MP","corrScen"))
+
+colnames(discRentTab) <- c( "corrScen","HR",
+                            "Simulated Errors",
+                            "Perfect Info")
+
+
+csasdown::csas_table( discRentTab[,-1], escape = FALSE,
+                      booktabs = TRUE,
+                      font_size = 10,
+                      format = kable_format,
+                      caption = discRentTabCap,
+                      align = c("l",rep("c",ncol(discRentTab)-1)) ) %>%
+      kable_styling(  latex_options = c("striped", "hold_position","scale_down"),
+                      bootstrap_options = c("striped", "hover")) %>%
+      add_header_above( header = c( " " = 1,
+                                    "Coastwide Discounted Rent ($M)" = 2),
+                        bold = TRUE) %>%
+      kableExtra::group_rows("No Correlation", 1, 4 ) %>%
+      kableExtra::group_rows("Correlated Recruitment Devs", 5, 8 ) %>%
+      kableExtra::group_rows("Correlated Price Devs", 9, 12 ) %>%
+      kableExtra::group_rows("Correlated Price and Recruitment Devs", 13, 16 )
+
+
+
+
+
+
+
+```
+

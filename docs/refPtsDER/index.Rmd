@@ -28,7 +28,7 @@ params:
   fit: "fit_base_MCMC"
   sim: "sim_baseRun"
   baseDir: "docs/refPtsDER/data"
-  redoPlots: TRUE
+  redoPlots: FALSE
 numbersections: true
 appendix: false
 output: 

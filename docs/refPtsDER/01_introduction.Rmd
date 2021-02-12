@@ -251,12 +251,12 @@ deriving resource rent from those steady state solutions.
 Incorporating correlation in reference point calculations required solving 
 for dynamic optima via stochastic optimisation of fishing effort in 
 eight projection scenarios, where the objective function either maximised 
-yield or discounted rent, and simulated dynamics included correlation
-in recruitment process deviations and/or market price fluctuations. Risk 
-was measured by comparing distributional properties of biomass, catch, 
-and rent outcomes when optimal harvest rates were used to set TACs 
-in closed loop simulation under correlation scenarios in the presence 
-or absence of uncertainty about stock status.
+yield or the net present value of the DER complex fishery, and simulated 
+dynamics included correlation in recruitment process deviations and/or 
+market price fluctuations. Risk was measured by comparing distributions 
+of biomass, catch, and net present value when optimal harvest 
+rates were used to set TACs in closed loop simulation, under correlation 
+scenarios and both perfect and imperfect knowledge about stock biomass.
 
 Steady state multi-species MSY and MEY reference points were estimated by 
 fitting a hierarchical, multi-species, age-structured stock assessment 

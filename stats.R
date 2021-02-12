@@ -28,12 +28,12 @@ makeDynEqbriaTab <- function( folder = "./Outputs/omni_econYield_splineE_long_Ja
   tabs <- lapply(X = csvPath, FUN = read.csv, header = TRUE)
   names(tabs) <- tabLabs
 
-  stockNames    <- unique(tabs$dynEqHR$stock)
-  speciesNames  <- unique(tabs$dynEqHR$species)
+  stockNames    <- unique(tabs$dynEqHR$stock)[1:3]
+  speciesNames  <- unique(tabs$dynEqHR$species)[1:3]
+
 
   nS <- length(speciesNames)
   nP <- length(stockNames)
-
   
   colNames <- c("Stock",
                 "Species",
@@ -179,7 +179,7 @@ makeStatMSEqbriaTab <- function( obj = blob )
       tableFrame$Species[specRow]   <- speciesNames[s]
       tableFrame$qComm[specRow]     <- signif(qF_spf[s,p,2],2)
 
-      tableFrame$MSY[specRow]       <- round(MSY_sp[s,p],2)
+      tableFrame$MSY[specRow]        <- round(MSY_sp[s,p],2)
       tableFrame$Bmsy[specRow]      <- round(Bmsy_sp[s,p],2)
       tableFrame$Umsy[specRow]      <- round(MSY_sp[s,p]/Bmsy_sp[s,p],3)
 
@@ -270,8 +270,10 @@ makeParEstTable <- function( obj )
 # dynEqbriaTab()
 # Collects output from omniscient manager simulations
 # and turns them into tables of dynamic equilibria
-dynEqbriaTab <- function( groupFolder = "omni_econYield_splineE_long_Jan4",
-                          mpFilter = "freeEff",
+dynEqbriaTab <- function( groupFolder = "perfInfo_corrOMs",
+                          mpFilter = "perf",
+                          distYrs = 2017:2048,
+                          qProbs = c(0.05,0.5,0.95),
                           econYieldFile = "cwEconYieldBlob.Rdata",
                           scenOrder = c("noCorr","corrRecDevs","corrPriceDevs","corrRecPrice"))
 {
@@ -305,15 +307,22 @@ dynEqbriaTab <- function( groupFolder = "omni_econYield_splineE_long_Jan4",
   load(econYieldFile)
   baseBlob <- blob
 
+  discRate <- blob$ctlList$opMod$discountRate
+
   # Get reference points
-  rp <- baseBlob$rp[[1]]
-  nS <- modelList[[1]]$nS
-  nP <- modelList[[1]]$nP
-  nT <- modelList[[1]]$nT
-  nF <- modelList[[1]]$nF
+  rp  <- baseBlob$rp[[1]]
+  nS  <- modelList[[1]]$nS
+  nP  <- modelList[[1]]$nP
+  nT  <- modelList[[1]]$nT
+  nF  <- modelList[[1]]$nF
+  tMP <- modelList[[1]]$tMP
+  pT  <- nT - tMP + 1
 
   speciesNames <- modelList[[1]]$speciesNames
   stockNames <- modelList[[1]]$stockNames
+
+  fYear <- modelList[[1]]$fYear
+  distYearIdx <- distYrs - fYear + 1
 
   objFuns <- c("totCat","totProfit")
 
@@ -331,8 +340,9 @@ dynEqbriaTab <- function( groupFolder = "omni_econYield_splineE_long_Jan4",
                     colHeaders,
                     "var" )
 
-  specEqTab <- matrix(NA, nrow = nS * nP, ncol = length(colHeaders) )
-  areaEqTab <- matrix(NA, nrow = nP, ncol = length(colHeaders) )
+  specEqTab <- matrix(NA, nrow = nS * nP + 1, ncol = length(colHeaders) )
+  areaEqTab <- matrix(NA, nrow = nP + 1, ncol = length(colHeaders) )
+
   colnames(specEqTab) <- colHeaders
   colnames(areaEqTab) <- colHeaders
 
@@ -340,7 +350,12 @@ dynEqbriaTab <- function( groupFolder = "omni_econYield_splineE_long_Jan4",
   areaEqTab <- as.data.frame(areaEqTab)
 
   areaEqTab$species <- "DER"
-  areaEqTab$stock   <- stockNames
+  areaEqTab$stock   <- c(stockNames,"BC")
+
+  specEqTab[nS*nP+1,"species"] <- "DER"
+  specEqTab[nS*nP+1,"stock"]   <- "BC"
+
+
 
   
   # equlibria:
@@ -362,6 +377,29 @@ dynEqbriaTab <- function( groupFolder = "omni_econYield_splineE_long_Jan4",
   dynEqPrSp <- areaEqTab
   dynEqPrSp$var <- "ProdSurplus"
 
+  # Discounted total rent
+  dynEqDiscRent     <- areaEqTab
+  dynEqDiscRent$var <- "discRent"
+
+  # Percentile tabs
+  # Producer surplus
+  dynEqPrSpDist     <- areaEqTab
+  dynEqPrSpDist$var <- "ProdSurplus"
+
+  #     Catch
+  dynEqCatDist      <- specEqTab
+  dynEqCatDist$var  <- "Ct"
+
+  # Harvest rates
+  dynEqHRDist       <- specEqTab
+  dynEqHRDist$var   <- "Ut"
+
+  # Biomass
+  dynEqBioDist      <- specEqTab
+  dynEqBioDist$var  <- "SSB"
+
+  dynEqDiscRentDist <- areaEqTab
+  dynEqDiscRentDist$var <- "discRent"
 
 
   # Pull static RPs
@@ -404,6 +442,16 @@ dynEqbriaTab <- function( groupFolder = "omni_econYield_splineE_long_Jan4",
 
     colName <- paste(scenName,objFun,sep = ".")
 
+    # make discounted rent - wasn't done with pullModelStates
+    dynDiscRent_ipt <- modelList[[k]]$modelStates$profit_ipft[,,2,tMP:nT]
+    for(p in 1:nP)
+      for( t in 1:pT)
+        dynDiscRent_ipt[,p,t] <- dynDiscRent_ipt[,p,t] * (( 1 + discRate)^(-t))
+
+    # By area
+    dynDiscRent_ip <- apply( X = dynDiscRent_ipt, FUN = sum, MARGIN = c(1,2) )
+    dynDiscRent_qp <-  round(apply(X = dynDiscRent_ip, FUN = quantile, probs = qProbs, MARGIN = 2),2)
+
     for( p in 1:nP )
     {
       # Do species tables first
@@ -420,20 +468,26 @@ dynEqbriaTab <- function( groupFolder = "omni_econYield_splineE_long_Jan4",
         dynEqBio[specRowIdx,"species"] <- speciesNames[s]
         dynEqCat[specRowIdx,"species"] <- speciesNames[s]
         dynEqHR[specRowIdx,"species"] <- speciesNames[s]
+        dynEqHRDist[specRowIdx,"species"] <- speciesNames[s]
+        dynEqCatDist[specRowIdx,"species"] <- speciesNames[s]
+        dynEqBioDist[specRowIdx,"species"] <- speciesNames[s]
 
         dynEqBio[specRowIdx,"stock"] <- stockNames[p]
         dynEqCat[specRowIdx,"stock"] <- stockNames[p]
         dynEqHR[specRowIdx,"stock"] <- stockNames[p]
+        dynEqHRDist[specRowIdx,"stock"] <- stockNames[p]
+        dynEqBioDist[specRowIdx,"stock"] <- stockNames[p]
+        dynEqCatDist[specRowIdx,"stock"] <- stockNames[p]
 
         # Fill static equilibria
-        dynEqBio[specRowIdx,"Xmsy"] <- Bmsy_sp[s,p]
-        dynEqBio[specRowIdx,"Xmey"] <- Bmey_sp[s,p]
+        dynEqBio[specRowIdx,"Xmsy"] <- round(Bmsy_sp[s,p],2)
+        dynEqBio[specRowIdx,"Xmey"] <- round(Bmey_sp[s,p],2)
 
-        dynEqCat[specRowIdx,"Xmsy"] <- MSY_sp[s,p]
-        dynEqCat[specRowIdx,"Xmey"] <- Ymey_sp[s,p]      
+        dynEqCat[specRowIdx,"Xmsy"] <- round(MSY_sp[s,p],2)
+        dynEqCat[specRowIdx,"Xmey"] <- round(Ymey_sp[s,p],2)
 
-        dynEqHR[specRowIdx,"Xmsy"]  <- Umsy_sp[s,p]
-        dynEqHR[specRowIdx,"Xmey"]  <- Umey_sp[s,p]
+        dynEqHR[specRowIdx,"Xmsy"]  <- round(Umsy_sp[s,p],3)
+        dynEqHR[specRowIdx,"Xmey"]  <- round(Umey_sp[s,p],3)
 
 
         # Now pull dynamic eqbria
@@ -441,9 +495,21 @@ dynEqbriaTab <- function( groupFolder = "omni_econYield_splineE_long_Jan4",
         dynU <- modelList[[k]]$stateDists$U_ispt[2,s,p]
         dynC <- modelList[[k]]$stateDists$C_ispt[2,s,p]
 
-        dynEqBio[specRowIdx,colName]  <- dynB
-        dynEqCat[specRowIdx,colName]  <- dynC
-        dynEqHR[specRowIdx,colName]   <- dynU
+        dynBpctiles <- modelList[[k]]$stateDists$SB_ispt[c(1,3),s,p]
+        dynUpctiles <- modelList[[k]]$stateDists$U_ispt[c(1,3),s,p]
+        dynCpctiles <- modelList[[k]]$stateDists$C_ispt[c(1,3),s,p]
+
+        dynBcntrl95 <- paste(round(dynBpctiles,2),collapse = ", ")
+        dynCcntrl95 <- paste(round(dynCpctiles,2),collapse = ", ")
+        dynUcntrl95 <- paste(round(dynUpctiles,2),collapse = ", ")
+
+        dynEqBio[specRowIdx,colName]  <- round(dynB,2)
+        dynEqCat[specRowIdx,colName]  <- round(dynC,2)
+        dynEqHR[specRowIdx,colName]   <- round(dynU,3)
+
+        dynEqBioDist[specRowIdx,colName] <- paste0(round(dynB,2), " (", dynBcntrl95, ")")
+        dynEqCatDist[specRowIdx,colName] <- paste0(round(dynC,2), " (", dynCcntrl95, ")")
+        dynEqHRDist[specRowIdx,colName] <- paste0(round(dynU,2), " (", dynUcntrl95, ")")
 
 
       }
@@ -460,10 +526,66 @@ dynEqbriaTab <- function( groupFolder = "omni_econYield_splineE_long_Jan4",
       dynEqPrSp[p,"Xmey"] <- MEY_p[p]
 
       # Now get dynamic values
-      dynEqPrSp[p,colName]  <- modelList[[k]]$stateDists$profit_ipft[2,p,2]
-      dynEqEff[p,colName]   <- modelList[[k]]$stateDists$E_ipft[2,p,2]
+      dynPrSp       <- modelList[[k]]$stateDists$profit_ipft[2,p,2]
+      dynPrSpctiles <- modelList[[k]]$stateDists$profit_ipft[c(1,3),p,2]
+      dynEff        <- modelList[[k]]$stateDists$E_ipft[2,p,2]
+      
+      dynEqPrSp[p,colName]  <- round(dynPrSp,2)
+      dynEqEff[p,colName]   <- round(dynEff,2)
+
+      dynPrSpCntrl95 <- paste(round(dynPrSpctiles,2),collapse = ", ")
+      dynEqPrSpDist[p,colName] <- paste0(round(dynPrSp,2), " (", dynPrSpCntrl95, ")")
+
+      # Median and distribution of discounted rent
+      dynDiscRent <- dynDiscRent_qp[2,p]
+      dynDiscRentPctiles <- dynDiscRent_qp[c(1,3),p]
+      dynDiscRentCntrl95 <- paste(dynDiscRentPctiles,collapse = ", ")
+      dynEqDiscRent[p,colName] <- dynDiscRent
+      dynEqDiscRentDist[p,colName] <- paste0(dynDiscRent, " (", dynDiscRentCntrl95, ")")
+
 
     }
+
+    # Now calculate coastwide values for VAR5 stuff
+    dynB_ispt   <- modelList[[k]]$modelStates$SB_ispt[,,,distYearIdx]
+    dynC_ispt   <- modelList[[k]]$modelStates$C_ispt[,,,distYearIdx]
+    dynE_ipt    <- modelList[[k]]$modelStates$E_ipft[,,2,distYearIdx]
+    dynRent_ipt <- modelList[[k]]$modelStates$profit_ipft[,,2,distYearIdx]
+
+    dynBcw_it     <- apply(X = dynB_ispt, FUN = sum, MARGIN =c(1,4) )
+    dynCcw_it     <- apply(X = dynC_ispt, FUN = sum, MARGIN =c(1,4) )
+    dynEcw_it     <- apply(X = dynE_ipt, FUN = sum, MARGIN =c(1,3) )
+    dynRentcw_it  <- apply(X = dynRent_ipt, FUN = sum, MARGIN =c(1,3) )
+
+    dynDiscRentcw_i <- apply( X = dynDiscRent_ip, FUN = sum, MARGIN = 1)
+
+
+
+
+    # Now take quantiles
+    dynBcw_q        <- round(quantile( dynBcw_it, probs = qProbs ),2)
+    dynCcw_q        <- round(quantile( dynCcw_it, probs = qProbs ),2)
+    dynEcw_q        <- round(quantile( dynEcw_it, probs = qProbs ),2)
+    dynRentcw_q     <- round(quantile( dynRentcw_it, probs = qProbs ),2)
+    dynDiscRentcw_q <- round(quantile( dynDiscRentcw_i, probs = qProbs ),2)
+
+
+    
+
+    # Add medians to median table
+    dynEqBio[nS*nP+1,colName] <- dynBcw_q[2]
+    dynEqCat[nS*nP+1,colName] <- dynCcw_q[2]
+
+    dynEqEff[nP+1,colName]      <- dynEcw_q[2]
+    dynEqPrSp[nP+1,colName]     <- dynRentcw_q[2]
+    dynEqDiscRent[nP+1,colName] <- dynDiscRentcw_q[2]
+
+    # Now do the dists again
+    dynEqBioDist[nS*nP+1,colName]   <- paste0(dynBcw_q[2]," (", dynBcw_q[1],", ",dynBcw_q[3],")")
+    dynEqCatDist[nS*nP+1,colName]   <- paste0(dynCcw_q[2]," (", dynCcw_q[1],", ",dynCcw_q[3],")")
+    dynEqPrSpDist[nP+1,colName]     <- paste0(dynRentcw_q[2]," (", dynRentcw_q[1],", ",dynRentcw_q[3],")")
+    dynEqDiscRentDist[nP+1,colName] <- paste0(dynDiscRentcw_q[2]," (", dynDiscRentcw_q[1],", ",dynDiscRentcw_q[3],")")
+
   }
 
   # Save tables
@@ -474,12 +596,25 @@ dynEqbriaTab <- function( groupFolder = "omni_econYield_splineE_long_Jan4",
   write.csv(dynEqHR, file = file.path(outFolder,"dynEqHR.csv"))
   write.csv(dynEqEff, file = file.path(outFolder,"dynEqEff.csv"))
   write.csv(dynEqPrSp, file = file.path(outFolder,"dynEqPrSp.csv"))
+  write.csv(dynEqDiscRent, file = file.path(outFolder,"dynEqDiscRent.csv"))
+
+  write.csv(dynEqBioDist, file = file.path(outFolder,"dynEqBioDist.csv"))
+  write.csv(dynEqCatDist, file = file.path(outFolder,"dynEqCatDist.csv"))
+  write.csv(dynEqHRDist, file = file.path(outFolder,"dynEqHRDist.csv"))
+  write.csv(dynEqPrSpDist, file = file.path(outFolder,"dynEqPrSpDist.csv"))
+  write.csv(dynEqDiscRentDist, file = file.path(outFolder,"dynEqDiscRentDist.csv"))
 
   outList <- list(  dynEqBio  = dynEqBio,
                     dynEqCat  = dynEqCat,
                     dynEqHR   = dynEqHR,
                     dynEqEff  = dynEqEff,
-                    dynEqPrSp = dynEqPrSp )
+                    dynEqPrSp = dynEqPrSp,
+                    dynEqDiscRent = dynEqDiscRent,
+                    dynEqBioDist = dynEqBioDist,
+                    dynEqCatDist = dynEqCatDist,
+                    dynEqHRDist = dynEqHRDist,
+                    dynEqPrSpDist = dynEqPrSpDist, 
+                    dynEqDiscRentDist = dynEqDiscRentDist)
   
   
   outList
@@ -491,10 +626,10 @@ dynEqbriaTab <- function( groupFolder = "omni_econYield_splineE_long_Jan4",
 # time series, and calculates distributions
 # of each inside a nominated time period
 pullModelStates <- function(  sim         = 1,
-                              groupFolder = "detRuns_varEff",
+                              groupFolder = "perfInfo_corrOMs",
                               stateVars   = c("C_ispt","SB_ispt","E_ipft"),
                               output      = FALSE,
-                              distPeriod  = 2050:2070 )
+                              distPeriod  = 2017:2048 )
 {
   # First, load the sim that we want
   # to calculate loss for
