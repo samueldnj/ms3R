@@ -26,11 +26,17 @@ are calculated by species within an area."
 propEffTabCap <- "Proportions of inverse average catchability and 
 the estimated optimal allocation of effort among areas."
 
+dynEqHRTabCap <- "Optimal harvest rates $U_{MSY}$ and $U_{MEY}$, maximising 
+multi-species catch and economic yield respectively, estimated from 
+biological parameters under steady equilibrium assumptions, and dynamic 
+approximations $U_{MSY}^*$ and $U_{MEY}^*$ estimated under all four 
+correlation scenarios." 
+
 dynEqNoCorrTabCap <- "Median values of dynamic approximations to 
 maximum sustainable multispecies yield ($MSY_{MS}$) and maximum economic 
 yield ($MEY$) reference points for the British Columbia DER complex of 
 flatfish under the noCorr scenario. Effort (1000s of trawl hours) and 
-rent (millons CAD\\$) are calculated by area, while catch ($MSY$, 
+rent (\\$M CAD) are calculated by area, while catch ($MSY$, 
 $C_{MEY}$, kt), biomass ($B_{MSY}$, $B_{MEY}$, kt), and harvest 
 rate ($U_{MSY}$, $U_{MEY}$, \\%) are calculated by species within an area."
 
@@ -282,17 +288,47 @@ csasdown::csas_table(  propEffTable, escape = FALSE,
 
 ```
 
-\clearpage
+
 
 \blandscape
+<!-- 
+\clearpage
+{r dynEqHRtable, echo = FALSE, warning = FALSE}
+dynEqHRTab <- makeSpeciesDynEqTable( file = "./data/dynEqbriaTables/dynEqHR.csv" )
+
+dynEqHRTab <- dynEqHRTab[,-1]
+colnames(dynEqHRTab) <- c("Scenario", rep(c("Dover","English","Rock"),3))
+rownames(dynEqHRTab) <- NULL
 
 
 
-```{r dynEqTables, echo = FALSE, warning = FALSE}
-# noCorrEqbriaTab <- makeDynEqbriaTab(  "./data/dynEqbriaTables",
-#                                       scenario = "noCorr")
+csasdown::csas_table( dynEqHRTab, escape = FALSE,
+                      booktabs = TRUE,
+                      font_size = 10,
+                      format = kable_format,
+                      caption = dynEqHRTabCap,
+                      align = c("l",rep("c",ncol(dynEqHRTab)-1)) ) %>%
+      kable_styling(latex_options = c("striped", "hold_position","scale_down"),
+                bootstrap_options = c("striped", "hover")) %>%
+      add_header_above( header = c( " " = 1,
+                                    "HSHG" = 3,
+                                    "QCS" = 3,
+                                    "WCVI" = 3),
+                    bold = TRUE) %>%
+      kableExtra::group_rows("Maximising Catch", 1, 5 ) %>%
+      kableExtra::group_rows("Maximsing NPV", 6, 10 )
 
-csasdown::csas_table(  noCorrEqbriaTab, escape = FALSE,
+
+
+ -->
+
+
+
+\clearpage
+
+```{r dynEqTabNoCorr, echo = FALSE, warning = FALSE}
+
+csasdown::csas_table( noCorrEqbriaTab, escape = FALSE,
                       booktabs = TRUE,
                       font_size = 10,
                       format = kable_format,
@@ -301,11 +337,9 @@ csasdown::csas_table(  noCorrEqbriaTab, escape = FALSE,
       kable_styling(latex_options = c("striped", "hold_position","scale_down"),
                 bootstrap_options = c("striped", "hover")) %>%
       add_header_above( header = c( " " = 2,
-                                "Dynamic MSY" = 5,
-                                "Dynamic MEY" = 5),
+                                "DER complex maximum yield" = 5,
+                                "Maximum Economic Yield" = 5),
                     bold = TRUE)
-
-
 
 
 ```

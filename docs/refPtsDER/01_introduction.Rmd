@@ -113,9 +113,9 @@ Multi-species reference points with technical interactions are
 commonly used as the basis for bio-economic modelling, and 
 ecological interactions are sometimes ignored. Costs of fishing and 
 landed values are readily added to multi-species effort-yield 
-relationships with technical interactions as outlined above, and evaluation 
-of net benefits are straigtforward if cost functions are simple (e.g., 
-linear in fishing effort). More sophistication is 
+relationships with technical interactions as outlined above, and estimation 
+of net present values are straightforward if cost functions are simple 
+(e.g., linear in fishing effort). More sophistication is 
 required as the complexity of the economic model increases, e.g., including 
 behaviour at the level of individual vessels such as entry/exit from the 
 fishery, targeting of individual species, or opportunity costs 
@@ -129,7 +129,7 @@ reference points and economic yield [@goethel2017accounting;
 imply different management objectives or different harvester preferences 
 [@sanchirico1999bioeconomics; @sanchirico2001dynamics; 
 @sanchirico2005optimal; @sanchirico2007sustainable]. If spatial patches and 
-fishing effort are defined at a large spatio-temporal scale, then different 
+fishing effort are defined at a larger spatio-temporal scale, then different 
 relative abundances may imply different relative catchabilities, and 
 therefore different multispecies effort-yield relationships. Spatially 
 heterogeneous costs of fishing then combine with spatially heterogeneous 
@@ -150,7 +150,7 @@ Under any regulation scheme, it is unlikely that aggregate management
 approaches will be economically efficient if ignorant of underlying 
 spatial dynamics or structure [@smith2009economics; @goethel2017accounting].
 
-<!-- Despite recent research interest in including spatial and multi-species 
+Despite recent research interest in including spatial and multi-species 
 extensions to economic analyses [@smith2012new], general (analytical) 
 economic results are sometimes of limited practical use for setting 
 objectives and/or choosing reference points in commercial fisheries 
@@ -170,7 +170,7 @@ to quota transfers is ignored, using catch shares to manage a fishery with
 output controls such as individual transferrable quotas can be considered
 a "sole operator". 
 
-While general results are more widely applicable and can guide decisions and 
+<!-- While general results are more widely applicable and can guide decisions and 
 research at a high level, system specific results have strategic value for 
 the system in which they are derived [@hoshino2018estimating; 
 @benson2018options]. For example, a study of the multi-species northern prawn 
@@ -188,7 +188,7 @@ strategies (including those based on maximimising economic yield) than the
 non-spatial case. 
  -->
 
-There is little research on the effect of correlation among spatially
+<!-- There is little research on the effect of correlation among spatially
 heterogeneous species on biological reference points and economic yield.
 For example, there may be correlation in recruitments among species and 
 areas, implicitly representing responses to environmental effects 
@@ -210,28 +210,29 @@ optimal economic yield, partly because stochasticity is sometimes ignored
 for MEY calculations in the economic literature [@sanchirico2007sustainable; 
 @kasperski2015optimal], and landed values are often considered fixed in
 analyses in the fisheries literature [@punt2020multispecies; 
-@punt2011calculating].
+@punt2011calculating]. -->
 
-<!-- Despite more commonly having higher model complexity in biological aspects, 
+Despite more commonly having higher model complexity in biological aspects, 
 there are some economic components of bio-economic models in the fisheries 
 literature that are often simplified. For example, most fisheries economic 
-yield calculations apply an average revenue model, where a species' ex-vessel 
-price is the same, regardless of the quantity landed or the annual quota. 
+yield calculations apply an average revenue model, where a species' unit 
+price is the same for all levels of catch (i.e., no change in demand). 
 While there is evidence that this may be true within a year because 
 operators can negotiate contract prices with processors based in individual
 quota allocations [@kasperski2015optimal], the landed value likely changes 
 from year to year, especially if the quota changes significantly for a high 
 value species. Including price responses to catch or quota could in fact
 lead to transfers of consumer to producer surplus, as harvesters will
-tend to catch less to increase their profit margins through higher landed 
-values and lower costs of fishing [@pascoe2018offsetting]. Similarly, cost 
-functions are also usually simplified in fisheries literature.
-While it is difficult to capture all fishing costs, some cost functions are 
-simply linear with fishing effort, excluding capital costs, social costs 
+tend to expend less effort to artificially create scarcity, increasing 
+their profit margins through higher landed values and lower costs of 
+fishing [@pascoe2018offsetting]. Similarly, cost functions are also 
+usually simplified in fisheries literature. While it is difficult to 
+capture all fishing costs, some cost functions are simply linear with 
+fishing effort, excluding capital costs, social costs 
 (e.g. market failures), and ignoring whether a fishery is even able to 
 achieve certain effort levels given limits on capital. Based on this, 
 MEY estimates can be characterised as upper bounds on the true value 
-[@punt2020multispecies]. -->
+[@punt2020multispecies].
 
 In this paper, we asked whether there was increased risk of lost
 resource rent or lost catch yield if fishery managers ignored correlation 

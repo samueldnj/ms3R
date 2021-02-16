@@ -29,6 +29,32 @@ low (VAR5\% differed by $\approx$ 10k over 32 years).
     significant differences between target harvest rates under 
     correlated and uncorrelated scenarios.
 
+
+There is little research on the effect of correlation among spatially
+heterogeneous species on biological reference points and economic yield.
+For example, there may be correlation in recruitments among species and 
+areas, implicitly representing responses to environmental effects 
+[@dichmont2006management], and there may be correlations in annual market 
+price deviations, either positive when demand changes significantly (e.g., 
+reductions in demand due to environmental disasters or restrictions
+on restaurant trade), or negative when species are substitutable.
+While there have been several studies on the effects of environmental
+covariates on recruitment [@haltuch2019unraveling], and autocorrelation
+in recruitment success [@maunder2019modeling], there are few studies that 
+aim to understand the effect of spatial correlation in recruitment for 
+multiple target species on biological reference points, fishery objectives, 
+and whether there is a risk if those correlations are ignored. In one
+example, ignoring simulated spatial correlation in recruitment success 
+produced positively biased stock status estimates for Australia's Northern 
+Prawn fishery [@dichmont2006management3]. To our knowledge, there are no
+studies establishing an effect of correlated temporal price deviations on
+optimal economic yield, partly because stochasticity is sometimes ignored
+for MEY calculations in the economic literature [@sanchirico2007sustainable; 
+@kasperski2015optimal], and landed values are often considered fixed in
+analyses in the fisheries literature [@punt2020multispecies; 
+@punt2011calculating].
+
+
 For the DER complex, there is little reason not to target
 multi-species yield objectives. Even assuming that technical interactions 
 can be overcome by targeting and single-species MSY_SS can be achieved
@@ -44,7 +70,6 @@ optima are not statistically different from steady-state optima in the
 presence of recruitment process error and price variation.
 
 Future work: 
-    - using this as an operating model to test multi-speces management objectives - could use simpler AM, such as multispecies coastwide, or a DD or SP model.
-    - Adding movement hypotheses
-    - Adding bycatch - especially for testing above multi-species management objectives, want to have choke effects as an emergent property
-    - Adding high-grading
+
+- Adding movement hypotheses - for Dover sole at least
+- Grading length for smaller fish

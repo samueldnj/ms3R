@@ -138,15 +138,15 @@ equilibrium catch between $MSY_{MS}$ and $C_{MEY}$ was approximately
 1.1 kt, with individual stock catches differing by an average of [X\%], 
 with a minimum difference of 9\% for HSHG Rock sole. 
 
-Similar to above, MEY was highest in the HSHG area at the lowest effort,
-reflecting the higher biomass of all species in that area (Table 4). While
-$E_{MEY}$ in QCS was higher than in WCVI by a similar proportion to the
-corresponding $E_{MSY}$ values, the resource rent was about 40\% higher in 
-the WCVI area. Higher WCVI rent is largely caused by the higher Dover sole 
-biomass relative to English and Rock sole biomasses in the WCVI, along 
-with the higher price elasticity of demand for Dover sole making prices
-more stable as catch is increased, compensating for higher simulated 
-fuel costs of fishing in the WCVI area.
+Similar to above, resource rent was highest in the HSHG area at the lowest 
+effort, reflecting the higher biomass of all species in that area 
+(Table 4). While $E_{MEY}$ in QCS was higher than in WCVI by a similar 
+proportion to the corresponding $E_{MSY}$ values, the resource rent was 
+about 40\% higher in the WCVI area. Higher WCVI rent is largely caused 
+by the higher Dover sole biomass relative to English and Rock sole 
+biomasses in the WCVI, along with the higher price elasticity of demand 
+for Dover sole making prices more stable as catch is increased, compensating 
+for higher simulated fuel costs of fishing in the WCVI area.
 
 [Reference to supplemental material for base run without PED?]
 
@@ -180,39 +180,24 @@ allocation of effort $E_{MSY,MS,p}$ when maximising catch (Table 5).
 
 [Show effort series plots - talk about variability?]
 
-Distributions of harvest rates from 2040 - 2060 were similar within 
-objective functions and across correlation scenarios (Figure 10). For 
-objective functions that maximised total catch, median harvest rates 
-were almost identical to steady-state optimal harvest rates (Table 6),
-while their distributions showed very high variability. Despite lower 
-variability of harvest rates that maximised NPV, distributions
-still intersected with steady-state $U_{MEY}$ values, while median
-harvest rates were consistently higher than steady-state $U_{MEY}$
-values by between 7\% and 40\% (compare Tables 4 and 6).
+Stochasticity had no significant effects on dynamic approximations
+to $U_{MSY}$. Median $U_{MSY}^*$ harvest rates were practically identical 
+to steady-state $U_{MSY}$ harvest rates, differing by a tenth of a 
+percentage point, or around 0.5\% of the steady state optimum (Table 6). 
+In contrast, harvest rates under the NPV maximising objective 
+functions had much lower variability and $U_{MEY}^*$ rates were consistently 
+higher than the steady-state $U_{MEY}$ values by around 4\% - 7\% (Table 6).
+As expected, price correlation had a noticeable effect on harvest
+rates that maximised NPV, with median harvest rates in the absence of 
+price correlation consistently higher than median harvest rates 
+in the presence of price correlation, by about 5\% in HSHS, and 2\% in
+QCS and WCVI. Despite higher median values and lower variability, all 
+harvest rate distributions under NPV maximising objective functions 
+contained the steady state solution (Figure 10).
 
-As expected, correlation had a larger effect on the variance of harvest 
-rate distributions than on the median harvest rates, as correlation affects
-the shape of distributions more than the scale. Median harvest rates for
-catch maximisation were insensitive to the correlation scenario, differing 
-by around half a percent across all scenarios (compare Table 5 and Tables 
-S1 - S3). In contrast, median rent maximising harvest rates were somewhat 
-sensitive to correlation in price, increasing by 4\% - 5\% in HSHG and 
-around 2\% in QCS and WCVI when price correlation was simulated. 
-[**concrete differences in percentiles**]
-
-[*Correlation effects were most 
-noticeable (i.e., visually) under recruitment correlation, and less 
-noticeable under price correlation (Figure 10). 
-Insensitivity of the
-distribution to price 
-correlation is likely partially caused by the bounds placed on fish prices 
-to avoid unrealistically high net-present values of resource rents under 
-some simulation replicates.*]
-
- 
 Median annual (undiscounted - nominal?) resource rents under both 
 objective functions were higher than the steady-state solution (compare 
-resource rents columns, Tables 4 and 5), despite almost identical efforts 
+resource rent columns, Tables 4 and 7), despite almost identical efforts 
 and harvest rates under the catch maximising objective function. When 
 maximising catch under the stochastic optimisation, median rent was over 
 three times the steady state estimate in HSHG, around two times in QCS, 
@@ -229,25 +214,20 @@ deterministic runs will show whether this is true.**] - also, is there
 an effect of maximising the total discounted rent here? Maybe try
 a deterministic run without discounting to see.
 
-While most median quantities were insensitive to correlation, 
-there were some notable differences in median resource rents in
-the HSHG area in the presence of price correlation. 
 
 
 ## Targeting optimal harvest rates in practice
 
-We present results from the closed loop simulation under perfect
-information and simulated assessment errors for four harvest rates
-under each correlation scenario. The four harvest rates we present
-are the steady state $U_{MSY,MS}$ and $U_{MEY}$ estimates, and 
-the two dynamic approximations to $U_{MEY}$ estimated when recruitment
-correlation was simulated (i.e., **allCorr** and **recCorr** 
-scenarios). We do not simulate catch using the dynamic approximations 
+We presented results from the closed loop simulation under perfect
+information and simulated assessment errors for three target harvest 
+rates. Those harvest rates were $U_{MSY,MS}$ and $U_{MEY}$ estimates
+at static equilibrium, and the dynamic approximation $U_{MEY}&*$. We 
+do not simulate catch using the dynamic approximations 
 to catch maximising harvest rates $U_{MSY,MS}$, given that median harvest 
 rates derived from the catch maximising objective function were almost 
 identical to the steady state solution. Although the differences 
 in steady-state and median dynamic $U_{MEY}$ harvest rates were not 
-statistically significant, we present results based on the three 
+statistically significant, we present results based on the two 
 distinct estimates because fishery management decisions are often 
 made based on mean or median stock assessment outputs, with 
 variability sometimes ignored or used to justify additional 

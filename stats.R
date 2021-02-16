@@ -92,6 +92,40 @@ makeDynEqbriaTab <- function( folder = "./Outputs/omni_econYield_splineE_long_Ja
 } # END makeDynEqbriaTab()
 
 
+makeSpeciesDynEqTable <- function( file = "./Outputs/omni_econYield_splineE_long_Jan4/dynEqHR.csv" )
+{
+  specTable <- read.csv(file, stringsAsFactors = FALSE, header = TRUE, row.names = 1)
+
+  specTable <- t(specTable)
+  colnames(specTable) <- paste(specTable[1,],specTable[2,],sep = ".")
+  specTable <- specTable[-c(1,2,nrow(specTable)),]
+  specTable <- specTable[,-ncol(specTable)]
+
+
+  scen <- c("Steady State","Steady State",
+            "No Correlation","No Correlation",
+            "Recruitment Correlation","Recruitment Correlation",
+            "Price Correlation","Price Correlation",
+            "Recruitment and Price Correlation","Recruitment and Price Correlation")
+
+  objFun <- rep(c("Catch","Rent"),5)
+              
+  scenOrder <- scen[c(1,3,5,7,9)]
+
+  specTable <- as.data.frame(specTable)
+  specTable$scen <- scen
+  specTable$objFun <- objFun
+
+  specTable <- specTable %>%
+                arrange( match(objFun,c("Catch","Rent")),
+                         match(scen,scenOrder) ) %>%
+                relocate(scen) %>%
+                relocate(objFun)
+
+
+  specTable
+}
+
 # makeStatMSEqbriaTab()
 # Uses reference points object from a simulation
 # to create a table of multispecies catch and economic 
@@ -501,7 +535,7 @@ dynEqbriaTab <- function( groupFolder = "perfInfo_corrOMs",
 
         dynBcntrl95 <- paste(round(dynBpctiles,2),collapse = ", ")
         dynCcntrl95 <- paste(round(dynCpctiles,2),collapse = ", ")
-        dynUcntrl95 <- paste(round(dynUpctiles,2),collapse = ", ")
+        dynUcntrl95 <- paste(round(dynUpctiles,3),collapse = ", ")
 
         dynEqBio[specRowIdx,colName]  <- round(dynB,2)
         dynEqCat[specRowIdx,colName]  <- round(dynC,2)
@@ -509,7 +543,7 @@ dynEqbriaTab <- function( groupFolder = "perfInfo_corrOMs",
 
         dynEqBioDist[specRowIdx,colName] <- paste0(round(dynB,2), " (", dynBcntrl95, ")")
         dynEqCatDist[specRowIdx,colName] <- paste0(round(dynC,2), " (", dynCcntrl95, ")")
-        dynEqHRDist[specRowIdx,colName] <- paste0(round(dynU,2), " (", dynUcntrl95, ")")
+        dynEqHRDist[specRowIdx,colName] <- paste0(round(dynU,3), " (", dynUcntrl95, ")")
 
 
       }
@@ -626,10 +660,10 @@ dynEqbriaTab <- function( groupFolder = "perfInfo_corrOMs",
 # time series, and calculates distributions
 # of each inside a nominated time period
 pullModelStates <- function(  sim         = 1,
-                              groupFolder = "perfInfo_corrOMs",
+                              groupFolder = "omniRuns_econYield_noCorr",
                               stateVars   = c("C_ispt","SB_ispt","E_ipft"),
                               output      = FALSE,
-                              distPeriod  = 2017:2048 )
+                              distPeriod  = 2041:2060 )
 {
   # First, load the sim that we want
   # to calculate loss for
