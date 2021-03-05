@@ -16,13 +16,13 @@ batchControlFiles <- c( "omniRuns_econYield_noCorr.bch",
                        
 nBatchJobs <- length( batchControlFiles )
 
-
-baseControlFiles  <- rep( "simCtlFileBase.txt",nBatchJobs)
-                        
+baseControlFiles  <- rep( "simCtlFileBase.txt",
+                          "simCtlFileBase_NULLprice.txt",
+                          "simCtlFileBase.txt" )
 
 prefixes       <- c(  "omniRuns_noCorr_Mar5",
                       "omniRuns_priceDevPED",
-                      "omniRuns_crossCor_Mar5" )
+                      "omniRuns_crossCorr_Mar5" )
 
 saveDirName       <- prefixes
 
