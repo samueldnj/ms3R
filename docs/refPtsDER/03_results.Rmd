@@ -12,7 +12,7 @@ Fits to all time series of biomass indices were almost unbiased, with
 mean residuals at most 0.07 standard deviations in absolute value. 
 Despite low bias, there were significant trends in residuals for the modern 
 commercial CPUE index for all QCS stocks, and WCVI Rock sole, as well as for 
-the Hecate Strait assemblage survey for all three species (Figure 4); poor 
+the Hecate Strait assemblage survey for all three species (Figure SX); poor 
 fits to these indices was not completely unexpected, as the modern trawl CPUE 
 was a fishery dependent commercial catch-rate series with underlying 
 targeting behaviour, while the fishery independent Hecate Strait Assemblage 
@@ -22,7 +22,7 @@ to the time-varying catchability applied to that series. Finally, the
 Synoptic survey residuals were unbiased and did not exhibit any 
 significant trends.
 
-**Age fits**
+Fits to commercial trawl age compositions were also acceptable.
 
 **MCMC diagnostics (Rhats, bulk and tail ESS)**
 
@@ -58,8 +58,6 @@ the closure of the BC trawl fishery in 1995 due to overfishing concerns
 and poor reporting, it is likely that the outliers show overdepletion 
 and/or poor record keeping at the beginning of the at-sea observer program.
 
-*Correlation in recruitment deviations*
-
 ## DER complex time-varying inverse demand curves
 
 Fitting the time varying inverse demand curve model (Appendix B) to
@@ -94,7 +92,6 @@ blocking and shift in variation could signal model misspecification
 (e.g., some latent unmodeled process), they could also be caused by 
 the small sample size.
 
-[Show correlation in price devs here.]
 
 
 ## Steady-state reference points
@@ -118,7 +115,7 @@ in optimal harvest rates, differences in MSY_SS and MSY_MS were subtle
 for all stocks, with a decrease of at most 5\% from MSY_SS to MSY_MS
 to a total catch of XX.
 
-Resource rent at MSY was around $620,000 CAD summed across the three
+Resource rent at MSY was around $630,000 CAD across the three stock 
 areas. The area with the highest resource rent was HSHG, attained at
 the lowest effort of the three areas (Table 3). The QCS and WCVI
 areas both had roughly equal equilibrium resource rents at MSY, with
@@ -148,7 +145,8 @@ biomasses in the WCVI, along with the higher price elasticity of demand
 for Dover sole making prices more stable as catch is increased, compensating 
 for higher simulated fuel costs of fishing in the WCVI area.
 
-[Reference to supplemental material for base run without PED?]
+[Reference to supplemental material for referece points from
+base run without PED?]
 
 At the assumed fuel costs, the resource rents of the DER complex fishery 
 are dependent on technical interactions to remain positive. While it is 
@@ -166,7 +164,7 @@ average commercial catchabilty scalars within an area to the sum
 of inverse average catchabilities (Table 5 $1/\bar{q}^{(F)}$), defined by
 \begin{align*}
 \rho_p &= \frac{1/\bar{q}^{(F)}_p}{\sum_p 1/\bar{q}^{(F)}_p}, \\
-\bar{q}^{(F)}_p & = \frac{1}{3} \sum_s q^{(F)}_{s,p}}, \\
+\bar{q}^{(F)}_p & = \frac{1}{3} \sum_s q^{(F)}_{s,p}, \\
 \end{align*}
 indicating that the allocation is likely fixed based on $q^{F}_{s,p}$ 
 values, and the price elasticity of demand $\lambda_s$ has a minor effect
@@ -178,61 +176,142 @@ allocation of effort $E_{MSY,MS,p}$ when maximising catch (Table 5).
 
 ## Dynamic reference points
 
-[Show effort series plots - talk about variability?]
+Stochasticity had a small effect on dynamic approximations
+to $U_{MSY}$. Median $U_{MSY}^*$ harvest rates were very close 
+to steady-state $U_{MSY}$ harvest rates, differing by around half of a 
+percentage point on average, or around 0.5\% of the steady state optimum 
+(Table 6). In contrast, harvest rates under the NPV maximising objective 
+functions produced $U_{MEY}^*$ rates that were consistently 
+higher than the steady-state $U_{MEY}$ values by around 4 - 7 percentage
+points, or 7\% - 40\% of steady state (compare harvest rates, Tables
+4 and 6). [**EFFORT PLOT WILL HELP EXPLAIN** - probably caused by 
+finite time-horizon as well ramping down of harvest in HSHG] 
+Although dynamic $U_{MEY}^*$ median values were consistently
+higher than steady state equilibria, the distribution of dynamic harvest 
+rates under NPV maximising objective functions contained the steady state 
+solution (Figure 7). 
 
-Stochasticity had no significant effects on dynamic approximations
-to $U_{MSY}$. Median $U_{MSY}^*$ harvest rates were practically identical 
-to steady-state $U_{MSY}$ harvest rates, differing by a tenth of a 
-percentage point, or around 0.5\% of the steady state optimum (Table 6). 
-In contrast, harvest rates under the NPV maximising objective 
-functions had much lower variability and $U_{MEY}^*$ rates were consistently 
-higher than the steady-state $U_{MEY}$ values by around 4\% - 7\% (Table 6).
-As expected, price correlation had a noticeable effect on harvest
-rates that maximised NPV, with median harvest rates in the absence of 
-price correlation consistently higher than median harvest rates 
-in the presence of price correlation, by about 5\% in HSHS, and 2\% in
-QCS and WCVI. Despite higher median values and lower variability, all 
-harvest rate distributions under NPV maximising objective functions 
-contained the steady state solution (Figure 10).
-
-Median annual (undiscounted - nominal?) resource rents under both 
-objective functions were higher than the steady-state solution (compare 
-resource rent columns, Tables 4 and 7), despite almost identical efforts 
-and harvest rates under the catch maximising objective function. When 
+Median annual undiscounted resource rents under both objective functions 
+were higher than the steady-state solution (compare resource rent columns, 
+Tables 4 and 6), despite almost identical efforts and harvest rates under 
+the catch maximising objective function. When 
 maximising catch under the stochastic optimisation, median rent was over 
-three times the steady state estimate in HSHG, around two times in QCS, 
-and 9\% lower in WCVI. The rent maximising objective function also produced
-higher resource rents than steady state solutions, extracting 88\% higher 
-rents in HSHG, 50\% higher in QCS, and 14\% higher in WCVI. Higher resource 
-rents in general are caused by the [**ability of prices to climb higher 
-through price variation than under steady state, which relies on price 
-elasticity of demand alone to increase resource rent. Further, there was 
-a maximum price of 200\% of the historically observed max, but a minimum 
-of 50\% of the historically observed min price, which induced asymmetry 
-in the price dist after integrating over 100 possible futures. Testing using
-deterministic runs will show whether this is true.**] - also, is there
-an effect of maximising the total discounted rent here? Maybe try
-a deterministic run without discounting to see.
+three times the steady state estimate in HSHG, around twice steady-state
+in QCS, and 9\% lower in WCVI. The rent maximising objective function also 
+produced higher resource rents than steady state solutions, extracting 
+88\% higher rents in HSHG, 50\% higher in QCS, and 14\% higher in WCVI. 
+Higher resource rents are caused by [check]
+1. Higher biomass at start (development windfall)?
+2. PED pushing rents up?
+3. Asymmetry in the price range, so prices can climb higher. 
+
+I think it's #3. We can test with a short run with no PED and no
+price devs.
 
 
 
 ## Targeting optimal harvest rates in practice
 
-We presented results from the closed loop simulation under perfect
-information and simulated assessment errors for three target harvest 
-rates. Those harvest rates were $U_{MSY,MS}$ and $U_{MEY}$ estimates
-at static equilibrium, and the dynamic approximation $U_{MEY}&*$. We 
-do not simulate catch using the dynamic approximations 
-to catch maximising harvest rates $U_{MSY,MS}$, given that median harvest 
-rates derived from the catch maximising objective function were almost 
-identical to the steady state solution. Although the differences 
-in steady-state and median dynamic $U_{MEY}$ harvest rates were not 
-statistically significant, we present results based on the two 
-distinct estimates because fishery management decisions are often 
-made based on mean or median stock assessment outputs, with 
-variability sometimes ignored or used to justify additional 
-precautionary controls, and increases of 7\% - 40\% in harvest rates 
-would create significant differences in management outcomes. 
+
+### Conservation performance
+
+Targeting either MSY or MEY through static or dynamic harvest rates 
+did not pose any conservation risk under either perfect or imperfect 
+biomass information (Figure 8). For $U_{MSY}$ and $U_{MSY}^*$ harvest
+rates, biomasses in the projection period were above the equilibrium 
+values given in Tables 4 and 6, as catch needed to develop from current
+levels to the higher optimal harvest rates, requiring a development
+period to the long-term equilibrium (e.g. Figure 9). In contrast, 
+$B_{MEY}^*$ and $B_{MEY}^*$ was not always lower than the current biomass 
+for all DER complex stocks, leading to more varied trajectories in the 
+projection as choke dynamics had a larger effect (e.g., Figure 10); 
+however, $B_{MEY}$ and $B_{MEY}^*$ values were always higher than
+$B_{MSY}$ values, meaning that conservation risk was always lower 
+under $U_{MEY}^*$ and $U_{MSY}^*$, despite lower biomass values under
+the higher $U_{MEY}^*$ and $U_{MSY}^*$ harvest rates. Differences 
+were largest between $U_{MEY}^*$ and $U_{MEY}$, with the 
+static $B_{MEY}$ between 10\% and 20\% higher than the $B_{MEY}^*$. 
+Given the relative values of $B_{MSY}$, $B_{MEY}$, and $B_{MSY,SS}$,
+biological risk was acceptable for all harvest rates, with the 5th 
+percentile of biomass was always above 40\% of the single-species 
+$B_{MSY,SS}$, the level under which a stock is often considered 
+critically overfished in Canada [@DFO2006A-Harvest-Strat].
+
+
+
+### Economic performance
+
+Relative health of the DER complex stocks provided conditions under which
+catch maximisation gave an economic windfall. Median NPV of under MSY 
+harvest rates was between $3M and $6M higher than the NPV under MEY 
+harvest rates (Table 8), depending on the information scenario, or an
+average of $190,000 - $375,000 in annual undiscounted rent. While 
+higher NPV under catch maximisation is counter to conventional 
+wisdom and our steady-state and dynamic optima (Tables 4, 6), they were 
+present in the DER complex simulations because of the relative health
+of DER complex stocks at the start of the projection. In 2016, all stocks 
+were well above their respective $B_{MSY,SS}$, providing a standing biomass 
+to fish down in all areas, creating higher catches at lower efforts (i.e.,
+higher CPUE), which led to higher resource rents despite lower unit prices
+implied by the downward sloping demand curve.
+    - **Compare time series of annual rents over projection period**
+
+Despite higher median NPV under MSY harvest rates, there was significantly
+greater risk at the tails. Under either $U_{MEY}$ or $U_{MEY}^*$ harvest
+rates, the $VAR-5\%$ was about \$5M higher than for MSY under perfect
+info ($310,000 annual rent on average) and about \$3M ($190,000 annually) 
+higher under simulated assessment errors (Table 8), reflecting lower 
+absolute biomass under MSY targets and higher costs of 
+effort required to maintain maximum catch once development has occured and 
+biomass has settled around the new equilibrium. Furthermore, targeting 
+higher $U_{MEY}^*$ harvest rates appeared to have asymmetric risk, 
+providing benefits with very little risk of loss. Median NPV under 
+$U_{MEY}^*$ harvest rates were around \$3M higher ($190,000 per year) 
+than under steady state $U_{MEY}$ harvest rates for both information 
+scenarios, while $VAR-5\%$ was around \$16M for both $U_{MEY}^*$ and
+$U_{MEY}$ under both information scenarios, indicating very little 
+difference in downside between harvest. In contrast, the $VAR-95\%$ was 
+about \$6M higher for the $U_{MEY}^*$ harvest rate under both scenarios, 
+indicating that the higher harvest rate from the stochastic optimisation 
+takes advantage of more favourable price and recruitment stochasticity, 
+giving a more favourable upside.
+
+
+- Unclear whether this is a development effect or an artifact
+    of using stochastic optimisation/omniscience/rational expectations
+    to derive target HRs. How can we check?
+
+
+Imperfect information appeared to insulate against economic loss
+when setting TACs using $U_{MSY}$ and $U_{MSY}^*$. For both harvest
+rates, median NPVs were between $400,000 and $640,000 higher when
+TACs were set based on imperfect information, and the $VAR-5\%$ 
+was around $2M higher ($125,000 per year). The difference
+between information scenarios did not appear to affect the potential 
+upside of maximising catch, with differences in the $VAR-95\%$ NPV 
+between $140,000 and $210,000 over the projection period. 
+
+On the other hand, imperfect information appeared to reduce rents under 
+rent maximising harvest rates. Median NPVs and $VAR-95\%$ values 
+were $1.7M - $2M ($100,000 - $125,000 per year) lower when TACs 
+were set using imperfect information. Lower tails of NPVs under
+$U_{MEY}$ and $U_{MEY}^*$ were less sensitive to the information 
+level, with $VAR-5\%$ increasing by about $550,000 when setting 
+TACs using perfect information under the steady state harvest rate, 
+but decreasing by about $60,000 when using $U_{MEY}^*$. The opposite
+effect of perfect information in $VAR-5\%$ values betwee $U_{MEY}$
+and $U_{MEY}^*$ creates a downside of around \$590,000 to the more 
+aggresive harvest rate, which translates to an average loss
+of $40,000 annually, but does not represent realistic risk since 
+perfect information is unachievable. 
+
+As expected, there was very little difference between NPV distributions
+when fishing using $U_{MSY}$ and $U_{MSY}^*$ (Table 8). Median and
+$VAR-5\%$ NPVs were most different when setting TACs with perfect 
+information, while $VAR-95\%$ was more different under the imperfect
+information scenario. 
+
+
 
 
 

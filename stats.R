@@ -304,12 +304,12 @@ makeParEstTable <- function( obj )
 # dynEqbriaTab()
 # Collects output from omniscient manager simulations
 # and turns them into tables of dynamic equilibria
-dynEqbriaTab <- function( groupFolder = "perfInfo_corrOMs",
-                          mpFilter = "perf",
+dynEqbriaTab <- function( groupFolder = "perfInfo_noCorr",
+                          mpFilter = "",
                           distYrs = 2017:2048,
                           qProbs = c(0.05,0.5,0.95),
                           econYieldFile = "cwEconYieldBlob.Rdata",
-                          scenOrder = c("noCorr","corrRecDevs","corrPriceDevs","corrRecPrice"))
+                          scenOrder = c("noCorr"))
 {
   # First, read info files from the relevant
   # sims
@@ -321,7 +321,6 @@ dynEqbriaTab <- function( groupFolder = "perfInfo_corrOMs",
                 arrange(scenario,mp)
 
   scenLabels <- unique(info.df$scenario)
-
 
   # Read in the modelStates we extracted
   nModels <- nrow(info.df)

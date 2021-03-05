@@ -9,8 +9,9 @@ library(parallel)
 source("ms3R.r")
 # source("makeResultPlots.R")
 
-batchControlFiles <- c( "perfInfo_catProfMax_corrOMs.bch",
-                        "simAssErrors_catProfMax_corrOMs.bch"
+batchControlFiles <- c( "omniRuns_econYield_noCorr.bch",
+                        "omniRuns_priceDevPED.bch",
+                        "omniRuns_econYield_crossCorr.bch"
                       )
                        
 nBatchJobs <- length( batchControlFiles )
@@ -19,14 +20,16 @@ nBatchJobs <- length( batchControlFiles )
 baseControlFiles  <- rep( "simCtlFileBase.txt",nBatchJobs)
                         
 
-prefixes       <- c(  "perfInfo_corrOMs",
-                      "simAssErrs_corrOMs")
+prefixes       <- c(  "omniRuns_noCorr_Mar5",
+                      "omniRuns_priceDevPED",
+                      "omniRuns_crossCor_Mar5" )
 
 saveDirName       <- prefixes
 
 baseLine <- c( NULL,NULL,NULL,NULL,NULL )
                         
-nCores <- rep(24,nBatchJobs)
+nCores <- rep(1,nBatchJobs)
+par    <- rep(FALSE,nBatchJobs)
 
 # Create a directory to hold completed mseR batch
 # jobs
@@ -47,7 +50,7 @@ for( bIdx in 1:nBatchJobs )
   # Run the batch in parallel - new 
   # format should stop errors from
   # crashing runParBatch
-  tryPar <- try(.runBatchJob( par = TRUE,
+  tryPar <- try(.runBatchJob( par = par[bIdx],
                               nCores = nCores[bIdx],
                               prefix = prefixes[bIdx] ) )
 

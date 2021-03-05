@@ -1,75 +1,102 @@
 # Discussion
 
-In this paper, we estimated steady-state and dynamic optimal harvest
-rates maximising multi-species catch and resource rent under various 
-correlation scenarios for a simulated multi-species, spatially 
-heterogeneous flatfish fishery off the coast of BC, Canada. Optimal 
-harvest rates were used to set TACs in closed-loop simulations assuming 
-both perfect and imperfect knowledge of stock biomass, estimating the 
-risk of including or excluding price and recruitment correlation when 
-setting multi-species management objectives.
+In this paper, we used a bio-economic modeling framework combining a
+multi-species age-structured stock assessment model with technical 
+interactions and time-varying demand curves to derive and test fishery 
+target harvest rates maximising multi-species catch ($MSY_{MS}$) and 
+economic yield ($MEY$) from a multi-species flatfish fishery. Harvest 
+rates targeting $MSY$ and $MEY$ were derived by estimating optimal fishing 
+effort under both steady state conditions and price and recruitment 
+stochasticity, with stochastically optimised $MEY$ effort levels significantly 
+higher than the steady state versions. Steady-state and dynamic optimal 
+harvest rates were then used to set TACs in closed-loop simulations 
+assuming both perfect and imperfect knowledge of stock biomass, estimating 
+the conservation and financial risk of each target in the presence of 
+uncertainty and technical interactions.
+
+The conservation status of the simulated DER complex creates a situation
+where it is, on average, more economically beneficial to target MSY
+than MEY over a shorter time horizon. While the higher median NPV under 
+MSY harvest rates appears counter-intuitive, the healthy stock status of 
+DER complex stocks produced higher catches at lower effort costs, or 
+higher catch per unit of effort (CPUE), that was not captured in the 
+equilibrium dynamics assumptions of yield curves. While dynamic
+$U_{MEY}^*$ values were higher than their steady state analogues, 
+
+
+Differences between steady state and dynamic optima depended
+on the management target. Catch maximising harvest rates $U_{MSY}$ and
+$U_{MSY}^*$ were practically the same, with only very small
+differences in biomass and resource rent outcomes when used
+to set TACs. On the other hand, there were much larger differences
+between steady-state and dynamic
+
+
+
+
+
+Optimal allocation of effort under PED was constant at all
+levels of total effort, despite joint inverse demand curves 
+affecting price. This may imply that catchability has a higher
+effect on effort allocation than PED, at least under the 
+ 
+Joint demand curves for each species with a constant PED changed 
+the optimal allocation of effort from a constant price model. A constant
+price model would have 
+
+TV demand - required bounding of prices, with some asymmetry perhaps 
+increasing difference b/n SS and dynamic eqbria.
 
 - Limitations
     - Only technical interacions, no ecological interactions or movement
     - Short price history
     - Some spurious population dynamics estimates
-    - ...
-- While correlation had a noticeable effect on expected NPV, the influence of
-correlation on dynamically optimised harvest rates was very subtle, and 
-therefore the risk of incorrectly including or ignoring correlation was very 
-low (VAR5\% differed by $\approx$ 10k over 32 years).
-    - Correlation in price had a small effect on MEY harvest rates, but 
-    the effect of correlation recruitment was trivial.
-    - Correlation effect, especially recruitment corr, was likely limited
-    by lack of ecological interactions/movement among stocks/species. In 
-    multi-stock contexts with spatial movement (e.g. ABFT), where TACs in
-    one area could affect the effective harvest rate induced
-    by another area's TACs, positive correlation in recruitments would 
-    likely strengthen feedback links between areas, creating more
-    significant differences between target harvest rates under 
-    correlated and uncorrelated scenarios.
+    - 
 
 
-There is little research on the effect of correlation among spatially
-heterogeneous species on biological reference points and economic yield.
-For example, there may be correlation in recruitments among species and 
-areas, implicitly representing responses to environmental effects 
-[@dichmont2006management], and there may be correlations in annual market 
-price deviations, either positive when demand changes significantly (e.g., 
-reductions in demand due to environmental disasters or restrictions
-on restaurant trade), or negative when species are substitutable.
-While there have been several studies on the effects of environmental
-covariates on recruitment [@haltuch2019unraveling], and autocorrelation
-in recruitment success [@maunder2019modeling], there are few studies that 
-aim to understand the effect of spatial correlation in recruitment for 
-multiple target species on biological reference points, fishery objectives, 
-and whether there is a risk if those correlations are ignored. In one
-example, ignoring simulated spatial correlation in recruitment success 
-produced positively biased stock status estimates for Australia's Northern 
-Prawn fishery [@dichmont2006management3]. To our knowledge, there are no
-studies establishing an effect of correlated temporal price deviations on
-optimal economic yield, partly because stochasticity is sometimes ignored
-for MEY calculations in the economic literature [@sanchirico2007sustainable; 
-@kasperski2015optimal], and landed values are often considered fixed in
-analyses in the fisheries literature [@punt2020multispecies; 
-@punt2011calculating].
+These results are consistent with previous
+results showing that targeting $MSY_{MS}$ has very low risk for the
+DER complex [@johnson2021hierarchical].
+
+Ealier version of this work included experiments where dynamic optima
+were estimated with and without correlation in price and recruitment
+deviations, and cross tested against scenarios with and without the 
+same correlation. While simulated correlation in recruitment and 
+reference price deviations had an effect on the distribution of fishery 
+outcomes (e.g., NPV, biomass), there was little effect on the estimated
+optimal harvest rates themselves, and even less effect on the risks 
+associated with incorrectly assuming the presence or absence of harvest 
+rates when setting TACs, with VAR-5\% differing by around \$10,000 CAD 
+over 32 years [refer to supp?]. Moreover, we found that price correlation
+had the largest effect, and recruitment correlation almost no effect.
+However, we do not assert that recruitment correlation among species and
+areas is not an important issue in spatial and multi-species fisheries 
+management, as our case was likely limited by the lack of ecological 
+interactions/movement among stocks/species; this is further strengthened
+by price correlation having the largest effect, and inverse demand
+curves being one of the strong links between areas in our system. 
+We predict that recruitment correlation would have more significance
+in multi-stock contexts that include spatial movement (e.g. Atlantic
+Bluefin Tuna), where TACs in one area could affect the effective harvest 
+rate induced by another area's TACs through stock mixing. Then, positive 
+correlation in recruitments would likely strengthen feedback links 
+between areas, creating more significant differences between target 
+harvest rates derived under correlated and uncorrelated scenarios. 
+Recruitment correlation would also likely play a larger role if it was
+explicitly considered in a model-based biomass estimation procedure, such
+as in Australia's Northern Prawn fishery, where ignoring correlation 
+positively biased stock status estimates and led to overfishing
+[@dichmont2006management3].
 
 
-For the DER complex, there is little reason not to target
-multi-species yield objectives. Even assuming that technical interactions 
-can be overcome by targeting and single-species MSY_SS can be achieved
-independently for all DER complex stocks, there is little benefit in doing
-so. The complex wide catch yield is only 110 tonnes lower for MSY_MS
-than the sum of the single species MSY_SS values, and extra targeted fishing 
-effort and lower prices caused by the elasticity of demand may dissipate 
-any resource rent gains that the higher catch would bring.
+- Read new Kiva Oken paper on diversifying licenses to improve
+economic yield and insulate against risk of synchrony - which we 
+didn't notice here in correlation para above.
 
-The intersection dynamic optima distributions with steady-state solutions 
-under all scenarios and objective functions indicated that dynamic 
-optima are not statistically different from steady-state optima in the 
-presence of recruitment process error and price variation.
+
+
+
 
 Future work: 
 
 - Adding movement hypotheses - for Dover sole at least
-- Grading length for smaller fish

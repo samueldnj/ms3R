@@ -3777,7 +3777,10 @@ combBarrierPen <- function( x, eps,
   {
     inputFile <- read.csv(ctlList$mp$hcr$inputHRfile)
 
-    inputHRs  <- inputFile[,c("species","stock",ctlList$mp$hcr$fileColName)]
+
+    inputHRs  <- inputFile[,c("species","stock",ctlList$mp$hcr$fileColName)] %>%
+                  dplyr::filter( species %in% speciesNames,
+                                  stock %in% stockNames )
 
     # Now make a matrix
     inputHR_sp <- array( 0, dim = c(nS,nP),
@@ -3965,6 +3968,8 @@ combBarrierPen <- function( x, eps,
     minP_s  <- obj$om$minPrice_s 
     maxP_s  <- obj$om$maxPrice_s 
     obj$om$logitBasePrice_st[,t] <- log( (P_s - minP_s) / (maxP_s - P_s) )
+
+
   }
   
   # Need to make price bounded by a range that is only slightly
@@ -4437,8 +4442,7 @@ combBarrierPen <- function( x, eps,
   {
     i                     <- opMod$interestRate
     logitBasePrice_st[,t] <- logitBasePrice_st[,t-1] + err$priceDev_st[,t]
-    basePrice_st[,t]      <- minP_s + maxP_s/(1 + exp(-logitBasePrice_st[,t])) * (1 + i)^(t - tMP)
-  
+    basePrice_st[,t]      <- minP_s + (maxP_s - minP_s)/(1 + exp(-logitBasePrice_st[,t])) * (1 + i)^(t - tMP)
   }
 
   # Now calculate effort for each area (for closed loop sim)

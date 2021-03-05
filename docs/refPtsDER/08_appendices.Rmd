@@ -1,43 +1,9 @@
 \clearpage
 
-
 # (APPENDIX) Appendices {-}
 
-# Appendix A: Fits to compositional data
 
-
-```{r ageFitAvg, echo = FALSE, fig.cap = "ageFitAvgDover HSHG"}
-
-plotCompFitAvg( repObj = repObj,
-                            initYear = 1956,
-                            sIdx = 1, pIdx = 1,
-                            sex = "female",
-                            comps = "age"  )
-```
-
-\clearpage
-
-```{r ageFitAvg2, echo = FALSE, fig.cap = "ageFitAvgEnglish HSHG"}
-
-plotCompFitAvg( repObj = repObj,
-                            initYear = 1956,
-                            sIdx = 2, pIdx = 1,
-                            sex = "female",
-                            comps = "age" )
-```
-
-\clearpage
-
-```{r ageFitAvg3, echo = FALSE, fig.cap = "ageFitAvg Rock HSHG"}
-
-plotCompFitAvg( repObj = repObj,
-                            initYear = 1956,
-                            sIdx = 3, pIdx = 1,
-                            sex = "female",
-                            comps = "age" )
-```
-
-# Appendix B: DER complex time-varying inverse demand curves
+# Appendix A: DER complex time-varying inverse demand curves
 
 We assumed that ex-vessel unit prices ($/kg) for each DER complex 
 species $s$ followed a time-varying inverse demand curve

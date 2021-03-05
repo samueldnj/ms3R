@@ -28,9 +28,6 @@ length-composition, or length-conditional age-composition exists for
 each fleet (colours) for the indicated year. The bottom cell shows commercial 
 catch (relative to the maximum catch) in grey bars."
 
-econDataFigCap <- "Catch and ex-vessel unit price data for DER complex
-species from 2006 to 2016. Prices are adjusted to 2016 prices assuming a
-2\\% annual inflation rate."
 
 SBsptCaption <- "Spawning biomass (red solid line), unfished biomass (red 
 horizontal dashed line), catch (grey bars), and scaled biomass indices 
@@ -38,15 +35,6 @@ horizontal dashed line), catch (grey bars), and scaled biomass indices
 fleet catchability and the ratio of spawning biomass to vulnerable biomass, 
 i.e. $ I^{scaled}_{s,p,f,t} = \\frac{I_{s,p,f,t} SSB_{s,p,t}}{q_{s,p,f,t} B_{s,p,f,t}}$."
 
-
-idxResidsCap <- "Standardised residuals for commercial CPUE and survey 
-trawlable biomass indices."
-
-FvsEffCap <- "Maximum likelihood estimates of fishing mortality (vertical
-axis) plotted against commercial trawl effort (horizontal axis) for
-each area and species. Lines show the linear catchability scalar between 
-fishing effort and fishing mortality for each species within an area,
-used for simulating fishing post 2016."
 
 econDashCap <- "Maximum likelihood estimates of DER complex demand curves 
 from 2016 (top-left), time-series of annual reference and ex-vessel unit 
@@ -78,15 +66,32 @@ revenue curves in different colours, the multi-species revenue curve found
 by summing the three species curves as a solid black line, fuel costs as 
 a solid red line, and net resource rent as a dashed black line."
 
-dynOptUCap <- "Medians and distributions of harvest rates under the
-stochastic optimisation between 2040 and 2060 when maximising complex
-catch (circles) and producer surplus (triangles). Horizontal axes are 
-scaled to single-species equilibrium $U_{MSY,SS}$, indicated by a vertical
-dashed black line, with $U_{MSY,MS}$ indicated as a vertical green
-dashed line, and $U_{MEY}$ shown as a vertical pink dashed line. Grey
-horizontal bars show the central 95\\% of simulated harvest rates. Large
-cells show species (columns) and stock-areas (rows), while smaller cells
-show each correlation scenario, labelled on the y-axis."
+dynOptUCap <- "Medians (points) and central 95\\% (grey bars) of simulated 
+harvest rates under the stochastic optimisation between 2041 and 2060 when 
+maximising complex catch (circles) and producer surplus (triangles). 
+The horizontal axis is scaled to single-species equilibrium $U_{MSY,SS}$, 
+indicated by a vertical dashed black line, with steady state optima shown as 
+open red points for comparison."
+
+bioDistCap <- "Distributions of 2048 biomass relative to single-species
+$B_{MSY}$ for all DER complex stocks under the closed loop simulations. 
+Line segments show the central 90\\% of the simulated biomass distribution 
+and points show median biomas. Line segments differ for the perfect 
+(solid) and imperfect (dashed) information scenarios, while points differ 
+between steady state (open) and dynamic (closed) optimal harvest rates 
+targeting maximum catch (circle) or net-present value of resource rents 
+(square). Horizontal dashed reference lines show $B_{MSY}$ (grey) and 
+$0.8 B_{MSY}$ (orange) to indicate conservation risk."
+
+imperfectInfoSimEnvCap <- "An example simulation biomass envelope from the 
+imperfect information scenario for each DER complex species (columns) and 
+area (rows) when TACs were set using the steady-state multi-species catch 
+maximimising harvest rate $U_{MSY}$. Envelopes show median biomass (heavy 
+black lines) and the central 90\\% of the simulated biomass distribution 
+(grey regions), with random simulation replicates shown as thin black 
+traces. The historical period shows fixed catch (grey bars), with catch in 
+the projection period shown as the central 90\\% (thin black line segment) 
+and median (grey bars) over all simulation replicates."
 ```
 
 ```{r fig1-DERcomplexSurveyBio, echo = FALSE, warning = FALSE, fig.cap = DERcplxMapCap }
@@ -115,34 +120,10 @@ if(params$redoPlots)
 knitr::include_graphics(figPath)
 ```
 
-```{r fig3-econData, echo = FALSE, warning = FALSE, fig.cap = econDataFigCap, fig.width = 7, out.width = "9in" }
-figPath <- file.path("./figure/fig3-econData.pdf")
-if(params$redoPlots)
-{
-  graphics.off()
-  pdf(file = figPath, width = 7/fig_asp, height = 7 )
-  plotPriceCatchTS()
-  dev.off()
-}
-knitr::include_graphics(figPath)
-```
 
 
-
-```{r fig4-idxResids, echo = FALSE, warning = FALSE, fig.cap = idxResidsCap, fig.width = 7, out.width = "9in" }
-figPath <- file.path("./figure/fig4-idxResids.pdf")
-if(params$redoPlots)
-{
-  graphics.off()
-  pdf(file = figPath, width = 7/fig_asp, height = 7 )
-  plotIdxResidsGrid( reports)
-  dev.off()
-}
-knitr::include_graphics(figPath)
-```
-
-```{r fig5-SpawnBioPlots, echo = FALSE, warning = FALSE, fig.cap = SBsptCaption, fig.width = 7, out.width = "9in" }
-figPath <- file.path("./figure/fig5-SpawnBioPlots.pdf")
+```{r fig3-SpawnBioPlots, echo = FALSE, warning = FALSE, fig.cap = SBsptCaption, fig.width = 7, out.width = "9in" }
+figPath <- file.path("./figure/fig3-SpawnBioPlots.pdf")
 if(params$redoPlots)
 {
   graphics.off()
@@ -155,22 +136,10 @@ knitr::include_graphics(figPath)
 
 \elandscape
 
-```{r fig6-commEffFits, echo = FALSE, warning = FALSE, fig.cap = FvsEffCap, fig.width = 6, out.width = "7in" }
-figPath <- file.path("./figure/fig6-commEffFits.pdf")
-if(params$redoPlots)
-{
-  graphics.off()
-  pdf(file = figPath, width = 7.5, height = 10 )
-  plotFvsEffHist_p( simObj, fIdx = 2, iRep = 1)
-  dev.off()
-}
-knitr::include_graphics(figPath)
-```
 
 
-
-```{r fig6-inverseDemandCurves, echo = FALSE, warning = FALSE, fig.cap = econDashCap, fig.width = 6, out.width = "7in" }
-figPath <- file.path("./figure/fig6-inverseDemandCurves.pdf")
+```{r fig4-inverseDemandCurves, echo = FALSE, warning = FALSE, fig.cap = econDashCap, fig.width = 6, out.width = "7in" }
+figPath <- file.path("./figure/fig4-inverseDemandCurves.pdf")
 if(params$redoPlots)
 {
   graphics.off()
@@ -182,8 +151,8 @@ knitr::include_graphics(figPath)
 ```
 
 
-```{r fig8-DERcomplexCatchYieldCurves, echo = FALSE, warning = FALSE, fig.cap = econYieldCurveCap }
-figPath <- file.path("./figure/fig7-DERcomplexYieldCurves.pdf")
+```{r fig5-DERcomplexCatchYieldCurves, echo = FALSE, warning = FALSE, fig.cap = econYieldCurveCap }
+figPath <- file.path("./figure/fig5-DERcomplexYieldCurves.pdf")
 if(params$redoPlots | !file.exists(figPath))
 {
   graphics.off()
@@ -200,8 +169,8 @@ knitr::include_graphics(figPath)
 ```
 
 
-```{r fig9-DERcomplexEconYieldCurves, echo = FALSE, warning = FALSE, fig.cap = econYieldCurveCap }
-figPath <- file.path("./figure/fig8-DERcomplexEconYieldCurves.pdf")
+```{r fig6-DERcomplexEconYieldCurves, echo = FALSE, warning = FALSE, fig.cap = econYieldCurveCap }
+figPath <- file.path("./figure/fig6-DERcomplexEconYieldCurves.pdf")
 if(params$redoPlots | !file.exists(figPath))
 {
   graphics.off()
@@ -215,14 +184,45 @@ knitr::include_graphics(figPath)
 ```
 
 
-```{r fig10-dynUmsy, echo = FALSE, warning = FALSE, fig.cap = dynOptUCap }
-figPath <- file.path("./figure/fig10-dynUmsy.pdf")
+```{r fig7-dynUmsy, echo = FALSE, warning = FALSE, fig.cap = dynOptUCap }
+figPath <- file.path("./figure/fig7-dynUmsy.pdf")
 if(params$redoPlots | !file.exists(figPath))
 {
   graphics.off()
-  pdf(file = figPath, width = 11, height = 8.5)
+  pdf(file = figPath, width = 8.5, height = 11)
   plotDynUmsy_sp()
   dev.off()
 }
 knitr::include_graphics(figPath)
 ```
+
+
+```{r fig8-bioDist, echo = FALSE, warning = FALSE, fig.cap = bioDistCap }
+figPath <- file.path("./figure/fig8-bioDist.pdf")
+if(params$redoPlots | !file.exists(figPath))
+{
+  graphics.off()
+  pdf(file = figPath, width = 8.5, height = 11)
+  plotBioDist()
+  dev.off()
+}
+knitr::include_graphics(figPath)
+```
+
+\blandscape
+
+```{r fig9-simEnvelope, echo = FALSE, warning = FALSE, fig.cap = imperfectInfoSimEnvCap }
+figPath <- file.path("./figure/fig9-simEnvelope.pdf")
+if(params$redoPlots | !file.exists(figPath))
+{
+  .loadSim(1,groupFolder=  "simAssErrs_noCorr")
+  graphics.off()
+  pdf(file = figPath, width = 7/fig_asp, height = 7)
+  plotTulipBt(dep = TRUE, Ct = TRUE)
+  dev.off()
+}
+knitr::include_graphics(figPath)
+```
+
+\elandscape
+

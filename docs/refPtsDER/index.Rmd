@@ -1,5 +1,5 @@
 ---  
-title: "What is the biological and economic risk of correlation in price and recruitment in spatially heterogeneous, multi-species fisheries?"
+title: "A bio-economic approach for deriving fishery management targets in British Columbia's multi-species, spatially heterogeneous, flatfish fishery."
 author: 
   - Samuel D. N. Johnson (corresponding)
   - Sean P. Cox
@@ -28,7 +28,7 @@ params:
   fit: "fit_base_MCMC"
   sim: "sim_baseRun"
   baseDir: "docs/refPtsDER/data"
-  redoPlots: FALSE
+  redoPlots: TRUE
 numbersections: true
 appendix: false
 output: 

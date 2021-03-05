@@ -159,7 +159,7 @@ simplifying assumptions must be made so that analytical techniques can be
 applied, such as simpler population dynamics models, ignoring stochasticity, 
 or restricting to a simple fishery dynamics regime 
 such as open access or a single operator. While simpler population dynamics
-(usually logistic models) are the most popular choice for bio-economic 
+(usually logistic models) are a popular choice for bio-economic 
 analyses, they are the least problematic in terms of applications to 
 real fisheries systems, as the relative rankings of outcomes (e.g., profits) 
 are preserved under the simplified dynamics. In some cases, restricting to 
@@ -170,7 +170,7 @@ to quota transfers is ignored, using catch shares to manage a fishery with
 output controls such as individual transferrable quotas can be considered
 a "sole operator". 
 
-<!-- While general results are more widely applicable and can guide decisions and 
+While general results are more widely applicable and can guide decisions and 
 research at a high level, system specific results have strategic value for 
 the system in which they are derived [@hoshino2018estimating; 
 @benson2018options]. For example, a study of the multi-species northern prawn 
@@ -185,32 +185,11 @@ areas in the spatial models implied different optimal fishing effort levels
 and allocations than non-spatial models [@punt2020multispecies], where spatial
 heterogeneity implied different fishery profitabilities under all fishing 
 strategies (including those based on maximimising economic yield) than the 
-non-spatial case. 
- -->
+non-spatial case.
 
-<!-- There is little research on the effect of correlation among spatially
-heterogeneous species on biological reference points and economic yield.
-For example, there may be correlation in recruitments among species and 
-areas, implicitly representing responses to environmental effects 
-[@dichmont2006management], and there may be correlations in annual market 
-price deviations, either positive when demand changes significantly (e.g., 
-reductions in demand due to environmental disasters or restrictions
-on restaurant trade), or negative when species are substitutable.
-While there have been several studies on the effects of environmental
-covariates on recruitment [@haltuch2019unraveling], and autocorrelation
-in recruitment success [@maunder2019modeling], there are few studies that 
-aim to understand the effect of spatial correlation in recruitment for 
-multiple target species on biological reference points, fishery objectives, 
-and whether there is a risk if those correlations are ignored. In one
-example, ignoring simulated spatial correlation in recruitment success 
-produced positively biased stock status estimates for Australia's Northern 
-Prawn fishery [@dichmont2006management3]. To our knowledge, there are no
-studies establishing an effect of correlated temporal price deviations on
-optimal economic yield, partly because stochasticity is sometimes ignored
-for MEY calculations in the economic literature [@sanchirico2007sustainable; 
-@kasperski2015optimal], and landed values are often considered fixed in
-analyses in the fisheries literature [@punt2020multispecies; 
-@punt2011calculating]. -->
+New para: Include or exclude stochasticity, refer to natural resource
+economics [clark] 
+
 
 Despite more commonly having higher model complexity in biological aspects, 
 there are some economic components of bio-economic models in the fisheries 
@@ -234,30 +213,27 @@ achieve certain effort levels given limits on capital. Based on this,
 MEY estimates can be characterised as upper bounds on the true value 
 [@punt2020multispecies].
 
-In this paper, we asked whether there was increased risk of lost
-resource rent or lost catch yield if fishery managers ignored correlation 
-in market prices and recruitment deviations when setting catch limits
-in multi-species fisheries. We used closed loop simulation to simulate
-a three species complex of right-eyed flounders (*Pleuronectidae Spp.*) - 
-Dover sole (*Microstomus pacificus*), English sole (*Parophrys vetulus*), 
-and (Southern) Rock sole (*Lepidopsetta bilineata*) - fished in three 
-spatially heterogeneous areas by a common trawl 
-fishery off the coast of British Columbia (BC), Canada. Steady-state 
-multi-species maximum yield reference points incorporated technical 
-interactions of the three species to relate species- and area-specific 
-yield curves to a common trawl effort [@pikitch1987use],
-and multi-species economic yield calculations incorporated spatially 
-heterogeneous costs of fishing and downward sloping demand curves when 
-deriving resource rent from those steady state solutions. 
-Incorporating correlation in reference point calculations required solving 
-for dynamic optima via stochastic optimisation of fishing effort in 
-eight projection scenarios, where the objective function either maximised 
-yield or the net present value of the DER complex fishery, and simulated 
-dynamics included correlation in recruitment process deviations and/or 
-market price fluctuations. Risk was measured by comparing distributions 
+In this paper, we asked how optimal harvest rates (i.e. fishery 
+objectives) for a spatially heterogeneous, multi-species flatfish fishery 
+differed between static and dynamic equilibria when maximimising catch or 
+resource rent. We used closed loop simulation to simulate a three species 
+complex of right-eyed flounders (*Pleuronectidae Spp.*) - Dover sole 
+(*Microstomus pacificus*), English sole (*Parophrys vetulus*), and 
+(Southern) Rock sole (*Lepidopsetta bilineata*) - fished in three 
+spatial strata by a common trawl fishery off the coast of British Columbia 
+(BC), Canada. Steady-state multi-species maximum yield reference points 
+incorporated technical interactions of the three species to relate 
+species- and area-specific yield curves to a common trawl effort 
+[@pikitch1987use], and multi-species economic yield calculations 
+incorporated spatially heterogeneous costs of fishing and downward sloping 
+demand curves with a constant price elasticity of demand. 
+Solving for dynamic equilibria in the presence of price and recruitment
+deviations required stochastic optimisation of fishing under two objective
+functions, which either maximised catch or the net present value of the 
+DER complex fishery. Risk was measured by comparing distributions 
 of biomass, catch, and net present value when optimal harvest 
-rates were used to set TACs in closed loop simulation, under correlation 
-scenarios and both perfect and imperfect knowledge about stock biomass.
+rates were used to set TACs in closed loop simulation, under both perfect 
+and imperfect knowledge about stock biomass.
 
 Steady state multi-species MSY and MEY reference points were estimated by 
 fitting a hierarchical, multi-species, age-structured stock assessment 

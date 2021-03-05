@@ -193,9 +193,10 @@ effort in each area, $\psi = .3$ is the crew share of revenue
 [@nelson2011pacific-commerc], $v_{s}(\sum_p C_{s,p})$ 
 is the unit price per kilogram of species $s$, taken from an inverse demand
 curve as a function of total catch $\sum_p C_{s,p}(E_p)$ (quantity supplied) 
-at effort $E_p$ (dependent on numbers-at-age in each area $p$), 
-and $c_{p}$ is the fuel cost-per-unit-effort of fishing in area $p$ 
-(or $p'$ for the inner summation).
+at effort $E_p$ (dependent on numbers-at-age in each area $p$) calculated
+using the Baranov catch equation **[tabref]**, and $c_{p}$ is the fuel 
+cost-per-unit-effort of fishing in area $p$ (or $p'$ for the inner 
+summation).
 
 The unit price $v_s$ ($/kg) of each species $s$ followed a downward sloping 
 inverse demand curve for total species $s$ catch
@@ -301,24 +302,23 @@ and the associated vector of optimal fishing effort
 \end{equation}
 
 For illustrative purposes, equilibrium relationships between fishing effort 
-and resource rent for individual areas were derived under the joint inverse 
+and resource rent within individual stock areas were derived under the inverse 
 demand curves $v_s$. To incorporate the effect of spatially heterogeneous 
 catch on unit price, a grid search was conducted over 100 levels of total 
 coastwide effort equally spaced from 0 - 100,000 hours of trawling, 
-assuming that a fixed positive level of total BC effort would be allocated 
+assuming that a positive proportion of total BC effort would be allocated 
 among areas to maximise rent. For each effort grid point, the allocation 
-of effort to each area was computed via Newton-Rhapson optimisation, from 
-which area-specific equilibria were derived.
+of effort to each area was computed via Newton-Rhapson optimisation of
+allocations, numerically producing area-specific equilibrium curves.
 
 
 
 ## Dynamic reference points
 
 Dynamic reference points were estimated via a stochastic optimisation of
-fishing effort $E_{p,t}$ under future non-equilibrium fishery dynamics. 
-Eight separate scenarios were simulated, which were the factorial 
-combination of two objective functions and four projection scenarios. For 
-all optimisations, population dynamics were projected 80 years from the 
+fishing effort $E_{p,t}$ under future non-equilibrium fishery dynamics,
+maximising either catch or the net-present-value of resource rent.
+In both optimisations, population dynamics were projected 80 years from the 
 last year of the AM (2017 - 2096), conditioned on maximum likelihood 
 estimates. Projections were repeated over 100 replicates, and differed by 
 the random number seed used to draw recruitment process deviations and 
@@ -334,8 +334,8 @@ error, $\sigma_{s,p}$ is the recruitment process error standard deviation.
 Note that recruitment process deviations were simulated for all stocks from
 earlier than 2017, as the AM was unable to estimate deviations up to the
 end of the AM history given the age composition data. Future ex-vessel 
-unit prices varied according to the covariance estimated when fitting 
-the price model in Appendix B to ex-vessel unit price data from
+unit prices were simulated in a random walk with variance estimated when 
+fitting the price model in Appendix B to ex-vessel unit price data from
 2006 - 2016.
 
 The two alternative objective functions for the optimisations allocated 
@@ -352,7 +352,7 @@ where $c_{p,t} = c_p \cdot (1 + i)^{t - 2017}$ is the variable fishing
 cost-per-unit-effort adjusted for annual inflation $i$, and $d = 0.05$ 
 is the annual discount rate.
 
-While total effort was unconstrained in the projections, each scenario 
+While total effort was unconstrained in the projections, simulations 
 constrained inter-annual changes in effort to 20\% per year. This constraint
 reflected the potential for new licenses in the fishery, but a lag time 
 required for a capital investment (e.g., in new and larger vessels) or 
@@ -360,16 +360,6 @@ license reductions (e.g., buybacks). While the effort is eventually
 unbounded, the optimisation method treats the fishery as a single firm, 
 rather than an open access regime, so it is possible that fishery profits 
 will not be dissipated. See Appendix A for the details of the optimisation.
-
-The four stochastic projection scenarios were defined based on correlations
-in recruitment process deviations and market price random walk deviations.
-The base scenario **noCorr** had no correlation in either process 
-(described above), **priceCorr** included correlations in the price
-random walk, **recCorr** included correlations in recruitment across
-all nine DER complex stocks, and **allCorr** included both sources of 
-correlation. For price, the correlation matrix was derived from the time
-series of price data, and recruitment process deviation correlation 
-matrices were derived from the AM estimates of recruitment deviation series.
 
 Dynamic optimal efforts $E^*_{MSY,MS,p}$ and $E^*_{MEY,p}$, and 
 associated biomasses, catches, annual resource rents, and harvest rates 
@@ -385,18 +375,18 @@ outlined above, and the 5th and 95th pecentiles of catch and annual
 resource rent distributions were compared between correlation 
 scenarios to understand the effect of correlation on each quantity.
 
-## Risks of correlation in practice
+## Expected fishery performance
 
 The above steady-state and dynamic reference points give expected
 fishery outcomes when fishing effort can be directly controlled;
-however, most modern fisheries are managed using output controls like
-quota systems with total allowable catches (TACs). In output control
-fisheries, TACs are set by taking the product of a target harvest rate 
-and an estimate of biomass, and the total number of fishing sets or trawl 
+however, BC fisheries are managed using an output control quota system 
+with total allowable catches (TACs). In output control fisheries, TACs 
+are set by taking the product of a target harvest rate and an estimate 
+of biomass, while the total number of fishing sets or trawl 
 hours are not limited by any regulation. To test the relative risks of
-ignoring or incorporating correlation into fishery management, we used
+targeting static or dynamic MSY or MEY objectives, we used
 closed loop simulation to simulate setting catch limits using harvest
-rates that were based on the MSY and MEY dynamic optima.
+rates that were based on the static and dynamic optima.
 
 The AM was used to condition the operating model (OM) in a closed loop 
 simulator to test the risk of ignoring or including correlation when
@@ -404,13 +394,12 @@ setting target harvest rates. Our closed loop simulator accounted
 for technical interactions by setting TACs (explained below), and then 
 increasing fishing effort independently in each area until at least one
 species' TAC was exhausted [@johnson2021hierarchical]. The closed loop 
-simulation cross tested harvest strategies that accounted for or ignored 
-correlation with the operating model scenarios used to derive those 
-strategies under dynamic conditions above. In total, based on
-similarity of results, we tested 16 out of 80 potential OM/AM 
-combinations, comprising four OM correlation scenarios, ten target 
-harvest (two steady-state and eight dynamic optima), and two levels of 
-uncertainty in biomass when setting TACs.
+simulation cross tested both TACs set using both static and dynamic 
+equilibrium harvest rates under the same scenarios used to derive the
+dynamic equilibria above. We tested 8 OM/AM combinations, comprising four 
+harvest rates (two steady-state and two dynamic optima), and two levels 
+of knowledge in biomass when setting TACs (perfect and imperfect 
+information).
 
 At each time step in the closed loop simulation, TACs were set using
 a constant harvest rate, i.e.
@@ -424,21 +413,23 @@ optimisation above. Biomass forecasts were either known perfectly, i.e.
 $\hat{B}_{s,p,t} = B_{s,p,t}$ for the **perfInfo** uncertainty scenario, 
 or with a log-normal assessment error 
 $\hat{B}_{s,p,t} = B_{s,p,t}\cdot e^{\delta_{s,p,t}}$ under 
-the **assErr** uncertainty scenario. The assessment error distribution was
-derived from assessment errors in previous work [@johnson2021hierarchical], 
-where we used closed loop simulations to test a hierarchical surplus 
-production assessment model on the DER complex (see section S.2 for
-details).
+the **assErr** uncertainty scenario. The assessment error distribution
+covariance matrix was derived from assessment errors in previous work 
+[@johnson2021hierarchical], where closed loop simulations were used
+to test a hierarchical surplus production assessment model on the DER 
+complex (see section S.2 for details).
 
-Risk was defined as the difference in outcomes (biomass/rent) between 
-target harvest rates under each operating model scenario. Given that 
-correlation will have an effect on the distribution of the price and 
-recruitment deviations, and therefore more of an effect on 
-the variance than the mean or median outcome, we measure risk as the
-difference in the 5th percentiles of distributions of biomass and 
-net present value. Using a percentile $p$ as a risk metric is known 
-as *Value-at-risk-$p$* ($VAR-p$), which is a non-parametric definition 
-of risk commonly used in economic analyses [@danielsson2011financial].
+Fishery performance was measured by comparing the conservation or resource 
+rent outcomes between target harvest rates under each information
+scenario. Conservation performance was measured by comparing the distribution
+of stock biomass at the end of the projection period (i.e., 2048)
+to single-species $B_{MSY}$ values, and economic performance was measured 
+as the net present value of resource rent over the whole projection period. 
+To measure risk, we compared the 5th, 50th (median), and 95th percentiles 
+of biomass and NPV distributions. Using a percentile $p$ as a risk metric is 
+known as *Value-at-risk-$p$* ($VAR-p$), which is a non-parametric 
+definition of risk commonly used in economic analyses 
+[@danielsson2011financial].
 
 
 

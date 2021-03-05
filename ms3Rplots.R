@@ -460,6 +460,184 @@ plotChokeHCRs <- function(  LCP = .1, UCP = .6,
 
 } # END plotChokeHCRs()
 
+# plotBioDist()
+# Estimates biomass distributions for given years
+# and plots them on a stock/species multipanel plot.
+plotBioDist <- function(  groupFolders = c("perfInfo_noCorr","simAssErrs_noCorr"),
+                          mpFilter = "",
+                          distYrs = 2048,
+                          qProbs = c(0.05,0.5,0.95),
+                          baseBlob = "sim_baseRun",
+                          scenOrder = c("noCorr"),
+                          hrOrder = c("MSY","noCorr.MSY","MEY","noCorr.MEY"),
+                          pch_m = c(21,21,22,22),
+                          pt.lwd_m = c(2,0,2,0),
+                          col_m = c("red","black","red","black"),
+                          bg_m = c(NA,"black",NA,"black") )
+{
+  nGroups <- length(groupFolders)
+  groupList <- list()
+  groupID <- c()
+
+  for( groupIdx in 1:nGroups)
+  {
+    groupFolder <- groupFolders[groupIdx]
+    # First, read info files from the relevant
+    # sims
+    simFolderList <- list.dirs( here::here("Outputs",groupFolder),
+                                recursive = FALSE, full.names = FALSE)
+
+    splitCharColumn <- function( str, pattern = "_", 
+                                 entry = 1)
+    {
+      splitz <- unlist(stringr::str_split(str, pattern = pattern))
+
+      splitz[entry]
+    }
+
+    info.df <-  readBatchInfo( batchDir = here::here("Outputs",groupFolder) ) %>%
+                  filter( grepl( mpFilter, mp ) ) %>%
+                  arrange(scenario,mp) %>%
+                  mutate( HR = sapply(X = mp, FUN = splitCharColumn, entry = 2) ) %>%
+                  arrange(match(HR,hrOrder))
+
+    scenLabels  <- unique(info.df$scenario)
+    mpLabels    <- info.df$mp
+
+    # Read in the modelStates we extracted
+    nModels <- nrow(info.df)
+    modelList <- vector(mode = "list", length = nModels)
+    names(modelList) <- info.df$simLabel
+    for( k in 1:nModels )
+    {
+      simLabel <- info.df$simLabel[k]
+      modelStatePath <- here::here("Outputs",groupFolder,simLabel,paste(simLabel,"_modelStates.RData",sep=""))
+      load(modelStatePath)
+
+      modelList[[k]] <- outList
+      modelList[[k]]$mp <- info.df$mp[k]
+
+      modelList[[k]]$scenario <- info.df$scenario[k]
+      modelList[[k]]$hr <- info.df$HR[k]
+
+    }
+    groupList <- c(groupList, modelList)
+    groupID <- c(groupID,rep(groupIdx,nModels))
+  }
+  outList <- NULL
+
+  .loadSim(baseBlob)
+  baseBlob <- blob
+  blob <- NULL
+  gc()
+
+  nSims <- length(groupList)
+
+
+  # Get reference points
+  rp  <- baseBlob$rp[[1]]
+  nS  <- modelList[[1]]$nS
+  nP  <- modelList[[1]]$nP
+  nT  <- modelList[[1]]$nT
+  nF  <- modelList[[1]]$nF
+  tMP <- modelList[[1]]$tMP
+  pT  <- nT - tMP + 1
+
+  speciesNames <- modelList[[1]]$speciesNames
+  stockNames <- modelList[[1]]$stockNames
+
+  nReps <- dim(modelList[[1]]$goodReps_isp)[1]
+  fYear <- modelList[[1]]$fYear
+
+  distYrIdx <- distYrs - fYear + 1
+  nYrs <- length(distYrIdx)
+
+  # Need to put biomasses for the years of interest into an array
+  SB_isptM <- array(NA, dim = c(nReps,nS,nP,length(distYrs),nSims) )
+
+  for( m in 1:nSims )
+    SB_isptM[,,,1:nYrs,m] <- groupList[[m]]$modelStates$SB_ispt[,,,distYrIdx]
+
+  # Scale by Bmsy
+  for( s in 1:nS )
+    for( p in 1:nP )
+      SB_isptM[,s,p,,] <- SB_isptM[,s,p,,] / rp$FmsyRefPts$BeqFmsy_sp[s,p]
+  
+  # Quantiles
+  SB_qspM <- apply(X = SB_isptM, FUN = quantile, 
+                    MARGIN = c(2,3,5), probs = qProbs )
+
+  # 
+
+  par(mfrow = c(nP,nS), oma = c(3,4,2,2), mar = c(.1,.1,.1,.1) )
+
+  for( p in 1:nP )
+    for( s in 1:nS )
+    {
+      plot( x = c(0.5,nSims/2 + 0.5), y = c(0,3), type = "n",
+            axes = FALSE )
+        mfg <- par("mfg")
+        if( mfg[2] == 1)
+          axis( side = 2, las = 1)
+
+        if( mfg[1] == 1 )
+          mtext( side = 3, text = speciesNames[s], font = 2, line = 0.5)
+
+        if( mfg[2] == mfg[4] )
+          rmtext( txt = stockNames[p], line = 0.05, font = 2, cex =1.5,
+                  outer = TRUE)
+
+
+        abline(h = 1, lwd = 0.8, lty = 3)
+        abline(h = .8, lwd = 0.8, lty = 3, col = "orange")
+        for( m in 1:nSims )
+        {
+          if( m %% 2 == 1 )
+            xLoc <- ceiling(m/2) - 0.25
+          if( m %% 2 == 0 )
+            xLoc <- ceiling(m/2) + 0.25
+
+          segments( x0 = xLoc, 
+                    y0 = SB_qspM[1,s,p,m],
+                    y1 = SB_qspM[3,s,p,m],
+                    lty = groupID[m],
+                    lwd = 2,
+                    col = "grey60" )
+          
+          hrLabel <- groupList[[m]]$hr
+          if( grepl(pattern = "MSY",x = hrLabel ))
+            hrpch <- 21
+          if( grepl(pattern = "MEY",x = hrLabel ))
+            hrpch <- 22
+
+
+
+          if( grepl(pattern = "noCorr",x = hrLabel ))
+          {
+            hrlwd <- 0
+            hrbg <- "black"
+            hrcol <- "black"
+          }
+          if( !grepl(pattern = "noCorr",x = hrLabel ))
+          {
+            hrlwd <- 2
+            hrbg <- NA
+            hrcol <- "red"
+          }
+
+          points( x = xLoc, y = SB_qspM[2,s,p,m],
+                  pch = hrpch, lwd = hrlwd, col = hrcol,
+                  bg = hrbg, cex = 2  )
+
+          box()
+
+        }
+
+    }
+    mtext( side = 2, outer = TRUE, text = expression(B/B[MSY]),
+            font = 2, line = 2 )
+}
+
 # rmtext()
 # Refactored procedure to plot right hand inner
 # margin mtext with the bottom towards the middle
@@ -949,13 +1127,15 @@ plotDynOptEffort_p <- function( groupFolder = "omni_econYield_splineE_long",
 
 } # END plotDynUmsy_sp
 
+
+
 # plotDynUmsy_sp()
 # Plots distribution of dynamically optimised harvest rates
 # for a set of simulations
-plotDynUmsy_sp <- function( groupFolder = "omni_econYield_splineE_long_Jan4",
+plotDynUmsy_sp <- function( groupFolder = "omniRuns_econYield_noCorr",
                             mpFilter = "freeEff",
                             baseRP = "sim_baseRun",
-                            scenOrder = c("noCorr","corrRecDevs","corrPriceDevs","corrRecPrice") )
+                            scenOrder = c("noCorr") )
 {
   # First, read info files from the relevant
   # sims
@@ -1025,17 +1205,42 @@ plotDynUmsy_sp <- function( groupFolder = "omni_econYield_splineE_long_Jan4",
   mpJitter <- c(  totCat    = .25,
                   totProfit = -.25 )
 
-  par( mfrow = c( nP, nS ),
-        oma = c(4,7,2,2),
+
+
+  par( mfrow = c( nP, 1 ),
+        oma = c(4,7,2,3),
         mar = c(.1,.1,.1,.1) )
 
+
+  xJitter <- c(-.25, .25 )
+
   for( p in 1:nP )
+  {
+    plot( x = c(0,2.5),
+          y = c(0.5,3.5), type = "n", axes = FALSE,
+          yaxs = "i" )
+      abline( h = 0.5 + 1:3, lwd = 2 )
+      mfg <- par("mfg")
+      
+      axis( side = 2, at = c(1:nS), labels = speciesNames[nS:1],
+            las = 1, tick = FALSE, font = 2 )
+
+      if(mfg[1] == mfg[3])
+        axis( side = 1 )
+      
+      # if(mfg[1] == 1)
+      #   mtext(  side = 3, text = speciesNames[s],
+      #           line = 0, font = 2)
+      #   axis( side = 3, at = 1:3, labels = speciesNames, tick = FALSE,
+      #         font = 2, line = -1, lab.cex = 2 )
+      
+      # abline( v = c(1.5,2.5), lwd = 2 )
+      abline( v = seq(from = 0, to = 2.5, by = .5), lwd = .8, col = "grey80", lty = 3 )
+      abline( v = 1, lty = 2, lwd = 2, col = "grey60")
+      box( lwd = 2 )
+
     for( s in 1:nS )
     {
-      plot( x = c(0,2),
-            y = c(0.5,4.5), type = "n", axes = FALSE,
-            yaxs = "i")
-
       BmsyMS  <- rp$EmsyMSRefPts$BeqEmsy_sp[s,p]
       MSYMS   <- rp$EmsyMSRefPts$YeqEmsy_sp[s,p]
 
@@ -1056,17 +1261,6 @@ plotDynUmsy_sp <- function( groupFolder = "omni_econYield_splineE_long_Jan4",
       # BmsyMS <- rp$EmeyRefPts$BeqEmsyMS_sp[s,p]
       # relBmsyMS <- BmsyMS/Bmsy_sp[s,p]
 
-      mfg <- par("mfg")
-      if(mfg[1] == mfg[3])
-        axis( side = 1 )
-      if( mfg[2] == 1 )
-        axis( side = 2, at = 1:length(scenOrder), labels = scenOrder, las = 1 )
-      box(lwd = 2)
-      abline( h = 0.5 + 1:3, lwd = 2 )
-      abline( v = c(1), lty = 2, lwd = 1)
-      abline( v = c(relUmsyMS), lty = 2, lwd = 2, col = "darkgreen")
-      abline( v = c(relUmeyMS), lty = 2, lwd = 2, col = "salmon")
-
       for( k in 1:nModels )
       {
         Udist <- modelList[[k]]$stateDists$U_ispt[,s,p]
@@ -1080,24 +1274,29 @@ plotDynUmsy_sp <- function( groupFolder = "omni_econYield_splineE_long_Jan4",
         scenName  <- info.df$scenario[k]
         mpName    <- info.df$mp[k]
 
-        yIdx <- which(scenOrder == scenName)
         if( grepl(pattern = "totCat", x = mpName ) )
         {
-          yJitter <- mpJitter["totCat"]
           MPpch   <- 21
+          ssU     <- relUmsyMS
         }
+
         if( grepl(pattern = "totProfit", x = mpName ) )
         {
-          yJitter <- mpJitter["totProfit"]
           MPpch   <- 24
+          ssU     <- relUmeyMS
         }
 
         # Plot central 95%
         segments( x0 = relUdist[1], x1 = relUdist[3],
-                  y0 = yIdx + yJitter, lwd = 3, col = "grey50" )
+                  y0 = nS -s + 1 + xJitter[k], lwd = 3, col = "grey50" )
         # Plot median
-        points( x = relUdist[2], y = yIdx + yJitter,
-                pch = MPpch, cex = 2, bg = "black" )
+        points( x = relUdist[2], y = nS -s + 1 + xJitter[k],
+                pch = MPpch, cex = 2, bg = "black",
+                lwd = 0 )
+        points( x = ssU, y = nS -s + 1 + xJitter[k],
+                pch = MPpch, cex = 2, bg = NA, col = "red",
+                lwd = 2)
+
         # Plot mean
         # points( x = relUmean, y = yIdx + yJitter,
         #         pch = MPpch, cex = 2, bg = NA, col = "red" )
@@ -1106,29 +1305,42 @@ plotDynUmsy_sp <- function( groupFolder = "omni_econYield_splineE_long_Jan4",
 
       }
 
-      if( s == 1 & p == 1 )
-        legend( x = "topright", bg = "white",
-                legend = c( "Catch",
-                            "Pr. Sp.",
-                            "Central 95%",
-                            "UmsyMS",
-                            "Umey"),
-                pch = c(21,24,NA,NA,NA),
-                pt.bg = c("black","black",NA,NA,NA),
-                col = c("black","black","grey50","darkgreen","salmon"),
-                lwd = c(NA,NA,3,2,2),
-                lty = c(NA,NA,1,2,2))
+      # if( s == 1 & p == 1 )
+      #   legend( x = "topright", bg = "white",
+      #           legend = c( "Catch",
+      #                       "Pr. Sp.",
+      #                       "Central 95%",
+      #                       "UmsyMS",
+      #                       "Umey"),
+      #           pch = c(21,24,NA,NA,NA),
+      #           pt.bg = c("black","black",NA,NA,NA),
+      #           col = c("black","black","grey50","darkgreen","salmon"),
+      #           lwd = c(NA,NA,3,2,2),
+      #           lty = c(NA,NA,1,2,2))
 
-      if( mfg[1] == 1 )
-        mtext( side = 3, text = speciesNames[s], font = 2, line = .5)
+      # if( mfg[1] == 1 )
+      #   mtext( side = 3, text = speciesNames[s], font = 2, line = .5)
 
       if( mfg[2] == mfg[4] )
         rmtext( txt = stockNames[p], font = 2, line = .05, outer = TRUE,
                 cex = 1.5)
     }
 
+    if( p == 1 )
+      legend( x = "topright", bg = "white", bty = "n",
+              legend = c( "Umsy*",
+                          "Umey*",
+                          "Umsy",
+                          "Umey"),
+              pch = c(21,24,21,24),
+              pt.bg = c("black","black",NA,NA),
+              col = c("black","black","red","red"),
+              pt.lwd = c(0,0,2,2))   
+  }
+
     mtext( side = 1, outer = TRUE, text = expression(U/U[MSY]),
             line = 2.5 )
+
 
     write.csv(Umey_sp, file = "Umey_sp.csv")
     write.csv(dynUmey_sp, file = "dynUmey_sp.csv")
