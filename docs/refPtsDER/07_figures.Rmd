@@ -66,6 +66,15 @@ revenue curves in different colours, the multi-species revenue curve found
 by summing the three species curves as a solid black line, fuel costs as 
 a solid red line, and net resource rent as a dashed black line."
 
+effortTulipsCap <- "Simulation envelopes of commercial trawl effort
+over the projection period for the stochastic optimisation under the
+catch maximising (black/grey) and rent maximising (red/pink) objective
+functions. Horizontal dashed lines show steady-state $E_{MSY}$ (long/short
+dashed) and $E_{MEY}$ (long dashed), while vertical lines show the 
+beginning of the projection period (thin short dashed in 2017) and the
+beginning and end of the time period over which dynamic optima are 
+calculated (thicker short dashed lines in 2041 and 2060)."
+
 dynOptUCap <- "Medians (points) and central 95\\% (grey bars) of simulated 
 harvest rates under the stochastic optimisation between 2041 and 2060 when 
 maximising complex catch (circles) and producer surplus (triangles). 
@@ -92,6 +101,14 @@ black lines) and the central 90\\% of the simulated biomass distribution
 traces. The historical period shows fixed catch (grey bars), with catch in 
 the projection period shown as the central 90\\% (thin black line segment) 
 and median (grey bars) over all simulation replicates."
+
+rentTulipsCap <- "Simulated central 90\\% (shaded regions) and median annual 
+(thick line) resource rents extracted by the trawl fishery over the 
+projection period under the imperfect information scenario with TACs set 
+using dynamic optima $U_{MSY}^*$ (grey region, solid black line) and 
+$U_{MEY}^*$ (pink region, dashed red line). Horizontal dashed lines 
+show steady-state $MEY$ for each stock area, while the vertical dashed 
+line shows the beginning of the projection period in 2017."
 ```
 
 ```{r fig1-DERcomplexSurveyBio, echo = FALSE, warning = FALSE, fig.cap = DERcplxMapCap }
@@ -184,8 +201,28 @@ knitr::include_graphics(figPath)
 ```
 
 
-```{r fig7-dynUmsy, echo = FALSE, warning = FALSE, fig.cap = dynOptUCap }
-figPath <- file.path("./figure/fig7-dynUmsy.pdf")
+```{r fig7-effortTulips, echo = FALSE, warning = FALSE, fig.cap = effortTulipsCap }
+figPath <- file.path("./figure/fig7-effortTulips.pdf")
+if(params$redoPlots | !file.exists(figPath))
+{
+  graphics.off()
+  pdf(file = figPath, width = 8.5, height = 11)
+  compareTulipEffort( groupFolder = "omni_econYield_splineE_long_Jan4",
+                      scenarios = "noCorr",
+                      rpSim = params$sim,
+                      fleets = 1:2,
+                      combineEff = TRUE,
+                      proj = TRUE,
+                      highlightPer = c(2041,2060) )
+  dev.off()
+}
+knitr::include_graphics(figPath)
+
+```
+
+
+```{r fig8-dynUmsy, echo = FALSE, warning = FALSE, fig.cap = dynOptUCap }
+figPath <- file.path("./figure/fig8-dynUmsy.pdf")
 if(params$redoPlots | !file.exists(figPath))
 {
   graphics.off()
@@ -197,8 +234,8 @@ knitr::include_graphics(figPath)
 ```
 
 
-```{r fig8-bioDist, echo = FALSE, warning = FALSE, fig.cap = bioDistCap }
-figPath <- file.path("./figure/fig8-bioDist.pdf")
+```{r fig9-bioDist, echo = FALSE, warning = FALSE, fig.cap = bioDistCap }
+figPath <- file.path("./figure/fig9-bioDist.pdf")
 if(params$redoPlots | !file.exists(figPath))
 {
   graphics.off()
@@ -211,8 +248,8 @@ knitr::include_graphics(figPath)
 
 \blandscape
 
-```{r fig9-simEnvelope, echo = FALSE, warning = FALSE, fig.cap = imperfectInfoSimEnvCap }
-figPath <- file.path("./figure/fig9-simEnvelope.pdf")
+```{r fig10-simEnvelope, echo = FALSE, warning = FALSE, fig.cap = imperfectInfoSimEnvCap }
+figPath <- file.path("./figure/fig10-simEnvelope.pdf")
 if(params$redoPlots | !file.exists(figPath))
 {
   .loadSim(1,groupFolder=  "simAssErrs_noCorr")
@@ -226,3 +263,20 @@ knitr::include_graphics(figPath)
 
 \elandscape
 
+```{r fig11-rentTulips, echo = FALSE, warning = FALSE, fig.cap = rentTulipsCap }
+figPath <- file.path("./figure/fig11-rentTulips.pdf")
+if(params$redoPlots | !file.exists(figPath))
+{
+  graphics.off()
+  pdf(file = figPath, width = 8.5, height = 11)
+  compareTulipRent( groupFolder = "simAssErrs_noCorr",
+                    scenarios = "noCorr",
+                    mps = c("simAssError_noCorr.MSY","simAssError_noCorr.MEY"),
+                    rpSim = "sim_baseRun",
+                    fleets = 2,
+                    proj = TRUE )
+  dev.off()
+}
+knitr::include_graphics(figPath)
+
+```

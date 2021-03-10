@@ -12,19 +12,59 @@ Fits to all time series of biomass indices were almost unbiased, with
 mean residuals at most 0.07 standard deviations in absolute value. 
 Despite low bias, there were significant trends in residuals for the modern 
 commercial CPUE index for all QCS stocks, and WCVI Rock sole, as well as for 
-the Hecate Strait assemblage survey for all three species (Figure SX); poor 
-fits to these indices was not completely unexpected, as the modern trawl CPUE 
-was a fishery dependent commercial catch-rate series with underlying 
-targeting behaviour, while the fishery independent Hecate Strait Assemblage 
-survey had a fixed station design with very large survey blocks. There were 
-no trends in the residuals for the historical CPUE series, but this is due 
+the Hecate Strait assemblage survey for all three species (Figure S2); 
+residual trends in the modern commerical and HS survey indices were not 
+completely unexpected, as the modern trawl CPUE was a fishery dependent 
+commercial catch-rate series with underlying targeting behaviour, while the 
+fishery independent Hecate Strait Assemblage survey had a fixed station 
+design with very large survey blocks. There were no trends in the residuals 
+for the historical CPUE series, but this is due 
 to the time-varying catchability applied to that series. Finally, the 
 Synoptic survey residuals were unbiased and did not exhibit any 
-significant trends.
+significant trends. Because the closed loop simulations do not use any
+simulated estimation model, these fits to
 
-Fits to commercial trawl age compositions were also acceptable.
+Fits to commercial trawl age compositions were also acceptable for
+simulation purposes, showing that estimated trawl selectivity would 
+produce realistic removals from each age class of the simulated DER 
+complex. For Dover sole, the model matched the general shape of the 
+time-averaged compositions well, with a slight under-estimation of female 
+age compositions up until the modal age, and overestimation in the 
+descending limb, before underestimating the plus-group age (Figure S3). 
+Enligsh sole expected age compositions were similarly slightly too small 
+up until the modal age, but the plus-group was over-estimated for both 
+historic and modern trawl fleets (Figure S4). Finally, HSHG Rock sole had 
+the best fit, with a small residual in the ascending limb for the 
+historical fleet, and almost no residual error for the modern fleet 
+(Figure S5). Residual patterns indicate that simulated fishing may
+under-harvest older Dover sole and over-harvest older English sole
+relative to the real DER complex, which lead to optimistic
+conservation performance for Dover sole, and pessimistic for 
+English sole, but we don't expect a large effect on the relative
+results given that most simulated fishing will have harvest rates 
+at or below $U_{MSY,MS}$. Fits to commercial length compositions were
+of lower quality, but no simulated data was length based so we did not
+present these or attempt to improve them.
 
-**MCMC diagnostics (Rhats, bulk and tail ESS)**
+
+Posterior chains sampled via Hamiltonian Monte-Carlo showed convergence 
+for most model parameters, despite considerable uncertainty in many
+posterior deviations. There were five model parameters with effective 
+sample sizes below 400 and/or Rhat values above 1.01 (Figure S6). 
+Three of those parameters were leading parameters (lntauObs_vec[11], 
+thetaSelAlpha_sg[1], thetaSelBeta_sg[9]), while the remaining two 
+parameters were recruitment process deviations (omegaR_vec[179,180]), 
+which also crossed the more relaxed Rhat and ESS thresholds for deviation 
+parameters [Question for Sean: try putting 
+tighter priors on or fixing those pars, or just wait for the 
+publication?]. Parameter coefficients of variation (standard error
+relative to the mean) showed that there was considerable uncertainty in
+most model hierarchical, process error, and time-varying catchability 
+random walk deviation parameters, indicating that despite chain 
+convergence for those parameters there is limited statistical power in the
+data to inform their values, which is expected given that limited and 
+low power data is what led to the use of a hierarchical stock
+assessment model.
 
 Biomass time series and single-species biological reference point estimates 
 indicate that all DER complex stocks were in a healthy state in 2016 (Table 3). 
@@ -48,7 +88,7 @@ QCS (0.014 - 0.016) areas, but more different in WCVI (0.012 - 0.025)
 the mean catchability relationship for the 1996 - 2016 period, with the
 exception of some outliers in WCVI at around 22 thousand hours of trawling
 in 1996, where Rock sole's observed relationship was almost twice the 
-mean, and Dover and English were about half as catchable (Figure 6). These 
+mean, and Dover and English were about half as catchable (Figure S6). These 
 outliers may show a non-linear relationship between effort and mortality, 
 counter to our assumption but also a realistic case, either from improved 
 targeting  behaviour (increasing relationship, e.g., Rock sole), or 
@@ -132,21 +172,27 @@ of the harvest rates for MSY_MS. Despite the large drop in effort and
 harvest rates, catch differences were small given the higher equilibrium 
 biomass at the lower fishing effort. The total difference in DER complex 
 equilibrium catch between $MSY_{MS}$ and $C_{MEY}$ was approximately 
-1.1 kt, with individual stock catches differing by an average of [X\%], 
-with a minimum difference of 9\% for HSHG Rock sole. 
+1.2 kt, with individual stock catches differing by an average of 23\%, 
+with a minimum difference of around 13\% for HSHG Rock sole. 
 
 Similar to above, resource rent was highest in the HSHG area at the lowest 
 effort, reflecting the higher biomass of all species in that area 
-(Table 4). While $E_{MEY}$ in QCS was higher than in WCVI by a similar 
-proportion to the corresponding $E_{MSY}$ values, the resource rent was 
-about 40\% higher in the WCVI area. Higher WCVI rent is largely caused 
-by the higher Dover sole biomass relative to English and Rock sole 
-biomasses in the WCVI, along with the higher price elasticity of demand 
-for Dover sole making prices more stable as catch is increased, compensating 
-for higher simulated fuel costs of fishing in the WCVI area.
+(Table 4). While optimal effort $E_{MEY}$ in QCS was about 25\% higher 
+than in WCVI, the resource rent was about 40\% higher in the WCVI area. 
+Higher WCVI rent is largely caused by the higher Dover sole biomass 
+relative to English and Rock sole biomasses in the WCVI and the
+higher commercial catchability of Dover sole in the WCVI, which compensated
+for higher simulated fuel costs of fishing and increased rent in an
+area which was effectively a single-species fishery.
 
-[Reference to supplemental material for referece points from
-base run without PED?]
+As expected, producers received a small transfer of surplus from consumers
+given the downward sloping demand curves with constant price elasticity 
+of demand. At the estimated price elasticity of demand $\lambda_s$, maximum 
+economic yield in each area was higher while optimal effort was lower 
+(compare $MEY$ and $E_{MEY}$ columns in Tables 4 and S1), reflecting lower 
+effort costs and higher revenues from artificial scarcity at lower quantity 
+supplied. When $\lambda_s = \infty$, optimal effort was about 15\% higher
+in HSHG and QCS areas, and about 7\% higher in WCVI.
 
 At the assumed fuel costs, the resource rents of the DER complex fishery 
 are dependent on technical interactions to remain positive. While it is 
@@ -167,8 +213,8 @@ of inverse average catchabilities (Table 5 $1/\bar{q}^{(F)}$), defined by
 \bar{q}^{(F)}_p & = \frac{1}{3} \sum_s q^{(F)}_{s,p}, \\
 \end{align*}
 indicating that the allocation is likely fixed based on $q^{F}_{s,p}$ 
-values, and the price elasticity of demand $\lambda_s$ has a minor effect
-[reference to supplement - look at effect of PED by removing it].
+values, and the price elasticity of demand $\lambda_s$ has a minor effect,
+as the allocation was similar when $\lambda_s = \infty$ (Table S1).
 The optimal allocation was also similar, but less so, to the relative 
 allocation of effort $E_{MSY,MS,p}$ when maximising catch (Table 5).
 
@@ -184,12 +230,11 @@ percentage point on average, or around 0.5\% of the steady state optimum
 functions produced $U_{MEY}^*$ rates that were consistently 
 higher than the steady-state $U_{MEY}$ values by around 4 - 7 percentage
 points, or 7\% - 40\% of steady state (compare harvest rates, Tables
-4 and 6). [**EFFORT PLOT WILL HELP EXPLAIN** - probably caused by 
-finite time-horizon as well ramping down of harvest in HSHG] 
-Although dynamic $U_{MEY}^*$ median values were consistently
-higher than steady state equilibria, the distribution of dynamic harvest 
-rates under NPV maximising objective functions contained the steady state 
-solution (Figure 7). 
+4 and 6), which may be caused by asymmetry in the price random walk's
+range in projections [**Waiting on reruns**]. Although dynamic $U_{MEY}^*$ median values were 
+consistently higher than steady state equilibria, the distribution of 
+dynamic harvest rates under NPV maximising objective functions contained 
+the steady state solution (Figure 7). 
 
 Median annual undiscounted resource rents under both objective functions 
 were higher than the steady-state solution (compare resource rent columns, 
@@ -204,6 +249,7 @@ Higher resource rents are caused by [check]
 1. Higher biomass at start (development windfall)?
 2. PED pushing rents up?
 3. Asymmetry in the price range, so prices can climb higher. 
+[**Waiting on reruns**]
 
 I think it's #3. We can test with a short run with no PED and no
 price devs.
@@ -252,9 +298,18 @@ present in the DER complex simulations because of the relative health
 of DER complex stocks at the start of the projection. In 2016, all stocks 
 were well above their respective $B_{MSY,SS}$, providing a standing biomass 
 to fish down in all areas, creating higher catches at lower efforts (i.e.,
-higher CPUE), which led to higher resource rents despite lower unit prices
-implied by the downward sloping demand curve.
-    - **Compare time series of annual rents over projection period**
+higher CPUE). During development, resource rents under both catch and
+NPV maximising harvest rates were almost identical, and began to diverge
+around 2021 in the QCS and WCVI, and 2024 in HSHS (Figure 11). After 
+divergence, annual rents from catch maximising harvest rates continued to 
+grow for 2 - 3 years while annual rents under the NPV maximising harvest 
+rates leveled off for the remainder of the projection period, which is the
+development windfall. After the peak, median annual rents under $U_{MSY}$ 
+and $U_{MSY}^*$ declined below the $U_{MEY}$ and $U_{MEY}^*$ median rent, 
+and around the same time the lower 5th percentile started to drift into 
+negative rents (i.e. a net loss due to fishing), indicating that on a longer
+time horizon than 32 years, the NPV under $U_{MSY}$ target harvest rates 
+would shrink below the NPV under $U_{MEY}$ target harvest rates.
 
 Despite higher median NPV under MSY harvest rates, there was significantly
 greater risk at the tails. Under either $U_{MEY}$ or $U_{MEY}^*$ harvest
@@ -279,7 +334,8 @@ giving a more favourable upside.
 
 - Unclear whether this is a development effect or an artifact
     of using stochastic optimisation/omniscience/rational expectations
-    to derive target HRs. How can we check?
+    to derive target HRs. How can we check? - wait for reruns with
+    corrected price dist
 
 
 Imperfect information appeared to insulate against economic loss
@@ -291,9 +347,9 @@ between information scenarios did not appear to affect the potential
 upside of maximising catch, with differences in the $VAR-95\%$ NPV 
 between $140,000 and $210,000 over the projection period. 
 
-On the other hand, imperfect information appeared to reduce rents under 
-rent maximising harvest rates. Median NPVs and $VAR-95\%$ values 
-were $1.7M - $2M ($100,000 - $125,000 per year) lower when TACs 
+Despite the insulating effect, imperfect information appeared to reduce 
+rents under rent maximising harvest rates. Median NPVs and $VAR-95\%$ 
+values were $1.7M - $2M ($100,000 - $125,000 per year) lower when TACs 
 were set using imperfect information. Lower tails of NPVs under
 $U_{MEY}$ and $U_{MEY}^*$ were less sensitive to the information 
 level, with $VAR-5\%$ increasing by about $550,000 when setting 

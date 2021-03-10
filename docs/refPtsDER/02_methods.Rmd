@@ -315,12 +315,13 @@ allocations, numerically producing area-specific equilibrium curves.
 
 ## Dynamic reference points
 
-Dynamic reference points were estimated via a stochastic optimisation of
-fishing effort $E_{p,t}$ under future non-equilibrium fishery dynamics,
-maximising either catch or the net-present-value of resource rent.
-In both optimisations, population dynamics were projected 80 years from the 
-last year of the AM (2017 - 2096), conditioned on maximum likelihood 
-estimates. Projections were repeated over 100 replicates, and differed by 
+Dynamic reference points were defined as median model states when
+future trawl effort was optimised to either maximise catch or 
+net-present-value of the trawl fishery. Optimal trawl effort series
+$E_{p,t}$ were found via stochastic optimisation of  under future 
+non-equilibrium fishery dynamics. In both optimisations, population 
+dynamics were projected 80 years from the last year of the AM (2017 - 
+2096), conditioned on maximum likelihood estimates. Projections were repeated over 100 replicates, and differed by 
 the random number seed used to draw recruitment process deviations and 
 random walk deviations for the reference unit price $v^*_{s,t}$ at $MSY$ 
 of each species in each simulation, e.g., for a projection with no 
@@ -429,7 +430,7 @@ To measure risk, we compared the 5th, 50th (median), and 95th percentiles
 of biomass and NPV distributions. Using a percentile $p$ as a risk metric is 
 known as *Value-at-risk-$p$* ($VAR-p$), which is a non-parametric 
 definition of risk commonly used in economic analyses 
-[@danielsson2011financial].
+[@danielsson2011financial; @morganreuters1996riskmetrics].
 
 
 

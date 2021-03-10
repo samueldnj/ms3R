@@ -2469,6 +2469,264 @@ plotTulipRE_AM <- function( simNum = 1,
 
 } # END plotTulipAssError
 
+# compareTulipEfforts()
+compareTulipEffort <- function( groupFolder = "omni_econYield_splineE_long_Jan4",
+                                scenarios = "noCorr",
+                                rpSim = "sim_baseRun",
+                                fleets = 1:2,
+                                combineEff = TRUE,
+                                proj = TRUE,
+                                highlightPer = c(2041,2060) )
+{
+  # Load groupInfo
+  groupInfo <- readBatchInfo( batchDir = here::here("Outputs",groupFolder) )
+
+  # Limit to scenarios
+  scenInfo <- groupInfo %>%
+                filter(scenario %in% scenarios )
+
+  effList <- list()
+
+
+  # Now loop over simlabels and load model states
+  for( sIdx in 1:nrow(scenInfo) )
+  {
+    simLabel <- scenInfo$simLabel[sIdx]
+
+    # read in model states
+    load(here::here("Outputs",groupFolder,simLabel,paste0(simLabel,"_modelStates.RData")))
+    effList[[sIdx]] <- outList$modelStates$E_ipft
+
+  }
+
+
+  if(!is.null(rpSim))
+  {
+    .loadSim(rpSim)
+    rp <- blob$rp[[1]]
+  } else rp <- effList[[1]]$rp
+
+  Emsy_p <- rp$EmsyMSRefPts$EmsyMS_p
+  Emey_p <- rp$EmeyRefPts$Emey_p
+
+  if(!is.null(rp$EmeyRefPts$cwEconYieldCurves))
+    Emey_p <- rp$EmeyRefPts$cwEconYieldCurves$cwEmey_p
+
+  nP    <- outList$nP
+  nT    <- outList$nT
+  tMP   <- outList$tMP
+  nReps <- dim(outList$goodReps_isp)[1]
+  nSim  <- length(effList)
+
+
+  fYear         <- blob$ctlList$opMod$fYear
+  yrs <- seq( from = fYear, by = 1, length.out = nT)
+  stockNames    <- blob$om$stockNames
+
+  E_Sipt <- array(NA, dim = c(nSim,nReps,nP,nT))
+
+  for( simIdx in 1:nSim )
+    E_Sipt[simIdx,,,] <- apply(X = effList[[simIdx]][,,fleets,], FUN = sum, MARGIN = c(1,2,4), na.rm =T )
+
+  # Now take quantiles
+  E_qSpt <- apply(X = E_Sipt, FUN = quantile, probs = c(0.05,0.5,0.95), MARGIN = c(1,3,4) )
+
+  simCols <- c("black","red")
+
+  projYrs <- 1:nT
+  if(proj)
+    projYrs <- (tMP-1):nT
+
+  highlightPerIdx <- highlightPer[1]:highlightPer[2] - fYear + 1
+
+
+  par(  mfcol = c(nP,1), 
+        mar = c(1,1.5,1,1.5),
+        oma = c(3,4,3,3) )
+
+  for( p in 1:nP )
+  {
+    plot( x = range(yrs[projYrs]),
+          y = c(0,max(E_qSpt[,,p,highlightPerIdx],na.rm = T) ),
+          type = "n", axes = F )
+      mfg <- par("mfg")
+      # Plot axes and facet labels
+      if( mfg[1] == mfg[3] )
+        axis( side = 1 )
+      axis( side = 2, las = 1 )
+      if( mfg[2] == mfg[4] )
+      {
+        rmtext( txt = stockNames[p], line = 0.02,
+                outer = TRUE, font = 2, cex = 1.5 )
+      }
+      box()
+      grid()
+      abline( h = Emsy_p[p], lwd = 3, lty = 4, col = "steelblue")
+      abline( h = Emey_p[p], lwd = 3, lty = 5, col = "grey40")
+      for( simIdx in 1:nSim )
+      {
+        polygon( x = c(yrs,rev(yrs)), y = c(E_qSpt[1,simIdx,p,],rev(E_qSpt[3,simIdx,p,])), 
+                col = scales::alpha(simCols[simIdx],.4), border = NA )
+        
+        lines( x = yrs, y = E_qSpt[2,simIdx,p,], col =simCols[simIdx], lwd = 3, lty = simIdx )
+        
+      }
+      
+      abline( v = highlightPer, lwd = 2, col = "black", lty = 3 )
+
+      abline( v = yrs[tMP] - 0.5, lty = 2, lwd = 0.5 )
+
+
+
+    if( p == 3 )
+      legend( x = "topright",bty = "n",
+              legend = c( "Catch maximisation",
+                          "Emsy",
+                          "Rent maximisation",
+                          "Emey"),
+              pt.lwd = 0,
+              pt.cex = 4,
+              cex = 2,
+              pch = c(22,NA,22,NA), 
+              pt.bg = scales::alpha(c("black",NA,"red",NA),alpha = .3),
+              col = c("black","steelblue","red","black"),
+              lty = c(1,4,2,5),
+              lwd = 3 )
+            
+  }
+
+  mtext( side = 2, outer = TRUE, text = "Commercial Trawl Effort (1000 hrs)",
+          line = 2, font = 2)
+} # END compareTulipEffort()
+
+# compareTulipRent()
+compareTulipRent <- function( groupFolder = "simAssErrs_noCorr",
+                              scenarios = "noCorr",
+                              mps = c("simAssError_noCorr.MSY","simAssError_noCorr.MEY"),
+                              rpSim = "sim_baseRun",
+                              fleets = 2,
+                              proj = TRUE )
+{
+  # Load groupInfo
+  groupInfo <- readBatchInfo( batchDir = here::here("Outputs",groupFolder) )
+  # Limit to scenarios
+  scenInfo <- groupInfo %>%
+                filter(scenario %in% scenarios, mp %in% mps )
+
+  effList <- list()
+
+
+  # Now loop over simlabels and load model states
+  for( sIdx in 1:nrow(scenInfo) )
+  {
+    simLabel <- scenInfo$simLabel[sIdx]
+
+    # read in model states
+    load(here::here("Outputs",groupFolder,simLabel,paste0(simLabel,"_modelStates.RData")))
+    effList[[sIdx]] <- outList$modelStates$profit_ipft
+
+  }
+
+
+  if(!is.null(rpSim))
+  {
+    .loadSim(rpSim)
+    rp <- blob$rp[[1]]
+  } else rp <- effList[[1]]$rp
+
+
+  # Emsy_p <- rp$EmsyMSRefPts$EmsyMS_p
+  MEY_p <- rp$EmeyRefPts$MEY_p
+
+  if(!is.null(rp$EmeyRefPts$cwEconYieldCurves))
+    Emey_p <- rp$EmeyRefPts$cwEconYieldCurves$cwMEY_p
+
+  nP    <- outList$nP
+  nT    <- outList$nT
+  tMP   <- outList$tMP
+  nReps <- dim(outList$goodReps_isp)[1]
+  nSim  <- length(effList)
+
+
+  fYear         <- blob$ctlList$opMod$fYear
+  yrs <- seq( from = fYear, by = 1, length.out = nT)
+  stockNames    <- blob$om$stockNames
+
+  Rent_Sipt <- array(NA, dim = c(nSim,nReps,nP,nT))
+
+  for( simIdx in 1:nSim )
+    Rent_Sipt[simIdx,,,] <- apply(X = effList[[simIdx]][,,fleets,,drop = FALSE], FUN = sum, MARGIN = c(1,2,4), na.rm =T )
+
+  # Now take quantiles
+  Rent_qSpt <- apply(X = Rent_Sipt, FUN = quantile, probs = c(0.05,0.5,0.95), MARGIN = c(1,3,4) )
+
+  simCols <- c("black","red")
+
+  projYrs <- 1:nT
+  if(proj)
+    projYrs <- (tMP-1):nT
+
+  # highlightPerIdx <- highlightPer[1]:highlightPer[2] - fYear + 1
+
+
+  par(  mfcol = c(nP,1), 
+        mar = c(1,1.5,1,1.5),
+        oma = c(3,4,3,3) )
+
+  for( p in 1:nP )
+  {
+    plot( x = range(yrs[projYrs]),
+          y = c(-0.5,1.3*max(Rent_qSpt[,,p,],na.rm = T) ),
+          type = "n", axes = F )
+      mfg <- par("mfg")
+      # Plot axes and facet labels
+      if( mfg[1] == mfg[3] )
+        axis( side = 1 )
+      axis( side = 2, las = 1 )
+      if( mfg[2] == mfg[4] )
+      {
+        rmtext( txt = stockNames[p], line = 0.02,
+                outer = TRUE, font = 2, cex = 1.5 )
+      }
+      box()
+      grid()
+      # abline( h = Emsy_p[p], lwd = 3, lty = 4, col = "steelblue")
+      abline( h = MEY_p[p], lwd = 3, lty = 5, col = "grey40")
+      for( simIdx in 1:nSim )
+      {
+        polygon( x = c(yrs,rev(yrs)), y = c(Rent_qSpt[1,simIdx,p,],rev(Rent_qSpt[3,simIdx,p,])), 
+                col = scales::alpha(simCols[simIdx],.4), border = NA )
+        
+        lines( x = yrs, y = Rent_qSpt[2,simIdx,p,], col =simCols[simIdx], lwd = 3, lty = simIdx )
+        
+      }
+      
+      # abline( v = highlightPer, lwd = 2, col = "black", lty = 3 )
+
+      abline( v = yrs[tMP] - 0.5, lty = 2, lwd = 0.5 )
+
+    
+
+    if( p == 1 )
+      legend( x = "topright",bty = "n",
+              legend = c( "Umsy*",
+                          "Umey*",
+                          "MEY"),
+              pt.lwd = 0,
+              pt.cex = 4,
+              cex = 2,
+              pch = c(22,22,NA), 
+              pt.bg = scales::alpha(c("black","red",NA),alpha = .3),
+              col = c("black","red","black"),
+              lty = c(1,2,5),
+              lwd = 3 )
+            
+  }
+
+  mtext( side = 2, outer = TRUE, text = "Commercial Trawl Effort (1000 hrs)",
+          line = 2, font = 2)
+} # END compareTulipRent()
+
 # plotTulipBtCtBaseSim()
 # Overlays the biomass can catch tulips
 # from the baseline omniscient sim (black) and 
@@ -7879,4 +8137,34 @@ plotRE_axspt <- function( repObj, omObj, series = "N_axspt", iRep )
     abline( h = 0, lty = 3, lwd = .8 )
 }
 
+# Plot of MCMC diagnostics (hist of Rhat, ESS)
+plotMCdiagnostics <- function( fitObj = fit )
+{
+  stanfit <- fitObj$stanfit
 
+  sumStanfit <- summary(stanfit)$summary
+  Rhat <- sumStanfit[,"Rhat"]
+  nEff <- sumStanfit[,"n_eff"]
+  cv   <- sumStanfit[,"sd"]/abs(sumStanfit[,"mean"])
+
+  par(mfrow = c(2,2), mar = c(2,2,2,2), oma = c(3,3,1,1) )
+
+  hist( Rhat, xlab = "Rhat", las = 1, main = "" )
+  box()
+  abline(v = 1.02, lty= 2, col = "red" )
+  mtext(side = 1, text = "Rhat", line = 2, font = 2)
+
+  hist( nEff, xlab = "Effective Sample Size", las = 1, main = "")
+  box()
+  abline( v = 400, lty = 2, col = "red" )
+  mtext(side = 1, text = "Effective Sample Size", line = 2, font = 2)
+
+  hist( cv, xlab = "Coefficient of variation",
+        las = 1, main = "", breaks = "FD", xlim = c(0,20) )
+  mtext(side = 1, text = "CV(theta)", line = 2, font = 2)
+  box()
+
+  mtext( side = 3, outer = TRUE, text = "Posterior Chain Diagnostics",
+          font = 2, line = -1)
+
+}
