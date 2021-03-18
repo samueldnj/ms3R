@@ -129,7 +129,7 @@ opMod$effortMod "Max"
 opMod$pT 80
 opMod$histFile "fit_base_MCMC"
 opMod$price_s c(Dover=0.62,English=1.21,Rock=0.66,Petrale=2.590,Arrowtooth=0.990)
-opMod$varCostPerKt 0.176
+opMod$varCostPerKt 0.087
 opMod$discountRate 0.05
 opMod$interestRate 0.0
 opMod$lambda_s c(5.396910,2.679747,2.291622)

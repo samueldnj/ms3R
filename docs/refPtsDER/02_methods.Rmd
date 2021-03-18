@@ -68,13 +68,13 @@ data for some species in some areas and years were avoided.
 Average ex-vessel unit price-per-kilogram data for the DER complex was 
 obtained from dockside fish-slips for the BC trawl fishery from 2006 - 2016. 
 All prices were calculated as total ex-vessel revenues divided by total 
-landings, and adjusted to 2016 values assuming a 2\% annual rate of 
-inflation (Figure 3). All ex-vessel prices were specific to the bottom 
-trawl fishery except for English Sole in 2016, which was an outlier with 
-a trawl ex-vessel price almost three times the 2006 - 2016 average, and 
-so was replaced with the 2016 ex-vessel price for English sole averaged 
-across all available gear types. Fuel costs of fishing data were taken 
-from a 2009 economic analysis of the BC trawl fishery 
+landings, and adjusted to 2016 values to remove the influence of
+inflation [use real CPI deflator]. All ex-vessel prices were specific to 
+the bottom trawl fishery except for English Sole in 2016, which was an 
+outlier with a trawl ex-vessel price almost three times the 2006 - 2016 
+average, and so was replaced with the 2016 ex-vessel price for English 
+sole averaged across all available gear types. Fuel costs of fishing data 
+were taken from a 2009 economic analysis of the BC trawl fishery 
 [@nelson2011pacific-commerc].
 
 ## Hierarchical age/sex-structured stock assessment model

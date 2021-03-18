@@ -1,5 +1,18 @@
 # Introduction
 
+Very few fisheries are truly single-species fisheries. With
+the possible exception of a small number of high-seas pelagic 
+fisheries, most fishing effort encounters multiple species
+
+@howell2021combining
+@mace2001new
+@walters2005possible
+@hollowed2000multispecies
+@kinzey2009multispecies
+@block1995single
+
+*Natural resource modeling*
+
 Managers of multi-species fisheries attempt to balance the harvest of 
 complex combinations of interacting species that have different 
 productivities, abundances, and availability to fishing gear 
