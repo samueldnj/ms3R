@@ -445,6 +445,8 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   if( methodID == "simAssErrors" )
     obj <- .AM_simAssErrors(obj,t)
 
+
+
   if( methodID == "hierProd" )
     obj <- .AM_hierProd(obj,t)
 
@@ -3940,44 +3942,56 @@ combBarrierPen <- function( x, eps,
   priceDevCovMat <- diag(ctlList$opMod$priceSD^2,nS)
   if(!is.null(ctlList$opMod$priceModel))
   {
-    load(file = file.path("history",ctlList$opMod$priceModel))
-    priceDevCovMat <- priceFlexModel$covEps
+    priceModelList <- readRDS(file = file.path("history",ctlList$opMod$priceModel))
+    
+    demCurves <- priceModelList$demCurvesOwnElast_s
+
+    obj$ctlList$opMod$priceModel  <- priceModelList
 
     # Overwrite lambda_s
-    obj$ctlList$opMod$lambda_s <- priceFlexModel$lambda_s
+    for(s in 1:nS)
+    {
+      obj$ctlList$opMod$lambda_s[s] <- coef(demCurves[[s]])[2]
+      obj$ctlList$opMod$alpha_s[s] <- coef(demCurves[[s]])[1]
+    }
+    obj$ctlList$opMod$adjC_s <- apply(X = priceModelList$UScatch_st, FUN = mean, MARGIN = 1)
+    obj$ctlList$opMod$varCostPerKt <- priceModelList$fuelPrice
+    obj$ctlList$opMod$bcIncome <- priceModelList$bcIncome_t[11]
+    # new demand curve has no time-varying behaviour - 
+    # that requires shocks that we will leave out for now
 
-    # Just take variance if not interested in correlations
-    if( !ctlList$opMod$corrPriceDevs)
-      priceDevCovMat <- diag(diag(priceDevCovMat))
+    # # Just take variance if not interested in correlations
+    # if( !ctlList$opMod$corrPriceDevs)
+    #   priceDevCovMat <- diag(diag(priceDevCovMat))
 
-    obj$om$minPrice_s     <- priceFlexModel$minP_s
-    obj$om$maxPrice_s     <- priceFlexModel$maxP_s
+    # obj$om$minPrice_s     <- priceFlexModel$minP_s
+    # obj$om$maxPrice_s     <- priceFlexModel$maxP_s
 
     # historical prices
-    obj$om$landVal_st[,tMP - (11:1)]    <- priceFlexModel$P_st
-    obj$om$basePrice_st[,tMP - (11:1)]  <- priceFlexModel$refPrice_st
+    obj$om$landVal_st[,tMP - (11:1)]    <- priceModelList$P_st
+    # obj$om$basePrice_st[,tMP - (11:1)]  <- priceFlexModel$refPrice_st
   }
 
-  # Make a series of logit base prices, for simulating inside
-  # bounds
-  obj$om$logitBasePrice_st <- obj$om$basePrice_st
-  for( t in (tMP-11):(tMP-1) )
-  {
+  # # Make a series of logit base prices, for simulating inside
+  # # bounds
+  # obj$om$logitBasePrice_st <- obj$om$basePrice_st
+  # for( t in (tMP-11):(tMP-1) )
+  # {
 
-    P_s     <- obj$om$basePrice_st[,t]
-    minP_s  <- obj$om$minPrice_s 
-    maxP_s  <- obj$om$maxPrice_s 
-    obj$om$logitBasePrice_st[,t] <- log( (P_s - minP_s) / (maxP_s - P_s) )
+  #   P_s     <- obj$om$basePrice_st[,t]
+  #   minP_s  <- obj$om$minPrice_s 
+  #   maxP_s  <- obj$om$maxPrice_s 
+  #   obj$om$logitBasePrice_st[,t] <- log( (P_s - minP_s) / (maxP_s - P_s) )
 
 
-  }
+  # }
   
-  # Need to make price bounded by a range that is only slightly
-  # outside historical values, to avoid run-away prices
-  if(!ctlList$ctl$noProcErr)
-    obj$errors$priceDev_st[1:nS,1:nT] <- t( mvtnorm::rmvnorm( n = nT, mean = rep(0,nS),
-                                                              sigma = priceDevCovMat,
-                                                              method = "chol") )
+  # # Need to make price bounded by a range that is only slightly
+  # # outside historical values, to avoid run-away prices
+  # if(!ctlList$ctl$noProcErr)
+  #   obj$errors$priceDev_st[1:nS,1:nT] <- t( mvtnorm::rmvnorm( n = nT, mean = rep(0,nS),
+  #                                                             sigma = priceDevCovMat,
+  #                                                             method = "chol") )
 
   if(ctlList$mp$assess$method == "simAssErrors")
   {
@@ -4424,6 +4438,7 @@ combBarrierPen <- function( x, eps,
         }
   }
 
+
   # Now convert into biomass and spawning biomass
   B_axspt[,,,,t]    <- N_axspt[,,,,t] * meanWtAge_axsp
   # Now compute vuln biomass
@@ -4437,13 +4452,13 @@ combBarrierPen <- function( x, eps,
   SB_asp <- matAge_asp * B_axspt[,nX,,,t]
   SB_spt[,,t] <- apply(X = SB_asp, FUN = sum, MARGIN = c(2,3), na.rm = T )
 
-  # update price data
-  if( t >= tMP )
-  {
-    i                     <- opMod$interestRate
-    logitBasePrice_st[,t] <- logitBasePrice_st[,t-1] + err$priceDev_st[,t]
-    basePrice_st[,t]      <- minP_s + (maxP_s - minP_s)/(1 + exp(-logitBasePrice_st[,t])) * (1 + i)^(t - tMP)
-  }
+  # # update price data
+  # if( t >= tMP )
+  # {
+  #   i                     <- opMod$interestRate
+  #   logitBasePrice_st[,t] <- logitBasePrice_st[,t-1] + err$priceDev_st[,t]
+  #   basePrice_st[,t]      <- minP_s + (maxP_s - minP_s)/(1 + exp(-logitBasePrice_st[,t])) * (1 + i)^(t - tMP)
+  # }
 
   # Now calculate effort for each area (for closed loop sim)
   if( t >= tMP & all(is.na(F_spft[,,,t])) )
@@ -4588,7 +4603,23 @@ combBarrierPen <- function( x, eps,
     C_s       <- apply( X = C_spt[,,t], FUN = sum, MARGIN = 1 )
     MSY_sp    <- rp$FmsyRefPts$YeqFmsy_sp
     MSY_s     <- apply(X = MSY_sp, FUN = sum, MARGIN = 1)
-    v_st[,t]  <- basePrice_st[,t] * ( C_s/MSY_s ) ^(-1/lambda_s)
+    i         <- opMod$interestRate
+
+    priceModel <- opMod$priceModel
+
+    UScatch_s <- apply(X = priceModel$UScatch_st, FUN = mean, MARGIN = 1)
+    bcIncome  <- mean(priceModel$bcIncome)
+
+    demCurves <- priceModel[["demCurvesOwnElast_s"]]
+
+    # Add 1e-9 to target catch so zeroes don't throw an error
+    opt <- try(optim( par = rep(4,nS), fn = fitPriceObjFun,
+                  priceModels = demCurves,
+                  y = log(bcIncome),
+                  targC_s = C_s + 1e-9, UScatch_s = UScatch_s,
+                  fit = TRUE ))
+
+    v_st[,t]  <- exp(opt$par)
 
     
     for( p in 1:nP)
@@ -4969,4 +5000,41 @@ combBarrierPen <- function( x, eps,
   appF_spf
 } # END .mfPA()
 
+# fitPriceObjFun()
+# Solves for price from catch, given a demand curve
+# model
+fitPriceObjFun <- function(  lnP_s = rep(3,3),  y = log(mean(bcIncome)),
+                              priceModels = list( dover = qlm1,
+                                                  english = qlm2,
+                                                  rock = qlm3 ),
+                              targC_s = MSY_s, UScatch_s = UScatch_st[,11],
+                              fit = TRUE )
+{
+  # Make a DF
+  predDF <- data.frame( instPd = lnP_s[1],
+                        instPe = lnP_s[2],
+                        instPr = lnP_s[3],
+                        "y" = y ) 
+  colnames(predDF)[4] <- "y"
+  # Predict
+  predCd <- predict.lm(priceModels[[1]],newdata = predDF)
+  predCe <- predict.lm(priceModels[[2]],newdata = predDF)
+  predCr <- predict.lm(priceModels[[3]],newdata = predDF)
+
+  # Collect
+  predC_s <- exp(c(predCd,predCe,predCr))
+  
+  # resid
+  resids_s  <- log(targC_s + UScatch_s) - log(predC_s)
+  ssr       <- sum(resids_s^2)
+
+  if(fit)
+    return(ssr)
+
+  outList <- list(  predC_s = predC_s,
+                    P_s = exp(lnP_s),
+                    predDF = predDF )
+
+  return(outList)
+} # END fitPriceObjFun()
 

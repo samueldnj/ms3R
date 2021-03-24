@@ -1,189 +1,32 @@
 # Methods
 
-## Study system and data
+## Study system and economic data
 
 BC's multi-species complex of right-eyed flounders is 
 a technically interacting, spatially heterogeneous group of flatfishes 
 managed across the whole BC coast. Although there are several right-eyed 
 flounders in BC waters, we focus here on Dover sole, English sole, and 
 Rock sole. Taken together, these species comprise a multi-stock complex 
-(DER complex) managed in three spatially distinct stock areas (Figure 1) 
-[@PRIFMP2015], which are described in @johnson2020hierarchical-st. Biomass
-index and biological data were obtained via a data request to the GFFOS
-(fishery dependent) and GFBio (fishery independent) data bases at the 
-Fisheries and Oceans, Canada, Pacific Biological Station in Nanaimo, BC, 
-Canada.
-
-Each area had two standardised commercial catch rate (catch-per-unit-effort,
-CPUE) series and at least one survey biomass index time series for each 
-species (Figure 2). The two commercial fishery catch-per-unit-effort series 
-span 1956 - 2016, split between a historical trawl fishery (1956 - 1995) and 
-a modern trawl fishery (1996 - 2016), with the split corresponding to pre- 
-and post-implementation of an at-sea-observer programme, respectively. The 
-fishery independent trawl survey biomass indices were the biennial Hecate 
-Strait Assemblage survey in the HSHG area (1984 - 2002), and the Groundfish 
-Multi-species Synoptic Survey, which alternated biennially between the 
-three areas (2003 - 2016).
-
-While some species had relatively long time series of age and length
-composition data with annual samples larger than 100 observations, some 
-areas had very few or none at all (Figure 2). For example, QCS English sole 
-and WCVI English and Rock soles had no age composition data at all, and only
-a small number of years with more than 100 length samples that were mostly 
-from the Synoptic survey. QCS Rock sole had more compositional data,
-with sporadic fishery dependent age data from the late 1980s to the
-mid 2000s and fishery independent samples from the Synoptic survey ending
-around 2011; length compositions for QCS rock spanned the entire period 
-1956 - 2016, with a few short gaps. Dover sole in QCS and WCVI had 
-very sparse length data before 1996, after which the modern
-commercial trawl and Synoptic survey length data runs until 2016 in both
-areas, but ages are minimal. Finally, all three species had the most 
-compositional data collected in the HSHG area, where fishery dependent
-lengths run from 1976 for Dover, and 1956 for English and Rock, and there
-are samples from the mid 1990s onwards for the Hecate Strait and Synoptic
-surveys. Age compositions are absent for HSHG Dover sole before 1995, but 
-both English and Rock sole have reasonable age composition coverage from 
-the historical trawl fishery, beginning in 1980 (English) and 1970 (Rock).
-
-Survey biological and index data were filtered to remove survey blocks 
-where compositional data had a higher than expected proportion of 
-young/small fish. Exploratory analyses showed that some samples of 
-age-/length-compositions in the HSHG and QCS areas had a second mode at
-young ages and small lengths, possibly indicating a nursery area in some 
-survey blocks. Blocks were removed when the average size of fish caught by 
-the survey was below 20cm (Dover), 15cm (English), and 20cm (Rock).
-
-Time series of effort targeting DER complex species were found by taking 
-the average ratio of catch to unstandardized catch rates, i.e.,
-\begin{equation}
-E_{p,f,t} = \frac{\sum_{s} \mathbb{1} (I'_{s,p,f,t} > 0) \frac{C_{s,p,f,t}}{I'_{s,p,f,t}}}{\sum_{s} \mathbb{1} (I'_{s,p,f,t} > 0) }
-\end{equation}
-where $E_{p,f,t}$ is the derived trawl effort in area $p$ by fleet $f$ in 
-time step $t$ (1000 hours), $C_{s,p,f,t}$ is trawl catch of species $s$,
-$I'_{s,p,f,t}$ is unstandardized CPUE, and $\mathbb{1}(X)$ is the
-indicator function that takes value 1 when $X$ is true, and 0 otherwise. 
-By taking the average over indices that exist, issues with missing
-data for some species in some areas and years were avoided.
+(DER complex) managed in three spatially distinct stock areas (Figure 1),
+described in @johnson2021hierarchical.
 
 Average ex-vessel unit price-per-kilogram data for the DER complex was 
 obtained from dockside fish-slips for the BC trawl fishery from 2006 - 2016. 
 All prices were calculated as total ex-vessel revenues divided by total 
 landings, and adjusted to 2016 values to remove the influence of
-inflation [use real CPI deflator]. All ex-vessel prices were specific to 
-the bottom trawl fishery except for English Sole in 2016, which was an 
-outlier with a trawl ex-vessel price almost three times the 2006 - 2016 
-average, and so was replaced with the 2016 ex-vessel price for English 
+inflation using average annual CPI [statscan ref]. All ex-vessel prices 
+were specific to the bottom trawl fishery except for English Sole in 2016, 
+which was an outlier with a trawl ex-vessel price almost three times the 
+2006 - 2016 average, and so was replaced with the 2016 ex-vessel price for English 
 sole averaged across all available gear types. Fuel costs of fishing data 
 were taken from a 2009 economic analysis of the BC trawl fishery 
 [@nelson2011pacific-commerc].
 
-## Hierarchical age/sex-structured stock assessment model
-
-The stock assessment model (AM) was a sex-structured statistical 
-catch-at-age/length model, extended to jointly model population dynamics 
-for the multi-species DER complex across three spatial areas (Table 1). 
-The three spatial areas were modeled as independent stocks $p = 1,2,3$ 
-(HSHG, QCS, WCVI) of each sole species $s = 1,2,3$ (Dover, English, Rock) 
-with no movement of spawning biomass or recruits between areas. Independence 
-between areas may be unrealistic, at least for Dover sole given its spatial 
-extent in survey observations, but it is how the three species are currently 
-managed. Further, the three species are modeled without ecological 
-interactions, which is realistic for Dover and English soles, as although both 
-species are benthophagus, there is evidence that they belong to different 
-feeding guilds [@pikitch1987use; @wakefield1984feeding]. There is evidence 
-in other areas that Rock soles feed on unsettled juveniles of other flatfishes 
-[@wakefield1984feeding], so there may be some predation mortality at young 
-ages that is not explicitly accounted for in reference point calculations, 
-but the effect of juvenile loss on the population dynamics in the 
-assessment model history is likely approximated by the recruitment deviations
-$\epsilon_{R,s,p,t}$ year-to-year, and to a lesser extent by stock-recruitment 
-steepness $h_{s,p}$ on average.
-
-The initial age structure of all DER complex stocks was assumed to be
-at unfished equilibrium in 1956 (Table 1, EQ.1 - EQ.5), with ages $a = 1$ to 
-a plus group $a = A_s$ for each species $s$. Annual age-1 recruitment
-$R_{s,p,t}$ was driven by a Beverton-Holt stock-recruitment relationship 
-(A.2), and split equally between males and females (A.1). Total mortality 
-of sex $x$, age $a$ fish in area $p$ of species $s$ in year $t$ was the sum 
-of natural mortality $M_{x,s,p}$ and selected fishing mortality
-$s_{a,x,s,p,f} \cdot F_{s,p,f,t}$, summed over fleets $f$ (C.3). 
-Selectivity-at-age $s_{a,x,s,p,f}$ was computed as the mean 
-selectivity-at-length $s_{l,s,p,f}$, weighted by the probability of 
-length-at-age $\mathcal{P}_{a,l,x,s,p,f}$ (C.4). Selectivity-at-length was 
-assumed to be the same logistic function for both sexes, relying on 
-sexually dimorphic growth to produce different selectivity-at-age for 
-each sex (C.5).
-
-<!-- The AM included an integrated Von Bertalanffy growth model to explicitly
-model the age-at-length distribution for both males and females (Table 1,
-G.1 - G.3), which was fit to age and length composition data simultaneously
-[@piner2016evaluation; @francis2016estimating; @schnute1981versatile]. 
-Growth model parameters were estimated by fitting the AM to 
-length-conditional age data, where age observations were considered as 
-randomly sampled from each length bin, the prevalence of which depended on 
-selectivity-at-length. This can provide less biased estimates of growth
-model parameters, as as the sampling bias caused by selectivity was 
-explicitly accounted for [@piner2016evaluation; @piner2018bias].  -->
-
-Multi-level hierarchical priors were assumed for biological and observation
-model parameters that were considered to be exchangable among areas and 
-species (Table 2) [@thorson2015giants]. Hierarchical priors share 
-information from data-rich to data-poor stocks, reducing parameter bias 
-and uncertainty for data poor stocks through parameter shrinkage induced 
-by the prior distributions [@johnson2018evaluating]. Exchangability 
-was assumed for stock-recruit steepness, natural mortality, trawl survey 
-catchability, and length-at-50\% and length-at-95\% selectivity for each 
-within each fleet (commercial trawl, Assemblage Survey, and Synoptic survey) 
-among stocks of the same species. 
-
-Fishery CPUE and survey biomass indices were all assumed to be linear
-in biomass (i.e. no hyperstability or hyperdepletion), and observation 
-errors were assumed follow a log-normal data likelihood. The catchability
-parameter for historical commercial trawl CPUE was a time-varying random 
-walk in log-space, capturing increases in CPUE while most stocks were being 
-fished down early in the time series, which presumably occurred as 
-harvesters began to target and learn how to fish the DER complex species 
-more efficiently.
-
-Compositional data were assumed to follow a logistic normal distribution 
-[@schnute2007compositional]. In addition, age- and length-compositions were 
-assumed to have a lag-1 auto-correlation in the residuals 
-[@francis2014replacing]. Expected age compositions were computed from 
-fishery catch-at-age, while expected length compositions were computed 
-from vulnerable numbers-at-age by applying an age-length key derived from 
-the integrated growth model [@francis2016growth].
-
-The AM was defined in Template Model Builder [@kristensen2015tmb], and
-optimisation of the objective function was performed using the nlminb()
-function in the R statistical package [@rproject2015]. We determined
-that the AM was converged when the maximum gradient component was smaller
-than $10^{-3}$ in absolute value, and the Hessian matrix of the estimates
-was positive definite. Model posterior distributions were sampled using
-Hamiltonian Monte-Carlo (a.k.a. No U-Turn Sampling) via the tmbStan package
-[@monnahan2017faster; @monnahan2018no], drawing 4 chains of 1000 samples
-each. Posterior chains were considered converged when $\widehat{R} < 1.01$ 
-and effective sample sizes were greater than 400 (i.e., 100 samples per 
-chain) for leading biological paremeters (e.g., $B_0$). Convergence
-criteria for non-leading parameters (e.g., process error deviations
-and hierarchical deviations) were more relaxed, with $\widehat{R} < 1.05$
-and effective sample sizes greater than 360 (i.e., 90 samples per chain).
-
-Commercial catchability scalars were required to relate the fishing
-effort targeting DER complex species to fishing mortality estimated
-by the AM. Because the AM was conditioned on catch, those scalars 
-were found via linear regression, assuming
-\begin{equation}
-\log \hat{F}_{s,p,t} = \log \overline{q}^{F}_{s,p} + \log E_{p,t} + \delta^{F}_{s,p,t},
-\end{equation}
-where $\hat{F}_{s,p,t}$ is fishing mortality estimated by the AM,
-$\overline{q}^{F}_{s,p}$ is the commercial catchability scalar, 
-and $\delta^{F}_{s,p,t}$ is a normally distributed residual error with 
-mean zero, for species $s$, area $p$, and time step $t$.
+[Define a table of economic assumptions]
 
 ## Economic yield and inverse demand curves
 
-Economic yield was defined as net resource rent, or producer surplus, over 
-all species and areas
+Economic yield was defined as resource rent summed over all species and areas
 \begin{equation} \label{eq:resRent}
 \pi(\vec{E}) = \sum_{p = 1}^{3} \left( (1 - \psi) \sum_{s} v_{s} \left(\sum_{p'=1}^3 C_{s,p'}(E_{p'}) \right) \cdot C_{s,p}(E_{p}) \right) - c_{p} \cdot E_{p},
 \end{equation}
@@ -197,22 +40,6 @@ at effort $E_p$ (dependent on numbers-at-age in each area $p$) calculated
 using the Baranov catch equation **[tabref]**, and $c_{p}$ is the fuel 
 cost-per-unit-effort of fishing in area $p$ (or $p'$ for the inner 
 summation).
-
-The unit price $v_s$ ($/kg) of each species $s$ followed a downward sloping 
-inverse demand curve for total species $s$ catch
-\begin{equation} 
-v_{s}(\sum_{p} C_{s,p}) = v^*_{s} \left( \frac{\sum_p C_{s,p}}{ \sum_p MSY_{SS,s,p}}  \right) ^{1/\lambda_s}
-\end{equation}
-where $v^*{s}$ was the 2016 reference price of species $s$ when catch 
-was the sum of single-species MSY for each area, and $\lambda_s < 0$ is 
-the price elasticity of demand [@varian1992microeconomic]. The price 
-elasticity of demand $\lambda_s$ and 2016 reference price $v^*_s$ were 
-found by fitting a time-varying inverse demand curve to average ex-vessel 
-prices and catch data between 2006 and 2016 (see Appendix B). Modeling 
-price as a decreasing function of quantity supplied captured the incentive 
-of harvesters to reduce catch and keep prices higher through artificial 
-scarcity, which results in a transfer of benefits (surplus) from consumers 
-to producers [@pascoe2018offsetting]. 
 
 The variable fishing costs in each area $p$ were derived 
 from 2009 BC groundfish trawl financial data [@nelson2011pacific-commerc].
@@ -235,6 +62,7 @@ with different gear types. Therefore, in the interest of simplicity fixed
 costs are removed from the profit calculation and are assumed to be constant 
 with effort, and so do not affect the optimal value of effort.
 
+**Tighten-up!!** Put
 
 ## Steady-state reference points
 

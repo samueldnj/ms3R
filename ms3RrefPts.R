@@ -135,17 +135,30 @@ solveSpline <- function(  Yvals, Xvals, value = 0, bounds = c(0,10),
 
   if(!is.null(obj$opMod$priceModel))
   {
-    load(file = file.path("history",obj$opMod$priceModel))
-    obj$opMod$lambda_s <- priceFlexModel$lambda_s
-    obj$opMod$price_s[1:nS] <- round(priceFlexModel$refPrice_st[,11],2)
+    priceModel <- readRDS(file = file.path("history",obj$opMod$priceModel))
 
+    demCurves  <- priceModel$demCurvesOwnElast_s
+
+    for(s in 1:nS)
+    {
+      obj$opMod$lambda_s[s]       <- coef(demCurves[[s]])[2]
+      obj$opMod$alpha_s[s]        <- coef(demCurves[[s]])[1]
+      obj$opMod$incomeCoeff_s[s]  <- coef(demCurves[[s]])[length(coef(demCurves[[s]]))]
+
+    }
+
+    obj$opMod$adjC_s        <- apply(X = priceModel$UScatch_st, FUN = mean, MARGIN = 1)
+    obj$opMod$varCostPerKt  <- priceModel$fuelPrice
+    obj$opMod$bcIncome      <- priceModel$bcIncome_t[11]
   }
 
-  opMod     <- obj$opMod
-  crewShare <- opMod$crewShare
-  lambda_s  <- opMod$lambda_s
-
-
+  opMod         <- obj$opMod
+  crewShare     <- opMod$crewShare
+  lambda_s      <- opMod$lambda_s
+  alpha_s       <- opMod$alpha_s
+  adjC_s        <- opMod$adjC_s
+  incomeCoeff_s <- opMod$incomeCoeff_s
+  bcIncome      <- opMod$bcIncome
 
   # Calc total system yield
   totYeq_pe <- apply(X = Yeq_spe, FUN = sum, MARGIN = c(2,3), na.rm = T)
@@ -161,6 +174,8 @@ solveSpline <- function(  Yvals, Xvals, value = 0, bounds = c(0,10),
   # fuel, using the landings and fuel cost per kt
   effortPrice_p <- opMod$varCostPerKt * C_p / eff_p
 
+  # Need to make into 2016 prices - maybe include in priceModel list
+
   # Array for holding effort cost
   effCost_pe <- array(NA, dim       = c(nP, length(Eff)),
                           dimnames  = list( stock = stockNames,
@@ -174,9 +189,9 @@ solveSpline <- function(  Yvals, Xvals, value = 0, bounds = c(0,10),
   landVal_spe <- array(0,dim = dim(Yeq_spe), dimnames = dimnames(Yeq_spe))
 
   # Yeq_spe[is.na(Yeq_spe)]  <- 0
-  specNames  <- dimnames(Yeq_spe)[[1]]
+  specNames   <- dimnames(Yeq_spe)[[1]]
   price_s     <- opMod$price_s[specNames]
-
+  Yeq_se      <- apply(X = Yeq_spe, FUN = sum, MARGIN = c(1,3))
   for( p in 1:nP )
   {
     effCost_pe[p,] <- effortPrice_p[p] * Eff
@@ -184,7 +199,9 @@ solveSpline <- function(  Yvals, Xvals, value = 0, bounds = c(0,10),
     for( s in 1:nS )
     {
       # browser()
-      landVal_spe[s,p,] <- price_s[s] * ( Yeq_spe[s,p,] / YeqFmsy_sp[s,p] )^(-1/lambda_s[s])
+      landVal_spe[s,p,] <- (exp(-alpha_s[s]) * (Yeq_spe[s,p,] + adjC_s[s]) * bcIncome^(-incomeCoeff_s[s]))^(-1/lambda_s[s])
+
+
       econRev_spe[s,p,] <- Yeq_spe[s,p,] * landVal_spe[s,p,] * (1 - crewShare)
       econYeq_spe[s,p,] <- Yeq_spe[s,p,] * landVal_spe[s,p,] * (1 - crewShare)  - effCost_pe[p,]
     }
@@ -237,27 +254,35 @@ solveSpline <- function(  Yvals, Xvals, value = 0, bounds = c(0,10),
     # optimising coastwide effort with a joint
     # downward sloping demand curve - can extend
     # to a proportion estimator later to 
-    EmeyCW_optObj <- optim( par = log(Emey_p),
-                            fn = coastWideEconObjFun,
-                            method = "BFGS",
-                            prop = FALSE,
-                            baseE = 1,
-                            # control = list(trace = 6),
-                            optimise = TRUE,
-                            lambda_s = lambda_s,
-                            price_s = price_s,
-                            effortPrice_p = effortPrice_p,
-                            MSY_sp = YeqFmsy_sp,
-                            refCurves = refCurves,
-                            crewShare = crewShare,
-                            nF = nF, nS = nS, nP = nP )
+    EmeyCW_optObj <- try(optim( par = log(Emey_p),
+                                fn = coastWideEconObjFun,
+                                method = "BFGS",
+                                prop = FALSE,
+                                baseE = 1,
+                                # control = list(trace = 6),
+                                optimise = TRUE,
+                                lambda_s = lambda_s,
+                                adjC_s = adjC_s,
+                                alpha_s = alpha_s,
+                                incomeCoeff_s = incomeCoeff_s,
+                                income = bcIncome,
+                                effortPrice_p = effortPrice_p,
+                                MSY_sp = YeqFmsy_sp,
+                                refCurves = refCurves,
+                                crewShare = crewShare,
+                                nF = nF, nS = nS, nP = nP ) )
+    if( class(EmeyCW_optObj) == "try-error" )
+      browser()
 
     cwMEYlist <- coastWideEconObjFun( lnE_p = EmeyCW_optObj$par,
                                       prop = FALSE,
                                       baseE = 1,
                                       optimise = FALSE,
                                       lambda_s = lambda_s,
-                                      price_s = price_s,
+                                      adjC_s = adjC_s,
+                                      alpha_s = alpha_s,
+                                      incomeCoeff_s = incomeCoeff_s,
+                                      income = bcIncome,
                                       effortPrice_p = effortPrice_p,
                                       MSY_sp = YeqFmsy_sp,
                                       refCurves = refCurves,
@@ -299,9 +324,11 @@ solveSpline <- function(  Yvals, Xvals, value = 0, bounds = c(0,10),
                         # control = list(trace = 6),
                         optimise = TRUE,
                         lambda_s = lambda_s,
-                        price_s = price_s,
+                        adjC_s = adjC_s,
+                        alpha_s = alpha_s,
+                        incomeCoeff_s = incomeCoeff_s,
+                        income = bcIncome,
                         effortPrice_p = effortPrice_p,
-                        MSY_sp = YeqFmsy_sp,
                         refCurves = refCurves,
                         crewShare = crewShare,
                         nF = nF, nS = nS, nP = nP ))
@@ -313,7 +340,10 @@ solveSpline <- function(  Yvals, Xvals, value = 0, bounds = c(0,10),
                                         baseE = e,
                                         optimise = FALSE,
                                         lambda_s = lambda_s,
-                                        price_s = price_s,
+                                        adjC_s = adjC_s,
+                                        alpha_s = alpha_s,
+                                        incomeCoeff_s = incomeCoeff_s,
+                                        income = bcIncome,
                                         effortPrice_p = effortPrice_p,
                                         MSY_sp = YeqFmsy_sp,
                                         refCurves = refCurves,
@@ -365,6 +395,7 @@ solveSpline <- function(  Yvals, Xvals, value = 0, bounds = c(0,10),
   econYieldCurves$econRev_spe   <- econRev_spe
   econYieldCurves$econYeq_pe    <- econYeq_pe
   econYieldCurves$econRev_pe    <- econRev_pe
+  econYieldCurves$landVal_spe   <- landVal_spe
   econYieldCurves$Emey_p        <- Emey_p
   econYieldCurves$MEY_p         <- MEY_p
   econYieldCurves$Bmey_sp       <- Bmey_sp
@@ -392,8 +423,12 @@ coastWideEconObjFun <- function(  lnE_p = c(0,0,0),
                                   baseE = 10,
                                   optimise = TRUE,
                                   lambda_s = c(Inf,Inf,Inf),
-                                  price_s,
+                                  alpha_s,
+                                  incomeCoeff_s,
                                   effortPrice_p,
+                                  adjC_s,
+                                  income = bcIncome,
+                                  demCurves = NULL,
                                   MSY_sp,
                                   refCurves,
                                   crewShare,
@@ -422,16 +457,28 @@ coastWideEconObjFun <- function(  lnE_p = c(0,0,0),
 
   # Calculate coastwide catch
   C_s   <- apply( X = C_sp,   FUN = sum, MARGIN = 1 )
-  MSY_s <- apply( X = MSY_sp, FUN = sum, MARGIN = 1 )
 
   # use coastwide catch to figure out species landed value
-  landVal_s <- price_s * ( C_s / MSY_s )^(-1/lambda_s)
+  if(is.null(demCurves))
+    landVal_s <- (exp(-alpha_s) * (C_s + adjC_s) * income^(-incomeCoeff_s))^(-1/lambda_s)
+
+  if(!is.null(demCurves))
+  {
+    opt <- try(optim( par = rep(4,nS), fn = fitPriceObjFun,
+                      priceModels = demCurves,
+                      y = log(income),
+                      targC_s = C_s + 1e-9, UScatch_s = adjC_s,
+                      fit = TRUE ))
+
+    landVal_s <- exp(opt$par)
+  }
 
   for( s in 1:nS )
     for( p in 1:nP )
     {
       Rev_sp[s,p] <-  C_sp[s,p] * landVal_s[s] * (1 - crewShare)
     }
+
 
   # Calculate revenue and rent
   Rev_p   <- apply(X = Rev_sp, FUN = sum, MARGIN = 2 )
