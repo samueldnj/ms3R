@@ -91,10 +91,10 @@ via yield-per-recruit analysis [holtref; @murawski1984mixed; @pikitch1987use],
 and multi-species MSY and MEY reference points were validated via
 stochastic optimisation of simulated fishery effort over an 80-year time
 horizon with recruitment process error, where the either catch or 
-net-present-value (NPV) of the fishery was maximised. Finally, we tested 
-harvest strategies targeting single- and multi-species MSY and MEY 
-reference points in closed loop simulation to estimate economic and 
-conservation risks of each when used to set catch limits in the presence 
-of realistic stock status uncertainty.
+net-present-value (NPV) of the fishery was maximised. Finally, we compared 
+the management outcomes of harvest strategies targeting single- and 
+multi-species MSY and MEY reference points by evaluating the economic 
+and conservation risks of each in the presence of realistic uncertainty 
+about stock status via closed loop simulation.
 
    
