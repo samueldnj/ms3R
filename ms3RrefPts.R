@@ -565,6 +565,7 @@ calcJABBASelPars <- function( obj )
   nT      <- obj$om$nT
   qF_sp   <- obj$om$qF_spft[,,fleetIdx,nT]
 
+  
   # M_xsp[1,1,] <- obj
 
   # Life history schedules
@@ -652,6 +653,96 @@ calcJABBASelPars <- function( obj )
 
   return(obj)
 }
+
+# solve for density dependent M
+solveForMeq <- function( lnB_sp = log(totB0_sp), obj, f, fit = TRUE )
+{
+  # Compute eqbm spawning biomass per recruit for
+  # given f and species/stock pars
+  nP    <- obj$nP
+  nA    <- obj$nA
+  M0_p  <- obj$M0_p
+  nT    <- obj$nT
+  fIdx  <- obj$rpFleetIdx
+
+  # Life history schedules
+  matAge_a          <- obj$mat_a
+  wtAge_ap          <- obj$meanWt_ap
+  selAge_ap         <- array( NA, dim = c(nA,nP))
+  selAge_ap[,1:nP]  <- obj$sel_apgt[,,fIdx,nT]
+
+  matAge_ap <- cbind(matAge_a,matAge_a,matAge_a)
+
+
+
+  # Recover recruitment pars, B0, R0
+  h_p           <- obj$rSteepness_p
+  rec.a_p       <- obj$reca_p
+  rec.b_p       <- obj$recb_p
+  B0_p          <- obj$B0_p
+  R0_p          <- obj$R0_p  
+  Meq_p         <- obj$M0_p
+
+  M_p           <- obj$M_p
+  m1_p          <- obj$m1_p
+  totB0_p       <- obj$totB0_p
+  juveMage      <- obj$juveMage + 1
+  Mjuve_p       <- obj$Mjuve_p
+
+  # Beverton-Holt a/b parameters
+  rec.a_p <- 4.*h_p*R0_p/(B0_p*(1.-h_p))
+  rec.b_p <- (5.*h_p-1.)/(B0_p*(1.-h_p))
+
+  initTotBeq_p  <- exp(lnB_p)
+  Meq_p         <- M_p + exp(-m1_p * initTotBeq_p/totB0_p)
+  
+  ssbpr_p <- rep(1,nP)
+  totbpr_p <- rep(1,nP)
+
+  # Compute Z_asp
+  Z_ap      <- array( NA, dim = c(nA,nP))
+  Surv_ap   <- array( 1, dim = c(nA,nP))
+
+  # Calculate survival
+  for( p in 1:nP )
+  {
+    if(juveMage > 0)
+      Z_ap[1:juveMage,p] <- Mjuve_p[p]
+
+    Z_ap[juveMage:nA,p] <- Meq_p[p]
+    for( a in 1:nA)
+    {
+      Z_ap[a,p] <- Z_ap[a,p] + selAge_ap[a,p] * f
+      if( a > 1 )
+        Surv_ap[a,p] <- Surv_ap[a-1,p] * exp( -Z_ap[a-1,p])
+      if( a == nA)
+        Surv_ap[a,p] <- Surv_ap[a,p] / (1 - exp(-Z_ap[a,p]))
+    }
+
+    ssbpr_p[p] <- sum(Surv_ap[,p] * wtAge_ap[,p] * matAge_ap[,p] * exp(-Z_ap[,p]))
+    totbpr_p[p] <- sum(Surv_ap[juveMage:nA,p] * wtAge_ap[juveMage:nA,p])
+
+
+  }
+
+
+  guessR_p <- initTotBeq_p/totbpr_p
+  guessSB_p <- guessR_p * ssbpr_p
+
+  guessR2_p <- rec.a_p * guessSB_p / (1 + rec.b_p * guessSB_p)
+
+
+   
+  if( fit )
+  {
+    resid <- sum((guessR_p - guessR2_p)^2)
+    return(resid)
+  }
+
+  return(Meq_p)
+
+}
+
 
 # # Calculates recruitment parameters, and equilibrium unfished
 # # numbers and recruitment.

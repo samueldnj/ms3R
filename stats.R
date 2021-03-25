@@ -333,6 +333,9 @@ makeStatTable <- function( sims = 1, folder = "", ... )
   pT      <- opMod$pT
   nReps   <- ctlList$ctl$nReps
 
+  fleetType_f <- om$fleetType_f
+  sokFleets   <- which(fleetType_f == 2)
+
   # Species and stock labels
 
   speciesNames  <- opMod$species
@@ -453,19 +456,19 @@ makeStatTable <- function( sims = 1, folder = "", ... )
 
     # Ponded fish
     P_ispft      <- om$P_ispft[allConvReps,,,,,drop = FALSE]
-    P_ispt       <- apply(P_ispft[,,,6:7,,drop=FALSE], FUN=sum, MARGIN=c(1,2,3,5))
+    P_ispt       <- apply(P_ispft[,,,sokFleets,,drop=FALSE], FUN=sum, MARGIN=c(1,2,3,5))
 
     # Dead ponded fish
-    deadP_ispt <- apply(C_ispft[,,,6:7,,drop=FALSE], FUN=sum, MARGIN=c(1,2,3,5))
+    deadP_ispt <- apply(C_ispft[,,,sokFleets,,drop=FALSE], FUN=sum, MARGIN=c(1,2,3,5))
     
     # SOK licenses
     L_ispft <- mp$hcr$sokEff_ispft [allConvReps,,,,,drop = FALSE]
-    L_ispt  <- apply( X = L_ispft[,,,6:7,,drop = FALSE], FUN = sum, MARGIN = c(1,2,3,5))
+    L_ispt  <- apply( X = L_ispft[,,,sokFleets,,drop = FALSE], FUN = sum, MARGIN = c(1,2,3,5))
 
     # SOK product in kt
     psi_ispft    <- om$psi_ispft[allConvReps,,,,,drop = FALSE]
     SOK_ispft    <- P_ispft*psi_ispft
-    SOK_ispt     <- apply(SOK_ispft[,,,6:7,,drop=FALSE], FUN=sum, MARGIN=c(1,2,3,5))
+    SOK_ispt     <- apply(SOK_ispft[,,,sokFleets,,drop=FALSE], FUN=sum, MARGIN=c(1,2,3,5))
     
     # Harvest rate
     U_ispt   <- (C_ispt+P_ispt)/(SB_ispt + C_ispt + P_ispt)

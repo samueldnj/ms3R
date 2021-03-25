@@ -2318,13 +2318,17 @@ plotTulipHR <- function( obj = blob, nTrace = 3 )
 
   # Pull target HR
   Uref_p <- obj$ctlList$mp$hcr$Uref_p
+
+  fleetType_f <- obj$om$fleetType_f
+  sokFleets <- which(fleetType_f == 2)
     
   # Catch & Biomass series
   C_ispt   <- obj$om$C_ispt[goodReps,,,,drop = FALSE]
   C_ispft  <- obj$om$C_ispft[goodReps,,,,,drop = FALSE]
 
   P_ispft  <- obj$om$P_ispft[goodReps,,,,,drop = FALSE]
-  P_ispt   <- apply(P_ispft[,,,6:7,,drop=FALSE], FUN=sum, MARGIN=c(1,2,3,5))
+
+  P_ispt   <- apply(P_ispft[,,,sokFleets,,drop=FALSE], FUN=sum, MARGIN=c(1,2,3,5))
   
   SB_ispt  <- obj$om$SB_ispt[goodReps,,,,drop = FALSE]
 
@@ -2652,8 +2656,10 @@ plotDistN_SOK <- function( obj = blob )
 
   stockNames <- c(stockNames,"Agg")
 
+  fleetType_f <- obj$om$fleetType_f
+  sokFleets <- which(fleetType_f == 2)
 
-  P_ispft   <- obj$om$P_ispft[goodReps,,,6:7,tMP:nT,drop = FALSE]
+  P_ispft   <- obj$om$P_ispft[goodReps,,,sokFleets,tMP:nT,drop = FALSE]
   P_ispt    <- apply(X = P_ispft[,1,,,,drop = FALSE], FUN = sum, MARGIN = c(1,2,3,5) )
 
   P_it      <- apply(X = P_ispt, FUN = sum, MARGIN = c(1,4))
@@ -2724,8 +2730,10 @@ plotTulipPondedFish <- function(  obj = blob,
   nT      <- obj$om$nT
   nReps   <- length(goodReps)
 
+  fleetType_f <- obj$om$fleetType_f
+  sokFleets <- which(fleetType_f == 2)
 
-  P_ispft   <- obj$om$P_ispft[goodReps,,,6:7,,drop = FALSE]
+  P_ispft   <- obj$om$P_ispft[goodReps,,,sokFleets,,drop = FALSE]
   P_ispt    <- apply(X = P_ispft[,1,,,,drop = FALSE], FUN = sum, MARGIN = c(1,2,3,5) )
 
   P_qspt    <- apply( X = P_ispt, FUN = quantile, probs = c(0.025, 0.5, 0.975),
@@ -4854,6 +4862,9 @@ plotRE_spft <- function(  repObj, omObj,
   nT <- repObj$nT
   nF <- repObj$nG
 
+  fleetType_f <- omObj$fleetType_f
+  sokFleets <- which(fleetType_f == 2)
+
   true_spft  <- array(NA, dim = c(nS,nP,nF,nT))
   est_spft   <- array(NA, dim = c(nS,nP,nF,nT))
 
@@ -4865,7 +4876,7 @@ plotRE_spft <- function(  repObj, omObj,
   # omObj C_spft contains ponded fish for SOK fleets
 
   # convert SOK product which is what is reported in AMseries
-  if( OMseries == "C_ispft" )
+  if( OMseries == "C_ispft" & length(sokFleets) > 0 )
   {
     psi_pt <- repObj$psi_pt
     for (p in 1:nP)
