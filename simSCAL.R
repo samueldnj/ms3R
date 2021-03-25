@@ -1845,7 +1845,8 @@ solvePTm <- function( Bmsy, B0 )
               Rev_ispft     = array( NA, dim = c(nReps, nS, nP, nF, nT ) ), # Revenue 
               landVal_ist   = array( NA, dim = c(nReps, nS, nT) ),          # Landed value
               basePrice_ist = array( NA, dim = c(nReps, nS, nT) ),          # Landed value
-              effCost_ipft  = array( NA, dim = c(nReps, nP, nF, nT) )
+              effCost_ipft  = array( NA, dim = c(nReps, nP, nF, nT) ),
+              GDPperCap_it  = array( NA, dim = c(nReps, nT) )
             )
 
   om$errors  <- list( omegaR_ispt   = array( NA, dim = c(nReps, nS, nP, nT) ),         # Rec Proc Errors
@@ -1993,6 +1994,7 @@ solvePTm <- function( Bmsy, B0 )
       blob$om$landVal_ist[i,,]  <- simObj[[i]]$om$landVal_st
       blob$om$basePrice_ist[i,,]<- simObj[[i]]$om$basePrice_st
       blob$om$effCost_ipft[i,,,]<- simObj[[i]]$om$effCost_pft
+      blob$om$GDPperCap_it[i,]  <- simObj[[i]]$om$GDPperCap_t
 
       # Errors - maybe update simObj structure to match blob here
       blob$om$errors$omegaR_ispt[i,,,]  <- simObj[[i]]$errors$omegaR_spt
@@ -2184,6 +2186,7 @@ solvePTm <- function( Bmsy, B0 )
       blob$om$landVal_ist[i,,]  <- simObj$om$landVal_st
       blob$om$basePrice_ist[i,,]<- simObj$om$basePrice_st
       blob$om$effCost_ipft[i,,,]<- simObj$om$effCost_pft
+      blob$om$GDPperCap_it[i,]  <- simObj$om$GDPperCap_t
 
       # Errors - maybe update simObj structure to match blob here
       blob$om$errors$omegaR_ispt[i,,,]  <- simObj$errors$omegaR_spt
@@ -3649,6 +3652,7 @@ combBarrierPen <- function( x, eps,
 {
 
   ctlList <- obj$ctlList
+  opMod   <- ctlList$opMod
 
   if(!obj$ctlList$ctl$quiet)
     message(" (.condMS3pop) Conditioning ms3R from hierSCAL report\n")
@@ -3956,7 +3960,11 @@ combBarrierPen <- function( x, eps,
     }
     obj$ctlList$opMod$adjC_s <- apply(X = priceModelList$UScatch_st, FUN = mean, MARGIN = 1)
     obj$ctlList$opMod$varCostPerKt <- priceModelList$fuelPrice
-    obj$ctlList$opMod$bcIncome <- priceModelList$bcIncome_t[11]
+    
+
+    obj$om$GDPperCap_t[tMP - (11:1)] <- priceModelList$bcIncome_t
+    obj$om$GDPperCap_t[tMP:nT] <- priceModelList$bcIncome_t[11]*(1+opMod$GDPgrowth)^(((tMP):nT)-tMP+1) 
+    
     # new demand curve has no time-varying behaviour - 
     # that requires shocks that we will leave out for now
 
@@ -4131,7 +4139,7 @@ combBarrierPen <- function( x, eps,
   om$fleetRev_spft  <- array(NA,   dim = c(nS,nP,nF,nT) )        # Fleet revenue by area/fleet
   om$effCost_pft    <- array(NA,   dim = c(nP,nF,nT) )           # Cost of effort by area/fleet
   om$profit_pft     <- array(NA,   dim = c(nP,nF,nT) )           # undiscounted profit
-
+  om$GDPperCap_t    <- array(NA,   dim = c(nT) )                 # GDPperCapita (household income)
 
 
   # Variance parameters
@@ -4608,7 +4616,8 @@ combBarrierPen <- function( x, eps,
     priceModel <- opMod$priceModel
 
     UScatch_s <- apply(X = priceModel$UScatch_st, FUN = mean, MARGIN = 1)
-    bcIncome  <- mean(priceModel$bcIncome)
+    
+    bcIncome <- om$GDPperCap_t[t]
 
     demCurves <- priceModel[["demCurvesOwnElast_s"]]
 

@@ -124,6 +124,7 @@ opMod$cwMEY FALSE
 opMod$priceModel "priceModelIV.rds"
 #opMod$priceModel NULL
 opMod$priceCorr 0
+opMod$GDPgrowth 0.039
 opMod$ut_50 .85
 opMod$ut_95 .75
 opMod$effortMod "Max"

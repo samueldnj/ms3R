@@ -83,11 +83,11 @@ strategies, we simulated a three species complex of right-eyed flounders
 fished in three spatial strata by a common trawl fishery off the coast of 
 British Columbia (BC), Canada. Species demand curves with a constant price 
 elasticity of demand were estimated via a 2-stage least-squares regression 
-[IV method ref],
-and then combined with area-specific costs of fishing to define a production
-function that depended on the spatial allocation of fishing effort. Single
-species MSY, multi-species MSY, and MEY reference points were estimated
-via yield-per-recruit analysis [holtref; @murawski1984mixed; @pikitch1987use], 
+[@angrist2008mostly], and then combined with area-specific costs of 
+fishing to define a production function that depended on the spatial 
+allocation of fishing effort. Single species MSY, multi-species MSY, and 
+MEY reference points were estimated via yield-per-recruit analysis 
+[@beverton1957dynamics; @murawski1984mixed; @pikitch1987use], 
 and multi-species MSY and MEY reference points were validated via
 stochastic optimisation of simulated fishery effort over an 80-year time
 horizon with recruitment process error, where the either catch or 
