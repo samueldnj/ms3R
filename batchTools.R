@@ -375,6 +375,8 @@ doBatchRun <- function( arg )
           val <- ctlPar[,2][ ctlPar[,1] == sharedNamesPar[k] ]
           # if ( is.character(val) )
           #   val <- paste("\"",val,"\"",sep="")
+          if(length(val) == 0)
+            browser()
           newPars[,2][ newPars[,1]==sharedNames[k] ] <- val
         }
 
@@ -392,6 +394,9 @@ doBatchRun <- function( arg )
           val <- ctlPar[,2][ ctlPar[,1] == sharedNamesPar[k] ]
           # if ( is.character(val) )
           #   val <- dQuote( val )
+
+          if(length(val) == 0)
+            browser()
 
           newPars[,2][ newPars[,1]==sharedNames[k] ] <- val
         }

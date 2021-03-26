@@ -9,20 +9,20 @@ library(parallel)
 source("ms3R.r")
 # source("makeResultPlots.R")
 
-batchControlFiles <- c( #"omniRuns_econYield_noCorr.bch",
+batchControlFiles <- c( "omniRuns_econYield_noCorr.bch",
                         "omniRuns_priceDevPED.bch",
                         "omniRuns_econYield_crossCorr.bch"
                       )
                        
 nBatchJobs <- length( batchControlFiles )
 
-baseControlFiles  <- rep( #"simCtlFileBase.txt",
+baseControlFiles  <- rep( "simCtlFileBase.txt",
                           "simCtlFileBase_NULLprice.txt",
                           "simCtlFileBase.txt" )
 
-prefixes       <- c(  #"omniRuns_noCorr_Mar5",
+prefixes       <- c(  "omniRuns_noCorr_Mar26",
                       "omniRuns_priceDevPED",
-                      "omniRuns_crossCorr_Mar5" )
+                      "omniRuns_recCorr_Mar26" )
 
 saveDirName       <- prefixes
 

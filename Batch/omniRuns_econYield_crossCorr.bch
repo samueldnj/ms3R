@@ -3,53 +3,17 @@ parameter value
 #
 ## Scenarios
 #
-# Scenario 1 : noCorr
+# Scenario 2 : corrRec
 #
-scenario$scenario1$ctl$scenarioName 'noCorr'
+scenario$scenario1$ctl$scenarioName 'corrRecDevs'
 scenario$scenario1$ctl$nGoodReps 100
 scenario$scenario1$ctl$totReps 100
 scenario$scenario1$ctl$omni TRUE
 scenario$scenario1$ctl$nCores 24
 scenario$scenario1$opMod$pT 80
-scenario$scenario1$opMod$corrRecDevs FALSE
+scenario$scenario1$opMod$corrRecDevs TRUE
 scenario$scenario1$opMod$corrPriceDevs FALSE
 scenario$scenario1$mp$omni$nKnots 21
-#
-# Scenario 2 : corrRec
-#
-scenario$scenario2$ctl$scenarioName 'corrRecDevs'
-scenario$scenario2$ctl$nGoodReps 100
-scenario$scenario2$ctl$totReps 100
-scenario$scenario2$ctl$omni TRUE
-scenario$scenario2$ctl$nCores 24
-scenario$scenario2$opMod$pT 80
-scenario$scenario2$opMod$corrRecDevs TRUE
-scenario$scenario2$opMod$corrPriceDevs FALSE
-scenario$scenario2$mp$omni$nKnots 21
-#
-# Scenario 3 : corrPrice
-#
-scenario$scenario3$ctl$scenarioName 'corrPriceDevs'
-scenario$scenario3$ctl$nGoodReps 100
-scenario$scenario3$ctl$totReps 100
-scenario$scenario3$ctl$omni TRUE
-scenario$scenario3$ctl$nCores 24
-scenario$scenario3$opMod$pT 80
-scenario$scenario3$opMod$corrRecDevs FALSE
-scenario$scenario3$opMod$corrPriceDevs TRUE
-scenario$scenario3$mp$omni$nKnots 21
-#
-# Scenario 4 : corrRecPrice
-#
-scenario$scenario4$ctl$scenarioName 'corrRecPrice'
-scenario$scenario4$ctl$nGoodReps 100
-scenario$scenario4$ctl$totReps 100
-scenario$scenario4$ctl$omni TRUE
-scenario$scenario4$ctl$nCores 24
-scenario$scenario4$opMod$pT 80
-scenario$scenario4$opMod$corrRecDevs TRUE
-scenario$scenario4$opMod$corrPriceDevs TRUE
-scenario$scenario4$mp$omni$nKnots 21
 #
 #
 ## Management Procedures
