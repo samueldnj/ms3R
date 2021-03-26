@@ -77,7 +77,10 @@ pullHistDataLikelihood <- function( histFolder = "fit_parBatHGherringMCMC1")
         append = TRUE)
 
   # Make html sim report
-  .makeSimReport( simNum = folder, groupFolder = "" )
+  if(is.null(blob$ctlList$ctl$makeReport))
+    .makeSimReport( simNum = folder, groupFolder = "" )
+  else if( blob$ctlList$ctl$makeReport )
+    .makeSimReport( simNum = folder, groupFolder = "" )
 
   graphics.off()
 

@@ -167,8 +167,6 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   if( ctlList$mp$hcr$type == "hgRule" )
     obj  <- .calcHCR_hgRule( obj, t )
 
-  browser()
-
   # 4. Allocate catch among fleets
   if( ctlList$mp$hcr$type == "hgRule" )
     obj <- .tacAlloc_hgRule(obj,t)
@@ -1037,6 +1035,9 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
               if(repObj$avgRcode_p[p]==0)
                 lastIdx <- max(which(repObj$SRdevs_pt[p,] != 0) )
 
+              if(!is.null(opMod$lastIdxOverwrite))
+                lastIdx <- opMod$lastIdxOverwrite
+
               if(t<=lastIdx)
               {
 
@@ -1055,6 +1056,8 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
                 if(obj$ctlList$opMod$recType =='bevHolt')
                 {
 
+
+                  
                   R_spt[s,p,t] <- reca_sp[s,p] * SB_spt[s,p,t-1] / (1 + recb_sp[s,p] * SB_spt[s,p,t-1])
 
                   if( !obj$ctlList$ctl$noProcErr)
@@ -1099,22 +1102,21 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   # Now convert into biomass at the beginning of the time step
   B_axspt[,,,,t]    <- N_axspt[,,,,t] * W_axspt[,,,,t]
 
-  # Compute total biomass at beginning of time step
-  B_spt[,,t]    <- apply( X = B_axspt[,,,,t,drop = FALSE], FUN = sum, MARGIN = 3:4, na.rm = T )
+  # Compute total age2+ biomass at beginning of time step - updated to use juveMage, currently path specific
+  B_spt[,,t]    <- apply( X = B_axspt[2:nA,,,,t,drop = FALSE], FUN = sum, MARGIN = 3:4, na.rm = T )
 
   # Switch out Mt for pulseMt if spawning biomass is below the pulse limit
-  if( t >= tMP )
+  if( t >= tMP | om$densityDepM == 1 )
   {
-    if(om$densityDepM == 1 )
-    {
+    totB0_sp <- rp$totB0_sp
+    for(s in 1:nS)
+      for(p in 1:nP)
+      {
 
-      for(s in 1:nS)
-        for(p in 1:nP)
-        {
-          M_axspt[2:nA,1:nX,s,p,t] <- repObj$M_p[p] + exp( - om$m1_sp[s,p] * B_spt[1,p,t] / repObj$totB0_p[p])
-          M_axspt[1,1:nX,s,p,t] <- M_axspt[1,1:nX,s,p,t-1]
-        }
-    }
+        M_axspt[2:nA,1:nX,s,p,t] <- repObj$M_p[p] + exp( - om$m1_sp[s,p] * B_spt[s,p,t] / totB0_sp[s,p])
+        M_axspt[1,1:nX,s,p,t] <- repObj$Mjuve_p[p]
+      }
+
     if(om$densityDepM == 0)
       for(s in 1:nS)
         for(p in 1:nP)
@@ -2301,7 +2303,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
 
   # Use the last two years of data in Spawn Survey
   # and calculate mean over time to get weights for allocating catch
-  rctMeanI_sp <- apply( X = I_spft[,,5,(t-2):(t-1),drop = FALSE],
+  rctMeanI_sp <- apply( X = I_spft[1:nS,1:nP,5,(t-2):(t-1),drop = FALSE],
                         FUN = mean,
                         MARGIN = c(1,2), na.rm = T )
 
@@ -2317,8 +2319,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   
   # Now apply "F" as a harvest rate, since
   # we don't have M information
-  hcr$TAC_spt[,,t] <- hcr$targetF_spt[,,t] * projVB_sp
-
+  hcr$TAC_spt[,,t] <- hcr$targetF_spt[,,t] * projSB_sp
 
 
   propTAC_sp <- array(1, dim = c(nS,nP) )
@@ -3932,8 +3933,6 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   refPtList <- calcRefPts( repObj )
   obj$rp    <- refPtList
 
-  browser()
-
   etime <- Sys.time()
   rpTime <- round(etime - stime,2)
   message( paste(" (.condMS3pop) Reference point calculations completed in ", 
@@ -3972,10 +3971,18 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
       # last estimated recruitment
       lastDevIdx <- max(which(repObj$omegaR_spt[s,p,] != 0) )
 
-      obj$errors$omegaR_spt[s,p,histdx[1:lastDevIdx]]   <- repObj$omegaR_spt[s,p,1:lastDevIdx] 
+      if(!is.null(opMod$lastIdxOverwrite))
+        lastDevIdx <- opMod$lastIdxOverwrite
+
+      browser()
+
+      if(lastDevIdx > 0)
+      {
+        obj$errors$omegaR_spt[s,p,histdx[1:lastDevIdx]]   <- repObj$omegaR_spt[s,p,1:lastDevIdx] 
       
-      if( !ctlList$ctl$noProcErr )
-        obj$errors$omegaR_spt[s,p,histdx[1:lastDevIdx]] <- obj$errors$omegaR_spt[s,p,histdx[1:lastDevIdx]] + 0.5*repObj$sigmaR_sp[s,p]  # rec devs    
+        if( !ctlList$ctl$noProcErr )
+          obj$errors$omegaR_spt[s,p,histdx[1:lastDevIdx]] <- obj$errors$omegaR_spt[s,p,histdx[1:lastDevIdx]] + 0.5*repObj$sigmaR_sp[s,p]  # rec devs    
+      }
 
       obj$om$alloc_spf[s,p,commGears] <- recentCatch_spf[s,p,commGears] / sum( recentCatch_spf[s,p,commGears])
     }
@@ -4147,22 +4154,24 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   message( paste(" (.condMS3pop_SISCA) Reference point calculations completed in ", 
                   rpTime, " seconds\n", sep = "" ) )
 
+
   # Add historical data
   obj$mp$data$I_spft[1,1:nP,histF,histdx]        <- repObj$I_pgt[1:nP,,histdx]
   obj$mp$data$A_axspft[,1,1,1:nP,histF,histdx]   <- repObj$A_apgt[,1:nP,,histdx]
 
   # Check if model is using a blended index & overwrite dive survey index & q
   if(!is.null(repObj$combI_pt))
-  {  
-    
-    # overwrite dive survey index with blended index
-    obj$mp$data$I_spft[1,1:nP,5,histdx] <- repObj$combI_pt
+    if( any(repObj$combI_pt > 0))
+    {  
+      
+      # overwrite dive survey index with blended index
+      obj$mp$data$I_spft[1,1:nP,5,histdx] <- repObj$combI_pt
 
-    # Flag the om rep file is using blended index
-    if(!ctlList$opMod$blendIdx)
-      browser(cat('OM rep file uses blended index but ctlList does not... \n'))
+      # Flag the om rep file is using blended index
+      if(!ctlList$opMod$blendIdx)
+        browser(cat('OM rep file uses blended index but ctlList does not... \n'))
 
-  }  
+    }  
 
   # Simulate proportions of blended index
   if(ctlList$opMod$blendIdx)
@@ -4261,6 +4270,15 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
       for( f in 1:nF )
         obj$errors$delta_spft[s,p,f,] <- rnorm(nT)
 
+      # Calculate last year with recruitment estimates
+      if(repObj$avgRcode_p[p]==1)
+        lastIdx <- max(which(repObj$omegaR_pt[p,] != 0) )
+      if(repObj$avgRcode_p[p]==0)
+        lastIdx <- max(which(repObj$SRdevs_pt[p,] != 0) )
+
+      if(!is.null(ctlList$opMod$lastIdxOverwrite))
+        lastIdx <- ctlList$opMod$lastIdxOverwrite
+
       # Save historical proc errors, but use simulated recruitments after
       # last estimated recruitment
 
@@ -4268,13 +4286,8 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
       # if(repObj$avgRcode_p[p]==0)
       if(ctlList$opMod$recType == 'bevHolt')
       {
-        # Calculate last year with recruitment estimates
-        if(repObj$avgRcode_p[p]==1)
-          lastIdx <- max(which(repObj$omegaR_pt[p,] != 0) )
-        if(repObj$avgRcode_p[p]==0)
-          lastIdx <- max(which(repObj$SRdevs_pt[p,] != 0) )
         
-        if(!ctlList$opMod$posteriorSamples)
+        if(!ctlList$opMod$posteriorSamples & lastIdx > 0)
           obj$errors$omegaR_spt[s,p,histdx[1:lastIdx]] <- repObj$SRdevs_pt[p,1:lastIdx]
 
 
@@ -4298,8 +4311,9 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
 
           # calculate recruitment deviations
           SRdevs_t <- (log(R_t) - log(bhR_t))/sigmaR
-            
-          obj$errors$omegaR_spt[s,p,histdx[firstdx:lastIdx]]   <- SRdevs_t[firstdx:lastIdx]
+          
+          if( lastIdx > 0)
+            obj$errors$omegaR_spt[s,p,histdx[firstdx:lastIdx]]   <- SRdevs_t[firstdx:lastIdx]
 
         }  
           
@@ -4310,8 +4324,8 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
       if(ctlList$opMod$recType == 'avgR')
       {  
       
-        if(!ctlList$opMod$posteriorSamples)
-        obj$errors$omegaR_spt[s,p,histdx[1:lastIdx]]   <- repObj$omegaR_pt[p,1:lastIdx]
+        if(!ctlList$opMod$posteriorSamples & lastIdx > 0)
+          obj$errors$omegaR_spt[s,p,histdx[1:lastIdx]]   <- repObj$omegaR_pt[p,1:lastIdx]
 
         if(ctlList$opMod$posteriorSamples)
         {  
@@ -4323,14 +4337,14 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
           
           # calculate recruitment deviations
           recDevs_t <- (log(R_t) - log(Rbar))
-            
-          obj$errors$omegaR_spt[s,p,histdx[firstdx:lastIdx]]   <- recDevs_t[firstdx:lastIdx]
+          if(lastIdx > 0)
+            obj$errors$omegaR_spt[s,p,histdx[firstdx:lastIdx]]   <- recDevs_t[firstdx:lastIdx]
         }  
 
       }
         
 
-      if( !ctlList$ctl$noProcErr )
+      if( !ctlList$ctl$noProcErr & lastIdx > 0 )
         obj$errors$omegaR_spt[s,p,histdx[1:lastIdx]] <- obj$errors$omegaR_spt[s,p,histdx[1:lastIdx]] + 0.5*repObj$sigmaR  # rec devs    
 
     }
@@ -4505,6 +4519,9 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   message(" (.condMS3pop_SISCA) Running OM for historical period.\n")
 
   obj <- .calcTimes( obj )
+
+  obj$om$F_spft[,,,1:(tMP-1)] <- obj$om$F_spft[,,,1:(tMP-1)] * ctlList$mp$omni$histFmult
+  obj$om$C_spft[,,,1:(tMP-1)] <- obj$om$C_spft[,,,1:(tMP-1)] * ctlList$mp$omni$histFmult
 
   # Now, initialise the population
   for( t in 1:(tMP - 1) )
@@ -4859,11 +4876,12 @@ ar1Model <- function(dat)
     }
 
     # Pull projection catch and biomass
-    Cproj_spt   <- obj$om$C_spft[,,2,tMP:nT]
-    TACproj_spt <- obj$om$TAC_spft[,,2,tMP:nT]
-    Bproj_spt   <- obj$om$B_spt[,,tMP:nT]
-    Bmsy_sp     <- obj$rp$FmsyRefPts$BeqFmsy_sp
+    Cproj_spft    <- obj$om$C_spft[,,2,tMP:nT,drop = FALSE]
+    TACproj_spft  <- obj$om$TAC_spft[,,2,tMP:nT,drop = FALSE]
+    Bproj_spt     <- obj$om$B_spt[,,tMP:nT,drop = FALSE]
+    Bmsy_sp       <- obj$rp$FmsyRefPts$BeqFmsy_sp
     
+
     # Make arrays to hold stock specific
     # penalties and intermediate values
     # Lots of options here from development of the
@@ -4900,7 +4918,7 @@ ar1Model <- function(dat)
 
 
     # Get minimum catch in historical period
-    histCatch_spt <- apply( X = om$C_spft[,,,1:(tMP-1)], FUN = sum, MARGIN = c(1,2,4))
+    histCatch_spt <- apply( X = om$C_spft[,,,1:(tMP-1),drop = FALSE], FUN = sum, MARGIN = c(1,2,4))
     Cmin_sp <- apply( X = histCatch_spt, FUN = min, MARGIN = c(1,2),
                       na.rm = T )
 
@@ -4916,17 +4934,29 @@ ar1Model <- function(dat)
 
 
     # Catch difference
-    catDiff_tsp <- abs(apply( X = obj$om$C_spft[,,2,(tMP-1):nT],
-                              FUN = diff, MARGIN = c(1,2) ) )
-    catDiff_spt <- aperm( catDiff_tsp, c(2,3,1))
+    if(nS > 1 | nP > 1)
+    {
+      catDiff_tsp <- abs(apply( X = obj$om$C_spft[,,2,(tMP-1):nT,drop = FALSE],
+                                FUN = diff, MARGIN = c(1,2,4) ) )
+      catDiff_spt <- aperm( catDiff_tsp, c(2,3,1))
+    }
+    if( nS == 1 & nP == 1 )
+    {
+      catDiff <- diff(obj$om$C_spft[1,1,2,(tMP-1):nT])
+
+      catDiff_spt <- array(0, dim = c(1,1,length(catDiff)) )
+      catDiff_spt[1,1,] <- catDiff
+    }
+
 
     catDiffRel_spt <- catDiff_spt / (obj$om$C_spft[,,2,(tMP:nT) - 1])
     catDiffRel_spt[!is.finite(catDiffRel_spt)] <- 1
 
-    initCatDiffRel_sp <- catDiffRel_spt[,,1]
+    initCatDiffRel_sp <- array(0, dim = c(nS,nP))
+    initCatDiffRel_sp[1:nS,1:nP] <- catDiffRel_spt[,,1]
 
     # Effort difference (prefer to keep total effort similar)
-    totEff_t   <- apply( X = obj$om$E_pft[,2,(tMP-1):nT],
+    totEff_t   <- apply( X = obj$om$E_pft[,2,(tMP-1):nT,drop = FALSE],
                           FUN = sum, MARGIN = 2 )
     effDiff_t  <- abs(diff(totEff_t))
 
@@ -5013,10 +5043,10 @@ ar1Model <- function(dat)
                                                       beta = mp$omni$linBeta )     
 
         # Catch less than historical minimum (closures)
-        closedCount_sp[s,p] <- sum( Cproj_spt[s,p,] < Cmin_sp[s,p] )
+        closedCount_sp[s,p] <- sum( Cproj_spft[s,p,1,] < Cmin_sp[s,p] )
 
         # Penalty on AAV
-        AAV <- .calcAAV( Cproj_spt[s,p,] )
+        AAV <- .calcAAV( Cproj_spft[s,p,1,] )
         barAAV_sp[s,p] <- combBarrierPen( x = AAV, 
                                           eps = maxAAV, 
                                           alpha = maxAAV/2,
@@ -5103,9 +5133,9 @@ ar1Model <- function(dat)
                                           above = FALSE )
 
     # Calculate average catch
-    Csum    <- sum(Cproj_spt,na.rm = T)
-    Cbar_sp <- apply( X = Cproj_spt, FUN = mean, MARGIN = c(1,2))
-    totCbar <- mean( apply(X = Cproj_spt, FUN = sum, MARGIN = 3 ) )
+    Csum    <- sum(Cproj_spft,na.rm = T)
+    Cbar_sp <- apply( X = Cproj_spft, FUN = mean, MARGIN = c(1,2))
+    totCbar <- mean( apply(X = Cproj_spft, FUN = sum, MARGIN = 4 ) )
 
     # Total obj function for each stock/species
     objFun_sp <- -  avgCatWt * log(1e3*Cbar_sp) + 
@@ -5897,7 +5927,7 @@ calcSOKpsi <- function( N_axsp,
             appC_axspf[1:A_s[s],,s,p,f] <- vB_axspf[1:A_s[s],,s,p,f] * (1 - appZ_axsp[1:A_s[s],,s,p]) * appF_spf[s,p,f]/appZ_axsp[1:A_s[s],,s,p]
           }
 
-          appC_spf[s,p,] <- apply( X = appC_axspf[,,s,p,], FUN = sum, MARGIN = c(3))
+          appC_spf[s,p,] <- apply( X = appC_axspf[,,s,p,,drop = FALSE], FUN = sum, MARGIN = c(5))
 
           for( x in 1:nX )
             for( a in 1:A_s[s] )
@@ -5926,7 +5956,7 @@ calcSOKpsi <- function( N_axsp,
         {
           for( x in 1:nX )
           {
-            appZ_axsp[1:A_s[s],x,s,p] <- M_xsp[x,s,p]
+            appZ_axsp[1:A_s[s],x,s,p] <- M_axsp[1:A_s[s],x,s,p]
 
             for( f in 1:nF )
               appZ_axsp[1:A_s[s],x,s,p] <- appZ_axsp[1:A_s[s],x,s,p] + appF_spf[s,p,f] * sel_axspf[1:A_s[s],x,s,p,f]

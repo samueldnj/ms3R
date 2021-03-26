@@ -20,6 +20,8 @@ calcRefPts <- function( obj )
 {
   # Calculate selectivity
   # obj <- .calcSel_xsp(obj, fleetIdx = 2)
+  nS <- obj$om$nS
+  nP <- obj$om$nP
 
   # Calculate R0_sp
   h_sp      <- obj$om$h_sp
@@ -28,7 +30,10 @@ calcRefPts <- function( obj )
   # temporarily use calcPerRecruit to recalc R0
   tmp           <- .calcPerRecruit( f = 0, obj = obj )
   yprList       <- tmp$yprList
-  R0_sp         <- B0_sp / yprList$ssbpr_sp
+  obj$R0_sp     <- B0_sp / yprList$ssbpr_sp
+  obj$totB0_sp  <- obj$R0_sp * yprList$totbpr_sp
+
+  R0_sp <- obj$R0_sp
 
   # Beverton-Holt a/b parameters
   obj$rec.a_sp  <- 4.*h_sp*R0_sp/(B0_sp*(1.-h_sp))
@@ -52,14 +57,19 @@ calcRefPts <- function( obj )
   obj$refPts$refCurves    <- refCurves
   obj$refPts$FmsyRefPts   <- FmsyRefPts
 
+
+  totB0_sp <- R0_sp
+  totB0_sp[1:nS,1:nP] <- refCurves$totBeq_spf[,,1]
   
   # Get survivorship
   obj$refPts$Surv_axsp    <- tmp$Surv_axsp
   obj$refPts$ssbpr_sp     <- yprList$ssbpr_sp
-  obj$refPts$R0_sp        <- R0_sp  
+  obj$refPts$R0_sp        <- R0_sp
+  obj$refPts$totB0_sp     <- totB0_sp
   obj$refPts$rec.a_sp     <- obj$rec.a_sp
   obj$refPts$rec.b_sp     <- obj$rec.b_sp
-  obj$refPts$B0_sp        <- refCurves$Beq_spf[,,1]
+  obj$refPts$B0_sp        <- refCurves$Beq_spf[,,1,drop = FALSE]
+
 
   if( obj$condModel == "hierSCAL")
   {
@@ -382,6 +392,7 @@ calcJABBASelPars <- function( obj )
 
   Beq_spf       <- Req_spf
   expBeq_spf    <- Req_spf
+  totBeq_spf    <- Req_spf
   Yeq_spf       <- Req_spf
   ypr_spf       <- Req_spf
   ssbpr_spf     <- Req_spf
@@ -395,12 +406,14 @@ calcJABBASelPars <- function( obj )
     Req_spf[,,i]      <- tmp$Req_sp
     Beq_spf[,,i]      <- tmp$Beq_sp
     expBeq_spf[,,i]   <- tmp$expBeq_sp
+    totBeq_spf[,,i]   <- tmp$totBeq_sp
     Yeq_spf[,,i]      <- tmp$Yeq_sp
     ypr_spf[,,i]      <- tmp$ypr_sp
     ssbpr_spf[,,i]    <- tmp$ssbpr_sp
     Ueq_spf[,,i]      <- tmp$Ueq_sp
     surv_axspf[,,,,i] <- tmp$surv_axsp
   }
+
 
   # Save F based ref points
   refCurves <- list()
@@ -409,6 +422,7 @@ calcJABBASelPars <- function( obj )
     refCurves$Req_spf     <- Req_spf
     refCurves$Beq_spf     <- Beq_spf
     refCurves$expBeq_spf  <- expBeq_spf
+    refCurves$totBeq_spf  <- totBeq_spf
     refCurves$Yeq_spf     <- Yeq_spf
     refCurves$Ueq_spf     <- Yeq_spf
     refCurves$surv_axspf  <- surv_axspf
@@ -424,6 +438,7 @@ calcJABBASelPars <- function( obj )
 
     Beq_spe       <- Req_spe
     expBeq_spe    <- Req_spe
+    totBeq_spe    <- Req_spe
     Yeq_spe       <- Req_spe
     ypr_spe       <- Req_spe
     ssbpr_spe     <- Req_spe
@@ -436,6 +451,7 @@ calcJABBASelPars <- function( obj )
       Req_spe[,,i]      <- tmp$Req_sp
       Beq_spe[,,i]      <- tmp$Beq_sp
       expBeq_spe[,,i]   <- tmp$expBeq_sp
+      totBeq_spe[,,i]   <- tmp$totBeq_sp
       Yeq_spe[,,i]      <- tmp$Yeq_sp
       ypr_spe[,,i]      <- tmp$ypr_sp
       ssbpr_spe[,,i]    <- tmp$ssbpr_sp
@@ -450,6 +466,7 @@ calcJABBASelPars <- function( obj )
       refCurves$EffCurves$Req_spe     <- Req_spe
       refCurves$EffCurves$Beq_spe     <- Beq_spe
       refCurves$EffCurves$expBeq_spe  <- expBeq_spe
+      refCurves$EffCurves$totBeq_spe  <- totBeq_spe
       refCurves$EffCurves$Yeq_spe     <- Yeq_spe
       refCurves$EffCurves$Ueq_spe     <- Yeq_spe
       refCurves$EffCurves$surv_axspe  <- surv_axspe  
@@ -480,11 +497,11 @@ calcJABBASelPars <- function( obj )
   recruits_sp <- ( obj$rec.a_sp * yprList$ssbpr_sp - 1) / (obj$rec.b_sp * yprList$ssbpr_sp)
   
 
-
   equil <- list()
     equil$Req_sp     <- recruits_sp
     equil$Beq_sp     <- recruits_sp * yprList$ssbpr_sp
     equil$expBeq_sp  <- recruits_sp * yprList$expbpr_sp
+    equil$totBeq_sp  <- recruits_sp * yprList$totbpr_sp
     equil$Yeq_sp     <- recruits_sp * yprList$ypr_sp
     equil$ypr_sp     <- yprList$ypr_sp
     equil$ssbpr_sp   <- yprList$ssbpr_sp
@@ -565,6 +582,7 @@ calcJABBASelPars <- function( obj )
   nT      <- obj$om$nT
   qF_sp   <- obj$om$qF_spft[,,fleetIdx,nT]
 
+
   
   # M_xsp[1,1,] <- obj
 
@@ -574,6 +592,14 @@ calcJABBASelPars <- function( obj )
 
   # Spawn timing
   spawnTiming       <- obj$om$spawnTiming
+
+  # Recruitment pars
+  if(f > 0)
+  {
+    rec.a_sp <- obj$rec.a_sp
+    rec.b_sp <- obj$rec.b_sp
+    totB0_sp <- obj$totB0_sp
+  }
   
   # Selectivity
   selAge_axsp           <- array(NA, dim = c(nA,nX,nS,nP))
@@ -581,6 +607,29 @@ calcJABBASelPars <- function( obj )
 
   # Fishing mortality
   fmort <- array(f, dim =c(nS,nP) )
+
+  if(obj$densityDepM == 1)
+  {
+    if(f == 0 )
+      Meq_p <- solveForMeq( lnB_p = log(obj$totB0_p), obj = obj,f = f, fit = FALSE)
+    if( f > 0 )
+    {    
+      opt <- optim( par = log(obj$totB0_p), fn = solveForMeq, f = f, obj = obj )
+      Meq_p <- solveForMeq( lnB_p = opt$par, obj = obj,f = f, fit = FALSE)
+    }
+
+    M_xsp[1,1,] <- Meq_p
+  }
+
+  # Zero indexing
+  juveMage <- obj$juveMage + 1  
+
+
+  # if( obj$om$densityDepM == 1 )
+  # {
+
+  # }
+
 
   # Compute Z_asp
   Z_axsp    <- array( NA, dim = c(nA,nX,nS,nP))
@@ -593,7 +642,10 @@ calcJABBASelPars <- function( obj )
         if( type == "effort" )
           fmort[s,p] <- f * qF_sp[s,p]
 
-        Z_axsp[1:A_s[s],x,s,p] <- M_xsp[x,s,p]
+        if( juveMage > 1 )
+          Z_axsp[1:(juveMage-1),x,s,p] <- obj$Mjuve_p[p]
+
+        Z_axsp[(juveMage):A_s[s],x,s,p] <- M_xsp[x,s,p]
         for( a in 1:A_s[s])
         {
           Z_axsp[a,x,s,p] <- Z_axsp[a,x,s,p] + selAge_axsp[a,x,s,p] * fmort[s,p]
@@ -623,7 +675,7 @@ calcJABBASelPars <- function( obj )
                               (1 - exp(-Z_axsp[,x,s,p]))/Z_axsp[,x,s,p]
 
         expbpr_axsp[,x,s,p] <- Surv_axsp[,x,s,p] * selAge_axsp[,x,s,p] * wtAge_axsp[,x,s,p]
-        totbpr_axsp[,x,s,p] <- Surv_axsp[,x,s,p] * selAge_axsp[,x,s,p] * wtAge_axsp[,x,s,p]
+        totbpr_axsp[,x,s,p] <- Surv_axsp[,x,s,p] * wtAge_axsp[,x,s,p]
       }
 
     }
@@ -637,7 +689,8 @@ calcJABBASelPars <- function( obj )
   ypr_sp      <- apply( X = C_axsp, FUN = sum, MARGIN = c(3,4),na.rm = T)
   ssbpr_sp    <- apply( X = ssbpr_asp, FUN = sum, MARGIN = c(2,3), na.rm = T )
   expbpr_sp   <- apply( X = expbpr_axsp, FUN = sum, MARGIN = c(3,4), na.rm = T )  
-  totbpr_sp   <- apply( X = totbpr_axsp, FUN = sum, MARGIN = c(3,4), na.rm = T )  
+  totbpr_sp   <- apply( X = totbpr_axsp[2:nA,,,,drop = FALSE], FUN = sum, MARGIN = c(3,4), na.rm = T )  
+
 
   # if(any(expbpr_sp - ypr_sp < 0))
   #   browser()
@@ -655,7 +708,7 @@ calcJABBASelPars <- function( obj )
 }
 
 # solve for density dependent M
-solveForMeq <- function( lnB_sp = log(totB0_sp), obj, f, fit = TRUE )
+solveForMeq <- function( lnB_p = log(totB0_p), obj, f, fit = TRUE )
 {
   # Compute eqbm spawning biomass per recruit for
   # given f and species/stock pars

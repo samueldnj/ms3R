@@ -1538,15 +1538,93 @@ plotEffYieldCurves <- function( obj = blob )
                     MSYMS_sp = MSYMS_sp )
 } # END plotEffYieldCurves()
 
+# plotFYieldCurves()
+# Function for plotting effort based
+# yield curves for each species and
+# the complex in a stock area.
+plotFYieldCurves <- function( obj = blob,
+                              maxF = 1 )
+{
+  # First, pull reference points and curves
+  rp            <- obj$rp[[1]]
+  refCurves     <- rp$refCurves
+  FmsyRefPts    <- rp$FmsyRefPts
+
+  nT  <- obj$om$nT
+  nP  <- obj$om$nP
+  nS  <- obj$om$nS
+  tMP <- obj$om$tMP
+
+  
+  speciesNames <- blob$om$speciesNames
+
+  # Now compute MSY for SS and MS curves
+  # MSY is still the same for SS, just need the effort
+  # that corresponds to it, which is Fmsy/qF
+
+  # get SS ref points
+  Fmsy_sp   <- rp$FmsyRefPts$Fmsy_sp
+  MSY_sp    <- rp$FmsyRefPts$YeqFmsy_sp
+
+  # Now get MS ref points
+  Yeq_spf   <- rp$refCurves$Yeq_spf
+  Yeq_spf[Yeq_spf < 0] <- NA
+  Fseq      <- rp$refCurves$F
+
+
+  specCols <- RColorBrewer::brewer.pal(n = nS, "Dark2")
+
+  par( mfrow = c(nP,nS), mar = c(1,1,1,1), oma = c(3,3,1,1) )
+  for( s in 1:nS )
+    for( p in 1:nP )
+    {
+
+      plot( x = c(0,max(Fseq)), y = c(0, max(Yeq_spf[s,p,],na.rm = T) ),
+            type = "n", xlab = "", ylab = "", axes = F )
+        axis(side = 2, las = 1)
+        box()
+        grid()
+
+        
+        mfg <- par("mfg")
+        if( mfg[1] == mfg[3])
+          axis(side = 1)
+
+        lines(  x = Fseq, y = Yeq_spf[s,p,],
+                col = "black", lty = 1, lwd = 3 )
+
+        segments( x0 = Fmsy_sp[s,p], col = "grey40",
+                  y0 = 0, y1 = MSY_sp[s,p], lty = 2  )
+
+        segments( x0 = 0, x1 = Fmsy_sp[p], col = "grey40",
+                  y0 = c(MSY_sp[s,p],MSY_sp[s,p]), lty = 2  )
+
+        # if(  p == 1 )
+        #   legend( x = "topright", bty = "n",
+        #           col = c(specCols,"black"),
+        #           lwd = c(2,2,2,3),
+        #           legend = c(speciesNames,"Complex") )
+
+    }
+
+  mtext( outer = TRUE, side = 1, text = "Fishing mortality (/yr)", line = 2 )
+  mtext( outer = TRUE, side = 2, text = "Equilibrium Yield (kt)", line = 2 )
+
+
+  outList <- list(  Fmsy_sp = Fmsy_sp,
+                    MSY_sp  = MSY_sp  )
+} # END plotEffYieldCurves()
+
 # plotEmpYieldCurves
 # Function to plot median simuated yield 
 # resulting from a grid of constant fishing 
 # mortality rates - used for checking the
 # reference point calculations
-plotEmpYieldCurves <- function( sims = 1:11, 
-                                folder = "",
+plotEmpYieldCurves <- function( sims = 1:101, 
+                                folder = "SOG_DDM_Fgrid",
                                 indepVar = "F",
-                                redoEmpRefCurves = FALSE )
+                                plotYPRcurves = TRUE,
+                                redoEmpRefCurves = TRUE )
 {
   nSims <- length(sims)
   blobList <- vector(mode = "list", length = nSims)
@@ -1565,6 +1643,7 @@ plotEmpYieldCurves <- function( sims = 1:11,
   B_spk <- array( 0, dim = c(nS,nP,nSims) )
   F_spk <- array( 0, dim = c(nS,nP,nSims) )
   E_spk <- array( 0, dim = c(nS,nP,nSims) )
+  M_spk <- array( 0, dim = c(nS,nP,nSims) )
   E_pk  <- array( 0, dim = c(nP,nSims) )
 
   qF_sp <- blob$om$qF_ispft[1,,,2,nT]
@@ -1578,6 +1657,7 @@ plotEmpYieldCurves <- function( sims = 1:11,
       C_spk[,,x]  <- apply(X = blob$om$C_ispt[goodReps,,,nT,drop = FALSE], FUN = median, MARGIN = c(2,3), na.rm = T )
       B_spk[,,x]  <- apply(X = blob$om$SB_ispt[goodReps,,,nT,drop = FALSE], FUN = median, MARGIN = c(2,3), na.rm = T )
       F_spk[,,x]  <- apply(X = blob$om$F_ispft[goodReps,,,2,nT,drop = FALSE], FUN = median, MARGIN = c(2,3), na.rm = T )
+      M_spk[,,x]  <- apply(X = blob$om$M_iaxspt[goodReps,2,1,,,nT,drop = FALSE], FUN = median, MARGIN = c(2,3), na.rm = T )
       E_pk[,x]    <- apply(X = blob$om$E_ipft[goodReps,,2,nT,drop = FALSE], FUN = median, MARGIN = c(2), na.rm = T )
       E_spk[,,x]  <- F_spk[,,x] / qF_sp
 
@@ -1589,6 +1669,7 @@ plotEmpYieldCurves <- function( sims = 1:11,
                               B_spk = B_spk,
                               F_spk = F_spk,
                               E_spk = E_spk,
+                              M_spk = M_spk,
                               E_pk  = E_pk )
 
     save( saveEmpRefCurves, file = here::here("Outputs",folder,"empRefCurves.RData"))
@@ -1637,7 +1718,8 @@ plotEmpYieldCurves <- function( sims = 1:11,
         maxX <- max(E_pk[p,],E_spk[s,p,])
 
       plot( x = c(0,maxX), y = c(0,max(B_spk[s,p,])),
-            type = "n", axes = FALSE )
+            type = "n", axes = FALSE,
+            xlab = "", ylab = "" )
         axis( side = 1 )
         axis( side = 2, las = 1 )
         grid()
@@ -1697,17 +1779,18 @@ plotEmpYieldCurves <- function( sims = 1:11,
 
 
         
-
-        lines( x = X, y = C,
-                col = "steelblue", lwd = 2, lty = 1 )
-        lines( x = X, y = B,
-                col = "black", lwd = 2, lty = 1 )        
-
-        lines( x = Xvec, y = Yeq,
-                col = "salmon", lty = 2 )
-
-        lines( x = Xvec, y = Beq,
-                col = "black", lty = 2 )
+        
+          lines( x = X, y = C,
+                  col = "steelblue", lwd = 2, lty = 1 )
+          lines( x = X, y = B,
+                  col = "black", lwd = 2, lty = 1 )        
+        if(plotYPRcurves)
+        {
+          lines( x = Xvec, y = Yeq,
+                  col = "salmon", lty = 2 )
+          lines( x = Xvec, y = Beq,
+                  col = "black", lty = 2 )
+        }
 
 
         legend( "topright", bty = "n",
@@ -1732,8 +1815,6 @@ plotEmpYieldCurves <- function( sims = 1:11,
         MSY_sp[s,p]  <- empMSY
     }
 
-  if( indepVar == "F" )
-
   mtext( side = 1, text = xLab, outer = T, line = 2)
   mtext( side = 2, text = "Eqbm biomass and catch (kt)", outer = T, line = 2 )
 
@@ -1745,6 +1826,243 @@ plotEmpYieldCurves <- function( sims = 1:11,
 
   out
 } # END plotEmpYieldCurves()
+
+# plotEmpYieldCurves
+# Function to plot median simuated yield 
+# resulting from a grid of constant fishing 
+# mortality rates - used for checking the
+# reference point calculations
+plot2dimEmpYieldCurves <- function( sims = 1:200, 
+                                    folder = "SOG_DDM_Fgrid",
+                                    indepVar = "F",
+                                    plotYPRcurves = TRUE,
+                                    redoEmpRefCurves = FALSE )
+{
+  nSims <- length(sims)
+  blobList <- vector(mode = "list", length = nSims)
+
+  .loadSim(sims[1], folder = folder)
+
+  nS <- blob$om$nS
+  nP <- blob$om$nP
+  nT <- blob$om$nT
+  tMP <- blob$om$tMP
+
+  goodReps <- blob$goodReps
+
+
+  # Arrays to hold empirical eqbm yields
+  C_spk     <- array( 0, dim = c(nS,nP,nSims) )
+  B_spk     <- array( 0, dim = c(nS,nP,nSims) )
+  initB_spk <- array( 0, dim = c(nS,nP,nSims) )
+  F_spk     <- array( 0, dim = c(nS,nP,nSims) )
+  E_spk     <- array( 0, dim = c(nS,nP,nSims) )
+  M_spk     <- array( 0, dim = c(nS,nP,nSims) )
+  E_pk      <- array( 0, dim = c(nP,nSims) )
+
+  if(!file.exists(here::here("Outputs",folder,"empRefCurves.RData")) |
+      redoEmpRefCurves )
+  {
+    for( x in sims )
+    {
+      .loadSim(x, folder = folder)
+      C_spk[,,x]  <- apply(X = blob$om$C_ispt[goodReps,,,nT,drop = FALSE], FUN = median, MARGIN = c(2,3), na.rm = T )
+      B_spk[,,x]  <- apply(X = blob$om$SB_ispt[goodReps,,,nT,drop = FALSE], FUN = median, MARGIN = c(2,3), na.rm = T )
+      initB_spk[,,x]  <- apply(X = blob$om$SB_ispt[goodReps,,,tMP-1,drop = FALSE], FUN = median, MARGIN = c(2,3), na.rm = T )
+      F_spk[,,x]  <- apply(X = blob$om$F_ispft[goodReps,,,2,nT,drop = FALSE], FUN = median, MARGIN = c(2,3), na.rm = T )
+      M_spk[,,x]  <- apply(X = blob$om$M_iaxspt[goodReps,2,1,,,nT,drop = FALSE], FUN = median, MARGIN = c(2,3), na.rm = T )
+      E_pk[,x]    <- apply(X = blob$om$E_ipft[goodReps,,2,nT,drop = FALSE], FUN = median, MARGIN = c(2), na.rm = T )
+
+      # Clean up
+      gc()
+    }
+
+    saveEmpRefCurves <- list( C_spk = C_spk,
+                              B_spk = B_spk,
+                              initB_spk = initB_spk,
+                              F_spk = F_spk,
+                              E_spk = E_spk,
+                              M_spk = M_spk,
+                              E_pk  = E_pk )
+
+    save( saveEmpRefCurves, file = here::here("Outputs",folder,"empRefCurves.RData"))
+  } else {
+    # Load ref curve list
+    load(here::here("Outputs",folder,"empRefCurves.RData"))
+
+    C_spk <- saveEmpRefCurves$C_spk
+    B_spk <- saveEmpRefCurves$B_spk
+    initB_spk <- saveEmpRefCurves$initB_spk
+    F_spk <- saveEmpRefCurves$F_spk
+    E_spk <- saveEmpRefCurves$E_spk
+    E_pk  <- saveEmpRefCurves$E_pk 
+  }
+
+
+
+  
+
+  # Pull F based ref curves from RP object
+  refCurves       <- blob$rp[[1]]$refCurves
+  Fvec            <- refCurves$F
+  BeqRefCurve_spf <- refCurves$Beq_spf
+  YeqRefCurve_spf <- refCurves$Yeq_spf
+
+  # Pull effort based ref points
+  EmsyRefPts      <- blob$rp[[1]]$EmsyRefPts
+  Evec            <- refCurves$EffCurves$E
+
+  YeqRefCurve_spe <- refCurves$EffCurves$Yeq_spe
+  BeqRefCurve_spe <- refCurves$EffCurves$Beq_spe
+
+  # There should only be a few initB (based on histFmult levels)
+  initBvals <- unique(as.numeric(initB_spk))
+  nCurves <- length(initBvals)
+
+  Xmsy_spc <- array(0, dim = c(nS,nP,nCurves))
+  Bmsy_spc <- array(0, dim = c(nS,nP,nCurves))
+  MSY_spc <- array(0, dim = c(nS,nP,nCurves))
+
+  
+
+  par(  mfcol = c(nP,nS), 
+        mar = c(1,1.5,1,1.5),
+        oma = c(5,5,3,3) )
+
+  for( s in 1:nS )
+    for( p in 1:nP )
+    {
+      if( indepVar == "F" )
+        maxX <- max(F_spk[s,p,])
+      if( indepVar == "E" )
+        maxX <- max(E_pk[p,],E_spk[s,p,])
+
+      plot( x = c(0,maxX), y = c(0,max(B_spk[s,p,])),
+            type = "n", axes = FALSE,
+            xlab = "", ylab = "" )
+        axis( side = 1 )
+        axis( side = 2, las = 1 )
+        grid()
+        box()
+
+        if( indepVar == "F" )
+        {
+          X     <- F
+          Xvec  <- Fvec
+          Yeq   <- YeqRefCurve_spf[s,p,]
+          Beq   <- BeqRefCurve_spf[s,p,]
+
+          xLab  <- "Fishing Mortality"
+        }
+
+        if( indepVar == "E" )
+        {
+          
+          X     <- E
+          Xvec  <- Evec
+          Yeq   <- YeqRefCurve_spe[s,p,]
+          Beq   <- BeqRefCurve_spe[s,p,]
+
+          xLab  <- "Fishing Effort"
+        }
+
+        ubX <- max(which(Yeq >= 0) )
+
+        # Loop over histFmult factors
+        for( j in 1:nCurves)
+        {
+          initB <- initBvals[j]
+
+          simIdx <- which(initB_spk[s,p,] == initB)
+
+          F <- F_spk[s,p,simIdx]
+          C <- C_spk[s,p,simIdx]
+          B <- B_spk[s,p,simIdx]
+          E <- E_spk[s,p,simIdx]
+
+          actualOrder <- order(F)
+
+          C <- C[actualOrder]
+          B <- B[actualOrder]
+          F <- F[actualOrder]
+          E <- E[actualOrder]
+
+          if(indepVar == "F")
+            X <- F
+          if(indepVar == "E")
+            X <- E
+          
+
+
+
+          CXspline <- splinefun(x = X, y = C)
+          BXspline <- splinefun(x = X, y = B)
+
+          empXmsy  <- try(uniroot(  interval = range(X),
+                                f = CXspline,
+                                deriv = 1 )$root)
+          if( class(empXmsy) == "try-error")
+            empXmsy <- 0
+          
+          empMSY  <- CXspline(empXmsy)
+          empBmsy <- BXspline(empXmsy)
+
+          empXmsy <- round(empXmsy,2)
+          empBmsy <- round(empBmsy,2)
+          empMSY  <- round(empMSY,2)
+
+
+          
+          
+            lines( x = X, y = C,
+                    col = "steelblue", lwd = 2, lty = 1 )
+            lines( x = X, y = B,
+                    col = "black", lwd = 2, lty = 1 )        
+
+
+          legend( "topright", bty = "n",
+                  legend = c( paste(indepVar,"msy = ", empXmsy, sep = "" ),
+                              paste(" MSY = ", empMSY, sep = ""),
+                              paste("Bmsy = ", empBmsy, sep = "") ) )
+
+
+          # Plot some guidelines
+          segments(  x0 = empXmsy, x1 = empXmsy,
+                      y0 = 0, y1 = empBmsy,
+                      lty = 2, col = "red" )
+          segments(  x0 = 0, x1 = empXmsy,
+                      y0 = empMSY, y1 = empMSY,
+                      lty = 2, col = "red" )
+          segments(  x0 = 0, x1 = empXmsy,
+                      y0 = empBmsy, y1 = empBmsy,
+                      lty = 2, col = "red" )
+          
+          Xmsy_spc[s,p,j] <- empXmsy
+          Bmsy_spc[s,p,j] <- empBmsy
+          MSY_spc[s,p,j]  <- empMSY
+        }
+        if(plotYPRcurves)
+        {
+          lines( x = Xvec, y = Yeq,
+                  col = "salmon", lty = 2 )
+          lines( x = Xvec, y = Beq,
+                  col = "black", lty = 2 )
+        }
+    }
+
+  mtext( side = 1, text = xLab, outer = T, line = 2)
+  mtext( side = 2, text = "Eqbm biomass and catch (kt)", outer = T, line = 2 )
+
+
+
+  out <- list(  Xmsy_spc = Xmsy_spc,
+                Bmsy_spc = Bmsy_spc,
+                MSY_spc  = MSY_spc,
+                initB_c  = initBvals )
+
+  out
+} # END plotEmpYieldCurves()
+
 
 # compareRefPts()
 # Compares OM and conditioning fit reference points
@@ -3133,7 +3451,7 @@ plotTulipMt <- function(  obj = blob, nTrace = 3,
   goodReps <- obj$goodReps
 
   M_iaxspt <- obj$om$M_iaxspt[goodReps,,,,,,drop = FALSE]
-  
+
 
   tMP     <- obj$om$tMP
   nS      <- obj$om$nS
@@ -3155,7 +3473,7 @@ plotTulipMt <- function(  obj = blob, nTrace = 3,
                     MARGIN = c(4,5,6), probs = c(0.025, 0.5, 0.975),
                     na.rm = T )
 
-  traces <- sample( 1:dim(M_ipt)[1], size = min(nTrace,nReps)  )
+  traces <- sample( which(goodReps), size = min(nTrace,nReps)  )
 
   stamp <- paste(obj$ctlList$ctl$scenarioName,":",obj$ctlList$ctl$mpName,sep = "")
 
