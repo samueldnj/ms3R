@@ -27,7 +27,7 @@ quantity demanded).
 The biological operating model is an age- and sex-structured, multi-species, 
 multi-area population dynamics model. The model formulation and conditioning
 are described in a previous paper [@johnson2021hierarchical], so we only 
-summarise it here. The operating model was conditioned by on fishery dependent 
+summarise it here. The operating model was conditioned on fishery dependent 
 and independent data sampled from the real DER complex over the time period 
 from 1956 to 2016. Estimates of DER complex life history parameters, commercial 
 trawl catchability scalars, and single-species yield-per-recruit reference 
