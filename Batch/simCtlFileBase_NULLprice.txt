@@ -15,7 +15,7 @@ ctl$perfConF FALSE
 ctl$noProcErr FALSE
 ctl$nCores NULL
 mp$assess$assInt 1
-mp$assess$method "hierProd"
+mp$assess$method "simAssErrors"
 mp$assess$idxPoints 3
 mp$assess$idxScalar 1
 mp$assess$idxFleets 4
