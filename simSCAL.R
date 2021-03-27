@@ -770,10 +770,16 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     # Population weight at age etc
     om$W_axspt[,1,1,,1:(tMP-1)]   <- repObj$W_apt[,,1:(tMP-1)]
     om$W_axspt[,1,1,,tMP:nT]      <- repObj$projWt_ap
-    
+
     # Fleet weight-at-age etc.
     om$W_axspft[,1,1,,1:repObj$nG,1:(tMP-1)] <- repObj$W_apgt[,,,1:(tMP-1)]
     om$W_axspft[,1,1,,1:repObj$nG,tMP:nT]    <- aperm(repObj$projWt_agp,c(1,3,2))
+
+    if(opMod$forceMeanWtAge)
+    {
+      om$W_axspt[,1,1,,1:(tMP-1)]      <- repObj$projWt_ap      
+      om$W_axspft[,1,1,,1:repObj$nG,1:(tMP-1)]    <- aperm(repObj$projWt_agp,c(1,3,2))      
+    }
 
     if( nF > repObj$nG)
     {
@@ -999,19 +1005,24 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     {
       # Pull initial N multiplier in case of non-eq init
       for( s in 1:nS )
-      {  
+      { 
+        if( !opMod$initUnfished)
           for( x in 1:nX )
             N_axspt[,x,s,p,t] <- obj$om$initSurv_axsp[,x,s,p] * Rinit_sp[s,p] * exp(om$sigmaR_sp[s,p] * err$omegaRinit_asp[,s,p])
+        
+        if( opMod$initUnfished )
+          for( x in 1:nX )
+            N_axspt[,x,s,p,t] <- obj$om$initSurv_axsp[,x,s,p] * R0_sp[s,p]
 
-
-        R_spt[s,p,t] <- Rinit_sp[s,p] * obj$om$initSurv_axsp[1,1,s,p] * exp(om$sigmaR_sp[s,p] * err$omegaRinit_asp[1,s,p])
+        R_spt[s,p,t] <- N_axspt[1,1,s,p,t]
 
         # Fix Rt at historical values from rep file or posterior draws
-        if(!ctlList$opMod$posteriorSamples)
-          R_spt[s,p,t] <-  repObj$R_pt[p,t]
 
-        if(ctlList$opMod$posteriorSamples)
-          R_spt[s,p,t] <-  mcmcPar$R_ipt[postDrawIdx,p,t]
+        # if(!ctlList$opMod$posteriorSamples)
+        #   R_spt[s,p,t] <-  repObj$R_pt[p,t]
+
+        # if(ctlList$opMod$posteriorSamples)
+        #   R_spt[s,p,t] <-  mcmcPar$R_ipt[postDrawIdx,p,t]
 
 
       }  
@@ -1369,6 +1380,8 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     #   - Exploitation rates, reported as Fs
     #   - end of time-step number at age (might do this for both cts and disc)
 
+    # browser()
+
     # Pull vulnerable numbers and biomass at age
     vN_axspf          <- discRemList$vN_axspf
     vB_axspft[,,,,,t] <- discRemList$vB_axspf
@@ -1378,7 +1391,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     F_spft[,,,t]  <- TAC_spft[,,,t] / vB_spft[,,,t]
 
     for( fIdx in sokFleets)
-        F_spft[,,fIdx,t] <- tmpP_spf[,,fIdx] * (1 - exp(-pondM_ft[fIdx,t])) / vB_spft[,,fIdx,t]
+      F_spft[,,fIdx,t] <- tmpP_spf[,,fIdx] * (1 - exp(-pondM_ft[fIdx,t])) / vB_spft[,,fIdx,t]
     
     # Pull spawn timing numbers at age
     spawnN_axsp[1:nA,,,] <- discRemList$spawnN_axsp
@@ -3974,7 +3987,6 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
       if(!is.null(opMod$lastIdxOverwrite))
         lastDevIdx <- opMod$lastIdxOverwrite
 
-      browser()
 
       if(lastDevIdx > 0)
       {
@@ -3992,6 +4004,8 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   obj$om$alloc_spf[is.nan(obj$om$alloc_spf)] <- 0
 
   obj$errors$omegaRinit_asp         <- repObj$omegaRinit_asp # Initialisation errors
+  if(!is.null(opMod$initDevsMult))
+    obj$errors$omegaRinit_asp <- errors$omegaRinit_asp * opMod$initDevsMult
   
   obj$errors$delta_spft[nS+1,1:nP,,] <- rnorm(nT * nP * nF)
   obj$errors$delta_spft[1:(nS+1),nP+1,,] <- rnorm(nT * (nS + 1)*nF)
@@ -4357,6 +4371,9 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   obj$errors$delta_spft[1,1:nP,histF,histdx]   <- repObj$z_pgt[1:nP,,histdx,drop = FALSE] # obs errors
   for( p in 1:nP)
     obj$errors$omegaRinit_asp[,1,p]  <- repObj$fDevs_ap[,p] # Initialisation errors
+
+  if(!is.null(ctlList$opMod$initDevsMult))
+    obj$errors$omegaRinit_asp <- obj$errors$omegaRinit_asp * ctlList$opMod$initDevsMult
   
   obj$errors$obsErrMult_spft         <- array(1, dim = c(nS,nP,nF,nT))
 
@@ -4520,6 +4537,8 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
 
   obj <- .calcTimes( obj )
 
+  obj$mp$hcr$TAC_spft <- obj$mp$hcr$TAC_spft * ctlList$mp$omni$histFmult
+  obj$mp$hcr$TAC_spt <- obj$mp$hcr$TAC_spt * ctlList$mp$omni$histFmult
   obj$om$F_spft[,,,1:(tMP-1)] <- obj$om$F_spft[,,,1:(tMP-1)] * ctlList$mp$omni$histFmult
   obj$om$C_spft[,,,1:(tMP-1)] <- obj$om$C_spft[,,,1:(tMP-1)] * ctlList$mp$omni$histFmult
 
