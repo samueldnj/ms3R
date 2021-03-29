@@ -134,7 +134,7 @@ opMod$price_s c(Dover=0.62,English=1.21,Rock=0.66,Petrale=2.590,Arrowtooth=0.990
 opMod$varCostPerKt 0.096
 opMod$discountRate 0.05
 opMod$interestRate 0.0
-opMod$lambda_s c(-0.6481,-1.561,-1.655)
+#opMod$lambda_s c(-0.6481,-1.561,-1.655)
 opMod$alpha_s c(2.32,6.51,12.70)
 opMod$adjC_s c(9.645,0.387,0)
 opMod$incomeCoeff_s c(-0.05141,-1.78,-3.43)
