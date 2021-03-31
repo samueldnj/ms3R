@@ -95,7 +95,7 @@ mp$omni$hiDepProb 0.05
 mp$omni$expParMult 1
 mp$omni$inputF NULL
 mp$omni$inputE NULL
-mp$omni$leastSquaresWt .1
+mp$omni$leastSquaresWt .001
 mp$omni$avgCatWt 0.
 mp$omni$totCatWt 1.0
 mp$omni$sumCatWt .0
@@ -106,9 +106,9 @@ mp$omni$probDepWt 0.0
 mp$omni$closedWt 0
 mp$omni$AAVWt 0
 mp$omni$catDiffWt .0
-mp$omni$effDiffWt 1.0
+mp$omni$effDiffWt 0.1
 mp$omni$initCatDiffWt .0
-mp$omni$initEffDiffWt 1
+mp$omni$initEffDiffWt .1
 mp$omni$penType "linear"
 mp$omni$linBeta 3
 mp$omni$baseEffort "MSY"

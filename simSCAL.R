@@ -3040,7 +3040,8 @@ solvePTm <- function( Bmsy, B0 )
     # Function to run asOM and return objective function
     val <- runModel( pars, obj )$objFun
 
-    
+    cat("objFunVal = ", val,"\n",sep="")
+
     val
   }     # END function getObjFunctionVal
 
@@ -3087,11 +3088,11 @@ solvePTm <- function( Bmsy, B0 )
     opt <- optim( par = initPars, fn = getObjFunctionVal,
                   method = "BFGS", obj = obj,
                   # control=list(maxit=10000, reltol=0.01 ) )
-                  control=list(maxit=3000, reltol=0.001, trace = mp$omni$trace ) )
+                  control=list(maxit=200, reltol=0.01, trace = mp$omni$trace ) )
 
     opt <- optim( par = opt$par, fn = getObjFunctionVal,
                   method = "Nelder-Mead", obj = obj,
-                  control=list(maxit=3000, reltol=0.001,ndeps=c(.01,.01), 
+                  control=list(maxit=200, reltol=0.01,ndeps=c(.01,.01), 
                   trace = mp$omni$trace ) )
 
     message( " (.solveProjPop) Optimisation for omniscient manager completed with f = ", 
