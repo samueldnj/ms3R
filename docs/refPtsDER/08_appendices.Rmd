@@ -2,8 +2,115 @@
 
 # (APPENDIX) Appendices {-}
 
+# Appendix A: DER complex demand analysis
 
-# Appendix A: DER complex time-varying inverse demand curves
+\clearpage
+\setcounter{table}{0}  
+\renewcommand{\thetable}{A\arabic{table}} 
+\setcounter{figure}{0} 
+\renewcommand{\thefigure}{A\arabic{figure}}
+
+We assumed that the unit price $v_s$ ($/kg) of each DER complex species
+$s$ followed a downward sloping demand curve for total species $s$ catch
+(quantity demanded) with a constant elasticity of demand. Demand curve
+identifiability was a problem, given the low sample size (11 years) 
+economic data and the sometimes positive relationship between BC catch 
+and the unit price, indicating either demand or supply shocks that lead
+to correlation between explanatory variables (i.e., price) and the
+residual in the quantity demanded, also known as endogeneity
+[@angrist2008mostly]. 
+
+DER complex demand curves were fit to landings and ex-vessel price
+data. Average ex-vessel unit price ($/kg) data for the DER complex was 
+obtained from dockside fish-slips for the BC trawl fishery from 2006 - 2016
+[Add footnote for source], and calculated as total ex-vessel revenues 
+divided by total landings. All ex-vessel prices were specific to the bottom 
+trawl fishery except for English Sole in 2016, which was an outlier with 
+a trawl ex-vessel price almost three times the 2006 - 2016 average, and so 
+was replaced with the 2016 ex-vessel price for English sole averaged across 
+all available gear types. All prices were then adjusted to 2016 dollars
+by using the annual average CPI index [statsCan footnote].
+
+For the purposes of the demand analysis, annual catch of Dover and 
+English soles on the US west coast (i.e., Washington, Oregon, and California,
+but not Alaska) was added to the BC catch. The BC groundfish
+trawl fishery is known coloquially as an "I-5 Fishery" (pers comm. 
+Chris Sporer?), because, in addition to local BC customers, fish caught in 
+BC are sold to restaurants and retailers all along the I-5 highway. 
+Similarly, fish caught on the US west coast are sold in BC. Therefore, the 
+market price for BC trawl catch is dependent on the catch from the US west 
+coast. [Need a table of catches and the references for them]
+
+To reduce endogeneity, we used a 2-stage least squares (2SLS) regression 
+to predict the unit price using instrumental variables 
+[@angrist2001instrumental]. The instrument was the unit cost of supplying 
+catch of each species, estimated via our assumed fuel costs, defined as 
+\begin{equation}
+w_{s,t} = \frac{\sum_{p} E_p \cdot c_p}{\sum_p C_{s,p}},
+\end{equation}.
+where $c_p$ is derived in the methods section [NUM]. The first stage 
+then regressed the observed ex-vessel log-price 
+$v_{s,t}$ for species $s$ in year $t$ year on the log-cost of supply 
+\begin{equation}
+\log v_{s,t} = \alpha_{0,s} + \alpha_{1,s} \log w_{s,t},
+\end{equation}
+and use the resulting coefficents $\alpha_{i,s}$ to predict a
+unit price $\hat{v}_{s,t}$ with less (or no) endogeneity.
+The predicted price $\hat{v}_{s,t}$ is then used as an explanatory
+variable in the second stage regression for the demand curve
+\begin{equation}
+\log C_{s,t} = \beta_{0,s} + \sum_{s'} \beta_{1,s,s'} \log \hat{v}_{s',t} + \beta_{2,s} y_t,
+\end{equation}
+where $y_t$ is the British Columbia GDP per capita in year $t$. The
+coefficients $\beta_{1,s,s'=s}$ represent the own-price elasticity of 
+demand for species $s$, and $\beta_{1,s,s'\neq s}$ are the cross-price
+elasticities of demand that indicate the extent of substution of each 
+species in response to changes in price [@jaffry1999long; 
+@cheng1988demand].
+
+Results of the 2SLS regression were mixed. Coefficients from price 
+regressions on cost of fishing instruments were not significant
+at the 0.05 level (Table A1). Despite the low explanatory power
+of the fishing cost instrument, IV estimates of unit prices showed
+that English and Rock sole both had elastic demand (Table A2). In 
+contrast, the Dover sole model showed that demand for Dover sole was 
+inelastic, with low significance ($p = 0.272$). Low significance for 
+Dover sole was expected, as the catch and price data show a 
+relatively flat relationship, even after the IV regression, that would be 
+fit equally well by many different coefficient values (Fig A1). However, 
+the elasticity of demand relationship is sufficient for the purpose of
+simulating demand in model projections, as the curve fits the data, 
+indicating a sensible market quality in a downward sloping demand 
+curve [@pascoe2018offsetting], and at $p = 0.272$ the probability of 
+the own-price elasticity of demand being a spurious estimate (i.e., 
+produced by the null hypothesis) is still relatively low despite the 
+uninformative data.
+
+To simulate price as a function of catch (i.e., the inverse demand 
+relationship) in model projections, we made a three simplifying 
+assumptions. First, we refit each demand relationship with only the 
+significant predictor variables for English and Rock soles (i.e., 
+own-price elasticity of demand and GDP per capita), and with own-price 
+elasticity only for Dover sole (Table A3). Second, we assumed that US 
+West Coast Dover and English sole catches were exogenous and fixed at the 
+average catch for the 2006 - 2016 time period. Finally, we assumed that 
+BC GDP per capita grew at the fixed rate of 3.9\% per year [footnote
+with link to BC economic forecast doc].
+
+
+<!-- \begin{equation} 
+v_{s}(\sum_{p} C_{s,p}) = v^*_{s} \left( \frac{\sum_p C_{s,p}}{ \sum_p MSY_{SS,s,p}}  \right) ^{1/\lambda_s}
+\end{equation}
+where $v^*{s}$ was the 2016 reference price of species $s$ when catch 
+was the sum of single-species MSY for each area, and $\lambda_s < 0$ is 
+the price elasticity of demand [@varian1992microeconomic]. The price 
+elasticity of demand $\lambda_s$ and 2016 reference price $v^*_s$ were 
+found by fitting a time-varying inverse demand curve to average ex-vessel 
+prices and catch data between 2006 and 2016 (see Appendix B). Modeling 
+price as a decreasing function of quantity supplied captured the incentive 
+of harvesters to reduce catch and keep prices higher through artificial 
+scarcity, which results in a transfer of benefits (surplus) from consumers 
+to producers [@pascoe2018offsetting]. 
 
 We assumed that ex-vessel unit prices ($/kg) for each DER complex 
 species $s$ followed a time-varying inverse demand curve
@@ -46,7 +153,7 @@ quantities supplied $C_{s,p,t}$ given a constant elasticity of
 demand $\lambda_s$. Covariance $\Sigma$ of the random walk jumps
 $\delta_{s,t}$ was derived from the estimated jumps themselves, rather
 than within the model.
-
+ -->
 
 
 
