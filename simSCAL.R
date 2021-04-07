@@ -769,16 +769,19 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
 
     # Population weight at age etc
     om$W_axspt[,1,1,,1:(tMP-1)]   <- repObj$W_apt[,,1:(tMP-1)]
-    om$W_axspt[,1,1,,tMP:nT]      <- repObj$projWt_ap
+    om$W_axspt[,1,1,,tMP:nT]      <- repObj$meanWt_ap
 
     # Fleet weight-at-age etc.
     om$W_axspft[,1,1,,1:repObj$nG,1:(tMP-1)] <- repObj$W_apgt[,,,1:(tMP-1)]
-    om$W_axspft[,1,1,,1:repObj$nG,tMP:nT]    <- aperm(repObj$projWt_agp,c(1,3,2))
+    om$W_axspft[,1,1,,1:repObj$nG,tMP:nT]    <- aperm(repObj$meanWt_agp,c(1,3,2))
 
     if(opMod$forceMeanWtAge)
     {
-      om$W_axspt[,1,1,,1:(tMP-1)]      <- repObj$projWt_ap      
-      om$W_axspft[,1,1,,1:repObj$nG,1:(tMP-1)]    <- aperm(repObj$projWt_agp,c(1,3,2))      
+      for( t in 1:(tMP-1))
+      {
+        om$W_axspt[,1,1,,t]               <- repObj$meanWt_ap      
+        om$W_axspft[,1,1,,1:repObj$nG,t]  <- aperm(repObj$meanWt_agp,c(1,3,2))
+      }
     }
 
     if( nF > repObj$nG)
@@ -1014,6 +1017,8 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
           for( x in 1:nX )
             N_axspt[,x,s,p,t] <- obj$om$initSurv_axsp[,x,s,p] * R0_sp[s,p]
 
+
+
         R_spt[s,p,t] <- N_axspt[1,1,s,p,t]
 
         # Fix Rt at historical values from rep file or posterior draws
@@ -1049,7 +1054,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
               if(!is.null(opMod$lastIdxOverwrite))
                 lastIdx <- opMod$lastIdxOverwrite
 
-              if(t<=lastIdx)
+              if(t<=lastIdx & opMod$fixCondRecruits )
               {
 
                 # Fix Rt at historical values from rep file or posterior draws
@@ -1062,13 +1067,10 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
               }  
 
               # Simulate Beverton-Holt Recruitments for years where not estimated
-              if(t>lastIdx)
+              if(t>lastIdx | !opMod$fixCondRecruits)
               {  
                 if(obj$ctlList$opMod$recType =='bevHolt')
                 {
-
-
-                  
                   R_spt[s,p,t] <- reca_sp[s,p] * SB_spt[s,p,t-1] / (1 + recb_sp[s,p] * SB_spt[s,p,t-1])
 
                   if( !obj$ctlList$ctl$noProcErr)
@@ -1116,8 +1118,8 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   # Compute total age2+ biomass at beginning of time step - updated to use juveMage, currently path specific
   B_spt[,,t]    <- apply( X = B_axspt[2:nA,,,,t,drop = FALSE], FUN = sum, MARGIN = 3:4, na.rm = T )
 
-  # Switch out Mt for pulseMt if spawning biomass is below the pulse limit
-  if( t >= tMP | om$densityDepM == 1 )
+  # Density dependent M
+  if( om$densityDepM == 1 )
   {
     totB0_sp <- rp$totB0_sp
     for(s in 1:nS)
@@ -1127,14 +1129,17 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
         M_axspt[2:nA,1:nX,s,p,t] <- repObj$M_p[p] + exp( - om$m1_sp[s,p] * B_spt[s,p,t] / totB0_sp[s,p])
         M_axspt[1,1:nX,s,p,t] <- repObj$Mjuve_p[p]
       }
-
-    if(om$densityDepM == 0)
-      for(s in 1:nS)
-        for(p in 1:nP)
-        {
-          if( SB_spt[s,p,t-1] < pulseLim_sp[s,p] ) 
-            M_axspt[2:nA,,s,p,t] <- obj$om$pulseM_axspt[2:nA,,s,p,t]
-        }  
+  }
+  
+  # Pulse Mt
+  if( om$densityDepM == 0 & t >= tMP )
+  {
+    for(s in 1:nS)
+      for(p in 1:nP)
+      {
+        if( SB_spt[s,p,t-1] < pulseLim_sp[s,p] ) 
+          M_axspt[2:nA,,s,p,t] <- obj$om$pulseM_axspt[2:nA,,s,p,t]
+      } 
 
   }
 
@@ -1361,6 +1366,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
       browser()
 
     # Now apply discrete fisheries 
+    repObj <<- repObj
     discRemList <- applyDiscreteFisheries(  N_axsp          = tmpN_axsp,
                                             sel_axspf       = sel_axspft[,,,,,t],
                                             W_axspf         = tmpW_axspf,
@@ -1409,6 +1415,8 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   SB_asp <- array(NA, dim = c(nA,nS,nP))
   SB_asp[1:nA,1:nS,1:nP] <- matAge_asp[1:nA,1:nS,1:nP] * spawnN_axsp[1:nA,nX,1:nS,1:nP] * W_axspt[1:nA,nX,1:nS,1:nP,t]
   SB_spt[,,t] <- apply(X = SB_asp, FUN = sum, MARGIN = c(2,3), na.rm = T )
+
+  # browser()
 
   # Calculate spawning biomass + surviving ponded fish after applying post-ponding M
   # survP_sp <- array(NA, dim = c(nS,nP))
@@ -4300,10 +4308,9 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
       # if(repObj$avgRcode_p[p]==0)
       if(ctlList$opMod$recType == 'bevHolt')
       {
-        
-        if(!ctlList$opMod$posteriorSamples & lastIdx > 0)
-          obj$errors$omegaR_spt[s,p,histdx[1:lastIdx]] <- repObj$SRdevs_pt[p,1:lastIdx]
 
+        if(!ctlList$opMod$posteriorSamples & lastIdx > 0 )
+          obj$errors$omegaR_spt[s,p,histdx[1:lastIdx]] <- repObj$SRdevs_pt[p,1:lastIdx]
 
         if(ctlList$opMod$posteriorSamples)
         {
@@ -4328,9 +4335,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
           
           if( lastIdx > 0)
             obj$errors$omegaR_spt[s,p,histdx[firstdx:lastIdx]]   <- SRdevs_t[firstdx:lastIdx]
-
-        }  
-          
+        }          
       }  
 
       # Average R recruitment
@@ -5660,10 +5665,12 @@ applyDiscreteFisheries <- function( N_axsp,
       # Remove from general population, update lastFleetTime
       tmpN_axsp[1:nA,,,] <- tmpN_axsp[1:nA,,,] - C_axspf[,,,,fIdx]
     }
+    
     lastFleetTime <- fleetTiming_f[fIdx]
 
-    # FIRST HACK
-    tmpN_axsp[tmpN_axsp < 0] <- 1e-3
+    # Try to mimic the posfun here
+    eps <- 1e-3
+    tmpN_axsp[tmpN_axsp < eps] <- eps/(2-tmpN_axsp[tmpN_axsp < eps]/eps)
   }
 
   if( spawnTiming > lastFleetTime )
@@ -5689,7 +5696,7 @@ applyDiscreteFisheries <- function( N_axsp,
     # calculate remaining natural mortality and apply to 
     fracM     <- 1 - fleetTiming_f[fIdx]
 
-    endN_axsp[1:nA,,,] <- endN_axsp[1:nA,,,] + C_axspf[1:nA,,,,fIdx] * exp(-fracM*M_axsp[1:nA,,,]) * exp(-pondM_f[fIdx])
+    endN_axsp[1:nA,,,] <- endN_axsp[1:nA,,,] + C_axspf[1:nA,,,,fIdx] * exp(-fracM*M_axsp[1:nA,,,] - pondM_f[fIdx] )
 
     #Apply post-ponding mortality so catch for SOK fleets represents dead fish
     Cw_axspf[1:nA,,,,fIdx] <- Cw_axspf[1:nA,,,,fIdx] * (1-exp(-pondM_f[fIdx]))

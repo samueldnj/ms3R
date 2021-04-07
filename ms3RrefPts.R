@@ -27,6 +27,7 @@ calcRefPts <- function( obj )
   h_sp      <- obj$om$h_sp
   B0_sp     <- obj$om$B0_sp
 
+
   # temporarily use calcPerRecruit to recalc R0
   tmp           <- .calcPerRecruit( f = 0, obj = obj )
   yprList       <- tmp$yprList
@@ -66,6 +67,7 @@ calcRefPts <- function( obj )
   obj$refPts$ssbpr_sp     <- yprList$ssbpr_sp
   obj$refPts$R0_sp        <- R0_sp
   obj$refPts$totB0_sp     <- totB0_sp
+  obj$refPts$totbpr_sp    <- yprList$totbpr_sp
   obj$refPts$rec.a_sp     <- obj$rec.a_sp
   obj$refPts$rec.b_sp     <- obj$rec.b_sp
   obj$refPts$B0_sp        <- refCurves$Beq_spf[,,1,drop = FALSE]
