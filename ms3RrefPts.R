@@ -133,28 +133,9 @@ solveSpline <- function(  Yvals, Xvals, value = 0, bounds = c(0,10),
 
   stockNames <- dimnames(Yeq_spe)[[2]]
 
-  if(!is.null(obj$opMod$priceModel))
-  {
-    priceModel <- readRDS(file = file.path("history",obj$opMod$priceModel))
-
-    demCurves  <- priceModel$demCurvesOwnElast_s
-
-    for(s in 1:nS)
-    {
-      obj$opMod$lambda_s[s]       <- coef(demCurves[[s]])[2]
-      obj$opMod$alpha_s[s]        <- coef(demCurves[[s]])[1]
-      obj$opMod$incomeCoeff_s[s]  <- coef(demCurves[[s]])[length(coef(demCurves[[s]]))]
-
-    }
-
-    obj$opMod$adjC_s        <- apply(X = priceModel$UScatch_st, FUN = mean, MARGIN = 1)
-    obj$opMod$varCostPerKt  <- priceModel$fuelPrice
-    obj$opMod$bcIncome      <- priceModel$bcIncome_t[11]
-  }
-
   opMod         <- obj$opMod
   crewShare     <- opMod$crewShare
-  lambda_s      <- opMod$lambda_s
+  invlambda_s   <- opMod$invlambda_s
   alpha_s       <- opMod$alpha_s
   adjC_s        <- opMod$adjC_s
   incomeCoeff_s <- opMod$incomeCoeff_s
@@ -198,8 +179,10 @@ solveSpline <- function(  Yvals, Xvals, value = 0, bounds = c(0,10),
 
     for( s in 1:nS )
     {
-      # browser()
-      landVal_spe[s,p,] <- (exp(-alpha_s[s]) * (Yeq_spe[s,p,] + adjC_s[s]) * bcIncome^(-incomeCoeff_s[s]))^(-1/lambda_s[s])
+      lnP_e     <- alpha_s[s] + invlambda_s[s] * log(Yeq_se[s,] + adjC_s[s]) + incomeCoeff_s[s] * log(bcIncome)
+      P_e       <- exp(lnP_e)
+
+      landVal_spe[s,p,] <- P_e
 
 
       econRev_spe[s,p,] <- Yeq_spe[s,p,] * landVal_spe[s,p,] * (1 - crewShare)
@@ -261,7 +244,7 @@ solveSpline <- function(  Yvals, Xvals, value = 0, bounds = c(0,10),
                                 baseE = 1,
                                 # control = list(trace = 6),
                                 optimise = TRUE,
-                                lambda_s = lambda_s,
+                                invlambda_s = invlambda_s,
                                 adjC_s = adjC_s,
                                 alpha_s = alpha_s,
                                 incomeCoeff_s = incomeCoeff_s,
@@ -278,7 +261,7 @@ solveSpline <- function(  Yvals, Xvals, value = 0, bounds = c(0,10),
                                       prop = FALSE,
                                       baseE = 1,
                                       optimise = FALSE,
-                                      lambda_s = lambda_s,
+                                      invlambda_s = invlambda_s,
                                       adjC_s = adjC_s,
                                       alpha_s = alpha_s,
                                       incomeCoeff_s = incomeCoeff_s,
@@ -323,7 +306,7 @@ solveSpline <- function(  Yvals, Xvals, value = 0, bounds = c(0,10),
                         baseE = e,
                         # control = list(trace = 6),
                         optimise = TRUE,
-                        lambda_s = lambda_s,
+                        invlambda_s = invlambda_s,
                         adjC_s = adjC_s,
                         alpha_s = alpha_s,
                         incomeCoeff_s = incomeCoeff_s,
@@ -339,7 +322,7 @@ solveSpline <- function(  Yvals, Xvals, value = 0, bounds = c(0,10),
                                         prop = TRUE,
                                         baseE = e,
                                         optimise = FALSE,
-                                        lambda_s = lambda_s,
+                                        invlambda_s = invlambda_s,
                                         adjC_s = adjC_s,
                                         alpha_s = alpha_s,
                                         incomeCoeff_s = incomeCoeff_s,
@@ -422,7 +405,7 @@ coastWideEconObjFun <- function(  lnE_p = c(0,0,0),
                                   prop = FALSE,
                                   baseE = 10,
                                   optimise = TRUE,
-                                  lambda_s = c(Inf,Inf,Inf),
+                                  invlambda_s = c(Inf,Inf,Inf),
                                   alpha_s,
                                   incomeCoeff_s,
                                   effortPrice_p,
@@ -459,20 +442,10 @@ coastWideEconObjFun <- function(  lnE_p = c(0,0,0),
   C_s   <- apply( X = C_sp,   FUN = sum, MARGIN = 1 )
 
   # use coastwide catch to figure out species landed value
-  if(is.null(demCurves))
-    landVal_s <- (exp(-alpha_s) * (C_s + adjC_s) * income^(-incomeCoeff_s))^(-1/lambda_s)
+  lnP_s     <- alpha_s + invlambda_s * log(C_s + adjC_s+1e-9) + incomeCoeff_s * log(income)
+  landVal_s <- exp(lnP_s)
 
-  if(!is.null(demCurves))
-  {
-    opt <- try(optim( par = rep(4,nS), fn = fitPriceObjFun,
-                      priceModels = demCurves,
-                      y = log(income),
-                      targC_s = C_s + 1e-9, UScatch_s = adjC_s,
-                      fit = TRUE ))
-
-    landVal_s <- exp(opt$par)
-  }
-
+  
   for( s in 1:nS )
     for( p in 1:nP )
     {

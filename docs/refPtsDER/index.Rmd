@@ -26,7 +26,7 @@ lineno: true
 csl-refs: true
 params:
   fit: "fit_base_MCMC"
-  sim: "sim_baseRun"
+  sim: "sim_baseRun_invDem"
   baseDir: "docs/refPtsDER/data"
   redoPlots: TRUE
 numbersections: true
@@ -143,6 +143,7 @@ species <- reports$ctlList$data$species
 stock   <- reports$ctlList$data$stock
 fleets  <- reports$gearLabs
 
+priceModel <- readRDS("./data/priceModelIV.rds")
 
 source(here::here("stats.R"))
 source(here::here("ms3Rplots.R"))

@@ -3040,8 +3040,6 @@ solvePTm <- function( Bmsy, B0 )
     # Function to run asOM and return objective function
     val <- runModel( pars, obj )$objFun
 
-    cat("objFunVal = ", val,"\n",sep="")
-
     val
   }     # END function getObjFunctionVal
 
@@ -3805,6 +3803,48 @@ combBarrierPen <- function( x, eps,
       obj$mp$hcr$Fref_spt[,,t] <- inputHR_sp
   }
 
+
+  # Pull price model info
+  if(!is.null(ctlList$opMod$priceModel))
+  {
+    priceModelList <- readRDS(file = file.path("history",ctlList$opMod$priceModel))
+    
+    invDemCurves <- priceModelList$invDemCurvesOwnElast_s
+
+    obj$ctlList$opMod$priceModel  <- priceModelList
+
+    # Overwrite lambda_s
+    for(s in 1:nS)
+    {
+      obj$ctlList$opMod$alpha_s[s]      <- coef(invDemCurves[[s]])[1]
+      obj$ctlList$opMod$invlambda_s[s]  <- coef(invDemCurves[[s]])[2]
+      if( length(coef(invDemCurves[[s]])) == 3 )
+        obj$ctlList$opMod$incomeCoeff_s[s] <- coef(invDemCurves[[s]])[3]
+    }
+
+    obj$ctlList$opMod$adjC_s        <- apply(X = priceModelList$UScatch_st, FUN = mean, MARGIN = 1)
+    obj$ctlList$opMod$varCostPerKt  <- priceModelList$fuelPrice
+    obj$ctlList$opMod$bcIncome      <- priceModelList$bcIncome_t[11]
+    
+
+    obj$om$GDPperCap_t[tMP - (11:1)]  <- priceModelList$bcIncome_t
+    obj$om$GDPperCap_t[tMP:nT]        <- priceModelList$bcIncome_t[11]*(1+opMod$GDPgrowth)^(((tMP):nT)-tMP+1) 
+    
+    # new demand curve has no time-varying behaviour - 
+    # that requires shocks that we will leave out for now
+
+    # # Just take variance if not interested in correlations
+    # if( !ctlList$opMod$corrPriceDevs)
+    #   priceDevCovMat <- diag(diag(priceDevCovMat))
+
+    # obj$om$minPrice_s     <- priceFlexModel$minP_s
+    # obj$om$maxPrice_s     <- priceFlexModel$maxP_s
+
+    # historical prices
+    obj$om$landVal_st[,tMP - (11:1)]    <- priceModelList$P_st
+    # obj$om$basePrice_st[,tMP - (11:1)]  <- priceFlexModel$refPrice_st
+  }
+
   # Now we have enough info to calculate reference points
   stime <- Sys.time()
   message(" (.condMS3pop) Calculating Fmsy and Emsy reference points\n")
@@ -3929,11 +3969,11 @@ combBarrierPen <- function( x, eps,
   obj$om$fleetNames     <- dimnames(ctlList$opMod$histRpt$vB_spft)[[3]]
 
   obj$om$price_s        <- ctlList$opMod$price_s[obj$om$speciesNames]
-  obj$om$alphaU         <- ctlList$opMod$alphaU
-  obj$om$ut_50          <- ctlList$opMod$ut_50
-  obj$om$ut_95          <- ctlList$opMod$ut_95
+  # obj$om$alphaU         <- ctlList$opMod$alphaU
+  # obj$om$ut_50          <- ctlList$opMod$ut_50
+  # obj$om$ut_95          <- ctlList$opMod$ut_95
 
-  # Fill in economic parameters
+
   
 
   obj$om$minPrice_s     <- 0.8 * ctlList$opMod$price_s[obj$om$speciesNames]
@@ -3945,41 +3985,6 @@ combBarrierPen <- function( x, eps,
   }
 
   priceDevCovMat <- diag(ctlList$opMod$priceSD^2,nS)
-  if(!is.null(ctlList$opMod$priceModel))
-  {
-    priceModelList <- readRDS(file = file.path("history",ctlList$opMod$priceModel))
-    
-    demCurves <- priceModelList$demCurvesOwnElast_s
-
-    obj$ctlList$opMod$priceModel  <- priceModelList
-
-    # Overwrite lambda_s
-    for(s in 1:nS)
-    {
-      obj$ctlList$opMod$lambda_s[s] <- coef(demCurves[[s]])[2]
-      obj$ctlList$opMod$alpha_s[s] <- coef(demCurves[[s]])[1]
-    }
-    obj$ctlList$opMod$adjC_s <- apply(X = priceModelList$UScatch_st, FUN = mean, MARGIN = 1)
-    obj$ctlList$opMod$varCostPerKt <- priceModelList$fuelPrice
-    
-
-    obj$om$GDPperCap_t[tMP - (11:1)] <- priceModelList$bcIncome_t
-    obj$om$GDPperCap_t[tMP:nT] <- priceModelList$bcIncome_t[11]*(1+opMod$GDPgrowth)^(((tMP):nT)-tMP+1) 
-    
-    # new demand curve has no time-varying behaviour - 
-    # that requires shocks that we will leave out for now
-
-    # # Just take variance if not interested in correlations
-    # if( !ctlList$opMod$corrPriceDevs)
-    #   priceDevCovMat <- diag(diag(priceDevCovMat))
-
-    # obj$om$minPrice_s     <- priceFlexModel$minP_s
-    # obj$om$maxPrice_s     <- priceFlexModel$maxP_s
-
-    # historical prices
-    obj$om$landVal_st[,tMP - (11:1)]    <- priceModelList$P_st
-    # obj$om$basePrice_st[,tMP - (11:1)]  <- priceFlexModel$refPrice_st
-  }
 
   # # Make a series of logit base prices, for simulating inside
   # # bounds
@@ -4608,31 +4613,24 @@ combBarrierPen <- function( x, eps,
   if( t >= tMP-11 )
   {
 
-    lambda_s  <- opMod$lambda_s
-    C_s       <- apply( X = C_spt[,,t], FUN = sum, MARGIN = 1 )
-    MSY_sp    <- rp$FmsyRefPts$YeqFmsy_sp
-    MSY_s     <- apply(X = MSY_sp, FUN = sum, MARGIN = 1)
-    i         <- opMod$interestRate
-
-    priceModel <- opMod$priceModel
-
-    UScatch_s <- apply(X = priceModel$UScatch_st, FUN = mean, MARGIN = 1)
     
-    bcIncome <- om$GDPperCap_t[t]
+    invlambda_s   <- opMod$invlambda_s
+    alpha_s       <- opMod$alpha_s
+    adjC_s        <- opMod$adjC_s
+    incomeCoeff_s <- opMod$incomeCoeff_s
+    bcIncome      <- om$GDPperCap_t[t]
 
-    demCurves <- priceModel[["demCurvesOwnElast_s"]]
+    C_s           <- apply( X = C_spt[,,t], FUN = sum, MARGIN = 1 )
+    i             <- opMod$interestRate
 
-    # Add 1e-9 to target catch so zeroes don't throw an error
-    opt <- try(optim( par = rep(4,nS), fn = fitPriceObjFun,
-                  priceModels = demCurves,
-                  y = log(bcIncome),
-                  targC_s = C_s + 1e-9, UScatch_s = UScatch_s,
-                  fit = TRUE ))
+    lnP_s     <- alpha_s + invlambda_s * log(C_s + adjC_s) + incomeCoeff_s * log(bcIncome)
+    P_s       <- exp(lnP_s)
 
-    v_st[,t]  <- exp(opt$par)
+    v_st[,t] <- P_s
 
+  
     
-    for( p in 1:nP)
+    for( p in 1:nP )
       effCost_pft[p,,t] <- E_pft[p,,t] * rp$EmeyRefPts$effortPrice_p[p]
 
     if( t > tMP )

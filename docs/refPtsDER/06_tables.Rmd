@@ -61,13 +61,13 @@ assumed values, and descriptions."
 
 econAssumption <- tibble::tribble( 
   ~Variable,        ~Value,        ~Description,
-  "$f_{2009}$",     0.175,         "Fuel cost per kt of catch in 2009",
-  "$\\psi$",         0.3,          "Crew share of revenue",
-  "$d$",            0.05,          "Discount rate" 
-  "$v_s$",          ,              "Unit price per kg of species $s$ (\\$)",
-  "$c_p$",          ,              "Price per unit of fishing effort (\\$m)",
-  "$\\pi(\\vec{E})$",,             "Equilibrium resource rent produced by",
-  ,,                               "annual fishing effort $\\vec{E}$"
+  "$f_{2009}$",     "$0.175$",     "Fuel cost per kt of catch in 2009",
+  "$\\psi$",        "$0.3$",       "Crew share of revenue",
+  "$d$",            "$0.05$",      "Discount rate",
+  "$v_s$",          "",            "Unit price per kg of species $s$ (\\$)",
+  "$c_p$",          "",            "Price per unit of fishing effort (\\$m)",
+  "$\\pi(\\vec{E})$","",           "Equilibrium resource rent produced by",
+  "",               "",            "annual fishing effort $\\vec{E}$",
   )
 
 

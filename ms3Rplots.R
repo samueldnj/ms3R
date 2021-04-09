@@ -74,6 +74,65 @@ plotFvsEffHist_p <- function( obj = blob,
 
 } # END plotFvsEffHist_p()
 
+# plotDemCurves()
+# Takes a fitted price model and plots the demand
+# curves based on the demand analysis
+plotDemCurves <- function( model = saveModelList)
+{
+
+  # economic model
+  econDF        <- model$econDF
+  specCols      <- RColorBrewer::brewer.pal(n=3,"Dark2")
+  predDF        <- model$predDF
+  predDFinvDem  <- model$predDFinvDem
+  MSY_s         <- model$MSY_s
+  adjC_s        <- apply(X = model$UScatch_st, FUN = mean, MARGIN = 1)
+
+
+  par(mfrow =c(3,1), mar = c(1,2,1,2), oma = c(3,3,1,1))
+  # plot Dover price/catch
+  plot( y = c(0,max(econDF$Pd,econDF$Pe,econDF$Pr)),
+        x = c(0,max(econDF$Cd,econDF$Ce,econDF$Cr)),
+        type = "n", xlab = "Catch (kt)", ylab = "Unit price ($/kg)",
+        las = 1 )
+    grid()
+    
+    points( x = econDF$Cd, y = econDF$Pd, cex = 2,
+            col = specCols[1], pch = 21, bg = NA )
+    points( x = econDF$Cd, y = econDF$instPd, cex = 2,
+            col = specCols[1], pch = 21, bg = specCols[1] )
+    # lines( y = predDF$instPd, x = predDF$predCd, col = specCols[1],lwd = 2)
+    lines( x = predDFinvDem$Cd, y = predDFinvDem$predPd, col = specCols[1],lwd = 2, lty = 1)
+    abline(v = MSY_s[1] + adjC_s[1], lty = 2)
+  # Plot English price/catch
+  plot( y = c(0,max(econDF$Pd,econDF$Pe,econDF$Pr)), las = 1,
+        x = c(0,max(econDF$Cd,econDF$Ce,econDF$Cr)),
+        type = "n", xlab = "Catch (kt)", ylab = "Unit price ($/kg)" )
+    grid()
+    
+    points( x = econDF$Ce, y = econDF$Pe, cex = 2,
+            col = specCols[2], pch = 21, bg = NA )
+    points( x = econDF$Ce, y = econDF$instPe, cex = 2,
+            col = specCols[2], pch = 21, bg = specCols[2] )
+    # lines( y = predDF$instPe, x = predDF$predCe, col = specCols[2],lwd = 2)
+    lines( x = predDFinvDem$Ce, y = predDFinvDem$predPe, col = specCols[2],lwd = 2, lty = 1)
+    abline(v = MSY_s[2] + adjC_s[2], lty = 2)
+  # Plot Rock price/catch
+  plot( y = c(0,max(econDF$Pd,econDF$Pe,econDF$Pr)), las = 1,
+        x = c(0,max(econDF$Cd,econDF$Ce,econDF$Cr)),
+        type = "n", xlab = "Catch (kt)", ylab = "Unit price ($/kg)" )
+    grid()
+    points( x = econDF$Cr, y = econDF$Pr, cex = 2,
+            col = specCols[3], pch = 21, bg = NA )
+    points( x = econDF$Cr, y = econDF$instPr, cex = 2,
+            col = specCols[3], pch = 21, bg = specCols[3] )
+    # lines( y = predDF$instPr, x = predDF$predCr, col = specCols[3],lwd = 2)
+    lines( x = predDFinvDem$Cr, y = predDFinvDem$predPr, col = specCols[3],lwd = 2, lty = 1)
+    abline(v = MSY_s[3] + adjC_s[3], lty = 2)
+
+  mtext( side = 1, text = "Catch (kt)", outer = TRUE, line = 1.5)
+  mtext( side = 2, text = "Unit Price ($/kg)", outer = TRUE, line = 1.5)
+} # END plotDemCurves()
 
 
 

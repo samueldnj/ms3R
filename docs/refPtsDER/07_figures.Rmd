@@ -161,7 +161,7 @@ if(params$redoPlots)
 {
   graphics.off()
   pdf(file = figPath, width = 7, height = 7 )
-  plotEconModelDash( obj = blob, priceModel = priceFlexModel )
+  plotDemCurves( model = priceModel)
   dev.off()
 }
 knitr::include_graphics(figPath)
