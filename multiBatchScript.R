@@ -16,7 +16,7 @@ batchControlFiles <- c( "omniRuns_econYield_noCorr.bch",
                        
 nBatchJobs <- length( batchControlFiles )
 
-baseControlFiles  <- rep( "simCtlFileBase.txt",
+baseControlFiles  <- c( "simCtlFileBase.txt",
                           "simCtlFileBase_NULLprice.txt",
                           "simCtlFileBase.txt" )
 
