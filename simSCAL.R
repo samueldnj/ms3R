@@ -3828,7 +3828,7 @@ combBarrierPen <- function( x, eps,
     
 
     obj$om$GDPperCap_t[tMP - (11:1)]  <- priceModelList$bcIncome_t
-    obj$om$GDPperCap_t[tMP:nT]        <- priceModelList$bcIncome_t[11]*(1+opMod$GDPgrowth)^(((tMP):nT)-tMP+1) 
+    
     
     # new demand curve has no time-varying behaviour - 
     # that requires shocks that we will leave out for now
@@ -3844,6 +3844,14 @@ combBarrierPen <- function( x, eps,
     obj$om$landVal_st[,tMP - (11:1)]    <- priceModelList$P_st
     # obj$om$basePrice_st[,tMP - (11:1)]  <- priceFlexModel$refPrice_st
   }
+
+  if( is.null(opMod$priceModel) )
+  {
+    obj$om$landVal_st[,tMP-1]       <- obj$ctlList$opMod$price_s[1:nS]
+    obj$om$GDPperCap_t[tMP-(11:1)]  <- obj$ctlList$opMod$bcIncome * (1+opMod$GDPgrowth)^(-(10:0)) 
+  }
+
+  obj$om$GDPperCap_t[tMP:nT]        <- obj$om$GDPperCap_t[tMP-1]*(1+opMod$GDPgrowth)^(((tMP):nT)-tMP+1) 
 
   # Now we have enough info to calculate reference points
   stime <- Sys.time()

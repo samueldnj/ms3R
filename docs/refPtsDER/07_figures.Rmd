@@ -116,27 +116,6 @@ figPath <- file.path("./figure/fig1-DERcomplexSurveyBio.pdf")
 knitr::include_graphics(figPath)
 ```
 
-\blandscape
-```{r fig2-dataSummmary, echo = FALSE, warning = FALSE, fig.cap = dataSummFigCap, fig.width = 7, out.width = "9in" }
-figPath <- file.path("./figure/fig2-dataSummmary.pdf")
-if(params$redoPlots)
-{
-  graphics.off()
-  pdf(file = figPath, width = 7/fig_asp, height = 7 )
-  plotDataSummary(  simObj, 
-                    fleetLabs = c(  "Historical",
-                                    "Modern",
-                                    "HS Ass.",
-                                    "Synoptic"),
-                    dataCells = c(  "Indices",
-                                    "Ages",
-                                    "Lengths",
-                                    "Catch") )
-  dev.off()
-}
-knitr::include_graphics(figPath)
-```
-
 
 
 ```{r fig3-SpawnBioPlots, echo = FALSE, warning = FALSE, fig.cap = SBsptCaption, fig.width = 7, out.width = "9in" }

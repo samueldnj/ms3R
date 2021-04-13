@@ -36,8 +36,9 @@ conservation, economic and social aspects) over single-species MSY based
 management [@mercer1982multispecies; @benson2018options; 
 @stephenson2017practical].
 
-Spatial heterogeneity and price elasticity of demand, which are often 
-ignored, may significantly affect MSY and MEY reference points. Variation 
+Spatial heterogeneity and price elasticity of demand are key processes 
+within a multi-species context and may significantly affect MSY and 
+MEY reference points. Variation 
 in species densities among fishing areas may affect harvester location 
 choices, which, in turn, may affect technical interactions [@smith2012new; 
 @goethel2017accounting; @pascoe2018offsetting]. In several multi-species
@@ -73,28 +74,27 @@ then implies area-specific effects on the price, and MEY, via the common
 market and its demand curve.
 
 
-In this paper, we found that when accounting for spatial heterogeneity
-and price elasticity of demand, MEY and multi-species MSY harvest strategies 
-consistently produced better conservation and economic performance than 
-myopic single-species MSY strategies. To compare the three harvest 
-strategies, we simulated a three species complex of right-eyed flounders 
-(*Pleuronectidae Spp.*) - Dover sole (*Microstomus pacificus*), English sole 
-(*Parophrys vetulus*), and (Southern) Rock sole (*Lepidopsetta bilineata*) - 
-fished in three spatial strata by a common trawl fishery off the coast of 
-British Columbia (BC), Canada. Species demand curves with a constant price 
-elasticity of demand were estimated via a 2-stage least-squares regression 
-[@angrist2008mostly], and then combined with area-specific costs of 
-fishing to define a production function that depended on the spatial 
-allocation of fishing effort. Single species MSY, multi-species MSY, and 
-MEY reference points were estimated via yield-per-recruit analysis 
-[@beverton1957dynamics; @murawski1984mixed; @pikitch1987use], 
-and multi-species MSY and MEY reference points were validated via
-stochastic optimisation of simulated fishery effort over an 80-year time
-horizon with recruitment process error, where the either catch or 
-net-present-value (NPV) of the fishery was maximised. Finally, we compared 
-the management outcomes of harvest strategies targeting single- and 
-multi-species MSY and MEY reference points by evaluating the economic 
-and conservation risks of each in the presence of realistic uncertainty 
-about stock status via closed loop simulation.
-
-   
+In this paper, we asked how spatial heterogeneity and price elasticity
+of demand affected economic and conservation risks in a multi-species
+fishery management context. We compared the management outcomes of harvest 
+strategies targeting single- and mult-species MSY and MEY reference points
+by evalutating them in the presence of realistic uncertainty about stock
+status via closed loop simulation. We simualted a three species complex 
+of right-eyed flounders (*Pleuronectidae Spp.*) - Dover sole (*Microstomus 
+pacificus*), English sole (*Parophrys vetulus*), and (Southern) Rock sole 
+(*Lepidopsetta bilineata*) - fished in three spatial strata by a common 
+trawl fishery off the coast of British Columbia (BC), Canada. Species 
+demand curves with a constant price elasticity of demand were estimated 
+via a 2-stage least-squares regression [@angrist2008mostly], and combined 
+with area-specific costs of fishing to define a production function that 
+depended on the spatial allocation of fishing effort. Single species MSY, 
+multi-species MSY, and MEY reference points were estimated via 
+yield-per-recruit analysis [@beverton1957dynamics; @murawski1984mixed; 
+@pikitch1987use], and multi-species MSY and MEY reference points were 
+validated via stochastic optimisation of simulated fishery effort over 
+a 60-year projection with recruitment process error, where the either 
+catch or net-present-value (NPV) of the fishery was maximized. We show
+that when accounting for spatial heterogeneity and price elasticity of 
+demand, MEY and multi-species MSY harvest strategies consistently 
+produced better conservation and economic performance than myopic 
+single-species MSY strategies. ADD FINAL SENTENCE ON IMPLICATIONS

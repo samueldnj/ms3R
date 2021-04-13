@@ -15,7 +15,7 @@
 # Uses reference points object from a simulation
 # to create a table of multispecies catch and economic 
 # reference points.
-makeDynEqbriaTab <- function( folder = "./Outputs/omni_econYield_splineE_long_Jan4",
+makeDynEqbriaTab <- function( folder = "./Outputs/omniRuns_priceDevPED",
                               scenario = "noCorr" )
 {
   csvFiles <- list.files(folder)
@@ -92,7 +92,7 @@ makeDynEqbriaTab <- function( folder = "./Outputs/omni_econYield_splineE_long_Ja
 } # END makeDynEqbriaTab()
 
 
-makeSpeciesDynEqTable <- function( file = "./Outputs/omni_econYield_splineE_long_Jan4/dynEqHR.csv" )
+makeSpeciesDynEqTable <- function( file = "./Outputs/omniRuns_priceDevPED/dynEqHR.csv" )
 {
   specTable <- read.csv(file, stringsAsFactors = FALSE, header = TRUE, row.names = 1)
 
@@ -149,7 +149,6 @@ makeStatMSEqbriaTab <- function( obj = blob )
   # Get CW ref pts
   if(!is.null(EmeyRefPts$cwEconYieldCurves))
   {
-    # browser()
     Emey_p      <- EmeyRefPts$cwEconYieldCurves$cwEmey_p
     MEY_p       <- EmeyRefPts$cwEconYieldCurves$cwMEY_p
     Bmey_sp     <- EmeyRefPts$cwEconYieldCurves$cwBmey_sp
@@ -304,12 +303,12 @@ makeParEstTable <- function( obj )
 # dynEqbriaTab()
 # Collects output from omniscient manager simulations
 # and turns them into tables of dynamic equilibria
-dynEqbriaTab <- function( groupFolder = "perfInfo_noCorr",
+dynEqbriaTab <- function( groupFolder = "omniRuns_priceDevPED",
                           mpFilter = "",
-                          distYrs = 2017:2048,
+                          distYrs = 2040:2060,
                           qProbs = c(0.05,0.5,0.95),
-                          econYieldFile = "cwEconYieldBlob.Rdata",
-                          scenOrder = c("noCorr"))
+                          econYieldFile = "./Outputs/sim_baseRun_invDem/sim_baseRun_invDem.Rdata",
+                          scenOrder = c("noCorr_infPED","noCorr_infPED_fixGDP"))
 {
   # First, read info files from the relevant
   # sims
@@ -446,6 +445,7 @@ dynEqbriaTab <- function( groupFolder = "perfInfo_noCorr",
   Emey_p      <- rp$EmeyRefPts$cwEconYieldCurves$cwEmey_p
   Emsy_p      <- rp$EmsyMSRefPts$EmsyMS_p
   MEY_p       <- rp$EmeyRefPts$cwEconYieldCurves$cwMEY_p
+
 
   # Solve for Bmey with coastwide demand curve
   Beq_spe     <- rp$refCurves$EffCurves$Beq_spe
@@ -659,10 +659,10 @@ dynEqbriaTab <- function( groupFolder = "perfInfo_noCorr",
 # time series, and calculates distributions
 # of each inside a nominated time period
 pullModelStates <- function(  sim         = 1,
-                              groupFolder = "omniRuns_econYield_noCorr",
+                              groupFolder = "omniRuns_priceDevPED",
                               stateVars   = c("C_ispt","SB_ispt","E_ipft"),
                               output      = FALSE,
-                              distPeriod  = 2041:2060 )
+                              distPeriod  = 2040:2060 )
 {
   # First, load the sim that we want
   # to calculate loss for

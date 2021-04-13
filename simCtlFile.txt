@@ -121,8 +121,8 @@ opMod$commGears c(2)
 opMod$corrRecDevs FALSE
 opMod$corrPriceDevs FALSE
 opMod$cwMEY FALSE
-opMod$priceModel "priceModelIV.rds"
-#opMod$priceModel NULL
+#opMod$priceModel "priceModelIV.rds"
+opMod$priceModel NULL
 opMod$priceCorr 0
 opMod$GDPgrowth 0.039
 opMod$ut_50 .85
@@ -134,11 +134,12 @@ opMod$price_s c(Dover=0.62,English=1.21,Rock=0.66,Petrale=2.590,Arrowtooth=0.990
 opMod$varCostPerKt 0.096
 opMod$discountRate 0.05
 opMod$interestRate 0.0
-#opMod$invlambda_s c(0,0,0)
-opMod$invlambda_s c(-0.288,-0.1952,-0.3533)
+opMod$invlambda_s c(0,0,0)
+#opMod$invlambda_s c(-0.288,-0.1952,-0.3533)
 opMod$alpha_s c(0.434,2.5371,1.266)
 opMod$adjC_s c(9.645,0.387,0)
 opMod$incomeCoeff_s c(0,-0.6363,-0.3926)
+#opMod$incomeCoeff_s c(0,0,0)
 opMod$bcIncome 46.9050
 opMod$priceSD 0
 opMod$econBaseYear 2009
