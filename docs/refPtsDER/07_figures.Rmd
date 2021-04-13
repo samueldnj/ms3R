@@ -117,25 +117,8 @@ knitr::include_graphics(figPath)
 ```
 
 
-
-```{r fig3-SpawnBioPlots, echo = FALSE, warning = FALSE, fig.cap = SBsptCaption, fig.width = 7, out.width = "9in" }
-figPath <- file.path("./figure/fig3-SpawnBioPlots.pdf")
-if(params$redoPlots)
-{
-  graphics.off()
-  pdf(file = figPath, width = 7/fig_asp, height = 7 )
-  plotSBspt( reports, pub = TRUE)
-  dev.off()
-}
-knitr::include_graphics(figPath)
-```
-
-\elandscape
-
-
-
-```{r fig4-inverseDemandCurves, echo = FALSE, warning = FALSE, fig.cap = econDashCap, fig.width = 6, out.width = "7in" }
-figPath <- file.path("./figure/fig4-inverseDemandCurves.pdf")
+```{r fig2-inverseDemandCurves, echo = FALSE, warning = FALSE, fig.cap = econDashCap, fig.width = 6, out.width = "7in" }
+figPath <- file.path("./figure/fig2-inverseDemandCurves.pdf")
 if(params$redoPlots)
 {
   graphics.off()
@@ -147,8 +130,9 @@ knitr::include_graphics(figPath)
 ```
 
 
-```{r fig5-DERcomplexCatchYieldCurves, echo = FALSE, warning = FALSE, fig.cap = econYieldCurveCap }
-figPath <- file.path("./figure/fig5-DERcomplexYieldCurves.pdf")
+
+```{r fig3-DERcomplexCatchYieldCurves, echo = FALSE, warning = FALSE, fig.cap = econYieldCurveCap }
+figPath <- file.path("./figure/fig3-DERcomplexYieldCurves.pdf")
 if(params$redoPlots | !file.exists(figPath))
 {
   graphics.off()
@@ -165,8 +149,8 @@ knitr::include_graphics(figPath)
 ```
 
 
-```{r fig6-DERcomplexEconYieldCurves, echo = FALSE, warning = FALSE, fig.cap = econYieldCurveCap }
-figPath <- file.path("./figure/fig6-DERcomplexEconYieldCurves.pdf")
+```{r fig4-DERcomplexEconYieldCurves, echo = FALSE, warning = FALSE, fig.cap = econYieldCurveCap }
+figPath <- file.path("./figure/fig4-DERcomplexEconYieldCurves.pdf")
 if(params$redoPlots | !file.exists(figPath))
 {
   graphics.off()
@@ -180,13 +164,13 @@ knitr::include_graphics(figPath)
 ```
 
 
-```{r fig7-effortTulips, echo = FALSE, warning = FALSE, fig.cap = effortTulipsCap }
-figPath <- file.path("./figure/fig7-effortTulips.pdf")
+```{r fig5-effortTulips, echo = FALSE, warning = FALSE, fig.cap = effortTulipsCap }
+figPath <- file.path("./figure/fig5-effortTulips.pdf")
 if(params$redoPlots | !file.exists(figPath))
 {
   graphics.off()
   pdf(file = figPath, width = 8.5, height = 11)
-  compareTulipEffort( groupFolder = "omni_econYield_splineE_long_Jan4",
+  compareTulipEffort( groupFolder = "omniRuns_noCorr_Mar26",
                       scenarios = "noCorr",
                       rpSim = params$sim,
                       fleets = 1:2,
@@ -200,21 +184,24 @@ knitr::include_graphics(figPath)
 ```
 
 
-```{r fig8-dynUmsy, echo = FALSE, warning = FALSE, fig.cap = dynOptUCap }
-figPath <- file.path("./figure/fig8-dynUmsy.pdf")
+```{r fig6-dynUmsy, echo = FALSE, warning = FALSE, fig.cap = dynOptUCap }
+figPath <- file.path("./figure/fig6-dynUmsy.pdf")
 if(params$redoPlots | !file.exists(figPath))
 {
   graphics.off()
   pdf(file = figPath, width = 8.5, height = 11)
-  plotDynUmsy_sp()
+  plotDynUmsy_sp( groupFolder = "omniRuns_noCorr_Mar26",
+                  mpFilter = "freeEff",
+                  baseRP = "sim_baseRun_invDem",
+                  scenOrder = c("noCorr"))
   dev.off()
 }
 knitr::include_graphics(figPath)
 ```
 
 
-```{r fig9-bioDist, echo = FALSE, warning = FALSE, fig.cap = bioDistCap }
-figPath <- file.path("./figure/fig9-bioDist.pdf")
+```{r fig10-bioDist, echo = FALSE, warning = FALSE, fig.cap = bioDistCap }
+figPath <- file.path("./figure/fig10-bioDist.pdf")
 if(params$redoPlots | !file.exists(figPath))
 {
   graphics.off()

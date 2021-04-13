@@ -126,7 +126,7 @@ csasdown::csas_table( parEstTable, escape = FALSE,
 
 ```{r ssRefPtsTable, echo = FALSE, warning = FALSE}
 
-statRefPts <- makeStatMSEqbriaTab(blob)
+statRefPts <- makeStatMSEqbriaTab(simObj)
 ssRefPtsTab <- statRefPts
 
 colnames(ssRefPtsTab) <- c( "Stock",

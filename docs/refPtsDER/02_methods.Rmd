@@ -66,10 +66,10 @@ and $c_{p}$ is the fuel cost-per-unit-effort of fishing in area $p$
 (or $p'$ for the inner summation).
 
 The economic sub-model was conditioned on several sources of data.
-The inverse demand curves for trawl fishery revenue were fit to DER 
-complex catches, ex-vessel prices, and BC household income data detailed 
-in Appendix A. Area-specific fuel costs per unit of fishing
-effort were derived from the average cost of fuel per kilotonne (table X)
+The inverse demand curves for trawl fishery revenue (Figure 2) were fit 
+to DER complex catches, ex-vessel prices, and BC household income data 
+detailed in Appendix A. Area-specific fuel costs per unit of fishing
+effort were derived from the average cost of fuel per kilotonne (Table 1)
 of groundfish catch landed in 2009 [@nelson2011pacific-commerc]. The price
 per unit of landed was then converted to costs per unit of fishing effort 
 in an area by scaling by the ratio of catch to fishing effort from each
@@ -104,7 +104,7 @@ solving for the effort level that maximises individual species yield
 within each area, ignoring any by-product of other species. To incorporate
 technical interactions and derive multi-species $MSY_{MS}$ reference points, 
 we solve for the fishing effort that maximises the sum of species yields 
-in each area (Figure XX).
+in each area (Figure 3).
 
 Economic yield-per-recruit for a multi-species fishery with technical 
 interactions is a straightforward extension of the biological reference 

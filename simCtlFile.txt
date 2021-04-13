@@ -139,7 +139,6 @@ opMod$invlambda_s c(0,0,0)
 opMod$alpha_s c(0.434,2.5371,1.266)
 opMod$adjC_s c(9.645,0.387,0)
 opMod$incomeCoeff_s c(0,-0.6363,-0.3926)
-#opMod$incomeCoeff_s c(0,0,0)
 opMod$bcIncome 46.9050
 opMod$priceSD 0
 opMod$econBaseYear 2009
