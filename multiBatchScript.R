@@ -28,8 +28,8 @@ saveDirName       <- prefixes
 
 baseLine <- c( NULL,NULL,NULL,NULL,NULL )
                         
-nCores <- rep(1,nBatchJobs)
-par    <- rep(FALSE,nBatchJobs)
+nCores <- c(24,1)
+par    <- c(TRUE,FALSE)
 
 # Create a directory to hold completed mseR batch
 # jobs
