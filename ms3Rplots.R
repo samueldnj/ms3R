@@ -77,7 +77,8 @@ plotFvsEffHist_p <- function( obj = blob,
 # plotDemCurves()
 # Takes a fitted price model and plots the demand
 # curves based on the demand analysis
-plotDemCurves <- function( model = saveModelList)
+plotDemCurves <- function(  model = saveModelList, 
+                            invDem = TRUE)
 {
 
   # economic model
@@ -101,8 +102,14 @@ plotDemCurves <- function( model = saveModelList)
             col = specCols[1], pch = 21, bg = NA )
     points( x = econDF$Cd, y = econDF$instPd, cex = 2,
             col = specCols[1], pch = 21, bg = specCols[1] )
-    # lines( y = predDF$instPd, x = predDF$predCd, col = specCols[1],lwd = 2)
-    lines( x = predDFinvDem$Cd, y = predDFinvDem$predPd, col = specCols[1],lwd = 2, lty = 1)
+    lines( y = predDF$instPd, x = predDF$predCd, col = specCols[1],lwd = 2)
+    lines( y = predDF$instPd, x = predDF$predCd_dl, col = "grey40",lwd = 2)
+
+    if(invDem)
+    {
+      lines( x = predDFinvDem$Cd, y = predDFinvDem$predPd, col = specCols[1],lwd = 2, lty = 2)
+      lines( x = predDFinvDem$Cd, y = predDFinvDem$predPd_dl, col = "grey40",lwd = 2, lty = 2)
+    }
     abline(v = MSY_s[1] + adjC_s[1], lty = 2)
   # Plot English price/catch
   plot( y = c(0,max(econDF$Pd,econDF$Pe,econDF$Pr)), las = 1,
@@ -114,8 +121,16 @@ plotDemCurves <- function( model = saveModelList)
             col = specCols[2], pch = 21, bg = NA )
     points( x = econDF$Ce, y = econDF$instPe, cex = 2,
             col = specCols[2], pch = 21, bg = specCols[2] )
-    # lines( y = predDF$instPe, x = predDF$predCe, col = specCols[2],lwd = 2)
-    lines( x = predDFinvDem$Ce, y = predDFinvDem$predPe, col = specCols[2],lwd = 2, lty = 1)
+    
+    lines( y = predDF$instPe, x = predDF$predCe, col = specCols[2],lwd = 2)
+    lines( y = predDF$instPe, x = predDF$predCe_noInc, col = specCols[2],lwd = 2, lty = 3)
+    lines( y = predDF$instPe, x = predDF$predCe_dl, col = "grey40",lwd = 2)
+    if(invDem)
+    {
+      lines( x = predDFinvDem$Ce, y = predDFinvDem$predPe, col = specCols[2],lwd = 2, lty = 2)
+      lines( x = predDFinvDem$Ce, y = predDFinvDem$predPe_noInc, col = specCols[2],lwd = 2, lty = 4)
+      lines( x = predDFinvDem$Ce, y = predDFinvDem$predPe_dl, col = "grey40",lwd = 2, lty = 2)
+    }
     abline(v = MSY_s[2] + adjC_s[2], lty = 2)
   # Plot Rock price/catch
   plot( y = c(0,max(econDF$Pd,econDF$Pe,econDF$Pr)), las = 1,
@@ -126,9 +141,21 @@ plotDemCurves <- function( model = saveModelList)
             col = specCols[3], pch = 21, bg = NA )
     points( x = econDF$Cr, y = econDF$instPr, cex = 2,
             col = specCols[3], pch = 21, bg = specCols[3] )
-    # lines( y = predDF$instPr, x = predDF$predCr, col = specCols[3],lwd = 2)
-    lines( x = predDFinvDem$Cr, y = predDFinvDem$predPr, col = specCols[3],lwd = 2, lty = 1)
+    lines( y = predDF$instPr, x = predDF$predCr, col = specCols[3],lwd = 2)
+    lines( y = predDF$instPr, x = predDF$predCr_noInc, col = specCols[3],lwd = 2, lty = 3)
+    lines( y = predDF$instPr, x = predDF$predCr_dl, col = "grey40",lwd = 2)
+    if(invDem)
+    {
+      lines( x = predDFinvDem$Cr, y = predDFinvDem$predPr, col = specCols[3],lwd = 2, lty = 2)
+      lines( x = predDFinvDem$Cr, y = predDFinvDem$predPr_noInc, col = specCols[3],lwd = 2, lty = 4)
+      lines( x = predDFinvDem$Cr, y = predDFinvDem$predPr_dl, col = "grey40",lwd = 2, lty = 2)
+    }
+
     abline(v = MSY_s[3] + adjC_s[3], lty = 2)
+    legend( x = "topright", bty = "n",
+            legend = c("Demand","Demand, no GDP","inv. Demand","inv. Dem, no GDP"),
+            lty  = c(1,3,2,4),
+            lwd = 2 )
 
   mtext( side = 1, text = "Catch (kt)", outer = TRUE, line = 1.5)
   mtext( side = 2, text = "Unit Price ($/kg)", outer = TRUE, line = 1.5)

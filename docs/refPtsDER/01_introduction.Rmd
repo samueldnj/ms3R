@@ -9,30 +9,30 @@ interactions* among multiple fish species that are caught simultaneously
 occuring via *ecological interactions* involve increasing/decreasing
 predator or prey abundances caused by fishing [@may1979management; 
 @collie2001biological]. Both technical and ecological interactions affect 
-fishery reference points derived maximum sustainable yield (MSY) 
+fishery reference points derived from maximum sustainable yield (MSY) 
 [@murawski1984mixed; @pikitch1987use; @collie2001biological; 
 @may1979management] or maximum economic yield (MEY) [@hoshino2018estimating;
-@pascoe2020effectiveness] which implies that fishery policies ignoring
-multi-species interactions are, by design, likely to produce sub-optimal
-outcomes in multi-species fisheries [@ono2017management]. Further, 
-applying single-species MSY policies to large scale, multi-species 
+@pascoe2020effectiveness; @guillen2013estimating], implying that fishery 
+policies ignoring multi-species interactions are, by design, likely to 
+produce sub-optimal outcomes in multi-species fisheries [@ono2017management]. 
+Further, applying single-species MSY policies to large scale, multi-species 
 ecosystems could cause severe deterioration in ecosystem 
 structure and function [@walters2005possible]. 
 
 Incorporating multi-species interactions into fishery reference
 points and harvest strategies is a central component of ecosystem-based 
 fisheries management (EBFM) and the ecosystem approach to fisheries 
-management (EAFM) [@link2014integrating; @moffitt2016moving]. EAFM 
-extends single-species fisheries management by incorporating 
+management (EAFM) [@link2014integrating; @moffitt2016moving]. The EAFM 
+paradigm extends single-species fisheries management by incorporating 
 multi-species interactions and environmental drivers, but focuses on the 
-management outcomes for a single managed stock or species; EBFM considers 
-a broader scope of management outcomes for the ecosystem as a 
-whole [@link2014integrating]. Therefore, for the remainder of this
-paper, we will use EBFM to refer to both. EBFM is a stated policy priority 
-for several nations [ FAO and UN refs 
+management outcomes for a single managed stock or species; EBFM instead
+considers a broader scope of management outcomes for the ecosystem as a 
+whole [@link2014integrating]. Therefore, since EAFM is a subset of EBFM, 
+for the remainder of this paper we will refer to both as EBFM. EBFM is a 
+stated policy priority for several nations [ FAO and UN refs 
 from @howell2021combining] and, as far back as the 1970s, the Canadian 
 government prioritised EBFM for better triple-bottom line outcomes (i.e.,
-conservation, economic and social aspects) over single-species MSY based
+conservation, economic, and social aspects) over single-species MSY based
 management [@mercer1982multispecies; @benson2018options; 
 @stephenson2017practical].
 
