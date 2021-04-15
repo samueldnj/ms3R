@@ -549,17 +549,17 @@ plotChokeHCRs <- function(  LCP = .1, UCP = .6,
 # plotBioDist()
 # Estimates biomass distributions for given years
 # and plots them on a stock/species multipanel plot.
-plotBioDist <- function(  groupFolders = c("perfInfo_noCorr","simAssErrs_noCorr"),
+plotBioDist <- function(  groupFolders = c("simAssErrors_Apr14"),
                           mpFilter = "",
                           distYrs = 2048,
                           qProbs = c(0.05,0.5,0.95),
-                          baseBlob = "sim_baseRun",
+                          baseBlob = "sim_baseRun_invDem",
                           scenOrder = c("noCorr"),
-                          hrOrder = c("MSY","noCorr.MSY","MEY","noCorr.MEY"),
-                          pch_m = c(21,21,22,22),
-                          pt.lwd_m = c(2,0,2,0),
-                          col_m = c("red","black","red","black"),
-                          bg_m = c(NA,"black",NA,"black") )
+                          hrOrder = c("MSYSS","MSY","noCorr.MSY","MEY","noCorr.MEY"),
+                          pch_m = c(23,21,21,22,22),
+                          pt.lwd_m = c(2,2,0,2,0),
+                          col_m = c("salmon","red","black","red","black"),
+                          bg_m = c(NA,NA,"black",NA,"black") )
 {
   nGroups <- length(groupFolders)
   groupList <- list()
@@ -674,8 +674,10 @@ plotBioDist <- function(  groupFolders = c("perfInfo_noCorr","simAssErrs_noCorr"
                   outer = TRUE)
 
 
-        abline(h = 1, lwd = 0.8, lty = 3)
-        abline(h = .8, lwd = 0.8, lty = 3, col = "orange")
+        abline(h = 1, lty = 3, lwd = 2)
+        abline(h = .8, lty = 3, col = "orange", lwd = 2)
+        abline(h = .4, lty = 3, col = "red", lwd = 2)
+
         for( m in 1:nSims )
         {
           if( m %% 2 == 1 )
@@ -695,7 +697,7 @@ plotBioDist <- function(  groupFolders = c("perfInfo_noCorr","simAssErrs_noCorr"
             hrpch <- 21
           if( grepl(pattern = "MEY",x = hrLabel ))
             hrpch <- 22
-
+          
 
 
           if( grepl(pattern = "noCorr",x = hrLabel ))
@@ -711,6 +713,14 @@ plotBioDist <- function(  groupFolders = c("perfInfo_noCorr","simAssErrs_noCorr"
             hrcol <- "red"
           }
 
+          if( grepl(pattern = "MSYSS",x = hrLabel ))
+          {
+            hrlwd <- 2
+            hrbg <- NA
+            hrcol <- "red"
+            hrpch <- 23
+          }
+
           points( x = xLoc, y = SB_qspM[2,s,p,m],
                   pch = hrpch, lwd = hrlwd, col = hrcol,
                   bg = hrbg, cex = 2  )
@@ -720,6 +730,9 @@ plotBioDist <- function(  groupFolders = c("perfInfo_noCorr","simAssErrs_noCorr"
         }
 
     }
+    legend( x = "topleft",
+            pch = c(21,22,23),
+            legend = c("MSY_MS","MEY","MSY_SS"))
     mtext( side = 2, outer = TRUE, text = expression(B/B[MSY]),
             font = 2, line = 2 )
 }
@@ -7018,7 +7031,7 @@ plotTulipEconYield <- function( obj = blob,
       box()
 
       if( mfg[2] == mfg[4] )
-        rmtext( txt = stockNames[p], outer = TRUE, line = 0.05,
+        rmtext( txt = stockNames[p], outer = TRUE, line = 0.02,
                 font = 2, cex = 1.5)
       
 
@@ -7042,8 +7055,25 @@ plotTulipEconYield <- function( obj = blob,
       abline( v = yrs[tMP]-.5, lty = 3, lwd = 1)
       
 
+      if( p == 1 )
+      {
+        legend( x = "topright", bty = "n",
+                cex = 2,
+                legend = c("Revenue","Fuel Costs","Rent"),
+                col = c("black","red","steelblue"),
+                pch = 22,
+                lty = c(1),
+                lwd = 3,
+                pt.bg = c(revCol,costCol,profCol),
+                pt.lwd = 0,
+                pt.cex = 3)
+      }
   }
-} # END plotTulipRt
+  mtext( side = 2, outer = TRUE, text = "Revenue, Costs, and Rent ($m)",
+          line = 2, font = 2 )
+  mtext( side = 1, outer = TRUE, text = "Year",
+          line = 2, font = 2 )
+} # END plotTulipEconYield()
 
 # plotTulipEffort_p()
 # Effort over time gridded
