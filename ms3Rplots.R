@@ -102,13 +102,13 @@ plotDemCurves <- function(  model = saveModelList,
             col = specCols[1], pch = 21, bg = NA )
     points( x = econDF$Cd, y = econDF$instPd, cex = 2,
             col = specCols[1], pch = 21, bg = specCols[1] )
-    lines( y = predDF$instPd, x = predDF$predCd, col = specCols[1],lwd = 2)
-    lines( y = predDF$instPd, x = predDF$predCd_dl, col = "grey40",lwd = 2)
+    # lines( y = predDF$instPd, x = predDF$predCd, col = specCols[1],lwd = 2)
+    # lines( y = predDF$instPd, x = predDF$predCd_dl, col = "grey40",lwd = 2)
 
     if(invDem)
     {
       lines( x = predDFinvDem$Cd, y = predDFinvDem$predPd, col = specCols[1],lwd = 2, lty = 2)
-      lines( x = predDFinvDem$Cd, y = predDFinvDem$predPd_dl, col = "grey40",lwd = 2, lty = 2)
+      # lines( x = predDFinvDem$Cd, y = predDFinvDem$predPd_dl, col = "grey40",lwd = 2, lty = 2)
     }
     abline(v = MSY_s[1] + adjC_s[1], lty = 2)
   # Plot English price/catch
@@ -122,14 +122,14 @@ plotDemCurves <- function(  model = saveModelList,
     points( x = econDF$Ce, y = econDF$instPe, cex = 2,
             col = specCols[2], pch = 21, bg = specCols[2] )
     
-    lines( y = predDF$instPe, x = predDF$predCe, col = specCols[2],lwd = 2)
-    lines( y = predDF$instPe, x = predDF$predCe_noInc, col = specCols[2],lwd = 2, lty = 3)
-    lines( y = predDF$instPe, x = predDF$predCe_dl, col = "grey40",lwd = 2)
+    # lines( y = predDF$instPe, x = predDF$predCe, col = specCols[2],lwd = 2)
+    # lines( y = predDF$instPe, x = predDF$predCe_noInc, col = specCols[2],lwd = 2, lty = 3)
+    # lines( y = predDF$instPe, x = predDF$predCe_dl, col = "grey40",lwd = 2)
     if(invDem)
     {
       lines( x = predDFinvDem$Ce, y = predDFinvDem$predPe, col = specCols[2],lwd = 2, lty = 2)
-      lines( x = predDFinvDem$Ce, y = predDFinvDem$predPe_noInc, col = specCols[2],lwd = 2, lty = 4)
-      lines( x = predDFinvDem$Ce, y = predDFinvDem$predPe_dl, col = "grey40",lwd = 2, lty = 2)
+      # lines( x = predDFinvDem$Ce, y = predDFinvDem$predPe_noInc, col = specCols[2],lwd = 2, lty = 4)
+      # lines( x = predDFinvDem$Ce, y = predDFinvDem$predPe_dl, col = "grey40",lwd = 2, lty = 2)
     }
     abline(v = MSY_s[2] + adjC_s[2], lty = 2)
   # Plot Rock price/catch
@@ -141,14 +141,14 @@ plotDemCurves <- function(  model = saveModelList,
             col = specCols[3], pch = 21, bg = NA )
     points( x = econDF$Cr, y = econDF$instPr, cex = 2,
             col = specCols[3], pch = 21, bg = specCols[3] )
-    lines( y = predDF$instPr, x = predDF$predCr, col = specCols[3],lwd = 2)
-    lines( y = predDF$instPr, x = predDF$predCr_noInc, col = specCols[3],lwd = 2, lty = 3)
-    lines( y = predDF$instPr, x = predDF$predCr_dl, col = "grey40",lwd = 2)
+    # lines( y = predDF$instPr, x = predDF$predCr, col = specCols[3],lwd = 2)
+    # lines( y = predDF$instPr, x = predDF$predCr_noInc, col = specCols[3],lwd = 2, lty = 3)
+    # lines( y = predDF$instPr, x = predDF$predCr_dl, col = "grey40",lwd = 2)
     if(invDem)
     {
       lines( x = predDFinvDem$Cr, y = predDFinvDem$predPr, col = specCols[3],lwd = 2, lty = 2)
-      lines( x = predDFinvDem$Cr, y = predDFinvDem$predPr_noInc, col = specCols[3],lwd = 2, lty = 4)
-      lines( x = predDFinvDem$Cr, y = predDFinvDem$predPr_dl, col = "grey40",lwd = 2, lty = 2)
+      # lines( x = predDFinvDem$Cr, y = predDFinvDem$predPr_noInc, col = specCols[3],lwd = 2, lty = 4)
+      # lines( x = predDFinvDem$Cr, y = predDFinvDem$predPr_dl, col = "grey40",lwd = 2, lty = 2)
     }
 
     abline(v = MSY_s[3] + adjC_s[3], lty = 2)
@@ -5153,7 +5153,7 @@ plotEffYieldCurves <- function( obj = blob,
     if( plotCplx | length(sIdx) == nS )
       maxY <- 1.05 * max(Yeq_pe[p,],na.rm = TRUE )
     else
-      maxY <- max(Yeq_spe[,p,], na.rm = TRUE)
+      maxY <- 1.05 * max(Yeq_spe[,p,], na.rm = TRUE)
 
     plot( x = c(0,maxE), y = c(0, maxY ),
           type = "n", xlab = "", ylab = "", axes = F, xaxs="i",
@@ -5190,15 +5190,28 @@ plotEffYieldCurves <- function( obj = blob,
       }
 
       if(  p == 1)
+      {
+        legCols <- specCols[sIdx]
+        legLwd <- rep(2,length(sIdx))
+        legNames <- speciesNames[sIdx]
+
+        if( plotCplx )
+        {
+          legCols   <- c(legCols,"black")
+          legLwd    <- c(legLwd,3)
+          legNames  <- c(legNames,"DER Complex")
+        }
         legend( x = "topright", bty = "n",
-                col = c(specCols,"black"),
-                lwd = c(2,2,2,3),
-                legend = c(speciesNames,"Complex") )
+                col = legCols,
+                lwd = legLwd,
+                legend = legNames )
+      }
+      
 
   }
 
-  mtext( outer = TRUE, side = 1, text = "Commercial Trawl Effort (1000 hrs)", line = 2 )
-  mtext( outer = TRUE, side = 2, text = "Equilibrium Yield (kt)", line = 2 )
+  mtext( outer = TRUE, side = 1, text = "Commercial Trawl Effort (1000 hrs)", line = 2, font = 2 )
+  mtext( outer = TRUE, side = 2, text = "Equilibrium Yield (kt)", line = 2, font = 2 )
 
 
   outList <- list(  EmsyMS_p = EmsyMS_p,
@@ -5207,6 +5220,139 @@ plotEffYieldCurves <- function( obj = blob,
                     MSYSS_sp = MSYSS_sp,
                     MSYMS_sp = MSYMS_sp )
 } # END plotEffYieldCurves()
+
+
+plotEffYieldBioCurve <- function( obj = blob, 
+                                  maxE = 250,
+                                  pIdx = 1,
+                                  sIdx = 1 )
+{
+  # First, pull reference points and curves
+  rp            <- obj$rp[[1]]
+  refCurves     <- rp$refCurves
+  EmsyRefPts    <- rp$EmsyRefPts
+
+  nT  <- obj$om$nT
+  nP  <- obj$om$nP
+  nS  <- obj$om$nS
+  tMP <- obj$om$tMP
+
+  # Pull qF
+  qF_sp       <- blob$om$qF_ispft[1,,,2,nT]
+  
+  speciesNames <- blob$om$speciesNames
+  stockNames   <- blob$om$stockNames
+
+  # Now compute MSY for SS and MS curves
+  # MSY is still the same for SS, just need the effort
+  # that corresponds to it, which is Fmsy/qF
+
+  # get SS ref points
+  EmsySS_sp <- rp$FmsyRefPts$Fmsy_sp / qF_sp
+  MSYSS_sp  <- rp$FmsyRefPts$YeqFmsy_sp
+  BmsySS_sp <- rp$FmsyRefPts$BeqFmsy_sp
+
+  # Now get MS ref points
+  Yeq_spe   <- rp$refCurves$EffCurves$Yeq_spe
+  Beq_spe   <- rp$refCurves$EffCurves$Beq_spe
+  Yeq_spe[Yeq_spe < 0] <- NA
+  Yeq_pe    <- apply(X = Yeq_spe, FUN = sum, MARGIN = c(2,3), na.rm = T )
+  Yeq_pe[Yeq_pe == 0] <- NA
+  Yeq_pe[,1] <- 0
+  Yeq_e     <- apply(X = Yeq_pe, FUN = sum, MARGIN = 2)
+  Eseq      <- rp$refCurves$EffCurves$E
+
+  
+  maxEval <- max(which(Yeq_e > 0))
+
+  specCols <- wes_palette("Rushmore1", 5, type = "discrete")[3:5]
+
+  if(is.null(maxE))
+    maxE <- Eseq[maxEval]
+
+  par( mfrow = c(2,length(pIdx)), mar = c(.1,1,.1,1), oma = c(3,4,3,1) )
+  for( p in pIdx )
+  {
+    maxY <- 1.05 * max(Yeq_spe[,p,], na.rm = TRUE)
+
+    plot( x = c(0,maxE), y = c(0, maxY ),
+          type = "n", xlab = "", ylab = "", axes = F, xaxs="i",
+          yaxs = "i" )
+      axis(side = 2, las = 1)
+      box()
+      grid()
+
+      for( s in sIdx )
+      {
+        lines( x = Eseq, y = Yeq_spe[s,p,],
+               col = specCols[s], lty = 1, lwd = 3 )
+        
+        segments( x0 = 0, x1 = EmsySS_sp[s,p],
+                  y0 = MSYSS_sp[s,p], lwd = 1.5, 
+                  col = specCols[s], lty = 2)
+
+        segments( x0 = EmsySS_sp[s,p],
+                  y0 =0, y1 = MSYSS_sp[s,p], lwd = 1.5, 
+                  col = specCols[s], lty = 2)
+
+      }
+
+      mtext( side = 3, text = stockNames[p], line = 1,
+            font = 2, cex = 1 )
+      
+
+      maxY <- 1.05 * max(Beq_spe[,p,], na.rm = TRUE)
+
+      plot( x = c(0,maxE), y = c(0, maxY ),
+            type = "n", xlab = "", ylab = "", axes = F, xaxs="i",
+            yaxs = "i" )
+        axis(side = 2, las = 1)
+        box()
+        grid()
+
+      for( s in sIdx )
+      {
+        lines( x = Eseq, y = Beq_spe[s,p,],
+               col = specCols[s], lty = 1, lwd = 3 )
+        
+        segments( x0 = 0, x1 = EmsySS_sp[s,p],
+                  y0 = BmsySS_sp[s,p], lwd = 1.5, 
+                  col = specCols[s], lty = 2)
+
+        segments( x0 = EmsySS_sp[s,p],
+                  y0 = 0, y1 = BmsySS_sp[s,p], lwd = 1.5, 
+                  col = specCols[s], lty = 2)
+
+      }
+
+      mfg <- par("mfg")
+      if( mfg[1] == mfg[3])
+        axis(side = 1)
+
+  
+      
+
+    
+
+      if(  p == 1)
+      {
+        legCols <- specCols[sIdx]
+        legLwd <- rep(2,length(sIdx))
+        legNames <- speciesNames[sIdx]
+
+        legend( x = "topright", bty = "n",
+                col = legCols,
+                lwd = legLwd,
+                legend = legNames )
+      }
+      
+
+  }
+
+  mtext( outer = TRUE, side = 1, text = "Commercial Trawl Effort (1000 hrs)", line = 2, font = 2, cex = 1.5 )
+  mtext( outer = TRUE, side = 2, text = "Equilibrium Yield and Biomass (kt)", line = 2,font = 2, cex = 1.5 )
+
+}
 
 # plotEffYieldCurves()
 # Function for plotting effort based
@@ -5259,6 +5405,21 @@ plotEconYieldCurves <- function(  obj = blob,
   effCost_pe  <- EmeyRefPts$effCost_pe
   Ymey_sp     <- EmeyRefPts$Ymey_sp
 
+  if( !is.null(EmeyRefPts$cwEconYieldCurves))
+  {
+    Emey_p      <- EmeyRefPts$cwEconYieldCurves$cwEmey_p
+    MEY_p       <- EmeyRefPts$cwEconYieldCurves$cwMEY_p
+    
+    Rev_spe     <- EmeyRefPts$cwEconYieldCurves$cwRev_spe
+    Rev_pe      <- apply(X = EmeyRefPts$cwEconYieldCurves$cwRev_spe, FUN = sum, MARGIN = c(2,3))
+    econYeq_pe  <- EmeyRefPts$cwEconYieldCurves$cwYeq_pe
+    effCost_pe  <- EmeyRefPts$cwEconYieldCurves$cwEffCost_pe
+    Ymey_sp     <- EmeyRefPts$cwEconYieldCurves$cwYmey_sp
+
+  }
+
+
+
 
   # remove zeroes
   Rev_spe[Rev_spe == 0] <- NA
@@ -5273,7 +5434,8 @@ plotEconYieldCurves <- function(  obj = blob,
   for( p in pIdx )
   {
     plot( x = c(0,maxE), y = c(0, max(econYeq_pe[p,],Rev_pe[p,],na.rm = T) ),
-          type = "n", xlab = "", ylab = "", axes = F, xaxs="i" )
+          type = "n", xlab = "", ylab = "", axes = F, 
+          xaxs="i" )
       axis(side = 2, las = 1)
       box()
       grid()

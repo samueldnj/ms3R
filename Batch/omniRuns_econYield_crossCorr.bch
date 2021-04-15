@@ -10,10 +10,10 @@ scenario$scenario1$ctl$nGoodReps 100
 scenario$scenario1$ctl$totReps 100
 scenario$scenario1$ctl$omni TRUE
 scenario$scenario1$ctl$nCores 24
-scenario$scenario1$opMod$pT 60
+scenario$scenario1$opMod$pT 80
 scenario$scenario1$opMod$corrRecDevs TRUE
 scenario$scenario1$opMod$corrPriceDevs FALSE
-scenario$scenario1$mp$omni$nKnots 16
+scenario$scenario1$mp$omni$nKnots 21
 #
 #
 ## Management Procedures

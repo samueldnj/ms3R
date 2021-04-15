@@ -9,27 +9,26 @@ library(parallel)
 source("ms3R.r")
 # source("makeResultPlots.R")
 
-batchControlFiles <- c( "Egrid.bch",
-                        "omniRuns_priceDevPED.bch")
-
-                        #"omniRuns_econYield_crossCorr.bch"
+batchControlFiles <- c( "omniRuns_econYield_noCorr.bch",
+                        "omniRuns_priceDevPED.bch",
+                        "omniRuns_econYield_crossCorr.bch")
                        
 nBatchJobs <- length( batchControlFiles )
 
 baseControlFiles  <- c( "simCtlFileBase.txt",
-                          "simCtlFileBase_NULLprice.txt")
-                          #"simCtlFileBase.txt" )
+                          "simCtlFileBase_NULLprice.txt",
+                          "simCtlFileBase.txt" )
 
-prefixes       <- c(  "detRun_Egrid.bch",
-                      "omniRuns_priceDevPED" )
-                      #"omniRuns_recCorr_Mar26" )
+prefixes       <- c(  "omniRuns_noCorr_Apr14",
+                      "omniRuns_priceDevPED_Apr14", 
+                      "omniRuns_recCorr_Apr14" )
 
 saveDirName       <- prefixes
 
 baseLine <- c( NULL,NULL,NULL,NULL,NULL )
                         
-nCores <- c(24,1)
-par    <- c(TRUE,FALSE)
+nCores <- c(24,24,24)
+par    <- c(FALSE,FALSE,FALSE)
 
 # Create a directory to hold completed mseR batch
 # jobs

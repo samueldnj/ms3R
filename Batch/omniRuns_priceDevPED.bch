@@ -10,10 +10,10 @@ scenario$scenario1$ctl$nGoodReps 100
 scenario$scenario1$ctl$totReps 100
 scenario$scenario1$ctl$omni TRUE
 scenario$scenario1$ctl$nCores 24
-scenario$scenario1$opMod$pT 60
+scenario$scenario1$opMod$pT 80
 scenario$scenario1$opMod$corrRecDevs FALSE
 scenario$scenario1$opMod$corrPriceDevs FALSE
-scenario$scenario1$mp$omni$nKnots 16
+scenario$scenario1$mp$omni$nKnots 21
 scenario$scenario1$opMod$invlambda_s rep(0,3)
 #
 # Scenario 1 : noCorr_constPrice_infPED
@@ -23,12 +23,25 @@ scenario$scenario2$ctl$nGoodReps 100
 scenario$scenario2$ctl$totReps 100
 scenario$scenario2$ctl$omni TRUE
 scenario$scenario2$ctl$nCores 24
-scenario$scenario2$opMod$pT 60
+scenario$scenario2$opMod$pT 80
 scenario$scenario2$opMod$corrRecDevs FALSE
 scenario$scenario2$opMod$corrPriceDevs FALSE
-scenario$scenario2$mp$omni$nKnots 16
+scenario$scenario2$mp$omni$nKnots 21
 scenario$scenario2$opMod$invlambda_s rep(0,3)
-scenario$scenario2$opMod$incomeCoeff_s rep(0,3)
+scenario$scenario2$opMod$GDPgrowth 0
+#
+# Scenario 1 : noCorr_fixGDP
+#
+scenario$scenario2$ctl$scenarioName 'noCorr_fixGDP'
+scenario$scenario2$ctl$nGoodReps 100
+scenario$scenario2$ctl$totReps 100
+scenario$scenario2$ctl$omni TRUE
+scenario$scenario2$ctl$nCores 24
+scenario$scenario2$opMod$pT 80
+scenario$scenario2$opMod$corrRecDevs FALSE
+scenario$scenario2$opMod$corrPriceDevs FALSE
+scenario$scenario2$mp$omni$nKnots 21
+scenario$scenario2$opMod$GDPgrowth 0
 #
 #
 ## Management Procedures
