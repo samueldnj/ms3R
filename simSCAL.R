@@ -63,6 +63,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
 
   nS <- obj$om$nS
   nP <- obj$om$nP
+  nX <- obj$om$nX
   nF <- obj$om$nF
 
 
@@ -77,17 +78,29 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   idxOn   <- obj$ctlList$mp$data$idxOn
   obsInt  <- obj$ctlList$mp$data$obsInt_i
 
+  ageOn   <- obj$ctlList$mp$data$ageOn
+  ageInt  <- obj$ctlList$mp$data$ageInt
+
   # Start with a FALSE array, add pooled data dimension
   idxOn_spft <- array( FALSE, dim = c(nS+1,nP+1,nF,nT) )
+  ageOn_spft <- array( FALSE, dim = c(nS+1,nP+1,nF,nT) )
   # Recover historical indices and set 
   # to TRUE
   histdx <- 1:(tMP-1)
-  I_spft <- obj$mp$data$I_spft[,,,histdx,drop = FALSE]
+  I_spft    <- obj$mp$data$I_spft[,,,histdx,drop = FALSE]
+  A_axspft  <- obj$mp$data$A_axspft[,,,,,histdx,drop = FALSE]
+
+  # Local helper function
+  checkAnyNonNA <- function( data )
+  {
+    any(!is.na(data))
+  }
 
   for( s in 1:nS )
     for( p in 1:nP )
       for( fIdx in 1:nF )
       {
+        # first, do indices
         histOn <- which(!is.na(I_spft[s,p,fIdx,]))
         if( length(histOn) == 0 )
           idxOn_spft[s,p,fIdx,] <- FALSE
@@ -109,6 +122,30 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
 
           newObs <- seq( from = lastObs, to = nT, by = obsInt[i] )
           idxOn_spft[s,p,fIdx,newObs] <- TRUE
+
+        }
+
+        # Then ages
+
+        histOn <- apply(X = A_axspft[2,1:nX,s,p,fIdx,,drop = FALSE], FUN = checkAnyNonNA, MARGIN = 6)
+        if(length(histOn) == 0)
+          ageOn_spft[s,p,fIdx,] <- FALSE
+
+        if( fIdx %in% ageOn )
+        {
+          i <- which( ageOn == fIdx)
+
+          if(length(histOn) > 0)
+            lastObs <- max(histOn)
+          else 
+            lastOns <- tMP
+
+          if( ageInt[i] == 1)
+            lastObs <- tMP
+
+          newObs <- seq( from  =lastObs, to = nT, by = ageInt[i])
+          ageOn_spft[s,p,fIdx,newObs] <- TRUE
+
         }
       }
 
@@ -117,8 +154,13 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   idxOn_spft[1:nS,p+1,,]  <- as.logical( apply( X = idxOn_spft[1:nS,1:nP,,,drop = FALSE], FUN = sum, MARGIN = c(1,3,4) ) )
   idxOn_spft[s+1,p+1,,]   <- as.logical( apply( X = idxOn_spft[1:nS,1:nP,,,drop = FALSE], FUN = sum, MARGIN = c(3,4)   ) )
 
+  ageOn_spft[s+1,1:nP,,]  <- as.logical( apply( X = ageOn_spft[1:nS,1:nP,,,drop = FALSE], FUN = sum, MARGIN = c(2,3,4) ) )
+  ageOn_spft[1:nS,p+1,,]  <- as.logical( apply( X = ageOn_spft[1:nS,1:nP,,,drop = FALSE], FUN = sum, MARGIN = c(1,3,4) ) )
+  ageOn_spft[s+1,p+1,,]   <- as.logical( apply( X = ageOn_spft[1:nS,1:nP,,,drop = FALSE], FUN = sum, MARGIN = c(3,4)   ) )
+
   obj$mp$assess$assessOn_t  <- assessOn
   obj$mp$data$idxOn_spft    <- idxOn_spft
+  obj$mp$data$ageOn_spft    <- ageOn_spft
 
   return(obj)
 } # END .calcTimes()
@@ -171,10 +213,11 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   if( ctlList$mp$hcr$type == "hgRule" )
     obj <- .tacAlloc_hgRule(obj,t)
 
-
-  # for( s in 1:nS )
-  #   for( p in 1:nP )    
-  #     obj$mp$hcr$TAC_spft[s,p,,t]    <- obj$mp$hcr$TAC_spt[s,p,t] * obj$om$alloc_spf[s,p,]
+  # Need to unift the allocation for SOK/HG and SOG. Right now
+  if( !ctlList$mp$hcr$type == "hgRule" )
+    for( s in 1:nS )
+      for( p in 1:nP )    
+        obj$mp$hcr$TAC_spft[s,p,,t]    <- obj$mp$hcr$TAC_spt[s,p,t] * obj$om$alloc_spf[s,p,]
 
   # SOK product per license is 16,000 lbs (7.2575 t or 0.0072575 kt) per pond ()
   sokPerLic_kt <- 0.0072575
@@ -182,7 +225,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   closedPondAlloc <- 0.0907 # 100 short tons (90.7 t or 0.0907 kt) of TAC allocated to each closed pond,
   openPondAlloc   <- 0.0317 # 35 short tons (31.7t or 0.0317 kt) allocated to each open pond
 
-  if(ctlList$opMod$histRpt$nG > 5)
+  if(ctlList$opMod$histRpt$nG > 5) # TOO PATH SPECIFIC
     for( s in 1:nS )
       for( p in 1:nP ) 
       {
@@ -259,7 +302,10 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
 
   mp <- list( data = NULL, assess = NULL, hcr = NULL )
 
-  mp$data <- list( I_ispft = array( NA, dim = c(nReps, nS+1, nP+1, nF, nT ) ) )    # Biomass indices
+  mp$data <- list(  I_ispft   = array( NA, dim = c(nReps, nS+1, nP+1, nF, nT ) ),          # Biomass/abundance indices
+                    A_iaxspft = array( NA, dim = c(nReps, nA, nX, nS+1, nP+1, nF, nT ) ),  # age comp data
+                    L_ilxspft = array( NA, dim = c(nReps, nL, nX, nS+1, nP+1, nF, nT ) )   # len comp data
+                  )
   ## ADD AGES AND LENGTH DATA ##
 
   mp$assess <- list(  retroR_itspt      = array( NA, dim = c(nReps, pT, nS, nP, nT ) ),      # retroR
@@ -471,8 +517,11 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     blob$om$errors$delta_ispft[i,,,,] <- simObj$errors$delta_spft
 
     # Data
-    blob$mp$data$I_ispft[i,,,,]       <- simObj$mp$data$I_spft
-    # Add ages and lengths later
+    blob$mp$data$I_ispft[i,,,,]         <- simObj$mp$data$I_spft
+    blob$mp$data$A_iaxspft[i,,,,,,]    <- simObj$mp$data$A_axspft
+    
+
+    # Add lengths later
 
     # HCR elements
     blob$mp$hcr$Fref_ispt[i,,,]       <- simObj$mp$hcr$Fref_spt
@@ -667,6 +716,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
 
   # Variance parameters
   om$tauObs_spf <- array(NA, dim = c(nS,nP,nF))
+  om$tauAge_spf <- array(NA, dim = c(nS,nP,nF))
   om$sigmaR_sp  <- array(NA, dim = c(nS,nP))
 
   # Leading bio pars
@@ -736,8 +786,10 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   if( ctlList$opMod$condModel == "SISCA" )
   {
     # Variance parameters
-    om$tauObs_spf[1,,1:repObj$nG] <- repObj$tauObs_pg
-    om$sigmaR_sp[1,]              <- repObj$sigmaR
+    om$tauObs_spf[1:nS,,1:repObj$nG] <- repObj$tauObs_pg
+    om$tauAge_spf[1:nS,,1:repObj$nG] <- sqrt(repObj$tau2Age_pg)
+    om$sigmaR_sp[1:nS,]              <- repObj$sigmaR
+
   
 
     # Leading bio pars
@@ -820,7 +872,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
 
   # Data list
   mp$data$I_spft    <- array( NA, dim = c(nS+1,nP+1,nF,nT) )      # Add a pooled data dimension
-  mp$data$A_axspft  <- array( NA, dim = c(nA,nX,nS,nP,nF,nT) )    
+  mp$data$A_axspft  <- array( NA, dim = c(nA,nX,nS+1,nP+1,nF,nT) )    
   mp$data$L_lxspft  <- array( NA, dim = c(nL,nX+1,nS,nP,nF,nT) ) 
 
   # assessment list
@@ -851,9 +903,10 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   errors <- list()
 
   # Arrays for holding errors
-  errors$omegaR_spt       <- array(0, dim = c(nS,nP,nT) )
-  errors$omegaRinit_asp   <- array(0, dim = c(nA,nS,nP) )
-  errors$delta_spft       <- array(0, dim = c(nS+1,nP+1,nF,nT) )
+  errors$omegaR_spt       <- array(0, dim = c(nS,nP,nT) )         # recruitment PE
+  errors$omegaRinit_asp   <- array(0, dim = c(nA,nS,nP) )         # intialisation recruitment PEs
+  errors$delta_spft       <- array(0, dim = c(nS+1,nP+1,nF,nT) )  # index observation errors
+  errors$ageObsErr_axspft <- array(0, dim = c(nA,nX,nS+1,nP+1,nF,nT) )
 
 
 
@@ -952,6 +1005,13 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   Ierr_spft         <- data$I_spft
   Iperf_spft        <- om$I_spft
 
+  # Age data
+  ageObs_axspft     <- data$A_axspft
+
+  # Do we need one unaffected by error? Isn't C_axspft this?
+  # What about for surveys with forced age observations??
+  # Get to it later - not an issue for Herring
+
   # Biological pars
   B0_sp             <- om$B0_sp
   Rbar_sp           <- om$Rbar_sp
@@ -1020,15 +1080,6 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
 
 
         R_spt[s,p,t] <- N_axspt[1,1,s,p,t]
-
-        # Fix Rt at historical values from rep file or posterior draws
-
-        # if(!ctlList$opMod$posteriorSamples)
-        #   R_spt[s,p,t] <-  repObj$R_pt[p,t]
-
-        # if(ctlList$opMod$posteriorSamples)
-        #   R_spt[s,p,t] <-  mcmcPar$R_ipt[postDrawIdx,p,t]
-
 
       }  
 
@@ -1299,7 +1350,6 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     # fleet timings, calculate removals of individuals at age
     # by splitting TAC in proportion to vulnerable biomass
     # at age, then removing them.
-
     tmpM_axsp     <- array(NA, dim = c(nA,nX,nS,nP))
     tmpN_axsp     <- array(NA, dim = c(nA,nX,nS,nP))
     tmpsel_axspf  <- array(NA, dim = c(nA,nX,nS,nP,nF))
@@ -1454,26 +1504,58 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
       for( s in 1:nS )
         for( p in 1:nP )
         {
+
           idxOn <- obj$mp$data$idxOn_spft[s,p,f,t]
-          if( !idxOn )
-            next
-          # Compute precision
-          tau <- om$tauObs_spf[s,p,f] * err$obsErrMult_spft[s,p,f,t]
+          ageOn <- obj$mp$data$ageOn_spft[s,p,f,t]
 
-          # relative biomass survey
-          if( ctlList$mp$data$idxType[f] == 1)
-            Iperf_spft[s,p,f,t] <- q_spft[s,p,f,t] * vB_spft[s,p,f,t]
+          if(idxOn)
+          {
+            # Compute precision
+            tau <- om$tauObs_spf[s,p,f] * err$obsErrMult_spft[s,p,f,t]
 
-          # CPUE
-          if( ctlList$mp$data$idxType[f] == 2 & C_spft[s,p,f,t] > 0 )
-            Iperf_spft[s,p,f,t] <- C_spft[s,p,f,t] / E_pft[p,f,t] 
+            # relative biomass survey
+            if( ctlList$mp$data$idxType[f] == 1)
+              Iperf_spft[s,p,f,t] <- q_spft[s,p,f,t] * vB_spft[s,p,f,t]
 
-          # Spawn survey
-          if( ctlList$mp$data$idxType[f] %in% c(3,4))
-            Iperf_spft[s,p,f,t] <- q_spft[s,p,f,t] * SB_spt[s,p,t]
+            # CPUE
+            if( ctlList$mp$data$idxType[f] == 2 & C_spft[s,p,f,t] > 0 )
+              Iperf_spft[s,p,f,t] <- C_spft[s,p,f,t] / E_pft[p,f,t] 
 
-          # Save true observations and those with error
-          Ierr_spft[s,p,f,t] <- Iperf_spft[s,p,f,t] * exp(tau * err$delta_spft[s,p,f,t] - 0.5 * tau^2)
+            # Spawn survey
+            if( ctlList$mp$data$idxType[f] %in% c(3,4))
+              Iperf_spft[s,p,f,t] <- q_spft[s,p,f,t] * SB_spt[s,p,t]
+
+            # Save true observations and those with error
+            Ierr_spft[s,p,f,t] <- Iperf_spft[s,p,f,t] * exp(tau * err$delta_spft[s,p,f,t] - 0.5 * tau^2)
+          }
+
+          if(ageOn)
+          {
+            # Need to generate age observation errors in the conditioning step
+            if( C_spft[s,p,f,t] > 0)
+            {
+              for( x in 1:nX)
+              {
+                catAge    <- C_axspft[,x,s,p,f,t]
+                zeroIdx   <- which(catAge == 0)
+                logCatAge <- log(C_axspft[-zeroIdx,x,s,p,f,t])
+                resids <- err$ageObsErr_axspft[-zeroIdx,x,s,p,f,t]
+
+                logObsCatAge <- logCatAge + om$tauAge_spf[s,p,f] * resids
+                obsCatAgeProp <- exp(logObsCatAge)/sum(exp(logObsCatAge))
+                ageObs_axspft[-zeroIdx,x,s,p,f,t] <- obsCatAgeProp
+                ageObs_axspft[zeroIdx,x,s,p,f,t]  <- 0
+              }
+            }
+
+            # Now what if age observations are forced (i.e. survey with
+            # no catch simulated) - then use vuln biomass or generate
+            # a small amt of catch...
+            if( C_spft[s,p,f,t] == 0 )
+            {
+              # Write survey age procedure here.
+            }
+          }
         } 
     }
   }
@@ -1657,6 +1739,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   # Biomass indices
   Iperf_spft        -> obj$om$I_spft
   Ierr_spft         -> obj$mp$data$I_spft
+  ageObs_axspft     -> obj$mp$data$A_axspft
 
   # SOK stuff
   P_spft            -> obj$om$P_spft
@@ -1791,7 +1874,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
 
         # Check if tac_pf exceed allowable TAC
         if(sum(tac_pf[p,]) >  TAC_p[p])
-          browser(cat('HCR ERROR: more catch allocated to fleets than avaiable... \n'))
+          browser(cat('HCR ERROR: more catch allocated to fleets than available... \n'))
           
       } # END loop for allocating TAC  
 
@@ -2572,9 +2655,34 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   if( methodID == "hierProd" )
     obj <- .AM_hierProd(obj,t)
 
+  if( methodID == "ISCAM" )
+    obj <- .AM_ISCAM(obj,t)
+
+  if( methodID == "SISCA" )
+    obj <- .AM_SISCA(obj,t)  
+
 
   return(obj)
 } # END .callProcedureAM()
+
+
+# Apply the Integrated Statistical Catch-Age Model
+# (ISCAM) to aggregate biomass (single-stock) data
+# SOURCE: mseR-ISCAM for structure. 
+.AM_ISCAM <- function( obj, t )
+{
+
+} # END .AM_ISCAM()
+
+
+# Apply the Spatiall Integrated Statistical Catch-Age
+# (SISCA) model to simulated data. Can be either
+# aggregated data or multi-stock.
+.AM_SISCA <- function( obj, t )
+{
+  # Copy the fitting functions from SISCAfuns.R
+
+} # END .AM_SISCA()
 
 
 # Apply hierarchical production model 
@@ -3771,6 +3879,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
       
     }
 
+
   if( ctlList$mp$hcr$Fref == "Umsy" )
     obj$mp$hcr$Fref_spt[,,t]      <- obj$rp$FmsyRefPts$Umsy_sp
 
@@ -4005,6 +4114,14 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
       }
 
       obj$om$alloc_spf[s,p,commGears] <- recentCatch_spf[s,p,commGears] / sum( recentCatch_spf[s,p,commGears])
+
+
+      # First, fill with uncorrelated errors
+      obj$errors$ageObsErr_axspft[,,s,p,,] <- rnorm(nA*nX*nF*nT)
+
+      # Then check if age observation errors are correlated
+      browser()
+
     }
 
 
@@ -4086,6 +4203,9 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   nT  <- obj$om$nT
   nF  <- obj$om$nF
   nA  <- obj$om$nA
+  A_s <- obj$om$A_s
+
+  nX  <- obj$om$nX
   tMP <- obj$om$tMP
   pT  <- ctlList$opMod$pT
 
@@ -4178,8 +4298,21 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
 
 
   # Add historical data
-  obj$mp$data$I_spft[1,1:nP,histF,histdx]        <- repObj$I_pgt[1:nP,,histdx]
-  obj$mp$data$A_axspft[,1,1,1:nP,histF,histdx]   <- repObj$A_apgt[,1:nP,,histdx]
+  for(f in 1:repObj$nG)
+  {
+    obj$mp$data$I_spft[1,1:nP,f,histdx]        <- repObj$I_pgt[1:nP,f,histdx]
+    obj$mp$data$A_axspft[,1,1,1:nP,f,histdx]   <- repObj$A_apgt[,1:nP,f,histdx]
+
+    # Check link between age sample size and other data
+    Asample_pt <- apply(X =repObj$A_apgt[,,f,histdx,drop = FALSE], FUN = sum, MARGIN = c(2,4), na.rm = T )
+    Asample_pt[Asample_pt < 0] <- 0
+    C_pt       <- apply(X = repObj$C_pgt[,,histdx,drop = FALSE], FUN = sum, MARGIN = c(1,3))
+
+    
+
+  }
+
+
 
   # Check if model is using a blended index & overwrite dive survey index & q
   if(!is.null(repObj$combI_pt))
@@ -4365,6 +4498,28 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
 
       if( !ctlList$ctl$noProcErr & lastIdx > 0 )
         obj$errors$omegaR_spt[s,p,histdx[1:lastIdx]] <- obj$errors$omegaR_spt[s,p,histdx[1:lastIdx]] + 0.5*repObj$sigmaR  # rec devs    
+
+
+      # Start by generating uncorrelated errors
+      obj$errors$ageObsErr_axspft[1:A_s[s],,s,p,,tMP:nT] <- rnorm(A_s[s] * nX * nF * (nT - tMP + 1))
+      # Then loop and apply correlation mtx for resids
+      Corr_gaa <- repObj$Corr_gaa
+      for( fIdx in 1:repObj$nG )
+      {
+        cholesky_aa <- chol(as.matrix(Corr_gaa[fIdx,1:A_s[s],1:A_s[s]]))
+
+        # Check correlation
+        if(all(cholesky_aa %in% c(0,1)))
+          next
+        
+        # Loop and correlate
+        for( t in tMP:nT )
+          for( x in 1:nX )
+          {
+            errVec <- array(obj$errors$ageObsErr_axspft[1:A_s[s],x,s,p,f,t],dim = c(A_s[s],1))
+            obj$errors$ageObsErr_axspft[1:A_s[s],x,s,p,f,t] <- t(cholesky_aa) %*% errVec
+          }
+      }
 
     }
 
