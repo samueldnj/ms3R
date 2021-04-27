@@ -170,7 +170,7 @@ if(params$redoPlots | !file.exists(figPath))
 {
   graphics.off()
   pdf(file = figPath, width = 8.5, height = 11)
-  compareTulipEffort( groupFolder = "omniRuns_noCorr_Mar26",
+  compareTulipEffort( groupFolder = "omniRuns_noCorr_Apr14",
                       scenarios = "noCorr",
                       rpSim = params$sim,
                       fleets = 1:2,
@@ -190,23 +190,23 @@ if(params$redoPlots | !file.exists(figPath))
 {
   graphics.off()
   pdf(file = figPath, width = 8.5, height = 11)
-  plotDynUmsy_sp( groupFolder = "omniRuns_noCorr_Mar26",
+  plotDynUmsy_sp( groupFolder = "omniRuns_noCorr_Apr14",
                   mpFilter = "freeEff",
                   baseRP = "sim_baseRun_invDem",
                   scenOrder = c("noCorr"))
   dev.off()
 }
-knitr::include_graphics(figPath)
+# knitr::include_graphics(figPath)
 ```
 
 
-```{r fig10-bioDist, echo = FALSE, warning = FALSE, fig.cap = bioDistCap }
-figPath <- file.path("./figure/fig10-bioDist.pdf")
+```{r fig7-bioDist, echo = FALSE, warning = FALSE, fig.cap = bioDistCap }
+figPath <- file.path("./figure/fig7-bioDist.pdf")
 if(params$redoPlots | !file.exists(figPath))
 {
   graphics.off()
   pdf(file = figPath, width = 8.5, height = 11)
-  plotBioDist()
+  plotBioDist( groupFolders = c("simAssErrors_Apr14") )
   dev.off()
 }
 knitr::include_graphics(figPath)
@@ -214,11 +214,11 @@ knitr::include_graphics(figPath)
 
 \blandscape
 
-```{r fig10-simEnvelope, echo = FALSE, warning = FALSE, fig.cap = imperfectInfoSimEnvCap }
-figPath <- file.path("./figure/fig10-simEnvelope.pdf")
+```{r fig8-simEnvelope, echo = FALSE, warning = FALSE, fig.cap = imperfectInfoSimEnvCap }
+figPath <- file.path("./figure/fig8-simEnvelope.pdf")
 if(params$redoPlots | !file.exists(figPath))
 {
-  .loadSim(1,groupFolder=  "simAssErrs_noCorr")
+  .loadSim(1,groupFolder=  "simAssErrors_Apr14")
   graphics.off()
   pdf(file = figPath, width = 7/fig_asp, height = 7)
   plotTulipBt(dep = TRUE, Ct = TRUE)
@@ -229,16 +229,16 @@ knitr::include_graphics(figPath)
 
 \elandscape
 
-```{r fig11-rentTulips, echo = FALSE, warning = FALSE, fig.cap = rentTulipsCap }
-figPath <- file.path("./figure/fig11-rentTulips.pdf")
+```{r fig9-rentTulips, echo = FALSE, warning = FALSE, fig.cap = rentTulipsCap }
+figPath <- file.path("./figure/fig9-rentTulips.pdf")
 if(params$redoPlots | !file.exists(figPath))
 {
   graphics.off()
   pdf(file = figPath, width = 8.5, height = 11)
-  compareTulipRent( groupFolder = "simAssErrs_noCorr",
+  compareTulipRent( groupFolder = "simAssErrors_Apr14",
                     scenarios = "noCorr",
                     mps = c("simAssError_noCorr.MSY","simAssError_noCorr.MEY"),
-                    rpSim = "sim_baseRun",
+                    rpSim = "sim_baseRun_invDem",
                     fleets = 2,
                     proj = TRUE )
   dev.off()

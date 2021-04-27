@@ -123,6 +123,7 @@ opMod$corrPriceDevs FALSE
 opMod$cwMEY FALSE
 opMod$GDPgrowth 0.039
 opMod$priceModel NULL
+opMod$invDem TRUE
 opMod$priceCorr .6
 opMod$ut_50 .85
 opMod$ut_95 .75

@@ -123,6 +123,7 @@ opMod$corrPriceDevs FALSE
 opMod$cwMEY FALSE
 opMod$GDPgrowth 0.039
 opMod$priceModel "priceModelIV.rds"
+opMod$invDem TRUE
 opMod$priceCorr .6
 opMod$ut_50 .85
 opMod$ut_95 .75
@@ -130,7 +131,7 @@ opMod$effortMod "Max"
 opMod$pT 80
 opMod$histFile "fit_base_MCMC"
 opMod$price_s c(Dover=0.62,English=1.21,Rock=0.66,Petrale=2.590,Arrowtooth=0.990)
-opMod$varCostPerKt 0.087
+opMod$varCostPerKt 0.194
 opMod$discountRate 0.05
 opMod$interestRate 0.0
 opMod$invlambda_s c(-0.288,-0.1952,-0.3533)

@@ -3809,17 +3809,29 @@ combBarrierPen <- function( x, eps,
   {
     priceModelList <- readRDS(file = file.path("history",ctlList$opMod$priceModel))
     
-    invDemCurves <- priceModelList$invDemCurvesOwnElast_s
+    invDemCurves  <- priceModelList$invDemCurvesOwnElast_s
+    demCurves     <- priceModelList$demCurvesOwnElast_s
 
     obj$ctlList$opMod$priceModel  <- priceModelList
 
     # Overwrite lambda_s
     for(s in 1:nS)
     {
-      obj$ctlList$opMod$alpha_s[s]      <- coef(invDemCurves[[s]])[1]
-      obj$ctlList$opMod$invlambda_s[s]  <- coef(invDemCurves[[s]])[2]
-      if( length(coef(invDemCurves[[s]])) == 3 )
-        obj$ctlList$opMod$incomeCoeff_s[s] <- coef(invDemCurves[[s]])[3]
+      if(obj$ctlList$opMod$invDem)
+      {
+        obj$ctlList$opMod$alpha_s[s]      <- coef(invDemCurves[[s]])[1]
+        obj$ctlList$opMod$invlambda_s[s]  <- coef(invDemCurves[[s]])[2]
+        if( length(coef(invDemCurves[[s]])) == 3 )
+          obj$ctlList$opMod$incomeCoeff_s[s] <- coef(invDemCurves[[s]])[3]
+      }
+
+      if(!obj$ctlList$opMod$invDem)
+      {
+        obj$ctlList$opMod$alpha_s[s]      <- coef(demCurves[[s]])[1]
+        obj$ctlList$opMod$invlambda_s[s]  <- 1/coef(demCurves[[s]])[2]
+        if( length(coef(demCurves[[s]])) == 3 )
+          obj$ctlList$opMod$incomeCoeff_s[s] <- coef(demCurves[[s]])[3]
+      }
     }
 
     obj$ctlList$opMod$adjC_s        <- apply(X = priceModelList$UScatch_st, FUN = mean, MARGIN = 1)
@@ -4631,7 +4643,14 @@ combBarrierPen <- function( x, eps,
     C_s           <- apply( X = C_spt[,,t], FUN = sum, MARGIN = 1 )
     i             <- opMod$interestRate
 
-    lnP_s     <- alpha_s + invlambda_s * log(C_s + adjC_s) + incomeCoeff_s * log(bcIncome)
+
+    if(opMod$invDem)
+      lnP_s     <- alpha_s + invlambda_s * log(C_s + adjC_s) + incomeCoeff_s * log(bcIncome)
+
+    if(!opMod$invDem)
+      lnP_s     <- (-alpha_s + log(C_s + adjC_s) - incomeCoeff_s * log(bcIncome)) * invlambda_s
+
+
     P_s       <- exp(lnP_s)
 
     v_st[,t] <- P_s

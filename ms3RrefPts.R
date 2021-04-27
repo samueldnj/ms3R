@@ -179,7 +179,13 @@ solveSpline <- function(  Yvals, Xvals, value = 0, bounds = c(0,10),
 
     for( s in 1:nS )
     {
-      lnP_e     <- alpha_s[s] + invlambda_s[s] * log(Yeq_se[s,] + adjC_s[s]) + incomeCoeff_s[s] * log(bcIncome)
+
+      if(opMod$invDem)
+        lnP_e     <- alpha_s[s] + invlambda_s[s] * log(Yeq_se[s,] + adjC_s[s]) + incomeCoeff_s[s] * log(bcIncome)
+
+      if(!opMod$invDem)
+        lnP_e     <- (- alpha_s[s] + log(Yeq_se[s,] + adjC_s[s]) - incomeCoeff_s[s] * log(bcIncome))* invlambda_s[s]
+      
       P_e       <- exp(lnP_e)
 
       landVal_spe[s,p,] <- P_e

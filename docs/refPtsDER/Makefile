@@ -31,6 +31,12 @@ intro.docx: index.Rmd Makefile
 tandf.pdf: index.Rmd Makefile
 	Rscript -e 'bookdown::render_book(input = "index.Rmd", clean = TRUE, output_format = "bookdown::pdf_document2", config_file = "_tandf.yml")'
 
+tables.pdf: index.Rmd Makefile
+	Rscript -e 'bookdown::render_book(input = "index.Rmd", clean = TRUE, output_format = "bookdown::pdf_document2", config_file = "_tables.yml")'
+
+figs.pdf: index.Rmd Makefile
+	Rscript -e 'bookdown::render_book(input = "index.Rmd", clean = TRUE, output_format = "bookdown::pdf_document2", config_file = "_figures.yml")'
+
 
 appendices.pdf: index.Rmd Makefile
 	Rscript -e 'bookdown::render_book(input = "index.Rmd", clean = TRUE, output_format = "bookdown::pdf_document2", config_file = "_appendices.yml")'

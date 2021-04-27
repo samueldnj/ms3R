@@ -102,7 +102,7 @@ plotDemCurves <- function(  model = saveModelList,
             col = specCols[1], pch = 21, bg = NA )
     points( x = econDF$Cd, y = econDF$instPd, cex = 2,
             col = specCols[1], pch = 21, bg = specCols[1] )
-    # lines( y = predDF$instPd, x = predDF$predCd, col = specCols[1],lwd = 2)
+    lines( y = predDF$instPd, x = predDF$predCd, col = specCols[1],lwd = 2)
     # lines( y = predDF$instPd, x = predDF$predCd_dl, col = "grey40",lwd = 2)
 
     if(invDem)
@@ -122,7 +122,7 @@ plotDemCurves <- function(  model = saveModelList,
     points( x = econDF$Ce, y = econDF$instPe, cex = 2,
             col = specCols[2], pch = 21, bg = specCols[2] )
     
-    # lines( y = predDF$instPe, x = predDF$predCe, col = specCols[2],lwd = 2)
+    lines( y = predDF$instPe, x = predDF$predCe, col = specCols[2],lwd = 2)
     # lines( y = predDF$instPe, x = predDF$predCe_noInc, col = specCols[2],lwd = 2, lty = 3)
     # lines( y = predDF$instPe, x = predDF$predCe_dl, col = "grey40",lwd = 2)
     if(invDem)
@@ -141,7 +141,7 @@ plotDemCurves <- function(  model = saveModelList,
             col = specCols[3], pch = 21, bg = NA )
     points( x = econDF$Cr, y = econDF$instPr, cex = 2,
             col = specCols[3], pch = 21, bg = specCols[3] )
-    # lines( y = predDF$instPr, x = predDF$predCr, col = specCols[3],lwd = 2)
+    lines( y = predDF$instPr, x = predDF$predCr, col = specCols[3],lwd = 2)
     # lines( y = predDF$instPr, x = predDF$predCr_noInc, col = specCols[3],lwd = 2, lty = 3)
     # lines( y = predDF$instPr, x = predDF$predCr_dl, col = "grey40",lwd = 2)
     if(invDem)
@@ -153,8 +153,8 @@ plotDemCurves <- function(  model = saveModelList,
 
     abline(v = MSY_s[3] + adjC_s[3], lty = 2)
     legend( x = "topright", bty = "n",
-            legend = c("Demand","Demand, no GDP","inv. Demand","inv. Dem, no GDP"),
-            lty  = c(1,3,2,4),
+            legend = c("Demand","inv. Demand"),
+            lty  = c(1,2),
             lwd = 2 )
 
   mtext( side = 1, text = "Catch (kt)", outer = TRUE, line = 1.5)
@@ -2568,14 +2568,16 @@ plotTulipRE_AM <- function( simNum = 1,
 
 } # END plotTulipAssError
 
+
 # compareTulipEfforts()
-compareTulipEffort <- function( groupFolder = "omni_econYield_splineE_long_Jan4",
+compareTulipEffort <- function( groupFolder = "omniRuns_noCorr_Apr14",
                                 scenarios = "noCorr",
-                                rpSim = "sim_baseRun",
+                                rpSim = "sim_baseRun_invDem",
                                 fleets = 1:2,
                                 combineEff = TRUE,
                                 proj = TRUE,
-                                highlightPer = c(2041,2060) )
+                                highlightPer = c(2040,2060),
+                                lastYear = 2060 )
 {
   # Load groupInfo
   groupInfo <- readBatchInfo( batchDir = here::here("Outputs",groupFolder) )
@@ -2622,6 +2624,8 @@ compareTulipEffort <- function( groupFolder = "omni_econYield_splineE_long_Jan4"
   yrs <- seq( from = fYear, by = 1, length.out = nT)
   stockNames    <- blob$om$stockNames
 
+
+
   E_Sipt <- array(NA, dim = c(nSim,nReps,nP,nT))
 
   for( simIdx in 1:nSim )
@@ -2632,20 +2636,22 @@ compareTulipEffort <- function( groupFolder = "omni_econYield_splineE_long_Jan4"
 
   simCols <- c("black","red")
 
-  projYrs <- 1:nT
-  if(proj)
-    projYrs <- (tMP-1):nT
-
+  plotIdx <- 1:nT
+  
   highlightPerIdx <- highlightPer[1]:highlightPer[2] - fYear + 1
+  
+  plotIdx <- which(yrs < lastYear)
 
+  if(proj)
+    plotIdx <- plotIdx[plotIdx >= tMP]
 
   par(  mfcol = c(nP,1), 
-        mar = c(1,1.5,1,1.5),
-        oma = c(3,4,3,3) )
+        mar = c(.1,1,.1,1),
+        oma = c(4,4,5,3) )
 
   for( p in 1:nP )
   {
-    plot( x = range(yrs[projYrs]),
+    plot( x = range(yrs[plotIdx]),
           y = c(0,max(E_qSpt[,,p,highlightPerIdx],na.rm = T) ),
           type = "n", axes = F )
       mfg <- par("mfg")
@@ -2674,28 +2680,32 @@ compareTulipEffort <- function( groupFolder = "omni_econYield_splineE_long_Jan4"
       abline( v = highlightPer, lwd = 2, col = "black", lty = 3 )
 
       abline( v = yrs[tMP] - 0.5, lty = 2, lwd = 0.5 )
-
-
-
-    if( p == 3 )
-      legend( x = "topright",bty = "n",
-              legend = c( "Catch maximisation",
-                          "Emsy",
-                          "Rent maximisation",
-                          "Emey"),
-              pt.lwd = 0,
-              pt.cex = 4,
-              cex = 2,
-              pch = c(22,NA,22,NA), 
-              pt.bg = scales::alpha(c("black",NA,"red",NA),alpha = .3),
-              col = c("black","steelblue","red","black"),
-              lty = c(1,4,2,5),
-              lwd = 3 )
             
   }
 
   mtext( side = 2, outer = TRUE, text = "Commercial Trawl Effort (1000 hrs)",
           line = 2, font = 2)
+  mtext( side = 1, outer =TRUE, text = "Year", font = 2, line = 2)
+
+  # Now do outer margin legend (top)
+  par(xpd=NA, oma = c(0,0,0,0), mar = c(0,0,0,0), mfcol = c(1,1) )
+  # plot(x = 1, y = 1, add = TRUE, type = "n")
+
+  legTxt <- c( expression(paste("max ", C[t]), E[MSY], paste("max ", pi), E[MEY] ))
+
+  legend( x = "top",bty = "n", horiz = TRUE,
+          legend = legTxt,
+          inset = c(0,-0.01),
+          pt.lwd = 0,
+          pt.cex = 4,
+          cex = 2,
+          pch = c(22,NA,22,NA), 
+          pt.bg = scales::alpha(c("black",NA,"red",NA),alpha = .3),
+          col = c("black","steelblue","red","black"),
+          lty = c(1,4,2,5),
+          lwd = 3 )
+  par( xpd = FALSE)
+
 } # END compareTulipEffort()
 
 # compareTulipRent()
