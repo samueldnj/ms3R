@@ -92,7 +92,7 @@ multi-species MSY, and MEY reference points were estimated via
 yield-per-recruit analysis [@beverton1957dynamics; @murawski1984mixed; 
 @pikitch1987use], and multi-species MSY and MEY reference points were 
 validated via stochastic optimisation of simulated fishery effort over 
-a 60-year projection with recruitment process error, where the either 
+an 80-year projection with recruitment process error, where the either 
 catch or net-present-value (NPV) of the fishery was maximized. We show
 that when accounting for spatial heterogeneity and price elasticity of 
 demand, MEY and multi-species MSY harvest strategies consistently 

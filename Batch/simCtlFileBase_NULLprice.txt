@@ -136,7 +136,7 @@ opMod$discountRate 0.05
 opMod$interestRate 0.0
 opMod$invlambda_s c(-0.2789,-0.1952,-0.3533)
 opMod$alpha_s c(2.5544,2.5371,1.266)
-opMod$adjC_s c(9.645,0.387,0)
+opMod$adjC_s c(8.048,0.387,0)
 opMod$incomeCoeff_s c(-.5935,-0.6363,-0.3926)
 opMod$bcIncome 46.9050
 opMod$priceSD 0.05

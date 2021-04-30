@@ -61,11 +61,11 @@ assumed values, and descriptions."
 
 modelAssumption <- tibble::tribble( 
   ~Variable,        ~Value,        ~Description,
-  "$f_{2009}$",     "\$175,000",   "Fuel cost per kt of catch in 2009, CAD",
+  "$f_{2009}$",     "\\$175,000",  "Fuel cost per kt of catch in 2009, CAD",
   "$\\psi$",        "$0.3$",       "Crew share of revenue",
   "$d$",            "$0.05$",      "Discount rate",
-  "$v_s(C_s)$",     "",            "Unit price per kg of species $s$ (\\$) at quantity demanded $C_s$ (kt)",
-  "$c_p$",          "",            "Fuel cost per unit of fishing effort (\\$m)",
+  "$v_s(C_s)$",     "",            "Unit price per kg of species $s$ (CAD \\$) at quantity demanded $C_s$ (kt)",
+  "$c_p$",          "",            "Fuel cost per unit of fishing effort (CAD \\$ million)",
   "$\\pi(\\vec{E})$","",           "Equilibrium resource rent produced by",
   "",               "",            "annual fishing effort $\\vec{E}$",
   "$\\gamma$",      "$0.039$",     "Annual growth rate of household income",
@@ -266,14 +266,14 @@ csasdown::csas_table(  propEffTable, escape = FALSE,
 \clearpage
 
 ```{r closedLoopDiscRentTables, echo = FALSE, warning = FALSE}
-perfInfoTab <- read.csv("./data/perfInfoPerfTables/dynEqDiscRentDist.csv",
-                        row.names = 1, stringsAsFactors = FALSE)[,-c(1,3:7)]
+# perfInfoTab <- read.csv("./data/perfInfoPerfTables/dynEqDiscRentDist.csv",
+#                         row.names = 1, stringsAsFactors = FALSE)[,-c(1,3:7)]
 
 simErrTab   <- read.csv("./data/simAssErrPerfTables/dynEqDiscRentDist.csv",
                           row.names = 1, stringsAsFactors = FALSE)[,-c(1,3:7)]
 
 scenNames <- c("noCorr")
-mpNames <- c("MSY","noCorr.MSY","MEY","noCorr.MEY")
+mpNames <- c("MSYSS","MSY","noCorr.MSY","MEY","noCorr.MEY")
 
 mpScenGrid <- expand.grid(corrScen = scenNames, MP = mpNames)
 mpScenGrid$scenMPname <- paste(mpScenGrid$corrScen,mpScenGrid$MP,sep = ".")
@@ -281,12 +281,12 @@ mpScenGrid$scenMPname <- paste(mpScenGrid$corrScen,mpScenGrid$MP,sep = ".")
 
 # Need to transpose, make stocks into colnames,
 # turn row-names into scenario and HR columns
-perfInfoTab <- t(perfInfoTab)
-colnames(perfInfoTab) <- perfInfoTab[1,]
-perfInfoTab <- perfInfoTab[-1,]
-perfInfoTab <- as.data.frame(perfInfoTab)
-scenMPnames <- rownames(perfInfoTab)
-perfInfoTab$scenMPname <- scenMPnames
+# perfInfoTab <- t(perfInfoTab)
+# colnames(perfInfoTab) <- perfInfoTab[1,]
+# perfInfoTab <- perfInfoTab[-1,]
+# perfInfoTab <- as.data.frame(perfInfoTab)
+# scenMPnames <- rownames(perfInfoTab)
+# perfInfoTab$scenMPname <- scenMPnames
 
 simErrTab <- t(simErrTab)
 colnames(simErrTab) <- simErrTab[1,]
@@ -295,27 +295,28 @@ simErrTab <- as.data.frame(simErrTab)
 scenMPnames <- rownames(simErrTab)
 simErrTab$scenMPname <- scenMPnames
 
-perfInfoTab <- perfInfoTab %>% 
-                left_join( mpScenGrid, by = "scenMPname") %>%
-                dplyr::select( MP,
-                              cwPerfInfo = BC ) %>%
-                arrange(  match(MP,mpNames) )
+# perfInfoTab <- perfInfoTab %>% 
+#                 left_join( mpScenGrid, by = "scenMPname") %>%
+#                 dplyr::select( MP,
+#                               cwPerfInfo = BC ) %>%
+#                 arrange(  match(MP,mpNames) )
 
 discRentTab <- simErrTab %>% 
                 left_join( mpScenGrid, by = "scenMPname") %>%
                 dplyr::select(  MP,
                                 cwSimErr = BC ) %>%
-                arrange(  match(MP,mpNames) ) %>%
-                left_join( perfInfoTab, by = c("MP"))
+                arrange(  match(MP,mpNames) )
+
+discRentTab <- discRentTab[1:5,]
 
 colnames(discRentTab) <- c( "Target HR",
-                            "Simulated Errors",
-                            "Perfect Info")
+                            "Simulated Errors" )
 
-discRentTab[,1] <- c( "$U_{MSY}$",
-                     "$U^*_{MSY}$",
-                     "$U_{MEY}$",
-                     "$U^*_{MEY}$" )
+discRentTab[,1] <- c(  "$U_{MSY,SS}$",
+                       "$U_{MSY,MS}$",
+                       "$U^*_{MSY,MS}$",
+                       "$U_{MEY}$",
+                       "$U^*_{MEY}$" )
 
 
 csasdown::csas_table( discRentTab, escape = FALSE,
@@ -327,7 +328,7 @@ csasdown::csas_table( discRentTab, escape = FALSE,
       kable_styling(  latex_options = c("striped", "hold_position","scale_down"),
                       bootstrap_options = c("striped", "hover")) %>%
       add_header_above( header = c( " " = 1,
-                                    "DER Complex NPV ($M)" = 2),
+                                    "DER Complex NPV ($M)" = 1),
                         bold = TRUE)
 
 

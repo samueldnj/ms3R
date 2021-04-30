@@ -71,7 +71,7 @@ mp$data$tvq FALSE
 mp$hcr$refPtType "MS"
 mp$hcr$Fsource "inputFile"
 mp$hcr$type "conF"
-mp$hcr$inputHRfile "Outputs/omniRuns_noCorr_Apr14/dynEqHR.csv"
+mp$hcr$inputHRfile "Outputs/omniRuns_noCorr_Apr26/dynEqHR.csv"
 mp$hcr$fileColName 'Xmsy'
 mp$hcr$Bref "Bmsy"
 mp$hcr$Fref "inputF"
@@ -129,7 +129,7 @@ opMod$GDPgrowth 0.039
 opMod$ut_50 .85
 opMod$ut_95 .75
 opMod$effortMod "Max"
-opMod$pT 32
+opMod$pT 80
 opMod$histFile "fit_base_MCMC"
 opMod$price_s c(Dover=0.62,English=1.21,Rock=0.66,Petrale=2.590,Arrowtooth=0.990)
 opMod$varCostPerKt 0.194

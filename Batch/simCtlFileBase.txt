@@ -71,7 +71,7 @@ mp$data$tvq FALSE
 mp$hcr$refPtType "MS"
 mp$hcr$Fsource "est"
 mp$hcr$type "conF"
-mp$hcr$inputHRfile "./Outputs/omniRuns_noCorr_Apr14/dynEqHR.csv"
+mp$hcr$inputHRfile "./Outputs/omniRuns_noCorr_Apr26/dynEqHR.csv"
 mp$hcr$fileColName "noCorr.totCat"
 mp$hcr$Bref "Bmsy"
 mp$hcr$Fref "Umsy"

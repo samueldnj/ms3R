@@ -21,12 +21,13 @@ optima, and Rock sole was slightly lower. Despite some large differences
 in optimal harvest rates, differences in $MSY_{SS}$ and $MSY_{MS}$ were subtle 
 for all stocks, with a decrease of up to 5\% from $MSY_{SS}$ to $MSY_{MS}$ 
 for any one stock. The total $MSY_{MS}$ for the DER complex fishery was
-5.26 kt, which was only 110t, or 3%, lower than the sum of myopic (and
-likely impossible to simultaneously achieve) $MSY_{SS}$ yields.
+5.26 kt, which was only 110t, or 3%, lower than the sum of $MSY_{SS}$ 
+yields, which are impossible to achieve at operating model equilibrium
+given the technical interactions.
 
 Annual resource rent at $MSY_{MS}$ assuming 2016 GDP per capita was around 
-CAD \$1.72 million across the three stock areas. The area with the highest 
-rent was HSHG at almost CAD \$1 million, attained at the lowest effort of the 
+CAD \$278,000 across the three stock areas. The area with the highest 
+rent was HSHG at almost CAD \$160,000, attained at the lowest effort of the 
 three areas (Table 3), which is as expected since the catchability and
 total DER complex biomass is highest in HSHG. WCVI was next, which is
 dominated by highly catchable Dover sole, that also had relatively 
@@ -38,20 +39,18 @@ and roughly equal mix of Rock and Dover soles.
 ### Multi-species maximum economic yield
 
 Maximum economic yield (annual resource rent in 2016 dollars) for the 
-DER complex trawl fishery was around CAD $2.02 million (Table 3). Fishing 
+DER complex trawl fishery was around CAD $1.36 million (Table 3). Fishing 
 effort achieving $MEY$ was just above half of the effort level achieving
 $MSY_{MS}$ for all areas. Similarly, the optimal harvest rates for $MEY$ 
-were around 60\% of the harvest rates for $MSY_{MS}$. Despite the large 
-drop in effort and harvest rates, catch differences were small given the 
-higher equilibrium biomass at the lower fishing effort. The total difference 
+were around 40\% of the harvest rates for $MSY_{MS}$. The total difference 
 in DER complex equilibrium catch between $MSY_{MS}$ and $C_{MEY}$ was 
-approximately 420 t, with individual stock catches differing by an average 
-of 9\%, with a minimum 0% difference for QCS Rock sole. 
+approximately around 1.1 kt, with individual stock catches differing by an 
+average of 27\%, with a minimum 10% difference for QCS Rock sole. 
 
 Similar to above, resource rent was highest in the HSHG area at the lowest 
 effort, reflecting the higher biomass of all species in that area 
 (Table 4). While optimal effort $E_{MEY}$ in QCS was about 20\% higher 
-than in WCVI, the resource rent was about 60\% higher in the WCVI area. 
+than in WCVI, the resource rent was about 50\% higher in the WCVI area. 
 As with the $MSY_{MS}$ case, higher WCVI rent is caused by the higher 
 Dover sole biomass relative to English and Rock sols as well as higher 
 commercial catchability and inelastic demand of Dover sole in the WCVI 
@@ -63,14 +62,19 @@ increased rent in an area which was effectively a single-species fishery.
 
 The most noticeable effect of the optimisation of projected
 efforts was the change in demand. As time went on, GDP per capita
-increased at a rate of 3.9% per year, lowering prices of English
-and Rock soles [reference to appendix/figure]. Given the revenue reduction,
+increased at a rate of 3.9% per year, lowering prices of all DER
+complex species (Figure 2, grey lines). Given the revenue reduction,
 the stochastic optimisation of DER complex fishery NPV reduced efforts 
-in all three areas, with the largest shift in HSHG, where English 
-and Rock soles are most abundant, and the smallest change was in the 
-WCVI area, where Dover sole, for which price does not depend on GDP per 
-capita, dominated the total biomass by an order of magnitude. The 
-reduction in effort when maximising NPV led to declining optimal 
+in all three areas, with the largest shifts in HSHG and WCVI, where Dover
+sole stocks were the largest, and the smallest change was in the 
+QCS area, where Dover sole still dominates but the stock size is
+smaller in absolute terms. Dependence on Dover sole is based
+on the assumed US west coast catches of around 9kt (Figure 2 top
+panel, vertical dashed line), which forced Dover sole prices to always 
+be around the minimum price for any year, no matter the BC management 
+action. 
+
+The reduction in effort when maximising NPV led to declining optimal 
 fishing efforts for the majority of the projection period after
 an initial development period to take advantage of the higher demand
 in earlier years (Figure 5). Correspondingly, $U_{MEY}^*$ harvest rates

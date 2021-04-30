@@ -261,9 +261,9 @@ non-parametric definition of risk commonly used in economic analyses
 
 ## Sensitivities
 
-- Constant price
-    - infinite elasticity
-    - no GDP growth
+<!-- - Constant price
+- infinite elasticity
+- no GDP growth
 
 - Discount rates at 2.5% or 10%
 
@@ -272,6 +272,6 @@ up/dn from 2009-2018 average of 3.9%)
 ^[https://www2.gov.bc.ca/assets/gov/british-columbians-our-governments/government-finances/financial-economic-review/financial-economic-review-2020.pdf]
 
 **MAKE A TABLE**
-
+ -->
 
 

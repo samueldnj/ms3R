@@ -2035,7 +2035,6 @@ solvePTm <- function( Bmsy, B0 )
 
       if(ctlList$mp$assess$method %in% c("idxBased","PerfectInfo","simAssErrors"))
       {
-        browser()
         blob$goodReps_isp[i,,] <- TRUE
       } else{
         for( s in 1:nS )
@@ -4049,10 +4048,20 @@ combBarrierPen <- function( x, eps,
       # browser()
 
       fitErrs_spt <- errList[[1]]$assErr_ispt[iRep,,,]
+      
+      anyNA <- function(X)
+        any(is.na(X))
+
+      notNAerrs_t <- !apply(X = fitErrs_spt, FUN = anyNA, MARGIN = 3)
+
+
+      errIdx <- which(notNAerrs_t)
+      errT <- length(errIdx)
+
 
       # UPDATE SO WE DON'T HAVE TO MATCH pT
       # Need to make a matrix to estimate correlation
-      errMat_tSP <- array(NA, dim = c(pT,nS*nP) )
+      errMat_tSP <- array(NA, dim = c(errT,nS*nP) )
       for( s in 1:nS )
         for(p in 1:nP )
         {
@@ -4060,7 +4069,7 @@ combBarrierPen <- function( x, eps,
           # multiple species within an area - easier for
           # looking spatially
           colIdx <- (p-1)*nS + s
-          errMat_tSP[,colIdx] <- fitErrs_spt[s,p,tMP:nT]
+          errMat_tSP[,colIdx] <- fitErrs_spt[s,p,errIdx]
         }
 
 
@@ -4069,8 +4078,8 @@ combBarrierPen <- function( x, eps,
       corrErrs        <- cor(errMat_tSP)
       covErrs         <- cov(errMat_tSP)
       mvtNormErrs_tSP <- mvtnorm::rmvnorm(  n = pT, mean = rep(0,nS*nP),
-                                        sigma = covErrs,
-                                        method = "chol") 
+                                            sigma = covErrs,
+                                            method = "chol") 
 
       for( s in 1:nS )
         for(p in 1:nP )
