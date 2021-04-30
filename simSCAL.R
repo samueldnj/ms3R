@@ -2289,6 +2289,7 @@ solvePTm <- function( Bmsy, B0 )
   # Name the blob array dimensions...
   tMP   -> blob$om$tMP
   nT    -> blob$om$nT
+  pT    -> blob$om$pT
   nX    -> blob$om$nX
   nF    -> blob$om$nF
   nA    -> blob$om$nA
@@ -4049,6 +4050,7 @@ combBarrierPen <- function( x, eps,
 
       fitErrs_spt <- errList[[1]]$assErr_ispt[iRep,,,]
 
+      # UPDATE SO WE DON'T HAVE TO MATCH pT
       # Need to make a matrix to estimate correlation
       errMat_tSP <- array(NA, dim = c(pT,nS*nP) )
       for( s in 1:nS )
@@ -4060,6 +4062,8 @@ combBarrierPen <- function( x, eps,
           colIdx <- (p-1)*nS + s
           errMat_tSP[,colIdx] <- fitErrs_spt[s,p,tMP:nT]
         }
+
+
 
       # Now calculate correlation
       corrErrs        <- cor(errMat_tSP)

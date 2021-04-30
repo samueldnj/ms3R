@@ -68,7 +68,7 @@ modelAssumption <- tibble::tribble(
   "$c_p$",          "",            "Fuel cost per unit of fishing effort (\\$m)",
   "$\\pi(\\vec{E})$","",           "Equilibrium resource rent produced by",
   "",               "",            "annual fishing effort $\\vec{E}$",
-  "$\\gamma$",      "$0.039$",     "Annual growth rate of household income"
+  "$\\gamma$",      "$0.039$",     "Annual growth rate of household income",
   )
 
 

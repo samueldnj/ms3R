@@ -58,16 +58,6 @@ commercial catchability and inelastic demand of Dover sole in the WCVI
 area, compensating for higher simulated fuel costs of fishing and 
 increased rent in an area which was effectively a single-species fishery.
 
-The technical interactions in the simulated DER complex fishery are
-the precise quality that fishing At the assumed fuel costs, positive resource rents of the DER complex 
-fishery depend on the existence of technical interactions (i.e., 
-multi-species catch). While it is theoretically profitable to fish each 
-species individually at low effort levels given the constant price
-elasticity of demand (i.e., price becomes infinite as catch goes to zero), 
-the revenue from one or more species dips below the costs of fishing
-at efforts lower than $E_{MEY}$ in all three areas (Figure 4). 
-
-
 
 ## Validation of reference points by effort optimisation
 

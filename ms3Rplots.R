@@ -76,8 +76,11 @@ plotFvsEffHist_p <- function( obj = blob,
 
 # plotDemCurves()
 # Takes a fitted price model and plots the demand
-# curves based on the demand analysis
+# curves based on the demand analysis. Will also
+# show the demand curves for the projections as a 
+# series of traces (if they are time-varying)
 plotDemCurves <- function(  model = saveModelList, 
+                            obj = blob,
                             invDem = TRUE)
 {
 
@@ -88,6 +91,29 @@ plotDemCurves <- function(  model = saveModelList,
   predDFinvDem  <- model$predDFinvDem
   MSY_s         <- model$MSY_s
   adjC_s        <- apply(X = model$UScatch_st, FUN = mean, MARGIN = 1)
+
+  # Get OM values
+  nS            <- obj$om$nS
+  tMP           <- obj$om$tMP
+  nT            <- obj$om$nT
+  pT            <- nT - tMP + 1
+  alpha_s       <- obj$ctlList$opMod$alpha_s
+  invlambda_s   <- obj$ctlList$opMod$invlambda_s
+  incomeCoeff_s <- obj$ctlList$opMod$incomeCoeff_s
+  GDPperCap_t   <- obj$om$GDPperCap_it[1,tMP:nT]
+
+  # make a sequence of catches
+  catRange <- seq(from = 0.01, to = 15, length.out = 100)
+  # Now make an array of prices for each species, catch level, and 
+  # time (GDPpercap)
+  price_sct <- array(NA, dim = c(nS,100,pT) )
+  for( s in 1:nS )
+    for( t in 1:pT )
+    {
+      lnP_c <- alpha_s[s] + invlambda_s[s] * log(catRange) + incomeCoeff_s[s] * log(GDPperCap_t[t])
+
+      price_sct[s,,t] <- exp(lnP_c)    
+    }
 
 
   par(mfrow =c(3,1), mar = c(1,2,1,2), oma = c(3,3,1,1))
@@ -101,16 +127,18 @@ plotDemCurves <- function(  model = saveModelList,
     points( x = econDF$Cd, y = econDF$Pd, cex = 2,
             col = specCols[1], pch = 21, bg = NA )
     points( x = econDF$Cd, y = econDF$instPd, cex = 2,
-            col = specCols[1], pch = 21, bg = specCols[1] )
-    lines( y = predDF$instPd, x = predDF$predCd, col = specCols[1],lwd = 2)
-    # lines( y = predDF$instPd, x = predDF$predCd_dl, col = "grey40",lwd = 2)
-
+            col = specCols[1], pch = 21, bg = specCols[1] )  
+    for(t in 1:pT )
+      lines(x = catRange, y = price_sct[1,,t], col = "grey75", lwd = 0.8 )
     if(invDem)
     {
       lines( x = predDFinvDem$Cd, y = predDFinvDem$predPd, col = specCols[1],lwd = 2, lty = 2)
-      # lines( x = predDFinvDem$Cd, y = predDFinvDem$predPd_dl, col = "grey40",lwd = 2, lty = 2)
+  
     }
+
     abline(v = MSY_s[1] + adjC_s[1], lty = 2)
+
+
   # Plot English price/catch
   plot( y = c(0,max(econDF$Pd,econDF$Pe,econDF$Pr)), las = 1,
         x = c(0,max(econDF$Cd,econDF$Ce,econDF$Cr)),
@@ -122,14 +150,11 @@ plotDemCurves <- function(  model = saveModelList,
     points( x = econDF$Ce, y = econDF$instPe, cex = 2,
             col = specCols[2], pch = 21, bg = specCols[2] )
     
-    lines( y = predDF$instPe, x = predDF$predCe, col = specCols[2],lwd = 2)
-    # lines( y = predDF$instPe, x = predDF$predCe_noInc, col = specCols[2],lwd = 2, lty = 3)
-    # lines( y = predDF$instPe, x = predDF$predCe_dl, col = "grey40",lwd = 2)
+    for(t in 1:pT )
+      lines(x = catRange, y = price_sct[2,,t], col = "grey75", lwd = 0.8 )
     if(invDem)
     {
       lines( x = predDFinvDem$Ce, y = predDFinvDem$predPe, col = specCols[2],lwd = 2, lty = 2)
-      # lines( x = predDFinvDem$Ce, y = predDFinvDem$predPe_noInc, col = specCols[2],lwd = 2, lty = 4)
-      # lines( x = predDFinvDem$Ce, y = predDFinvDem$predPe_dl, col = "grey40",lwd = 2, lty = 2)
     }
     abline(v = MSY_s[2] + adjC_s[2], lty = 2)
   # Plot Rock price/catch
@@ -141,14 +166,12 @@ plotDemCurves <- function(  model = saveModelList,
             col = specCols[3], pch = 21, bg = NA )
     points( x = econDF$Cr, y = econDF$instPr, cex = 2,
             col = specCols[3], pch = 21, bg = specCols[3] )
-    lines( y = predDF$instPr, x = predDF$predCr, col = specCols[3],lwd = 2)
-    # lines( y = predDF$instPr, x = predDF$predCr_noInc, col = specCols[3],lwd = 2, lty = 3)
-    # lines( y = predDF$instPr, x = predDF$predCr_dl, col = "grey40",lwd = 2)
+    for(t in 1:pT )
+      lines(x = catRange, y = price_sct[3,,t], col = "grey75", lwd = 0.8 )
+    
     if(invDem)
     {
       lines( x = predDFinvDem$Cr, y = predDFinvDem$predPr, col = specCols[3],lwd = 2, lty = 2)
-      # lines( x = predDFinvDem$Cr, y = predDFinvDem$predPr_noInc, col = specCols[3],lwd = 2, lty = 4)
-      # lines( x = predDFinvDem$Cr, y = predDFinvDem$predPr_dl, col = "grey40",lwd = 2, lty = 2)
     }
 
     abline(v = MSY_s[3] + adjC_s[3], lty = 2)
