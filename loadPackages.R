@@ -18,6 +18,7 @@ cranPackages <- c("coda",
                   "beepr",
                   "tmbstan",
                   "here",
+                  "vars",
                   "bookdown",
                   "kableExtra" )
 

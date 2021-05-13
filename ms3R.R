@@ -1,5 +1,5 @@
 # <><><><><><><><><><><><><><><><><><><><><><><><><><><>
-# testSimSCAL.R
+# ms3R.R
 #
 # Test script for ms3R operating model
 #

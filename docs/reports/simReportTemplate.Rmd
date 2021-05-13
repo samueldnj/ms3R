@@ -67,7 +67,7 @@ output:
 
 # I usually load my libraries up front to keep things organized
 library(bookdown)
-library(knitr)
+require(knitr)
 library(kableExtra)
 library(dplyr)
 library(stringr)

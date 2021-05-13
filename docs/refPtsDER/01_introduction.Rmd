@@ -78,16 +78,19 @@ In this paper, we asked how spatial heterogeneity and price elasticity
 of demand affected economic and conservation risks in a multi-species
 fishery management context. We compared the management outcomes of harvest 
 strategies targeting single- and mult-species MSY and MEY reference points
-by evalutating them in the presence of realistic uncertainty about stock
-status via closed loop simulation. We simualted a three species complex 
-of right-eyed flounders (*Pleuronectidae Spp.*) - Dover sole (*Microstomus 
-pacificus*), English sole (*Parophrys vetulus*), and (Southern) Rock sole 
-(*Lepidopsetta bilineata*) - fished in three spatial strata by a common 
-trawl fishery off the coast of British Columbia (BC), Canada. Species 
-demand curves with a constant price elasticity of demand were estimated 
-via a 2-stage least-squares regression [@angrist2008mostly], and combined 
-with area-specific costs of fishing to define a production function that 
-depended on the spatial allocation of fishing effort. Single species MSY, 
+by evaluating them in the presence of realistic uncertainty about stock
+status via closed loop simulation. We simulated a technically interacting
+three species complex of right-eyed flounders (*Pleuronectidae Spp.*) - 
+Dover sole (*Microstomus pacificus*), English sole (*Parophrys vetulus*), 
+and (Southern) Rock sole (*Lepidopsetta bilineata*) - fished in three 
+spatial strata by a common trawl fishery off the coast of British 
+Columbia (BC), Canada. Commercial trawl catchability scalars were included 
+to simulate technical interactions, which produced realistic choke effects 
+where lower TACs for one or more species restricted total fishing effort in 
+each area [@baudron2015adverse; @pascoe2015setting]. Technical interactions
+were also included in multi-species MSY and MEY reference points 
+calculations, with fishing revenues based on species demand curves assuming 
+a constant price elasticity of demand [@jaffry1999long]. Single species MSY, 
 multi-species MSY, and MEY reference points were estimated via 
 yield-per-recruit analysis [@beverton1957dynamics; @murawski1984mixed; 
 @pikitch1987use], and multi-species MSY and MEY reference points were 
@@ -97,4 +100,8 @@ catch or net-present-value (NPV) of the fishery was maximized. We show
 that when accounting for spatial heterogeneity and price elasticity of 
 demand, MEY and multi-species MSY harvest strategies consistently 
 produced better conservation and economic performance than myopic 
-single-species MSY strategies. ADD FINAL SENTENCE ON IMPLICATIONS
+single-species MSY strategies. Our paper demonstrates a method
+for estimating MSY and MEY reference points for mixed fisheries, as well
+as showing that repeated application of of MSY based policies in
+the long term can have adverse economic outcomes.
+

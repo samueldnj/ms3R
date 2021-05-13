@@ -574,7 +574,7 @@ plotChokeHCRs <- function(  LCP = .1, UCP = .6,
 # and plots them on a stock/species multipanel plot.
 plotBioDist <- function(  groupFolders = c("simAssErrors_Apr14"),
                           mpFilter = "",
-                          distYrs = 2048,
+                          distYrs = 2040:2060,
                           qProbs = c(0.05,0.5,0.95),
                           baseBlob = "sim_baseRun_invDem",
                           scenOrder = c("noCorr"),
@@ -2792,7 +2792,7 @@ compareTulipRent <- function( groupFolder = "simAssErrs_noCorr",
   # Now take quantiles
   Rent_qSpt <- apply(X = Rent_Sipt, FUN = quantile, probs = c(0.05,0.5,0.95), MARGIN = c(1,3,4) )
 
-  simCols <- c("black","red")
+  simCols <- c("black","red","steelblue")
 
   projYrs <- 1:nT
   if(proj)
@@ -2843,19 +2843,20 @@ compareTulipRent <- function( groupFolder = "simAssErrs_noCorr",
       legend( x = "topright",bty = "n",
               legend = c( "Umsy*",
                           "Umey*",
+                          "UmsySS",
                           "MEY"),
               pt.lwd = 0,
               pt.cex = 4,
               cex = 2,
-              pch = c(22,22,NA), 
-              pt.bg = scales::alpha(c("black","red",NA),alpha = .3),
-              col = c("black","red","black"),
-              lty = c(1,2,5),
+              pch = c(22,22,22,NA), 
+              pt.bg = scales::alpha(c("black","red","steelblue",NA),alpha = .3),
+              col = c("black","red","steelblue","black"),
+              lty = c(1,2,3,5),
               lwd = 3 )
             
   }
 
-  mtext( side = 2, outer = TRUE, text = "Commercial Trawl Effort (1000 hrs)",
+  mtext( side = 2, outer = TRUE, text = "Resource Rent (CAD $ millions)",
           line = 2, font = 2)
 } # END compareTulipRent()
 

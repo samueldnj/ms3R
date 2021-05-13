@@ -82,6 +82,11 @@ The horizontal axis is scaled to single-species equilibrium $U_{MSY,SS}$,
 indicated by a vertical dashed black line, with steady state optima shown as 
 open red points for comparison."
 
+TACuCap <- "Median (thick black line), central 90\\% (grey region) and
+single simulation traces (thin lines) for TAC utilisation when targeting
+single-species $U_{MSY,SS}$ harvest rates in the closed loop feedback
+simulation."
+
 bioDistCap <- "Distributions of 2048 biomass relative to single-species
 $B_{MSY}$ for all DER complex stocks under the closed loop simulations. 
 Line segments show the central 90\\% of the simulated biomass distribution 
@@ -170,7 +175,7 @@ if(params$redoPlots | !file.exists(figPath))
 {
   graphics.off()
   pdf(file = figPath, width = 8.5, height = 11)
-  compareTulipEffort( groupFolder = "omniRuns_noCorr_Apr14",
+  compareTulipEffort( groupFolder = "omniRuns_noCorr_Apr26",
                       scenarios = "noCorr",
                       rpSim = params$sim,
                       fleets = 1:2,
@@ -190,15 +195,16 @@ if(params$redoPlots | !file.exists(figPath))
 {
   graphics.off()
   pdf(file = figPath, width = 8.5, height = 11)
-  plotDynUmsy_sp( groupFolder = "omniRuns_noCorr_Apr14",
+  plotDynUmsy_sp( groupFolder = "omniRuns_noCorr_apr26",
                   mpFilter = "freeEff",
                   baseRP = "sim_baseRun_invDem",
                   scenOrder = c("noCorr"))
   dev.off()
 }
-# knitr::include_graphics(figPath)
+knitr::include_graphics(figPath)
 ```
 
+\clearpage
 
 ```{r fig7-bioDist, echo = FALSE, warning = FALSE, fig.cap = bioDistCap }
 figPath <- file.path("./figure/fig7-bioDist.pdf")
@@ -206,28 +212,29 @@ if(params$redoPlots | !file.exists(figPath))
 {
   graphics.off()
   pdf(file = figPath, width = 8.5, height = 11)
-  plotBioDist( groupFolders = c("simAssErrors_Apr14") )
+  plotBioDist( groupFolders = c("simAssErrors_May4") )
   dev.off()
 }
 knitr::include_graphics(figPath)
 ```
 
-\blandscape
+\clearpage
 
-```{r fig8-simEnvelope, echo = FALSE, warning = FALSE, fig.cap = imperfectInfoSimEnvCap }
-figPath <- file.path("./figure/fig8-simEnvelope.pdf")
+```{r fig8-TACu, echo = FALSE, warning = FALSE, fig.cap = TACuCap }
+figPath <- file.path("./figure/fig8-TACu.pdf")
+.loadSim("sim_simAssErrors_May4_bat5",groupFolder = "simAssErrors_May4")
 if(params$redoPlots | !file.exists(figPath))
 {
-  .loadSim(1,groupFolder=  "simAssErrors_Apr14")
   graphics.off()
-  pdf(file = figPath, width = 7/fig_asp, height = 7)
-  plotTulipBt(dep = TRUE, Ct = TRUE)
+  pdf(file = figPath, width = 8.5, height = 11)
+  plotTulipTACu(  obj = blob, 
+                  nTrace = 3 )
   dev.off()
 }
 knitr::include_graphics(figPath)
 ```
 
-\elandscape
+\clearpage
 
 ```{r fig9-rentTulips, echo = FALSE, warning = FALSE, fig.cap = rentTulipsCap }
 figPath <- file.path("./figure/fig9-rentTulips.pdf")
@@ -235,9 +242,9 @@ if(params$redoPlots | !file.exists(figPath))
 {
   graphics.off()
   pdf(file = figPath, width = 8.5, height = 11)
-  compareTulipRent( groupFolder = "simAssErrors_Apr14",
+  compareTulipRent( groupFolder = "simAssErrors_May4",
                     scenarios = "noCorr",
-                    mps = c("simAssError_noCorr.MSY","simAssError_noCorr.MEY"),
+                    mps = c("simAssError_noCorr.MSY","simAssError_noCorr.MEY","simAssError_MSYSS"),
                     rpSim = "sim_baseRun_invDem",
                     fleets = 2,
                     proj = TRUE )

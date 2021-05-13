@@ -4047,46 +4047,63 @@ combBarrierPen <- function( x, eps,
       # cat("Random simulated assessment errors not yet implemented...\n")
       # browser()
 
-      fitErrs_spt <- errList[[1]]$assErr_ispt[iRep,,,]
-      
+      fitErrs_ispt <- errList[[1]]$assErr_ispt
+
+      # Pull initial errors over all reps
       anyNA <- function(X)
         any(is.na(X))
 
-      notNAerrs_t <- !apply(X = fitErrs_spt, FUN = anyNA, MARGIN = 3)
 
+      notNAerrs_t <- !apply(X = fitErrs_ispt, FUN = anyNA, MARGIN = 4)
 
       errIdx <- which(notNAerrs_t)
       errT <- length(errIdx)
 
+      initErrs_isp <- fitErrs_ispt[,,,errIdx[1]]
 
-      # UPDATE SO WE DON'T HAVE TO MATCH pT
+      nReps <- dim(initErrs_isp)[1]
+
+      AC_sp <- array(NA, dim = c(nS,nP))
+
+      # errJumps_spt <- fitErrs_ispt[iRep,,,errIdx[2:errT]] - fitErrs_ispt[iRep,,,errIdx[1:(errT-1)]
+
       # Need to make a matrix to estimate correlation
       errMat_tSP <- array(NA, dim = c(errT,nS*nP) )
+      errInitMat_iSP <- array(NA, dim = c(nReps,nS*nP) )
       for( s in 1:nS )
         for(p in 1:nP )
         {
+
           # Not really important, but this method groups
           # multiple species within an area - easier for
           # looking spatially
           colIdx <- (p-1)*nS + s
-          errMat_tSP[,colIdx] <- fitErrs_spt[s,p,errIdx]
+          errMat_tSP[,colIdx] <- fitErrs_ispt[iRep,s,p,errIdx] - mean(fitErrs_ispt[iRep,s,p,errIdx])
         }
 
+      ACobj <- acf(errMat_tSP, lag.max = 1, plot = FALSE)
+      AC_SP <- diag(ACobj$acf[2,,])
+      sd_SP <- apply(X = errMat_tSP, FUN = sd, MARGIN = 2)
+    
+      mu_SP <- -0.5 * sd_SP^2  * (1 - AC_SP)/sqrt(1 - AC_SP^2)
 
+      corr_SP <- ACobj$acf[1,,]
+      cholCorr_SP <- t(chol(corr_SP))
+      assErrs_tSP <- array( rnorm(pT * nS * nP), dim = c(pT,nS*nP))
+      assErrs_tSP <- t(diag(sd_SP) %*% cholCorr_SP %*% t(assErrs_tSP))
 
-      # Now calculate correlation
-      corrErrs        <- cor(errMat_tSP)
-      covErrs         <- cov(errMat_tSP)
-      mvtNormErrs_tSP <- mvtnorm::rmvnorm(  n = pT, mean = rep(0,nS*nP),
-                                            sigma = covErrs,
-                                            method = "chol") 
-
-      for( s in 1:nS )
-        for(p in 1:nP )
-        {
-          colIdx <- (p-1)*nS + s
-          obj$errors$simAssErrors_spt[s,p,tMP:nT] <- mvtNormErrs_tSP[1:pT,colIdx]
-        }
+      for( t in 1:pT)
+      {
+        for( s in 1:nS )
+          for(p in 1:nP )
+          {
+            colIdx <- (p-1)*nS + s
+            if( t == 1)          
+              obj$errors$simAssErrors_spt[s,p,tMP] <- assErrs_tSP[t,colIdx]
+            if( t > 1)
+              obj$errors$simAssErrors_spt[s,p,tMP + t - 1] <- AC_SP[colIdx] * obj$errors$simAssErrors_spt[s,p,tMP + t -2] + sqrt(1 - AC_SP[colIdx]^2) * assErrs_tSP[t,colIdx]
+          }
+      }
 
     }
 
@@ -4512,6 +4529,14 @@ combBarrierPen <- function( x, eps,
   {
     if( opMod$effortMod == "Max" )
     {
+      overFish_spf <-  (vB_spft[,,,t] - TAC_spft[,,,t])/ vB_spft[,,,t]
+
+      if( any(overFish_spf < 0.1) )
+      {
+        overFishIdx <- which(overFish_spf < 0.1)
+        TAC_spft[,,,t][overFishIdx] <- 0.9 * vB_spft[,,,t][overFishIdx]
+      }
+
       effortMod <- .solveMaxEffort( TAC_spf   = TAC_spft[,,,t], 
                                     vB_spf    = vB_spft[,,,t],
                                     qF_spf    = qF_spft[,,,t],
@@ -4527,6 +4552,7 @@ combBarrierPen <- function( x, eps,
       E_pft[,,t]     <- effortMod$E_pf
       if( any(E_pft[,,t] < 0))
         browser()
+
       # Rev_spft[,,,t] <- effortMod$rev_spf
 
 

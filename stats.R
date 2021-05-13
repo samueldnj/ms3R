@@ -300,12 +300,12 @@ makeParEstTable <- function( obj )
   refPtsTab
 } # END makeParEstTab
 
-# dynEqbriaTab()
+# oiaTab()
 # Collects output from omniscient manager simulations
 # and turns them into tables of dynamic equilibria
-dynEqbriaTab <- function( groupFolder = "simAssErrors_Apr26",
+dynEqbriaTab <- function( groupFolder = "simAssErrors_May3",
                           mpFilter = "",
-                          distYrs = 2017:2048,
+                          distYrs = 2040:2060,
                           qProbs = c(0.05,0.5,0.95),
                           econYieldFile = "./Outputs/sim_baseRun_invDem/sim_baseRun_invDem.Rdata",
                           scenOrder = c("noCorr_infPED","noCorr_infPED_fixGDP"))
@@ -659,10 +659,10 @@ dynEqbriaTab <- function( groupFolder = "simAssErrors_Apr26",
 # time series, and calculates distributions
 # of each inside a nominated time period
 pullModelStates <- function(  sim         = 1,
-                              groupFolder = "simAssErrors_Apr26",
+                              groupFolder = "simAssErrors_May4",
                               stateVars   = c("C_ispt","SB_ispt","E_ipft"),
                               output      = FALSE,
-                              distPeriod  = 2017:2048 )
+                              distPeriod  = 2040:2060 )
 {
   # First, load the sim that we want
   # to calculate loss for
