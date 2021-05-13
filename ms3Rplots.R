@@ -1620,7 +1620,7 @@ plotFYieldCurves <- function( obj = blob,
 # resulting from a grid of constant fishing 
 # mortality rates - used for checking the
 # reference point calculations
-plotEmpYieldCurves <- function( sims = 1:101, 
+plotEmpYieldCurves <- function( sims = 1:200, 
                                 folder = "SOG_DDM_Fgrid",
                                 indepVar = "F",
                                 plotYPRcurves = TRUE,
@@ -1836,7 +1836,7 @@ plot2dimEmpYieldCurves <- function( sims = 1:200,
                                     folder = "SOG_DDM_Fgrid",
                                     indepVar = "F",
                                     plotYPRcurves = TRUE,
-                                    redoEmpRefCurves = FALSE )
+                                    redoEmpRefCurves = TRUE )
 {
   nSims <- length(sims)
   blobList <- vector(mode = "list", length = nSims)
@@ -1890,6 +1890,8 @@ plot2dimEmpYieldCurves <- function( sims = 1:200,
     # Load ref curve list
     load(here::here("Outputs",folder,"empRefCurves.RData"))
 
+
+
     C_spk <- saveEmpRefCurves$C_spk
     B_spk <- saveEmpRefCurves$B_spk
     initB_spk <- saveEmpRefCurves$initB_spk
@@ -1897,8 +1899,6 @@ plot2dimEmpYieldCurves <- function( sims = 1:200,
     E_spk <- saveEmpRefCurves$E_spk
     E_pk  <- saveEmpRefCurves$E_pk 
   }
-
-
 
   
 

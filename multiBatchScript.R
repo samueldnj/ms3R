@@ -9,14 +9,16 @@ library(parallel)
 source("ms3R.r")
 # source("makeResultPlots.R")
 
-batchControlFiles <- c( "SOG_DDM_Fgrid.bch"
-                      )
+batchControlFiles <- c( #"SOG_DDM_Fgrid.bch",
+                        "HG_DDM_Fgrid.bch" )
                        
 nBatchJobs <- length( batchControlFiles )
 
-baseControlFiles  <- rep( "simCtlFileBase_SOGDDM.txt" )
+baseControlFiles  <- rep( "simCtlFileBase_SOGDDM.txt",
+                          nBatchJobs)
 
-prefixes       <- c( "SOG_DDM_Fgrid" )
+prefixes       <- c(  #"SOG_DDM_Fgrid",
+                      "HG_DDM_Fgrid"  )
 
 saveDirName       <- prefixes
 
