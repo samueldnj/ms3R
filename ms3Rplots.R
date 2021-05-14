@@ -1836,7 +1836,7 @@ plot2dimEmpYieldCurves <- function( sims = 1:200,
                                     folder = "SOG_DDM_Fgrid",
                                     indepVar = "F",
                                     plotYPRcurves = TRUE,
-                                    redoEmpRefCurves = TRUE )
+                                    redoEmpRefCurves = FALSE )
 {
   nSims <- length(sims)
   blobList <- vector(mode = "list", length = nSims)
@@ -1916,13 +1916,13 @@ plot2dimEmpYieldCurves <- function( sims = 1:200,
   BeqRefCurve_spe <- refCurves$EffCurves$Beq_spe
 
   # There should only be a few initB (based on histFmult levels)
-  initBvals <- unique(as.numeric(initB_spk))
-  nCurves <- length(initBvals)
+  initBvals_spc <- aperm(apply(X = initB_spk, FUN = unique, MARGIN = c(1,2) ),c(2,3,1))
+
+  nCurves <- dim(initBvals_spc)[3]
 
   Xmsy_spc <- array(0, dim = c(nS,nP,nCurves))
   Bmsy_spc <- array(0, dim = c(nS,nP,nCurves))
   MSY_spc <- array(0, dim = c(nS,nP,nCurves))
-
   
 
   par(  mfcol = c(nP,nS), 
@@ -1971,7 +1971,7 @@ plot2dimEmpYieldCurves <- function( sims = 1:200,
         # Loop over histFmult factors
         for( j in 1:nCurves)
         {
-          initB <- initBvals[j]
+          initB <- initBvals_spc[s,p,j]
 
           simIdx <- which(initB_spk[s,p,] == initB)
 
@@ -1992,6 +1992,8 @@ plot2dimEmpYieldCurves <- function( sims = 1:200,
           if(indepVar == "E")
             X <- E
           
+
+          browser()
 
 
 
@@ -2055,10 +2057,10 @@ plot2dimEmpYieldCurves <- function( sims = 1:200,
 
 
 
-  out <- list(  Xmsy_spc = Xmsy_spc,
-                Bmsy_spc = Bmsy_spc,
-                MSY_spc  = MSY_spc,
-                initB_c  = initBvals )
+  out <- list(  Xmsy_spc  = Xmsy_spc,
+                Bmsy_spc  = Bmsy_spc,
+                MSY_spc   = MSY_spc,
+                initB_spc = initBvals_spc )
 
   out
 } # END plotEmpYieldCurves()

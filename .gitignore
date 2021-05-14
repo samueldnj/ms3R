@@ -2,7 +2,7 @@
 # Add file names or regular expressions to 
 # ignore when updating git repo
 
-# ---- Temporary R and TMB files --- #
+# ---- Temporary R, OS files --- #
 *.DS_Store
 *.Rapp.history
 
@@ -12,12 +12,30 @@ history/fit_*/hierSCAL.o
 history/fit_*/SISCA.cpp
 history/fit_*/*.html
 
+# generated pdfs and images, tmp files
+*.pdf
+*.eps
+*.ong
+*.log
+*.aux
+*.bbl
+*.tex
+*.spl
+*.upa
+*.fls
+*.blg
+*.*latexmk
+
+# bookdown outputs
+docs/*/_book
+
+
 # Compiled objects
 *.so
 *.o
 
 # Outputs of ms3R - these can be moved via the server
-Outputs/sim_*
+Outputs
 
 # Batch stuff - temporary and batch specific, no need to save
 # to repo
