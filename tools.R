@@ -14,8 +14,14 @@
 # recalculates economic yield parameters, good for
 # appending coastwide curves post-simulation, avoiding
 # optim calls between sims
-redoEconYield <- function( obj, iRep = 1, cwMEY = TRUE )
+redoEconYield <- function( sim, groupFolder = "",
+                           iRep = 1, cwMEY = TRUE )
 {
+  source("ms3R.R")
+  path <- .loadSim(sim, groupFolder = groupFolder)
+
+  
+  obj <- blob
   # Pull things we need to do it
   repObj  <- obj$ctlList$opMod$histRpt
   opMod   <- obj$ctlList$opMod
@@ -35,7 +41,9 @@ redoEconYield <- function( obj, iRep = 1, cwMEY = TRUE )
 
   obj$rp[[iRep]]$EmeyRefPts <- econYieldCurves
 
-  obj
+  blob <- obj
+  filename <- paste0(basename(path),".Rdata")
+  save(blob, file = file.path(path,filename))
 } # END redoEconYield
 
 

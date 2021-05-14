@@ -74,23 +74,150 @@ plotFvsEffHist_p <- function( obj = blob,
 
 } # END plotFvsEffHist_p()
 
+plotMultiDemCurves <- function( priceModel = readRDS("priceModelIV.rds"),
+                                alpha_s = c(2.5544,2.5371,1.266),
+                                invlambda_s = list(c(-0.2789,-0.1952,-0.3533),c(0,0,0),c(0,0,0)),
+                                incomeCoeff_s = c(-.5935,-0.6363,-0.3926),
+                                legTxt = c("Fixed Income, Finite PED", "Fixed Income, Infinite PED", "Infinite PED"),
+                                rangeC = c(0.1,10),
+                                GDPgrowth = list(0,0,0.039),
+                                alphaPar = 0.5,
+                                includeHist = TRUE,
+                                nProj = 20 )
+{
+  # First, pull 
+  econDF        <- priceModel$econDF
+  # predDF        <- priceModel$predDF
+  # predDFinvDem  <- priceModel$predDFinvDem
+  # MSY_s         <- priceModel$MSY_s
+  adjC_s        <- apply(X = priceModel$UScatch_st, FUN = mean, MARGIN = 1)
+  bcIncome_t    <- priceModel$bcIncome_t
+
+  if(includeHist)
+    histLength <- length(bcIncome_t)
+  else histLength <- 0
+
+  initIncome <- bcIncome_t[length(bcIncome_t)]
+
+
+  # Get dimensions
+
+  nCurves   <- length( invlambda_s )
+  curveCols <- RColorBrewer::brewer.pal(n=nCurves,"Dark2")
+  nS <- length(invlambda_s[[1]])
+  nYears <- histLength + nProj
+  nGrid <- 100
+
+  Cseq <- seq(from = rangeC[1], to = rangeC[2], length.out = nGrid)
+  
+  # Now make arrays
+  bcIncome_ct <- array(0, dim = c(nCurves,nYears))
+
+  price_sckt <- array(NA, dim = c(nS,nCurves,nGrid,nYears) )
+
+  # Increase household income
+  for(c in 1:nCurves)
+  {
+    if(includeHist)
+      bcIncome_ct[c,1:histLength] <- bcIncome_t
+
+    bcIncome_ct[c,histLength + 1:nProj] <- initIncome * (1 + GDPgrowth[[c]])^(1:nProj)
+
+    for(s in 1:nS )
+      for( t in 1:nYears )
+        price_sckt[s,c,,t] <- exp(alpha_s[s] + invlambda_s[[c]][s] * log(Cseq) + incomeCoeff_s[s] * log(bcIncome_ct[c,t]))
+  }
+  
+  price_qsck <- apply(X = price_sckt, FUN = quantile, MARGIN = c(1,2,3),
+                        probs = c(0.1,0.5,0.9), na.rm = T )
+
+  datC_sh     <- array(0, dim = c(nS,length(bcIncome_t)))
+  datP_sh     <- array(0, dim = c(nS,length(bcIncome_t)))
+  datPinst_sh <- array(0, dim = c(nS,length(bcIncome_t)))
+
+  datC_sh[1,] <- econDF$Cd
+  datC_sh[2,] <- econDF$Ce
+  datC_sh[3,] <- econDF$Cr
+
+  datP_sh[1,] <- econDF$Pd
+  datP_sh[2,] <- econDF$Pe
+  datP_sh[3,] <- econDF$Pr
+
+  datPinst_sh[1,] <- econDF$instPd
+  datPinst_sh[2,] <- econDF$instPe
+  datPinst_sh[3,] <- econDF$instPr
+
+  specNames <- c("Dover Sole","English Sole","Rock Sole")
+
+  xPoly <- c(Cseq,rev(Cseq))
+
+  par( mfrow = c(nS,1), oma = c(4,5,1,3), mar = c(.1,.1,.1,.1))
+  for( s in 1:nS )
+  {
+    plot( x = c(0,max(Cseq)), y = c(0,2), type = "n",
+          las = 1, axes = FALSE, xaxs = "i" )
+      axis( side = 2, las = 1)
+      mfg <- par("mfg")
+      if(mfg[1] == mfg[3])
+        axis( side = 1 )
+      box()
+      for( c in 1:nCurves)
+      {
+        polygon(  x = xPoly, y = c(price_qsck[1,s,c,],rev(price_qsck[3,s,c,])),
+                  border = NA, col = scales::alpha(curveCols[c],alpha = alphaPar) )
+        
+      }
+
+      for(c in 1:nCurves)
+        lines( x = Cseq, y = price_qsck[2,s,c,], lty = c, col = curveCols[c],
+                lwd = 3 )
+
+      points( x = datC_sh[s,], y = datP_sh[s,], pch = 21, bg = NA, col = "black" )
+      points( x = datC_sh[s,], y = datPinst_sh[s,], pch = 21, bg = "black"  )
+
+      rmtext( txt = specNames[s], outer = TRUE, line = 0.02, cex = 1.5,
+              font = 2 )
+
+      if( s == 1 )
+        legend( x = "topright",
+                legend = legTxt, bty ="n",
+                col = curveCols,
+                pt.bg = scales::alpha(curveCols, alpha = alphaPar),
+                pt.lwd = 0,
+                pch = c(NA,NA,22),
+                pt.cex = 3,
+                cex = 1.2,
+                lwd = 2,
+                lty = 1:nCurves )
+  }
+  mtext( side = 1, text = "Catch (kt)", line = 2 )
+  mtext( side = 2, text = "Unit Price ($/kg)", line = 3, outer = TRUE )
+
+}
+
+
 # plotDemCurves()
 # Takes a fitted price model and plots the demand
 # curves based on the demand analysis. Will also
 # show the demand curves for the projections as a 
 # series of traces (if they are time-varying)
-plotDemCurves <- function(  model = saveModelList, 
+plotDemCurves <- function(  model = NULL, 
                             obj = blob,
                             invDem = TRUE)
 {
 
   # economic model
-  econDF        <- model$econDF
-  specCols      <- RColorBrewer::brewer.pal(n=3,"Dark2")
-  predDF        <- model$predDF
-  predDFinvDem  <- model$predDFinvDem
-  MSY_s         <- model$MSY_s
-  adjC_s        <- apply(X = model$UScatch_st, FUN = mean, MARGIN = 1)
+  if(!is.null(model))
+  {
+    econDF        <- model$econDF
+    specCols      <- RColorBrewer::brewer.pal(n=3,"Dark2")
+    predDF        <- model$predDF
+    predDFinvDem  <- model$predDFinvDem
+    MSY_s         <- model$MSY_s
+    adjC_s        <- apply(X = model$UScatch_st, FUN = mean, MARGIN = 1)
+  }
+
+
 
   # Get OM values
   nS            <- obj$om$nS
