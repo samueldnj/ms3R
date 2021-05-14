@@ -1,6 +1,6 @@
 # simCtlFile.txt, saved to ms3R root working directory
 parameter value
-ctl$scenarioName 'baseDER_invDem'
+ctl$scenarioName 'baseDER_infPED'
 ctl$mpName 'simAssError_MSY'
 ctl$quiet FALSE
 ctl$phaseMessages FALSE
@@ -121,8 +121,8 @@ opMod$commGears c(2)
 opMod$corrRecDevs FALSE
 opMod$corrPriceDevs FALSE
 opMod$cwMEY FALSE
-opMod$priceModel "priceModelIV.rds"
-#opMod$priceModel NULL
+#opMod$priceModel "priceModelIV.rds"
+opMod$priceModel NULL
 opMod$invDem TRUE
 opMod$priceCorr 0
 opMod$GDPgrowth 0.039
@@ -135,8 +135,8 @@ opMod$price_s c(Dover=0.62,English=1.21,Rock=0.66,Petrale=2.590,Arrowtooth=0.990
 opMod$varCostPerKt 0.194
 opMod$discountRate 0.05
 opMod$interestRate 0.0
-#opMod$invlambda_s c(0,0,0)
-opMod$invlambda_s c(-0.2789,-0.1952,-0.3533)
+opMod$invlambda_s c(0,0,0)
+#opMod$invlambda_s c(-0.2789,-0.1952,-0.3533)
 opMod$alpha_s c(2.5544,2.5371,1.266)
 opMod$adjC_s c(9.645,0.387,0)
 opMod$incomeCoeff_s c(-.5935,-0.6363,-0.3926)

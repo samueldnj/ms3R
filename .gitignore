@@ -19,13 +19,23 @@ history/fit_*/hierSCAL.o
 Batch/job*.txt
 
 # Outputs of ms3R
-Outputs/sim*
+Outputs
+
 
 # Documentation
-docs/*/knitr*.png
-docs/*/knitr*.pdf
-docs/*/*.log
-docs/*/data/*/*.html
-docs/*/data/*/*.o
-docs/*/data/*/*.so
+*.png
+*.pdf
+*.eps
+*.log
+*.html
+*.o
+*.so
+*.aux
+*.tex
+*.bbl
+*.blg
+*.fdb_latexmk
+*.fls
+*.out
+*.spl
 docs/*/data/*/*.cpp

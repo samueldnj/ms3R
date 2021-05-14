@@ -5454,12 +5454,13 @@ plotEconYieldCurves <- function(  obj = blob,
 
   if( !is.null(EmeyRefPts$cwEconYieldCurves))
   {
+    browser()
     Emey_p      <- EmeyRefPts$cwEconYieldCurves$cwEmey_p
     MEY_p       <- EmeyRefPts$cwEconYieldCurves$cwMEY_p
     
     Rev_spe     <- EmeyRefPts$cwEconYieldCurves$cwRev_spe
     Rev_pe      <- apply(X = EmeyRefPts$cwEconYieldCurves$cwRev_spe, FUN = sum, MARGIN = c(2,3))
-    econYeq_pe  <- EmeyRefPts$cwEconYieldCurves$cwYeq_pe
+    econYeq_pe  <- EmeyRefPts$cwEconYieldCurves$cwRent_pe
     effCost_pe  <- EmeyRefPts$cwEconYieldCurves$cwEffCost_pe
     Ymey_sp     <- EmeyRefPts$cwEconYieldCurves$cwYmey_sp
 

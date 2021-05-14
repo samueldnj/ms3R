@@ -16,7 +16,8 @@
 # to create a table of multispecies catch and economic 
 # reference points.
 makeDynEqbriaTab <- function( folder = "./Outputs/omniRuns_priceDevPED",
-                              scenario = "noCorr" )
+                              scenario = "noCorr",
+                              justMEY = FALSE )
 {
   csvFiles <- list.files(folder)
   csvFiles <- csvFiles[grepl(x = csvFiles, pattern = ".csv")]
@@ -61,8 +62,11 @@ makeDynEqbriaTab <- function( folder = "./Outputs/omniRuns_priceDevPED",
 
     tableFrame$Stock[stockRow]    <- stockNames[p]
 
-    tableFrame$Emsy[stockRow]     <- round(tabs$dynEqEff[p,msyCol],2)
-    tableFrame$RentMSY[stockRow]  <- round(tabs$dynEqPrSp[p,msyCol],2)
+    if(!justMEY)
+    {
+      tableFrame$Emsy[stockRow]     <- round(tabs$dynEqEff[p,msyCol],2)
+      tableFrame$RentMSY[stockRow]  <- round(tabs$dynEqPrSp[p,msyCol],2)
+    }
 
     tableFrame$Emey[stockRow]     <- round(tabs$dynEqEff[p,meyCol],2)
     tableFrame$MEY[stockRow]      <- round(tabs$dynEqPrSp[p,meyCol],2)
@@ -75,9 +79,12 @@ makeDynEqbriaTab <- function( folder = "./Outputs/omniRuns_priceDevPED",
 
       tabRow <- (p - 1) * nS + s
 
-      tableFrame$MSY[specRow]       <- round(tabs$dynEqCat[tabRow,msyCol],2)
-      tableFrame$Bmsy[specRow]      <- round(tabs$dynEqBio[tabRow,msyCol],2)
-      tableFrame$Umsy[specRow]      <- round(tabs$dynEqHR[tabRow,msyCol],3)
+      if(!justMEY)
+      {
+        tableFrame$MSY[specRow]       <- round(tabs$dynEqCat[tabRow,msyCol],2)
+        tableFrame$Bmsy[specRow]      <- round(tabs$dynEqBio[tabRow,msyCol],2)
+        tableFrame$Umsy[specRow]      <- round(tabs$dynEqHR[tabRow,msyCol],3)
+      }
 
       tableFrame$Cmey[specRow]      <- round(tabs$dynEqCat[tabRow,meyCol],2)
       tableFrame$Bmey[specRow]      <- round(tabs$dynEqBio[tabRow,meyCol],2)
