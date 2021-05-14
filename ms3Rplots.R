@@ -74,12 +74,17 @@ plotFvsEffHist_p <- function( obj = blob,
 
 } # END plotFvsEffHist_p()
 
+# plotMultiDemCurves()
+# Takes parameters for multiple demand curves
+# and plots each one, with projected household income
+# under a growth rate assumption
 plotMultiDemCurves <- function( priceModel = readRDS("priceModelIV.rds"),
                                 alpha_s = c(2.5544,2.5371,1.266),
                                 invlambda_s = list(c(-0.2789,-0.1952,-0.3533),c(0,0,0),c(0,0,0)),
                                 incomeCoeff_s = c(-.5935,-0.6363,-0.3926),
                                 legTxt = c("Fixed Income, Finite PED", "Fixed Income, Infinite PED", "Infinite PED"),
                                 rangeC = c(0.1,10),
+                                curveCols = RColorBrewer::brewer.pal(3,"Dark2"),
                                 GDPgrowth = list(0,0,0.039),
                                 alphaPar = 0.5,
                                 includeHist = TRUE,
@@ -103,9 +108,8 @@ plotMultiDemCurves <- function( priceModel = readRDS("priceModelIV.rds"),
   # Get dimensions
 
   nCurves   <- length( invlambda_s )
-  curveCols <- RColorBrewer::brewer.pal(n=nCurves,"Dark2")
   nS <- length(invlambda_s[[1]])
-  nYears <- histLength + nProj
+  nYears <- max(histLength + nProj,1)
   nGrid <- 100
 
   Cseq <- seq(from = rangeC[1], to = rangeC[2], length.out = nGrid)
@@ -120,8 +124,11 @@ plotMultiDemCurves <- function( priceModel = readRDS("priceModelIV.rds"),
   {
     if(includeHist)
       bcIncome_ct[c,1:histLength] <- bcIncome_t
+    if(nProj > 0)
+      bcIncome_ct[c,histLength + 1:nProj] <- initIncome * (1 + GDPgrowth[[c]])^(1:nProj)
+    if(!includeHist & nProj == 0 )
+      bcIncome_ct[c,] <- mean(bcIncome_t)
 
-    bcIncome_ct[c,histLength + 1:nProj] <- initIncome * (1 + GDPgrowth[[c]])^(1:nProj)
 
     for(s in 1:nS )
       for( t in 1:nYears )
@@ -160,6 +167,9 @@ plotMultiDemCurves <- function( priceModel = readRDS("priceModelIV.rds"),
       mfg <- par("mfg")
       if(mfg[1] == mfg[3])
         axis( side = 1 )
+      grid()
+      abline(v  = adjC_s[s], lty = 2, col = "grey50", lwd = 2 )
+
       box()
       for( c in 1:nCurves)
       {
@@ -178,7 +188,8 @@ plotMultiDemCurves <- function( priceModel = readRDS("priceModelIV.rds"),
       rmtext( txt = specNames[s], outer = TRUE, line = 0.02, cex = 1.5,
               font = 2 )
 
-      if( s == 1 )
+
+      if( s == 1 & !is.null(legTxt) )
         legend( x = "topright",
                 legend = legTxt, bty ="n",
                 col = curveCols,

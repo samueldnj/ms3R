@@ -45,6 +45,10 @@ for DER complex species in each area in 2048, taken over all simulation
 replicates for the simulated assessment errors and perfect information 
 closed loop simulations."
 
+sensTableCap <- "Descriptions of the sensitivity analyses of results
+to economic model assumptions about income, discount rate, and economic
+demand."
+
 
 discRentTabCap <- "Median and central 90\\% of the distribution of net 
 present value of the DER complex fishery in the projection period, taken
@@ -122,6 +126,29 @@ csasdown::csas_table( parEstTable, escape = FALSE,
   # kableExtra::pack_rows("HSHG", 1, 3 ) %>%
   # kableExtra::pack_rows("QCS", 4, 6 ) %>%
   # kableExtra::pack_rows("WCVI", 7, 9 ) 
+
+```
+
+\clearpage
+
+```{r sensRunTable, echo = FALSE, warning = FALSE}
+sensTable <- tibble::tribble( 
+  ~Sensitivity,        ~Variable,                ~Description,
+  "PED only",          "$\\lambda_s = \\infty$",  "Price independent of catch, but decreases with income",
+  "Income only",       "$\\gamma = 0$",           "Price decreases with catch, but independent of income",
+  "PED and Income",    "$\\lambda_s = \\infty$ and $\\gamma = 0$", "Price independent of catch and income",
+  "High discount",     "$\\delta = 0.1$",         "Discount rate of 10\\%",
+  "Low discount",      "$\\delta = 0.025$",       "Discount rate of 2.5\\%",
+  "Low income growth", "$\\gamma = 0.02$",        "Income growth at 2\\%",
+  "High income growth","$\\gamma = 0.058$",       "Income growth at 5.8\\%", )
+
+csasdown::csas_table( sensTable, escape = FALSE,
+                      booktabs = TRUE, font_size = 10,
+                      format = kable_format,
+                      caption = sensTableCap,
+                      align = rep("l",3) ) %>%
+    kable_styling(latex_options = c("hold_position","scale_down"),
+                bootstrap_options = c("hover"))  
 
 ```
 

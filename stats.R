@@ -310,7 +310,7 @@ makeParEstTable <- function( obj )
 # oiaTab()
 # Collects output from omniscient manager simulations
 # and turns them into tables of dynamic equilibria
-dynEqbriaTab <- function( groupFolder = "simAssErrors_May3",
+dynEqbriaTab <- function( groupFolder = "omniRuns_noCorrFixGDP_May1",
                           mpFilter = "",
                           distYrs = 2040:2060,
                           qProbs = c(0.05,0.5,0.95),

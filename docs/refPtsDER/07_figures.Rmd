@@ -36,35 +36,36 @@ fleet catchability and the ratio of spawning biomass to vulnerable biomass,
 i.e. $ I^{scaled}_{s,p,f,t} = \\frac{I_{s,p,f,t} SSB_{s,p,t}}{q_{s,p,f,t} B_{s,p,f,t}}$."
 
 
-econDashCap <- "Maximum likelihood estimates of DER complex demand curves 
-from 2016 (top-left), time-series of annual reference and ex-vessel unit 
-prices (top-right), and random-walk deviations over time (bottom-left). 
-For the 2016 demand curves, the horizontal line segments show the 
-reference price of each species at the coast-wide 
-$MSY_s = \\sum_{p} MSY_{SS,s,p}$. Price time series show reference price 
-MLEs (open circles, joined by a time-series line within a species) and 
-observed ex-vessel prices (closed circles) joined by a vertical line 
-segment, with species jittered to reduce overlap. Finally, the random-walk 
-deviations show each species' time series of random walk jump MLEs (jittered), 
-with mean deviations shown in the legend."
+invDemCurveCap <- "Demand curves showing the relationship between unit
+price (\\$/kg, vertical axis) and quanitity supplied (Catch, kt, horizontal
+axis) for Dover, English, and Rock soles. Lines show the median over
+the period 2006 - 2016, while the shaded region shows the central 90\\% of
+the demand over the same time period. Points show raw catch and price data 
+(open circles), and the same catch with price estimated with cost of 
+fishing as an instrumental variable (closed circles). The vertical dashed
+lines show the exogenous US West Coast catch for each species, assumed 
+to be fixed in the projections."
 
-eqbmYieldCurveCap <- "Steady state equilibrium catch yield by species and 
-for the DER complex as a function of fishing effort for each stock area. 
-Each panel shows the three individual DER complex species yield curves in 
-different colours, and the complex yield curve found by summing the three 
-species curves as a solid black line. Effort $E_{MSY,MS,p}$ maximising 
-the multi-species yield in each area is marked by the vertical dashed line 
+
+sensDemCurveCap <- "Demand curves showing the relationship between unit
+price (\\$/kg, vertical axis) and quanitity supplied (Catch, kt, horizontal
+axis) for Dover, English, and Rock soles for the three demand curve
+sensitivity analyses. Lines, points, and shaded regions are as in Figure 2."
+
+eqbmYieldCurveCap <- "Equilibrium catch yield by species (coloured lines) 
+and for the DER complex (thick black line) as a function of fishing effort 
+in each stock area. Effort $E_{MSY,MS,p}$ maximising the multi-species 
+yield in each area is marked by the vertical dashed line 
 segment, and the multi-species yield $MSY_{MS,p}$ and species yields at 
 that effort are shown by horizontal dashed line segments meeting the
 $E_{MSY,MS,p}$ segment where it intersects each curve."
 
-econYieldCurveCap <- "Steady state net resource rents, species and 
-complex revenue, and variable costs of fishing as functions of fishing effort for  
+econYieldCurveCap <- "Net resource rents (dashed curve), species revnues
+(coloured curves) and complex revenue (thick black curve), and fuel 
+costs of fishing (red line), all as functions of fishing effort for  
 the DER complex in each area (first three panels), as well as coast-wide 
-(bottom panel). Each panel shows the three individual DER complex species 
-revenue curves in different colours, the multi-species revenue curve found 
-by summing the three species curves as a solid black line, fuel costs as 
-a solid red line, and net resource rent as a dashed black line."
+(bottom panel). Vertical dashed lines show $E_{MSY,MS}$ (black, 
+maximising revenue) and $E_{MEY}$ (blue, maximising rent)."
 
 effortTulipsCap <- "Simulation envelopes of commercial trawl effort
 over the projection period for the stochastic optimisation under the
@@ -122,13 +123,23 @@ knitr::include_graphics(figPath)
 ```
 
 
-```{r fig2-inverseDemandCurves, echo = FALSE, warning = FALSE, fig.cap = econDashCap, fig.width = 6, out.width = "7in" }
+```{r fig2-inverseDemandCurves, echo = FALSE, warning = FALSE, fig.cap = invDemCurveCap, fig.width = 6, out.width = "7in" }
 figPath <- file.path("./figure/fig2-inverseDemandCurves.pdf")
 if(params$redoPlots)
 {
   graphics.off()
   pdf(file = figPath, width = 7, height = 7 )
-  plotDemCurves( model = priceModel)
+  plotMultiDemCurves( priceModel = priceModel,
+                      alpha_s = c(2.5544,2.5371,1.266),
+                      invlambda_s = list(c(-0.2789,-0.1952,-0.3533)),
+                      incomeCoeff_s = c(-.5935,-0.6363,-0.3926),
+                      curveCols = "grey20",
+                      legTxt = NULL,
+                      rangeC = c(0.1,15),
+                      GDPgrowth = list(0.039),
+                      alphaPar = 0.5,
+                      includeHist = TRUE,
+                      nProj = 0 )
   dev.off()
 }
 knitr::include_graphics(figPath)
@@ -136,7 +147,7 @@ knitr::include_graphics(figPath)
 
 
 
-```{r fig3-DERcomplexCatchYieldCurves, echo = FALSE, warning = FALSE, fig.cap = econYieldCurveCap }
+```{r fig3-DERcomplexCatchYieldCurves, echo = FALSE, warning = FALSE, fig.cap = eqbmYieldCurveCap }
 figPath <- file.path("./figure/fig3-DERcomplexYieldCurves.pdf")
 if(params$redoPlots | !file.exists(figPath))
 {
@@ -248,6 +259,28 @@ if(params$redoPlots | !file.exists(figPath))
                     rpSim = "sim_baseRun_invDem",
                     fleets = 2,
                     proj = TRUE )
+  dev.off()
+}
+knitr::include_graphics(figPath)
+
+```
+
+```{r fig10-sensDemCurves, echo =FALSE, warning = FALSE, fig.cap = sensDemCurveCap }
+figPath <- file.path("./figure/fig10-sensDemCurves.pdf")
+if(params$redoPlots | !file.exists(figPath))
+{
+  graphics.off()
+  pdf(file = figPath, width = 8.5, height = 11)
+  plotMultiDemCurves( priceModel = priceModel,
+                      alpha_s = c(2.5544,2.5371,1.266),
+                      invlambda_s = list(c(-0.2789,-0.1952,-0.3533),c(0,0,0),c(0,0,0)),
+                      incomeCoeff_s = c(-.5935,-0.6363,-0.3926),
+                      legTxt = c("Fixed Income, Finite PED", "Fixed Income, Infinite PED", "Infinite PED"),
+                      rangeC = c(0.1,15),
+                      GDPgrowth = list(0,0,0.039),
+                      alphaPar = 0.5,
+                      includeHist = FALSE,
+                      nProj = 20 )
   dev.off()
 }
 knitr::include_graphics(figPath)

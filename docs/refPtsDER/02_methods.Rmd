@@ -261,22 +261,21 @@ non-parametric definition of risk commonly used in economic analyses
 
 ## Sensitivities
 
-Economic results depended on the size of resource rents extracted from 
-each area, which were dependent on ex-vessel prices (demand) for each 
-species and the discount rate applied to calculate the NPV. We tested the 
-sensitivity of economic results to three main uncertainties (Table X). First,
-we tested the common assumption of a constant price, or a flat demand 
-relationship, by setting price elasticity of demand to be infinite (i.e., 
-zero price flexibility) for YPR calculations, and by setting the growth 
-in household income to be zero for stochastic optimisation. Differences in 
-projected demand were modeled using different 
-levels of growth in household income, shifting by 1 standard deviation up 
-and down from the recent mean value of 3.9\% ^[https://www2.gov.bc.ca/assets/gov/british-columbians-our-governments/government-finances/financial-economic-review/financial-economic-review-2020.pdf].
+Economic results depended on the resource rents extracted from each area, 
+which were in turn dependent on prices for each species (demand curves) 
+and the discount rate applied to calculate the NPV. We tested the 
+sensitivity of stochastic optimisation results to these uncertainties in 
+seven additional scenarios (Table 3). Scenarios tested the common assumption 
+of a constant price, or a flat demand relationship, by setting price 
+elasticity of demand to be infinite (i.e., zero price flexibility), and by 
+setting the growth in household income $\gamma$ to be zero. Differences in 
+projected demand were tested by simulating different rates of growth in 
+household income, shifting by 1 standard deviation up and down from the 
+recent mean rate of 3.9\% 
+^[https://www2.gov.bc.ca/assets/gov/british-columbians-our-governments/government-finances/financial-economic-review/financial-economic-review-2020.pdf].
 Finally, we tested discount rates at half and twice the 5\% value used
-in the main simulations.
-
-
-**MAKE A TABLE**
+in the main simulations. The stochastic optimisations were repeated for each
+of the 7 scenarios.
 
 
 
