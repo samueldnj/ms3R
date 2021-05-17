@@ -74,31 +74,6 @@ analyses. Median effort and rents are taken over all simulation replicates
 and the period 2040 - 2060."
 ```
 
-```{r modelAssumptions, echo = FALSE, messages = FALSE, warnings = FALSE}
-
-modelAssumption <- tibble::tribble( 
-  ~Variable,        ~Value,        ~Description,
-  "$f_{2009}$",     "\\$175,000",  "Fuel cost per kt of catch in 2009, CAD",
-  "$\\psi$",        "$0.3$",       "Crew share of revenue",
-  "$d$",            "$0.05$",      "Discount rate",
-  "$v_s(C_s)$",     "",            "Unit price per kg of species $s$ (CAD \\$) at quantity demanded $C_s$ (kt)",
-  "$c_p$",          "",            "Fuel cost per unit of fishing effort (CAD \\$ million)",
-  "$\\pi(\\vec{E})$","",           "Equilibrium resource rent produced by annual fishing effort $\\vec{E}$",
-  "$\\gamma$",      "$0.039$",     "Annual growth rate of household income",
-  )
-
-
-csasdown::csas_table( modelAssumption, escape = FALSE,
-                      booktabs = TRUE, font_size = 10,
-                      format = kable_format,
-                      caption = econModelTableCap,
-                      align = c("l","l","l")) %>%
-  kable_styling(latex_options = c("striped", "hold_position","scale_down"),
-                bootstrap_options = c("striped", "hover")) 
-
-```
-
-\clearpage
 
 \blandscape
 
@@ -142,6 +117,33 @@ csasdown::csas_table( parEstTable, escape = FALSE,
 ```
 
 \clearpage
+
+```{r modelAssumptions, echo = FALSE, messages = FALSE, warnings = FALSE}
+
+modelAssumption <- tibble::tribble( 
+  ~Variable,        ~Value,        ~Description,
+  "$f_{2009}$",     "\\$175,000",  "Fuel cost per kt of catch in 2009, CAD",
+  "$\\psi$",        "$0.3$",       "Crew share of revenue",
+  "$d$",            "$0.05$",      "Discount rate",
+  "$v_s(C_s)$",     "",            "Unit price per kg of species $s$ (CAD \\$) at quantity demanded $C_s$ (kt)",
+  "$c_p$",          "",            "Fuel cost per unit of fishing effort (CAD \\$ million)",
+  "$\\pi(\\vec{E})$","",           "Equilibrium resource rent produced by annual fishing effort $\\vec{E}$",
+  "$\\gamma$",      "$0.039$",     "Annual growth rate of household income",
+  )
+
+
+csasdown::csas_table( modelAssumption, escape = FALSE,
+                      booktabs = TRUE, font_size = 10,
+                      format = kable_format,
+                      caption = econModelTableCap,
+                      align = c("l","l","l")) %>%
+  kable_styling(latex_options = c("striped", "hold_position","scale_down"),
+                bootstrap_options = c("striped", "hover")) 
+
+```
+
+\clearpage
+
 
 ```{r sensRunTable, echo = FALSE, warning = FALSE}
 sensTable <- tibble::tribble( 

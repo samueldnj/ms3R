@@ -204,15 +204,14 @@ multi-species harvest rates, rents under $U_{MSY,SS}$ quickly fell
 after the initial windfall, declining more slowly in HSHG given
 the choke effects and higher CPUE (Figure 9).
 
-Tail risk was quite high for all of the catch maximising harvest
-rates. The $VAR-5\%$ of NPV for the multi-species $MSY$ harvest
-rates was \$570,000 for the 80 year projection, or around \$28,000 per 
-annum, under $U_{MSY,MS}$, and \$140,000 (\$7,000 per annum) when
-targeting $U_{MSY,MS}^*$; neither value represents a viable fishery,
-given that our rent calculation does not include several sources of fishing
-costs. The single-species MSY harvest rates had lower tail risk than
-$U_{MSY,MS}$ and $U_{MSY,MS}^*$, with a $VAR-5\%$ of around \$3 million 
-(\$150,000 per annum).
+For all for $U_{MSY,MS}$ and $U_{MSY,MS}^*$, financial risk, measured by 
+5th percentiles, was quite high. The $VAR-5\%$ of NPV was around \$570,000 
+for the 80 year projection, or around \$28,000 per annum, under $U_{MSY,MS}$, 
+and \$140,000 (\$7,000 per annum) when targeting $U_{MSY,MS}^*$. Neither 
+NPV represents a viable fishery, given that the rent calculations did not 
+include several sources of fishing costs. The single-species MSY harvest 
+rates had lower risk than $U_{MSY,MS}$ and $U_{MSY,MS}^*$, with a $VAR-5\%$ 
+of around \$3 million (\$150,000 per annum).
 
 
 Variability, and any associated risk, of NPV was reduced overall under 

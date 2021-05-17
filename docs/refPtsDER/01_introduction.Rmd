@@ -5,16 +5,18 @@ oriented, despite the overwhelming prevalence of both direct and indirect
 multi-species interactions in fisheries [@skern2016ecosystem; 
 @marshall2019inclusion]. The direct effects of fishing occur via *technical 
 interactions* among multiple fish species that are caught simultaneously
-(e.g. bycatch) [@pikitch1987use; @murawski1984mixed], while indirect effects
-occuring via *ecological interactions* involve increasing/decreasing
-predator or prey abundances caused by fishing [@may1979management; 
-@collie2001biological]. Both technical and ecological interactions affect 
-fishery reference points derived from maximum sustainable yield (MSY) 
-[@murawski1984mixed; @pikitch1987use; @collie2001biological; 
-@may1979management] or maximum economic yield (MEY) [@hoshino2018estimating;
-@pascoe2020effectiveness; @guillen2013estimating], implying that fishery 
-policies ignoring multi-species interactions are, by design, likely to 
-produce sub-optimal outcomes in multi-species fisheries [@ono2017management]. 
+(e.g. bycatch or byproduct) and can lead to undesirable choke
+effects [@pikitch1987use; @murawski1984mixed; @baudron2015adverse], 
+while indirect effects occuring via *ecological interactions* involve 
+increasing/decreasing predator or prey abundances caused by fishing
+[@may1979management; @collie2001biological]. Both technical and ecological 
+interactions affect fishery reference points derived from maximum 
+sustainable yield (MSY) [@murawski1984mixed; @pikitch1987use; 
+@collie2001biological; @may1979management] or maximum economic yield 
+(MEY) [@hoshino2018estimating; @pascoe2020effectiveness; 
+@guillen2013estimating], implying that fishery policies ignoring 
+multi-species interactions are, by design, likely to produce sub-optimal 
+outcomes in multi-species fisheries [@ono2017management]. 
 Further, applying single-species MSY policies to large scale, multi-species 
 ecosystems could cause severe deterioration in ecosystem 
 structure and function [@walters2005possible]. 
@@ -68,16 +70,14 @@ purchasers, demand effects occur at larger spatial scales than
 the underlying population dynamics. Such spatial mismatches mean that 
 demand for a species may be common to several sub-populations of that
 species, depending on the market. Therefore, spatial heterogeneity in 
-species densities produces a unique catch composition produced by
-a unit of effort in a given area. Spatial variation in catch compositions 
-then implies area-specific effects on the price, and MEY, via the common 
-market and its demand curve.
+species densities produces area-specific effects on the price, and 
+therefore the $MEY$, via the common market and its demand curve.
 
 
 In this paper, we asked how spatial heterogeneity and price elasticity
 of demand affected economic and conservation risks in a multi-species
 fishery management context. We compared the management outcomes of harvest 
-strategies targeting single- and mult-species MSY and MEY reference points
+strategies targeting single- and multi-species $MSY$ and $MEY$ reference points
 by evaluating them in the presence of realistic uncertainty about stock
 status via closed loop simulation. We simulated a technically interacting
 three species complex of right-eyed flounders (*Pleuronectidae Spp.*) - 
@@ -93,15 +93,17 @@ calculations, with fishing revenues based on species demand curves assuming
 a constant price elasticity of demand [@jaffry1999long]. Single species MSY, 
 multi-species MSY, and MEY reference points were estimated via 
 yield-per-recruit analysis [@beverton1957dynamics; @murawski1984mixed; 
-@pikitch1987use], and multi-species MSY and MEY reference points were 
+@pikitch1987use], and multi-species $MSY$ and $MEY$ reference points were 
 validated via stochastic optimisation of simulated fishery effort over 
-an 80-year projection with recruitment process error, where the either 
-catch or net-present-value (NPV) of the fishery was maximized. We show
+an 80-year projection with recruitment process error, where either the 
+catch or net-present-value (NPV) of the fishery was maximized. We found
 that when accounting for spatial heterogeneity and price elasticity of 
-demand, MEY and multi-species MSY harvest strategies consistently 
-produced better conservation and economic performance than myopic 
-single-species MSY strategies. Our paper demonstrates a method
-for estimating MSY and MEY reference points for mixed fisheries, as well
-as showing that repeated application of of MSY based policies in
-the long term can have adverse economic outcomes.
+demand, $MEY$ harvest strategies consistently produced better 
+conservation and economic performance than either single-species
+or multi-species $MSY$ strategies, and single-species $MSY$ strategies
+performed better than multi-species $MSY$ strategies. Our paper 
+demonstrates a method for estimating and evaluating $MSY$ and $MEY$ 
+reference points for mixed stock fisheries, and provides framework that 
+can be readily extended for more complex questions, such as the effects 
+of marine spatial planning on fishing effort dynamics.
 
