@@ -196,49 +196,52 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   obj  <- .callProcedureAM( obj, t )
 
   # 3. Determine stock status and apply HCR to set catch limit
-  if( ctlList$mp$hcr$type == "ramped")
-    obj  <- .applyPrecHCR( obj, t )
+  if(ctlList$ctl$mpName=='NoFish')
+    obj$mp$hcr$TAC_spft[,,,t] <- 0
+  else 
+  {  
+    if( ctlList$mp$hcr$type == "ramped")
+      obj  <- .applyPrecHCR( obj, t )
 
-  if( ctlList$mp$hcr$type == "conF" )
-    obj  <- .applyConstantF( obj, t )
+    if( ctlList$mp$hcr$type == "conF" )
+      obj  <- .applyConstantF( obj, t )
 
-  if( ctlList$mp$hcr$type == "ccRule" )
-    obj  <- .calcHCR_ccRule( obj, t )
+    if( ctlList$mp$hcr$type == "ccRule" )
+      obj  <- .calcHCR_ccRule( obj, t )
 
-  if( ctlList$mp$hcr$type == "hgRule" )
-    obj  <- .calcHCR_hgRule( obj, t )
+    if( ctlList$mp$hcr$type == "hgRule" )
+      obj  <- .calcHCR_hgRule( obj, t )
 
-  # 4. Allocate catch among fleets
-  if( ctlList$mp$hcr$type == "hgRule" )
-    obj <- .tacAlloc_hgRule(obj,t)
+    # 4. Allocate catch among fleets
+    if( ctlList$mp$hcr$type == "hgRule" )
+      obj <- .tacAlloc_hgRule(obj,t)
 
-  # Need to unift the allocation for SOK/HG and SOG. Right now
-  if( !ctlList$mp$hcr$type == "hgRule" )
-    for( s in 1:nS )
-      for( p in 1:nP )    
-        obj$mp$hcr$TAC_spft[s,p,,t]    <- obj$mp$hcr$TAC_spt[s,p,t] * obj$om$alloc_spf[s,p,]
+    # Need to unift the allocation for SOK/HG and SOG. Right now
+    if( !ctlList$mp$hcr$type == "hgRule" )
+      for( s in 1:nS )
+        for( p in 1:nP )    
+          obj$mp$hcr$TAC_spft[s,p,,t]    <- obj$mp$hcr$TAC_spt[s,p,t] * obj$om$alloc_spf[s,p,]
 
-  # SOK product per license is 16,000 lbs (7.2575 t or 0.0072575 kt) per pond ()
-  sokPerLic_kt <- 0.0072575
-  # obj <- .tac2SOK(obj, t)
-  closedPondAlloc <- 0.0907 # 100 short tons (90.7 t or 0.0907 kt) of TAC allocated to each closed pond,
-  openPondAlloc   <- 0.0317 # 35 short tons (31.7t or 0.0317 kt) allocated to each open pond
+    # SOK product per license is 16,000 lbs (7.2575 t or 0.0072575 kt) per pond ()
+    sokPerLic_kt <- 0.0072575
+    # obj <- .tac2SOK(obj, t)
+    closedPondAlloc <- 0.0907 # 100 short tons (90.7 t or 0.0907 kt) of TAC allocated to each closed pond,
+    openPondAlloc   <- 0.0317 # 35 short tons (31.7t or 0.0317 kt) allocated to each open pond
 
-  histRpt <- ctlList$opMod$histRpt
-  sokIdx <- which(histRpt$fleetType_g == 2)
+    histRpt <- ctlList$opMod$histRpt
+    sokIdx <- which(histRpt$fleetType_g == 2)
 
-   # TOO PATH SPECIFIC
-  if( length(sokIdx) > 0 )
-    for( s in 1:nS )
-      for( p in 1:nP ) 
-      {
-        obj$mp$hcr$TAC_spft[s,p,sokIdx,t] <- obj$mp$hcr$TAC_spft[s,p,sokIdx,t]*sokPerLic_kt/closedPondAlloc
+     # TOO PATH SPECIFIC
+    if( length(sokIdx) > 0 )
+      for( s in 1:nS )
+        for( p in 1:nP ) 
+        {
+          obj$mp$hcr$TAC_spft[s,p,sokIdx,t] <- obj$mp$hcr$TAC_spft[s,p,sokIdx,t]*sokPerLic_kt/closedPondAlloc
 
-        if(nF > histRpt$nG)
-          obj$mp$hcr$TAC_spft[s,p,7,t] <- obj$mp$hcr$TAC_spft[s,p,7,t]*sokPerLic_kt/openPondAlloc
-      }
-
-
+          if(nF > histRpt$nG)
+            obj$mp$hcr$TAC_spft[s,p,7,t] <- obj$mp$hcr$TAC_spft[s,p,7,t]*sokPerLic_kt/openPondAlloc
+        }
+  }  
 
   # 5. Update simulated population
   obj <- .ageSexOpMod(obj, t)
@@ -805,7 +808,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     om$sigmaR_sp[1:nS,]              <- repObj$sigmaR
 
     # SOK pars
-    om$gamma_f[1:repObj$nG]     <- repObj$gamma_g
+    om$gamma_f[1:repObj$nG]     <- repObj$gamma_g[1:repObj$nG]
     om$pEff_t[1:(tMP-1)]        <- repObj$pEff_t
   
 
@@ -1486,8 +1489,6 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   SB_asp[1:nA,1:nS,1:nP] <- matAge_asp[1:nA,1:nS,1:nP] * spawnN_axsp[1:nA,nX,1:nS,1:nP] * W_axspt[1:nA,nX,1:nS,1:nP,t]
   SB_spt[,,t] <- apply(X = SB_asp, FUN = sum, MARGIN = c(2,3), na.rm = T )
 
-  # browser()
-
   # Calculate spawning biomass + surviving ponded fish after applying post-ponding M
   # survP_sp <- array(NA, dim = c(nS,nP))
   # for(s in 1:nS)
@@ -1966,7 +1967,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
       for( p in 1:nP )
       {      
         livePondedFish <- obj$mp$hcr$TAC_spft[s,p,6,t]/0.65
-        browser(cat('line 1638....'))
+        browser(cat('line 1970....'))
 
         obj$mp$hcr$TAC_spft[s,p,6,t] <- livePondedFish*psi # convert to SOK product
       }
@@ -2215,6 +2216,12 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   ctlList <- obj$ctlList
   assess  <- obj$mp$assess
 
+  # Model dims
+  nS  <- obj$om$nS # number of species
+  nP  <- obj$om$nP # of stocks/areas
+  nF  <- obj$om$nF # number of fleet
+  nT  <- obj$om$nT # number of years
+
   # Pull reference points
   refPtList   <- obj$rp
   refPtType   <- ctlList$mp$hcr$refPtType
@@ -2231,12 +2238,6 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   # calculate projection time
   tMP <- obj$om$tMP
   pt  <- t - tMP + 1
-
-  # Model dims
-  nS  <- obj$om$nS # number of species
-  nP  <- obj$om$nP # of stocks/areas
-  nF  <- obj$om$nF # number of fleet
-  nT  <- obj$om$nT # number of years
 
   # Stock status
   projSB_sp   <- assess$retroSB_tspt[pt,,,t] 
@@ -2581,6 +2582,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
 
   propTAC_sp <- array(1, dim = c(nS,nP) )
 
+  # Pooling TAC across multiple species & areas
   if( ctlList$mp$data$speciesPooling & ctlList$mp$data$spatialPooling )
   {
     # Calc proportion of TAC for each species
@@ -2594,8 +2596,10 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     hcr$TAC_spt[,,t] <- hcr$TAC_spt[,,t] * propTAC_sp
   }
 
+  # Pooling TAC across multiple areas for separate species
   if( ctlList$mp$data$spatialPooling & !ctlList$mp$data$speciesPooling )
   {
+    browser(cat('make sure this is not splitting TAC up among species s and aggregated species'))
     # Distribute among stocks
     propTAC_sp <- rctMeanI_sp
     for( s in 1:nS )
@@ -2604,6 +2608,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     hcr$TAC_spt[,,t] <- hcr$TAC_spt[,,t] * propTAC_sp
   }
 
+  # Pooling TAC across multiple species for separate areas 
   if( ctlList$mp$data$speciesPooling & !ctlList$mp$data$spatialPooling )
   {
     # Distribute among species
@@ -2659,7 +2664,11 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   ctlList <- obj$ctlList
 
   # Get procedure name
-  methodID <- ctlList$mp$assess$method
+  if(ctlList$ctl$mpName=='NoFish')
+    methodID <- 'perfectInfo'
+  else
+    methodID <- ctlList$mp$assess$method
+
 
   # AMfunName <- paste(".AM_",methodID, sep = "")
 
@@ -4140,7 +4149,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
       obj$errors$ageObsErr_axspft[,,s,p,,] <- rnorm(nA*nX*nF*nT)
 
       # Then check if age observation errors are correlated
-      browser()
+      browser(cat('line4148'))
 
     }
 
@@ -4242,8 +4251,6 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   obj$om$F_spft[1,,sokIdx,histdx] <- 0
   obj$om$C_spft[1,,sokIdx,histdx] <- 0
   
-
-
   obj$om$C_spt[1,,histdx]               <- apply( X = repObj$C_pgt, FUN = sum, MARGIN = c(1,3) )
   obj$om$sel_axspft[,1,1,,histF,histdx] <- repObj$sel_apgt
   # HACK: put a control file par in for this, too path specific
@@ -4401,11 +4408,9 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   # obj$mp$data$L_lxspft[obj$mp$data$L_axspft<0] <- NA
 
   # Now calculate total catch and allocation
-
   
   # Allocate according to historical catch by area
   # recentCatch_spf <- apply( X = obj$om$C_spft[,,,tdxRecent,drop = FALSE], FUN = sum, MARGIN = c(1,2,3) )
-
 
   # Allocate according to historical catch for all areas
   if(!is.null(obj$ctlList$opMod$projAlloc_f))
@@ -4425,19 +4430,18 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     commGears <- ctlList$opMod$commGears
 
     # Estimate mortality from closed ponded SOK fish and add to historical catch array
-    browser()
-    histC_pft <-  obj$om$C_spft[1,,,histdx]
-    histC_pft[,6,] <- repObj$pondC_pgt[,6,]*0.65
+    histC_spft <-  obj$om$C_spft[1,,,histdx, drop=F]
+    histC_spft[,,6,] <- repObj$pondC_pgt[,6,]*0.65
 
     # caculate catch for tdxRecent years for allocating catch in projections
-    histCatch_f <- apply( X = histC_pft[,,tdxRecent,drop=F], FUN = sum, MARGIN = c(2))
+    histCatch_spf <- apply( X = histC_spft[,,,tdxRecent,drop=F], FUN = sum, MARGIN = c(1,2,3))
 
-    if( all(histCatch_f[commGears] == 0) )
-      histCatch_f[commGears] <- 1
+    if( all(histCatch_spf[,,commGears] == 0) )
+      histCatch_spf[,,commGears] <- 1
 
     for(s in 1:nS)
       for( p in 1:nP )
-        obj$om$alloc_spf[s,p,commGears] <- histCatch_f[commGears] / sum(histCatch_f[commGears])
+        obj$om$alloc_spf[s,p,commGears] <- histCatch_spf[s,p,commGears] / sum(histCatch_spf[s,p,commGears])
 
   }
 
@@ -4573,9 +4577,13 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
 
       # Natural mortality: lag-1 autocorrelated, log-normal process errors,
       #                    No linear trend, or 50% higher during pulse yrs
-      M_pt        <- obj$om$M_axspt[2,1,1,,]
+      M_pt        <- array(NA, dim=c(nP,nT))
       pulseM_pt   <- array(NA, dim=c(nP,nT))
-      endM_p      <- apply(M_pt[,1:tMP-1], FUN=mean, MARGIN=1)
+
+      for(p in 1:nP)
+        M_pt[p,] <- obj$om$M_axspt[2,1,1,p,]
+
+      endM_p      <- apply(M_pt[,1:tMP-1, drop=F], FUN=mean, MARGIN=1)
 
       # Random walk M scaled to mean==1
       sigmaM    <- ctlList$opMod$sigmaM           # Natural mortality rate CV.
@@ -4624,7 +4632,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
       for(p in 1:nP)
       {  
         # No Trend in M
-        # M_pt[p,tMP:nT]  <- M_pt[p,tMP-1] * ranM
+        # M_pt[p,tMP:nT]  <- M_pt[p,tMP-1] * ranM_pt
 
         # Trend M for trendT years
         trendM    <- (log(endM_p[p]) - log(M_pt[p,tMP-1]))/ trendT

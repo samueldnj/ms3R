@@ -3418,6 +3418,7 @@ plotTulipCt <- function(  obj = blob, nTrace = 3,
       {
         for( f in fishG )
         {
+          
           if(sum(C_qspft[2,s,p,f,])==0)
             next()
 
