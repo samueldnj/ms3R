@@ -59,6 +59,19 @@ discounted by an annual rate of 5\\%."
 
 econModelTableCap <- "Table of economic sub-model variables, their
 assumed values, and descriptions."
+
+demSensResultsTabCap <- "BC wide and area-specific NPV (CAD \\$ million),
+area specific median commercial trawl effort $E_{MEY}^*$ (1000s hours), 
+and area-specific undiscounted annual resource rents $MEY^*$ (CAD \\$ 
+million) under the constant price sensitivity analyses. Median effort and 
+rents are taken over all simulation replicates and the period 2040 - 2060."
+
+discIncomeSensResultsTabCap <- "BC wide and area-specific NPV (CAD \\$ million),
+area specific median commercial trawl effort $E_{MEY}^*$ (1000s hours), 
+and area-specific undiscounted annual resource rents $MEY^*$ (CAD \\$ 
+million) under the discount rate and income growth rate sensitivity 
+analyses. Median effort and rents are taken over all simulation replicates 
+and the period 2040 - 2060."
 ```
 
 ```{r modelAssumptions, echo = FALSE, messages = FALSE, warnings = FALSE}
@@ -70,8 +83,7 @@ modelAssumption <- tibble::tribble(
   "$d$",            "$0.05$",      "Discount rate",
   "$v_s(C_s)$",     "",            "Unit price per kg of species $s$ (CAD \\$) at quantity demanded $C_s$ (kt)",
   "$c_p$",          "",            "Fuel cost per unit of fishing effort (CAD \\$ million)",
-  "$\\pi(\\vec{E})$","",           "Equilibrium resource rent produced by",
-  "",               "",            "annual fishing effort $\\vec{E}$",
+  "$\\pi(\\vec{E})$","",           "Equilibrium resource rent produced by annual fishing effort $\\vec{E}$",
   "$\\gamma$",      "$0.039$",     "Annual growth rate of household income",
   )
 
@@ -364,5 +376,56 @@ csasdown::csas_table( discRentTab, escape = FALSE,
 
 
 
+```
+
+\clearpage
+
+```{r demandSensTables, echo = FALSE, warning = FALSE}
+
+resultsTab <- makeScenResultsTab( folder    = "./data/dynEqTables_demSens",
+                                  scenario  = "noCorr",
+                                  mpFilter  = "totProfit",
+                                  cols      = c("dynEqDiscRent","dynEqEff","dynEqPrSp") )
+
+resultsTab$Scenario[c(1,5,9)] <- c( "Infinite PED, Income growth", 
+                                    "Infinite PED, Fixed Income", 
+                                    "Finite PED, Fixed Income"  )
+
+colnames(resultsTab)[3:5] <- c("NPV","$E_{MEY}^*$","$MEY^*$")
+
+csasdown::csas_table( resultsTab, escape = FALSE,
+                      booktabs = TRUE,
+                      font_size = 10,
+                      format = kable_format,
+                      caption = demSensResultsTabCap,
+                      align = c("l","c",rep("r",ncol(resultsTab)-2)) ) %>%
+      kable_styling(  latex_options = c("striped", "hold_position","scale_down"),
+                      bootstrap_options = c("striped", "hover"))
+```
+
+\clearpage
+
+```{r discIncomeSensTables, echo = FALSE, warning = FALSE}
+
+resultsTab <- makeScenResultsTab( folder    = "./data/dynEqTables_projSens",
+                                  scenario  = "noCorr",
+                                  mpFilter  = "totProfit",
+                                  cols      = c("dynEqDiscRent","dynEqEff","dynEqPrSp") )
+
+resultsTab$Scenario[c(1,5,9,13)] <- c(  "Low Discount $d = 0.025$", 
+                                        "High Discount $d = 0.1$", 
+                                        "Low Income Growth $\\gamma = 0.02$",
+                                        "High Income Growth $\\gamma = 0.058$"  )
+
+colnames(resultsTab)[3:5] <- c("NPV","$E_{MEY}^*$","$MEY^*$")
+
+csasdown::csas_table( resultsTab, escape = FALSE,
+                      booktabs = TRUE,
+                      font_size = 10,
+                      format = kable_format,
+                      caption = discIncomeSensResultsTabCap,
+                      align = c("l", "c",rep("r",ncol(resultsTab)-2)) ) %>%
+      kable_styling(  latex_options = c("striped", "hold_position","scale_down"),
+                      bootstrap_options = c("striped", "hover"))
 ```
 

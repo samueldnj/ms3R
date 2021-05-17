@@ -1,0 +1,10 @@
+"","simLabel","scenario","mp","species","stock","projObsErrMult","nGoodReps","pGoodReps","medProbPDH_sp","pBtGt.4Bmsy","PBtGt.8Bmsy","pBtGtBmsy","pCtGtMSY","pFtGtFmsy","avgCatch","AAV","avgTACu","medDiscRent","medEff","VAR5pc","pHistLowCatch"
+"1","sim_baseRun_invDem","baseDER_invDem","simAssError_MSY","Dover","HSHG",1,3,1,0,1,1,1,0.32,0,1.02,0.15,0.74,2.83,7.88,2.66,0
+"2","sim_baseRun_invDem","baseDER_invDem","simAssError_MSY","Dover","QCS",1,3,1,0,1,1,1,0.5,0,0.42,0.16,0.84,1.8,14.04,1.53,0
+"3","sim_baseRun_invDem","baseDER_invDem","simAssError_MSY","Dover","WCVI",1,3,1,0,1,1,1,0.69,0.1,1.36,0.17,0.79,3.06,9.95,2.93,0
+"4","sim_baseRun_invDem","baseDER_invDem","simAssError_MSY","English","HSHG",1,3,1,0,1,1,1,0.57,0.04,0.87,0.16,0.73,2.83,7.88,2.66,0.08
+"5","sim_baseRun_invDem","baseDER_invDem","simAssError_MSY","English","QCS",1,3,1,0,1,1,1,0.54,0.05,0.06,0.15,0.89,1.8,14.04,1.53,0
+"6","sim_baseRun_invDem","baseDER_invDem","simAssError_MSY","English","WCVI",1,3,1,0,1,0.94,0.7,0.48,0.22,0.09,0.17,0.8,3.06,9.95,2.93,0
+"7","sim_baseRun_invDem","baseDER_invDem","simAssError_MSY","Rock","HSHG",1,3,1,0,1,0.99,0.74,0.66,0.55,1.17,0.15,0.92,2.83,7.88,2.66,0
+"8","sim_baseRun_invDem","baseDER_invDem","simAssError_MSY","Rock","QCS",1,3,1,0,1,0.89,0.42,0.36,0.49,0.41,0.15,0.93,1.8,14.04,1.53,0
+"9","sim_baseRun_invDem","baseDER_invDem","simAssError_MSY","Rock","WCVI",1,3,1,0,1,1,0.98,0.47,0.06,0.09,0.17,0.88,3.06,9.95,2.93,0

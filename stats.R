@@ -11,6 +11,76 @@
 #
 # <><><><><><><><><><><><><><><><><><><><><><><><><><><>
 
+makeScenResultsTab <- function( folder    = "./Outputs/omniRuns_noCorrFixGDP_May1",
+                                scenario  = "noCorr",
+                                mpFilter  = "totProfit",
+                                cols      = c("dynEqDiscRent","dynEqEff","dynEqPrSp") )
+{
+  csvFiles <- list.files(folder)
+  csvFiles <- csvFiles[grepl(x = csvFiles, pattern = ".csv")]
+
+  nFiles <- length(csvFiles)
+  tabLabs <- unlist(stringr::str_split(csvFiles,".csv"))[2*(1:nFiles)-1]
+
+
+  csvPath <- file.path(folder,csvFiles)
+  tabs <- lapply(X = csvPath, FUN = read.csv, header = TRUE)
+  names(tabs) <- tabLabs
+
+  stockNames    <- unique(tabs$dynEqDiscRent$stock)[1:3]
+  speciesNames  <- unique(tabs$dynEqDiscRentDist$species)[1:3]
+
+  tabs <- tabs[cols]
+
+  for(t in 1:length(tabs))
+  {
+    tabs[[t]] <- tabs[[t]] %>%
+                  dplyr::select_if(~!any(is.na(.)))
+
+  }
+
+  tabColNames <- names(tabs[[1]])
+  scenarios   <- tabColNames[grepl(pattern = mpFilter,x = tabColNames) & grepl(pattern = scenario,x = tabColNames)]
+
+  nScen <- length(scenarios)
+  nStocks <- length(stockNames)
+
+  nTabRows <- nScen * (nStocks + 1)
+
+  resultsColNames <- c("Scenario","Area",cols)
+  nTabCols <- length(resultsColNames)
+
+  tab.mat <- array(NA, dim = c(nTabRows, nTabCols ) )
+  colnames(tab.mat) <- resultsColNames
+  tab.mat <- as.data.frame(tab.mat)
+
+  for( scenIdx in 1:nScen )
+  {
+    tabRowIdx <- (scenIdx - 1) * (nStocks + 1) + 1
+    tab.mat$Scenario[tabRowIdx] <- scenarios[scenIdx]
+    
+    if( "dynEqDiscRent" %in% cols )
+      tab.mat$dynEqDiscRent[tabRowIdx] <- tabs$dynEqDiscRent[4,scenarios[scenIdx]]
+    
+    # Loop and fill stock spec info
+    for( pIdx in 1:nStocks )
+    {
+      tabRowIdx <- tabRowIdx + 1
+
+      tab.mat$Area[tabRowIdx] <- stockNames[pIdx]
+
+      for( col in cols )
+      {
+        # browser()
+        tab.mat[tabRowIdx,col] <- tabs[[col]][pIdx,scenarios[scenIdx]]
+      }
+    }
+  }
+
+  tab.mat
+} # END makeScenResultsTab()
+
+
 # makeDynEqbriaTab( )
 # Uses reference points object from a simulation
 # to create a table of multispecies catch and economic 

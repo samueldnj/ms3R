@@ -229,27 +229,51 @@ optimisation, where efforts optimised to maximise rent had a much tighter
 distribution than efforst optimised to maximise DER complex yield (Figure 5).
 
 
+## Sensitivity to economic assumptions
+
+Demand curves under infinite PED and fixed household income are shown
+in Figure 10. As expected, reducing the dependence of unit price (demand) 
+on catch or household income led to higher NPVs for the DER complex (Table
+8). Higher NPVs under the infinite PED assumptions were based on
+no drop in price the at higher levels of catch (quantity supplied), 
+which in turn encouraged higher expenditures of fishing effort (compare
+Table 8 and 5). In contrast, the higher NPVs under the fixed income
+assumption were an effect of the stable price/catch relationship, which
+also encouraged higher outlays of fishing effort as the value of the
+fishery did not decline due to the constant household incomes. Both
+infinite PED and constant houshold income had roughly the same NPV, efforts
+and rents (Table 8). However, when both assumptions were combined, the 
+effects were almost additive (Table 8, Infinite PED, Fixed Income scenario).
 
 
-## Sensitivities
+[**INCORRECT RESULTS BELOW - AWAITING RERUNS**]
 
-### Infinite PED
+In terms of future optimal effort allocation, discount and growth rate 
+sensitivity scenarios sorted into two groups. The high discount rate 
+($d = 0.1$) and low income growth ($\gamma = 0.02$) scenarios had very 
+similar optimal effort dynamics, and the low discount rate ($d = 0.025$)
+and high income growth ($\gamma = 0.058$) scenarios were also very similar.
+Similarities in the high-discount/low-growth scenarios continued across
+most of the projection period after an inital difference, where the higher
+discount rate led to more fishing effort initially to take advantage
+of high initial CPUE. 
 
-[**Sensitivity using inf PED**]
-As expected, producers received a small transfer of rent from consumers
-given the downward sloping demand curves with constant price elasticity 
-of demand. At the estimated price elasticity of demand $\lambda_s$, maximum 
-economic yield in each area was higher while optimal effort was lower, 
-reflecting lower effort costs and higher revenues from artificial 
-scarcity at lower quantity supplied. When $\lambda_s = \infty$, optimal 
-effort was about 15\% higher in HSHG and QCS areas, and about 7\% higher 
-in WCVI.
+For the low-discount/high-growth scenario, the level of similarity in
+median optimal effort was area-dependent. That is, the median efforts 
+converged early in QCS and WCVI and stayed close for the entire projection, 
+but had an intermediate divergent period in HSHG, wehre the lower
+discount rate scenario applied higher fishing effort, while the high
+income growth scenario dropped effort faster. Similar to the effort
+allocations in the $E_{MEY}^*$ stochastic optimisation, the divergent
+behaviour in HSHG is caused by the species composition, with HSHG dominated
+by Dover sole, for which demand did not depend on household income,
+and was fairly insensitive to changes in catch given the high exogenous
+US West coast catch level [**UDPATE WITH NEW RESULTS**]. The Dover sole 
+effect meant rent was less sensitive to increased effort, so combined with
+a lower discount rate (i.e., more value for future rents), efforts
+could remain higher.
 
-
-
-
-
-
+[PLOT RENT TULIPS FOR THESE TOO]
 
 
 

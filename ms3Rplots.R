@@ -2731,12 +2731,14 @@ plotTulipRE_AM <- function( simNum = 1,
 
 
 # compareTulipEfforts()
-compareTulipEffort <- function( groupFolder = "omniRuns_noCorr_Apr14",
+compareTulipEffort <- function( groupFolder = "omniRuns_Sens_Apr26",
                                 scenarios = "noCorr",
                                 rpSim = "sim_baseRun_invDem",
                                 fleets = 1:2,
                                 combineEff = TRUE,
+                                plotPoly =TRUE,
                                 proj = TRUE,
+                                maxE = 1,
                                 highlightPer = c(2040,2060),
                                 lastYear = 2060 )
 {
@@ -2745,10 +2747,9 @@ compareTulipEffort <- function( groupFolder = "omniRuns_noCorr_Apr14",
 
   # Limit to scenarios
   scenInfo <- groupInfo %>%
-                filter(scenario %in% scenarios )
+                filter(grepl(pattern = scenarios, x = scenario) )
 
   effList <- list()
-
 
   # Now loop over simlabels and load model states
   for( sIdx in 1:nrow(scenInfo) )
@@ -2795,7 +2796,7 @@ compareTulipEffort <- function( groupFolder = "omniRuns_noCorr_Apr14",
   # Now take quantiles
   E_qSpt <- apply(X = E_Sipt, FUN = quantile, probs = c(0.05,0.5,0.95), MARGIN = c(1,3,4) )
 
-  simCols <- c("black","red")
+  simCols <- c("black","red","steelblue","darkgreen")
 
   plotIdx <- 1:nT
   
@@ -2813,7 +2814,7 @@ compareTulipEffort <- function( groupFolder = "omniRuns_noCorr_Apr14",
   for( p in 1:nP )
   {
     plot( x = range(yrs[plotIdx]),
-          y = c(0,max(E_qSpt[,,p,highlightPerIdx],na.rm = T) ),
+          y = c(0,max(E_qSpt[,,p,tMP:nT],maxE,na.rm = T) ),
           type = "n", axes = F )
       mfg <- par("mfg")
       # Plot axes and facet labels
@@ -2831,8 +2832,9 @@ compareTulipEffort <- function( groupFolder = "omniRuns_noCorr_Apr14",
       abline( h = Emey_p[p], lwd = 3, lty = 5, col = "grey40")
       for( simIdx in 1:nSim )
       {
-        polygon( x = c(yrs,rev(yrs)), y = c(E_qSpt[1,simIdx,p,],rev(E_qSpt[3,simIdx,p,])), 
-                col = scales::alpha(simCols[simIdx],.4), border = NA )
+        if(plotPoly)
+          polygon( x = c(yrs,rev(yrs)), y = c(E_qSpt[1,simIdx,p,],rev(E_qSpt[3,simIdx,p,])), 
+                   col = scales::alpha(simCols[simIdx],.4), border = NA )
         
         lines( x = yrs, y = E_qSpt[2,simIdx,p,], col =simCols[simIdx], lwd = 3, lty = simIdx )
         
@@ -2847,25 +2849,6 @@ compareTulipEffort <- function( groupFolder = "omniRuns_noCorr_Apr14",
   mtext( side = 2, outer = TRUE, text = "Commercial Trawl Effort (1000 hrs)",
           line = 2, font = 2)
   mtext( side = 1, outer =TRUE, text = "Year", font = 2, line = 2)
-
-  # Now do outer margin legend (top)
-  par(xpd=NA, oma = c(0,0,0,0), mar = c(0,0,0,0), mfcol = c(1,1) )
-  # plot(x = 1, y = 1, add = TRUE, type = "n")
-
-  legTxt <- c( expression(paste("max ", C[t]), E[MSY], paste("max ", pi), E[MEY] ))
-
-  legend( x = "top",bty = "n", horiz = TRUE,
-          legend = legTxt,
-          inset = c(0,-0.01),
-          pt.lwd = 0,
-          pt.cex = 4,
-          cex = 2,
-          pch = c(22,NA,22,NA), 
-          pt.bg = scales::alpha(c("black",NA,"red",NA),alpha = .3),
-          col = c("black","steelblue","red","black"),
-          lty = c(1,4,2,5),
-          lwd = 3 )
-  par( xpd = FALSE)
 
 } # END compareTulipEffort()
 

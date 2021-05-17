@@ -115,6 +115,13 @@ using dynamic optima $U_{MSY}^*$ (grey region, solid black line) and
 $U_{MEY}^*$ (pink region, dashed red line). Horizontal dashed lines 
 show steady-state $MEY$ for each stock area, while the vertical dashed 
 line shows the beginning of the projection period in 2017."
+
+sensEffortTulipsCap <- "Annual median commercial trawl effort maximising
+NPV under the discount and income growth rate sensitivity analyses. 
+Horizontal dashed lines show YPR $E_{MEY}$ (long dashed), while vertical 
+lines show the beginning of the projection period (thin short dashed in 
+2017) and the beginning and end of the time period over which dynamic 
+optima are calculated (thicker short dashed lines in 2041 and 2060)."
 ```
 
 ```{r fig1-DERcomplexSurveyBio, echo = FALSE, warning = FALSE, fig.cap = DERcplxMapCap }
@@ -193,6 +200,25 @@ if(params$redoPlots | !file.exists(figPath))
                       combineEff = TRUE,
                       proj = TRUE,
                       highlightPer = c(2041,2060) )
+
+  # Now do outer margin legend (top)
+  par(xpd=NA, oma = c(0,0,0,0), mar = c(0,0,0,0), mfcol = c(1,1) )
+  # plot(x = 1, y = 1, add = TRUE, type = "n")
+
+  legTxt <- c( expression(paste("max ", C[t]), E[MSY], paste("max ", pi), E[MEY] ))
+
+  legend( x = "top",bty = "n", horiz = TRUE,
+          legend = legTxt,
+          inset = c(0,-0.01),
+          pt.lwd = 0,
+          pt.cex = 4,
+          cex = 2,
+          pch = c(22,NA,22,NA), 
+          pt.bg = scales::alpha(c("black",NA,"red",NA),alpha = .3),
+          col = c("black","steelblue","red","black"),
+          lty = c(1,4,2,5),
+          lwd = 3 )
+  par( xpd = FALSE)
   dev.off()
 }
 knitr::include_graphics(figPath)
@@ -281,6 +307,43 @@ if(params$redoPlots | !file.exists(figPath))
                       alphaPar = 0.5,
                       includeHist = FALSE,
                       nProj = 20 )
+  dev.off()
+}
+knitr::include_graphics(figPath)
+
+```
+
+```{r fig11-sensEffortTulips, echo = FALSE, warning = FALSE, fig.cap = sensEffortTulipsCap }
+figPath <- file.path("./figure/fig11-sensEffortTulips.pdf")
+if(params$redoPlots | !file.exists(figPath))
+{
+  graphics.off()
+  pdf(file = figPath, width = 8.5, height = 11)
+  compareTulipEffort( groupFolder = "omniRuns_Sens_Apr26",
+                      scenarios = "noCorr",
+                      rpSim = params$sim,
+                      fleets = 1:2,
+                      plotPoly = FALSE,
+                      combineEff = TRUE,
+                      proj = TRUE,
+                      highlightPer = c(2040,2060) )
+
+  # Now do outer margin legend (top)
+  par(xpd=NA, oma = c(0,0,0,0), mar = c(0,0,0,0), mfcol = c(1,1) )
+  # plot(x = 1, y = 1, add = TRUE, type = "n")
+
+  legTxt <- c(expression("d = 0.1","d = 0.025", paste(gamma, "= 0.02"), paste(gamma," = 0.058 ") ))
+
+  legend( x = "top",bty = "n", horiz = TRUE,
+          legend = legTxt,
+          inset = c(0,-0.01),
+          pt.lwd = 0,
+          cex = 1.5,
+          col = c("black","red","steelblue","darkgreen"),
+          lty = c(1,2,3,4),
+          lwd = 3 )
+  par( xpd = FALSE)
+
   dev.off()
 }
 knitr::include_graphics(figPath)
