@@ -107,6 +107,13 @@ into stock assessment or TAC advice [@plaganyi2013integrating;
 @ ecosystemOM].
 
 
+Simplicity of fishing costs model: only fuel costs and crew share
+were included, but no lease prices. Lease prices would add a layer
+of complexity where the allocation of effort would change over the 
+course of a year, as when price/demand drops, lease price drops unless
+it is a choke species. Future work could add either individual vessel
+dynamics or some added layer of lease market dynamics to simulate this.
+
 
 Ealier version of this work included experiments where dynamic optima
 were estimated with and without correlation in price and recruitment
