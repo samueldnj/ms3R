@@ -822,7 +822,6 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
 
     om$densityDepM  <- repObj$densityDepM
 
-
     # Time-varying, age-structured natural mortality
     om$M_axspt[,1,1,,1:(tMP-1)] <- repObj$M_apt[,,1:(tMP-1)]
 
@@ -1195,8 +1194,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     totB0_sp <- rp$totB0_sp
     for(s in 1:nS)
       for(p in 1:nP)
-      {
-
+      { 
         M_axspt[2:nA,1:nX,s,p,t] <- repObj$M_p[p] + exp( - om$m1_sp[s,p] * B_spt[s,p,t] / totB0_sp[s,p])
         M_axspt[1,1:nX,s,p,t] <- repObj$Mjuve_p[p]
       }
@@ -4668,6 +4666,12 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
 
   }  
 
+
+  # Otherwise copy M_axsp forward from last year to get running
+  if(is.null(ctlList$opMod$projM) | ctlList$opMod$projM == 'densityDepM')  
+    for( t in tMP:nT )
+      obj$om$M_axspt[,,,,t] <- obj$om$M_axspt[,,,,tMP-1]
+
   # Post ponding M for open and closed ponding
   sokIdx <- which(obj$om$fleetType_f == 2)
   for( f in sokIdx )
@@ -4690,12 +4694,6 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   
 
   }  
-
-
-  # Otherwise copy M_axsp forward from last year to get running
-  if(is.null(ctlList$opMod$projM) )  
-    for( t in tMP:nT )
-      obj$om$M_axspt[,,,,t] <- obj$om$M_axspt[,,,,tMP-1]
 
   # Adjust obs error multiplier if 
   # projObsErrMult != 1

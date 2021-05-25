@@ -1,6 +1,6 @@
 # simCtlFile.txt, written to sim_22092020100432on 1600794273
 parameter value
-ctl$scenarioName "ddM_noPred"
+ctl$scenarioName "tvM_noPred"
 ctl$mpName 'NoFish'
 ctl$quiet FALSE
 ctl$phaseMessages TRUE
@@ -139,7 +139,7 @@ opMod$ut_50 .85
 opMod$ut_95 .75
 opMod$effortMod "targeting"
 opMod$pT 515
-opMod$projM 'densityDepM'
+opMod$projM 'ranWalkTrend'
 opMod$projMtrendT 15
 opMod$projMtype 'correlated'
 opMod$pondMmu_f c(0,0,0,0,0,0.315)
@@ -149,7 +149,7 @@ opMod$gammaM 0.997
 opMod$pulseMFrq 0
 opMod$pulseMSize 1
 opMod$pulseMfrac 0.3
-opMod$histFile "ddM_noPred"
+opMod$histFile "_tvM_noPred"
 opMod$posteriorSamples FALSE
 opMod$postSampleType 'random'
 opMod$postSampleSeed 1234
