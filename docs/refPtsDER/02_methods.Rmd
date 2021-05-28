@@ -18,9 +18,9 @@ whole BC coast. Although there are several right-eyed flounders in BC
 waters, we focused here on Dover sole, English sole, and Rock sole. Taken 
 together, these species comprised a multi-stock complex (DER complex) managed 
 in three spatially heterogeneous stock areas (Figure 1), Hecate Strait/Haida
-Gwaii (HSHG), Queen Charlotte Sound (QCS), and West Coast of Vancouver
-Island (WCVI), as described in @johnson2021hierarchical. [UPDATE FIGURE
-TO USE AREA NAMES AND AGGREGATE STAT AREAS, AS IN 2021] 
+Gwaii (HSHG, management areas 5CDE), Queen Charlotte Sound (QCS, areas 5AB), 
+and West Coast of Vancouver Island (WCVI, 3CD), as described in 
+@johnson2021hierarchical.
 
 
 ## Bio-economic simulation model

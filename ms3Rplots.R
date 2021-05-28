@@ -79,9 +79,7 @@ plotFvsEffHist_p <- function( obj = blob,
 # and plots each one, with projected household income
 # under a growth rate assumption
 plotMultiDemCurves <- function( priceModel = readRDS("priceModelIV.rds"),
-                                alpha_s = c(2.5544,2.5371,1.266),
-                                invlambda_s = list(c(-0.2789,-0.1952,-0.3533),c(0,0,0),c(0,0,0)),
-                                incomeCoeff_s = c(-.5935,-0.6363,-0.3926),
+                                demCurveNames = c("invDemCurvesOwnElast_s","invDemCurvesInfPED_s","invDemCurvesInfPED_s"),
                                 legTxt = c("Fixed Income, Finite PED", "Fixed Income, Infinite PED", "Infinite PED"),
                                 rangeC = c(0.1,10),
                                 curveCols = RColorBrewer::brewer.pal(3,"Dark2"),
@@ -98,6 +96,29 @@ plotMultiDemCurves <- function( priceModel = readRDS("priceModelIV.rds"),
   adjC_s        <- apply(X = priceModel$UScatch_st, FUN = mean, MARGIN = 1)
   bcIncome_t    <- priceModel$bcIncome_t
 
+  nCurves <- length(demCurveNames)
+  nS <- length(adjC_s)
+
+  alpha_cs        <- array(0, dim = c(nCurves,nS))
+  invlambda_cs    <- array(0, dim = c(nCurves,nS))
+  incomeCoeff_cs  <- array(0, dim = c(nCurves,nS))
+
+  Cnames <- c("Cd","Ce","Cr")
+
+  for( c in 1:nCurves )
+  {
+    demCurveList_s <- priceModel[[demCurveNames[c]]]
+    for( s in 1:nS )
+    {
+
+      alpha_cs[c,s]         <- coef(demCurveList_s[[s]])["(Intercept)"]
+      invlambda_cs[c,s]     <- coef(demCurveList_s[[s]])[Cnames[s]]
+      incomeCoeff_cs[c,s]   <- coef(demCurveList_s[[s]])["y"]
+    }
+  }
+
+  invlambda_cs[is.na(invlambda_cs)] <- 0
+
   if(includeHist)
     histLength <- length(bcIncome_t)
   else histLength <- 0
@@ -106,9 +127,6 @@ plotMultiDemCurves <- function( priceModel = readRDS("priceModelIV.rds"),
 
 
   # Get dimensions
-
-  nCurves   <- length( invlambda_s )
-  nS <- length(invlambda_s[[1]])
   nYears <- max(histLength + nProj,1)
   nGrid <- 100
 
@@ -132,8 +150,9 @@ plotMultiDemCurves <- function( priceModel = readRDS("priceModelIV.rds"),
 
     for(s in 1:nS )
       for( t in 1:nYears )
-        price_sckt[s,c,,t] <- exp(alpha_s[s] + invlambda_s[[c]][s] * log(Cseq) + incomeCoeff_s[s] * log(bcIncome_ct[c,t]))
+        price_sckt[s,c,,t] <- exp(alpha_cs[c,s] + invlambda_cs[c,s] * log(Cseq) + incomeCoeff_cs[c,s] * log(bcIncome_ct[c,t]))
   }
+
   
   price_qsck <- apply(X = price_sckt, FUN = quantile, MARGIN = c(1,2,3),
                         probs = c(0.1,0.5,0.9), na.rm = T )
@@ -710,7 +729,7 @@ plotChokeHCRs <- function(  LCP = .1, UCP = .6,
 # plotBioDist()
 # Estimates biomass distributions for given years
 # and plots them on a stock/species multipanel plot.
-plotBioDist <- function(  groupFolders = c("simAssErrors_Apr14"),
+plotBioDist <- function(  groupFolders = c("simAssErrors_May4"),
                           mpFilter = "",
                           distYrs = 2040:2060,
                           qProbs = c(0.05,0.5,0.95),
@@ -816,7 +835,7 @@ plotBioDist <- function(  groupFolders = c("simAssErrors_Apr14"),
 
   # 
 
-  par(mfrow = c(nP,nS), oma = c(3,4,2,2), mar = c(.1,.1,.1,.1) )
+  par(mfrow = c(nP,nS), oma = c(3,4,6,2), mar = c(.1,.1,.1,.1) )
 
   for( p in 1:nP )
     for( s in 1:nS )
@@ -891,9 +910,36 @@ plotBioDist <- function(  groupFolders = c("simAssErrors_Apr14"),
         }
 
     }
-    legend( x = "topleft",
-            pch = c(21,22,23),
-            legend = c("MSY_MS","MEY","MSY_SS"))
+
+  # Now do outer margin legend (top)
+  par(xpd=NA, oma = c(0,0,0,0), mar = c(0,0,0,0), mfcol = c(1,1) )
+  # plot(x = 1, y = 1, add = TRUE, type = "n")
+
+
+  # legend( x = "top", bty = "n", horiz = TRUE,
+  #         legend = c("UmsySS","UmsyMS","UmsyMS*","Umey","Umey*"),
+  #         text.col = "white",
+  #         inset = c(0,-0.01),
+  #         cex = 1,
+  #         col = c("grey50"),
+  #         lty = c(1),
+  #         lwd = 3)
+
+  legTxt <- expression( U["MSY,SS"]^"", U["MSY,MS"]^"", U["MSY,MS"]^"*", U[MEY]^"",U[MEY]^"*" )
+
+  legend( x = "top", bty = "n", horiz = TRUE,
+          pch = c(23,21,21,22,22),
+          # legend = c("UmsySS","UmsyMS","UmsyMS*","Umey","Umey*"),
+          legend = legTxt,
+          inset = c(0,-0.01),
+          pt.lwd = c(1,1,0,1,0),
+          cex = 1.5,
+          col = c("red","red",NA,"red",NA),
+          pt.bg = c(NA,NA,"black",NA,"black") )
+  par( xpd = FALSE)
+
+
+    
     mtext( side = 2, outer = TRUE, text = expression(B/B[MSY]),
             font = 2, line = 2 )
 }
@@ -1392,9 +1438,9 @@ plotDynOptEffort_p <- function( groupFolder = "omni_econYield_splineE_long",
 # plotDynUmsy_sp()
 # Plots distribution of dynamically optimised harvest rates
 # for a set of simulations
-plotDynUmsy_sp <- function( groupFolder = "omniRuns_econYield_noCorr",
+plotDynUmsy_sp <- function( groupFolder = "omniRuns_noCorr_apr26",
                             mpFilter = "freeEff",
-                            baseRP = "sim_baseRun",
+                            baseRP = "sim_baseRun_invDem",
                             scenOrder = c("noCorr") )
 {
   # First, read info files from the relevant
@@ -1467,103 +1513,100 @@ plotDynUmsy_sp <- function( groupFolder = "omniRuns_econYield_noCorr",
 
 
 
-  par( mfrow = c( nP, 1 ),
-        oma = c(4,7,2,3),
-        mar = c(.1,.1,.1,.1) )
+  par( mfrow = c( 1, 1 ),
+        oma = c(4,5,4,3) )
 
 
   xJitter <- c(-.25, .25 )
 
-  for( p in 1:nP )
-  {
-    plot( x = c(0,2.5),
-          y = c(0.5,3.5), type = "n", axes = FALSE,
-          yaxs = "i" )
-      abline( h = 0.5 + 1:3, lwd = 2 )
-      mfg <- par("mfg")
-      
-      axis( side = 2, at = c(1:nS), labels = speciesNames[nS:1],
-            las = 1, tick = FALSE, font = 2 )
+  
+  plot( x = c(0,2.5),
+        y = c(0.5,nP*nS + .5), type = "n", axes = FALSE,
+        yaxs = "i", xlab = "", ylab = "" )
+    abline( h = 3*1:3 + 0.5, lwd = 2 )
+    mfg <- par("mfg")
+    
+    axis( side = 2, at = 1:(nS*nP), labels = rep(speciesNames[nS:1],nP),
+          las = 1, tick = FALSE, font = 2 )
 
-      if(mfg[1] == mfg[3])
-        axis( side = 1 )
-      
-      # if(mfg[1] == 1)
-      #   mtext(  side = 3, text = speciesNames[s],
-      #           line = 0, font = 2)
-      #   axis( side = 3, at = 1:3, labels = speciesNames, tick = FALSE,
-      #         font = 2, line = -1, lab.cex = 2 )
-      
-      # abline( v = c(1.5,2.5), lwd = 2 )
-      abline( v = seq(from = 0, to = 2.5, by = .5), lwd = .8, col = "grey80", lty = 3 )
-      abline( v = 1, lty = 2, lwd = 2, col = "grey60")
-      box( lwd = 2 )
+    axis( side = 1 )
+    
+    abline( v = seq(from = 0, to = 2.5, by = .5), lwd = .8, col = "grey80", lty = 3 )
+    abline( v = 1, lty = 2, lwd = 2, col = "grey60")
+    box( lwd = 2 )
 
-    for( s in 1:nS )
-    {
-      BmsyMS  <- rp$EmsyMSRefPts$BeqEmsy_sp[s,p]
-      MSYMS   <- rp$EmsyMSRefPts$YeqEmsy_sp[s,p]
-
-      UmsyMS    <- MSYMS/BmsyMS
-      relUmsyMS <- UmsyMS/Umsy_sp[s,p]
-
-      # Calculate BmeyMS
-      BmeyMS    <- getSplineVal(x = E, y = Beq_spe[s,p,], p = Emey_p[p] )
-      relBmeyMS <- BmeyMS/Bmsy_sp[s,p]
-
-      # Calculate YmeyMS
-      YmeyMS    <- getSplineVal(x = E, y = Yeq_spe[s,p,], p = Emey_p[p] )
-      relYmeyMS <- YmeyMS/MSY_sp[s,p]
-
-      Umey_sp[s,p]  <- YmeyMS/BmeyMS
-      relUmeyMS     <- Umey_sp[s,p]/Umsy_sp[s,p]
-
-      # BmsyMS <- rp$EmeyRefPts$BeqEmsyMS_sp[s,p]
-      # relBmsyMS <- BmsyMS/Bmsy_sp[s,p]
-
-      for( k in 1:nModels )
+    for( p in 1:nP)
+      for( s in 1:nS )
       {
-        Udist <- modelList[[k]]$stateDists$U_ispt[,s,p]
-        Umean <- modelList[[k]]$stateMeans$U_ispt[s,p]
+        yTick   <- (nS - s + 1) + (nP - p) * nS
+        # cat(yTick)
+        
+        BmsyMS  <- rp$EmsyMSRefPts$BeqEmsy_sp[s,p]
+        MSYMS   <- rp$EmsyMSRefPts$YeqEmsy_sp[s,p]
 
-        relUdist <- Udist / Umsy_sp[s,p]
-        relUmean <- Umean / Umsy_sp[s,p]
+        UmsyMS    <- MSYMS/BmsyMS
+        relUmsyMS <- UmsyMS/Umsy_sp[s,p]
 
-        dynUmey_sp[s,p] <- Udist[2]
+        # Calculate BmeyMS
+        BmeyMS    <- getSplineVal(x = E, y = Beq_spe[s,p,], p = Emey_p[p] )
+        relBmeyMS <- BmeyMS/Bmsy_sp[s,p]
 
-        scenName  <- info.df$scenario[k]
-        mpName    <- info.df$mp[k]
+        # Calculate YmeyMS
+        YmeyMS    <- getSplineVal(x = E, y = Yeq_spe[s,p,], p = Emey_p[p] )
+        relYmeyMS <- YmeyMS/MSY_sp[s,p]
 
-        if( grepl(pattern = "totCat", x = mpName ) )
+        Umey_sp[s,p]  <- YmeyMS/BmeyMS
+        relUmeyMS     <- Umey_sp[s,p]/Umsy_sp[s,p]
+
+        # BmsyMS <- rp$EmeyRefPts$BeqEmsyMS_sp[s,p]
+        # relBmsyMS <- BmsyMS/Bmsy_sp[s,p]
+
+        for( k in 1:nModels )
         {
-          MPpch   <- 21
-          ssU     <- relUmsyMS
+          Udist <- modelList[[k]]$stateDists$U_ispt[,s,p]
+          Umean <- modelList[[k]]$stateMeans$U_ispt[s,p]
+
+          relUdist <- Udist / Umsy_sp[s,p]
+          relUmean <- Umean / Umsy_sp[s,p]
+
+          dynUmey_sp[s,p] <- Udist[2]
+
+          scenName  <- info.df$scenario[k]
+          mpName    <- info.df$mp[k]
+
+          if( grepl(pattern = "totCat", x = mpName ) )
+          {
+            MPpch   <- 21
+            ssU     <- relUmsyMS
+          }
+
+          if( grepl(pattern = "totProfit", x = mpName ) )
+          {
+            MPpch   <- 24
+            ssU     <- relUmeyMS
+          }
+
+          # Plot central 95%
+          segments( x0 = relUdist[1], x1 = relUdist[3],
+                    y0 = yTick + xJitter[k], lwd = 3, col = "grey50" )
+          # Plot median
+          points( x = relUdist[2], y = yTick + xJitter[k],
+                  pch = MPpch, cex = 2, bg = "black",
+                  lwd = 0 )
+          points( x = ssU, y = yTick + xJitter[k],
+                  pch = MPpch, cex = 2, bg = NA, col = "red",
+                  lwd = 2)
+
+          rmtext( line = .05, txt = stockNames[nP - p + 1], font = 2,
+                  cex = 1.5, outer = TRUE, yadj = (p-1)*0.33 + 0.17 )
+
+          # Plot mean
+          # points( x = relUmean, y = yIdx + yJitter,
+          #         pch = MPpch, cex = 2, bg = NA, col = "red" )
+
+
+
         }
-
-        if( grepl(pattern = "totProfit", x = mpName ) )
-        {
-          MPpch   <- 24
-          ssU     <- relUmeyMS
-        }
-
-        # Plot central 95%
-        segments( x0 = relUdist[1], x1 = relUdist[3],
-                  y0 = nS -s + 1 + xJitter[k], lwd = 3, col = "grey50" )
-        # Plot median
-        points( x = relUdist[2], y = nS -s + 1 + xJitter[k],
-                pch = MPpch, cex = 2, bg = "black",
-                lwd = 0 )
-        points( x = ssU, y = nS -s + 1 + xJitter[k],
-                pch = MPpch, cex = 2, bg = NA, col = "red",
-                lwd = 2)
-
-        # Plot mean
-        # points( x = relUmean, y = yIdx + yJitter,
-        #         pch = MPpch, cex = 2, bg = NA, col = "red" )
-
-
-
-      }
 
       # if( s == 1 & p == 1 )
       #   legend( x = "topright", bg = "white",
@@ -1581,29 +1624,37 @@ plotDynUmsy_sp <- function( groupFolder = "omniRuns_econYield_noCorr",
       # if( mfg[1] == 1 )
       #   mtext( side = 3, text = speciesNames[s], font = 2, line = .5)
 
-      if( mfg[2] == mfg[4] )
-        rmtext( txt = stockNames[p], font = 2, line = .05, outer = TRUE,
-                cex = 1.5)
+      # if( mfg[2] == mfg[4] )
+      #   rmtext( txt = stockNames[p], font = 2, line = .05, outer = TRUE,
+      #           cex = 1.5)
     }
 
-    if( p == 1 )
-      legend( x = "topright", bg = "white", bty = "n",
-              legend = c( "Umsy*",
-                          "Umey*",
-                          "Umsy",
-                          "Umey"),
-              pch = c(21,24,21,24),
-              pt.bg = c("black","black",NA,NA),
-              col = c("black","black","red","red"),
-              pt.lwd = c(0,0,2,2))   
-  }
+  # Now do outer margin legend (top)
+  par(xpd=NA, oma = c(0,0,0,0), mar = c(0,0,0,0), mfcol = c(1,1) )
+  # plot(x = 1, y = 1, add = TRUE, type = "n")
 
-    mtext( side = 1, outer = TRUE, text = expression(U/U[MSY]),
-            line = 2.5 )
+  legTxt <- c(expression("d = 0.1","d = 0.025", paste(gamma, "= 0.02"), paste(gamma," = 0.058 ") ))
+
+  legend( x = "top", bty = "n", horiz = TRUE,
+          cex = 1.5,
+          legend = c( "Umsy*",
+                      "Umey*",
+                      "Umsy",
+                      "Umey"),
+          pch = c(21,24,21,24),
+          lty = c(1,1,NA,NA),
+          lwd = c(2,2,NA,NA),
+          pt.bg = c("black","black",NA,NA),
+          col = c("grey50","grey50","red","red"),
+          pt.lwd = c(0,0,2,2))   
+  par( xpd = FALSE)
+
+  mtext( side = 1, outer = TRUE, text = expression(U/U[MSY]),
+          line = 2.5 )
 
 
-    write.csv(Umey_sp, file = "Umey_sp.csv")
-    write.csv(dynUmey_sp, file = "dynUmey_sp.csv")
+  write.csv(Umey_sp, file = "Umey_sp.csv")
+  write.csv(dynUmey_sp, file = "dynUmey_sp.csv")
 
 } # END plotDynUmsy_sp
 
@@ -2924,7 +2975,7 @@ compareTulipRent <- function( groupFolder = "simAssErrs_noCorr",
 
   par(  mfcol = c(nP,1), 
         mar = c(1,1.5,1,1.5),
-        oma = c(3,4,3,3) )
+        oma = c(3,4,7,3) )
 
   for( p in 1:nP )
   {
@@ -2960,20 +3011,7 @@ compareTulipRent <- function( groupFolder = "simAssErrs_noCorr",
 
     
 
-    if( p == 1 )
-      legend( x = "topright",bty = "n",
-              legend = c( "Umsy*",
-                          "Umey*",
-                          "UmsySS",
-                          "MEY"),
-              pt.lwd = 0,
-              pt.cex = 4,
-              cex = 2,
-              pch = c(22,22,22,NA), 
-              pt.bg = scales::alpha(c("black","red","steelblue",NA),alpha = .3),
-              col = c("black","red","steelblue","black"),
-              lty = c(1,2,3,5),
-              lwd = 3 )
+    
             
   }
 

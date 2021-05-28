@@ -137,9 +137,7 @@ if(params$redoPlots)
   graphics.off()
   pdf(file = figPath, width = 7, height = 7 )
   plotMultiDemCurves( priceModel = priceModel,
-                      alpha_s = c(2.5544,2.5371,1.266),
-                      invlambda_s = list(c(-0.2789,-0.1952,-0.3533)),
-                      incomeCoeff_s = c(-.5935,-0.6363,-0.3926),
+                      demCurveNames = c("invDemCurvesOwnElast_s"),
                       curveCols = "grey20",
                       legTxt = NULL,
                       rangeC = c(0.1,15),
@@ -236,6 +234,7 @@ if(params$redoPlots | !file.exists(figPath))
                   mpFilter = "freeEff",
                   baseRP = "sim_baseRun_invDem",
                   scenOrder = c("noCorr"))
+
   dev.off()
 }
 knitr::include_graphics(figPath)
@@ -285,6 +284,26 @@ if(params$redoPlots | !file.exists(figPath))
                     rpSim = "sim_baseRun_invDem",
                     fleets = 2,
                     proj = TRUE )
+
+  # Now do outer margin legend (top)
+  par(xpd=NA, oma = c(0,0,0,0), mar = c(0,0,0,0), mfcol = c(1,1) )
+  # plot(x = 1, y = 1, add = TRUE, type = "n")
+
+  legTxt <- expression( U["MSY,MS"]^"*", U["MEY"]^"*", U["MSY,SS"]^"", MEY )
+
+  legend( x = "top",bty = "n", horiz = TRUE,
+          legend = legTxt,
+          pt.lwd = 0,
+          pt.cex = 4,
+          cex = 2,
+          inset = c(0,-0.05),
+          pch = c(22,22,22,NA), 
+          pt.bg = scales::alpha(c("black","red","steelblue",NA),alpha = .3),
+          col = c("black","red","steelblue","black"),
+          lty = c(1,2,3,5),
+          lwd = 3 )
+
+  par( xpd = FALSE)
   dev.off()
 }
 knitr::include_graphics(figPath)
@@ -298,9 +317,7 @@ if(params$redoPlots | !file.exists(figPath))
   graphics.off()
   pdf(file = figPath, width = 8.5, height = 11)
   plotMultiDemCurves( priceModel = priceModel,
-                      alpha_s = c(2.5544,2.5371,1.266),
-                      invlambda_s = list(c(-0.2789,-0.1952,-0.3533),c(0,0,0),c(0,0,0)),
-                      incomeCoeff_s = c(-.5935,-0.6363,-0.3926),
+                      demCurveNames = c("invDemCurvesOwnElast_s","invDemCurvesInfPED_s","invDemCurvesInfPED_s"),
                       legTxt = c("Fixed Income, Finite PED", "Fixed Income, Infinite PED", "Infinite PED"),
                       rangeC = c(0.1,15),
                       GDPgrowth = list(0,0,0.039),
