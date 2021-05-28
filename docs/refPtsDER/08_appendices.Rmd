@@ -94,7 +94,7 @@ catch of each species, estimated via our assumed fuel costs, defined as
 \begin{equation}
 w_{s,t} = \frac{\sum_{p} E_p \cdot c_p}{\sum_p C_{s,p}},
 \end{equation}.
-where $c_p$ is derived in the methods section [NUM]. The first stage 
+where $c_p$ is derived in the methods section [secNum]. The first stage 
 then regressed the observed ex-vessel log-price 
 $v_{s,t}$ for species $s$ in year $t$ year on the log-cost of supply 
 \begin{equation}
@@ -126,7 +126,7 @@ compare open points to closed point). Despite the low explanatory power
 of the fuel cost instrument, IV estimates of unit prices showed
 that all three species had elastic demand (Table A2), which was
 within range of previous demand analyses of flatfish [@asche2007studies]. 
-English and Rock sole demand was very elastic, while Dover sole
+English and Rock sole demand was elastic, while Dover sole
 demand was only slightly elastic (Table A2) and not technically 
 significant at  the $p = 0.1$ level ($p = 0.101$). The 
 higher probability of a spurious relationship for Dover sole was 
@@ -138,7 +138,13 @@ simulating realistic demand in model projections, as the curve fits dpes not
 contradict the data, and the demand is downward sloping 
 [@pascoe2018offsetting]. Further, $p$ values are continuous, and
 $p = 0.101$ is a low probability of a spurious 
-effect, given the uninformative data. 
+effect, given the uninformative data. All species had a negative
+income elasticity parameter $\beta_1$, indicating that the price 
+would decrease for a given quantity demanded (catch) with increasing 
+household incomes. Such a reduction in demand from higher incomes 
+may reflect a tendency of families with more disposable income to
+consume more expensive sources of protein, such as higher value fish 
+or beef, rather than the inexpensive flatfishes of the DER complex.
 
 ```{r invDemCurveTables, echo = FALSE}
 priceIVreg <- priceModel$priceInstrument_s
@@ -173,7 +179,7 @@ invDemTable[2,2:3] <- round(coef(priceIVreg[[2]]),3)
 invDemTable[3,2:3] <- round(coef(priceIVreg[[3]]),3)
 
 
-invDemTable[1,4:5] <- round(coef(invDemCurves[[1]]),3)
+invDemTable[1,4:6] <- round(coef(invDemCurves[[1]]),3)
 invDemTable[2,4:6] <- round(coef(invDemCurves[[2]]),3)
 invDemTable[3,4:6] <- round(coef(invDemCurves[[3]]),3)
 
@@ -194,11 +200,11 @@ demTable[3,2:4] <- paste0(demTable[3,2:4],"*")
 
 invDemCap <- "Two-stage least-squares regression results when
 modeling inverse demand (price is the response variable). An asterisk 
-denotes that the parameters were significant at the p = 0.1 level."
+denotes that the parameters were significant at the $p = 0.1$ level."
 
-demCap <- "Two-stage least-squares regression results when
-modeling demand (catch/quant supplied is the response variable). An 
-asterisk denotes that the parameters were significant at the p = 0.1 level."
+# demCap <- "Two-stage least-squares regression results when
+# modeling demand (catch/quant supplied is the response variable). An 
+# asterisk denotes that the parameters were significant at the p = 0.1 level."
 
 
 
@@ -215,32 +221,101 @@ csasdown::csas_table( invDemTable, escape = FALSE,
                                 " " = 1),
                     bold = TRUE)
 
-  csasdown::csas_table( demTable, escape = FALSE,
-                      booktabs = TRUE, font_size = 10,
-                      format = kable_format,
-                      caption = demCap,
-                      align = rep("l",5)) %>%
-  kable_styling(latex_options = c("striped", "hold_position","scale_down"),
-                bootstrap_options = c("striped", "hover")) %>%
-  add_header_above( header = c( " " = 1,
-                                "Demand" = 3),
-                    bold = TRUE)
+# csasdown::csas_table( demTable, escape = FALSE,
+#                     booktabs = TRUE, font_size = 10,
+#                     format = kable_format,
+#                     caption = demCap,
+#                     align = rep("l",5)) %>%
+# kable_styling(latex_options = c("striped", "hold_position","scale_down"),
+#               bootstrap_options = c("striped", "hover")) %>%
+# add_header_above( header = c( " " = 1,
+#                               "Demand" = 3),
+#                   bold = TRUE)
 
 
 
 ```
 
 To simulate price as a function of catch (i.e., the inverse demand 
-relationship) in model projections, we made a three simplifying 
-assumptions. First, we refit each demand relationship with only the 
+relationship) in model projections, three simplifying assumptions
+were made. First, each demand relationship was refit with only the 
 significant predictor variables for English and Rock soles (i.e., 
 own-price elasticity of demand and GDP per capita), and with own-price 
-elasticity only for Dover sole (Table A3). Second, we assumed that US 
-West Coast Dover and English sole catches were exogenous and fixed at the 
-average catch for the 2006 - 2016 time period. Finally, we assumed that 
-BC GDP per capita grew at the fixed rate of 3.9\% per year 
+elasticity only for Dover sole (Table A3). Second, US West Coast Dover 
+and English sole catches were assumed to be exogenous and fixed at the 
+average catch for the 2006 - 2016 time period. Finally, growth in median
+BC household income was assumed grew at the fixed rate of 3.9\% per year 
 ^[https://www2.gov.bc.ca/assets/gov/british-columbians-our-governments/government-finances/financial-economic-review/financial-economic-review-2020.pdf].
 
+For sensitivity analyses, inverse demand curves were refit to the
+price instrument and household incomes assuming own-price elasticity
+was infinite (i.e., $\frac{1}{\lambda_s} = 0$ for all species). When
+price-flexibility was removed from the inverse demand curve, the parameters
+were much different. Dover and English soles had no significant parameters
+($0.4 < p < 0.65$), while Rock sole's inverse demand curve had 
+significant coefficients at the $p = 0.1$ level. Further, while Dover and
+English soles had a reduction in price with household incomes, as above,
+Rock sole's relationship with income reversed, and tends to increase
+with household income. This is not unexpected, as Rock sole had the 
+smallest magnited $\beta_1$ coefficient. 
+
+
+```{r infPEDcurveTables, echo = FALSE}
+invDemCurves  <- priceModel$invDemCurvesInfPED_s
+
+invDemTable <- array(NA, dim = c(3,3))
+dimnames(invDemTable)[[2]] <- c(  "Species",
+                                  "beta0",
+                                  "beta1" )
+invDemTable <- as.data.frame(invDemTable)
+
+invDemTable$Species <- c("Dover","English","Rock")
+
+
+invDemTable[1,2:3] <- round(coef(invDemCurves[[1]]),3)
+invDemTable[2,2:3] <- round(coef(invDemCurves[[2]]),3)
+invDemTable[3,2:3] <- round(coef(invDemCurves[[3]]),3)
+
+
+invDemTable[3,2:3] <- paste0(invDemTable[3,2:3],"*")
+
+
+invDemCap <- "Two-stage least-squares regression results when
+modeling inverse demand assuming own-price elasticity is infinite. 
+An asterisk denotes that the parameters were significant at 
+the $p = 0.1$ level."
+
+# demCap <- "Two-stage least-squares regression results when
+# modeling demand (catch/quant supplied is the response variable). An 
+# asterisk denotes that the parameters were significant at the p = 0.1 level."
+
+
+
+csasdown::csas_table( invDemTable, escape = FALSE,
+                      booktabs = TRUE, font_size = 10,
+                      format = kable_format,
+                      caption = invDemCap,
+                      align = rep("l",5)) %>%
+  kable_styling(latex_options = c("striped", "hold_position","scale_down"),
+                bootstrap_options = c("striped", "hover")) %>%
+  add_header_above( header = c( " " = 1,
+                                "Inv demand" = 2),
+                    bold = TRUE)
+
+  # csasdown::csas_table( demTable, escape = FALSE,
+  #                     booktabs = TRUE, font_size = 10,
+  #                     format = kable_format,
+  #                     caption = demCap,
+  #                     align = rep("l",5)) %>%
+  # kable_styling(latex_options = c("striped", "hold_position","scale_down"),
+  #               bootstrap_options = c("striped", "hover")) %>%
+  # add_header_above( header = c( " " = 1,
+  #                               "Demand" = 3),
+  #                   bold = TRUE)
+
+
+
+```
 
 <!-- \begin{equation} 
 v_{s}(\sum_{p} C_{s,p}) = v^*_{s} \left( \frac{\sum_p C_{s,p}}{ \sum_p MSY_{SS,s,p}}  \right) ^{1/\lambda_s}

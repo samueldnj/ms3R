@@ -4,35 +4,8 @@ parameter value
 ## Scenarios
 #
 ## Scenario 1 : noCorr_infPED
-##
-#scenario$scenario1$ctl$scenarioName 'noCorr_infPED'
-#scenario$scenario1$ctl$nGoodReps 100
-#scenario$scenario1$ctl$totReps 100
-#scenario$scenario1$ctl$omni TRUE
-#scenario$scenario1$ctl$nCores 24
-#scenario$scenario1$opMod$pT 80
-#scenario$scenario1$opMod$corrRecDevs FALSE
-#scenario$scenario1$opMod$corrPriceDevs FALSE
-#scenario$scenario1$mp$omni$nKnots 21
-#scenario$scenario1$opMod$invlambda_s rep(0,3)
-##
-## Scenario 1 : noCorr_constPrice_infPED
-##
-#scenario$scenario2$ctl$scenarioName 'noCorr_infPED_fixGDP'
-#scenario$scenario2$ctl$nGoodReps 100
-#scenario$scenario2$ctl$totReps 100
-#scenario$scenario2$ctl$omni TRUE
-#scenario$scenario2$ctl$nCores 24
-#scenario$scenario2$opMod$pT 80
-#scenario$scenario2$opMod$corrRecDevs FALSE
-#scenario$scenario2$opMod$corrPriceDevs FALSE
-#scenario$scenario2$mp$omni$nKnots 21
-#scenario$scenario2$opMod$invlambda_s rep(0,3)
-#scenario$scenario2$opMod$GDPgrowth 0
-##
-# Scenario 1 : noCorr_fixGDP
 #
-scenario$scenario1$ctl$scenarioName 'noCorr_fixGDP'
+scenario$scenario1$ctl$scenarioName 'noCorr_infPED'
 scenario$scenario1$ctl$nGoodReps 100
 scenario$scenario1$ctl$totReps 100
 scenario$scenario1$ctl$omni TRUE
@@ -41,7 +14,38 @@ scenario$scenario1$opMod$pT 80
 scenario$scenario1$opMod$corrRecDevs FALSE
 scenario$scenario1$opMod$corrPriceDevs FALSE
 scenario$scenario1$mp$omni$nKnots 21
-scenario$scenario1$opMod$GDPgrowth 0
+scenario$scenario1$opMod$invlambda_s rep(0,3)
+scenario$scenario1$opMod$alpha_s c(0.255,.587,-2.453)
+scenario$scenario1$opMod$incomeCoeff_s c(-0.143,-.105,.634)
+#
+# Scenario 1 : noCorr_constPrice_infPED
+#
+scenario$scenario2$ctl$scenarioName 'noCorr_infPED_fixGDP'
+scenario$scenario2$ctl$nGoodReps 100
+scenario$scenario2$ctl$totReps 100
+scenario$scenario2$ctl$omni TRUE
+scenario$scenario2$ctl$nCores 24
+scenario$scenario2$opMod$pT 80
+scenario$scenario2$opMod$corrRecDevs FALSE
+scenario$scenario2$opMod$corrPriceDevs FALSE
+scenario$scenario2$mp$omni$nKnots 21
+scenario$scenario2$opMod$invlambda_s rep(0,3)
+scenario$scenario2$opMod$alpha_s c(0.255,.587,-2.453)
+scenario$scenario2$opMod$incomeCoeff_s c(-0.143,-.105,.634)
+scenario$scenario2$opMod$GDPgrowth 0
+#
+# Scenario 1 : noCorr_fixGDP
+#
+scenario$scenario3$ctl$scenarioName 'noCorr_fixGDP'
+scenario$scenario3$ctl$nGoodReps 100
+scenario$scenario3$ctl$totReps 100
+scenario$scenario3$ctl$omni TRUE
+scenario$scenario3$ctl$nCores 24
+scenario$scenario3$opMod$pT 80
+scenario$scenario3$opMod$corrRecDevs FALSE
+scenario$scenario3$opMod$corrPriceDevs FALSE
+scenario$scenario3$mp$omni$nKnots 21
+scenario$scenario3$opMod$GDPgrowth 0
 #
 #
 ## Management Procedures

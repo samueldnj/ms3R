@@ -2,7 +2,7 @@ export PATH := /Library/TeX/texbin:$(PATH)    # add LaTeX path
 export PATH := /usr/local/bin:~/.local/bin:$(PATH) # add pandoc-citeproc-preamble
 
 # Cluster targets
-pdf: index.pdf tandf.pdf appendices.pdf supplemental.pdf
+pdf: index.pdf tandf.pdf appendices.pdf
 docx: index.docx tandf.pdf appendices.pdf
 
 # coauthor renders
