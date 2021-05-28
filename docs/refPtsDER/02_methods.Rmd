@@ -67,11 +67,11 @@ $\vec{E} = \langle E_p \vert p = 1,2,3 \rangle$ a vector of trawl
 effort in each area, each $\vec{B}_{s,p}$ a vector of biomass-at-age 
 for species $s$ and area $p$, $\psi$ the assumed crew share of revenue,
 $v_{s}(\sum_p C_{s,p})$ was the inverse demand curve (Figure 2, see
-Appendix A for details of demand analysis), $C_{s,p}(E_p, \vec{B}_{s,p})$ 
-was the catch calculated from the Baranov catch equation given $E_p$ and 
-biomass-at-age $\vec{B}_{s,p}$ **[tabref]**, and $c_{p}$ was the fuel 
+Appendix A for details of demand analysis), and $c_{p}$ was the fuel 
 cost-per-unit-effort of fishing in area $p$ (or $p'$ for the inner 
-summation).
+summation). The catch was calculated from the Baranov catch equation,
+given effort $E_p$ and biomass-at-age $\vec{B}_{s,p}$ 
+[@johnson2021hierarchical].
 
 The economic sub-model was conditioned on several sources of data.
 The inverse demand curves for trawl fishery revenue (Figure 2) were fit 
