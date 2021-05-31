@@ -2790,6 +2790,7 @@ compareTulipEffort <- function( groupFolder = "omniRuns_Sens_Apr26",
                                 plotPoly =TRUE,
                                 proj = TRUE,
                                 maxE = 1,
+                                plotPropSpecies = FALSE,
                                 highlightPer = c(2040,2060),
                                 lastYear = 2060 )
 {
@@ -2909,13 +2910,16 @@ compareTulipRent <- function( groupFolder = "simAssErrs_noCorr",
                               mps = c("simAssError_noCorr.MSY","simAssError_noCorr.MEY"),
                               rpSim = "sim_baseRun",
                               fleets = 2,
-                              proj = TRUE )
+                              proj = TRUE,
+                              plotPoly = TRUE )
 {
+
   # Load groupInfo
   groupInfo <- readBatchInfo( batchDir = here::here("Outputs",groupFolder) )
   # Limit to scenarios
   scenInfo <- groupInfo %>%
-                filter(scenario %in% scenarios, mp %in% mps )
+                filter( grepl(x = scenario, pattern = scenarios), 
+                        mp %in% mps )
 
   effList <- list()
 
@@ -2964,7 +2968,7 @@ compareTulipRent <- function( groupFolder = "simAssErrs_noCorr",
   # Now take quantiles
   Rent_qSpt <- apply(X = Rent_Sipt, FUN = quantile, probs = c(0.05,0.5,0.95), MARGIN = c(1,3,4) )
 
-  simCols <- c("black","red","steelblue")
+  simCols <- c("black","red","steelblue","darkgreen")
 
   projYrs <- 1:nT
   if(proj)
@@ -2998,8 +3002,9 @@ compareTulipRent <- function( groupFolder = "simAssErrs_noCorr",
       abline( h = MEY_p[p], lwd = 3, lty = 5, col = "grey40")
       for( simIdx in 1:nSim )
       {
-        polygon( x = c(yrs,rev(yrs)), y = c(Rent_qSpt[1,simIdx,p,],rev(Rent_qSpt[3,simIdx,p,])), 
-                col = scales::alpha(simCols[simIdx],.4), border = NA )
+        if(plotPoly)
+          polygon( x = c(yrs,rev(yrs)), y = c(Rent_qSpt[1,simIdx,p,],rev(Rent_qSpt[3,simIdx,p,])), 
+                  col = scales::alpha(simCols[simIdx],.4), border = NA )
         
         lines( x = yrs, y = Rent_qSpt[2,simIdx,p,], col =simCols[simIdx], lwd = 3, lty = simIdx )
         

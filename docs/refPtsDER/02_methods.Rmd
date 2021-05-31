@@ -267,14 +267,15 @@ Economic results depended on the resource rents extracted from each area,
 which were in turn dependent on prices for each species (demand curves) 
 and the discount rate applied to calculate the NPV. We tested the 
 sensitivity of stochastic optimisation results (under the rent objective) 
-to these uncertainties in seven additional scenarios (Table 3). Three scenarios 
-tested the common assumptions about demeand, specifically a flat demand 
-relationship, simulated by setting price elasticity of demand to be infinite 
-(i.e., zero price flexibility), and a constant demand (over time) by setting 
-the growth in household income $\gamma = 0$. The remaining four scenarios 
-looked at sensitivites to assumed rates. Alternative discount rates were 
-half and twice the 5\% value used in the main simulations. Alternative rates 
-of growth in household income were 1 standard deviation up and down from 
+to these uncertainties in seven additional scenarios (Table 3). Three 
+scenarios tested alternative demeand assumptions, specifically a flat demand 
+relationship, simulated by refitting demand curves with an infinite PED
+(i.e., zero price flexibility, Appendix A), and a constant demand (over 
+time) by setting the growth in household income $\gamma = 0$. The remaining 
+four scenarios looked at sensitivites to assumed discount rates and growth
+rates of household income. Alternative discount rates were half and twice 
+the 5\% value used in the main simulations. Alternative rates of growth 
+in household income were 1 standard deviation up and down from 
 the recent mean rate of 3.9\% 
 ^[https://www2.gov.bc.ca/assets/gov/british-columbians-our-governments/government-finances/financial-economic-review/financial-economic-review-2020.pdf].
 

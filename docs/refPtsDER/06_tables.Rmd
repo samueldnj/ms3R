@@ -320,57 +320,33 @@ mpScenGrid <- expand.grid(corrScen = scenNames, MP = mpNames)
 mpScenGrid$scenMPname <- paste(mpScenGrid$corrScen,mpScenGrid$MP,sep = ".")
 
 
-# Need to transpose, make stocks into colnames,
-# turn row-names into scenario and HR columns
-# perfInfoTab <- t(perfInfoTab)
-# colnames(perfInfoTab) <- perfInfoTab[1,]
-# perfInfoTab <- perfInfoTab[-1,]
-# perfInfoTab <- as.data.frame(perfInfoTab)
-# scenMPnames <- rownames(perfInfoTab)
-# perfInfoTab$scenMPname <- scenMPnames
+resultsTab <- makeScenResultsTab( folder    = "./data/simAssErrPerfTables",
+                                  scenario  = "noCorr",
+                                  mpFilter  = "",
+                                  cols      = c("dynEqDiscRentDist","dynEqEff","dynEqPrSp") )
 
-simErrTab <- t(simErrTab)
-colnames(simErrTab) <- simErrTab[1,]
-simErrTab <- simErrTab[-1,]
-simErrTab <- as.data.frame(simErrTab)
-scenMPnames <- rownames(simErrTab)
-simErrTab$scenMPname <- scenMPnames
-
-# perfInfoTab <- perfInfoTab %>% 
-#                 left_join( mpScenGrid, by = "scenMPname") %>%
-#                 dplyr::select( MP,
-#                               cwPerfInfo = BC ) %>%
-#                 arrange(  match(MP,mpNames) )
-
-discRentTab <- simErrTab %>% 
-                left_join( mpScenGrid, by = "scenMPname") %>%
-                dplyr::select(  MP,
-                                cwSimErr = BC ) %>%
-                arrange(  match(MP,mpNames) )
-
-discRentTab <- discRentTab[1:5,]
-
-colnames(discRentTab) <- c( "Target HR",
-                            "Simulated Errors" )
-
-discRentTab[,1] <- c(  "$U_{MSY,SS}$",
-                       "$U_{MSY,MS}$",
-                       "$U^*_{MSY,MS}$",
-                       "$U_{MEY}$",
-                       "$U^*_{MEY}$" )
+colnames(resultsTab) <- c("Target HR","Area","NPV","$\\vec{E}_p$","$\\pi(\\vec{E}_p)$")
 
 
-csasdown::csas_table( discRentTab, escape = FALSE,
+resultsTab <- resultsTab[c(9:12,5:8,17:20,1:4,13:16),]
+rownames(resultsTab) <- NULL
+
+
+resultsTab[c(1,5,9,13,17),1] <- c(  "$U_{MSY,SS}$",
+                                   "$U_{MSY,MS}$",
+                                   "$U^*_{MSY,MS}$",
+                                   "$U_{MEY}$",
+                                   "$U^*_{MEY}$" )
+
+
+csasdown::csas_table( resultsTab, escape = FALSE,
                       booktabs = TRUE,
                       font_size = 10,
                       format = kable_format,
                       caption = discRentTabCap,
-                      align = c("l",rep("r",ncol(discRentTab)-1)) ) %>%
+                      align = c("l",rep("r",ncol(resultsTab)-1)) ) %>%
       kable_styling(  latex_options = c("striped", "hold_position","scale_down"),
-                      bootstrap_options = c("striped", "hover")) %>%
-      add_header_above( header = c( " " = 1,
-                                    "DER Complex NPV ($M)" = 1),
-                        bold = TRUE)
+                      bootstrap_options = c("striped", "hover"))
 
 
 

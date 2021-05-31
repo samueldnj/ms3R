@@ -111,7 +111,7 @@ by 83\% (QCS) and 70\% (WCVI) when comparing median 2040 - 2060 values
 to the rent derived from the YPR analysis (compare Tables 3 and 4).
 
 
-<!-- ## Effort allocations
+## Effort allocations
 
 The optimal allocation of fishing effort among areas was independent of 
 the total effort, and appeared largely determined by the distribution
@@ -130,7 +130,7 @@ values, and the price elasticity of demand $\lambda_s$ has a minor effect,
 as the allocation was similar when $\lambda_s = \infty$ (Table S1).
 The optimal allocation was also similar, but less so, to the relative 
 allocation of effort $E_{MSY,MS,p}$ when maximising catch (Table 5).
- -->
+
 
 ## Applying optimal harvest rates in practice
 
@@ -245,8 +245,6 @@ and rents (Table 8). However, when both assumptions were combined, the
 effects were almost additive (Table 8, Infinite PED, Fixed Income scenario).
 
 
-[**INCORRECT RESULTS BELOW - AWAITING RERUNS**]
-
 In terms of future optimal effort allocation, discount and growth rate 
 sensitivity scenarios sorted into two groups. The high discount rate 
 ($d = 0.1$) and low income growth ($\gamma = 0.02$) scenarios had very 
@@ -259,15 +257,13 @@ of high initial CPUE.
 
 For the low-discount/high-growth scenario, the level of similarity in
 median optimal effort was area-dependent. That is, the median efforts 
-converged early in QCS and WCVI and stayed close for the entire projection, 
-but had an intermediate divergent period in HSHG, wehre the lower
-discount rate scenario applied higher fishing effort, while the high
-income growth scenario dropped effort faster. Similar to the effort
-allocations in the $E_{MEY}^*$ stochastic optimisation, the divergent
-behaviour in HSHG is caused by the species composition, with HSHG dominated
-by Dover sole, for which demand did not depend on household income,
-and was fairly insensitive to changes in catch given the high exogenous
-US West coast catch level [**UDPATE WITH NEW RESULTS**]. The Dover sole 
+converged early in QCS and WCVI and stayed close for the entire projection. 
+In HSHG, the two scenarios had an intermediate divergent period, where 
+the lower discount rate scenario applied higher fishing effort, while 
+the high income growth scenario dropped effort faster. Dropping effort
+as income grows is as expected, as a the unit price of all fish is dropping
+faster with the higher income growth rates, and the species composition
+in HSHG is . The Dover sole 
 effect meant rent was less sensitive to increased effort, so combined with
 a lower discount rate (i.e., more value for future rents), efforts
 could remain higher.

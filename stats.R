@@ -58,9 +58,13 @@ makeScenResultsTab <- function( folder    = "./Outputs/omniRuns_noCorrFixGDP_May
   {
     tabRowIdx <- (scenIdx - 1) * (nStocks + 1) + 1
     tab.mat$Scenario[tabRowIdx] <- scenarios[scenIdx]
-    
-    if( "dynEqDiscRent" %in% cols )
+
+  
+    if( "dynEqDiscRent" %in% cols ) 
       tab.mat$dynEqDiscRent[tabRowIdx] <- tabs$dynEqDiscRent[4,scenarios[scenIdx]]
+
+    if("dynEqDiscRentDist" %in% cols )
+      tab.mat$dynEqDiscRentDist[tabRowIdx] <- tabs$dynEqDiscRentDist[4,scenarios[scenIdx]]
     
     # Loop and fill stock spec info
     for( pIdx in 1:nStocks )

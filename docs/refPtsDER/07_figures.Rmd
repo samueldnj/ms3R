@@ -116,6 +116,14 @@ $U_{MEY}^*$ (pink region, dashed red line). Horizontal dashed lines
 show steady-state $MEY$ for each stock area, while the vertical dashed 
 line shows the beginning of the projection period in 2017."
 
+sensRentTulipsCap <- "Median annual resource rents extracted by the 
+trawl fishery over the projection period when maximising NPV
+under the discount and income growth rate sensitivity analyses. 
+Horizontal dashed lines show YPR $E_{MEY}$ (long dashed), while vertical 
+lines show the beginning of the projection period (thin short dashed in 
+2017) and the beginning and end of the time period over which dynamic 
+optima are calculated (thicker short dashed lines in 2041 and 2060)."
+
 sensEffortTulipsCap <- "Annual median commercial trawl effort maximising
 NPV under the discount and income growth rate sensitivity analyses. 
 Horizontal dashed lines show YPR $E_{MEY}$ (long dashed), while vertical 
@@ -197,6 +205,7 @@ if(params$redoPlots | !file.exists(figPath))
                       fleets = 1:2,
                       combineEff = TRUE,
                       proj = TRUE,
+                      plotPropSpecies = FALSE,
                       highlightPer = c(2041,2060) )
 
   # Now do outer margin legend (top)
@@ -336,7 +345,7 @@ if(params$redoPlots | !file.exists(figPath))
 {
   graphics.off()
   pdf(file = figPath, width = 8.5, height = 11)
-  compareTulipEffort( groupFolder = "omniRuns_Sens_Apr26",
+  compareTulipEffort( groupFolder = "omniRuns_Sens_May14",
                       scenarios = "noCorr",
                       rpSim = params$sim,
                       fleets = 1:2,
@@ -344,6 +353,42 @@ if(params$redoPlots | !file.exists(figPath))
                       combineEff = TRUE,
                       proj = TRUE,
                       highlightPer = c(2040,2060) )
+
+  # Now do outer margin legend (top)
+  par(xpd=NA, oma = c(0,0,0,0), mar = c(0,0,0,0), mfcol = c(1,1) )
+  # plot(x = 1, y = 1, add = TRUE, type = "n")
+
+  legTxt <- c(expression("d = 0.1","d = 0.025", paste(gamma, "= 0.02"), paste(gamma," = 0.058 ") ))
+
+  legend( x = "top",bty = "n", horiz = TRUE,
+          legend = legTxt,
+          inset = c(0,-0.01),
+          pt.lwd = 0,
+          cex = 1.5,
+          col = c("black","red","steelblue","darkgreen"),
+          lty = c(1,2,3,4),
+          lwd = 3 )
+  par( xpd = FALSE)
+
+  dev.off()
+}
+knitr::include_graphics(figPath)
+
+```
+
+```{r fig12-sensRentTulips, echo = FALSE, warning = FALSE, fig.cap = sensRentTulipsCap }
+figPath <- file.path("./figure/fig12-sensRentTulips.pdf")
+if(params$redoPlots | !file.exists(figPath))
+{
+  graphics.off()
+  pdf(file = figPath, width = 8.5, height = 11)
+  compareTulipRent( groupFolder = "omniRuns_Sens_May14",
+                    scenarios = "noCorr",
+                    mps = c("omni_totProfit1_freeEff"),
+                    rpSim = "sim_baseRun_invDem",
+                    fleets = 2,
+                    proj = TRUE,
+                    plotPoly = FALSE )
 
   # Now do outer margin legend (top)
   par(xpd=NA, oma = c(0,0,0,0), mar = c(0,0,0,0), mfcol = c(1,1) )
