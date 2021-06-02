@@ -451,12 +451,28 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
 
     }  
 
-    # Condition history of simulation model
-    # and draw random errors for projection
-    if( opMod$condModel == "hierSCAL")
-      simObj <- .condMS3pop( simObj )
-    if( opMod$condModel == "SISCA" )
-      simObj <- .condMS3pop_SISCA( simObj )
+    # Either simulate or condition the model history.
+
+    # If simulated, we cab optimise the removals for a target
+    # initial depletion - might need to optimise abs catches for
+    # discrete fisheries.
+    if(opMod$histType == "sim")
+    {
+      simObj <- .solveHistPop( simObj )
+    }
+    # If conditioned, check the 
+    if( opMod$histType == "cond")
+    {
+      # Condition history of simulation model
+      # and draw random errors for projection
+      if( opMod$condModel == "hierSCAL")
+        simObj <- .condMS3pop( simObj )
+      if( opMod$condModel == "SISCA" )
+        simObj <- .condMS3pop_SISCA( simObj )
+    }
+
+
+
 
     # Calculate effort dynamics parameters
     if( opMod$condModel == "hierSCAL" & opMod$effortMod == "dynModel" )
@@ -647,7 +663,11 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   message(" (.initMS3pop) Initialising MS3 operating model.\n")
 
   # Get model dimensions
-  tMP   <- repObj$nT + 1   # start of projections
+  if(opMod$histType == "sim")
+    tMP <- opMod$histT + 1
+  if(opMod$histType == "cond")
+    tMP   <- repObj$nT + 1   # start of projections
+  
   nT    <- tMP + pT - 1    # Total time period of sims
 
   nA    <- repObj$nA       # Number of Age classs
@@ -765,6 +785,54 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   # maturity
   om$matAge_asp <- array(NA, dim = c(nA,nS,nP) )
 
+   # Make data list - anything else?
+  # mp list - mostly for retrospective
+  # analyses and assessment model settings
+  mp <- list( assess = NULL, data = NULL, hcr = NULL )
+  mp$assess <- list()
+  mp$hcr    <- list()
+  mp$data <- list()
+
+  # Data list
+  mp$data$I_spft    <- array( NA, dim = c(nS+1,nP+1,nF,nT) )      # Add a pooled data dimension
+  mp$data$A_axspft  <- array( NA, dim = c(nA,nX,nS+1,nP+1,nF,nT) )    
+  mp$data$L_lxspft  <- array( NA, dim = c(nL,nX+1,nS,nP,nF,nT) ) 
+
+  # assessment list
+  mp$assess$retroSB_tspt      <- array( NA, dim = c(pT, nS, nP, nT) )
+  mp$assess$retroR_tspt       <- array( NA, dim = c(pT, nS, nP, nT) )
+  mp$assess$retroVB_tspft     <- array( NA, dim = c(pT, nS, nP, nF, nT) )
+  mp$assess$retroq_tspf       <- array( NA, dim = c(pT, nS, nP, nF) )
+  mp$assess$retroq_tspft      <- array( NA, dim = c(pT, nS, nP, nF, nT) )
+  mp$assess$retrotauObs_tspf  <- array( NA, dim = c(pT, nS, nP, nF) )
+  mp$assess$retroUmsy_tsp     <- array( NA, dim = c(pT, nS, nP ) )
+  mp$assess$retroBmsy_tsp     <- array( NA, dim = c(pT, nS, nP ) )
+  mp$assess$maxGrad_tsp       <- array( NA, dim = c(pT, nS, nP ) )
+  mp$assess$pdHess_tsp        <- array( FALSE, dim = c(pT, nS, nP) )
+  mp$assess$posSDs_tsp        <- array( FALSE, dim = c(pT, nS, nP) )
+
+  mp$hcr$LCP_spt              <- array( NA, dim = c(nS, nP, nT) )
+  mp$hcr$UCP_spt              <- array( NA, dim = c(nS, nP, nT) )
+  mp$hcr$Bref_spt             <- array( NA, dim = c(nS, nP, nT) )
+  mp$hcr$Fref_spt             <- array( NA, dim = c(nS, nP, nT) )
+  mp$hcr$targetF_spt          <- array( NA, dim = c(nS, nP, nT) )
+  mp$hcr$TAC_spft             <- array(0,  dim = c(nS,nP,nF,nT) )     # MP TAC by fleet in kt
+  mp$hcr$TAC_spt              <- array(0,  dim = c(nS,nP,nT) )        # MP TAC in kt
+  mp$hcr$propTAC_spt          <- array(1,  dim = c(nS,nP,nT) )        # MP TAC in kt
+  mp$hcr$sokEff_spft          <- array(0,  dim = c(nS,nP,nF,nT) )    # MP SOK license numbers
+
+
+  # Process and observation errors
+  errors <- list()
+
+  # Arrays for holding errors
+  errors$omegaR_spt       <- array(0, dim = c(nS,nP,nT) )         # recruitment PE
+  errors$omegaRinit_asp   <- array(0, dim = c(nA,nS,nP) )         # intialisation recruitment PEs
+  errors$delta_spft       <- array(0, dim = c(nS+1,nP+1,nF,nT) )  # index observation errors
+  errors$ageObsErr_axspft <- array(0, dim = c(nA,nX,nS+1,nP+1,nF,nT) )
+  errors$obsErrMult_spft  <- array(1, dim = c(nS,nP,nF,nT))
+
+
 
   if( ctlList$opMod$condModel == "hierSCAL" )
   {
@@ -819,6 +887,10 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
 
     om$densityDepM  <- repObj$densityDepM
 
+    # initial survivorship
+    om$initSurv_axsp[,1,1,]        <- repObj$initSurv_ap
+
+
 
     # Time-varying, age-structured natural mortality
     om$M_axspt[,1,1,,1:(tMP-1)] <- repObj$M_apt[,,1:(tMP-1)]
@@ -843,6 +915,11 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     # Fleet weight-at-age etc.
     om$W_axspft[,1,1,,1:repObj$nG,1:(tMP-1)] <- repObj$W_apgt[,,,1:(tMP-1)]
     om$W_axspft[,1,1,,1:repObj$nG,tMP:nT]    <- aperm(repObj$meanWt_agp,c(1,3,2))
+
+    # Fleet selectivity
+    om$sel_axspft[,1,1,,1:repObj$nG,1:(tMP-1)] <- repObj$sel_apgt[,,,1:(tMP-1)]
+    for(t in tMP:nT)
+      om$sel_axspft[,1,1,,1:repObj$nG,t] <- om$sel_axspft[,1,1,,1:repObj$nG,tMP-1]
 
     if(opMod$forceMeanWtAge)
     {
@@ -875,57 +952,11 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     om$Wlen_ls                    <- NA
     om$probLenAge_laxsp           <- NA
     om$lenAge_axsp                <- NA
+
+    # Overwrite data
+    mp$data$I_spft[1,1:nP,,1:(tMP-1)] <- repObj$I_pgt[1:nP,,1:tMP-1]
+    om$I_spft[1,1:nP,,1:(tMP-1)]      <- repObj$I_pgt[1:nP,,1:tMP-1]
   }
-
-  
-
-  # Make data list - anything else?
-  # mp list - mostly for retrospective
-  # analyses and assessment model settings
-  mp <- list( assess = NULL, data = NULL, hcr = NULL )
-  mp$assess <- list()
-  mp$hcr    <- list()
-  mp$data <- list()
-
-  # Data list
-  mp$data$I_spft    <- array( NA, dim = c(nS+1,nP+1,nF,nT) )      # Add a pooled data dimension
-  mp$data$A_axspft  <- array( NA, dim = c(nA,nX,nS+1,nP+1,nF,nT) )    
-  mp$data$L_lxspft  <- array( NA, dim = c(nL,nX+1,nS,nP,nF,nT) ) 
-
-  # assessment list
-  mp$assess$retroSB_tspt      <- array( NA, dim = c(pT, nS, nP, nT) )
-  mp$assess$retroR_tspt       <- array( NA, dim = c(pT, nS, nP, nT) )
-  mp$assess$retroVB_tspft     <- array( NA, dim = c(pT, nS, nP, nF, nT) )
-  mp$assess$retroq_tspf       <- array( NA, dim = c(pT, nS, nP, nF) )
-  mp$assess$retroq_tspft      <- array( NA, dim = c(pT, nS, nP, nF, nT) )
-  mp$assess$retrotauObs_tspf  <- array( NA, dim = c(pT, nS, nP, nF) )
-  mp$assess$retroUmsy_tsp     <- array( NA, dim = c(pT, nS, nP ) )
-  mp$assess$retroBmsy_tsp     <- array( NA, dim = c(pT, nS, nP ) )
-  mp$assess$maxGrad_tsp       <- array( NA, dim = c(pT, nS, nP ) )
-  mp$assess$pdHess_tsp        <- array( FALSE, dim = c(pT, nS, nP) )
-  mp$assess$posSDs_tsp        <- array( FALSE, dim = c(pT, nS, nP) )
-
-  mp$hcr$LCP_spt              <- array( NA, dim = c(nS, nP, nT) )
-  mp$hcr$UCP_spt              <- array( NA, dim = c(nS, nP, nT) )
-  mp$hcr$Bref_spt             <- array( NA, dim = c(nS, nP, nT) )
-  mp$hcr$Fref_spt             <- array( NA, dim = c(nS, nP, nT) )
-  mp$hcr$targetF_spt          <- array( NA, dim = c(nS, nP, nT) )
-  mp$hcr$TAC_spft             <- array(0,  dim = c(nS,nP,nF,nT) )     # MP TAC by fleet in kt
-  mp$hcr$TAC_spt              <- array(0,  dim = c(nS,nP,nT) )        # MP TAC in kt
-  mp$hcr$propTAC_spt          <- array(1,  dim = c(nS,nP,nT) )        # MP TAC in kt
-  mp$hcr$sokEff_spft          <- array(0,  dim = c(nS,nP,nF,nT) )    # MP SOK license numbers
-
-
-  # Process and observation errors
-  errors <- list()
-
-  # Arrays for holding errors
-  errors$omegaR_spt       <- array(0, dim = c(nS,nP,nT) )         # recruitment PE
-  errors$omegaRinit_asp   <- array(0, dim = c(nA,nS,nP) )         # intialisation recruitment PEs
-  errors$delta_spft       <- array(0, dim = c(nS+1,nP+1,nF,nT) )  # index observation errors
-  errors$ageObsErr_axspft <- array(0, dim = c(nA,nX,nS+1,nP+1,nF,nT) )
-
-
 
   # Save model dims
   om$tMP   <- tMP
@@ -1094,8 +1125,6 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
           for( x in 1:nX )
             N_axspt[,x,s,p,t] <- obj$om$initSurv_axsp[,x,s,p] * R0_sp[s,p]
 
-
-
         R_spt[s,p,t] <- N_axspt[1,1,s,p,t]
 
       }  
@@ -1142,7 +1171,9 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
                   R_spt[s,p,t] <- reca_sp[s,p] * SB_spt[s,p,t-1] / (1 + recb_sp[s,p] * SB_spt[s,p,t-1])
 
                   if( !obj$ctlList$ctl$noProcErr)
+                  {
                     R_spt[s,p,t] <- R_spt[s,p,t] * exp( om$sigmaR_sp[s,p] * err$omegaR_spt[s,p,t] - 0.5*om$sigmaR_sp[s,p]^2)
+                  }
 
                 }  
 
@@ -1177,6 +1208,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
 
 
   }  
+
 
 
 
@@ -1495,7 +1527,8 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   #     survP_sp[s,p] <- sum(tmpP_spf[s,p,sokFleets]* exp(-pondM_ft[sokFleets,t]))
   
   # endSB_spt[,,t] <- SB_spt[,,t] + survP_sp
-   
+
+
   endSB_asp <- SB_asp
   endSB_asp[1:nA,1:nS,1:nP] <- matAge_asp[1:nA,1:nS,1:nP] * endN_axspt[1:nA,nX,1:nS,1:nP,t] * W_axspt[1:nA,nX,1:nS,1:nP,t]
   endSB_spt[,,t] <- apply(X = endSB_asp, FUN = sum, MARGIN = c(2,3), na.rm = T )
@@ -1506,9 +1539,9 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   C_spt[,,t]   <- apply( X = C_spft[,,,t,drop = FALSE], FUN = sum, MARGIN = c(1,2), na.rm = T )
 
   # Now generate indices - if we are in the projection
-  # or data is being overwritten by the OM
+  # or if historical data is generated by  OM
 
-  if( t >= tMP | ctlList$mp$data$source == "OM" )
+  if( t >= tMP | ctlList$mp$data$source == "OM" | ctlList$opMod$histType == "sim" )
   {
 
     if(!is.null(mp$assess$spTVqFleets))
@@ -1579,6 +1612,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
         } 
     }
   }
+
 
   # Now make aggregates
   tauObs_spf <- array(NA, dim=c(nS,nP,nF))
@@ -2440,6 +2474,9 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   
   # Compute target F
   hcr$targetF_spt[,,t] <- Fref_sp
+
+  # if(t >= tMP)
+  #   browser()
   
   # Now apply "F" as a harvest rate, since
   # we don't have M information
@@ -4160,8 +4197,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     obj$errors$delta_spft[1:nS,1:nP,,histdx]  <- repObj$residCPUE_spft # obs errors
    
   
-  # Then add obsErrorMultiplier for future precision scenarios
-  obj$errors$obsErrMult_spft        <- array(1, dim = c(nS,nP,nF,nT))
+  
 
   # Adjust obs error multiplier if 
   # projObsErrMult != 1
@@ -4258,9 +4294,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
 
   obj$mp$hcr$TAC_spt[,,histdx]        <- obj$om$C_spt[,,histdx]
 
-  # initial survivorship
-  obj$om$initSurv_axsp[,1,1,]        <- repObj$initSurv_ap
-
+  
   # Now fill in future sel
   if(!ctlList$opMod$posteriorSamples)
   {  
@@ -4889,6 +4923,132 @@ ar1Model <- function(dat)
 #-- Catch, fishing mortality and effort functions.                             #
 #------------------------------------------------------------------------------#
 
+# .solveHistPop()
+# Solves for the fishing mortality or effort rates
+# to achieve an initial depletion target. Optimises
+# based on a given objective function.
+# inputs: obj = simulation object
+# outputs: obj = solved simulation object with all time 
+#                 steps filled
+# usage:  under omniscient manager sims, or for no fishing.
+# NOTE: need some objectives input via simCtlFile
+.solveHistPop <- function( obj )
+{
+  # Pull control list items
+  om      <- obj$om
+  ctlList <- obj$ctlList
+  mp      <- ctlList$mp
+  # Model dimensions
+  nS      <- om$nS
+  nP      <- om$nP
+  nT      <- om$nT
+  tMP     <- om$tMP
+  pT      <- ctlList$opMod$pT
+
+
+
+  # Now we have enough info to calculate reference points
+  stime <- Sys.time()
+  message(" (.condMS3pop) Calculating Fmsy and Emsy reference points\n")
+  
+  repObj <- ctlList$opMod$histRpt
+  repObj$om <- obj$om
+  repObj$condModel <- ctlList$opMod$condModel
+  refPtList <- calcRefPts( repObj )
+  obj$rp    <- refPtList
+
+  # Set tInit_p to 0 (0 index in TMB models)
+  obj$om$tInit_p <- rep(0,nP)
+  # Calculate times for surveys etc.
+  obj <- .calcTimes( obj )
+
+
+  # Set up process errors
+  for( s in 1:nS )
+    for( p in 1:nP )
+      obj$errors$omegaR_spt[s,p,] <- rnorm( n = nT, 
+                                            mean = 0, 
+                                            sd = 1 )
+
+  # getObjFunctionVal
+  # Purpose:        Private function to run operating model and extract objective function
+  # Parameters:     pars=log-Fs for t=tMP,...nT
+  # Returns:        Objective function f=barrier penalty for biomass less than Bmsy plus
+  #                 log(cumulative catch) and penalty for deviation from Fmsy. 
+  #                 Multiplier 1000 is for desired precision
+  # Source:         S.P. Cox
+  getObjFunctionVal <- function( pars, obj )
+  {
+    # Function to run projections 
+    obj <- .runModel( pars, obj, initT = 1, endT = tMP-1 )
+    # Return objective function
+    finalDep <- obj$om$SB_spt[,,tMP-1]/obj$om$B0_sp
+
+    # browser()
+
+    targDep     <- obj$ctlList$opMod$initDep
+    depScalar   <- obj$ctlList$opMod$initOptScalar
+
+    val <- sum(log(finalDep/targDep)^2)*depScalar
+
+    val
+  }     # END function getObjFunctionVal
+
+
+  # -------- Optimisation ------- #
+  # Create vector of initial parameters - need to determine
+  # if it's nP * nKnots or nS * nP * nKnots
+  nPars <- nP * ctlList$mp$omni$nKnots
+  if( ctlList$opMod$effortMod == "targeting" )
+    nPars <- nS * nPars
+
+  # Might need to refine this later, but for now we
+  # use a random vector
+  initPars <- rnorm(n = nPars, sd = .3)
+
+  # OK, run optimisation
+  message( " (.solveHistPop) Optimising historical fishing mortality to meet target depletion, please wait.\n")
+
+  initObjFunVal <- round(getObjFunctionVal( pars = initPars, obj = obj), 3)
+
+  message(" (.solveHistPop) Initial objective function value f =", initObjFunVal, ".\n")
+
+
+  # Find pars that give the best catch/AAV and minimise
+  # closures/low catch
+  opt <- optim( par = initPars, fn = getObjFunctionVal,
+                method = "BFGS", obj = obj,
+                control=list(maxit=10000, reltol=0.01 ) )
+                # control=list(maxit=3000, reltol=0.001,ndeps=c(.01,.01) ) )
+
+  # opt <- optim( par = opt$par, fn = getObjFunctionVal,
+  #               method = "Nelder-Mead", obj = obj,
+  #               control=list(maxit=3000, reltol=0.001,ndeps=c(.01,.01) ) )
+
+  message( " (.solveProjPop) Optimisation of model history completed with f = ", 
+            round(opt$value,2), ".\n")
+  optPars <- opt$par
+
+
+  # if( ctlList$ctl$perfConF )
+  # {
+  #   # Create a dummy optPars object,
+  #   # and replace all future Fs with Fmsy in
+  #   # runModel
+  #   optPars <- initPars 
+  # }
+
+  # rerun OM with optimised parameters
+  message( " (.solveProjPop) Running OM for historical period with optimised fihsing effort.\n")
+  obj <- .runModel(  pars = optPars, obj = obj, 
+                    initT = 1, endT = tMP )
+
+  return(obj)
+} # END .solveProjPop()
+
+
+
+
 # .solveProjPop()
 # Solves for the fishing mortality or effort rates
 # to maximise yield and keep fisheries open. Optimises
@@ -4911,540 +5071,6 @@ ar1Model <- function(dat)
   tMP     <- om$tMP
   pT      <- ctlList$opMod$pT
 
-  # runModel()
-  # Private function to run operating model and return
-  # objective function value based on depletion, catch
-  # and closures.
-  # inputs: pars = vector of F or E values
-  #         obj = simulation object
-  # outputs: outList = list of  
-  #                      - obj = simulation object
-  #                      - f = objective function value
-  # Modified from SP Cox's function
-  runModel <- function( pars, obj )
-  {
-    # Pull control list items
-    om      <- obj$om
-    ctlList <- obj$ctlList
-    mp      <- ctlList$mp
-
-    # Some omni control pars
-    maxF        <- mp$omni$maxF
-    maxE        <- mp$omni$maxE
-    minE        <- mp$omni$minE
-    parMult     <- mp$omni$expParMult
-    Fmsy_sp     <- obj$rp$FmsyRefPts$Fmsy_sp
-    loDepBmsy   <- mp$omni$loDepBmsy
-    hiDepBmsy   <- mp$omni$hiDepBmsy
-    maxAAV      <- mp$omni$maxAAV
-    maxEffDiff  <- mp$omni$maxRelEffDiff
-    maxCatDiff  <- mp$omni$maxRelCatDiff
-
-    # Obj function weights
-    avgCatWt      <- mp$omni$avgCatWt
-    totCatWt      <- mp$omni$totCatWt
-    hiDepBmsyWt   <- mp$omni$hiDepBmsyWt
-    loDepBmsyWt   <- mp$omni$loDepBmsyWt
-    closedWt      <- mp$omni$closedWt
-    AAVWt         <- mp$omni$AAVWt
-    catDiffWt     <- mp$omni$catDiffWt
-    sumCatWt      <- mp$omni$sumCatWt
-    effDiffWt     <- mp$omni$effDiffWt
-    initCatDiffWt <- mp$omni$initCatDiffWt
-    initEffDiffWt <- mp$omni$initEffDiffWt
-    probDepWt     <- mp$omni$probDepWt
-
-    # Model dimensions
-    nS      <- om$nS
-    nP      <- om$nP
-    nT      <- om$nT
-    tMP     <- om$tMP
-    pT      <- ctlList$opMod$pT
-
-
-    # Some pars that are global to either effort
-    # simulation
-    projInt <- nT - tMP + 1
-    nKnots  <- mp$omni$nKnots
-    space   <- projInt / (nKnots - 1)
-    knotPts <- round( seq(from = 1, by = space, length.out = nKnots) )
-    knotPts[knotPts > projInt] <- projInt
-
-    # Create x points for interpolation spline
-    x <- knotPts
-
-    # Set fishing mortality to 0 for tMP:nT
-    # so that operating model does not hang
-    obj$om$F_spft[,,,tMP:nT] <- 0
-
-    # Choose whether this is effort or fishing mort.
-    # If perfect targeting (all TACs fully utilised)
-    if( ctlList$opMod$effortMod == "targeting" )
-    {
-      # This is a projection model that always uses
-      # a multiple of Fmsy
-      if( ctlList$ctl$perfConF )
-      {
-        for( s in 1:nS )
-          for( p in 1:nP )
-            obj$om$F_spft[s,p,2,tMP:nT] <- parMult*obj$rp$FmsyRefPts$Fmsy_sp[s,p]
-
-        if( !is.null(ctlList$omni$inputF) )
-          obj$om$F_spft[,,2,tMP:nT] <- ctlList$omni$inputF
-      } else {  
-        # Then we are solving for stock/species specific
-        # Fs (nS * nP at each time step)
-        tmpFmult <- exp( pars )
-        knotF_spk <- array( tmpFmult, dim = c(nS,nP,nKnots) )
-
-        # Make spline for each species/stock
-        for( s in 1:nS )
-          for( p in 1:nP )
-          {
-            splineF <- spline( x = x, y = knotF_spk[s,p,], n = projInt)$y
-            splineF <- splineF * obj$rp$FmsyRefPts$Fmsy_sp[s,p]
-            splineF[splineF < 0] <- 0
-            splineF[splineF > maxF] <- maxF
-
-            obj$om$F_spft[s,p,2,tMP:nT] <- parMult*splineF
-          }
-      }
-    }
-
-
-
-    # If bycatch is simulated (single area effort catches all species)
-    if( ctlList$opMod$effortMod %in% c("dynModel","Max") )
-    {
-      # This is a projection model that always uses
-      # Fmsy
-      if( ctlList$ctl$perfConF )
-      {
-        for( p in 1:nP )
-          obj$om$E_pft[p,2,tMP:nT] <- parMult*obj$rp$EmsyMSRefPts$EmsyMS_p[p]
-
-        if( !is.null(ctlList$omni$inputE) )
-          for( p in 1:nP )
-            obj$om$E_pft[p,2,tMP:nT] <- ctlList$omni$inputE_p[p]
-
-        for( s in 1:nS )
-          for( p in 1:nP )
-            obj$om$F_spft[s,p,2,tMP:nT] <- obj$om$E_pft[p,2,tMP:nT] * om$qF_spft[s,p,2,tMP - 1]
-
-      } else {
-        # Then we are solving for area specific
-        # Es (nP at each time step)
-        tmpEmult    <- exp( pars )
-        knotE_pk    <- array( tmpEmult, dim = c(nP,nKnots) )
-
-        # Make spline for each species/stock
-        for( p in 1:nP )
-        {
-          # Make spline, multiply by Emsy
-          splineE <- spline( x = x, y = knotE_pk[p,], n = projInt)$y
-          splineE <- splineE * obj$rp$EmsyMSRefPts$EmsyMS_p[p]
-
-          # Correct for under and over efforts, limit
-          # lowest effort to be the minimum over the
-          # historical period
-          if( minE == "hist" )
-            splineE[splineE < 0] <- min(obj$om$E_pft[p,2,1:(tMP-1)])/obj$rp$EmsyMSRefPts$EmsyMS_p[p]
-          else 
-            splineE[splineE < 0] <- minE
-          
-          splineE[splineE > maxE] <- maxE
-
-          # Assign to projection
-          obj$om$E_pft[p,2,tMP:nT] <- parMult * splineE
-
-          for( s in 1:nS )
-            obj$om$F_spft[s,p,2,tMP:nT] <- obj$om$E_pft[p,2,tMP:nT] * om$qF_spft[s,p,2,tMP - 1]
-        }
-      }
-
-    }
-
-    
-
-    
-
-    # run model for projection period
-    for(t in tMP:nT )
-    {
-      obj <- .ageSexOpMod(obj, t)
-    }
-    result                    <- obj
-    
-    if( ctlList$ctl$omni )
-    {
-      # Pull projection catch and biomass
-      Cproj_spft    <- obj$om$C_spft[,,2,tMP:nT,drop = FALSE]
-      TACproj_spft  <- obj$om$TAC_spft[,,2,tMP:nT,drop = FALSE]
-      Bproj_spt     <- obj$om$B_spt[,,tMP:nT,drop = FALSE]
-      Bmsy_sp       <- obj$rp$FmsyRefPts$BeqFmsy_sp
-      
-
-      # Make arrays to hold stock specific
-      # penalties and intermediate values
-      # Lots of options here from development of the
-      # best objective function
-      barLoDep_sp         <- array(0, dim = c(nS,nP))
-      barHiDep_sp         <- array(0, dim = c(nS,nP))
-      probLoDep_sp        <- array(0, dim = c(nS,nP))
-      probHiDep_sp        <- array(0, dim = c(nS,nP))
-      barProbLoDep_sp     <- array(0, dim = c(nS,nP))
-      barProbHiDep_sp     <- array(0, dim = c(nS,nP))
-      barAAV_sp           <- array(0, dim = c(nS,nP))
-      closedCount_sp      <- array(0, dim = c(nS,nP))
-      barCatDiff_sp       <- array(0, dim = c(nS,nP))
-      barInitCatDiff_sp   <- array(0, dim = c(nS,nP))
-
-      # Exponential penalty functions
-      expLoDep_sp         <- array(0, dim = c(nS,nP))
-      expHiDep_sp         <- array(0, dim = c(nS,nP))
-      expProbLoDep_sp     <- array(0, dim = c(nS,nP))
-      expProbHiDep_sp     <- array(0, dim = c(nS,nP))
-      expAAV_sp           <- array(0, dim = c(nS,nP))
-      expCatDiff_sp       <- array(0, dim = c(nS,nP))
-      expInitCatDiff_sp   <- array(0, dim = c(nS,nP))
-
-      # Linear penalty functions
-      linLoDep_sp         <- array(0, dim = c(nS,nP))
-      linHiDep_sp         <- array(0, dim = c(nS,nP))
-      linProbLoDep_sp     <- array(0, dim = c(nS,nP))
-      linProbHiDep_sp     <- array(0, dim = c(nS,nP))
-      linAAV_sp           <- array(0, dim = c(nS,nP))
-      linCatDiff_sp       <- array(0, dim = c(nS,nP))
-      linInitCatDiff_sp   <- array(0, dim = c(nS,nP))
-
-
-
-      # Get minimum catch in historical period
-      histCatch_spt <- apply( X = om$C_spft[,,,1:(tMP-1),drop = FALSE], FUN = sum, MARGIN = c(1,2,4))
-      Cmin_sp <- apply( X = histCatch_spt, FUN = min, MARGIN = c(1,2),
-                        na.rm = T )
-
-      # Private function for calculating AAV
-      .calcAAV <- function( C )
-      {
-        diffC <- diff(C)
-        absDiffC <- abs(diffC)
-
-        AAV <- sum(absDiffC) / sum(C)
-        AAV
-      }
-
-
-      catDiff_spt <- array(0, dim = c(nS,nP,pT))
-      catDiffRel_spt <- catDiff_spt
-      for( s in 1:nS )
-        for( p in 1:nP )
-        {
-          catDiff_spt[s,p,] <- abs(diff(obj$om$C_spft[s,p,2,(tMP-1):nT]))
-          catDiffRel_spt[s,p,] <- catDiff_spt[s,p,] / (obj$om$C_spft[s,p,2,(tMP:nT) - 1])
-        }
-      
-      catDiffRel_spt[!is.finite(catDiffRel_spt)] <- 1
-
-      initCatDiffRel_sp <- array(0, dim = c(nS,nP))
-      initCatDiffRel_sp[1:nS,1:nP] <- catDiffRel_spt[,,1]
-
-      # Effort difference (prefer to keep total effort similar)
-      totEff_t   <- apply( X = obj$om$E_pft[,2,(tMP-1):nT,drop = FALSE],
-                            FUN = sum, MARGIN = 2 )
-      effDiff_t  <- abs(diff(totEff_t))
-
-      effDiffRel_t <- effDiff_t / totEff_t[-pT]
-      effDiffRel_t[!is.finite(effDiffRel_t)] <- 1
-
-      initEffDiffRel <- effDiffRel_t[1]
-
-      # Now loop over species/stocks and
-      # calculate penalties
-      for( s in 1:nS )
-        for( p in 1:nP )
-        {
-          # biomass above some depletion level
-          barLoDep_sp[s,p] <- combBarrierPen(  x = Bproj_spt[s,p,]/Bmsy_sp[s,p],
-                                                eps = loDepBmsy,
-                                                alpha = loDepBmsy / 2,
-                                                above = TRUE )
-
-          expLoDep_sp[s,p]  <- expPenaltyFunction(  x = Bproj_spt[s,p,]/Bmsy_sp[s,p],
-                                                    eps = loDepBmsy,
-                                                    alpha = 1,
-                                                    above = TRUE )
-
-          linLoDep_sp[s,p]  <- linPenaltyFunction(  x = Bproj_spt[s,p,]/Bmsy_sp[s,p],
-                                                    eps = loDepBmsy,
-                                                    alpha = 4,
-                                                    above = TRUE,
-                                                    beta = mp$omni$linBeta )
-
-          barHiDep_sp[s,p] <- combBarrierPen( x = Bproj_spt[s,p,]/Bmsy_sp[s,p],
-                                              eps = hiDepBmsy,
-                                              alpha = hiDepBmsy / 2,
-                                              above = FALSE )
-
-          expHiDep_sp[s,p]  <- expPenaltyFunction(  x = Bproj_spt[s,p,]/Bmsy_sp[s,p],
-                                                    eps = hiDepBmsy,
-                                                    alpha = 1,
-                                                    above = FALSE )
-
-          linHiDep_sp[s,p]  <- linPenaltyFunction(  x = Bproj_spt[s,p,]/Bmsy_sp[s,p],
-                                                    eps = hiDepBmsy,
-                                                    alpha = .1,
-                                                    above = FALSE,
-                                                    beta = mp$omni$linBeta )
-
-          # What about the probability of being between
-          # lowDep and HiDep?
-          probHiDep_sp[s,p]   <- sum(Bproj_spt[s,p,]/Bmsy_sp[s,p] > hiDepBmsy) / pT
-          probLoDep_sp[s,p]   <- sum( Bproj_spt[s,p,]/Bmsy_sp[s,p] > loDepBmsy) / pT
-
-          barProbHiDep_sp[s,p] <- combBarrierPen( probHiDep_sp[s,p],
-                                                  eps = mp$omni$hiDepProb,
-                                                  alpha = mp$omni$hiDepProb,
-                                                  above = FALSE )
-
-          barProbLoDep_sp[s,p] <- combBarrierPen( probLoDep_sp[s,p],
-                                                  eps = mp$omni$loDepProb,
-                                                  alpha = mp$omni$loDepProb,
-                                                  above = TRUE )
-
-
-          expProbLoDep_sp[s,p]  <- expPenaltyFunction(  x = probLoDep_sp[s,p],
-                                                        eps = loDepBmsy,
-                                                        alpha = 10,
-                                                        above = TRUE )        
-
-          expProbHiDep_sp[s,p]  <- expPenaltyFunction(  x = probHiDep_sp[s,p],
-                                                        eps = hiDepBmsy,
-                                                        alpha = 10,
-                                                        above = FALSE )     
-
-
-          linProbLoDep_sp[s,p]  <- linPenaltyFunction(  x = probLoDep_sp[s,p],
-                                                        eps = loDepBmsy,
-                                                        alpha = 10,
-                                                        above = TRUE,
-                                                        beta = mp$omni$linBeta )        
-
-          linProbHiDep_sp[s,p]  <- linPenaltyFunction(  x = probHiDep_sp[s,p],
-                                                        eps = hiDepBmsy,
-                                                        alpha = 10,
-                                                        above = FALSE,
-                                                        beta = mp$omni$linBeta )     
-
-          # Catch less than historical minimum (closures)
-          closedCount_sp[s,p] <- sum( Cproj_spft[s,p,1,] < Cmin_sp[s,p] )
-
-          # Penalty on AAV
-          AAV <- .calcAAV( Cproj_spft[s,p,1,] )
-          barAAV_sp[s,p] <- combBarrierPen( x = AAV, 
-                                            eps = maxAAV, 
-                                            alpha = maxAAV/2,
-                                            above = FALSE )
-
-          expAAV_sp[s,p] <- expPenaltyFunction( x = AAV,
-                                                eps = maxAAV,
-                                                alpha = 10,
-                                                above = FALSE )    
-
-          linAAV_sp[s,p] <- linPenaltyFunction( x = AAV,
-                                                eps = maxAAV,
-                                                alpha = 2,
-                                                above = FALSE,
-                                                beta = mp$omni$linBeta )   
-
-
-          barCatDiff_sp[s,p] <- combBarrierPen( x = catDiffRel_spt[s,p,],
-                                                eps = maxCatDiff, 
-                                                alpha = maxCatDiff/2,
-                                                above = FALSE )
-
-          expCatDiff_sp[s,p] <- expPenaltyFunction( x = catDiffRel_spt[s,p,],
-                                                    eps = maxCatDiff,
-                                                    alpha = 1,
-                                                    above = FALSE )     
-
-          linCatDiff_sp[s,p] <- linPenaltyFunction( x = catDiffRel_spt[s,p,],
-                                                    eps = maxCatDiff,
-                                                    alpha = 1,
-                                                    above = FALSE,
-                                                    beta = mp$omni$linBeta ) 
-
-          
-          barInitCatDiff_sp[s,p] <- combBarrierPen( x = initCatDiffRel_sp[s,p],
-                                                    eps = maxCatDiff, 
-                                                    alpha = 1,
-                                                    above = FALSE )
-
-          expInitCatDiff_sp[s,p] <- expPenaltyFunction( x = initCatDiffRel_sp[s,p],
-                                                        eps = maxCatDiff,
-                                                        alpha = 2, 
-                                                        above = FALSE )
-
-          linInitCatDiff_sp[s,p] <- linPenaltyFunction( x = initCatDiffRel_sp[s,p],
-                                                        eps = maxCatDiff,
-                                                        alpha = 2, 
-                                                        above = FALSE,
-                                                        beta = mp$omni$linBeta )
-        }
-
-
-      barEffDiff <- combBarrierPen( x       = effDiffRel_t,
-                                    eps     = maxEffDiff,
-                                    alpha   = maxEffDiff/2, 
-                                    above   = FALSE )
-
-      expEffDiff <- expPenaltyFunction( x     = effDiffRel_t,
-                                        eps   = maxEffDiff,
-                                        alpha = 1,
-                                        above = FALSE )
-
-      linEffDiff <- linPenaltyFunction( x     = effDiffRel_t,
-                                        eps   = maxEffDiff,
-                                        alpha = 2,
-                                        beta  = mp$omni$linBeta,
-                                        above = FALSE )
-
-
-      barInitEffDiff <- combBarrierPen( x       = initEffDiffRel,
-                                        eps     = maxEffDiff,
-                                        alpha   = maxEffDiff/2, 
-                                        above   = FALSE )
-
-      expInitEffDiff <- expPenaltyFunction( x     = initEffDiffRel,
-                                            eps   = maxEffDiff,
-                                            alpha = 1,
-                                            above = FALSE )
-
-      linInitEffDiff <- linPenaltyFunction( x     = initEffDiffRel,
-                                            eps   = maxEffDiff,
-                                            alpha = 2,
-                                            beta  = mp$omni$linBeta,
-                                            above = FALSE )
-
-      # Calculate average catch
-      Csum    <- sum(Cproj_spft,na.rm = T)
-      Cbar_sp <- apply( X = Cproj_spft, FUN = mean, MARGIN = c(1,2))
-      totCbar <- mean( apply(X = Cproj_spft, FUN = sum, MARGIN = 4 ) )
-
-      # Total obj function for each stock/species
-      objFun_sp <- -  avgCatWt * log(1e3*Cbar_sp) + 
-                      (closedWt * closedCount_sp)^mp$omni$linBeta
-
-      if( mp$omni$penType == "barrier" )
-      {
-        objFun_sp <- objFun_sp +
-                      loDepBmsyWt * barLoDep_sp + 
-                      hiDepBmsyWt * barHiDep_sp +
-                      AAVWt * barAAV_sp +  
-                      catDiffWt * barCatDiff_sp + 
-                      initCatDiffWt * barInitCatDiff_sp + 
-                      probDepWt * barProbLoDep_sp +
-                      probDepWt * barProbHiDep_sp
-
-      }
-
-      if( mp$omni$penType == "exponential" )
-      {
-        objFun_sp <- objFun_sp +
-                      loDepBmsyWt * expLoDep_sp + 
-                      hiDepBmsyWt * expHiDep_sp +
-                      AAVWt * expAAV_sp +  
-                      catDiffWt * expCatDiff_sp + 
-                      initCatDiffWt * expInitCatDiff_sp + 
-                      probDepWt * expProbLoDep_sp +
-                      probDepWt * expProbHiDep_sp
-      }
-
-      if( mp$omni$penType == "linear" )
-      {
-        objFun_sp <- objFun_sp +
-                      loDepBmsyWt * linLoDep_sp + 
-                      hiDepBmsyWt * linHiDep_sp +
-                      AAVWt * linAAV_sp +  
-                      catDiffWt * linCatDiff_sp + 
-                      initCatDiffWt * linInitCatDiff_sp + 
-                      probDepWt * linProbLoDep_sp +
-                      probDepWt * linProbHiDep_sp
-      }
-
-                      
-     
-      objFun    <-  sum(objFun_sp) -
-                    totCatWt * log(1e3*totCbar) -
-                    sumCatWt * log(1e3*Csum) 
-
-
-      if( mp$omni$penType == "barrier" )
-        objFun <- objFun + 
-                    effDiffWt * barEffDiff +
-                    initEffDiffWt * barInitEffDiff
-      
-      if( mp$omni$penType == "exponential" )
-        objFun <- objFun + 
-                    effDiffWt * expEffDiff +
-                    initEffDiffWt * expInitEffDiff   
-
-      if( mp$omni$penType == "linear" )
-        objFun <- objFun + 
-                    effDiffWt * linEffDiff +
-                    initEffDiffWt * linInitEffDiff
-    
-    # Return results
-    
-      result$objFun_sp          <- objFun_sp
-      result$objFun             <- objFun
-      result$Cbar_sp            <- Cbar_sp
-      result$totCbar            <- totCbar
-      result$Csum               <- Csum   
-      result$closedCount_sp     <- closedCount_sp
-
-      if( mp$omni$penType == "barrier")
-      {
-        result$barLoDep_sp        <- barLoDep_sp
-        result$barHiDep_sp        <- barHiDep_sp
-        result$barProbHiDep_sp    <- barProbHiDep_sp
-        result$barProbLoDep_sp    <- barProbLoDep_sp
-        result$barAAV_sp          <- barAAV_sp
-        result$barCatDiff_sp      <- barCatDiff_sp
-        result$barEffDiff         <- barEffDiff
-        result$barInitCatDiff_sp  <- barInitCatDiff_sp
-        result$barInitEffDiff     <- barInitEffDiff
-      }
-
-      if( mp$omni$penType == "exponential" )
-      {
-        result$barLoDep_sp        <- expLoDep_sp
-        result$barHiDep_sp        <- expHiDep_sp
-        result$barProbHiDep_sp    <- expProbHiDep_sp
-        result$barProbLoDep_sp    <- expProbLoDep_sp
-        result$barAAV_sp          <- expAAV_sp
-        result$barCatDiff_sp      <- expCatDiff_sp
-        result$barEffDiff         <- expEffDiff  
-        result$barInitCatDiff_sp  <- expInitCatDiff_sp 
-        result$barInitEffDiff     <- expInitEffDiff
-      }
-      
-      if( mp$omni$penType == "linear" )
-      {
-        result$barLoDep_sp        <- linLoDep_sp
-        result$barHiDep_sp        <- linHiDep_sp
-        result$barProbHiDep_sp    <- linProbHiDep_sp
-        result$barProbLoDep_sp    <- linProbLoDep_sp
-        result$barAAV_sp          <- linAAV_sp
-        result$barCatDiff_sp      <- linCatDiff_sp
-        result$barEffDiff         <- linEffDiff  
-        result$barInitCatDiff_sp  <- linInitCatDiff_sp
-        result$barInitEffDiff     <- linInitEffDiff
-      }
-    }
-
-    result
-  } # END runModel
 
   # getObjFunctionVal
   # Purpose:        Private function to run operating model and extract objective function
@@ -5453,10 +5079,12 @@ ar1Model <- function(dat)
   #                 log(cumulative catch) and penalty for deviation from Fmsy. 
   #                 Multiplier 1000 is for desired precision
   # Source:         S.P. Cox
-  getObjFunctionVal <- function( pars, obj ){
-    # Function to run asOM and return objective function
-    val <- runModel( pars, obj )$objFun
-
+  getObjFunctionVal <- function( pars, obj )
+  {
+    # Function to run projections 
+    obj <- .runModel( pars, obj, initT = tMP, endT = nT )
+    # Return objective function
+    val <- calcOmniObjFun(obj)$objFun
     
     val
   }     # END function getObjFunctionVal
@@ -5527,10 +5155,568 @@ ar1Model <- function(dat)
 
   # rerun OM with optimised parameters
   message( " (.solveProjPop) Running OM without estimation method.\n")
-  obj <- runModel( pars = optPars, obj = obj )
+  obj <- .runModel(  pars = optPars, obj = obj, 
+                    initT = tMP, endT = nT )
 
   return(obj)
 } # END .solveProjPop()
+
+
+# .runModel()
+# Runs operating model with an input of fishing 
+# mortality/effort rates and returns resulting 
+# simulation object
+# inputs: pars = vector of F or E values
+#         obj = simulation object
+# outputs: outList = list of  
+#                      - obj = simulation object
+#                      - f = objective function value
+# Modified from SP Cox's function
+.runModel <- function( pars, obj, initT = tMP, endT = nT  )
+{
+  # Pull control list items
+  om      <- obj$om
+  ctlList <- obj$ctlList
+  mp      <- ctlList$mp
+
+  # Some omni control pars
+  maxF        <- mp$omni$maxF
+  maxE        <- mp$omni$maxE
+  minE        <- mp$omni$minE
+  parMult     <- mp$omni$expParMult
+  Fmsy_sp     <- obj$rp$FmsyRefPts$Fmsy_sp
+  loDepBmsy   <- mp$omni$loDepBmsy
+  hiDepBmsy   <- mp$omni$hiDepBmsy
+  maxAAV      <- mp$omni$maxAAV
+  maxEffDiff  <- mp$omni$maxRelEffDiff
+  maxCatDiff  <- mp$omni$maxRelCatDiff
+
+  
+
+  # Model dimensions
+  nS      <- om$nS
+  nP      <- om$nP
+  nT      <- om$nT
+  tMP     <- om$tMP
+  pT      <- ctlList$opMod$pT
+
+
+  # Some pars that are global to either effort
+  # simulation
+  projInt <- endT - initT + 1
+  nKnots  <- mp$omni$nKnots
+  space   <- projInt / (nKnots - 1)
+  knotPts <- round( seq(from = 1, by = space, length.out = nKnots) )
+  knotPts[knotPts > projInt] <- projInt
+
+  # Create x points for interpolation spline
+  x <- knotPts
+
+  # Set fishing mortality to 0 for tMP:nT
+  # so that operating model does not hang
+  obj$om$F_spft[,,,initT:endT] <- 0
+
+  # Choose whether this is effort or fishing mort.
+  # If perfect targeting (all TACs fully utilised)
+  if( ctlList$opMod$effortMod == "targeting" )
+  {
+    # This is a projection model that always uses
+    # a multiple of Fmsy
+    if( ctlList$ctl$perfConF )
+    {
+      for( s in 1:nS )
+        for( p in 1:nP )
+          obj$om$F_spft[s,p,2,initT:endT] <- parMult*obj$rp$FmsyRefPts$Fmsy_sp[s,p]
+
+      if( !is.null(ctlList$omni$inputF) )
+        obj$om$F_spft[,,2,initT:endT] <- ctlList$omni$inputF
+    } else {  
+      # Then we are solving for stock/species specific
+      # Fs (nS * nP at each time step)
+      tmpFmult <- exp( pars )
+      knotF_spk <- array( tmpFmult, dim = c(nS,nP,nKnots) )
+
+      # Make spline for each species/stock
+      for( s in 1:nS )
+        for( p in 1:nP )
+        {
+          splineF <- spline( x = x, y = knotF_spk[s,p,], n = projInt)$y
+          splineF <- splineF * obj$rp$FmsyRefPts$Fmsy_sp[s,p]
+          splineF[splineF < 0] <- 0
+          splineF[splineF > maxF] <- maxF
+
+          obj$om$F_spft[s,p,2,initT:endT] <- parMult*splineF
+        }
+    }
+  }
+
+
+
+  # If bycatch is simulated (single area effort catches all species)
+  if( ctlList$opMod$effortMod %in% c("dynModel","Max") )
+  {
+    # This is a projection model that always uses
+    # Fmsy
+    if( ctlList$ctl$perfConF )
+    {
+      for( p in 1:nP )
+        obj$om$E_pft[p,2,initT:endT] <- parMult*obj$rp$EmsyMSRefPts$EmsyMS_p[p]
+
+      if( !is.null(ctlList$omni$inputE) )
+        for( p in 1:nP )
+          obj$om$E_pft[p,2,initT:endT] <- ctlList$omni$inputE_p[p]
+
+      for( s in 1:nS )
+        for( p in 1:nP )
+          obj$om$F_spft[s,p,2,initT:endT] <- obj$om$E_pft[p,2,initT:endT] * om$qF_spft[s,p,2,tMP - 1]
+
+    } else {
+      # Then we are solving for area specific
+      # Es (nP at each time step)
+      tmpEmult    <- exp( pars )
+      knotE_pk    <- array( tmpEmult, dim = c(nP,nKnots) )
+
+      # Make spline for each species/stock
+      for( p in 1:nP )
+      {
+        # Make spline, multiply by Emsy
+        splineE <- spline( x = x, y = knotE_pk[p,], n = projInt)$y
+        splineE <- splineE * obj$rp$EmsyMSRefPts$EmsyMS_p[p]
+
+        # Correct for under and over efforts, limit
+        # lowest effort to be the minimum over the
+        # historical period
+        if( minE == "hist" )
+          splineE[splineE < 0] <- min(obj$om$E_pft[p,2,1:(tMP-1)])/obj$rp$EmsyMSRefPts$EmsyMS_p[p]
+        else 
+          splineE[splineE < 0] <- minE
+        
+        splineE[splineE > maxE] <- maxE
+
+        # Assign to projection
+        obj$om$E_pft[p,2,initT:endT] <- parMult * splineE
+
+        for( s in 1:nS )
+          obj$om$F_spft[s,p,2,initT:endT] <- obj$om$E_pft[p,2,initT:endT] * om$qF_spft[s,p,2,tMP - 1]
+      }
+    }
+
+  }
+
+  
+
+  
+
+  # run model for projection period
+  for(t in initT:endT )
+  {
+    obj <- .ageSexOpMod(obj, t)
+  }
+
+  return(obj)
+} # END .runModel()
+
+calcOmniObjFun <- function( obj )
+{
+  # Obj function weights
+  avgCatWt      <- mp$omni$avgCatWt
+  totCatWt      <- mp$omni$totCatWt
+  hiDepBmsyWt   <- mp$omni$hiDepBmsyWt
+  loDepBmsyWt   <- mp$omni$loDepBmsyWt
+  closedWt      <- mp$omni$closedWt
+  AAVWt         <- mp$omni$AAVWt
+  catDiffWt     <- mp$omni$catDiffWt
+  sumCatWt      <- mp$omni$sumCatWt
+  effDiffWt     <- mp$omni$effDiffWt
+  initCatDiffWt <- mp$omni$initCatDiffWt
+  initEffDiffWt <- mp$omni$initEffDiffWt
+  probDepWt     <- mp$omni$probDepWt
+
+
+  # Model dimensions
+  nS      <- om$nS
+  nP      <- om$nP
+  nT      <- om$nT
+  tMP     <- om$tMP
+  pT      <- ctlList$opMod$pT
+
+
+  # Some pars that are global to either effort
+  # simulation
+  projInt <- nT - tMP + 1
+  nKnots  <- mp$omni$nKnots
+  space   <- projInt / (nKnots - 1)
+  knotPts <- round( seq(from = 1, by = space, length.out = nKnots) )
+  knotPts[knotPts > projInt] <- projInt
+
+
+  # Pull projection catch and biomass
+  Cproj_spft    <- obj$om$C_spft[,,2,tMP:nT,drop = FALSE]
+  TACproj_spft  <- obj$om$TAC_spft[,,2,tMP:nT,drop = FALSE]
+  Bproj_spt     <- obj$om$B_spt[,,tMP:nT,drop = FALSE]
+  Bmsy_sp       <- obj$rp$FmsyRefPts$BeqFmsy_sp
+  
+
+  # Make arrays to hold stock specific
+  # penalties and intermediate values
+  # Lots of options here from development of the
+  # best objective function
+  barLoDep_sp         <- array(0, dim = c(nS,nP))
+  barHiDep_sp         <- array(0, dim = c(nS,nP))
+  probLoDep_sp        <- array(0, dim = c(nS,nP))
+  probHiDep_sp        <- array(0, dim = c(nS,nP))
+  barProbLoDep_sp     <- array(0, dim = c(nS,nP))
+  barProbHiDep_sp     <- array(0, dim = c(nS,nP))
+  barAAV_sp           <- array(0, dim = c(nS,nP))
+  closedCount_sp      <- array(0, dim = c(nS,nP))
+  barCatDiff_sp       <- array(0, dim = c(nS,nP))
+  barInitCatDiff_sp   <- array(0, dim = c(nS,nP))
+
+  # Exponential penalty functions
+  expLoDep_sp         <- array(0, dim = c(nS,nP))
+  expHiDep_sp         <- array(0, dim = c(nS,nP))
+  expProbLoDep_sp     <- array(0, dim = c(nS,nP))
+  expProbHiDep_sp     <- array(0, dim = c(nS,nP))
+  expAAV_sp           <- array(0, dim = c(nS,nP))
+  expCatDiff_sp       <- array(0, dim = c(nS,nP))
+  expInitCatDiff_sp   <- array(0, dim = c(nS,nP))
+
+  # Linear penalty functions
+  linLoDep_sp         <- array(0, dim = c(nS,nP))
+  linHiDep_sp         <- array(0, dim = c(nS,nP))
+  linProbLoDep_sp     <- array(0, dim = c(nS,nP))
+  linProbHiDep_sp     <- array(0, dim = c(nS,nP))
+  linAAV_sp           <- array(0, dim = c(nS,nP))
+  linCatDiff_sp       <- array(0, dim = c(nS,nP))
+  linInitCatDiff_sp   <- array(0, dim = c(nS,nP))
+
+
+
+  # Get minimum catch in historical period
+  histCatch_spt <- apply( X = om$C_spft[,,,1:(tMP-1),drop = FALSE], FUN = sum, MARGIN = c(1,2,4))
+  Cmin_sp <- apply( X = histCatch_spt, FUN = min, MARGIN = c(1,2),
+                    na.rm = T )
+
+  # Private function for calculating AAV
+  .calcAAV <- function( C )
+  {
+    diffC <- diff(C)
+    absDiffC <- abs(diffC)
+
+    AAV <- sum(absDiffC) / sum(C)
+    AAV
+  }
+
+
+  catDiff_spt <- array(0, dim = c(nS,nP,pT))
+  catDiffRel_spt <- catDiff_spt
+  for( s in 1:nS )
+    for( p in 1:nP )
+    {
+      catDiff_spt[s,p,] <- abs(diff(obj$om$C_spft[s,p,2,(tMP-1):nT]))
+      catDiffRel_spt[s,p,] <- catDiff_spt[s,p,] / (obj$om$C_spft[s,p,2,(tMP:nT) - 1])
+    }
+  
+  catDiffRel_spt[!is.finite(catDiffRel_spt)] <- 1
+
+  initCatDiffRel_sp <- array(0, dim = c(nS,nP))
+  initCatDiffRel_sp[1:nS,1:nP] <- catDiffRel_spt[,,1]
+
+  # Effort difference (prefer to keep total effort similar)
+  totEff_t   <- apply( X = obj$om$E_pft[,2,(tMP-1):nT,drop = FALSE],
+                        FUN = sum, MARGIN = 2 )
+  effDiff_t  <- abs(diff(totEff_t))
+
+  effDiffRel_t <- effDiff_t / totEff_t[-pT]
+  effDiffRel_t[!is.finite(effDiffRel_t)] <- 1
+
+  initEffDiffRel <- effDiffRel_t[1]
+
+  # Now loop over species/stocks and
+  # calculate penalties
+  for( s in 1:nS )
+    for( p in 1:nP )
+    {
+      # biomass above some depletion level
+      barLoDep_sp[s,p] <- combBarrierPen(  x = Bproj_spt[s,p,]/Bmsy_sp[s,p],
+                                            eps = loDepBmsy,
+                                            alpha = loDepBmsy / 2,
+                                            above = TRUE )
+
+      expLoDep_sp[s,p]  <- expPenaltyFunction(  x = Bproj_spt[s,p,]/Bmsy_sp[s,p],
+                                                eps = loDepBmsy,
+                                                alpha = 1,
+                                                above = TRUE )
+
+      linLoDep_sp[s,p]  <- linPenaltyFunction(  x = Bproj_spt[s,p,]/Bmsy_sp[s,p],
+                                                eps = loDepBmsy,
+                                                alpha = 4,
+                                                above = TRUE,
+                                                beta = mp$omni$linBeta )
+
+      barHiDep_sp[s,p] <- combBarrierPen( x = Bproj_spt[s,p,]/Bmsy_sp[s,p],
+                                          eps = hiDepBmsy,
+                                          alpha = hiDepBmsy / 2,
+                                          above = FALSE )
+
+      expHiDep_sp[s,p]  <- expPenaltyFunction(  x = Bproj_spt[s,p,]/Bmsy_sp[s,p],
+                                                eps = hiDepBmsy,
+                                                alpha = 1,
+                                                above = FALSE )
+
+      linHiDep_sp[s,p]  <- linPenaltyFunction(  x = Bproj_spt[s,p,]/Bmsy_sp[s,p],
+                                                eps = hiDepBmsy,
+                                                alpha = .1,
+                                                above = FALSE,
+                                                beta = mp$omni$linBeta )
+
+      # What about the probability of being between
+      # lowDep and HiDep?
+      probHiDep_sp[s,p]   <- sum(Bproj_spt[s,p,]/Bmsy_sp[s,p] > hiDepBmsy) / pT
+      probLoDep_sp[s,p]   <- sum( Bproj_spt[s,p,]/Bmsy_sp[s,p] > loDepBmsy) / pT
+
+      barProbHiDep_sp[s,p] <- combBarrierPen( probHiDep_sp[s,p],
+                                              eps = mp$omni$hiDepProb,
+                                              alpha = mp$omni$hiDepProb,
+                                              above = FALSE )
+
+      barProbLoDep_sp[s,p] <- combBarrierPen( probLoDep_sp[s,p],
+                                              eps = mp$omni$loDepProb,
+                                              alpha = mp$omni$loDepProb,
+                                              above = TRUE )
+
+
+      expProbLoDep_sp[s,p]  <- expPenaltyFunction(  x = probLoDep_sp[s,p],
+                                                    eps = loDepBmsy,
+                                                    alpha = 10,
+                                                    above = TRUE )        
+
+      expProbHiDep_sp[s,p]  <- expPenaltyFunction(  x = probHiDep_sp[s,p],
+                                                    eps = hiDepBmsy,
+                                                    alpha = 10,
+                                                    above = FALSE )     
+
+
+      linProbLoDep_sp[s,p]  <- linPenaltyFunction(  x = probLoDep_sp[s,p],
+                                                    eps = loDepBmsy,
+                                                    alpha = 10,
+                                                    above = TRUE,
+                                                    beta = mp$omni$linBeta )        
+
+      linProbHiDep_sp[s,p]  <- linPenaltyFunction(  x = probHiDep_sp[s,p],
+                                                    eps = hiDepBmsy,
+                                                    alpha = 10,
+                                                    above = FALSE,
+                                                    beta = mp$omni$linBeta )     
+
+      # Catch less than historical minimum (closures)
+      closedCount_sp[s,p] <- sum( Cproj_spft[s,p,1,] < Cmin_sp[s,p] )
+
+      # Penalty on AAV
+      AAV <- .calcAAV( Cproj_spft[s,p,1,] )
+      barAAV_sp[s,p] <- combBarrierPen( x = AAV, 
+                                        eps = maxAAV, 
+                                        alpha = maxAAV/2,
+                                        above = FALSE )
+
+      expAAV_sp[s,p] <- expPenaltyFunction( x = AAV,
+                                            eps = maxAAV,
+                                            alpha = 10,
+                                            above = FALSE )    
+
+      linAAV_sp[s,p] <- linPenaltyFunction( x = AAV,
+                                            eps = maxAAV,
+                                            alpha = 2,
+                                            above = FALSE,
+                                            beta = mp$omni$linBeta )   
+
+
+      barCatDiff_sp[s,p] <- combBarrierPen( x = catDiffRel_spt[s,p,],
+                                            eps = maxCatDiff, 
+                                            alpha = maxCatDiff/2,
+                                            above = FALSE )
+
+      expCatDiff_sp[s,p] <- expPenaltyFunction( x = catDiffRel_spt[s,p,],
+                                                eps = maxCatDiff,
+                                                alpha = 1,
+                                                above = FALSE )     
+
+      linCatDiff_sp[s,p] <- linPenaltyFunction( x = catDiffRel_spt[s,p,],
+                                                eps = maxCatDiff,
+                                                alpha = 1,
+                                                above = FALSE,
+                                                beta = mp$omni$linBeta ) 
+
+      
+      barInitCatDiff_sp[s,p] <- combBarrierPen( x = initCatDiffRel_sp[s,p],
+                                                eps = maxCatDiff, 
+                                                alpha = 1,
+                                                above = FALSE )
+
+      expInitCatDiff_sp[s,p] <- expPenaltyFunction( x = initCatDiffRel_sp[s,p],
+                                                    eps = maxCatDiff,
+                                                    alpha = 2, 
+                                                    above = FALSE )
+
+      linInitCatDiff_sp[s,p] <- linPenaltyFunction( x = initCatDiffRel_sp[s,p],
+                                                    eps = maxCatDiff,
+                                                    alpha = 2, 
+                                                    above = FALSE,
+                                                    beta = mp$omni$linBeta )
+    }
+
+
+  barEffDiff <- combBarrierPen( x       = effDiffRel_t,
+                                eps     = maxEffDiff,
+                                alpha   = maxEffDiff/2, 
+                                above   = FALSE )
+
+  expEffDiff <- expPenaltyFunction( x     = effDiffRel_t,
+                                    eps   = maxEffDiff,
+                                    alpha = 1,
+                                    above = FALSE )
+
+  linEffDiff <- linPenaltyFunction( x     = effDiffRel_t,
+                                    eps   = maxEffDiff,
+                                    alpha = 2,
+                                    beta  = mp$omni$linBeta,
+                                    above = FALSE )
+
+
+  barInitEffDiff <- combBarrierPen( x       = initEffDiffRel,
+                                    eps     = maxEffDiff,
+                                    alpha   = maxEffDiff/2, 
+                                    above   = FALSE )
+
+  expInitEffDiff <- expPenaltyFunction( x     = initEffDiffRel,
+                                        eps   = maxEffDiff,
+                                        alpha = 1,
+                                        above = FALSE )
+
+  linInitEffDiff <- linPenaltyFunction( x     = initEffDiffRel,
+                                        eps   = maxEffDiff,
+                                        alpha = 2,
+                                        beta  = mp$omni$linBeta,
+                                        above = FALSE )
+
+  # Calculate average catch
+  Csum    <- sum(Cproj_spft,na.rm = T)
+  Cbar_sp <- apply( X = Cproj_spft, FUN = mean, MARGIN = c(1,2))
+  totCbar <- mean( apply(X = Cproj_spft, FUN = sum, MARGIN = 4 ) )
+
+  # Total obj function for each stock/species
+  objFun_sp <- -  avgCatWt * log(1e3*Cbar_sp) + 
+                  (closedWt * closedCount_sp)^mp$omni$linBeta
+
+  if( mp$omni$penType == "barrier" )
+  {
+    objFun_sp <- objFun_sp +
+                  loDepBmsyWt * barLoDep_sp + 
+                  hiDepBmsyWt * barHiDep_sp +
+                  AAVWt * barAAV_sp +  
+                  catDiffWt * barCatDiff_sp + 
+                  initCatDiffWt * barInitCatDiff_sp + 
+                  probDepWt * barProbLoDep_sp +
+                  probDepWt * barProbHiDep_sp
+
+  }
+
+  if( mp$omni$penType == "exponential" )
+  {
+    objFun_sp <- objFun_sp +
+                  loDepBmsyWt * expLoDep_sp + 
+                  hiDepBmsyWt * expHiDep_sp +
+                  AAVWt * expAAV_sp +  
+                  catDiffWt * expCatDiff_sp + 
+                  initCatDiffWt * expInitCatDiff_sp + 
+                  probDepWt * expProbLoDep_sp +
+                  probDepWt * expProbHiDep_sp
+  }
+
+  if( mp$omni$penType == "linear" )
+  {
+    objFun_sp <- objFun_sp +
+                  loDepBmsyWt * linLoDep_sp + 
+                  hiDepBmsyWt * linHiDep_sp +
+                  AAVWt * linAAV_sp +  
+                  catDiffWt * linCatDiff_sp + 
+                  initCatDiffWt * linInitCatDiff_sp + 
+                  probDepWt * linProbLoDep_sp +
+                  probDepWt * linProbHiDep_sp
+  }
+
+                  
+ 
+  objFun    <-  sum(objFun_sp) -
+                totCatWt * log(1e3*totCbar) -
+                sumCatWt * log(1e3*Csum) 
+
+
+  if( mp$omni$penType == "barrier" )
+    objFun <- objFun + 
+                effDiffWt * barEffDiff +
+                initEffDiffWt * barInitEffDiff
+  
+  if( mp$omni$penType == "exponential" )
+    objFun <- objFun + 
+                effDiffWt * expEffDiff +
+                initEffDiffWt * expInitEffDiff   
+
+  if( mp$omni$penType == "linear" )
+    objFun <- objFun + 
+                effDiffWt * linEffDiff +
+                initEffDiffWt * linInitEffDiff
+
+  # Return results
+  
+  result$objFun_sp          <- objFun_sp
+  result$objFun             <- objFun
+  result$Cbar_sp            <- Cbar_sp
+  result$totCbar            <- totCbar
+  result$Csum               <- Csum   
+  result$closedCount_sp     <- closedCount_sp
+
+  if( mp$omni$penType == "barrier")
+  {
+    result$barLoDep_sp        <- barLoDep_sp
+    result$barHiDep_sp        <- barHiDep_sp
+    result$barProbHiDep_sp    <- barProbHiDep_sp
+    result$barProbLoDep_sp    <- barProbLoDep_sp
+    result$barAAV_sp          <- barAAV_sp
+    result$barCatDiff_sp      <- barCatDiff_sp
+    result$barEffDiff         <- barEffDiff
+    result$barInitCatDiff_sp  <- barInitCatDiff_sp
+    result$barInitEffDiff     <- barInitEffDiff
+  }
+
+  if( mp$omni$penType == "exponential" )
+  {
+    result$barLoDep_sp        <- expLoDep_sp
+    result$barHiDep_sp        <- expHiDep_sp
+    result$barProbHiDep_sp    <- expProbHiDep_sp
+    result$barProbLoDep_sp    <- expProbLoDep_sp
+    result$barAAV_sp          <- expAAV_sp
+    result$barCatDiff_sp      <- expCatDiff_sp
+    result$barEffDiff         <- expEffDiff  
+    result$barInitCatDiff_sp  <- expInitCatDiff_sp 
+    result$barInitEffDiff     <- expInitEffDiff
+  }
+  
+  if( mp$omni$penType == "linear" )
+  {
+    result$barLoDep_sp        <- linLoDep_sp
+    result$barHiDep_sp        <- linHiDep_sp
+    result$barProbHiDep_sp    <- linProbHiDep_sp
+    result$barProbLoDep_sp    <- linProbLoDep_sp
+    result$barAAV_sp          <- linAAV_sp
+    result$barCatDiff_sp      <- linCatDiff_sp
+    result$barEffDiff         <- linEffDiff  
+    result$barInitCatDiff_sp  <- linInitCatDiff_sp
+    result$barInitEffDiff     <- linInitEffDiff
+  }
+
+  result
+} # END calcOmniObjFun()
 
 
 # .solveProjEffortDynamics()
@@ -5820,6 +6006,12 @@ applyDiscreteFisheries <- function( N_axsp,
     vB_axspf[,,,,fIdx] <- vN_axspf[,,,,fIdx] * W_axspf[,,,,fIdx]
 
     if(fIdx > nF | any(!is.finite(C_spf)))
+    {
+      cat("Bad catch \n")
+      browser()
+    }
+
+    if(is.null(C_spf))
       browser()
 
     if( any(C_spf[,,fIdx] > 0 ) )
