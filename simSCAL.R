@@ -5196,7 +5196,13 @@ ar1Model <- function(dat)
   maxAAV      <- mp$omni$maxAAV
   maxEffDiff  <- mp$omni$maxRelEffDiff
   maxCatDiff  <- mp$omni$maxRelCatDiff
+  nKnots      <- mp$omni$nKnots
 
+  if(ctlList$opMod$histType=="sim" | endT < om$tMP)
+  {
+    parMult <- .1
+    nKnots  <- om$tMP - 1
+  }
   
 
   # Model dimensions
@@ -5210,7 +5216,7 @@ ar1Model <- function(dat)
   # Some pars that are global to either effort
   # simulation
   projInt <- endT - initT + 1
-  nKnots  <- mp$omni$nKnots
+  
   space   <- projInt / (nKnots - 1)
   knotPts <- round( seq(from = 1, by = space, length.out = nKnots) )
   knotPts[knotPts > projInt] <- projInt

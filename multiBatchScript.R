@@ -9,22 +9,22 @@ library(parallel)
 source("ms3R.r")
 # source("makeResultPlots.R")
 
-batchControlFiles <- c( #"SOG_DDM_Fgrid.bch",
-                        "HG_DDM_Fgrid.bch" )
+batchControlFiles <- c( "SOG_DDM_Fgrid.bch" )
+                        #"HG_DDM_Fgrid.bch" )
                        
 nBatchJobs <- length( batchControlFiles )
 
-baseControlFiles  <- rep( "simCtlFileBase_SOGDDM.txt",
+baseControlFiles  <- rep( "simCtlFileBase_SOGDDM_simHist.txt",
                           nBatchJobs)
 
-prefixes       <- c(  #"SOG_DDM_Fgrid",
-                      "HG_DDM_Fgrid"  )
+prefixes       <- c(  "SOG_DDM_Fgrid" )
+                      #"HG_DDM_Fgrid"  )
 
 saveDirName       <- prefixes
 
 baseLine <- c( NULL,NULL,NULL,NULL,NULL )
                         
-nCores <- rep(7,nBatchJobs)
+nCores <- rep(24,nBatchJobs)
 par    <- rep(TRUE,nBatchJobs)
 
 # Create a directory to hold completed mseR batch
