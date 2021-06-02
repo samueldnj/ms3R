@@ -133,6 +133,52 @@ pullHistDataLikelihood <- function( histFolder = "fit_parBatHGherringMCMC1")
     unlink(file.path(simFolderPath,dataReportFiles), recursive = TRUE)
 } # END .makeSimReport()
 
+# .makeRefPtsReport()
+# Makes a .html report of reference point estimates via simulation
+# To Do: add reference curves
+.makeRefPtsReport <- function( simNum, groupFolder = "",
+                               tidy = TRUE )
+{
+  simFolder <- here::here("Outputs",groupFolder)
+
+  # List directories in project folder, remove "." from list
+  dirList <- list.dirs (path=simFolder,full.names = FALSE,
+                        recursive=FALSE)
+  # Restrict to fit_ folders, pick the nominated simulation
+  simList <- dirList[grep(pattern="sim",x=dirList)]
+
+  if( is.character(simNum) )
+    folder <- simList[grepl(x = simList, pattern = simNum) ]
+  else
+    folder <- simList[simNum]
+
+  # Load the nominated blob
+  simFileName <- paste(folder,".RData",sep="")
+  simPath <- file.path(simFolder,folder,simFileName)
+  simFolderPath <- here::here("Outputs",groupFolder,folder)
+
+  # Create parameter list for rendering the document
+  params <- list( rootDir= simFolderPath,
+                  RdataFile = simFileName)
+  # Make an output file name
+  outFile <- paste( "refptsReport.html", sep = "")
+
+  # Render
+  rmarkdown::render(  input = here::here("docs/reports","refPtsReportTemplate.Rmd"), 
+                      output_file = outFile,
+                      output_dir = simFolderPath,
+                      params = params,
+                      clean = tidy,
+                      envir = new.env(),
+                      output_format = "bookdown::html_document2" )
+
+  # remove temporary files
+  dataReportFiles <- "simReport_files"
+  if( tidy )
+    unlink(file.path(simFolderPath,dataReportFiles), recursive = TRUE)
+} # END .makeRefPtsReport()
+
+
 # .makeBatchReport()
 # Makes a .html report of the simulation
 # showing basic performance plots

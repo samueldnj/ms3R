@@ -11,6 +11,7 @@ history/fit_*/plots
 history/fit_*/hierSCAL.o
 history/fit_*/SISCA.cpp
 history/fit_*/*.html
+history/
 
 # generated pdfs and images, tmp files
 *.pdf

@@ -3158,6 +3158,7 @@ plotTulipBt <- function(  obj = blob, nTrace = 3,
   nP      <- obj$om$nP 
   nT      <- obj$om$nT
   nReps   <- dim(SB_ispt)[1]
+  pT      <- obj$ctlList$opMod$pT
 
   # Get reference points
   B0_sp     <- array(NA, dim = c(nS,nP))
@@ -3236,6 +3237,16 @@ plotTulipBt <- function(  obj = blob, nTrace = 3,
                     MARGIN = c(2,3,4), probs = c(0.025, 0.5, 0.975),
                     na.rm = T )
 
+  # Estimate SB0 estimate for years 100-500
+  if(nT>100)
+  {
+      t1 <- tMP + 50
+      t2 <- pT
+      simB0_sp <- apply( X = SB_ispt[,,,t1:t2,drop=F], FUN = mean,
+                        MARGIN = c(2,3), na.rm = T )
+  }  
+
+
   SB_qspt[SB_qspt == 0] <- NA 
 
   if( is.null(traces))
@@ -3298,13 +3309,24 @@ plotTulipBt <- function(  obj = blob, nTrace = 3,
                             "Replicate Traces",
                             "Unfished Biomass",
                             expression(paste("LRP = 0.3",B[0])),
-                            "Lower control point" ),
+                            "Median Projection SB" ),
                             # expression(B[MSY,MS])),
                 col = c(  "black", "grey65", "black",
                           "grey50", "red","salmon" ),
                 pch = c(NA,15, NA, NA, NA,NA,NA),
                 lty = c(1, NA, 1, 3, 2, 2),
                 lwd = c(3, NA, .8, 2, 3, 3 ) )
+
+
+      if(nT>100)
+      {
+        abline( h = simB0_sp, col = "blue", lty = 3, lwd=1.5 )
+        legend( x = "topleft", bty = "n",
+                legend = c( "B0 simulation estimate"),
+                col = "blue",lty = 3, lwd=1.5)
+
+      }  
+
     }
   }
   mtext( side = 2, outer = TRUE, text = yAxisLab,
@@ -3418,6 +3440,7 @@ plotTulipCt <- function(  obj = blob, nTrace = 3,
       {
         for( f in fishG )
         {
+          
           if(sum(C_qspft[2,s,p,f,])==0)
             next()
 

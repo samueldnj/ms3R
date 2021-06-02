@@ -92,6 +92,38 @@ calcRefPts <- function( obj )
 
 } # END calcRefPts()
 
+# calcSimRefPts()
+# Calculates B0 from simulations under No Fishing
+# We can eventually extend this to calculate reference curves
+# inputs: obj = blob object from mse3R with longer simulation
+# ouputs: refPts = list() of reference points
+calcSimRefPts <- function(obj, projYr1=50)
+{
+
+  goodReps <- obj$goodReps
+
+  SB_ispt   <- obj$om$endSB_ispt[goodReps,,,,drop = FALSE]
+
+  tMP     <- obj$om$tMP
+  nS      <- obj$om$nS
+  nP      <- obj$om$nP 
+  nT      <- obj$om$nT
+  nReps   <- dim(SB_ispt)[1]
+  pT      <- obj$ctlList$opMod$pT
+
+  # Estimate SB0 estimate for years 100-500
+  if(nT>100)
+  {
+      t1 <- tMP + projYr1
+      t2 <- pT
+      simB0_sp <- apply( X = SB_ispt[,,,t1:t2,drop=F], FUN = mean,
+                        MARGIN = c(2,3), na.rm = T )
+  }  
+
+  refPts <- list(B0_sp  = simB0_sp)
+
+
+}
 
 calcJABBASelPars <- function( obj )
 {

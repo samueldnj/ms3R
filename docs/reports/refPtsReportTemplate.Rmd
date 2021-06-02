@@ -1,0 +1,272 @@
+---  
+title: "ms3R Reference Point Estimates by Simulation"
+geometry: letterpaper
+nocaption: false
+header-includes:
+- \usepackage{booktabs}
+- \usepackage{longtable}
+- \usepackage{array}
+- \usepackage{multirow}
+- \usepackage[table]{xcolor}
+- \usepackage{wrapfig}
+- \usepackage{float}
+- \usepackage{colortbl}
+- \usepackage{pdflscape}
+- \usepackage{tabu}
+- \usepackage{threeparttable}
+- \usepackage{threeparttablex}
+- \usepackage[normalem]{ulem}
+- \usepackage{makecell}
+- \usepackage{caption}
+- \usepackage{pdflscape}
+- \newcommand{\blandscape}{\begin{landscape}}
+- \newcommand{\elandscape}{\end{landscape}}
+always_allow_html: yes
+params:
+  rootDir: "~/Work/code/models/stockAssessment/multispecies/ms3R/Outputs/sim_11122019143054/"
+  RdataFile: "sim_11122019143054.RData"
+output: 
+  pdf_document:
+    keep_tex: true
+    fig_caption: true
+    latex_engine: pdflatex
+    template: ~/Work/write/templates/tex/TandF.latex
+  html_document:
+    self_contained: true
+    toc: true
+    toc_depth: 2
+    toc_float: true
+    df_print: kable
+    keep_md: false
+  word_document:
+    df_print: kable
+    reference_docx: /Users/sdnjohnson/Work/write/templates/docx/basic.docx
+  bookdown::pdf_document2:
+    keep_tex: true
+    fig_caption: true
+    latex_engine: pdflatex
+    template: ~/Work/write/templates/tex/TandF.latex
+    fig_width: 7
+    fig_height: 6
+  bookdown::html_document2:
+    self_contained: true
+    df_print: kable
+    keep_md: false
+    toc: true
+    toc_depth: 2
+    toc_float: true
+    number_sections: false
+  bookdown::word_document2:
+    df_print: kable
+    reference_docx: /Users/sdnjohnson/Work/write/templates/docx/basic.docx
+---
+
+# Simulation details
+
+```{r, setup, message=FALSE, warning=FALSE, include=FALSE, echo = FALSE}
+
+# I usually load my libraries up front to keep things organized
+library(bookdown)
+library(knitr)
+library(kableExtra)
+library(dplyr)
+library(stringr)
+library(tidyverse)
+library(here)
+
+knitr::opts_chunk$set(  fig.pos = 'p',
+                        out.width = '100%', dpi=300, 
+                        root.dir = params$rootDir,
+                        message = FALSE, warning = FALSE, echo = FALSE,
+                        fig.width = 12, fig.height = 8 )
+
+options(warn = -1)
+
+
+source(here("ms3Rplots.R"))
+source(here("tools.R"))
+source(here("ms3RrefPts.R"))
+source(here("stats.R"))
+
+# Read in report file
+
+blobPath <- file.path(params$rootDir, params$RdataFile)
+load(blobPath)
+
+
+fYear   <- blob$ctlList$opMod$fYear
+nS      <- blob$om$nS
+nP      <- blob$om$nP
+nT      <- blob$om$nT
+tMP     <- blob$om$tMP
+
+species <- blob$om$speciesNames
+stock   <- blob$om$stockNames
+
+goodReps    <- blob$goodReps
+nGoodReps   <- sum(goodReps)
+goodRepIdx  <- which(goodReps)
+
+# Draw a random replicate for plotting
+set.seed(123)
+randReplicate <- sample(goodRepIdx, size = 1)
+
+```
+
+Standard sim report for ms3R
+
+Scenario: `r blob$ctlList$ctl$scenarioName`
+
+Model Hypothesis: `r blob$ctlList$ctl$mpName`
+
+Species complex: `r blob$ctlList$data$species`
+
+Stock areas: `r blob$ctlList$data$stocks`
+
+
+
+
+```{r, captions, include = FALSE, echo = FALSE}
+SBsptCaption <- "Simulation envelopes of spawning biomass and catch scaled by unfished biomass.  
+Columns are species, and rows are stock areas. Median biomass is shown by the thick black lines, 
+with the grey region showing the central 95% of the distribution of spawning biomass, and thin black lines showing three randomly selected
+simulation replicates. Catch is shown as grey bars in the historical period, which represent
+median catch in the projection, with thin vertical line segments showing the central 95%
+of the catch distribution."
+
+EffTulipCaption <- "Simulation envelopes of effort in each stock area."
+
+TACuCaption <- "Simulation envelopes of TAC utilisation. Columns are species, rows are stock 
+areas. Heavy black lines show the median TAC utilisation, with thin black lines showing 3 
+random replicates, and the grey region showing the central 95% of the distribution."
+
+CtTulipCaption <- "Simulation envelopes of catch. Columns are species, and rows are stock areas. Median biomass is shown by the thick black lines, with the grey region showing the central 95% of the distribution of catch, and thin black lines showing three randomly selected simulation replicates."
+
+FTulipCaption <- "Annual fleet and aggregate fishing mortality for each stock. Median aggregate fishing mortality is shown by the thick black lines, with the grey region showing the central 95%."
+
+convStatsCaption <- "Convergence diagnostics for the simulated assessment model at each projection time step.
+The left hand column shows the distribution of maximum gradient components across replicates, 
+and the right hand column shows the proportion of replicates where the AM produced a 
+positive definite Hessian matrix."
+
+retroSBCaption <- "Retrospective assesment model estimates of stock biomass from a 
+randomly selected simulation replicate. Red lines are spawning stock biomass, black
+lines are total biomass, and grey dashed lines are commercial trawl fishery 
+exploitable biomass. Catch bars show realised catch in grey for the whole
+simulation period, and in the projection period TACs set by the harvest control
+rule are shown as hollow black rectangles over the grey catch bars."
+
+scaledIndicesCap <- "Assessment model fits to biomass indices in the first
+year of the projections. Indices are shown as data points scaled by the
+AM estimates of catchability. Red lines are spawning stock biomass, black
+lines are total biomass, and grey dashed lines are commercial trawl fishery 
+exploitable biomass. Grey bars show catch in the historical period."
+
+AMidxResidsCap <- "Standardised residuals of assessment model fits
+to biomass indices. Point colours correspond to fleets, while point
+shapes are stock areas."
+
+JabbaSelModelCap <- "Ratios between spawning biomass and vulnerable
+biomass ($y$ axis) at a given spawning biomass depletion ($x$ axis) 
+for each fleet (colours)."
+
+BtCtRtCap <- "Spawning Biomass (top), total catch (middle), and age-1 recruitment(bottom) for for all stock areas"
+
+BtCtRtMtCap <- "Spawning Biomass, total catch, age-1 recruitment, and mortality for age 1 and ages 2+ for all stock areas"
+
+refPtsTable <- "Unfished biomass estimated as average spawning biomass ($B_0^'$) for projection years 50-500, along with other biological reference points based on OM biological parameters"
+
+```
+
+
+# Simulation envelopes
+
+## Spawning Biomass
+
+```{r, plotTulipBtCt, echo = FALSE, message = FALSE, fig.cap = SBsptCaption }
+plotTulipBt( obj = blob, var='endSB_ispt', dep = FALSE, Ct = TRUE )
+```
+
+```{r, plotTulipBtCtProj, echo = FALSE, message = FALSE, fig.cap = SBsptCaption }
+plotTulipBt( obj = blob, var='endSB_ispt', dep = FALSE, Ct = FALSE, proj=TRUE )
+```
+
+
+# Example replicates
+
+## Biomass, catch, recruitment, mortality
+
+```{r, plotBtCtRt, echo = FALSE, message = FALSE, fig.cap = BtCtRtMtCap }
+plotBtCtRtMt_p( obj = blob, iRep = randReplicate )
+```
+
+
+# Reference Points
+
+```{r, refPtsTable, echo = FALSE }
+
+# Simulated Reference Pts List
+simRPs <- calcSimRefPts(obj=blob, projYr1=50)
+
+# Estimated Reference Pts
+nS      <- blob$om$nS
+nP      <- blob$om$nP 
+
+B0_sp     <- array(NA, dim = c(nS,nP))
+Bmsy_sp   <- array(NA, dim = c(nS,nP))
+R0_sp     <- array(NA, dim = c(nS,nP))
+MSY_sp    <- array(NA, dim = c(nS,nP))
+
+B0_sp[1:nS,1:nP]    <- blob$rp[[1]]$B0_sp[1,,,drop=F]
+Bmsy_sp[1:nS,1:nP]  <- blob$rp[[1]]$FmsyRefPts$BeqFmsy_sp
+R0_sp[1:nS,1:nP]    <- blob$rp[[1]]$R0_sp
+MSY_sp[1:nS,1:nP]   <- blob$rp[[1]]$FmsyRefPts$YeqFmsy_sp
+
+# Estimated ref points
+# B0_ip     <- array(NA, dim = c(nFits,nP))
+# qd_ip     <- array(NA, dim = c(nFits,nP))
+# qs_ip     <- array(NA, dim = c(nFits,nP))
+# R0_ip     <- array(NA, dim = c(nFits,nP))
+# Rinit_ip  <- array(NA, dim = c(nFits,nP))
+# M0_ip     <- array(NA, dim = c(nFits,nP))
+# Mbar_ip   <- array(NA, dim = c(nFits,nP))
+
+colNames <- c(  "dataScenario",
+                "mpName",
+                "Stock",
+                "$B_0^{sim}$",
+                "$B_0$",
+                "$B_{msy}$",
+                "$R_0$",
+                "$M_0$" ) 
+
+parTable <- matrix(NA, nrow = nP, ncol = length(colNames) )
+colnames(parTable) <- colNames
+parTable <- as.data.frame(parTable)
+
+if(nS >1 | nP >1)
+  browser(cat('update tables for multispecies and multiareas..\n'))
+
+stockLabs <- 'aggregate'
+
+for( p in 1:nP )
+{
+    parTable[p,"dataScenario"]  <- blob$ctlList$ctl$scenarioName
+    parTable[p,"mpName"]        <- blob$ctlList$ctl$mpName
+    parTable[p,"Stock"]         <- stockLabs[p]
+    parTable[p,"$B_0^{sim}$"]   <- round(simRPs$B0_sp[1,p],2)
+    parTable[p,"$B_0$"]         <- round(B0_sp[1,p],2)
+    parTable[p,"$B_{msy}$"]     <- round(Bmsy_sp[1,p],2)
+    parTable[p,"$R_0$"]         <- round(R0_sp[1,p],2)
+    parTable[p,"$M_0$"]         <- round(MSY_sp[1,p],2)
+}
+
+# statTable <- dplyr::select('stock', )
+
+kable(  parTable , escape = FALSE, 
+        caption = "Refence Pts", booktabs = T,
+        align = rep("c",ncol(parTable))) %>%
+  kable_styling( latex_options = c("striped", "scale_down","hold_position"),
+                 bootstrap_options = c("striped", "hover"))
+
+```

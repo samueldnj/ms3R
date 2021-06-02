@@ -1,7 +1,7 @@
 # simCtlFile.txt, written to sim_22092020100432on 1600794273
 parameter value
-ctl$scenarioName "SOG_DDM"
-ctl$mpName 'devSCA'
+ctl$scenarioName "ddM_noPred"
+ctl$mpName 'NoFish'
 ctl$quiet FALSE
 ctl$phaseMessages TRUE
 ctl$optimOutput TRUE
@@ -65,13 +65,13 @@ mp$data$ageInt c(1,1,1)
 mp$data$forceAge c(FALSE,FALSE,FALSE)
 mp$data$idxOn c(5)
 mp$data$obsInt_i c(1)
-mp$data$spatialPooling FALSE
+mp$data$spatialPooling TRUE
 mp$data$speciesPooling FALSE
-mp$data$idxType c(1,1,1,1,3)
+mp$data$idxType c(1,1,1,3,3,1)
 mp$data$source "cond"
 mp$hcr$refPtType "SS"
 mp$hcr$Fsource "est"
-mp$hcr$type "conF"
+mp$hcr$type "ramped"
 mp$hcr$spatial FALSE
 mp$hcr$Bref "Bmsy"
 mp$hcr$Fref "Umsy"
@@ -81,9 +81,9 @@ mp$hcr$UCP .6
 mp$hcr$qWtd_p c(1)
 mp$hcr$B0Wtd_p c(103.46)
 mp$hcr$maxDeltaTACup NULL
-mp$hcr$minTAC_f c(1,0.300,0.100,0,0)
+mp$hcr$minTAC_f c(1,0.300,0.100,0,0,0)
 mp$hcr$psi 0.066
-mp$hcr$fishF c(0,1,0,0,0,0,0)
+mp$hcr$fishF c(1,1,1,0,0,1)
 mp$hcr$sokClosedEff_p c(0,0,0)
 mp$hcr$sokOpenEff_p c(1,10,1)
 mp$hcr$maxSOK_g c(10,10)
@@ -146,8 +146,8 @@ opMod$pT 20
 opMod$projM 'DDM'
 opMod$projMtrendT 15
 opMod$projMtype 'correlated'
-opMod$pondMmu_f c(0,0,0,0,0,0.315,0)
-opMod$pondMlogSD_f c(0,0,0,0,0,0.2,0)
+opMod$pondMmu_f c(0,0,0,0,0,0.315)
+opMod$pondMlogSD_f c(0,0,0,0,0,0.2)
 opMod$sigmaM 0.024
 opMod$gammaM 0.997
 opMod$pulseMFrq 0
@@ -157,7 +157,6 @@ opMod$histFile "fit_SOG_DDM_lowPE"
 opMod$posteriorSamples FALSE
 opMod$postSampleType 'random'
 opMod$postSampleSeed 1234
-opMod$price_s c(Dover=1.33,English=1.37,Rock=1.65,Petrale=3.22,Arrowtooth=0.37)
 opMod$projObsErrMult 1.0
 opMod$phaseInObsErrMult 6
 opMod$commCPUEdata NULL
