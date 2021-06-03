@@ -2746,7 +2746,86 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
 {
   # Copy the fitting functions from SISCAfuns.R
 
+  # Make a data list
+  data <- list( # Input data
+                I_pgt           = I_pgt,
+                C_pgt           = C_pgt,
+                A_apgt          = A_apgt,
+                W_apgt          = W_apgt,
+                W_apt           = W_apt,
+                mI_gt           = mI_gt,
+                mC_gt           = mC_gt,
+                mA_agt          = mA_agt,
+                rI_pgt          = rI_pgt,
+                combI_pt        = combI_pt,
+                # Model switches
+                survType_g      = dataCtl$survType,
+                indexType_g     = dataCtl$idxType,
+                deltaIdx_pg     = deltaIdx_pg,
+                deltaIndVar     = deltaIndVar,
+                qPrior_g        = hypoCtl$qPrior_g[gearNames],
+                calcIndex_g     = calcIndex[gearNames],
+                selType_g       = hypoCtl$selFun[gearNames],
+                scaleSel_gt     = scaleSel_gt,
+                hierSel         = as.integer(hypoCtl$hierSel),
+                condMLEtauObs   = hypoCtl$condMLEtauObs,
+                ageCompWeight_g = hypoCtl$ageCompWt,
+                idxLikeWeight_g = hypoCtl$idxLikeWt,
+                fleetTiming_g   = dataCtl$fleetTiming_g[gearNames],
+                fleetType_g     = dataCtl$fleetType[gearNames],
+                selX_g          = hypoCtl$fleetSelX[gearNames],
+                tvSelFleets     = tvSelFleets,
+                initCode_p      = c(initFished),
+                initFcode_p     = initFcode_p,
+                initRcode_p     = initRcode_p,
+                initMethod      = hypoCtl$fishedInitMethod,
+                posPenFactor    = c(dataCtl$posPenFactor),
+                firstRecDev_p   = tFirstRecDev_p,
+                lastRecDev_p    = tLastRecDev_p,
+                tInitModel_p    = tInitModelYear_p,
+                minPropAge      = dataCtl$minPropAge,
+                minAge_g        = as.integer(dataCtl$minAge_g),
+                nYearsProjAve   = as.integer(5),
+                spawnTiming     = hypoCtl$spawnTiming,
+                moveTiming      = hypoCtl$moveTiming,
+                fec             = hypoCtl$SOKfec,
+                gamma_g         = hypoCtl$SOKgamma_g,
+                pFem            = hypoCtl$SOKpFem,
+                postPondM_g     = hypoCtl$SOKpostPondM_g,
+                sokInitF        = hypoCtl$SOKInitF,
+                useMovement     = hypoCtl$useMovement,
+                juveMage        = hypoCtl$juveMage,
+                juveMsource     = juveMsource,
+                calcPropEff_t   = sokOn,
+                jeffWtB0        = hypoCtl$jeffWtB0,
+                lnm1PriorWt     = hypoCtl$lnm1PriorWt,
+                compLikeFun     = hypoCtl$ageCompLik,
+                meanSampSize_pg = meanA_pg,
+                meanSampSize_g  = meanA_g,
+                avgRcode_p      = avgRcode_p,
+                SRindVar        = SRindVar,
+                whichCombIdx_g  = whichCombIdx_g,
+                densityDepM     = as.integer(hypoCtl$densityDepM),
+                corrMdevs       = as.integer(hypoCtl$corrMortDevs),
+                corrRdevs       = as.integer(hypoCtl$corrRecDevs),
+                corrParWeight   = hypoCtl$corrParWeight,
+                mixComps_g      = rep(0,nG) )
+
+  # Make a pars list
+
+  # Make a map list
+
+  # applyTMBphase()
+
 } # END .AM_SISCA()
+
+# .makeSISCAlists()
+# Creates lists of data, pars and map
+# for fitting SISCA as an AM in closed-loop
+.makeSISCAlists <- function(obj)
+{
+
+} # END .makeSISCAlists()
 
 
 # Apply hierarchical production model 
