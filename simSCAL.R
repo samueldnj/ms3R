@@ -4757,10 +4757,10 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
 
   obj <- .calcTimes( obj )
 
-  obj$mp$hcr$TAC_spft <- obj$mp$hcr$TAC_spft * ctlList$mp$omni$histFmult
-  obj$mp$hcr$TAC_spt <- obj$mp$hcr$TAC_spt * ctlList$mp$omni$histFmult
-  obj$om$F_spft[,,,1:(tMP-1)] <- obj$om$F_spft[,,,1:(tMP-1)] * ctlList$mp$omni$histFmult
-  obj$om$C_spft[,,,1:(tMP-1)] <- obj$om$C_spft[,,,1:(tMP-1)] * ctlList$mp$omni$histFmult
+  obj$mp$hcr$TAC_spft <- obj$mp$hcr$TAC_spft
+  obj$mp$hcr$TAC_spt <- obj$mp$hcr$TAC_spt
+  obj$om$F_spft[,,,1:(tMP-1)] <- obj$om$F_spft[,,,1:(tMP-1)] 
+  obj$om$C_spft[,,,1:(tMP-1)] <- obj$om$C_spft[,,,1:(tMP-1)] 
 
   # Now, initialise the population
   for( t in 1:(tMP - 1) )
@@ -4995,7 +4995,13 @@ ar1Model <- function(dat)
     targDep     <- obj$ctlList$opMod$initDep
     depScalar   <- obj$ctlList$opMod$initOptScalar
 
-    val <- sum(log(finalDep/targDep)^2)*depScalar
+    # Penalise large Fs
+
+    val <- sum(log(finalDep/targDep)^2)*depScalar + 0.5*sum(pars^2)/4
+
+
+    if(val < 1e-3)
+      cat("final Dep = ", finalDep, "\n")
 
     val
   }     # END function getObjFunctionVal
@@ -5004,13 +5010,13 @@ ar1Model <- function(dat)
   # -------- Optimisation ------- #
   # Create vector of initial parameters - need to determine
   # if it's nP * nKnots or nS * nP * nKnots
-  nPars <- nP * ctlList$mp$omni$nKnots
+  nPars <- nP * (tMP-1)
   if( ctlList$opMod$effortMod == "targeting" )
     nPars <- nS * nPars
 
   # Might need to refine this later, but for now we
   # use a random vector
-  initPars <- rnorm(n = nPars, sd = .3)
+  initPars <- rnorm(n = nPars, sd = 1)
 
   # OK, run optimisation
   message( " (.solveHistPop) Optimising historical fishing mortality to meet target depletion, please wait.\n")
@@ -5027,9 +5033,9 @@ ar1Model <- function(dat)
                 control=list(maxit=10000, reltol=0.01 ) )
                 # control=list(maxit=3000, reltol=0.001,ndeps=c(.01,.01) ) )
 
-  # opt <- optim( par = opt$par, fn = getObjFunctionVal,
-  #               method = "Nelder-Mead", obj = obj,
-  #               control=list(maxit=3000, reltol=0.001,ndeps=c(.01,.01) ) )
+  opt <- optim( par = opt$par, fn = getObjFunctionVal,
+                method = "Nelder-Mead", obj = obj,
+                control=list(maxit=3000, reltol=0.001,ndeps=c(.01,.01) ) )
 
   message( " (.solveProjPop) Optimisation of model history completed with f = ", 
             round(opt$value,2), ".\n")
@@ -5044,10 +5050,12 @@ ar1Model <- function(dat)
   #   optPars <- initPars 
   # }
 
+
+
   # rerun OM with optimised parameters
   message( " (.solveProjPop) Running OM for historical period with optimised fihsing effort.\n")
-  obj <- .runModel(  pars = optPars, obj = obj, 
-                    initT = 1, endT = tMP )
+  obj <- .runModel( pars = optPars, obj = obj, 
+                    initT = 1, endT = tMP-1 )
 
   return(obj)
 } # END .solveProjPop()
@@ -5200,7 +5208,7 @@ ar1Model <- function(dat)
 
   if(ctlList$opMod$histType=="sim" | endT < om$tMP)
   {
-    parMult <- .1
+    parMult <- 1
     nKnots  <- om$tMP - 1
   }
   
@@ -5234,14 +5242,19 @@ ar1Model <- function(dat)
   {
     # This is a projection model that always uses
     # a multiple of Fmsy
-    if( ctlList$ctl$perfConF )
+    if( ctlList$ctl$perfConF & endT >= tMP )
     {
-      for( s in 1:nS )
-        for( p in 1:nP )
-          obj$om$F_spft[s,p,2,initT:endT] <- parMult*obj$rp$FmsyRefPts$Fmsy_sp[s,p]
+      browser()
+      if( !is.null(ctlList$mp$omni$inputF) )
+        obj$om$F_spft[,,2,initT:endT] <- ctlList$mp$omni$inputF
 
-      if( !is.null(ctlList$omni$inputF) )
-        obj$om$F_spft[,,2,initT:endT] <- ctlList$omni$inputF
+      
+      if(is.null(ctlList$mp$omni$inputF))
+        for( s in 1:nS )
+          for( p in 1:nP )
+            obj$om$F_spft[s,p,2,initT:endT] <- parMult*obj$rp$FmsyRefPts$Fmsy_sp[s,p]
+
+      
     } else {  
       # Then we are solving for stock/species specific
       # Fs (nS * nP at each time step)
@@ -5252,12 +5265,19 @@ ar1Model <- function(dat)
       for( s in 1:nS )
         for( p in 1:nP )
         {
-          splineF <- spline( x = x, y = knotF_spk[s,p,], n = projInt)$y
-          splineF <- splineF * obj$rp$FmsyRefPts$Fmsy_sp[s,p]
+          if( nKnots < (endT - initT + 1) )
+          {
+            splineF <- spline( x = x, y = knotF_spk[s,p,], n = projInt)$y
+            splineF <- splineF * obj$rp$FmsyRefPts$Fmsy_sp[s,p]
+            
+          } else splineF <- knotF_spk[s,p,] * obj$rp$FmsyRefPts$Fmsy_sp[s,p]
+
+          splineF <- splineF * parMult
+
           splineF[splineF < 0] <- 0
           splineF[splineF > maxF] <- maxF
 
-          obj$om$F_spft[s,p,2,initT:endT] <- parMult*splineF
+          obj$om$F_spft[s,p,2,initT:endT] <- splineF
         }
     }
   }
