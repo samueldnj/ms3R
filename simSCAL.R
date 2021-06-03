@@ -5244,7 +5244,6 @@ ar1Model <- function(dat)
     # a multiple of Fmsy
     if( ctlList$ctl$perfConF & endT >= tMP )
     {
-      browser()
       if( !is.null(ctlList$mp$omni$inputF) )
         obj$om$F_spft[,,2,initT:endT] <- ctlList$mp$omni$inputF
 

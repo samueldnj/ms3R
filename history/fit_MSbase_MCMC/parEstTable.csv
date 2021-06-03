@@ -1,0 +1,4 @@
+"","dataScenario","modelHyp","Stock","$B_0$","$R_0$","$R_{init}$","$F_{init}$","$M_0$","$\overline{M}$","$q_s$","$q_d$","pdHess"
+"1","HG_multistock","baseMSmodel","C/S",4.075,275.603,185.185,0,0.499,0.819,0.281,0.998,TRUE
+"2","HG_multistock","baseMSmodel","JP/S",17.34,761.616,661.964,0,0.445,0.716,0.22,0.997,TRUE
+"3","HG_multistock","baseMSmodel","Lou",1.932,55.458,318.309,0,0.491,0.615,0.123,0.998,TRUE
