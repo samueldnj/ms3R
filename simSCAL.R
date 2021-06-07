@@ -2746,11 +2746,39 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
 {
   # Copy the fitting functions from SISCAfuns.R
 
+  # Make lists for TMB model
+  SISCAlists <- .makeSISCAlists(obj,t)
+
+  # applyTMBphase()
+  siscaFit <- .applyTMBphase( SISCAlists,
+                              dllName = "SISCA",
+                              optimizer = "nlminb",
+                              silent = FALSE,
+                              calcSD = FALSE,
+                              maxPhase = NULL,
+                              base_map = list(),
+                              maxEval = 1e3,
+                              maxIter = 1e3,
+                              savePhases = TRUE,
+                              phaseMsg = TRUE )
+
+} # END .AM_SISCA()
+
+# .makeSISCAlists()
+# Creates lists of data, pars and map
+# for fitting SISCA as an AM in closed-loop
+.makeSISCAlists <- function(obj,t)
+{
+  # Pull model dims
+  nS <- obj$om$nS
+  nP <- obj$om$nP
+  nF <- obj$om$nF
+
   # Make a data list
   data <- list( # Input data
-                I_pgt           = I_pgt,
-                C_pgt           = C_pgt,
-                A_apgt          = A_apgt,
+                I_pgt           = obj$om$I_spft[1,1:nP,1:nF,1:t],
+                C_pgt           = obj$om$C_spft[1,1:nP,1:nF,1:t],
+                A_apgt          = obj$om$A_aspft[,1,1:nP,1:nF,1:t],
                 W_apgt          = W_apgt,
                 W_apt           = W_apt,
                 mI_gt           = mI_gt,
@@ -2812,18 +2840,95 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
                 mixComps_g      = rep(0,nG) )
 
   # Make a pars list
+  pars <- list( lnB0_p                = log(2*sumCat),
+                lnRinit_p             = rep(10,nP),
+                lnRbar_p              = rep(10,nP),
+                logit_ySteepness      = initLogitSteep,
+                lnM                   = log(initM),
+                lnMjuve               = log(hypoCtl$Mjuve),
+                lnm1                  = log(hypoCtl$m1Prior[1]),
+                epslnm1_p             = rep(0,nP),
+                fDevs_ap              = matrix( data=0, nrow=nFishedInitAges, ncol=nP ),
+                lnFinit_p             = rep(-4,nP),
+                epsM_p                = rep(0,nP),
+                lnsigmaStockM         = log(hypoCtl$sigmaMStock),
+                epsSteep_p            = rep(0,nP),
+                lnsigmaStockSteep     = log(hypoCtl$sigmaSteepStock),
+                # Selectivity (up)
+                lnSelAlpha_g          = log(initSelAlpha),
+                lnSelBeta_g           = log(initSelBeta),
+                epsSelAlpha_pg        = initepsSelAlpha_pg,
+                epsSelBeta_pg         = initepsSelBeta_pg,
+                epsSelAlpha_vec       = rep(0,nSelDevs),
+                epsSelBeta_vec        = rep(0,nSelDevs),
+                # Selectivity (dn)
+                lndSelAlpha_g         = log(initdSelAlpha),
+                lndSelBeta_g          = log(initdSelBeta),
+                epsdSelAlpha_pg       = initepsdSelAlpha_pg,
+                epsdSelBeta_pg        = initepsdSelBeta_pg,
+                epsdSelAlpha_vec      = rep(0,nSelDevs),
+                epsdSelBeta_vec       = rep(0,nSelDevs),
+                # Selectivity dev SDs
+                lnsigmaSelAlpha_g     = log(hypoCtl$sigmaSelStock_g),
+                lnsigmaSelBeta_g      = log(hypoCtl$sigmaSelStock_g),
+                lnsigmaTVsel          = log(hypoCtl$tvSelSD),
+                # obs error
+                lntau2Obs_pg          = log(initTau2_pg),
+                lntau2Obs_g           = log(initTau2_g),
+                # Rec devs
+                recDevs_pt            = array(0, dim = c(nP,nT-1) ),
+                recDevs_vec           = rep(0, sum(nRecDevs_p) ),
+                lnsigmaR              = log(hypoCtl$sigmaR),
+                # M devs
+                omegaM_pt             = array(0, dim = c(nP,nT-1)),
+                lnsigmaM              = log(hypoCtl$sigmaM),
+                # Correlation in proc errors
+                off_diag_R            = rep(0, nP * (nP-1) / 2),
+                off_diag_M            = rep(0, nP * (nP-1) / 2),
+                # Priors
+                obstau2IGa            = rep(hypoCtl$tau2ObsIGa[1],nG),
+                obstau2IGb            = (hypoCtl$tau2ObsIGa[1]+1)*hypoCtl$tau2ObsPriorMode,
+                sig2RPrior            = c(1,2),
+                sig2MPrior            = c(1,0.04),
+                rSteepBetaPrior       = hypoCtl$steepnessPrior,
+                initMPrior            = hypoCtl$initMprior,
+                m1Prior               = hypoCtl$m1Prior,
+                mlnq_g                = rep(0,nG),
+                sdlnq_g               = hypoCtl$sdq,
+                mq                    = hypoCtl$mq,
+                sdq                   = sdq,
+                lnqComb_pg            = array(0, dim = c(nP,nG)),
+                lntauObsComb_pg       = lntauObsComb_pg,
+                # revise maturity ages and growth model - most don't matter since
+                # the WAA is empirical
+                mat_a                 = hypoCtl$matVec,
+                fec_a                 = rep(200,nA),
+                Linf                  = hypoCtl$vonLinf,
+                L1                    = hypoCtl$vonL1,
+                vonK                  = hypoCtl$vonK,
+                inputL1               = hypoCtl$inputL1,
+                lenWt                 = hypoCtl$alloLW,
+                mlnSelAlpha_g         = log(hypoCtl$fleetSelAlpha),
+                mlnSelBeta_g          = log(hypoCtl$fleetSelBeta),
+                sdSel_g               = hypoCtl$sdSel_g,
+                # Movement
+                mov_ppa               = mov_ppa,
+                # SOK model
+                propEffBounds         = hypoCtl$sokPropEffBounds,
+                logitPropEff_vec      = rep(0,length(sokTimes)),
+                mPsi                  = .06,
+                sdPsi                 = .1,
+                logitphi1_g           = initPhi1,
+                logitpsi_g            = initPsi,
+                lnSDProbPosIdx_pg     = array(0,dim = c(nP,nG)),
+                meanProbPosIdx_pg     = array(0,dim = c(nP,nG)),
+                muSDProbPosIdx_g      = rep(hypoCtl$priorDeltaLNsd[1],nG),
+                muMeanProbPosIdx_g    = rep(hypoCtl$priorDeltaLNsd[1],nG),
+                sigSDProbPosIdx_g     = rep(hypoCtl$priorDeltaLNsd[2],nG),
+                sigMeanProbPosIdx_g   = rep(hypoCtl$priorDeltaLNsd[2],nG) )
 
   # Make a map list
 
-  # applyTMBphase()
-
-} # END .AM_SISCA()
-
-# .makeSISCAlists()
-# Creates lists of data, pars and map
-# for fitting SISCA as an AM in closed-loop
-.makeSISCAlists <- function(obj)
-{
 
 } # END .makeSISCAlists()
 
