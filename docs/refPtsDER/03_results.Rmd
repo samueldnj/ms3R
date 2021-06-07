@@ -6,43 +6,41 @@
 ### Multi-species maximum yield
 
 Multi-species effort/yield relationships and the harvest rates that 
-maximised multi-species complex yield followed a similar pattern in 
-HSHG and QCS, but differed in WCVI (Figure 3, compare Tables 1 and 3). 
-In HSHG and QCS areas, the optimal effort $E_{MSY,MS,p}$ produced lower 
+maximise multi-species complex yield follow a similar pattern in 
+HSHG and QCS, but differ in WCVI (Figure 3, compare Tables 1 and 3). 
+In HSHG and QCS areas, the optimal effort $E_{MSY,MS,p}$ produces lower 
 optimal harvest rates for Dover sole and English sole (marginally) when 
 compared to single species optimal harvest rates, while Rock sole
-optimal harvest rates maximising multi-species yield were 20\% - 30\% 
-higher than harvest rates maximising Rock sole yield alone (compare
-$U_{MSY}$, Tables 1 and 3). In the WCVI area, $E_{MSY}$ led to a 5\%
-higher English sole harvest rate when maximising DER complex yield than
-English sole yield alone, while Dover sole harvest rates differed by 
-less than a percentage point between the single-species and multi-species
-optima, and Rock sole was slightly lower. Despite some large differences 
-in optimal harvest rates, differences in $MSY_{SS}$ and $MSY_{MS}$ were subtle 
-for all stocks, with a decrease of up to 5\% from $MSY_{SS}$ to $MSY_{MS}$ 
-for any one stock. The total $MSY_{MS}$ for the DER complex fishery was
-5.26 kt, which was only 110t, or 3%, lower than the sum of $MSY_{SS}$ 
-yields, which are impossible to achieve at operating model equilibrium
-given the technical interactions.
+$U_{MSY,MS}$ harvest rates were 20\% - 30\% higher than Rock sole $U_{MSY,SS}$ 
+(compare $U_{MSY}$, Tables 1 and 3). In the WCVI area, $E_{MSY,MS}$ led 
+produces a 5 percentage points higher English sole $U_{MSY,MS}$ harvest rate than
+English sole $U_{MSY,SS}$, while Dover sole $U_{MSY,SS}$ and $U_{MSY,MS}$ 
+harvest rates differ by less than one percentage point. Despite some large
+differences in optimal harvest rates, differences in optimal yields 
+$MSY_{SS}$ and $MSY_{MS}$ were subtle. Decreases from $MSY_{SS}$ 
+to $MSY_{MS}$ were at most 5\% for any one stock. The total of $MSY_{MS}$ 
+for the DER complex fishery was 5.26 kt, which was only 110t, or 3%, lower 
+than the sum of single-species $MSY_{SS}$ yields, indicating only a small
+catch gain.
 
-Annual resource rent at $MSY_{MS}$ assuming 2016 GDP per capita was around 
+Annual resource rent from $MSY_{MS}$, assuming 2016 prices, is around 
 CAD \$278,000 across the three stock areas. The area with the highest 
-rent was HSHG at almost CAD \$160,000, attained at the lowest effort of the 
-three areas (Table 3), which is as expected since the catchability and
-total DER complex biomass is highest in HSHG. WCVI was next, which is
-dominated by highly catchable Dover sole, that also had relatively 
-inelastic demand (i.e., stable prices). Finally, QCS is the lowest rent
-area given the higher costs of fishing, low catchability of all species,
-and roughly equal mix of Rock and Dover soles.
+rent is HSHG at almost CAD \$160,000, attained at the lowest 
+effort of the three areas (Table 3), which is as expected since the 
+catchability and total DER complex biomass is highest in HSHG. WCVI was 
+next, which is dominated by highly catchable Dover sole with lower 
+own-price elasticity (i.e., more stable prices). Finally, QCS is the 
+lowest rent area given the higher costs of fishing, low catchability 
+of all species, and roughly equal mix of Rock and Dover soles.
 
 
 ### Multi-species maximum economic yield
 
-Maximum economic yield (annual resource rent in 2016 dollars) for the 
-DER complex trawl fishery was around CAD $1.36 million (Table 3). Fishing 
-effort achieving $MEY$ was just above half of the effort level achieving
-$MSY_{MS}$ for all areas. Similarly, the optimal harvest rates for $MEY$ 
-were around 40\% of the harvest rates for $MSY_{MS}$. The total difference 
+MEY (annual resource rent in 2016 dollars) for the DER complex is around
+CAD $1.36 million (Table 3). Fishing effort achieving $MEY$ is estimated
+at just above half of the effort level achieving $MSY_{MS}$ for all areas. 
+Similarly, the optimal harvest rates for $MEY$ were around 40\% of the 
+harvest rates for $MSY_{MS}$. The total difference 
 in DER complex equilibrium catch between $MSY_{MS}$ and $C_{MEY}$ was 
 approximately around 1.1 kt, with individual stock catches differing by an 
 average of 27\%, with a minimum 10% difference for QCS Rock sole. 
@@ -132,12 +130,12 @@ The optimal allocation was also similar, but less so, to the relative
 allocation of effort $E_{MSY,MS,p}$ when maximising catch (Table 5).
 
 
-## Applying optimal harvest rates in practice
+## Testing optimal harvest rates in closed-loop feedback simulations
 
 
 ### Conservation performance
 
-None of the target harvest rates posed any conservation risk under 
+None of the target harvest rates posed any conservation risk 
 when applied in closed loop simulations (Figure 7). For all harvest rates,
 there was less than 5\% chance of pushing biomass below 40\% of 
 single-species $B_{MSY,SS}$ (grey distributions, Figure 7), and only a 
@@ -157,7 +155,6 @@ Rock Sole in HSHG and QCS, and English Sole in WCVI (Figure 8). Access to
 the other species with under-utilised TAC was then restricted by the fully 
 utilised choke species TAC. This led to 2040 - 2060 biomass being
 higher than the implicit $B_{MSY,SS}$ target for the non-choke species.
-
 
 Similarly, $B_{MEY}$ and $B_{MEY}^*$ values were always higher than
 $B_{MSY,MS}$ and $B_{MSY,SS}$ values. Therefore, conservation risk was 
@@ -204,20 +201,19 @@ multi-species harvest rates, rents under $U_{MSY,SS}$ quickly fell
 after the initial windfall, declining more slowly in HSHG given
 the choke effects and higher CPUE (Figure 9).
 
-For all for $U_{MSY,MS}$ and $U_{MSY,MS}^*$, financial risk, measured by 
+For $U_{MSY,MS}$ and $U_{MSY,MS}^*$, financial risk, measured by 
 5th percentiles, was quite high. The $VAR-5\%$ of NPV was around \$570,000 
 for the 80 year projection, or around \$28,000 per annum, under $U_{MSY,MS}$, 
-and \$140,000 (\$7,000 per annum) when targeting $U_{MSY,MS}^*$. Neither 
-NPV represents a viable fishery, given that the rent calculations did not 
-include several sources of fishing costs. The single-species MSY harvest 
-rates had lower risk than $U_{MSY,MS}$ and $U_{MSY,MS}^*$, with a $VAR-5\%$ 
-of around \$3 million (\$150,000 per annum).
-
+and \$140,000 (\$7,000 per annum) when targeting $U_{MSY,MS}^*$ (Table 7). 
+Neither NPV represents a viable fishery, given that the rent calculations 
+did not include several sources of fishing costs. The single-species MSY 
+harvest rates had lower risk than $U_{MSY,MS}$ and $U_{MSY,MS}^*$, with 
+a $VAR-5\%$ of around \$3 million (\$150,000 per annum; Table 7).
 
 Variability, and any associated risk, of NPV was reduced overall under 
-MEY related targets. Both $U_{MEY}$ and $U_{MEY}^*$ had very low tail 
+MEY related targets. Both $U_{MEY}$ and $U_{MEY}^*$ had very low financial 
 risk, with the $VAR-5\%$ for both stochastic and YPR rates at around
-\$11 million (\$550,000 per annum). Further, the central 95\% of the 
+\$11 million (\$550,000 per annum; Table 7). Further, the central 95\% of the 
 NPV under both MEY harvest rates ranged from around \$11 million to 
 around \$13 million, differing by around \$2 million. In contrast, the
 5th and 95th percentiles under MSY harvest rates differed by over \$5 
@@ -225,7 +221,7 @@ million, indicating much higher uncertainty in future economic yield
 when attempting to maximise catch. Variability in economic yield when
 maximising catch or rents is similar to that observed in the stochastic 
 optimisation, where efforts optimised to maximise rent had a much tighter 
-distribution than efforst optimised to maximise DER complex yield (Figure 5).
+distribution than efforts optimised to maximise DER complex yield (Figure 5).
 
 
 ## Sensitivity to economic assumptions
@@ -233,42 +229,42 @@ distribution than efforst optimised to maximise DER complex yield (Figure 5).
 Demand curves under infinite PED and fixed household income are shown
 in Figure 10. As expected, reducing the dependence of unit price (demand) 
 on catch or household income led to higher NPVs for the DER complex (Table
-8). Higher NPVs under the infinite PED assumptions were based on
-no drop in price the at higher levels of catch (quantity supplied), 
-which in turn encouraged higher expenditures of fishing effort (compare
-Table 8 and 5). In contrast, the higher NPVs under the fixed income
-assumption were an effect of the stable price/catch relationship, which
-also encouraged higher outlays of fishing effort as the value of the
-fishery did not decline due to the constant household incomes. Both
-infinite PED and constant houshold income had roughly the same NPV, efforts
-and rents (Table 8). However, when both assumptions were combined, the 
-effects were almost additive (Table 8, Infinite PED, Fixed Income scenario).
+8). Significantly higher NPVs under the two infinite PED assumptions 
+were based on no drop in price the at higher levels of catch (quantity 
+supplied), which in turn encouraged higher expenditures of fishing 
+effort (compare Table 8 and 5). For the Infinite PED and growing income
+scenario, NPV grew even higher because the relationship between Rock sole 
+price and incomes was positive, encouraging more fishing as time went by 
+(Appendix A). The NPV for the finite PED and growing income scenario was 
+the lowest among the three demand curve sensitivities (Table 8).
+Fixed incomes created a stable price/catch relationship that did not
+lead to reduced prices over time, encouraging higher levels of fishing 
+effort over time.
 
+Fishing effort time series for discount and growth rate sensitivity 
+scenarios sorted into two groups. The high discount rate ($d = 0.1$) and 
+low income growth ($\gamma = 0.02$) scenarios had very similar optimal 
+effort dynamics, and the low discount rate ($d = 0.025$) and high income 
+growth ($\gamma = 0.058$) scenarios were also very similar. Similarities in 
+the high-discount/low-growth scenarios continued across most of the 
+projection period after an inital difference, where the higher discount 
+rate led to more fishing effort initially to take advantage of high 
+initial CPUE. 
 
-In terms of future optimal effort allocation, discount and growth rate 
-sensitivity scenarios sorted into two groups. The high discount rate 
-($d = 0.1$) and low income growth ($\gamma = 0.02$) scenarios had very 
-similar optimal effort dynamics, and the low discount rate ($d = 0.025$)
-and high income growth ($\gamma = 0.058$) scenarios were also very similar.
-Similarities in the high-discount/low-growth scenarios continued across
-most of the projection period after an inital difference, where the higher
-discount rate led to more fishing effort initially to take advantage
-of high initial CPUE. 
-
-For the low-discount/high-growth scenario, the level of similarity in
-median optimal effort was area-dependent. That is, the median efforts 
-converged early in QCS and WCVI and stayed close for the entire projection. 
-In HSHG, the two scenarios had an intermediate divergent period, where 
+For the low-discount/high-growth pair, the level of similarity in
+median optimal effort was area-dependent. Median efforts converged early 
+in QCS and WCVI and stayed close for the entire projection. 
+In HSHG, the two scenarios divergent in the middle of the projection, where 
 the lower discount rate scenario applied higher fishing effort, while 
 the high income growth scenario dropped effort faster. Dropping effort
 as income grows is as expected, as a the unit price of all fish is dropping
 faster with the higher income growth rates, and the species composition
-in HSHG is . The Dover sole 
+in HSHG is roughly equal among the DER complex. The Dover sole 
 effect meant rent was less sensitive to increased effort, so combined with
 a lower discount rate (i.e., more value for future rents), efforts
 could remain higher.
 
-[PLOT RENT TULIPS FOR THESE TOO]
+[STILL WORKING THIS OUT]
 
 
 

@@ -78,12 +78,12 @@ would certainly get closer to ecosystem reference points
 [@collie2001biological; @howell2021combining], there is limited data to 
 parameterise those interactions for most systems, including the DER 
 complex. Therefore, the assumptions required for modeling 
-the processes may induce more uncertainty rather than less. Further, there 
-is limted evidence of ecological interactions among DER complex species in 
-other areas [@pikitch1987use; @wakefield1984feeding]. There is also 
-limited tagging data observing movement of DER species among areas, and 
-some potential biogeographical barriers that may limit movement. Even
-if there were unmodeled, significant, ecological interactions, it may
+ecological processes may induce more uncertainty rather than less. Further, 
+there is limted evidence of ecological interactions among DER complex 
+species in other areas [@pikitch1987use; @wakefield1984feeding]. There 
+is also limited tagging data observing movement of DER species among areas, 
+and some potential biogeographical barriers that may limit movement. Even
+if there were unobserved, significant ecological interactions, it may
 be that technical interactions are enough to produce, in a rough sense, 
 eco-system based fishery management objectives. For example, the lower
 target harvest rates associated with $MEY$ objectives are inherently
@@ -93,8 +93,11 @@ landings. Higher CPUE is a function of higher biomass, leading to very low
 conservation risk. That higher standing biomass may implicitly meet ecosystem 
 requirements, meaning that $MEY$ targets may represent a less data
 intensive approximate approach to EBFM, thereby improving triple bottom
-line management [@pauly2020msy; @benson2020performance]. Future work 
-should incorpororate both ecological and technical interactions into an 
+line management [@pauly2020msy; @benson2020performance]. However, this
+is not always guaranteed, as when the landed value of species is
+very different, it may be more profitable to extirpate the low
+value species [@pascoe2015setting]. Future analyses could
+include both ecological and technical interactions in an 
 ecosystem or MICE operating model and simulation-test the benefits of 
 incorporating one or both types of interactions into stock assessment and/or
 TAC advice [@plaganyi2013integrating; @lucey2021evaluating].
@@ -166,17 +169,17 @@ balancing (TAC utilisation) observed in the past [@marchal2009catch;
 @branch2008matching]. TAC utilisations could be correlated with biomass 
 indices and catch series to evaluate observable conditions that may lead 
 to choke effects. Those predictors may then have practical utility as 
-management 'meta-rules' that allow TACs to be scaled to allow sustainable 
+management 'meta-rules' that allow TACs to be scaled to permit sustainable 
 overfishing of choke species to mitigate undesirable choke effects on 
-high value species. Finally, an extension to multi-sector fisheries would 
-be very valuable. Multiple gear types would create complex economic and 
-catch yield surfaces, where the costs of fishing, catchability, and 
-selectivity are different for different sectors [@krigbaum2021increasing; 
-@guillen2013estimating].  Economic demand may also be sector dependent, 
-as different sectors sometimes sell in different markets based on the 
-condition or size of landings (e.g., BC Sablefish long-line trap and 
-hook fleets sell to Japan, while the trawl fleet sells their landings 
-in continental North America). 
+high value species, within reason. Finally, an extension to multi-sector 
+fisheries would be very valuable. Multiple gear types would create complex 
+economic and catch yield surfaces, where the costs of fishing, catchability,
+and selectivity are different for different sectors 
+[@krigbaum2021increasing; @guillen2013estimating].  Economic demand may 
+also be sector dependent, as different sectors sometimes sell in different 
+markets based on the condition or size of landings (e.g., BC Sablefish 
+long-line trap and hook fleets sell to Japan, while the trawl fleet sells 
+their landings in continental North America). 
 
 
 

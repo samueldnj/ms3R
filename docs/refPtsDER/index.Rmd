@@ -1,5 +1,5 @@
 ---  
-title: "A bio-economic approach for deriving fishery reference points in a spatially heterogeneous, multi-species flatfish fishery."
+title: "A bio-economic modelling approach to deriving fishery reference points in a spatially heterogeneous, multi-species fishery."
 author: 
   - Samuel D. N. Johnson (corresponding)
   - Sean P. Cox

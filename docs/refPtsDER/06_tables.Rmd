@@ -122,7 +122,7 @@ csasdown::csas_table( parEstTable, escape = FALSE,
 
 modelAssumption <- tibble::tribble( 
   ~Variable,        ~Value,        ~Description,
-  "$f_{2009}$",     "\\$175,000",  "Fuel cost per kt of catch in 2009, CAD",
+  "$f_{2009}$",     "\\$193,000",  "Fuel cost per kt of catch in 2009, in 2016 CAD",
   "$\\psi$",        "$0.3$",       "Crew share of revenue",
   "$d$",            "$0.05$",      "Discount rate",
   "$v_s(C_s)$",     "",            "Unit price per kg of species $s$ (CAD \\$) at quantity demanded $C_s$ (kt)",
