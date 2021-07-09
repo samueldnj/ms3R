@@ -78,7 +78,7 @@ calculated (thicker short dashed lines in 2041 and 2060)."
 
 dynOptUCap <- "Medians (points) and central 95\\% (grey bars) of simulated 
 harvest rates under the stochastic optimisation between 2041 and 2060 when 
-maximising complex catch (circles) and producer surplus (triangles). 
+maximising complex catch (circles) and rent (triangles). 
 The horizontal axis is scaled to single-species equilibrium $U_{MSY,SS}$, 
 indicated by a vertical dashed black line, with steady state optima shown as 
 open red points for comparison."
@@ -131,6 +131,7 @@ lines show the beginning of the projection period (thin short dashed in
 2017) and the beginning and end of the time period over which dynamic 
 optima are calculated (thicker short dashed lines in 2041 and 2060)."
 ```
+
 
 ```{r fig1-DERcomplexSurveyBio, echo = FALSE, warning = FALSE, fig.cap = DERcplxMapCap }
 figPath <- file.path("./figure/fig1-DERcomplexSurveyBio.pdf")
@@ -353,42 +354,6 @@ if(params$redoPlots | !file.exists(figPath))
                       combineEff = TRUE,
                       proj = TRUE,
                       highlightPer = c(2040,2060) )
-
-  # Now do outer margin legend (top)
-  par(xpd=NA, oma = c(0,0,0,0), mar = c(0,0,0,0), mfcol = c(1,1) )
-  # plot(x = 1, y = 1, add = TRUE, type = "n")
-
-  legTxt <- c(expression("d = 0.1","d = 0.025", paste(gamma, "= 0.02"), paste(gamma," = 0.058 ") ))
-
-  legend( x = "top",bty = "n", horiz = TRUE,
-          legend = legTxt,
-          inset = c(0,-0.01),
-          pt.lwd = 0,
-          cex = 1.5,
-          col = c("black","red","steelblue","darkgreen"),
-          lty = c(1,2,3,4),
-          lwd = 3 )
-  par( xpd = FALSE)
-
-  dev.off()
-}
-knitr::include_graphics(figPath)
-
-```
-
-```{r fig12-sensRentTulips, echo = FALSE, warning = FALSE, fig.cap = sensRentTulipsCap }
-figPath <- file.path("./figure/fig12-sensRentTulips.pdf")
-if(params$redoPlots | !file.exists(figPath))
-{
-  graphics.off()
-  pdf(file = figPath, width = 8.5, height = 11)
-  compareTulipRent( groupFolder = "omniRuns_Sens_May14",
-                    scenarios = "noCorr",
-                    mps = c("omni_totProfit1_freeEff"),
-                    rpSim = "sim_baseRun_invDem",
-                    fleets = 2,
-                    proj = TRUE,
-                    plotPoly = FALSE )
 
   # Now do outer margin legend (top)
   par(xpd=NA, oma = c(0,0,0,0), mar = c(0,0,0,0), mfcol = c(1,1) )

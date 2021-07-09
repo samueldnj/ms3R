@@ -91,7 +91,8 @@ makeScenResultsTab <- function( folder    = "./Outputs/omniRuns_noCorrFixGDP_May
 # reference points.
 makeDynEqbriaTab <- function( folder = "./Outputs/omniRuns_priceDevPED",
                               scenario = "noCorr",
-                              justMEY = FALSE )
+                              justMEY = FALSE,
+                              UmsySS = NULL )
 {
   csvFiles <- list.files(folder)
   csvFiles <- csvFiles[grepl(x = csvFiles, pattern = ".csv")]
@@ -117,11 +118,13 @@ makeDynEqbriaTab <- function( folder = "./Outputs/omniRuns_priceDevPED",
                 "MSY",
                 "Bmsy",
                 "Umsy",
+                "UmsyMSUmsySS",
                 "Emey",
                 "MEY",
                 "Cmey",
                 "Bmey",
-                "Umey")
+                "Umey",
+                "UmeyUmsySS" )
 
   tableFrame <- matrix( NA, nrow = 12, ncol = length(colNames))
   colnames(tableFrame) <- colNames
@@ -155,17 +158,27 @@ makeDynEqbriaTab <- function( folder = "./Outputs/omniRuns_priceDevPED",
 
       if(!justMEY)
       {
-        tableFrame$MSY[specRow]       <- round(tabs$dynEqCat[tabRow,msyCol],2)
-        tableFrame$Bmsy[specRow]      <- round(tabs$dynEqBio[tabRow,msyCol],2)
-        tableFrame$Umsy[specRow]      <- round(tabs$dynEqHR[tabRow,msyCol],3)
+        tableFrame$MSY[specRow]           <- round(tabs$dynEqCat[tabRow,msyCol],2)
+        tableFrame$Bmsy[specRow]          <- round(tabs$dynEqBio[tabRow,msyCol],2)
+        tableFrame$Umsy[specRow]          <- round(tabs$dynEqHR[tabRow,msyCol],3)
+        if(!is.null(UmsySS))
+          tableFrame$UmsyMSUmsySS[specRow]  <- round(tableFrame$Umsy[specRow]/UmsySS[tabRow],2)
       }
 
-      tableFrame$Cmey[specRow]      <- round(tabs$dynEqCat[tabRow,meyCol],2)
-      tableFrame$Bmey[specRow]      <- round(tabs$dynEqBio[tabRow,meyCol],2)
-      tableFrame$Umey[specRow]      <- round(tabs$dynEqHR[tabRow,meyCol],3)
+      tableFrame$Cmey[specRow]        <- round(tabs$dynEqCat[tabRow,meyCol],2)
+      tableFrame$Bmey[specRow]        <- round(tabs$dynEqBio[tabRow,meyCol],2)
+      tableFrame$Umey[specRow]        <- round(tabs$dynEqHR[tabRow,meyCol],3)
+      if(!is.null(UmsySS))
+        tableFrame$UmeyUmsySS[specRow]  <- round(tableFrame$Umey[specRow]/UmsySS[tabRow],2)
+
     }
 
 
+  }
+
+  if(is.null(UmsySS))
+  {
+    tableFrame[,c(8,14)] <- NULL
   }
 
   tableFrame
@@ -221,8 +234,12 @@ makeStatMSEqbriaTab <- function( obj = blob )
   nF <- obj$om$nF
   tMP<- obj$om$tMP
 
+
   stockNames    <- obj$om$stockNames
   speciesNames  <- obj$om$speciesNames
+
+
+  UmsySS_sp <- rp$FmsyRefPts$Umsy_sp
 
   EmeyRefPts    <- rp$EmeyRefPts
   EmsyMSRefPts  <- rp$EmsyMSRefPts
@@ -263,11 +280,13 @@ makeStatMSEqbriaTab <- function( obj = blob )
                 "MSY",
                 "Bmsy",
                 "Umsy",
+                "UmsyMSUmsySS",
                 "Emey",
+                "RentMEY",
                 "MEY",
-                "Cmey",
                 "Bmey",
-                "Umey")
+                "Umey",
+                "UmeyUmsySS")
 
   tableFrame <- matrix( NA, nrow = 12, ncol = length(colNames))
   colnames(tableFrame) <- colNames
@@ -284,7 +303,7 @@ makeStatMSEqbriaTab <- function( obj = blob )
     tableFrame$RentMSY[stockRow]  <- round(econYmsy_p[p],2)
 
     tableFrame$Emey[stockRow]     <- round(Emey_p[p],2)
-    tableFrame$MEY[stockRow]      <- round(MEY_p[p],2)
+    tableFrame$RentMEY[stockRow]  <- round(MEY_p[p],2)
 
     for( s in 1:nS )
     {
@@ -293,13 +312,15 @@ makeStatMSEqbriaTab <- function( obj = blob )
       tableFrame$Species[specRow]   <- speciesNames[s]
       tableFrame$qComm[specRow]     <- signif(qF_spf[s,p,2],2)
 
-      tableFrame$MSY[specRow]        <- round(MSY_sp[s,p],2)
-      tableFrame$Bmsy[specRow]      <- round(Bmsy_sp[s,p],2)
-      tableFrame$Umsy[specRow]      <- round(MSY_sp[s,p]/Bmsy_sp[s,p],3)
+      tableFrame$MSY[specRow]           <- round(MSY_sp[s,p],2)
+      tableFrame$Bmsy[specRow]          <- round(Bmsy_sp[s,p],2)
+      tableFrame$Umsy[specRow]          <- round(MSY_sp[s,p]/Bmsy_sp[s,p],3)
+      tableFrame$UmsyMSUmsySS[specRow]  <- round(tableFrame$Umsy[specRow]/UmsySS_sp[s,p],2)
 
-      tableFrame$Cmey[specRow]      <- round(Ymey_sp[s,p],2)
-      tableFrame$Bmey[specRow]      <- round(Bmey_sp[s,p],2)
-      tableFrame$Umey[specRow]      <- round(Ymey_sp[s,p]/Bmey_sp[s,p],3)
+      tableFrame$MEY[specRow]         <- round(Ymey_sp[s,p],2)
+      tableFrame$Bmey[specRow]        <- round(Bmey_sp[s,p],2)
+      tableFrame$Umey[specRow]        <- round(Ymey_sp[s,p]/Bmey_sp[s,p],3)
+      tableFrame$UmeyUmsySS[specRow]  <- round(tableFrame$Umey[specRow]/UmsySS_sp[s,p],2)
     }
 
 
@@ -318,6 +339,7 @@ makeParEstTable <- function( obj )
   nS <- repObj$nS
   nP <- repObj$nP
   nT <- repObj$nT
+  tMP<- obj$om$tMP
 
   species <- obj$om$speciesNames
   stock   <- obj$om$stockNames
@@ -336,6 +358,8 @@ makeParEstTable <- function( obj )
   SSBT_sp     <- round(repObj$SB_spt[,,nT,drop = FALSE],2)
   DT_sp       <- round(SSBT_sp[,,1]/B0_sp,2)
   DmsyT_sp    <- round(SSBT_sp[,,1]/Bmsy_sp,2)
+
+  qF_sp       <- obj$om$qF_ispft[1,,,2,tMP]
   
   nTabRow <- nS * nP
   
@@ -352,7 +376,8 @@ makeParEstTable <- function( obj )
                     "MSY",
                     "SSB_T",
                     "D_T",
-                    "Dmsy_T" )
+                    "Dmsy_T",
+                    "qF" )
   
   refPtsTab <- matrix(NA, nrow = nTabRow, ncol = length(tabColNames) )
   colnames(refPtsTab) <- tabColNames
@@ -375,6 +400,7 @@ makeParEstTable <- function( obj )
       refPtsTab$SSB_T[rowIdx]     <- SSBT_sp[s,p,1]
       refPtsTab$D_T[rowIdx]       <- DT_sp[s,p]
       refPtsTab$Dmsy_T[rowIdx]    <- DmsyT_sp[s,p]
+      refPtsTab$qF[rowIdx]        <- signif(qF_sp[s,p],2)
     }
 
 

@@ -1,138 +1,129 @@
 # Introduction
 
 Most fisheries management policy frameworks continue to be single-species 
-oriented, despite the overwhelming prevalence of both direct and indirect 
-multi-species interactions in fisheries [@skern2016ecosystem; 
-@marshall2019inclusion]. The direct effects of fishing occur via *technical 
-interactions* among multiple fish species that are caught simultaneously
-(e.g. bycatch or byproduct) [@pikitch1987use; @murawski1984mixed; 
-@baudron2015adverse], while indirect effects occuring via *ecological 
-interactions* in response to increasing/decreasing predator or 
-prey abundances caused by fishing [@may1979management; 
-@collie2001biological]. Both technical and ecological interactions 
-affect fishery reference points (i.e., management targets) derived from 
-maximum sustainable yield (MSY) [@murawski1984mixed; @pikitch1987use; 
-@collie2001biological; @may1979management] or maximum economic yield 
-(MEY) [@hoshino2018estimating; @pascoe2020effectiveness; 
-@guillen2013estimating], implying that fishery policies ignoring technical 
-and ecological interactions are, by design, likely to produce sub-optimal 
+oriented, despite the overwhelming prevalence of *technical interactions*
+in which multiple fish species are caught in non-selective fishing gear 
+[@skern2016ecosystem; @marshall2019inclusion;@pikitch1987use; 
+@murawski1984mixed; @baudron2015adverse]. In multi-species fisheries,
+technical interactions affect fishery reference points and management 
+targets derived from both maximum sustainable yield ($MSY$) and maximum 
+economic yield ($MEY$) paradigms [@may1979management; @murawski1984mixed; 
+@pikitch1987use; @collie2001biological;@hoshino2018estimating; 
+@pascoe2020effectiveness; @guillen2013estimating]. Thus, policies ignoring 
+technical interactions are, by design, likely to produce sub-optimal 
 outcomes in multi-species fisheries [@ono2017management]. 
 
-Incorporating multi-species interactions into fishery reference
-points and harvest strategies is a central component of ecosystem-based 
-fisheries management (EBFM) and the ecosystem approach to fisheries 
-management (EAFM) [@link2014integrating; @moffitt2016moving]. The EAFM 
-paradigm extends single-species fisheries management by incorporating 
-multi-species interactions and environmental drivers, but focuses on the 
-management outcomes for a single managed stock or species, while EBFM 
-considers a broader scope of management outcomes for the ecosystem as a 
-whole [@link2014integrating]. Therefore, since EAFM is a subset of EBFM, 
-for the remainder of this paper we will refer to both as EBFM. Several
-fishing nations include EBFM as a policy priority [@FAO1995; @fao2008fisheries;
-@un-fsa1995agreement-for-t] and, as far back as the 1970s, the Canadian 
-government prioritised EBFM for better triple-bottom line outcomes (i.e.,
-conservation, economic, and social aspects) over single-species MSY based
-management [@mercer1982multispecies; @benson2018options; 
-@stephenson2017practical].
+Reference points based on $MSY$ aim to maximize equilibrium biological
+yield from a fish stock [@mace2001new], while $MEY$ reference points seek 
+to maximize resource rent (i.e., profit) from a fishery 
+[@dichmont2010implementing; @hoshino2018estimating]. The main difference 
+between $MSY$ and $MEY$ is that the latter aims for higher catch rates via 
+higher target biomass and lower harvest rates on the most valuable 
+species/stocks [@hoshino2018estimating]. From a single-species perspective, 
+greater resource rents obtained under an $MEY$ paradigm can have societal
+benefits through increased welfare for harvesters and improved conservation 
+outcomes through higher standing stock biomass. However, despite these 
+advantages, fishery policies targeting $MEY$ are uncommon, perhaps because 
+most fisheries involve multiple species where $MEY$ would imply difficult 
+trade-off choices among multiple species spread over multiple stocks 
+[@dichmont2010implementing]. Specifically, trade-off choices that likely 
+require that some (e.g., low value) species/stocks remain chronically 
+overfished to some degree for the benefit of the overall multi-species 
+fishery [@dichmont2010implementing]. 
+The challenge for multi-species fisheries managers, then, is finding 
+approaches to assessing and managing along these trade-offs without causing 
+unacceptable conservation risks to any individual species and/or stocks.
 
-MSY reference points are common targets in fishery management policies, 
-but MEY reference points are not. MSY reference points are
-targeted when fishery policy is to maximise equilibrium biological yield 
-(i.e., catch) from a stock. Given the risks associated with targeting a
-fixed catch at $MSY$ [@larkin1977epitaph; @smith1993risk], $MSY$ is now 
-often considered a limit to the total catch [@mace2001new], and many fishery
-policies target $U_{MSY}$ harvest rates that produce $MSY$ on average. 
-However, while fishery policies targeting $U_{MSY}$ can have acceptable 
-conservation risk for an individual stock [ref], socio-economic and 
-ecosystem outcomes are often not considered under MSY based policies. 
-Further, there is evidence that repeated application of single-species 
-MSY policies will degrade eco-system function in a multi-species context 
-[@walters2005possible]. In some jurisdictions (e.g., Australia), fishery 
-management policies target MEY reference points, which seek to maximise 
-resource rent from the fishery by increasing catch rates through higher 
-biomass and lower harvest rates [@hoshino2018estimating]. Increased rents 
-produce improved socio-economic outcomes, and there are implicit 
-conservation benefits associated with higher biomass levels. Despite the 
-advantages, fishery policies targeting MEY are uncommon, perhaps due to 
-the extra layer of economic modeling required with the uncertainty in
-economic assumptions and parameters [ref]. 
+In general, $MSY$ and $MEY$ reference points estimate fishery equilibrium 
+states assuming a single, homogeneous unit-stock. In reality, most fish 
+populations are, to varying degrees, a collection of semi-isolated 
+sub-stocks with unique productivities, biomass densities, and 
+carrying-capacities. Ignoring such *spatial heterogeneity* 
+in productivity and biomass density when estimating reference points
+will produce spatially averaged equilibria. Harvest strategies based on such 
+spatially averaged reference points tend to over-harvest roughly half of 
+all sub-stocks, and under-harvest the rest [@berger2017space; 
+@goethel2017accounting]. 
 
-Fishery reference points also depend on spatial heterogeneity, or patchiness, 
-of the stock, where biomass density varies over space. If spatial heterogeneity 
-is ignored by harvest policies and catch limits, management actions will 
-produce sub-optimal triple-bottom-line performance [@goethel2017accounting]. 
-For a single-species, multi-area fishery, fishing effort is attracted to 
-higher density patches to take advantage of higher catch rates, lowering the
-costs of fishing. When spatial variation is ignored in fishery models, fish and 
-fishing effort are assumed to be uniformly distributed across space and reference 
-point estimates represent spatial averages [@berger2017space]. Fishery policy 
-based on spatial averages tends to over- and under-fish in all patches, 
-because catch limits are mismatched to the spatial variation in fishing 
-effort and fish density/productivity. The mismatch can worsen for 
-multi-species fisheries, where the distribution of biomass density differs 
-for each species. That variation produces different relative catch rates 
-among species and areas, creating more complexity in the distribution of fishing 
-effort than the single-species case, as harvesters target specific species.
+In spatially heterogeneous fisheries, fishing activity is presumably 
+attracted to higher density patches to take advantage of higher catch 
+rates and reduced fishing costs [@gillis1993movement]. If catch limits 
+are set based on spatially averaged reference points while fishing is 
+concentrated on a particalar sub-stock, then that sub-stock will tend to be 
+over-harvested relative to its stock-specific reference points. This 
+mismatch between the scale of population dynamics (i.e., spatial 
+heterogeneity) and the scale of control given by the harvest strategy 
+is further complicated in multi-species fisheries, where local-scale 
+productivities and densities differ among species occupying the same area.
 
-Even when reference points are based on the appropriate spatial scale, there 
-are still complications caused by technical interactions in multi-species
-fisheries. Each species has its own level of availability to the fishing gear
-(catchability), meaning that the fishing pressure felt by each species differs 
-under a unit of fishing effort. Furthermore, the applied fishing pressure is 
-often not scaled to individual species productivities, unless the fishery is
-strictly effort controlled. Such differences can create choke effects 
-[@baudron2015adverse], where catch limits for one "choke" species are filled 
-faster than the others, potentially limiting access to higher value species. 
-Such choke effects may be avoided (on average) by scaling catch limits to the 
-technical interactions among species [@murawski1984mixed; @pikitch1987use; 
-@hoshino2018estimating; @guillen2013estimating; @johnson2021hierarchical], 
-which is a requirement for MEY calculations when catches are mixed,
-given the difficulty teasing apart the costs of fishing.
+Even where biological reference points such as $MSY$ or $MEY$ are matched 
+to the spatial scale of population dynamics, technical interactions further 
+complicate the implementation of those reference points within harvest 
+strategies. Within multi-species fisheries, each species has somewhat
+unique availability to fishing gear (catchability), meaning that fishing 
+pressure felt by each species differs for a given amount of fishing 
+activity. Furthermore, unless the fishing activity (effort) is strictly 
+controlled in space or time, the applied fishing pressure is rarely scaled 
+to individual species productivities. Often, multi-species 
+spatial heterogeneity attracts (or repels) fishing activity in ways
+that are unrelated to each individual stock's reference points. For example,
+harvesters may be drawn to a fishing ground to target one species, or to 
+avoid another species, while at the same time attempting to maximise catch 
+rates and lower fishing costs [@gillis1993movement].
 
-The link between spatial heterogeneity, market demand, and MEY reference
-points is unclear for multi-species fisheries, and often ignored in 
-fisheries economics literature. A common simplifying assumption is that the 
-unit price of a fish is not affected by the quantity landed. Under a constant 
-price assumption, if sub-populations are independent, then the MEY reference 
-point estimates are also independent [@sanchirico2007sustainable]. In reality, 
-the market price for a fish decreases with increasing catch via a downward 
-sloping demand curve [@pascoe2018offsetting]. The slope and shape of demand 
-curves are related to the own-price elasticity of demand for the species being 
-caught [@asche2007studies], which represents the change in quantity demanded 
-for a unit change in price. Other factors that affect demand include household 
-incomes, the price of substitutes (e.g., similar species or other proteins), 
-and the quantity supplied by competitors [@jaffry1999long; @cheng1988demand]. 
-Thus, demand curves act at a broader spatial scale than the spatial patches
-of a population, so catches from each patch will affect the price differently,
-implying a different optimal harvest rates than the constant price assumption,
-which is often excluded from bio-economic analyses. 
+The trade-offs associated with ignoring technical interactions 
+are unclear for spatially heterogeneous, multi-species fisheries. The 
+attractiveness of each area to harvesters is intrinsically linked
+to the mix of species in each area, via the expected resource
+rent from that mix. Resource rent from a fishery captures the 
+difference between the costs and revenues of fishing 
+[@hoshino2018estimating]. Some fishing costs are variable, such as fuel, 
+crew share, quota leasing, and marketing, while other costs, such as 
+on capital and/or debt service, are fixed. Revenues are also variable, 
+depending primarily on the relationship between the size of the landed 
+catch (quantity) and the unit price. The unit price depends on the demand 
+for fishery products within the market being supplied by harvesters. Market 
+demand is affected by the quantity of the product (and alternatives) being 
+supplied, through price elasticity of demand [@asche2007studies;
+@jaffry1999long], as well as societal factors such as household income, 
+the price of substitutes (e.g., similar species or other proteins), and 
+the quantity supplied by competitors [@jaffry1999long; @cheng1988demand]. 
+Thus, demand dynamics often operate at broader spatial scales than the 
+spatial heterogeneity of a fish stock, so that catches from each stock 
+will affect the price differently, implying different optimal harvest 
+rates for each stock. Therefore, while conservative harvest strategies 
+that ignore technical interactions may acceptable conservation performance, 
+they are likely to create sub-optimal distributions of fishing effort
+with lower resource rents.
 
-In this paper, we investigated how spatial heterogeneity and price 
-elasticity of demand affected economic and conservation risks in a 
-multi-species fishery management context. We simulated management outcomes of 
-harvest policies based on both single- and multi-species $MSY$ and $MEY$ 
-reference points. A technically interacting three species complex of 
-right-eyed flounders (*Pleuronectidae Spp.*) - Dover sole (*Microstomus 
-pacificus*), English sole (*Parophrys vetulus*), and (Southern) Rock sole 
-(*Lepidopsetta bilineata*) - was simulated in three spatial strata, fished 
-by a common trawl fishery off the coast of British Columbia (BC), Canada. 
-Commercial trawl catchability scalars simulated technical interactions, 
-producing realistic choke effects restricting total fishing effort in 
-each area [@baudron2015adverse; @pascoe2015setting]. The same technical 
-interactions were included in multi-species $MSY$ and $MEY$ reference points 
-calculations, with fishing revenues based on species demand curves assuming 
-a constant price elasticity of demand [@jaffry1999long]. Single species 
-$MSY$, multi-species $MSY$, and $MEY$ reference points were estimated via 
-yield-per-recruit analysis [@beverton1957dynamics; @murawski1984mixed; 
-@pikitch1987use], and multi-species $MSY$ and $MEY$ reference points were 
-validated via stochastic optimisation of simulated fishery effort over 
-an 80-year projection with recruitment process error, where either the 
-catch or net-present-value (NPV) of the fishery was maximized. We showed
-that, after accounting for spatial heterogeneity and price elasticity of 
-demand - two realistic features of actual fisheries - $MEY$ harvest 
-policies consistently produced better conservation and economic outcomes 
-than either single-species or multi-species $MSY$ policies. It is
-therefore surprising that $MEY$-based strategies are so uncommong in
-contemporary fisheries management, especially given their prominence
-in ecosystem-based fisheries policy.
+In this paper, we investigate conservation and economic trade-offs arising
+when multi-species vs single-species harvest strategies are applied to a 
+spatially heterogeneous, multi-species fishery. Harvest strategies are 
+defined based on both single- and multi-species $MSY$ and $MEY$ reference 
+points applied to a simulated complex of right-eyed flounders 
+(*Pleuronectidae Spp.*) comrising Dover sole (*Microstomus pacificus*), 
+English sole (*Parophrys vetulus*), and (Southern) Rock sole (*Lepidopsetta 
+bilineata*). This three species complex is simulated in three spatially 
+heterogeneous areas, fished by a common trawl fishery off the coast of 
+British Columbia (BC), Canada. Simulated fishing effort in each area has 
+realistic constraints caused by technical interactions among the three 
+species [@baudron2015adverse; @pascoe2015setting]. Those same technical 
+interactions are incorporated into multi-species $MSY$ and $MEY$ 
+reference points [@murawski1984mixed;@pikitch1987use;@hoshino2018estimating]. 
+Single species $MSY$, multi-species $MSY$, and $MEY$ reference points 
+are estimated analytically via a yield-per-recruit analysis 
+[@beverton1957dynamics; @murawski1984mixed; @pikitch1987use], and 
+multi-species $MSY$ and $MEY$ reference points are compared to long-run 
+average simulated efforts optimised over an 80-year projection with 
+recruitment process variability, where either the catch or 
+net-present-value (NPV) of the fishery was maximised. We show that, after 
+accounting for spatial heterogeneity in population dynamics and price 
+elasticity of demand - two realistic features of actual fisheries - $MEY$ 
+harvest strategies consistently produce better conservation and economic 
+outcomes than either single-species or multi-species $MSY$ policies. 
+While $MEY$ harvest stratgies have their shortcomings 
+[@dichmont2010implementing], it is surprising that $MEY$-based strategies 
+are not more common in contemporary fisheries management, especially 
+given their prominence in ecosystem based fisheries policy 
+[@mercer1982multispecies].
 

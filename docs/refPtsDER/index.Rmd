@@ -1,5 +1,5 @@
 ---  
-title: "A bio-economic modelling approach to deriving fishery reference points in a spatially heterogeneous, multi-species fishery."
+title: "A bio-economic modelling approach to estimating risks from multi-species and single-species harvest strategies for a spatially heterogeneous, technically interacting, flatfish fishery."
 author: 
   - Samuel D. N. Johnson (corresponding)
   - Sean P. Cox
@@ -13,7 +13,26 @@ email:
   - samuelj@sfu.ca
   - spcox@sfu.ca
   - djk@sfu.ca
-abstract: Abstact to be filled in
+abstract: |
+  There is little known about the relative conservation and economic 
+  risks of applying single- and multi-species harvest strategies to 
+  mixed groundfish fisheries. To explore those risks, a bio-economic 
+  modeling framework is defined for the multi-species, 
+  spatially heterogeneous right-eyed flounder (*Plueronectidae Spp.*) 
+  complex in British Columbia, Canada. Harvest strategies based on
+  single- and multi-species maximum sustainable yield ($MSY$) and maximum 
+  economic yield ($MEY$) reference points are defined, where multi-species
+  reference points incorporate technical interactions among species. The 
+  conservation and economic risks are estimated via stochastic, 
+  closed-loop simulation, in which each strategy is used to set catch
+  limits for three management areas defined for the BC flatfish fishery. 
+  Conservation risks are measured as the probability of overfishing each 
+  individual population, while economic risks are measured by comparing the 
+  5th percentiles of net present values under each strategy, for each area 
+  and for the entire BC coast. We show that strategies based on $MEY$  
+  produce better conservation and economic performance than strategies
+  based on either single-or multi-species $MSY$ reference points.
+
 date: \today
 bibliography: /Users/sdnjohnson/Work/Library/library.bib
 natbib: true
@@ -28,7 +47,7 @@ params:
   fit: "fit_base_MCMC"
   sim: "sim_baseRun_invDem"
   baseDir: "docs/refPtsDER/data"
-  redoPlots: TRUE
+  redoPlots: FALSE
 numbersections: true
 appendix: false
 output: 
@@ -66,12 +85,13 @@ if (is_latex_output()) {
   knitr_figs_dir <- "knitr-figs-pdf"
   knitr_cache_dir <- "knitr-cache-pdf"
   fig_out_type <- "pdf"
-  kable_format <- "latex"
+  kableFormat <- "latex"
 } else {
   knitr_figs_dir <- "knitr-figs-docx"
   knitr_cache_dir <- "knitr-cache-docx"
   fig_out_type <- "png"
-  kable_format <- "pandoc"
+  kableFormat <- "pandoc"
+  options(knitr.table.format = "pandoc")
 }
 fig_asp <- 0.618
 fig_width <- 6
@@ -98,8 +118,9 @@ opts_chunk$set(
   fig.align = fig_align,
   fig.pos = fig_pos
 )
+options(tinytex.verbose = TRUE)
 options(xtable.comment = FALSE)
-options(kableExtra.latex.load_packages = FALSE)
+options(kableExtra.latex.load_packages = TRUE)
 options(knitr.kable.NA = '')
 
 
@@ -125,6 +146,7 @@ library(tmbstan)
 library(chemometrics)
 library(mvtnorm)
 library(RColorBrewer)
+library(csasdown)
 ```
 
 ```{r loadStuff, echo = FALSE, include = FALSE, warning = FALSE}

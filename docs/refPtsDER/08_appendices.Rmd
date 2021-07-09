@@ -10,53 +10,53 @@
 \setcounter{figure}{0} 
 \renewcommand{\thefigure}{A\arabic{figure}}
 
-We assumed that the unit price $v_s$ ($/kg) of each DER complex species
-$s$ followed a downward sloping demand curve for total species $s$ catch
-$C_s$ (quantity demanded) with a constant elasticity of demand. Demand 
+The unit price $v_s$ ($/kg) of each DER complex species $s$ is assumed to 
+follow a downward sloping demand curve for total catch $C_s$ (quantity 
+demanded) with a constant own-price elasticity of demand. Demand 
 curve identifiability was a problem, given the low sample size (11 years) 
 of economic data and the sometimes positive relationship between BC catch 
-and the unit price, indicating either demand or supply shocks that lead
-to correlation between explanatory variables (i.e., price) and the
+and the unit price, indicating either demand or supply shifts that created
+correlation between explanatory variables (i.e., price) and the
 residual in the quantity demanded, also known as endogeneity
 [@angrist2008mostly]. 
 
-DER complex demand curves were fit to landings, ex-vessel prices, and
+DER complex demand curves are fit to landings, ex-vessel prices, and
 BC household income per capita. Average ex-vessel unit price ($/kg) data for 
-the DER complex was obtained from dockside fish-slips for the BC trawl 
+the DER complex is obtained from dockside fish-slips for the BC trawl 
 fishery from 2006 - 2016, and calculated as total ex-vessel revenues 
 divided by total landings ^[Department of Fisheries and Oceans (2019). 
 Commercial Pacific Landings. Unpublished data Table.  Available 
-from Pacific.CatchStats@dfo-mpo.gc.ca]. All ex-vessel prices were specific 
-to the bottom trawl fishery except for English Sole in 2016, which was an 
+from Pacific.CatchStats@dfo-mpo.gc.ca]. All ex-vessel prices are specific 
+to the bottom trawl fishery except for English Sole in 2016, which is an 
 outlier with a trawl ex-vessel price almost three times the 2006 - 2016 
-average, and was therefore replaced with the 2016 ex-vessel price for 
-English sole averaged across all available gear types. All prices were 
-then adjusted to 2016 dollars by using the annual average CPI index from 
-Statistics Canada ^[Table 18-10-0256-01  Consumer Price Index (CPI) 
-statistics, measures of core inflation and other related statistics - 
-Bank of Canada definitions, https://doi.org/10.25318/1810025601-eng]. 
-BC household income per capita data (Table A1) was also obtained from 
+average, and is therefore replaced with the 2016 ex-vessel price for 
+English sole averaged across all available gear types. All prices are
+then adjusted to 2016 dollars by using the annual average consumer price
+index (CPI) from Statistics Canada ^[Table 18-10-0256-01  Consumer Price 
+Index (CPI) statistics, measures of core inflation and other related 
+statistics - Bank of Canada definitions, 
+https://doi.org/10.25318/1810025601-eng]. 
+BC household income per capita data (Table A1) is also obtained from 
 Statistics Canada ^[Table 36-10-0229-01, Long-run provincial and 
 territorial data, https://doi.org/10.25318/3610022901-eng].
 
 Annual catches of Dover and English soles on the US west coast (i.e., 
-Washington, Oregon, and California, but not Alaska) were added to the BC 
-catch (Table A1) 
-[@wetzel2019catch-update-fo; @cope2013data]. The BC groundfish
-trawl fishery is known coloquially as an "I-5 Fishery" (pers comm. 
-Chris Sporer?), because, in addition to local BC customers, fish caught in 
-BC are sold to restaurants and retailers along the US west coast via
-the I-5 highway. Similarly, fish caught on the US west coast are sold in 
-BC. Therefore, the market price for BC trawl catch is dependent on the 
-catch from the US west coast, and demand models fit to catch and price data 
-would not match economic assumptions about market dynamics without
-the exogenous catch data (i.e., demand curves were upward sloping). Rock 
-sole catch was not assessed on the west coast because there are not 
+Washington, Oregon, and California, but not Alaska) are added to the BC 
+catch (Table A1) [@wetzel2019catch-update-fo; @cope2013data]. The BC 
+groundfish trawl fishery is known coloquially as an "I-5 Fishery" 
+(pers comm. Chris Sporer), because, in addition to local BC customers, 
+fish caught in BC are sold to restaurants and retailers along the US west 
+coast via the I-5 highway. Similarly, fish caught on the US west coast 
+are sold in BC. Therefore, the market price for BC trawl catch is dependent 
+on the catch from the US west coast, and demand models fit to catch and 
+price data do not match economic assumptions about market dynamics without
+the exogenous catch data (i.e., demand curves are upward sloping). Rock 
+sole catch is not assessed on the west coast because there are not 
 significant populations or catches. Further, Rock sole demand curves 
-were downward sloping without the exogenous catch. US west coast catch 
-data were unavailable after 2013 for English sole as there
-has not been an assessment since that time, so we assumed
-that the catch for 2013 - 2016 was constant at the 2013 level. 
+are downward sloping without the exogenous catch. US west coast catch 
+data are unavailable after 2013 for English sole as there has not been 
+an assessment since that time, so West coast US English sole catch for 
+2013 - 2016 is assumed to be constant at the 2013 level. 
 
 ```{r exogCatchTable, echo = FALSE}
 UScatch_st <- priceModel$UScatch_st
@@ -76,7 +76,7 @@ data used for estimating the DER complex inverse demand curves."
 
 csasdown::csas_table( econDataTable, escape = FALSE,
                       booktabs = TRUE, font_size = 10,
-                      format = kable_format,
+                      format = kableFormat,
                       caption = exogCatchCap,
                       align = c("l","l","l","l")) %>%
   kable_styling(latex_options = c("striped", "hold_position","scale_down"),
@@ -87,20 +87,20 @@ csasdown::csas_table( econDataTable, escape = FALSE,
 
 ```
 
-To reduce endogeneity, we used a 2-stage least squares (2SLS) regression 
-to predict the unit price using instrumental variables 
+A 2-stage least squares (2SLS) regression was used to reduce endogeneity,
+predicting the unit price using instrumental variables 
 [@angrist2001instrumental]. The instrument was the unit cost of supplying 
-catch of each species, estimated via our assumed fuel costs, defined as 
+catch of each species, estimated via assumed fuel costs 
 \begin{equation}
 w_{s,t} = \frac{\sum_{p} E_p \cdot c_p}{\sum_p C_{s,p}},
 \end{equation}.
-where $c_p$ is derived in the methods section [secNum]. The first stage 
-then regressed the observed ex-vessel log-price 
+where $c_p$ is derived in the Section 2. The first stage 
+then regresses the observed ex-vessel log-price 
 $v_{s,t}$ for species $s$ in year $t$ year on the log-cost of supply 
 \begin{equation}
 \log v_{s,t} = \alpha_{0,s} + \alpha_{1,s} \log w_{s,t},
 \end{equation}
-and use the resulting coefficents $\alpha_{i,s}$ to predict a
+and uses the resulting coefficents $\alpha_{i,s}$ to predict a
 unit price $\hat{v}_{s,t}$ with less (or no) endogeneity.
 The predicted price $\hat{v}_{s,t}$ is then used as an explanatory
 variable in the second stage regression for the demand curve
@@ -110,41 +110,41 @@ variable in the second stage regression for the demand curve
 where $C_{s,t}$ is the US west coast and BC catch in year $t$,
 $\lambda_s$ is the own price elasticity of demand for species $s$
 [@cheng1988demand], and $y_t$ is the British Columbia household income 
-per capita in year $t$. When inverted (or when modeling price as the
-respons variable) the quantity $\frac{1}{\lambda_s}$ is called price 
-flexibility [@jaffry1999long]. We also fit models with cross-price 
+per capita in year $t$. When modeling an inverse demand curve, with price 
+as the response variable, the quantity $\frac{1}{\lambda_s}$ is called 
+price flexibility [@jaffry1999long]. We also fit models with cross-price 
 elasticity of demand, but none of the coefficients for substitution
-between species were significant so we do not report them here or
+between species are significant so we do not report them here or
 use them in projections.
 
-Results form the 2SLS defined demand curves that fit the data
-adequately for our closed-loop simulations. Coefficients from price 
-regressions on cost of fishing instruments were not significant
-at the 0.05 level for any species (Table A1), but did reasonably
+Demand relationships from the 2SLS fit the data well, and are suitable for 
+projections in closed-loop simulations. Coefficients from price 
+regressions on cost of fishing instruments are not significant
+at the 0.05 level for any species (Table A1), but do reasonably
 well at reducing endogeneity in the price data (Figure 2, main body,
 compare open points to closed point). Despite the low explanatory power
 of the fuel cost instrument, IV estimates of unit prices showed
-that all three species had elastic demand (Table A2), which was
+that all three species have elastic demand (Table A2), which is
 within range of previous demand analyses of flatfish [@asche2007studies]. 
-English and Rock sole demand was elastic, while Dover sole
-demand was only slightly elastic (Table A2) and not technically 
-significant at  the $p = 0.1$ level ($p = 0.101$). The 
-higher probability of a spurious relationship for Dover sole was 
-expected, as the catch and price data show a fairly flat relationship, 
-even after the IV regression, that would fit equally well to many 
-different price elasticities of demand (Fig 2, main body). However, 
-the inverse demand relationship is sufficient for the purpose of
-simulating realistic demand in model projections, as the curve fits dpes not
-contradict the data, and the demand is downward sloping 
+English and Rock sole demand was more elastic than Dover sole
+demand, which was only slightly elastic (Table A2) and not significant at 
+the $p = 0.1$ level ($p = 0.101$). The higher probability of a spurious 
+estimate for Dover sole is expected, as the catch and price data show a 
+fairly flat relationship, even after the IV regression, that would fit 
+equally well to many different price elasticities of demand (Fig 2, main 
+body). However, the inverse demand relationship is sufficient for the 
+purpose of simulating realistic demand in model projections, as the curve 
+does not contradict the data, and the demand is downward sloping 
 [@pascoe2018offsetting]. Further, $p$ values are continuous, and
-$p = 0.101$ is a low probability of a spurious 
-effect, given the uninformative data. All species had a negative
-income elasticity parameter $\beta_1$, indicating that the price 
-would decrease for a given quantity demanded (catch) with increasing 
-household incomes. Such a reduction in demand from higher incomes 
-may reflect a tendency of families with more disposable income to
-consume more expensive sources of protein, such as higher value fish 
-or beef, rather than the inexpensive flatfishes of the DER complex.
+$p = 0.101$ is a low probability of a spurious effect, given the 
+uninformative data. All species have a negative
+income elasticity parameter $\beta_1$, indicating that the price will 
+decrease for a given quantity demanded (catch) as household incomes 
+increase. Such a reduction in demand from higher incomes may implies 
+that DER complex flatfishes are an inferior good [@dey2011multistage], 
+which means that families with more disposable income will switch to 
+more expensive sources of protein, such as higher value fish or beef, 
+rather than the inexpensive flatfishes of the DER complex.
 
 ```{r invDemCurveTables, echo = FALSE}
 priceIVreg <- priceModel$priceInstrument_s
@@ -210,7 +210,7 @@ denotes that the parameters were significant at the $p = 0.1$ level."
 
 csasdown::csas_table( invDemTable, escape = FALSE,
                       booktabs = TRUE, font_size = 10,
-                      format = kable_format,
+                      format = kableFormat,
                       caption = invDemCap,
                       align = rep("l",5)) %>%
   kable_styling(latex_options = c("striped", "hold_position","scale_down"),
@@ -237,27 +237,25 @@ csasdown::csas_table( invDemTable, escape = FALSE,
 ```
 
 To simulate price as a function of catch (i.e., the inverse demand 
-relationship) in model projections, three simplifying assumptions
-were made. First, each demand relationship was refit with only the 
-significant predictor variables for English and Rock soles (i.e., 
-own-price elasticity of demand and GDP per capita), and with own-price 
-elasticity only for Dover sole (Table A3). Second, US West Coast Dover 
-and English sole catches were assumed to be exogenous and fixed at the 
-average catch for the 2006 - 2016 time period. Finally, growth in median
-BC household income was assumed grew at the fixed rate of 3.9\% per year 
+relationship) in model projections, two simplifying assumptions
+are made. First, US West Coast Dover and English sole catches are 
+assumed to be exogenous and fixed at the average catch for the 2006 - 
+2016 time period, and second, growth in median BC household income is
+assumed to be at the fixed rate of 3.9\% per year 
 ^[https://www2.gov.bc.ca/assets/gov/british-columbians-our-governments/government-finances/financial-economic-review/financial-economic-review-2020.pdf].
 
-For sensitivity analyses, inverse demand curves were refit to the
+For sensitivity analyses, inverse demand curves are refit to the
 price instrument and household incomes assuming own-price elasticity
 was infinite (i.e., $\frac{1}{\lambda_s} = 0$ for all species). When
-price-flexibility was removed from the inverse demand curve, the parameters
-were much different. Dover and English soles had no significant parameters
-($0.4 < p < 0.65$), while Rock sole's inverse demand curve had 
+price-flexibility is removed from the inverse demand curve, the parameters
+are very different. Dover and English soles have no significant parameters
+($0.4 < p < 0.65$), while Rock sole's inverse demand curve has 
 significant coefficients at the $p = 0.1$ level. Further, while Dover and
-English soles had a reduction in price with household incomes, as above,
-Rock sole's relationship with income reversed, and tends to increase
-with household income. This is not unexpected, as Rock sole had the 
-smallest magnited $\beta_1$ coefficient. 
+English soles have a reduction in price with household incomes, as above,
+Rock sole's relationship with income is reversed, showing demand will
+increase with household income. This is not unexpected, as Rock sole has the 
+smallest magnitude $\beta_1$ coefficient in the finite elasticity case,
+and is sometimes considered a more desirable eating fish. 
 
 
 ```{r infPEDcurveTables, echo = FALSE}
@@ -293,7 +291,7 @@ the $p = 0.1$ level."
 
 csasdown::csas_table( invDemTable, escape = FALSE,
                       booktabs = TRUE, font_size = 10,
-                      format = kable_format,
+                      format = kableFormat,
                       caption = invDemCap,
                       align = rep("l",5)) %>%
   kable_styling(latex_options = c("striped", "hold_position","scale_down"),

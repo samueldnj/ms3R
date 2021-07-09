@@ -87,6 +87,7 @@ parEstTable <- parEstTable[,c(2,1,3:ncol(parEstTable))]
 parEstTable[c(2,3,5,6,8,9),1] <- NA
 
 
+
 colnames(parEstTable) <- c( "Stock",
                             "Species",
                             "$B_0$",
@@ -99,17 +100,19 @@ colnames(parEstTable) <- c( "Stock",
                             "$MSY$",
                             "$B_{2016}$",
                             "$B_{2016}/B_0$",
-                            "$B_{2016}/B_{MSY}$" )
+                            "$B_{2016}/B_{MSY}$",
+                            "$q^{F}$" )
 
-
+UmsySS <- parEstTable[,9]
 
 csasdown::csas_table( parEstTable, escape = FALSE,
-                      booktabs = TRUE, font_size = 10,
-                      format = kable_format,
+                      booktabs = TRUE,
+                      format = kableFormat,
                       caption = parEstTableCap,
                       align = c("l","l",rep("c",ncol(parEstTable)-2))) %>%
   kable_styling(latex_options = c("hold_position","scale_down"),
-                bootstrap_options = c("hover"))  #%>%
+                bootstrap_options = c("hover"),
+                font_size = 8 )  #%>%
   # kableExtra::pack_rows("HSHG", 1, 3 ) %>%
   # kableExtra::pack_rows("QCS", 4, 6 ) %>%
   # kableExtra::pack_rows("WCVI", 7, 9 ) 
@@ -134,7 +137,7 @@ modelAssumption <- tibble::tribble(
 
 csasdown::csas_table( modelAssumption, escape = FALSE,
                       booktabs = TRUE, font_size = 10,
-                      format = kable_format,
+                      # format = kableFormat,
                       caption = econModelTableCap,
                       align = c("l","l","l")) %>%
   kable_styling(latex_options = c("striped", "hold_position","scale_down"),
@@ -158,7 +161,7 @@ sensTable <- tibble::tribble(
 
 csasdown::csas_table( sensTable, escape = FALSE,
                       booktabs = TRUE, font_size = 10,
-                      format = kable_format,
+                      # format = kableFormat,
                       caption = sensTableCap,
                       align = rep("l",3) ) %>%
     kable_styling(latex_options = c("hold_position","scale_down"),
@@ -177,77 +180,44 @@ ssRefPtsTab <- statRefPts
 colnames(ssRefPtsTab) <- c( "Stock",
                             "Species",
                             "$q^F$",
-                            "$E_{MSY}$",
-                            "$\\pi \\left( \\vec{E}_{MSY} \\right)$",
+                            "$E_{MSY,MS}$",
+                            "$\\pi \\left( \\vec{E}_{MSY,MS} \\right)$",
                             "$MSY_{MS}$",
                             "$B_{MSY,MS}$",
                             "$U_{MSY,MS}$",
+                            "$\\frac{U_{MSY,MS}}{U_{MSY,SS}}$",
                             "$E_{MEY}$",
+                            "$\\pi \\left( \\vec{E}_{MEY} \\right)$",
                             "$MEY$",
-                            "$C_{MEY}$",
                             "$B_{MEY}$",
-                            "$U_{MEY}$")
+                            "$U_{MEY}$",
+                            "$\\frac{U_{MEY}}{U_{MSY,SS}}$")
+ssRefPtsTab[,3] <- NULL
+
 
 csasdown::csas_table( ssRefPtsTab, escape = FALSE,
-                      booktabs = TRUE, font_size = 10,
-                      format = kable_format,
-                      # linesep = "\\addlinespace",
-                      caption = ssRefPtsTabCap,
-                      align = c( "l", "l", rep("c",ncol(ssRefPtsTab)-2))) %>%
-  kable_styling(latex_options = c("hold_position","scale_down"),
-                bootstrap_options = c("striped", "hover"))  %>%
-  add_header_above( header = c( " " = 3,
-                                "DER complex maximum yield" = 5,
-                                "Maximum Economic Yield" = 5),
-                    bold = TRUE)
-
-```
-
-
-\clearpage
-
-
-
-```{r dynEqTabNoCorr, echo = FALSE, warning = FALSE}
-# Get non-eqbm table too
-noCorrEqbriaTab <- makeDynEqbriaTab(  "./data/dynEqbriaTables",
-                                      scenario = "noCorr")
-
-printNoCorrEqbriaTab <- noCorrEqbriaTab
-colnames( printNoCorrEqbriaTab) <- c(  "Stock",
-                                  "Species",
-                                  "$E_{MSY}$",
-                                  "$\\pi \\left( \\vec{E}_{MSY} \\right)$",
-                                  "$MSY_{MS}$",
-                                  "$B_{MSY,MS}$",
-                                  "$U_{MSY,MS}$",
-                                  "$E_{MEY}$",
-                                  "$MEY$",
-                                  "$C_{MEY}$",
-                                  "$B_{MEY}$",
-                                  "$U_{MEY}$")
-
-csasdown::csas_table( printNoCorrEqbriaTab, escape = FALSE,
                       booktabs = TRUE,
                       font_size = 10,
-                      format = kable_format,
-                      caption = dynEqNoCorrTabCap,
-                      align = c("l","l",rep("c",ncol(printNoCorrEqbriaTab)-2)) ) %>%
+                      format = kableFormat,
+                      caption = ssRefPtsTabCap,
+                      align = c("l","l",rep("c",ncol(ssRefPtsTab)-2)) ) %>%
       kable_styling(latex_options = c("striped", "hold_position","scale_down"),
                 bootstrap_options = c("striped", "hover")) %>%
-      add_header_above( header = c( " " = 2,
-                                "DER complex maximum yield" = 5,
-                                "Maximum Economic Yield" = 5),
+  add_header_above( header = c( " " = 2,
+                                "DER complex maximum yield" = 6,
+                                "Maximum Economic Yield" = 6),
                     bold = TRUE)
-
 
 ```
 
 \elandscape
-
 \clearpage
 
 ```{r propEffTable, echo = FALSE, warning = FALSE}
+
+noCorrEqbriaTab <- makeDynEqbriaTab(  "./data/dynEqbriaTables",
+                                      scenario = "noCorr",
+                                      UmsySS = UmsySS )
 
 # We're gonna bodge this up from a couple sources.
 qComm  <- statRefPts$qComm
@@ -289,8 +259,8 @@ propEffTable[,6] <- round(propDynEmey_p,3)
 
 csasdown::csas_table(  propEffTable, escape = FALSE,
                       booktabs = TRUE,
-                      font_size = 10,
-                      format = kable_format,
+                      font_size = 8,
+                      # format = kableFormat,
                       caption = propEffTabCap,
                       align = c("l","l",rep("c",ncol(propEffTable)-2)) ) %>%
       kable_styling(latex_options = c("striped", "hold_position","scale_down"),
@@ -302,6 +272,53 @@ csasdown::csas_table(  propEffTable, escape = FALSE,
 
 
 ```
+
+
+\clearpage
+\blandscape
+
+
+```{r dynEqTabNoCorr, echo = FALSE, warning = FALSE}
+# Get non-eqbm table too
+noCorrEqbriaTab <- makeDynEqbriaTab(  "./data/dynEqbriaTables",
+                                      scenario = "noCorr",
+                                      UmsySS = UmsySS )
+
+printNoCorrEqbriaTab <- noCorrEqbriaTab
+colnames( printNoCorrEqbriaTab) <- c(  "Stock",
+                                  "Species",
+                                  "$E^*_{MSY}$",
+                                  "$\\pi \\left( \\vec{E}^*_{MSY} \\right)$",
+                                  "$MSY^*_{MS}$",
+                                  "$B^*_{MSY,MS}$",
+                                  "$U^*_{MSY,MS}$",
+                                  "$\\frac{U^*_{MSY,MS}}{U_{MSY,SS}}$",
+                                  "$E^*_{MEY}$",
+                                  "$\\pi \\left( \\vec{E}^*_{MSY} \\right)$",
+                                  "$MEY^*$",
+                                  "$B^*_{MEY}$",
+                                  "$U^*_{MEY}$",
+                                  "$\\frac{U^*_{MEY}}{U_{MSY,SS}}$")
+
+csasdown::csas_table( printNoCorrEqbriaTab, escape = FALSE,
+                      booktabs = TRUE,
+                      font_size = 10,
+                      format = kableFormat,
+                      caption = dynEqNoCorrTabCap,
+                      align = c("l","l",rep("c",ncol(printNoCorrEqbriaTab)-2)) ) %>%
+      kable_styling(latex_options = c("striped", "hold_position","scale_down"),
+                bootstrap_options = c("striped", "hover")) %>%
+      add_header_above( header = c( " " = 2,
+                                "DER complex maximum yield" = 6,
+                                "Maximum Economic Yield" = 6),
+                    bold = TRUE)
+
+
+```
+
+\elandscape
+
+
 
 
 \clearpage
@@ -342,7 +359,7 @@ resultsTab[c(1,5,9,13,17),1] <- c(  "$U_{MSY,SS}$",
 csasdown::csas_table( resultsTab, escape = FALSE,
                       booktabs = TRUE,
                       font_size = 10,
-                      format = kable_format,
+                      # format = kableFormat,
                       caption = discRentTabCap,
                       align = c("l",rep("r",ncol(resultsTab)-1)) ) %>%
       kable_styling(  latex_options = c("striped", "hold_position","scale_down"),
@@ -374,7 +391,7 @@ colnames(resultsTab)[3:5] <- c("NPV","$E_{MEY}^*$","$MEY^*$")
 csasdown::csas_table( resultsTab, escape = FALSE,
                       booktabs = TRUE,
                       font_size = 10,
-                      format = kable_format,
+                      # format = kableFormat,
                       caption = demSensResultsTabCap,
                       align = c("l","c",rep("r",ncol(resultsTab)-2)) ) %>%
       kable_styling(  latex_options = c("striped", "hold_position","scale_down"),
@@ -400,10 +417,12 @@ colnames(resultsTab)[3:5] <- c("NPV","$E_{MEY}^*$","$MEY^*$")
 csasdown::csas_table( resultsTab, escape = FALSE,
                       booktabs = TRUE,
                       font_size = 10,
-                      format = kable_format,
+                      # format = kableFormat,
                       caption = discIncomeSensResultsTabCap,
                       align = c("l", "c",rep("r",ncol(resultsTab)-2)) ) %>%
       kable_styling(  latex_options = c("striped", "hold_position","scale_down"),
                       bootstrap_options = c("striped", "hover"))
 ```
+
+
 

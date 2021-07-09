@@ -1,11 +1,11 @@
 # Methods
 
 The following sections introduce our multi-species fishery system, a 
-bio-economic simulation for the fishery, multi-species MSY and MEY reference 
-points and their derivation via yield-per-recruit analysis and stochastic 
-optimisation, and, finally, a closed loop simulation approach to comparing 
-management performance between among single-species MSY, multi-species MSY, 
-and MEY based harvest policies in the presence of uncertainty.
+bio-economic simulation for the fishery, multi-species $MSY$ and $MEY$ 
+reference points and their derivation via yield-per-recruit analysis and 
+stochastic optimisation, and, finally, a closed loop simulation approach 
+to comparing management performance among the harvest strategies in the 
+presence of uncertainty.
 
 ## Study system 
 
@@ -25,120 +25,128 @@ and West Coast of Vancouver Island (WCVI, 3CD), as described in
 The bio-economic simulation model for the DER complex comprises a
 biological operating model representing the population dynamics of the 
 DER complex in response to commercial trawl fishing effort, and an economic 
-model that representing the fishing costs and revenues resulting from 
+model representing the fishing costs and revenues resulting from 
 trawl fishing effort dynamically allocated in time and space.
 
 ### Biological operating model
-
-The biological operating model is an age- and sex-structured, multi-species, 
-multi-area population dynamics model [@johnson2021hierarchical]. Population 
-dynamics are driven by a Beverton-Holt density-dependent stock-recruitment 
-model, with female spawning stock biomass assumed to mature according
-to a logistic maturity-at-age ogive [age at 50% mat for D, E, R]. Each
-cohort experiences sex-specific natural mortality, constant over age and 
-time [Table 1]. Fishing mortality-at-age was the product of proportion
-of individual fish of each age available to the fishing gear (selectivity), 
-trawl catchability for each population, and the trawl effort in each area. 
-The population dynamics and fishery parameters were esitmated by fitting the 
-model to fishery dependent and independent catch, catch-per-unit-of-effort 
-(CPUE or catch rates), biomass indices, catch-at-age, and catch-at-length 
-data sampled from the real DER complex over the 1956-2016 period 
-[@johnson2021hierarchical]. Resulting estimates of DER complex life 
-history parameters, commercial trawl catchability scalars, and single-species 
-reference points are given in Table 1.
 
 The DER complex is modeled as nine biologically independent populations,
 three species in each of three areas, with no movement among areas and no
 ecological interactions within an area. Biological independence was somewhat 
 realistic, given the presence of deep gullies in the QCS area that pose 
-barriers flatfish migration among areas, and evidence of limited ecological 
-interactions [@pikitch1987use; @wakefield1984feeding; 
+barriers flatfish migration among areas, along with evidence of limited 
+ecological interactions [@pikitch1987use; @wakefield1984feeding; 
 @johnson2021hierarchical; @collie2001biological].
+
+The biological operating model is an age- and sex-structured, multi-species, 
+multi-stock (area) population dynamics model [@johnson2021hierarchical]. 
+Population dynamics of each stock is driven by a compensatory Beverton-Holt 
+stock-recruitment model, where the stock is defined as mature female 
+spawning biomass, unfished biomass $B_0$ producing unfished recruitment
+$R_0$, and stock-recruit steepness $h$, which is the fraction of $R_0$
+expected when biomass is 20% of unfished (Table 1) [@mangel2010reproductive]. 
+Each species in the DER complex has a unique maturity-at-age schedule. 
+Natural mortality is stock- and sex-specific, but constant over age and time
+($M_m,M_f$, Table 1). Fishing mortality-at-age is the product of the 
+proportion of individual fish of each age available to the 
+fishing gear (selectivity), trawl catchability $q^{F}_{s,p}$ for each 
+population, and the trawl effort $E_p$ in each area. The population 
+dynamics and fishery parameters are estimated by fitting the 
+model to fishery dependent and independent catch, catch-per-unit-of-effort 
+(CPUE or catch rates), biomass indices, catch-at-age, and catch-at-length 
+data sampled from the real DER complex over the 1956-2016 period 
+[@johnson2021hierarchical].
 
 
 ### Economic sub-model
 
-The economic sub-model determins the resource rent from the DER complex
+The economic sub-model determines the resource rent from the DER complex
 fishery at each annual time step. Resource rent is defined as revenues to
 license holders minus fuel costs and crew share resulting from the
 expenditure of fishing effort to each area, i.e.,
 \begin{equation} \label{eq:resRent}
-\pi(\vec{E} | \{ \vec{B}_{s,p}\}_{s=1,..,nS,~ p = 1,...,nP}  ) = \sum_{p = 1}^{3} \left( (1 - \psi) \sum_{s} v_{s} \left(\sum_{p'=1}^3 C_{s,p'}(E_{p'},B_{s,p}) \right) \cdot C_{s,p}(E_{p},B_{s,p}) \right) - c_{p} \cdot E_{p},
+\pi(\vec{E} | \{ \vec{B}_{s,p}\}_{s=1,..,S,~ p = 1,...,P}  ) = \sum_{p = 1}^{3} \left( (1 - \psi) \sum_{s} v_{s} \left(\sum_{p'=1}^3 C_{s,p'}(E_{p'},B_{s,p}) \right) \cdot C_{s,p}(E_{p},B_{s,p}) \right) - c_{p} \cdot E_{p},
 \end{equation}
-where $\pi$ is the resource rent for the DER complex fishery,
-$\vec{E} = \langle E_p \vert p = 1,2,3 \rangle$ a vector of trawl
-effort in each area $p$, each $\vec{B}_{s,p}$ is a vector of biomass-at-age 
-for species $s$ and area $p$, $\psi$ the assumed crew share of revenue,
-$v_{s}(\sum_p C_{s,p})$ is the inverse demand curve (Figure 2), and
-$c_{p}$ is the fuel cost-per-unit-effort of fishing in area $p$ 
-(or $p'$ for the inner summation). The catch $C_{s,p}(E_p, \vec{B}_{s,p})$ 
-is calculated from the Baranov catch equation given effort $E_p$ and 
-biomass-at-age $\vec{B}_{s,p}$ [@johnson2021hierarchical].
+where $\pi$ is the resource rent for the whole DER complex fishery,
+$\vec{E} = \langle E_p \vert p = 1,2,3 \rangle$ is a vector of trawl
+effort allocated to each area $p$, each $\vec{B}_{s,p}$ is a vector 
+of biomass-at-age for species $s$ and area $p$, $\psi$ is the assumed 
+crew share of revenue, $v_{s}(\sum_p C_{s,p})$ is the inverse demand 
+curve relating the unit price to the quantity landed, and $c_{p}$ 
+is the fuel cost-per-unit-effort of fishing in area $p$ (or $p'$ for 
+the inner summation). The catch $C_{s,p}(E_p, \vec{B}_{s,p})$ is calculated 
+from the Baranov catch equation given effort $E_p$ and biomass-at-age
+$\vec{B}_{s,p}$ [@johnson2021hierarchical], i.e.,
+\begin{equation}
+C_{s,p}(E_p, \vec{B}_{s,p}) = \sum_{a = 1}^{A_s} \frac{Sel_{a,x,s,p} q^F_{s,p} E_p}{ Z_{a,x,s,p} } B_{a,s,p} e^{-Z_{a,x,s,p}},
+\end{equation}
+where $A_s$ is the plus-group age for species $s$, $Sel_{a,x,s,p}$ is 
+selectivity-at-age, and $Z_{a,x,s,p}$ is total mortality-at-age, with
+age indexed by $a$ and sex indexed by $x$.
 
-The inverse demand curves shown in Figure 2 were fit to DER complex 
+The inverse demand curves (Figure 2) are fit to DER complex 
 catches, ex-vessel prices, and BC household income data (Appendix A). 
 Area-specific fuel costs per trawl hour were derived from the average cost 
-of fuel to catch on kilotonne of groundfish catch in 2009
+of fuel to catch one kilotonne of groundfish catch in 2009
 [@nelson2011pacific-commerc], adjusted to 2016 prices (Table 2). The fuel 
 cost per kilotonne was then converted to cost per unit of fishing effort 
 in each area by scaling by the ratio of catch to fishing effort from each 
 area in 2009, i.e., 
-\begin{equation}
+\begin{equation*}
 c_{p} = .193 \cdot \frac{\sum_s C_{s,p,2009}}{E_{p,2009}}.
-\end{equation}
+\end{equation*}
 
 Fishing costs excluded variable freight and marketing costs, quota leasing, 
 and fixed capital expenses such as purchase, repairs, and debt servicing. 
 Therefore, the above definition of resource rent provides an upper bound 
-for economic yield. The problem of including fixed costs is that it is 
-generally difficult to assign these costs to a specific 
-species (or in this case, multi-species complex) as most vessels fish for 
-different groundfish species at different times of year, and sometimes 
-with different gear types. Therefore, for simplicity, fixed costs were 
-excluded from the rent calculation and assumed to be constant.
+for economic yield. Fixed costs were assumed to be constant, and thus
+ignored, being generally difficult to assign to individual species or
+multi-species complexes because most vessels fish for different groundfish 
+species at different times of year, and sometimes with different gear types.
 
-## Multi-species MSY and MEY reference points
+## Multi-species $MSY$ and $MEY$ reference points
 
-### Yield-per-recruit derivation
+### Optimal yield and reference points via equilibrium analysis
 
-Yield-per-recruit (YPR) derivations of equilibrium yield-curves as a 
-function of fishing effort are standard calculations for both single-species 
-and multi-species fisheries with technical interactions [@smith1993risk; 
-@murawski1984mixed; @pikitch1987use]. Therefore, we do not reproduce the 
-equations here. Single-species $MSY_{SS}$ reference points (ignoring
-technical interactions) are found by maximising individual species $s$
-yield within each area $p$ over fishing effort to derive the optimal effort
-$E_{MSY,SS,s,p}$, ignoring any by-product/bycatch of other species (Table 1). 
-Multi-species $MSY_{MS}$ reference points with technical interactions are 
-derived by maximising the sum of individual species yields (complex yield) 
-over effort within area $p$, producing $E_{MSY,MS,p}$ (Figure 3, Table 3). 
-The resource rent produced at $MSY_{MS}$ is found by substituting catch
-and effort into the rent equation \ref{eq:resRent} to determine the 
-resource rent $\pi(\sum_s MSY_{MS,s,p})$ under 2016 inverse demand 
-curves (Figure 3).
+Equilibrium yield-per-recruit reference points establish an equilibrium 
+relationship between fishing effort, biomass-per-recruit, and average
+annual yield (i.e., a yield curve). Yield curves are computed via 
+standard equations for both single-species and multi-species fisheries 
+with technical interactions [@smith1993risk; @murawski1984mixed; 
+@pikitch1987use]. Therefore, the equations are not reproduced here. 
+Single-species $MSY_{SS}$ reference points (ignoring technical interactions) 
+are found by maximising individual species $s$ yield within each area $p$ 
+over fishing effort to derive the optimal species-specific effort
+$E_{MSY,SS,s,p}$ that should be applied to each area, ignoring any 
+by-product/bycatch of other species (Table 1). Multi-species $MSY_{MS}$ 
+reference points with technical interactions are derived by maximising 
+the sum of individual species yields (complex yield) over effort within 
+area $p$, producing $E_{MSY,MS,p}$ (Figure 3, Table 3). The resource rent 
+produced at $MSY_{MS}$ is found by substituting equilbrium effort and 
+biomass into the equation \ref{eq:resRent} under 2016 inverse demand 
+curves.
 
-Economic YPR reference points for a multi-species fishery 
-with technical interactions are a straightforward extension of the 
-biological reference point calculations [@guillen2013estimating; 
-@hoshino2018estimating]. The biological yield-per-recruit reference points 
-described above establish an equilibrium relationship between fishing 
-effort, biomass, and landed catch. Similar to deriving rent for $MSY_{MS}$ 
-reference points, yield-per-recruit $MEY$ is derived by substituting the 
+The method for deriving economic yield reference points for a multi-species 
+fishery with technical interactions depends on the relationship between
+unit price and landings. In general, $MEY$ is derived by substituting the 
 equilibrium yield relationship for a given effort into equation 
-\ref{eq:resRent}, which is then evaluated to give the equilibrium resource 
-rent produced by a given fishing effort allocation and the 2016 inverse demand 
-curves. The resulting resource rents then define an economic yield surface 
-over three dimensional effort space (one for each area). Optimal effort and 
-$MEY$ reference points are found via Newton-Raphson optimisation of resource 
-rent over the 3-dimensional effort vector $\vec{E}$. If demand has infinite 
-price-elasticity (i.e., a constant price, given a fixed GDP per
-capita), then the surface may be optimised individually for each 
-area, similar to the above biological reference points. However, finite 
-own-price elasticities create a link among areas that requires joint
-optimisation of the rents.
+\ref{eq:resRent}, which, similar to deriving rent for $MSY_{MS}$ reference 
+points, is then evaluated to give the equilibrium resource rent produced by 
+a given fishing effort allocated among areas [s@guillen2013estimating; 
+@hoshino2018estimating]. If demand has infinite own-price elasticity (i.e., 
+a constant price with respect to landings), as is commonly assumed, then 
+the surface may be optimised individually for each area. If, instead, a 
+finite own-price elasticity is assumed (Appendix A), then the unit price for 
+each species changes with the quantity landed, and spatial heterogeneity in 
+species compositions implies spatial heterogeneity in rents, beyond the 
+costs of fishing. The resulting relationship between rents and effort 
+defines a surface over three dimensional effort space (one for each 
+area), and optimal effort and $MEY$ reference points are found via 
+Newton-Raphson optimisation of the resource rent over the 3-dimensional 
+effort vector $\vec{E}$.  
 
-For illustrative purposes, area-specific equilibrium rent curves
-are produced via a grid search over fishing effort, assuming 2016 inverse 
+Area-specific equilibrium rent curves are produced via a grid search over 
+fishing effort, assuming 2016 inverse 
 demand curves $v_s$. Effort grids included 100 levels of coastwide effort 
 $E = \sum_p E_p$, equally spaced from 1,000 - 100,000 hours of trawling. 
 At each grid point, the allocation of total effort to each area as optimised
@@ -149,126 +157,147 @@ allocation, numerically producing area-specific equilibrium curves.
 
 
 
-### Validation via stochastic optimisation
+### Optimal yield and reference points via stochastic simulation
 
-Multi-species $MSY_{MS}$ and $MEY$ reference points are validated by 
-simulation. The simualated DER complex is projected from 2016 and fishing effort
-is optimised under two alternative objective functions. The first objective
-function maximises total multi-species catch to estimate $MSY_{MS}$
+While the equilibrium methods above provide exact values for $MSY$
+reference points, they will approximate $MEY$ reference points when 
+the relationship between catch and price varies. When demand
+is dependent on a time-varying factor, such as household income as it 
+is here (Appendix A), $E_{MEY}$ varies from year-to-year, as the unit-price 
+varies, changing the total rent [@conrad1987natural]. To estimate 
+the series of of NPV maximising efforts for each area, $MEY$ reference points 
+are estimated, and $MSY$ reference points validated, by stochastic 
+simulation. The simulated DER complex is projected from 2016 
+conditions and fishing effort is optimised under two alternative objective 
+functions. The first maximises total multi-species catch over an 
+80-year time horizon, i.e.
+estimate $MSY_{MS}$
 \begin{equation*}
 C^{obj} = \sum_{t = 2017}^{2096} \sum_{s} \sum_{p}  C_{s,p,t},
 \end{equation*}
-and the second maximises the net present value (NPV) of the DER complex 
-resource rent over the 80 year projection to estimate $MEY$
+to estimate $MSY_{MS}$. The second objective function maximises the net 
+present value (NPV) of the DER complex resource rent over the same 
+time horizon, i.e.,
 \begin{equation*}
-\pi^{obj} = \sum_{t = 2017}^{2096} (1 + d)^{-(t - 2016)} \sum_{p} \left[  \left( \sum_s v_{s,t} C_{s,p,t} \right) - c_{p} E_{p,t} \right], 
+\pi^{obj} = \sum_{t = 2017}^{2096} (1 + d)^{-(t - 2016)} \sum_{p} \left[  \left( \sum_s v_{s,t} C_{s,p,t} \right) - c_{p} E_{p,t} \right] 
 \end{equation*}
-where $d$ is the annual discount rate (Table 2).
+to estimate $MEY$, where $d$ is the annual discount rate (Table 2).
 
-In both optimisations, population dynamics are projected 
-80 years over 2017 - 2096. Projections are repeated over 100 replicates, 
-differing by the random number seed used to draw recruitment process 
-deviations 
+Simulations are repeated over 100 trials, where each trial involves
+a unique realization of a stochastic future recruitment via
 \begin{align*}
 R_{s,p,t} = \overline{R}_{s,p,t} \cdot e^{\sigma_{s,p} \cdot \epsilon_{s,p,t} - 0.5 \sigma^2_{s,p} }, \\
 \end{align*}
-where $\overline{R}_{s,p,t}$ is the expected Beverton-Holt recruitment,
-$\epsilon_{s,p,t} \sim N(0,1)$ is the standardised recruitment process
-error, $\sigma_{s,p}$ is the recruitment process error standard deviation.
-Note that recruitment process deviations are simulated for all stocks from
-earlier than 2017, as the OM fitting process was unable to estimate 
-deviations up to 2016 based on the age and length composition data. 
+where 
+\begin{equation}
+\overline{R}_{s,p,t} = \frac{R_{s,p,0} \cdot 4h_{s,p} \cdot B_{s,p,t}}{B_{s,p,0} \cdot (1 - h_{s,p}) + (5h_{s,p} - 1)\cdot B_{s,p,t}},
+\end{equation}
+is the expected Beverton Holt recruitment at time $t$ with life-history
+parameters taken from Table 1, $B_{s,p,t}$ the spawning biomass of species
+$s$ in area $p$ at time $t$,$\epsilon_{s,p,t} \sim N(0,1)$ is the standardised 
+recruitment process deviation, and $\sigma_{s,p}$ is the recruitment process 
+deviation standard error. Note that recruitment process deviations are 
+simulated for all stocks from earlier than 2017, because historical recruitment 
+could not be estimated reliably past 2014. 
 
 
-Yield-per-recruit reference points found above are validated against
-distributions of effort, yield, and rent produced by the optimisation. 
-Stochastically optimised efforts $E^*_{MSY,MS,p}$ and $E^*_{MEY,p}$ are
-defined as median fishing effort in 2040 - 2060, and the associated biomass, 
-catch, and resource rents were defined analogously, and also denoted by 
-adding an asterisk to the variable denoting YPR derived optimum (e.g., 
-$B_{MSY,s,p}^*$). Optimal values were taken over the 2040 - 2060 time period 
-to allow enough time for the effort to stabilise after any initial transient 
-period, but also avoid end effects (e.g., high fishing mortality) caused by 
-a finite projection time horizon in the optimisation. 
+Equilibrium derivations of $MSY$ and $MEY$ reference points above are 
+compared to distributions of effort, yield, and rent produced by 
+the optimisations. Stochastic optima were defined as median values
+over over the 2040 - 2060 period under the yield ($C^{obj}$) and NPV 
+$\pi^{obj}$ maximising objective functions, and denoted with an asterisk 
+to differentiate from the equilibrium derivation, e.g. optimal efforts 
+were $E^*_{MSY,MS,p}$ and $E^*_{MEY,p}$. Optima were calculated over 
+2040 - 2060 to allow enough time for the effort to stabilise after any 
+initial transient period, while also avoiding end effects (e.g., high 
+fishing mortality) caused by a finite time horizon.
 
-While total effort is unconstrained in the projections, simulations 
-constrain inter-annual changes in coastwide effort to 20\% per year. 
-This constraint reflects the potential for new licenses in the fishery, 
-but creates a lag time required for a capital investment (e.g., in new 
-and larger vessels) or license reductions (e.g., buybacks). While the effort 
-is eventually unbounded, the optimisation method treats the fishery as a 
-single firm, rather than an open access regime, so it is possible that 
-fishery profits will not be dissipated. The optimisation was the same
-as the omniscient manager simulation in @johnson2021hierarchical.
+While total effort is unconstrained in the simulations, inter-annual 
+changes in coastwide effort were constrained to +/-20\% per year
+to reflect the potential for adding/subtracting new licenses in the 
+fishery, as well as the lag time required for a capital investment (e.g., 
+in new and larger vessels). While the effort is eventually unbounded, the 
+optimisation method treats the fishery as a single firm, rather than an 
+open access regime, so it is possible that fishery profits will not be 
+dissipated. The optimisation was the same as the omniscient manager 
+simulation in @johnson2021hierarchical.
 
 ## Harvest strategy performance
 
-Fishery reference points need to be tested in realistic simulations that
-mimic real fishery management process. While optimal fishing efforts have
-theoretical value it is difficult to control fishing effort well, and most 
-modern fisheries are instead managed using an output control quota system 
-with total allowable catches (TACs). TACs are set by taking the product of 
-a target harvest rate and a biomass estimate, while 
-the total amount of effort (e.g. number of fishing vessels, sets, or trawl 
-hours) are not limited by any regulation. To test the relative risks of 
-targeting $MSY_{SS}$, $MSY_{MS}$ and $MEY$ objectives, harvest rates based 
-on DER complex reference points are evaluated in closed loop feedback 
-simulations.
+While optimal fishing efforts have theoretical value, it is difficult 
+to control total fishing mortality via input fishing effort alone,
+since harvesters will continually adapt and improve harvest efficiency 
+[@clark2002problem]. Instead, most contemporary fisheries employ output 
+control quota systems involving a total allowable catch (TAC), set by 
+taking the product of a target harvest rate and a biomass estimate.
+This approach does not require controlling the total amount of effort (e.g. 
+number of fishing vessels, sets, or trawl hours) via regulation. 
+For example, an $MSY$ based harvest strategy will use $MSY$ reference 
+points for optimal effort $E_{MSY}$ or fishing mortality $F_{MSY}$
+to estimate an optimal harvest rate $U_{MSY}$. Then, catch limits are
+derived from applying that harvest rate to estimates of biomass. 
+Given the uncertainty in estimates of boimass, the risks and tradeoffs 
+in fishery outcomes from repeated application of a harvest 
+strategy are commonly tested in closed loop feedback simulation, 
+or management strategy evaluation [@punt2016management].
 
-The DER complex is projected forward for 80 years, matching the 
-stochastic optimisations. At each time step, TACs are set using a constant 
+The tradeoffs of repeated application of harvest strategies based 
+on $MSY_{SS}$, $MSY_{MS}$ and $MEY$ reference points to the DER complex
+are estimated via closed loop feedback simulations over an 80-year time
+horizon. At each time step, TACs are set using a constant target
 harvest rate based on the reference points being tested, i.e.
 \[
 TAC_{s,p,t} = \hat{B}_{s,p,t} \cdot U_{s,p},
 \] 
 where $\hat{B}_{s,p,t}$ is a biomass forecast for species $s$
-in area $p$ at time $t$, and $U_{s,p}$ is one of the YPR
-derived optimal harves rates $U_{MSY,SS}$, $U_{MSY,MS}$, or a 
-solution found via stochastic optimisation $U_{MSY,MS}^*$, 
-or $U_{MEY}^*$. Biomass forecasts $\hat{B}_{s,p,t}$ are simulated 
-with auto-correlated log-normal assessment errors 
+in area $p$ at time $t$, and $U_{s,p}$ is the harvest rate derived
+from either $MSY_{SS}$, $MSY_{MS}$, or $MEY$ reference points, or
+from the stochastic optimisation yield ($MSY_{MS}^*$) or NPV ($MEY^*$). 
+Uncertainty in biomass forecasts $\hat{B}_{s,p,t}$ is 
+simulated via auto-correlated log-normal assessment errors 
 \[
-\hat{B}_{s,p,t} = B_{s,p,t}\cdot e^{\delta_{s,p,t}}.
+\hat{B}_{s,p,t} = B_{s,p,t}\cdot e^{\delta_{s,p,t}}
 \] 
-The parameters for the $\delta_{s,p,t}$ distribution are estimated
-from assessment errors of a hierarchical multi-species surplus production 
-assessment model applied to the simulated DER complex (see section S.2 for 
-details) [@johnson2021hierarchical]. Once TACs are set, fishing effort
-is allowed to increased until at least one TAC in each area is fully 
-utilised, after which the area is closed to fishing 
-[@johnson2021hierarchical]. To reflect the limits on changes in 
-fishing effort in the stochastic optimisation, interannual differences
-in catch are limited to 20\% for each species/area combination.
+to approximate the observation uncertainty inherent in fish stock biomass
+estimates. Parameters for the $\delta_{s,p,t}$ distribution are derived
+from the distribution of estimation errors for a hierarchical multi-species 
+surplus production assessment model applied to the simulated DER complex 
+(see Appendix B for details) [@johnson2021hierarchical]. Once TACs are set, 
+annual fishing effort is allowed to increase until at least one species' 
+TAC in each area is fully utilised, after which the area is closed to fishing 
+[@johnson2021hierarchical]. Interannual differences in catch are limited 
+to +/-20\% for each stock-area combination, reflecting the limit on 
+interannual differences in fishing effort used for the stochastic 
+optimisation.
 
 Fishery performance is measured by comparing the conservation and economic 
-outcomes between target harvest rates. Conservation performance is determined
-based on the distribution of spawning biomass compared to single-species 
-$B_{MSY,SS}$ over 2040 - 2060. Economic performance is measured as the NPV 
-of the DER complex fishery over the whole projection. To measure risk, we 
-compared the 5th, 50th (median), and 95th percentiles of biomass and NPV 
-distributions. Using a percentile $p$ as a risk metric is known as
-*Value-at-risk-$p$* ($VAR-p$), a non-parametric definition of risk 
-commonly used in economic analyses [@danielsson2011financial; 
-@morganreuters1996riskmetrics].
+outcomes among the alternative harvest strategies (i.e., differing via their 
+target harvest rates). Conservation performance is determined based on the 
+distribution of spawning biomass compared to single-species $B_{MSY,SS}$ 
+over the period 2040 - 2060. Economic performance is measured via the NPV 
+of the DER complex fishery over the whole 80-year time horizon. Risk was 
+measured via the 5th, 50th (median), and 95th percentiles of biomass and 
+NPV distributions. The percentile $p^*$, or *Value-at-risk*-$p^*$ 
+($VAR-p^*$), is a non-parametric definition of risk commonly used in 
+economic analyses [@danielsson2011financial; @morganreuters1996riskmetrics].
 
 
-## Sensitivities
+## Sensitivity Analyses
 
-Economic results depend on the resource rents, which in turn depend on 
-prices for each species (demand curves) and discount rates applied in
-NPV calculations. The sensitivity of stochastic optimisation results
-(under the rent objective) was tested against demand and discount rate 
-uncertainties in seven additional scenarios (Table 3). Three 
-scenarios tested alternative demand assumptions, specifically a flat demand 
-relationship, simulated by refitting demand curves with an infinite PED
-(i.e., zero price flexibility, Appendix A), and a constant demand over 
-time by setting the growth in household income $\gamma = 0$. The remaining 
-four scenarios tested sensitivites to assumed discount rates $\delta$ and 
-growth rates $\gamma$ of household income (Table 3). Alternative discount 
-rates were half and twice the 5\% value used in the main simulations. 
-Alternative rates of growth in household income were 1 standard deviation 
-higher and lower than the recent mean rate of 3.9\% 
-^[https://www2.gov.bc.ca/assets/gov/british-columbians-our-governments/government-finances/financial-economic-review/financial-economic-review-2020.pdf].
+Net present values and economic risks depend on the resource rents, 
+which in turn depend on prices for each species (via inverse demand 
+curves) and discount rates applied in NPV calculations. The sensitivity of 
+stochastic optima under the rent objective ($\pi^{obj}$) is tested against 
+demand and discount rate uncertainties in seven additional scenarios (Table 3). 
+Three scenarios test alternative demand assumptions, specifically a flat 
+demand relationship, simulated by refitting demand curves with an infinite 
+price elasticity of demand (i.e., zero price flexibility, Appendix A), and a 
+constant demand over time by setting the growth in household income 
+$\gamma = 0$. The remaining four scenarios test sensitivites to assumed 
+discount rates $\delta$ and growth rates $\gamma$ of household income 
+(Table 3). Alternative discount rates were half and twice the 5\% value 
+used in the baseline simulations. Alternative rates of growth in household 
+income were +/-1 standard deviation of the recent mean rate of 3.9\%^[https://www2.gov.bc.ca/assets/gov/british-columbians-our-governments/government-finances/financial-economic-review/financial-economic-review-2020.pdf].
 
 
 
