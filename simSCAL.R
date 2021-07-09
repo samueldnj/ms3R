@@ -24,13 +24,15 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   ctlList  <- .createList  ( ctlTable )
 
   # Load history
-  repList               <- .loadFit( ctlList$opMod$histFile )
-  ctlList$opMod$histRpt <- c( repList$data, repList$repOpt ) 
-  ctlList$opMod$posts   <- repList$posts
-  ctlList$opMod$fYear   <- repList$fYear
-  ctlList$opMod$species <- repList$species
-  ctlList$opMod$stocks  <- repList$stocks
-  ctlList$opMod$fleets  <- repList$gearLabs
+  repList                   <- .loadFit( ctlList$opMod$histFile )
+  ctlList$opMod$histRpt     <- c( repList$data, repList$repOpt, repList$pars ) 
+  ctlList$opMod$posts       <- repList$posts
+  ctlList$opMod$fYear       <- repList$fYear
+  ctlList$opMod$species     <- repList$species
+  ctlList$opMod$stocks      <- repList$stocks
+  ctlList$opMod$fleets      <- repList$gearLabs
+  ctlList$opMod$histRpt$map <- repList$map
+  ctlList$opMod$histRpt$phz <- repList$ctlList$phases
 
   # Initialise the data structures to hold simulation states etc.
   simObj <- .initMS3pop(  ctlList )
@@ -2739,7 +2741,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
 } # END .AM_ISCAM()
 
 
-# Apply the Spatiall Integrated Statistical Catch-Age
+# Apply the Spatially Integrated Statistical Catch-Age
 # (SISCA) model to simulated data. Can be either
 # aggregated data or multi-stock.
 .AM_SISCA <- function( obj, t )
@@ -2750,19 +2752,27 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   SISCAlists <- .makeSISCAlists(obj,t)
 
   # applyTMBphase()
-  siscaFit <- .applyTMBphase( SISCAlists,
-                              dllName = "SISCA",
-                              optimizer = "nlminb",
-                              silent = FALSE,
-                              calcSD = FALSE,
-                              maxPhase = NULL,
-                              base_map = list(),
-                              maxEval = 1e3,
-                              maxIter = 1e3,
-                              savePhases = TRUE,
-                              phaseMsg = TRUE )
+  browser()
+  siscaFitObj <- .applyTMBphase(  SISCAlists,
+                                  dllName = "SISCA",
+                                  optimizer = "nlminb",
+                                  silent = FALSE,
+                                  calcSD = FALSE,
+                                  maxPhase = 14,
+                                  base_map = SISCAlists$map,
+                                  maxEval = 1e3,
+                                  maxIter = 1e3,
+                                  savePhases = TRUE,
+                                  phaseMsg = TRUE )
+
+  # Ref pts?
+  browser()
+  # Now save biomass, Fs etc
+
 
 } # END .AM_SISCA()
+
+
 
 # .makeSISCAlists()
 # Creates lists of data, pars and map
@@ -2770,165 +2780,245 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
 .makeSISCAlists <- function(obj,t)
 {
   # Pull model dims
-  nS <- obj$om$nS
-  nP <- obj$om$nP
-  nF <- obj$om$nF
+  nS  <- obj$om$nS
+  nP  <- obj$om$nP
+  nF  <- obj$om$nF
+  nA  <- obj$om$nA
+
+  repObj <- obj$ctlList$opMod$histRpt
+
+  # Are we spatially pooling data? If so, we need
+  # to take care of that in this function too
+
+  # Need to also consider when nP == 1, as we will
+  # lose dimensionality and it's gonna be a pain -- make
+  # a function for this, to choose which dims to preserve?
+
+  I_pft <- Subset(  x = obj$mp$data$I_spft[1,,,,drop = FALSE], 
+                    along = c(2:4),
+                    indices = list(1:nP,1:nF,1:t),
+                    drop = "non-selected" )
+
+  C_pft <- Subset(  x = obj$om$C_spft[1,,,,drop = FALSE], 
+                    along = c(2:4),
+                    indices = list(1:nP,1:nF,1:t),
+                    drop = "non-selected" )
+
+  A_apft <- Subset( x = obj$mp$data$A_axspft[,1,1,,,,drop = FALSE], 
+                    along = c(1,4:6),
+                    indices = list(1:nA,1:nP,1:nF,1:t),
+                    drop = "non-selected" )
+  
+  I_pft[is.na(I_pft)] <- -1
+  A_apft[is.na(A_apft)] <- -1
+
+  W_apft  <- Subset(  obj$om$W_axspft[,1,1,,,,drop = FALSE],
+                      along = c(1,4:6),
+                      indices = list(1:nA,1:nP,1:nF,1:t),
+                      drop = "non-selected" )
+  
+  W_apt <-  Subset( obj$om$W_axspt[,1,1,,,drop = FALSE],
+                    along = c(1,4:5),
+                    indices = list(1:nA,1:nP,1:t),
+                    drop = "non-selected" )                    
+
+  rI_pft <- Subset( obj$om$rI_spft[1,,,,drop = FALSE],
+                    along = c(2:4),
+                    indices = list(1:nP,1:nF,1:t),
+                    drop = "non-selected" )                    
+
+  combI_pt <- Subset( obj$mp$data$I_spft[1,,5,,drop = FALSE],
+                      along = c(2,4),
+                      indices = list(1:nP,1:t),
+                      drop = "non-selected" )     
+
+  sokFleets <- which(repObj$fleetType_g == 2)
+  sokTimes <- c()
+  if(length(sokFleets) > 0)
+  {
+    sok_pft <- C_pft[,sokFleets,,drop = FALSE]
+    sok_t   <- apply(X = sok_pft, FUN = sum, MARGIN = c(3))
+    sokTimes <- which(sok_t > 0)
+  }
 
   # Make a data list
   data <- list( # Input data
-                I_pgt           = obj$om$I_spft[1,1:nP,1:nF,1:t],
-                C_pgt           = obj$om$C_spft[1,1:nP,1:nF,1:t],
-                A_apgt          = obj$om$A_aspft[,1,1:nP,1:nF,1:t],
-                W_apgt          = W_apgt,
+                I_pgt           = I_pft,
+                C_pgt           = C_pft,
+                A_apgt          = A_apft,
+                W_apgt          = W_apft,
                 W_apt           = W_apt,
-                mI_gt           = mI_gt,
-                mC_gt           = mC_gt,
-                mA_agt          = mA_agt,
-                rI_pgt          = rI_pgt,
+                # mixed data, need to add to blob
+                mI_gt           = array(-1, dim = c(nF,t)),
+                mC_gt           = array(0, dim = c(nF,t)),
+                mA_agt          = array(-1, dim = c(nA,nF,t)),
+                # Blendex index data
+                rI_pgt          = rI_pft,
                 combI_pt        = combI_pt,
-                # Model switches
-                survType_g      = dataCtl$survType,
-                indexType_g     = dataCtl$idxType,
-                deltaIdx_pg     = deltaIdx_pg,
-                deltaIndVar     = deltaIndVar,
-                qPrior_g        = hypoCtl$qPrior_g[gearNames],
-                calcIndex_g     = calcIndex[gearNames],
-                selType_g       = hypoCtl$selFun[gearNames],
-                scaleSel_gt     = scaleSel_gt,
-                hierSel         = as.integer(hypoCtl$hierSel),
-                condMLEtauObs   = hypoCtl$condMLEtauObs,
-                ageCompWeight_g = hypoCtl$ageCompWt,
-                idxLikeWeight_g = hypoCtl$idxLikeWt,
-                fleetTiming_g   = dataCtl$fleetTiming_g[gearNames],
-                fleetType_g     = dataCtl$fleetType[gearNames],
-                selX_g          = hypoCtl$fleetSelX[gearNames],
-                tvSelFleets     = tvSelFleets,
-                initCode_p      = c(initFished),
-                initFcode_p     = initFcode_p,
-                initRcode_p     = initRcode_p,
-                initMethod      = hypoCtl$fishedInitMethod,
-                posPenFactor    = c(dataCtl$posPenFactor),
-                firstRecDev_p   = tFirstRecDev_p,
-                lastRecDev_p    = tLastRecDev_p,
-                tInitModel_p    = tInitModelYear_p,
-                minPropAge      = dataCtl$minPropAge,
-                minAge_g        = as.integer(dataCtl$minAge_g),
+                # Model switches - take straight from report file
+                # for now, will have to modify source later
+                survType_g      = repObj$survType_g,
+                indexType_g     = repObj$indexType_g,
+                deltaIdx_pg     = repObj$deltaIdx_pg,
+                deltaIndVar     = repObj$deltaIndVar,
+                qPrior_g        = repObj$qPrior_g,
+                calcIndex_g     = repObj$calcIndex_g,
+                selType_g       = repObj$selType_g,
+                # Update this with each time-step
+                scaleSel_gt     = repObj$scaleSel_gt,
+                hierSel         = as.integer(repObj$hierSel),
+                condMLEtauObs   = repObj$condMLEtauObs,
+                ageCompWeight_g = repObj$ageCompWeight_g,
+                idxLikeWeight_g = repObj$idxLikeWeight_g,
+                fleetTiming_g   = repObj$fleetTiming_g,
+                fleetType_g     = repObj$fleetType_g,
+                selX_g          = repObj$selX_g,
+                tvSelFleets     = repObj$tvSelFleets,
+                initCode_p      = repObj$initCode_p,
+                initFcode_p     = repObj$initFcode_p,
+                initRcode_p     = repObj$initRcode_p,
+                initMethod      = repObj$initMethod,
+                posPenFactor    = repObj$posPenFactor,
+                firstRecDev_p   = repObj$firstRecDev_p,
+                lastRecDev_p    = t - 2,
+                tInitModel_p    = repObj$tInitModel_p,
+                minPropAge      = repObj$minPropAge,
+                minAge_g        = as.integer(repObj$minAge_g),
                 nYearsProjAve   = as.integer(5),
-                spawnTiming     = hypoCtl$spawnTiming,
-                moveTiming      = hypoCtl$moveTiming,
-                fec             = hypoCtl$SOKfec,
-                gamma_g         = hypoCtl$SOKgamma_g,
-                pFem            = hypoCtl$SOKpFem,
-                postPondM_g     = hypoCtl$SOKpostPondM_g,
-                sokInitF        = hypoCtl$SOKInitF,
-                useMovement     = hypoCtl$useMovement,
-                juveMage        = hypoCtl$juveMage,
-                juveMsource     = juveMsource,
-                calcPropEff_t   = sokOn,
-                jeffWtB0        = hypoCtl$jeffWtB0,
-                lnm1PriorWt     = hypoCtl$lnm1PriorWt,
-                compLikeFun     = hypoCtl$ageCompLik,
-                meanSampSize_pg = meanA_pg,
-                meanSampSize_g  = meanA_g,
-                avgRcode_p      = avgRcode_p,
-                SRindVar        = SRindVar,
-                whichCombIdx_g  = whichCombIdx_g,
-                densityDepM     = as.integer(hypoCtl$densityDepM),
-                corrMdevs       = as.integer(hypoCtl$corrMortDevs),
-                corrRdevs       = as.integer(hypoCtl$corrRecDevs),
-                corrParWeight   = hypoCtl$corrParWeight,
-                mixComps_g      = rep(0,nG) )
+                spawnTiming     = repObj$spawnTiming,
+                moveTiming      = repObj$moveTiming,
+                fec             = repObj$fec,
+                gamma_g         = repObj$gamma_g,
+                pFem            = repObj$pFem,
+                postPondM_g     = repObj$postPondM_g,
+                sokInitF        = repObj$sokInitF,
+                useMovement     = repObj$useMovement,
+                juveMage        = repObj$juveMage,
+                juveMsource     = repObj$juveMsource,
+                # Update at each time step
+                calcPropEff_t   = repObj$calcPropEff_t,
+                jeffWtB0        = repObj$jeffWtB0,
+                lnm1PriorWt     = repObj$lnm1PriorWt,
+                compLikeFun     = repObj$compLikeFun,
+                meanSampSize_pg = repObj$meanSampSize_pg,
+                meanSampSize_g  = repObj$meanSampSize_g,
+                avgRcode_p      = repObj$avgRcode_p,
+                SRindVar        = repObj$SRindVar,
+                whichCombIdx_g  = repObj$whichCombIdx_g,
+                densityDepM     = repObj$densityDepM,
+                corrMdevs       = repObj$corrMdevs,
+                corrRdevs       = repObj$corrRdevs,
+                corrParWeight   = repObj$corrParWeight,
+                mixComps_g      = rep(0,nF) )
+
+  browser()
 
   # Make a pars list
+  sumCat <- apply(X = C_pft, FUN = sum, MARGIN = 1)
+  nSelDevs <- nP*nF*t
+  nRecDevs_p <- (t - 2) - repObj$firstRecDev_p
+
+
   pars <- list( lnB0_p                = log(2*sumCat),
                 lnRinit_p             = rep(10,nP),
                 lnRbar_p              = rep(10,nP),
-                logit_ySteepness      = initLogitSteep,
-                lnM                   = log(initM),
-                lnMjuve               = log(hypoCtl$Mjuve),
-                lnm1                  = log(hypoCtl$m1Prior[1]),
+                logit_ySteepness      = repObj$logit_ySteepness,
+                lnM                   = repObj$lnM,
+                lnMjuve               = repObj$lnMjuve,
+                lnm1                  = repObj$lnm1,
                 epslnm1_p             = rep(0,nP),
-                fDevs_ap              = matrix( data=0, nrow=nFishedInitAges, ncol=nP ),
+                fDevs_ap              = matrix( data=0, nrow=nA, ncol=nP ),
                 lnFinit_p             = rep(-4,nP),
                 epsM_p                = rep(0,nP),
-                lnsigmaStockM         = log(hypoCtl$sigmaMStock),
+                lnsigmaStockM         = repObj$lnsigmaStockM,
                 epsSteep_p            = rep(0,nP),
-                lnsigmaStockSteep     = log(hypoCtl$sigmaSteepStock),
+                lnsigmaStockSteep     = repObj$lnsigmaStockSteep,
                 # Selectivity (up)
-                lnSelAlpha_g          = log(initSelAlpha),
-                lnSelBeta_g           = log(initSelBeta),
-                epsSelAlpha_pg        = initepsSelAlpha_pg,
-                epsSelBeta_pg         = initepsSelBeta_pg,
+                lnSelAlpha_g          = repObj$lnSelAlpha_g,
+                lnSelBeta_g           = repObj$lnSelBeta_g,
+                epsSelAlpha_pg        = repObj$epsSelAlpha_pg,
+                epsSelBeta_pg         = repObj$epsSelBeta_pg,
                 epsSelAlpha_vec       = rep(0,nSelDevs),
                 epsSelBeta_vec        = rep(0,nSelDevs),
                 # Selectivity (dn)
-                lndSelAlpha_g         = log(initdSelAlpha),
-                lndSelBeta_g          = log(initdSelBeta),
-                epsdSelAlpha_pg       = initepsdSelAlpha_pg,
-                epsdSelBeta_pg        = initepsdSelBeta_pg,
+                lndSelAlpha_g         = repObj$lndSelAlpha_g,
+                lndSelBeta_g          = repObj$lndSelBeta_g,
+                epsdSelAlpha_pg       = repObj$epsdSelAlpha_pg,
+                epsdSelBeta_pg        = repObj$epsdSelBeta_pg,
                 epsdSelAlpha_vec      = rep(0,nSelDevs),
                 epsdSelBeta_vec       = rep(0,nSelDevs),
                 # Selectivity dev SDs
-                lnsigmaSelAlpha_g     = log(hypoCtl$sigmaSelStock_g),
-                lnsigmaSelBeta_g      = log(hypoCtl$sigmaSelStock_g),
-                lnsigmaTVsel          = log(hypoCtl$tvSelSD),
+                lnsigmaSelAlpha_g     = repObj$lnsigmaSelAlpha_g,
+                lnsigmaSelBeta_g      = repObj$lnsigmaSelBeta_g,
+                lnsigmaTVsel          = repObj$lnsigmaTVsel,
                 # obs error
-                lntau2Obs_pg          = log(initTau2_pg),
-                lntau2Obs_g           = log(initTau2_g),
+                lntau2Obs_pg          = repObj$lntau2Obs_pg,
+                lntau2Obs_g           = repObj$lntau2Obs_g,
                 # Rec devs
-                recDevs_pt            = array(0, dim = c(nP,nT-1) ),
+                recDevs_pt            = array(0, dim = c(nP,t-1) ),
                 recDevs_vec           = rep(0, sum(nRecDevs_p) ),
-                lnsigmaR              = log(hypoCtl$sigmaR),
+                lnsigmaR              = repObj$lnsigmaR,
                 # M devs
-                omegaM_pt             = array(0, dim = c(nP,nT-1)),
-                lnsigmaM              = log(hypoCtl$sigmaM),
+                omegaM_pt             = array(0, dim = c(nP,t-1)),
+                lnsigmaM              = repObj$lnsigmaM,
                 # Correlation in proc errors
                 off_diag_R            = rep(0, nP * (nP-1) / 2),
                 off_diag_M            = rep(0, nP * (nP-1) / 2),
                 # Priors
-                obstau2IGa            = rep(hypoCtl$tau2ObsIGa[1],nG),
-                obstau2IGb            = (hypoCtl$tau2ObsIGa[1]+1)*hypoCtl$tau2ObsPriorMode,
-                sig2RPrior            = c(1,2),
-                sig2MPrior            = c(1,0.04),
-                rSteepBetaPrior       = hypoCtl$steepnessPrior,
-                initMPrior            = hypoCtl$initMprior,
-                m1Prior               = hypoCtl$m1Prior,
-                mlnq_g                = rep(0,nG),
-                sdlnq_g               = hypoCtl$sdq,
-                mq                    = hypoCtl$mq,
-                sdq                   = sdq,
-                lnqComb_pg            = array(0, dim = c(nP,nG)),
-                lntauObsComb_pg       = lntauObsComb_pg,
+                obstau2IGa            = repObj$obstau2IGa,
+                obstau2IGb            = repObj$obstau2IGb,
+                sig2RPrior            = repObj$sig2RPrior,
+                sig2MPrior            = repObj$sig2MPrior,
+                rSteepBetaPrior       = repObj$rSteepBetaPrior,
+                initMPrior            = repObj$initMPrior,
+                m1Prior               = repObj$m1Prior,
+                mlnq_g                = rep(0,nF),
+                sdlnq_g               = repObj$sdlnq_g,
+                mq                    = repObj$mq,
+                sdq                   = repObj$sdq,
+                lnqComb_pg            = array(0, dim = c(nP,nF)),
+                lntauObsComb_pg       = repObj$lntauObsComb_pg,
                 # revise maturity ages and growth model - most don't matter since
                 # the WAA is empirical
-                mat_a                 = hypoCtl$matVec,
+                mat_a                 = repObj$mat_a,
                 fec_a                 = rep(200,nA),
-                Linf                  = hypoCtl$vonLinf,
-                L1                    = hypoCtl$vonL1,
-                vonK                  = hypoCtl$vonK,
-                inputL1               = hypoCtl$inputL1,
-                lenWt                 = hypoCtl$alloLW,
-                mlnSelAlpha_g         = log(hypoCtl$fleetSelAlpha),
-                mlnSelBeta_g          = log(hypoCtl$fleetSelBeta),
-                sdSel_g               = hypoCtl$sdSel_g,
+                Linf                  = repObj$Linf,
+                L1                    = repObj$L1,
+                vonK                  = repObj$vonK,
+                inputL1               = repObj$inputL1,
+                lenWt                 = repObj$lenWt,
+                mlnSelAlpha_g         = repObj$mlnSelAlpha_g,
+                mlnSelBeta_g          = repObj$mlnSelBeta_g,
+                sdSel_g               = repObj$sdSel_g,
                 # Movement
-                mov_ppa               = mov_ppa,
+                mov_ppa               = repObj$mov_ppa,
                 # SOK model
-                propEffBounds         = hypoCtl$sokPropEffBounds,
+                propEffBounds         = repObj$propEffBounds,
+                # Revise t in line below - unclear what it should be
+                # look up sokTimes in SISCAfuns.R
                 logitPropEff_vec      = rep(0,length(sokTimes)),
                 mPsi                  = .06,
                 sdPsi                 = .1,
-                logitphi1_g           = initPhi1,
-                logitpsi_g            = initPsi,
-                lnSDProbPosIdx_pg     = array(0,dim = c(nP,nG)),
-                meanProbPosIdx_pg     = array(0,dim = c(nP,nG)),
-                muSDProbPosIdx_g      = rep(hypoCtl$priorDeltaLNsd[1],nG),
-                muMeanProbPosIdx_g    = rep(hypoCtl$priorDeltaLNsd[1],nG),
-                sigSDProbPosIdx_g     = rep(hypoCtl$priorDeltaLNsd[2],nG),
-                sigMeanProbPosIdx_g   = rep(hypoCtl$priorDeltaLNsd[2],nG) )
+                logitphi1_g           = repObj$logitphi1_g,
+                logitpsi_g            = repObj$logitpsi_g,
+                lnSDProbPosIdx_pg     = array(0,dim = c(nP,nF)),
+                meanProbPosIdx_pg     = array(0,dim = c(nP,nF)),
+                muSDProbPosIdx_g      = repObj$muSDProbPosIdx_g,
+                muMeanProbPosIdx_g    = repObj$muMeanProbPosIdx_g,
+                sigSDProbPosIdx_g     = repObj$sigSDProbPosIdx_g,
+                sigMeanProbPosIdx_g   = repObj$sigMeanProbPosIdx_g)
 
-  # Make a map list
+  # Make a map list - need to update for time-varying
+  # arrays
+  map     <- repObj$map
+  phases  <- repObj$phz
+  
+  outList <- list(  data = data, 
+                    pars = pars,
+                    map = map,
+                    phases = phases )
 
+  outList
 
 } # END .makeSISCAlists()
 

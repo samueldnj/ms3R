@@ -19,6 +19,7 @@ cranPackages <- c("coda",
                   "tmbstan",
                   "here",
                   "bookdown",
+                  "ClimProjDiags",
                   "kableExtra" )
 
 for( pkg in cranPackages )

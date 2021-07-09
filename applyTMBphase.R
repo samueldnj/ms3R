@@ -26,7 +26,7 @@
                             optimizer = "nlminb",
                             silent = FALSE,
                             calcSD = FALSE,
-                            maxPhase = NULL,
+                            maxPhase = 14,
                             base_map = list(),
                             maxEval = 1e3,
                             maxIter = 1e3,
@@ -122,6 +122,8 @@
 
     # if(phase_cur == maxPhase)
       # browser()
+
+    browser()
 
     # Fit the model using fixed effects only
     obj <- TMB::MakeADFun(  data = data,
