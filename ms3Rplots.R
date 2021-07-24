@@ -4162,29 +4162,61 @@ plotBtCt_sp <- function(  obj = blob,
 
 # plotRetroSB()
 # Retrospective plots of AM fits for a given replicate
-plotRetroSB <- function( obj = blob, iRep = 1, vB_f=2 )
+plotRetroSB <- function(  obj  = blob, 
+                          iRep = 1, 
+                          vB_f = 2,
+                          plotTB = FALSE,
+                          plotVB = FALSE,
+                          plotData = TRUE  )
 {
+  nS  <- obj$om$nS
+  nP  <- obj$om$nP
+  nT  <- obj$om$nT
+  tMP <- obj$om$tMP
+  pT  <- nT - tMP + 1
+  nF  <- obj$om$nF
+
   # Get biomass arrays
-  SB_ispt       <- obj$om$SB_ispt[iRep,,,,drop=FALSE]
-  VB_ispft      <- obj$om$vB_ispft[iRep,,,vB_f,,drop=FALSE]
-  totB_ispt     <- obj$om$B_ispt[iRep,,,,drop=F]
-  retroSB_itspt <- obj$mp$assess$retroSB_itspt[iRep,,,,,drop=FALSE]
+  SB_spt       <- ClimProjDiags::Subset(  x= obj$om$SB_ispt[iRep,,,,drop=FALSE],
+                                          along = 2:4, indices = list( 1:nS, 1:nP, 1:nT),
+                                          drop = "non-selected" )
+  
+  VB_spft      <- ClimProjDiags::Subset(  x = obj$om$vB_ispft[iRep,,,,,drop=FALSE],
+                                          along = 2:5, indices = list(1:nS,1:nP,vB_f,1:nT),
+                                          drop = "non-selected")
+  
+  totB_spt     <- ClimProjDiags::Subset(  x = obj$om$B_ispt[iRep,,,,drop=F],
+                                          along = 2:4,
+                                          indices = list(1:nS,1:nP,1:nT),
+                                          drop = "non-selected")
+
+  q_spft      <- ClimProjDiags::Subset(  x = obj$om$q_ispft[iRep,,,,,drop = FALSE],
+                                          along = 2:5,
+                                          indices = list(1:nS,1:nP,1:nF,1:(nT)),
+                                          drop = "non-selected" )
+
+
+  I_spft       <- ClimProjDiags::Subset(  x = obj$mp$data$I_ispft[iRep,,,,,drop = FALSE],
+                                          along = 2:5,
+                                          indices = list(1:nS,1:nP,1:nF,1:(nT)),
+                                          drop = "non-selected" )
+
+  retroSB_tspt  <- ClimProjDiags::Subset( x = obj$mp$assess$retroSB_itspt[iRep,,,,,drop = FALSE],
+                                          along = c(2:5),
+                                          indices = list(1:pT,1:nS,1:nP,1:nT),
+                                          drop = "non-selected" )
 
   retroSB_tspt[retroSB_tspt < 0] <- NA
 
   # Get proportion of TACs for splitting aggregated biomass
   propTAC_spt   <- obj$mp$hcr$propTAC_ispt[iRep,,,]
 
+  I_spft[I_spft < 0] <- NA
 
-  tMP     <- obj$om$tMP
-  nS      <- obj$om$nS
-  nP      <- obj$om$nP 
-  nT      <- obj$om$nT
 
   speciesNames  <- obj$ctlList$opMod$species
   stockNames    <- obj$ctlList$opMod$stock
   fYear         <- obj$ctlList$opMod$fYear
-  pT            <- obj$ctlList$opMod$pT
 
   yrs <- seq( from = fYear, by = 1, length.out = nT)
 
@@ -4194,8 +4226,9 @@ plotRetroSB <- function( obj = blob, iRep = 1, vB_f=2 )
   for(s in 1:nS)
     for( p in 1:nP )
     {
+      maxSB <- 1.2*max(SB_spt[s,p,], plotTB * totB_spt[s,p,], plotVB*VB_spft[s,p,,], na.rm = T)
       plot( x = range(yrs),
-            y = c(0,1.2*max(totB_ispt[,s,p,],VB_ispft[,s,p,,],SB_ispt[,s,p,],na.rm = T) ),
+            y = c(0,maxSB ),
             type = "n", axes = F )
 
       mfg <- par("mfg")
@@ -4214,13 +4247,21 @@ plotRetroSB <- function( obj = blob, iRep = 1, vB_f=2 )
       }
       box()
       grid()
-      lines( x = yrs, y = SB_ispt[,s,p,], col = "red", lwd = 3 )
-      lines( x = yrs, y = VB_ispft[,s,p,,], col = "grey40", lwd = 2, lty = 3 )
-      lines( x = yrs, y = totB_ispt[,s,p,], col = "black", lwd = 2 )
+      lines( x = yrs, y = SB_spt[s,p,], col = "red", lwd = 3 )
+      if( plotData )
+        for( f in 1:nF )
+          points(x = yrs, y = I_spft[s,p,f, ]/q_spft[s,p,f,] )
+
+      if( plotVB )
+        for( f in vB_f )
+        lines( x = yrs, y = VB_spft[s,p,f,], col = "grey40", lwd = 2, lty = 3 )
+      if( plotTB )
+        lines( x = yrs, y = totB_spt[s,p,], col = "black", lwd = 2 )
+      # Plot retro fits
       for( tt in 1:pT )
       {
-        propTAC <- propTAC_spt[s,p,tMP + tt - 1]
-        lines( x = yrs, y = retroSB_itspt[,tt,s,p,], col = "grey60", lwd = 1 )
+        # propTAC <- propTAC_spt[s,p,tMP + tt - 1]
+        lines( x = yrs, y = retroSB_tspt[tt,s,p,], col = "grey60", lwd = 1 )
       }
   
       abline( v = yrs[tMP] - 0.5, lty = 2, lwd = 0.5 )

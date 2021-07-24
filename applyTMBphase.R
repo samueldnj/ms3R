@@ -59,6 +59,7 @@
   # a success flag at TRUE
   outList <- list( success = TRUE )
 
+
   for( phase_cur in 1:maxPhase ) 
   {
     gc()
@@ -109,6 +110,22 @@
     mapNames <- names(map_use)
     parNames <- names(params_use)
 
+    mapLen <- lapply(X = map_use, FUN = length )
+    parLen <- lapply(X = params_use, FUN = length )
+
+    # Now, check pars that are in map
+    mapNames <- names(map_use)
+    parsInMapLen <- parLen[mapNames]
+
+    lenDiffs <- unlist(mapLen) - unlist(parsInMapLen)
+    if( any(lenDiffs != 0) )
+    {
+      badDimIdx <- which(lenDiffs != 0 )
+      cat("Map has bad dimensions in ", names(badDimIdx), ", find and fix!! \n" )
+      browser()
+    }
+
+
     # Check names in map correspond to par names
     if( any( ! names(map_use) %in% names(params_use) ) )
     {
@@ -123,7 +140,8 @@
     # if(phase_cur == maxPhase)
       # browser()
 
-    browser()
+    # browser()
+
 
     # Fit the model using fixed effects only
     obj <- TMB::MakeADFun(  data = data,
@@ -152,6 +170,11 @@
                           objective = obj$fn,
                           gradient  = obj$gr,
                           control   = tmbCtrl ) )
+
+    if(!phaseMsg)
+      cat(".")
+    if( phase_cur  == maxPhase )
+      cat("\n")
 
 
     # break if there is an issue
@@ -272,6 +295,30 @@
       }
     }
 
+
+
+    # Save max phase complete
+    outList$maxPhaseComplete          <- phase_cur
+
+    # Save reports and optimisation
+    # output
+    if(savePhases)
+    {
+      phaseReports[[phase_cur]]$pars    <- obj$env$parList(opt$par)
+      phaseReports[[phase_cur]]$opt     <- opt
+      phaseReports[[phase_cur]]$success <- TRUE
+      phaseReports[[phase_cur]]$map     <- map_use
+    }
+
+    # browser()
+
+    if(phaseMsg)
+    {
+      cat(  "\nPhase ", phase_cur, " completed with code ",
+          opt$convergence, " and following message:\n", sep = "" )
+      cat("\n", opt$message, "\n\n", sep = "" )
+    }
+
     # Save sdreport object
     if(phase_cur == maxPhase & calcSD )
     {
@@ -286,6 +333,7 @@
         {
 
           message("AM had non PD Hessian, attempting to refit. \n")
+          browser()
           for( kRefit in 1:4 )
           {
             lastPar <- opt$par +  rnorm(length(opt$par), mean = 0, sd = 2)
@@ -339,35 +387,9 @@
         message("sdrep failed\n")
         # browser()
       }
-    }
-
-
-    # Save max phase complete
-    outList$maxPhaseComplete          <- phase_cur
-
-    # Save reports and optimisation
-    # output
-    if(savePhases)
-    {
-      phaseReports[[phase_cur]]$pars    <- obj$env$parList(opt$par)
-      phaseReports[[phase_cur]]$opt     <- opt
-      phaseReports[[phase_cur]]$success <- TRUE
-      phaseReports[[phase_cur]]$map     <- map_use
-    }
-
-    # browser()
-
-    if(phaseMsg)
-      cat(  "\nPhase ", phase_cur, " completed with code ",
-          opt$convergence, " and following message:\n", sep = "" )
-    if(phaseMsg)
-      cat("\n", opt$message, "\n\n", sep = "" )
+    } # END sdrep conditional
     
   } # close phase loop
-
-  # if(!outList$pdHess)
-  #   browser()
-
 
 
   # Save phase reports

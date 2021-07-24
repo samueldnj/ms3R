@@ -56,13 +56,18 @@ pullHistDataLikelihood <- function( histFolder = "fit_parBatHGherringMCMC1")
   .makeInfoFile(blob)
 
   # Calculate and save stats table
-  perfStats <- .simPerfStats(obj = blob)
-  write.csv( perfStats, file = file.path(path,"simPerfStats.csv"))
-
+  if(blob$ctlList$ctl$calcStats)
+  {
+    perfStats <- .simPerfStats(obj = blob)
+    write.csv( perfStats, file = file.path(path,"simPerfStats.csv"))
+  }
 
   # Copy AM file
-  if(blob$ctlList$mp$assess$method == "hierProd" )
-    file.copy( "hierProd.cpp", file.path(path, "hierProd.cpp") )
+  if(blob$ctlList$mp$assess$method %in% c("hierProd","SISCA") )
+  {
+    filename <- paste0(blob$ctlList$mp$assess$method,".cpp")
+    file.copy( filename, file.path(path, filename) )
+  }
 
   # Copy control file to sim folder for posterity
   cat(  "# simCtlFile.txt, written to ", folder, "on ", Sys.time(),"\n", sep = "", 

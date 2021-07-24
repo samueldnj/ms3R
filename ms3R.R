@@ -20,10 +20,4 @@ source("batchTools.R")
 source("stats.R")
 
 
-# TMB::compile("hierProd.cpp")
-# dyn.load(dynlib("hierProd"))
 
-# Compile and load SISCA AM - probably move this deeper
-# to be chosen when the control file is run
-TMB::compile("SISCA.cpp")
-dyn.load(dynlib("SISCA"))
