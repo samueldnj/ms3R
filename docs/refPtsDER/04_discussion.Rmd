@@ -1,19 +1,19 @@
 # Discussion
 
-In this paper, we investigate the relative trade-offs between
+In this paper, we investigate the trade-offs between
 conservation and economic outcomes under single- and multi-species
 harvest strategies for spatially heterogeneous, multi-species 
-fisheries. BC's three-area, three-species flatfish fishery is simulated
+fisheries. BC's three-species flatfish fishery is simulated
 over three areas, and five harvest strategies are defined based 
 equilibrium maximum sustainable yield ($MSY_{SS}$, $MSY_{MSY}$) and 
 maximum economic yield ($MEY$) reference points, as well as stochastically 
 optimised multi-species reference points $MSY^*_{MS}$ and $MEY^*$. 
 For each harvest strategy, economic and conservation performance is 
 estimated via closed loop simulation. For $MSY_{MS}$ reference points, 
-equilibrium and stochastic optima are not substantially different,
-given that stochastic optima were medians, and recruitment dynamics
-were bias corrected. In contrast, equilibrium $MEY$ harvest rates were 
-significantly higher than their stochastically optimised analogues, as 
+deterministic and stochastic optima are not substantially different,
+given that stochastic optima were medians, and recruitment process errors
+are bias corrected. In contrast, equilibrium $MEY$ harvest rates are
+significantly higher than their stochastic analogues, as 
 future increases in household incomes drove down the unit price, 
 indicating that DER complex flatfish are considered an inferior
 good, and families will switch from flatfish to more expensive proteins
@@ -25,28 +25,28 @@ the allocation is similar among $MSY_{MS}$, $MSY^*_{MS}$, and
 $MEY$ reference points. Although species composition and own-price 
 elasticity affect the total effort expended, their effect on the 
 allocation of that effort among areas was minor. Further, the allocation 
-of equilibrium $E_{MEY}$ was insensitive to both flat (i.e., infinite PED) 
-and downward sloping demand curves, despite in higher optimal harvest rates 
-and economic yields in the former case, and lower yields and rents if 
-demand was assumed to decrease with increasing price, indicating a 
-transfer of surplus from consumers to producers is occuring
-[@pascoe2018offsetting]. 
+of equilibrium $E_{MEY}$ was insensitive to the value of own-price
+elasticity, with both flat (i.e., perfectly elastic) and downward 
+sloping demand curves producing similar allocations. Allocations were 
+insensitive to the shape of demand curves despite differences
+in yields and rents. 
 
 In contrast, market demand had a strong effect on the spatial
-allocation of efforts under the stochastic optimisations. As
-demand reduced with increasing as household incomes, total effort
-was reduced, and the highest proportion shifted to the QCS area to target 
-Rock sole, which had no upper bound on its unit price thanks to
-a lack of exogenous catch in the USA. Such effects of temporal variability 
+allocation of effort under the stochastic optimisations. As demand for 
+inferior goods declines with increasing household incomes, 
+total effort was reduced, and the highest proportion shifted to the QCS 
+area to target Rock sole, which had no upper bound on its unit price thanks 
+to a lack of exogenous catch in the USA. Such effects of temporal variability 
 in market demand highlight a common argument against using MEY reference 
-points: that the assumptions are only valid for a short time, which may 
-have already passed, and therefore $MEY$ targets require constant 
-updating to stay relevant [@dichmont2010implementing]. On the other hand, 
+points: that the assumptions are only valid for a short time and, therefore,
+$MEY$ targets require constant updating to stay relevant 
+[@dichmont2010implementing]. On the other hand, 
 frequent model updates to check misspecification is a basic requirement 
 of adaptive management [@walters1986adaptive], and updating economic 
 assumptions/models with more recent data at the same time is of low 
 marginal cost.
 
+**ADD QUOTA LEASE STUFF HERE**
 While choke effects are commonly assumed to be inherently negative 
 outcomes, this was not the case for the DER complex fishery. Choke 
 effects limit harvesters' ability to fully catch a species' TAC, and 
@@ -64,29 +64,32 @@ target biomass of $B_{MSY,SS}$ implied by the harvest rate, while
 remaining species started, and remained, well above $B_{MSY,SS}$, as 
 TACs were underutilized and realised harvest rates were lower. 
 
-Under the single-species $MSY_{SS}$-bases strategy, there is a 
-perception of lower economic risk, based on higher NPV distributions than
-under the multi-species maximum yield strategy. Higher NPV stems from 
-an increase in rents early in the projection period, as a result of lower 
-fishing costs associated with higher CPUE from under-utilised TACs caused
-by choke effects, and higher unit prices from lower landings, combining 
+Under the single-species $MSY_{SS}$-based strategy, there is a 
+perception of lower economic risk. This perception is based on higher 
+median NPV than under the multi-species maximum yield strategy. Higher 
+NPV stems from an increase in rents early in the projection period, as a 
+result of lower fishing costs associated with higher CPUE from under-utilised 
+TACs caused by choke effects, and higher unit prices from lower landings, 
+combining 
 to transfer surplus from consumers to producers. However, while the NPV
 is higher, the rents still eventually dissipate under the $MSY_{SS}$ 
 strategy after the initial profitable period, but the effect is less
 noticeable given the early profits and assumed discount rate.
-Rents dissipate as unit prices are reduced with increasing household 
-incomes, and $MSY$ strategies do not account for changes in price.
+Rents decline below zero as unit prices are reduced with increasing 
+household incomes, and $MSY$ strategies do not account for changes in 
+price.
 
 The economic model used for the DER complex is fairly simple, and produces 
-upper bounds on resource rents that may optimistically bias the 
+upper bounds on resource rents that may positively bias the 
 net-present-values in the simulations. For example, fuel and crew share 
 were the only variable costs included, but quota lease prices, which are 
 a significant expense for many harvesters in this fishery, were ignored. 
-While crew share can be considered constant as it was treated here, the 
-price of fuel is time-varying, meaning that the marginal cost of fishing 
-probably changes year by year. However, time-varying fuel costs would 
-require a model to project the price into the future, adding variability 
-to the results [footnote for statscan], and would require several 
+While crew share can be considered a constant rate as it was treated here, 
+the price of fuel is time-varying, meaning that the marginal cost of 
+fishing probably changes year by year. However, time-varying fuel costs 
+would require a model to project the price into the future, adding 
+variability to the results^[https://doi.org/10.25318/1810025601-eng], 
+and would require several 
 assumptions, given volatility and growth observed in fuel prices that
 has low correlation with GDP or CPI. Further, some choices would simply
 add noise, leaving the main findings based on average/median behaviour
@@ -96,57 +99,15 @@ drops, the lease price also drops, except for choke species. Choke species
 quota actually becomes more valuable as TAC is decreased, as it is 
 required for access to higher value species. Negative correlation 
 between the landed price and quota lease price would lead to interesting 
-secondary market dynamics and may create arbitrage [@oostdijk2020catch]; 
-however, including such dynamics would require more detailed effort 
-dynamics, likely at the individual vessel level.
-
-An earlier version of this work included simulations where stochastic optima
-were estimated with and without correlation in price and recruitment. 
-Optimal harvest rates were then used, as above, as targets in closed loop 
-simulations, cross tested against OM scenarios with and without the same 
-correlation. While simulated correlation in recruitment and price deviations 
-affected the distribution of fishery outcomes (e.g., NPV, biomass), there 
-was little effect on the estimates of optimal harvest rates, and 
-even less effect on the relative conservation and economic risks when
-harvest rates derived from "incorrect" correlation scenarios were used to
-set TACs. Such insensitivity to correlation is consistent with other 
-studies showing that that the effects of synchrony (i.e., correlation) in 
-recruitment process deviations among groundfish were dampened by their 
-long-lived nature [@oken2020effects], as standing stocks of biomass and 
-longer fishery recruitment delays almost completely compensate for 
-recruitment variability, reducing risks associated with ignoring 
-correlation. However, we do not assert that recruitment correlation among 
-species and areas is not an important issue in spatial and multi-species 
-fisheries management, as effects of correlation in the simulated DER
-complex are likely limited by the lack of ecological interactions among
-species and/or movement of stocks among areas. Recruitment correlation 
-would probably have more significance in multi-stock contexts that include 
-spatial movement, where TACs in one area could affect the effective harvest 
-rate induced by another area's TACs through stock mixing 
-[@goethel2016incorporating]. For example, there are two spawning stocks
-for Atlantic Bluefin Tuna that differ in size by an order of magnitude
-[ref]. Tuna catch limits in the eastern Atlantic ocean directly impact the 
-escapement of fish from the larger Mediterranean spawning stock to the western 
-Atlantic, which dilutes the harvest rates on the smaller Gulf of Mexico 
-spawning stock. If recruitment to each stock was, for example, positively 
-correlated, then harvest strategies that were designed to take advantage 
-uncorrelated recruitments and high average proportions of Mediterranean 
-spawners in the west Atlantic could, in years where both stocks are
-affected by much lower than expected recruitment, take higher than 
-expected quantities of Gulf spawners, increasing the risk of overfishing. 
-In general, higher absolute correlation in recruitments would likely 
-strengthen feedback links between areas, creating 
-more significant differences between target harvest rates derived under 
-correlated and uncorrelated scenarios. Recruitment correlation would also 
-play a larger role for short-lived species, such as invertebrates 
-[@oken2020effects; @dichmont2006management3], or if it was explicitly 
-considered in a model-based biomass estimation procedure, affecting
-TACs through stock status estimates [@dichmont2006management3].
+secondary market dynamics and may lead to arbitraging behaviour 
+[@oostdijk2020catch]; however, including such dynamics would require 
+more detailed effort dynamics, likely at the individual vessel level.
 
 The modeling framework developed in this paper can be extended to help
 answer broader ecosystem based fishery management questions. For example, 
-the "30x30 initiative" aims to protect 30\% of global oceans in marine 
-protected areas by 2030 [ref or footnote]. However, 
+the "30x30 initiative" aims to use marine spatial planning processes
+to protect 30\% of global oceans in marine protected areas by 2030 
+[@collie2013marine]. However, 
 there is considerable uncertainty about the effect that spatial planning 
 has on the distribution of effort [@hopf2016fishery; @russo2014smart]. 
 One approach would be to link effort allocation to the economic model 
@@ -154,8 +115,9 @@ to more closely simulate how harvesters choose where to expend fishing
 effort [@hilborn1987general; @marchal2013added; @tidd2012dynamic]. 
 A simple, emergent version of reallocating fishing effort to target different
 species compositons when prices changed was observed in the stochastic 
-optimisations of DER complex NPV, where effort moved to QCS to target 
-higher proportions of Rock sole as prices dropped. Another extension could 
+optimisations of rent in the DER complex fishery, where effort moved to 
+QCS to target higher proportions of Rock sole as prices dropped. Another 
+extension could 
 evaluate predictors of choke effects, and how they relate to catch/quota 
 balancing (TAC utilisation) observed in the past [@marchal2009catch; 
 @branch2008matching]. TAC utilisations could be correlated with biomass 
@@ -178,26 +140,27 @@ their landings in continental North America).
 We demonstrate significant benefits of including technical
 interactions in multi-species harvest strategies. Harvest strategies
 based on multi-species $MSY$ eliminate choke effects, producing higher 
-catches while avoiding states of conservation concern for the DER complex 
-fishery. Low conservation concern and higher catches imply increased 
-food security, which is a growing need for the increasing global
-population. While multi-species $MSY$-based strategies appear to dissipate 
-DER complex resource rents over time, this is largely a function of the 
-unit price reduction with increasing household income, which lowers
-the annual rents from all strategies. The same price reductions caused a
+catches while avoiding states of conservation concern when harvest
+strategies are repeatedly applied to the DER complex fishery. Low 
+conservation concern and higher catches increases food security, which 
+is a growing need for the increasing global
+population. While rents under multi-species $MSY$-based strategies appear 
+decline below zero over time, this is largely a function of DER complex
+species being inferior goods, which lowers the annual rents from all 
+strategies. The same price reductions caused a
 reallocation of fishing effort under $MEY$ based harvest strategies, 
 highlighting that the optimal fishing effort for a spatially heterogeneous 
 fishery is not constant, depending on time as well as space. Finally, 
 while choke effects in single-species $MSY$-based strategies protected 
-the DER complex from overfishing and harvesters from rent dissipation, 
+the DER complex from overfishing and maintained higher NPV, 
 the behaviour is strongly dependent on the relative health, catchabilities, 
 and similar unit price of the DER complex stocks, meaning that the result 
 is not general, and should not be taken as supporting evidence for 
 business as usual. Despite the protective role of choke
 effects for the simulated DER complex fishery, real choke effects will 
 still cause frustrations for harvesters when TACs are underutilized, as 
-some harvesters will be left holding quota for which the value has 
-completely evaporated.
+some harvesters will be left holding expensive quota that they are unable
+to utilise or sell.
 
 
 

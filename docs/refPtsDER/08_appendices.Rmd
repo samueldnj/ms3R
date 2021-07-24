@@ -108,9 +108,10 @@ variable in the second stage regression for the demand curve
 \log C_{s,t} = \beta_{0,s} + \lambda_s \log \hat{v}_{s,t} + \beta_{1,s} y_t,
 \end{equation}
 where $C_{s,t}$ is the US west coast and BC catch in year $t$,
-$\lambda_s$ is the own price elasticity of demand for species $s$
-[@cheng1988demand], and $y_t$ is the British Columbia household income 
-per capita in year $t$. When modeling an inverse demand curve, with price 
+$\lambda_s$ is the own-price elasticity for species $s$
+[@cheng1988demand], $\beta_{1,s}$ is the income elasticity, and $y_t$ 
+is the British Columbia household income per capita in year $t$. When 
+modeling an inverse demand curve, with price 
 as the response variable, the quantity $\frac{1}{\lambda_s}$ is called 
 price flexibility [@jaffry1999long]. We also fit models with cross-price 
 elasticity of demand, but none of the coefficients for substitution
@@ -138,13 +139,11 @@ does not contradict the data, and the demand is downward sloping
 [@pascoe2018offsetting]. Further, $p$ values are continuous, and
 $p = 0.101$ is a low probability of a spurious effect, given the 
 uninformative data. All species have a negative
-income elasticity parameter $\beta_1$, indicating that the price will 
-decrease for a given quantity demanded (catch) as household incomes 
-increase. Such a reduction in demand from higher incomes may implies 
-that DER complex flatfishes are an inferior good [@dey2011multistage], 
-which means that families with more disposable income will switch to 
-more expensive sources of protein, such as higher value fish or beef, 
-rather than the inexpensive flatfishes of the DER complex.
+income elasticity parameter $\beta_1$, indicating that they are all
+inferior goods [@dey2011multistage], which means that families with 
+more disposable income will switch to more expensive sources of protein, 
+such as higher value fish or beef, rather than the inexpensive 
+flatfishes of the DER complex.
 
 ```{r invDemCurveTables, echo = FALSE}
 priceIVreg <- priceModel$priceInstrument_s
@@ -252,8 +251,10 @@ are very different. Dover and English soles have no significant parameters
 ($0.4 < p < 0.65$), while Rock sole's inverse demand curve has 
 significant coefficients at the $p = 0.1$ level. Further, while Dover and
 English soles have a reduction in price with household incomes, as above,
-Rock sole's relationship with income is reversed, showing demand will
-increase with household income. This is not unexpected, as Rock sole has the 
+Rock sole's relationship with income is reversed, showing that it
+is no longer an inferior good and demand will increase with household 
+income. This indicates that own-price elasticity and income elasticity
+are confounded, but is not wholly unexpected, as Rock sole has the 
 smallest magnitude $\beta_1$ coefficient in the finite elasticity case,
 and is sometimes considered a more desirable eating fish. 
 
@@ -315,62 +316,64 @@ csasdown::csas_table( invDemTable, escape = FALSE,
 
 ```
 
-<!-- \begin{equation} 
-v_{s}(\sum_{p} C_{s,p}) = v^*_{s} \left( \frac{\sum_p C_{s,p}}{ \sum_p MSY_{SS,s,p}}  \right) ^{1/\lambda_s}
-\end{equation}
-where $v^*{s}$ was the 2016 reference price of species $s$ when catch 
-was the sum of single-species MSY for each area, and $\lambda_s < 0$ is 
-the price elasticity of demand [@varian1992microeconomic]. The price 
-elasticity of demand $\lambda_s$ and 2016 reference price $v^*_s$ were 
-found by fitting a time-varying inverse demand curve to average ex-vessel 
-prices and catch data between 2006 and 2016 (see Appendix B). Modeling 
-price as a decreasing function of quantity supplied captured the incentive 
-of harvesters to reduce catch and keep prices higher through artificial 
-scarcity, which results in a transfer of benefits (surplus) from consumers 
-to producers [@pascoe2018offsetting]. 
+# Appendix B: Assessment error simulation
 
-We assumed that ex-vessel unit prices ($/kg) for each DER complex 
-species $s$ followed a time-varying inverse demand curve
-\begin{equation}
-v_{s,t}(\sum_{p} C_{s,p,t}) = v^*_{s,t} \left( \frac{\sum_p C_{s,p,t}}{ \sum_p MSY_{SS,s,p}}  \right) ^{1/\lambda_s},
-\end{equation}
-where $v_{s,t}$ was the ex-vessel unit price, $C_{s,p,t}$ was catch,
-$v^*_{s,t}$ was the reference ex-vessel unit price realised when coast-wide 
-catch $\sum_p C_{s,p,t}$ (quantity supplied) was equal to the sum of area-specific maximum 
-sustainable yield $\sum_p MSY_{s,p}$, and $\lambda_s$ was the constant 
-elasticity of demand reducing price with quantity supplied, with indices for
-species $s$, area $p$, and year $t$. The reference price $v^*_{s,t}$ varied 
-via a simple random walk in logit-space
-\begin{align}
-\logit \upsilon_{s,t} &= \logit \upsilon_{s,t-1} + \delta_{s,t}, \\
-v^*_{s,t} &= 0.5 \cdot P^{min}_{s} + \frac{\mathcal{P}^{max}_s - \mathcal{P}^{min}_s}{1 + exp(-\logit \upsilon{s,t})}
-\end{align}
-where $\upsilon_{s,t}$ was the unbounded logit-scale parameter transformed
-to the reference price $v^*_{s,t}$, $\delta_{s,t}$ was a normal deviation, 
-and $v^*_{s,t}$ was bounded between half of $P^{\min}_s$ and twice
-$P^{\max}_s$, the lowest and highest observed prices, respectively, of 
-species $s$ between 2006 and 2016.
+# Appendix C: Catchability and effort
 
-Price elasticity of demand $\lambda_s$, and the covariance of the random walk 
-deviations $\delta_{s,t}$ were estimated by fitting the time-varying
-inverse demand curve to catch and price data from 2006 - 2016. Leading
-parameters $\lambda_s$, $\delta_{s,t}$, and the 2016 reference price
-$v^*_{s,2016}$ were estimated via Newton-Rhapson optimisation of the
-objective function
-\begin{equation}
-\mathcal{O} = \frac{33}{2} \left( \frac{\left( \log P_{s,t} - \log v_{s,t} \right)^2}{33} + 1 \right) + \sum_{s,t} \delta_{s,t}^2,
-\end{equation} 
-where $P_{s,t}$ is the observed ex-vessel prices for DER complex species
-from 2006 to 2016, and $v_{s,t}$ are the expected prices given by Equation 
-REF above. Random walk deviations $\delta_{s,t}$ were allowed to vary with 
-a standard deviation of 1.0, which allowed the residual error 
-$\log P_{s,t} - \log v_{s,t}$ to approach zero, solving for the random walk 
-jumps required to produce the observed prices $P_{s,t}$ at the observed 
-quantities supplied $C_{s,p,t}$ given a constant elasticity of 
-demand $\lambda_s$. Covariance $\Sigma$ of the random walk jumps
-$\delta_{s,t}$ was derived from the estimated jumps themselves, rather
-than within the model.
- -->
+The optimal allocation of effort in each area $p$, derived under equilibrium
+reference point calculations, is very close to the ratio $\rho_p$ of inverse 
+average catchabilty scalars within an area $p$ to the sum of inverse average 
+catchabilities, i.e.,
+\begin{align*}
+\rho_p &= \frac{1/\bar{q}^{(F)}_p}{\sum_p 1/\bar{q}^{(F)}_p}, \\
+\bar{q}^{(F)}_p & = \frac{1}{3} \sum_s q^{(F)}_{s,p}. \\
+\end{align*}
+Further, the optimal equilbrium allocation is also very close to the 
+$E_{MSY,MS}$ allocation (Table 5), but the pattern does not hold for 
+stochastic simulations under time-varying demand, as explained in 
+the results.
 
 
-
+<!-- 
+An earlier version of this work included simulations where stochastic optima
+were estimated with and without correlation in price and recruitment. 
+Optimal harvest rates were then used, as above, as targets in closed loop 
+simulations, cross tested against OM scenarios with and without the same 
+correlation. While simulated correlation in recruitment and price deviations 
+affected the distribution of fishery outcomes (e.g., NPV, biomass), there 
+was little effect on the estimates of optimal harvest rates, and 
+even less effect on the relative conservation and economic risks when
+harvest rates derived from "incorrect" correlation scenarios were used to
+set TACs. Such insensitivity to correlation is consistent with other 
+studies showing that that the effects of synchrony (i.e., correlation) in 
+recruitment process deviations among groundfish were dampened by their 
+long-lived nature [@oken2020effects], as standing stocks of biomass and 
+longer fishery recruitment delays almost completely compensate for 
+recruitment variability, reducing risks associated with ignoring 
+correlation. However, we do not assert that recruitment correlation among 
+species and areas is not an important issue in spatial and multi-species 
+fisheries management, as effects of correlation in the simulated DER
+complex are likely limited by the lack of ecological interactions among
+species and/or movement of stocks among areas. Recruitment correlation 
+would probably have more significance in multi-stock contexts that include 
+spatial movement, where TACs in one area could affect the effective harvest 
+rate induced by another area's TACs through stock mixing 
+[@goethel2016incorporating]. For example, there are two spawning stocks
+for Atlantic Bluefin Tuna that differ in size by an order of magnitude
+[ref]. Tuna catch limits in the eastern Atlantic ocean directly impact the 
+escapement of fish from the larger Mediterranean spawning stock to the western 
+Atlantic, which dilutes the harvest rates on the smaller Gulf of Mexico 
+spawning stock. If recruitment to each stock was, for example, positively 
+correlated, then harvest strategies that were designed to take advantage 
+uncorrelated recruitments and high average proportions of Mediterranean 
+spawners in the west Atlantic could, in years where both stocks are
+affected by much lower than expected recruitment, take higher than 
+expected quantities of Gulf spawners, increasing the risk of overfishing. 
+In general, higher absolute correlation in recruitments would likely 
+strengthen feedback links between areas, creating 
+more significant differences between target harvest rates derived under 
+correlated and uncorrelated scenarios. Recruitment correlation would also 
+play a larger role for short-lived species, such as invertebrates 
+[@oken2020effects; @dichmont2006management3], or if it was explicitly 
+considered in a model-based biomass estimation procedure, affecting
+TACs through stock status estimates [@dichmont2006management3]. -->
