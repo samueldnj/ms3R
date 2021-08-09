@@ -46,12 +46,11 @@ of adaptive management [@walters1986adaptive], and updating economic
 assumptions/models with more recent data at the same time is of low 
 marginal cost.
 
-**ADD QUOTA LEASE STUFF HERE**
 While choke effects are commonly assumed to be inherently negative 
-outcomes, this was not the case for the DER complex fishery. Choke 
-effects limit harvesters' ability to fully catch a species' TAC, and 
-the assumption is that any foregone yield represents an economic loss 
-to the fishery [@baudron2015adverse], especially when 
+outcomes, this was not obviously the case for the DER complex fishery. 
+Choke effects limit harvesters' ability to fully catch a species' TAC, 
+and the assumption is that any foregone yield represents an economic 
+loss to the fishery [@baudron2015adverse], especially when 
 a choke species are of lower value. However, in the DER complex, all 
 stocks are similarly priced, so choke effects more often limit excessive 
 TACs caused by positively biased biomass estimates and the effect on
@@ -62,7 +61,18 @@ multi-species $MSY_{MS}$-based strategy. Under the single-species
 strategy, choke species were fished (on average) to the 
 target biomass of $B_{MSY,SS}$ implied by the harvest rate, while 
 remaining species started, and remained, well above $B_{MSY,SS}$, as 
-TACs were underutilized and realised harvest rates were lower. 
+TACs were underutilized and realised harvest rates were lower. On the
+other hand, choke effects represent quota that was allocated by
+managers according to the harvest strategy, but never utilised. 
+This mismatch still represents lost revenue in the form of 
+landings, or unrecoverable fixed costs in the form of lease price. In some
+BC fisheries, lease prices exceed 50\% of the landed value of the 
+fish [@pinkerton2009elephant], which may be a bitter pill to swallo for 
+harvesters that risk leasing quota that they are choked out of utilising.
+Such secondary costs of choke effects are not included in this work,
+potentially making single-species management seem more optimistic than
+in reality. 
+
 
 Under the single-species $MSY_{SS}$-based strategy, there is a 
 perception of lower economic risk. This perception is based on higher 
@@ -70,14 +80,15 @@ median NPV than under the multi-species maximum yield strategy. Higher
 NPV stems from an increase in rents early in the projection period, as a 
 result of lower fishing costs associated with higher CPUE from under-utilised 
 TACs caused by choke effects, and higher unit prices from lower landings, 
-combining 
-to transfer surplus from consumers to producers. However, while the NPV
-is higher, the rents still eventually dissipate under the $MSY_{SS}$ 
-strategy after the initial profitable period, but the effect is less
-noticeable given the early profits and assumed discount rate.
+combining to transfer surplus from consumers to producers. However, while 
+the NPV is higher, the rents still eventually decline to negative under 
+the $MSY_{SS}$ strategy after the initial profitable period, but the 
+effect is less noticeable given the early profits and assumed discount rate.
 Rents decline below zero as unit prices are reduced with increasing 
 household incomes, and $MSY$ strategies do not account for changes in 
-price.
+price. Combined with the secondary costs of choke effects outlined above,
+the economic performance of the $MSY_{SS}$ based strategy is much
+less desirable than the NPV indicates.
 
 The economic model used for the DER complex is fairly simple, and produces 
 upper bounds on resource rents that may positively bias the 
@@ -89,8 +100,8 @@ the price of fuel is time-varying, meaning that the marginal cost of
 fishing probably changes year by year. However, time-varying fuel costs 
 would require a model to project the price into the future, adding 
 variability to the results^[https://doi.org/10.25318/1810025601-eng], 
-and would require several 
-assumptions, given volatility and growth observed in fuel prices that
+and would require several assumptions, given volatility and growth 
+observed in fuel prices that
 has low correlation with GDP or CPI. Further, some choices would simply
 add noise, leaving the main findings based on average/median behaviour
 practically unchanged. Adding quota lease prices would change the 
@@ -143,8 +154,7 @@ based on multi-species $MSY$ eliminate choke effects, producing higher
 catches while avoiding states of conservation concern when harvest
 strategies are repeatedly applied to the DER complex fishery. Low 
 conservation concern and higher catches increases food security, which 
-is a growing need for the increasing global
-population. While rents under multi-species $MSY$-based strategies appear 
+is a growing need for the increasing global population. While rents under multi-species $MSY$-based strategies appear 
 decline below zero over time, this is largely a function of DER complex
 species being inferior goods, which lowers the annual rents from all 
 strategies. The same price reductions caused a

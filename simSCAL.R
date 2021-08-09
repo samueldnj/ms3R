@@ -4081,12 +4081,16 @@ combBarrierPen <- function( x, eps,
           errMat_tSP[,colIdx] <- fitErrs_ispt[iRep,s,p,errIdx] - mean(fitErrs_ispt[iRep,s,p,errIdx])
         }
 
+      # Pull auto-correlation
       ACobj <- acf(errMat_tSP, lag.max = 1, plot = FALSE)
       AC_SP <- diag(ACobj$acf[2,,])
       sd_SP <- apply(X = errMat_tSP, FUN = sd, MARGIN = 2)
     
       mu_SP <- -0.5 * sd_SP^2  * (1 - AC_SP)/sqrt(1 - AC_SP^2)
 
+      browser()
+
+      # Pull correlation in the jumps
       corr_SP <- ACobj$acf[1,,]
       cholCorr_SP <- t(chol(corr_SP))
       assErrs_tSP <- array( rnorm(pT * nS * nP), dim = c(pT,nS*nP))

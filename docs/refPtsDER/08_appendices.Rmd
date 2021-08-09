@@ -2,9 +2,8 @@
 
 # (APPENDIX) Appendices {-}
 
-# Appendix A: DER complex demand analysis
+# DER complex demand analysis
 
-\clearpage
 \setcounter{table}{0}  
 \renewcommand{\thetable}{A\arabic{table}} 
 \setcounter{figure}{0} 
@@ -113,10 +112,10 @@ $\lambda_s$ is the own-price elasticity for species $s$
 is the British Columbia household income per capita in year $t$. When 
 modeling an inverse demand curve, with price 
 as the response variable, the quantity $\frac{1}{\lambda_s}$ is called 
-price flexibility [@jaffry1999long]. We also fit models with cross-price 
-elasticity of demand, but none of the coefficients for substitution
-between species are significant so we do not report them here or
-use them in projections.
+price flexibility $\mathfrak{f}$ [@jaffry1999long]. Models were also fit 
+with cross-price elasticity of demand, but no cross-price elasticity 
+parameters were significant, and are therefore not reported or
+used in projections.
 
 Demand relationships from the 2SLS fit the data well, and are suitable for 
 projections in closed-loop simulations. Coefficients from price 
@@ -159,6 +158,8 @@ dimnames(invDemTable)[[2]] <- c(  "Species",
                                   "priceFlex",
                                   "beta1",
                                   "lambda")
+
+
 invDemTable <- as.data.frame(invDemTable)
 
 
@@ -200,6 +201,14 @@ demTable[3,2:4] <- paste0(demTable[3,2:4],"*")
 invDemCap <- "Two-stage least-squares regression results when
 modeling inverse demand (price is the response variable). An asterisk 
 denotes that the parameters were significant at the $p = 0.1$ level."
+
+colnames(invDemTable) <- c( "Species",
+                            "$\\alpha_0$",
+                            "$\\alpha_1$",
+                            "$\\beta_0$",
+                            "$\\mathfrak{f}$",
+                            "$\\beta_1$",
+                            "$\\lambda$" )
 
 # demCap <- "Two-stage least-squares regression results when
 # modeling demand (catch/quant supplied is the response variable). An 
@@ -246,9 +255,9 @@ assumed to be at the fixed rate of 3.9\% per year
 For sensitivity analyses, inverse demand curves are refit to the
 price instrument and household incomes assuming own-price elasticity
 was infinite (i.e., $\frac{1}{\lambda_s} = 0$ for all species). When
-price-flexibility is removed from the inverse demand curve, the parameters
-are very different. Dover and English soles have no significant parameters
-($0.4 < p < 0.65$), while Rock sole's inverse demand curve has 
+price-flexibility $\mathfrak{f}$ is removed from the inverse demand curve, 
+the parameters are very different. Dover and English soles have no significant 
+parameters ($0.4 < p < 0.65$), while Rock sole's inverse demand curve has 
 significant coefficients at the $p = 0.1$ level. Further, while Dover and
 English soles have a reduction in price with household incomes, as above,
 Rock sole's relationship with income is reversed, showing that it
@@ -288,6 +297,9 @@ the $p = 0.1$ level."
 # modeling demand (catch/quant supplied is the response variable). An 
 # asterisk denotes that the parameters were significant at the p = 0.1 level."
 
+colnames(invDemTable) <- c( "Species",
+                          "$\\beta_0$",
+                          "$\\beta_1$")
 
 
 csasdown::csas_table( invDemTable, escape = FALSE,
@@ -316,9 +328,69 @@ csasdown::csas_table( invDemTable, escape = FALSE,
 
 ```
 
-# Appendix B: Assessment error simulation
+\clearpage
+# Assessment error simulation
 
-# Appendix C: Catchability and effort
+
+\setcounter{table}{0}  
+\renewcommand{\thetable}{B\arabic{table}} 
+\setcounter{figure}{0} 
+\renewcommand{\thefigure}{B\arabic{figure}}
+
+Assessment errors for the DER complex stocks were simulated as
+an auto-correlated series of multi-variate, log-normal deviations
+\begin{align}
+\delta_{j_{s,p},t}  & = \rho_{j_{s,p}} \delta_{j_{s,p},t-1} + \sqrt{1 - \rho_{j_{s,p}}^2} \cdot \iota_{j_{s,p},t} \\
+\iota_{j_{s,p},t}   & ~ N(\vec{\mu},\Sigma) \\
+\mu_j               & = \frac{\sigma_{j_{s,p}}^2}{2} \frac{1 - \rho_{j_{s,p}}}{\sqrt(1 - \rho_{j_{s,p}}^2}
+\end{align} 
+where $j_{s,p} = 1,...,9$ is a 1 dimensional index for species $s$ and 
+stock $p$ with the mapping $j_{s,p} = 3 (p-1) + s$, $t = 2016,...,2095$ 
+is the time step in years, $\rho_j$ is the auto-correlation in the
+assessment errors $\delta$, and $\vec{\mu}$ is the mean and $\Sigma$ 
+the covariance matrix (with diagonal entries $\sigma^2_{j_{s,p}}$) for 
+the yearly deviations $\iota$. The mean
+of the $\iota$ distribution is the log-normal bias-correction for 
+auto-correlated deviations, applied so that the median assessment error
+is unbiased over time. For the remainder of the appendix, the $s,p$ 
+subscripts are excluded from the $j$ index for simplicity. 
+For $t = 2016$, $\delta_{j,t} = \iota_{j,t}$. 
+
+The covariance matrix $\Sigma$ and auto-correlations $\rho_{j}$ were
+estimated from the distribution of assessment errors 
+obtained in a previous article [@johnson2021hierarchical]. There were 
+100 replicates of assessment errors from applying a hierarchical, multi-species
+surplus production stock assessment model to the DER complex fishery
+in closed loop simulations for 32 year projection period. Based on the 
+results from the original article where bias in biomass and productivity
+compensated for each other [@johnson2021hierarchical], we adjusted
+assessment errors so that they were zero mean (i.e., unbiased). To use 
+biased biomass esitmates would have required compensating for the bias
+by simulating an error for the optimal harvest rate.
+
+Covariance $\Sigma$ and auto-correlation $\rho_j$ were derived
+from assessment errors for each individual replicate.
+The covariance matrix was computed via a diagonal decomposition
+\[
+\Sigma = D \cdot C \cdot D,
+\]
+where $D = [\sigma_j]$ is a diagonal matrix of assessment
+error standard deviations and $C$ is the correlation matrix 
+of assessment errors, both estimated directly from the distribution
+of assessment errors. The auto-correlation parameter $\rho_j$
+was also estimated directly from the distribution of errors using
+the acf() function in R [@rproject2015], which returns a matrix
+of lag-1 correlations for the series of assessment errors, with
+auto-correlations along the main diagonal. 
+
+\clearpage
+# Catchability and effort
+
+
+\setcounter{table}{0}  
+\renewcommand{\thetable}{C\arabic{table}} 
+\setcounter{figure}{0} 
+\renewcommand{\thefigure}{C\arabic{figure}}
 
 The optimal allocation of effort in each area $p$, derived under equilibrium
 reference point calculations, is very close to the ratio $\rho_p$ of inverse 

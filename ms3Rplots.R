@@ -835,7 +835,7 @@ plotBioDist <- function(  groupFolders = c("simAssErrors_May4"),
 
   # 
 
-  par(mfrow = c(nP,nS), oma = c(3,4,6,2), mar = c(.1,.1,.1,.1) )
+  par(mfrow = c(nP,nS), oma = c(3,5,6,2), mar = c(.1,.1,.1,.1) )
 
   for( p in 1:nP )
     for( s in 1:nS )
@@ -911,6 +911,9 @@ plotBioDist <- function(  groupFolders = c("simAssErrors_May4"),
 
     }
 
+  mtext( side = 2, outer = TRUE, text = expression(B/B[MSY]),
+            font = 2, line = 3 )
+
   # Now do outer margin legend (top)
   par(xpd=NA, oma = c(0,0,0,0), mar = c(0,0,0,0), mfcol = c(1,1) )
   # plot(x = 1, y = 1, add = TRUE, type = "n")
@@ -940,8 +943,7 @@ plotBioDist <- function(  groupFolders = c("simAssErrors_May4"),
 
 
     
-    mtext( side = 2, outer = TRUE, text = expression(B/B[MSY]),
-            font = 2, line = 2 )
+    
 }
 
 # rmtext()
@@ -1513,8 +1515,9 @@ plotDynUmsy_sp <- function( groupFolder = "omniRuns_noCorr_apr26",
 
 
 
-  par( mfrow = c( 1, 1 ),
-        oma = c(4,5,4,3) )
+  par(  mfrow = c( 1, 1 ),
+        mar = c(1,1,1,1),
+        oma = c(3,4,4,3) )
 
 
   xJitter <- c(-.25, .25 )
@@ -1629,18 +1632,23 @@ plotDynUmsy_sp <- function( groupFolder = "omniRuns_noCorr_apr26",
       #           cex = 1.5)
     }
 
+  mtext( side = 1, outer = TRUE, text = expression(U/U[MSY]),
+          line = 1.5 )
+
   # Now do outer margin legend (top)
   par(xpd=NA, oma = c(0,0,0,0), mar = c(0,0,0,0), mfcol = c(1,1) )
   # plot(x = 1, y = 1, add = TRUE, type = "n")
 
-  legTxt <- c(expression("d = 0.1","d = 0.025", paste(gamma, "= 0.02"), paste(gamma," = 0.058 ") ))
+
+  legTxt <- expression( U["MSY,MS"]^"*", U["MEY"]^"*", U["MSY,MS"]^"", U[MEY]^"" )
 
   legend( x = "top", bty = "n", horiz = TRUE,
           cex = 1.5,
-          legend = c( "Umsy*",
-                      "Umey*",
-                      "Umsy",
-                      "Umey"),
+          legend = legTxt,
+          # c( "Umsy*",
+          #             "Umey*",
+          #             "Umsy",
+          #             "Umey"),
           pch = c(21,24,21,24),
           lty = c(1,1,NA,NA),
           lwd = c(2,2,NA,NA),
@@ -1649,8 +1657,7 @@ plotDynUmsy_sp <- function( groupFolder = "omniRuns_noCorr_apr26",
           pt.lwd = c(0,0,2,2))   
   par( xpd = FALSE)
 
-  mtext( side = 1, outer = TRUE, text = expression(U/U[MSY]),
-          line = 2.5 )
+  
 
 
   write.csv(Umey_sp, file = "Umey_sp.csv")

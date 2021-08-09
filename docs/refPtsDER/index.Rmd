@@ -29,7 +29,7 @@ abstract: |
   Conservation risks are measured as the probability of overfishing each 
   individual population, while economic risks are measured by comparing the 
   5th percentiles of net present values under each strategy, for each area 
-  and for the entire BC coast. We show that strategies based on $MEY$  
+  and for the entire BC coast. We show that strategies based on $MEY$ 
   produce better conservation and economic performance than strategies
   based on either single-or multi-species $MSY$ reference points.
 
@@ -47,7 +47,7 @@ params:
   fit: "fit_base_MCMC"
   sim: "sim_baseRun_invDem"
   baseDir: "docs/refPtsDER/data"
-  redoPlots: FALSE
+  redoPlots: TRUE
 numbersections: true
 appendix: false
 output: 
