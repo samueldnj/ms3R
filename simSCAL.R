@@ -200,12 +200,14 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   nP  <- om$nP
   nF  <- om$nF
 
+  commGears <- ctlList$opMod$commGears
+
   # 2. Perform stock assessment
   obj  <- .callProcedureAM( obj, t )
 
   # 3. Determine stock status and apply HCR to set catch limit
   if(ctlList$ctl$mpName=='NoFish')
-    obj$mp$hcr$TAC_spft[,,,t] <- 0
+    obj$mp$hcr$TAC_spft[,,commGears,t] <- 0
   else 
   {  
     if( ctlList$mp$hcr$type == "ramped")
@@ -228,7 +230,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     if( !ctlList$mp$hcr$type == "hgRule" )
       for( s in 1:nS )
         for( p in 1:nP )    
-          obj$mp$hcr$TAC_spft[s,p,,t]    <- obj$mp$hcr$TAC_spt[s,p,t] * obj$om$alloc_spf[s,p,]
+          obj$mp$hcr$TAC_spft[s,p,,t]    <- obj$mp$hcr$xspt[s,p,t] * obj$om$alloc_spf[s,p,]
 
     # SOK product per license is 16,000 lbs (7.2575 t or 0.0072575 kt) per pond ()
     sokPerLic_kt <- 0.0072575
@@ -1109,6 +1111,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   pondM_ft          <- om$pondM_ft
 
   # Compute pulse limit
+  pulseMFrq   <- ctlList$opMod$pulseMFrq
   pulseLim_sp <- ctlList$opMod$pulseMfrac * B0_sp
 
   # Create a container to hold 
@@ -1221,7 +1224,6 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
 
 
 
-
   # Now convert into biomass at the beginning of the time step
   B_axspt[,,,,t]    <- N_axspt[,,,,t] * W_axspt[,,,,t]
 
@@ -1241,7 +1243,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   }
   
   # Pulse Mt
-  if( om$densityDepM == 0 & t >= tMP )
+  if( om$densityDepM == 0 & t >= tMP & pulseMFrq > 0 )
   {
     for(s in 1:nS)
       for(p in 1:nP)
@@ -1479,6 +1481,12 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
 
     # Now apply discrete fisheries 
     repObj <<- repObj
+    # cat("t = ",t,"\n")
+    # if(t == tMP)
+    # {
+    #   debugFlag <<- TRUE
+    # }
+
     discRemList <- applyDiscreteFisheries(  N_axsp          = tmpN_axsp,
                                             sel_axspf       = sel_axspft[,,,,,t],
                                             W_axspf         = tmpW_axspf,
@@ -1519,6 +1527,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     # Pull catch at age in biomass and numbers
     Cw_axspft[,,,,,t] <- discRemList$Cw_axspf
     C_axspft[,,,,,t]  <- discRemList$C_axspf
+
 
   }
 
@@ -1757,6 +1766,8 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     if(any(is.nan(Iperf_spft)))
       browser()
   }
+  # if(t >= tMP )
+  #   browser()
 
   Iperf_spft[Iperf_spft == 0] <- NA
   Ierr_spft[Ierr_spft == 0] <- NA
@@ -3203,7 +3214,17 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   histF  <- 1:repObj$nG # number of fleets in historical time series
   projdx <- tMP:nT
   obj$om$F_spft[1,,histF,histdx]        <- repObj$F_pgt
-  obj$om$C_spft[1,,histF,histdx]        <- repObj$C_pgt
+  obj$om$C_spft[1,,histF,histdx]        <- repObj$totC_pgt
+
+  if(!is.null(ctlList$opMod$predGears))
+  {
+    predGears <- ctlList$opMod$predGears
+    projPred  <- readRDS("history/MMpredMod_postProj.rds")
+    postDraw  <- sample(1:1000, 1)
+    browser()
+    obj$om$C_spft[1:nS,1:nP,predGears,projdx] <- t(projPred$C_itp[postDraw,projdx,c(4,3,1:2)])/1e3
+    obj$mp$hcr$TAC_spft[1:nS,1:nP,predGears,projdx] <- obj$om$C_spft[1:nS,1:nP,predGears,projdx]
+  }
 
   # Set all SOK catch and F to zero as ponded fish mortality is calculated in applyDiscreteFisheries()
   sokIdx <- which(repObj$fleetType_g == 2)
@@ -3211,7 +3232,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   obj$om$F_spft[1,,sokIdx,histdx] <- 0
   obj$om$C_spft[1,,sokIdx,histdx] <- 0
   
-  obj$om$C_spt[1,,histdx]               <- apply( X = repObj$C_pgt, FUN = sum, MARGIN = c(1,3) )
+  obj$om$C_spt[1,,histdx]               <- apply( X = repObj$totC_pgt, FUN = sum, MARGIN = c(1,3) )
   obj$om$sel_axspft[,1,1,,histF,histdx] <- repObj$sel_apgt
   # HACK: put a control file par in for this, too path specific
   if(nF > repObj$nG)
@@ -3219,7 +3240,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
 
 
   obj$mp$hcr$TAC_spft[,,histF,histdx] <- obj$om$C_spft[,,histF,histdx]
-  obj$mp$hcr$TAC_spft[1:nS,,sokIdx,histdx] <- repObj$C_pgt[,sokIdx,]
+  obj$mp$hcr$TAC_spft[1:nS,,sokIdx,histdx] <- repObj$totC_pgt[,sokIdx,]
 
 
 
@@ -3633,7 +3654,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
       obj$om$M_axspt[,,,,t] <- obj$om$M_axspt[,,,,tMP-1]
 
   # Post ponding M for open and closed ponding
-  sokIdx <- which(obj$om$fleetType_f == 2)
+  sokIdx <- which(obj$om$fleetType_f %in% 2:3)
   for( f in sokIdx )
   {
     # Closed pond fleets
@@ -3643,7 +3664,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     
     # HACK: path specific
     # assign input value for postPondM if fleets are new
-    if(f > repObj$nG)
+    if(obj$om$fleetType_f[f] == 3)
       obj$om$pondM_ft[f,1:(tMP-1)] <- 0
 
     # Draw M in projections from log-normal distribution
@@ -4915,7 +4936,7 @@ applyDiscreteFisheries <- function( N_axsp,
   C_spf[1:nS,,]         <- TAC_spf
 
   # Overwrite TAC with ponded fish for SOK fleets
-  C_spf[1:nS,,fleetType_f == 2] <- P_spf[,,fleetType_f == 2]
+  C_spf[1:nS,,fleetType_f %in% 2:3] <- P_spf[,,fleetType_f %in% 2:3]
 
   # if(sum(P_spf) > 0)
   #   browser()
@@ -4932,12 +4953,18 @@ applyDiscreteFisheries <- function( N_axsp,
     tmpN_axsp   <- spawnN_axsp
   }
 
+  # if(all(C_spf == 0))
+  #     browser()
+
   # Then loop over fleets, check on spawn timing
   # in each loop
   for( oIdx in 1:length(fleetOrder) )
   {
     fIdx <- fleetOrder[oIdx]
     nextFleetTime <- fleetTiming_f[fIdx]
+
+    # if(debugFlag)
+    #   browser()
 
     # Calculate spawning numbers
     if( spawnTiming > lastFleetTime & spawnTiming <= nextFleetTime )
@@ -4971,6 +4998,7 @@ applyDiscreteFisheries <- function( N_axsp,
     if(is.null(C_spf))
       browser()
 
+    
     if( any(C_spf[,,fIdx] > 0 ) )
     { 
       # Compute proportion of biomass at age
@@ -5018,7 +5046,7 @@ applyDiscreteFisheries <- function( N_axsp,
   endN_axsp <- tmpN_axsp * exp(-fracM*M_axsp)
 
   # Add ponded fish at age reduced by post-ponding M
-  sokFleets <- which(fleetType_f == 2)
+  sokFleets <- which(fleetType_f %in% c(2,3))
   for( fIdx in sokFleets )
   {  
     
@@ -5034,7 +5062,11 @@ applyDiscreteFisheries <- function( N_axsp,
   }  
 
 
-
+  if(sum(endN_axsp,na.rm = T) == 0 )
+  {
+    cat("Error in discrete fishery calc.\n")
+    browser()
+  }
 
   # Return model states
   outList <- list(  endN_axsp   = endN_axsp,

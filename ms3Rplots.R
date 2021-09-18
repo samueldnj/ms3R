@@ -1624,7 +1624,7 @@ plotEmpYieldCurves <- function( sims = 1:200,
                                 folder = "SOG_DDM_Fgrid",
                                 indepVar = "F",
                                 plotYPRcurves = TRUE,
-                                redoEmpRefCurves = TRUE )
+                                redoEmpRefCurves = FALSE )
 {
   nSims <- length(sims)
   blobList <- vector(mode = "list", length = nSims)
