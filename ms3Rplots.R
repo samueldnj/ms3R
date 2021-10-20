@@ -499,6 +499,8 @@ plotCWeffort <- function( obj,
 # heterogeneous fishing effort/costs of fishing/catch
 plotCWeconYield <- function(  obj,
                               maxE = 120,
+                              pIdx = 1:3,
+                              plotCW = TRUE,
                               plotCplx = TRUE )
 {
   rp <- obj$rp[[1]]
@@ -588,8 +590,11 @@ plotCWeconYield <- function(  obj,
   if(is.null(maxE))
     maxE <- 10 * max(Emey_p[pIdx])
 
-  par( mfrow = c(nP+1,1), mar = c(.1,1,.1,1), oma = c(3,4,1,1) )
-  for( p in 1:nP )
+  nPanels <- length(pIdx)
+  if(plotCW)
+    nPanels <- nPanels + 1
+  par( mfrow = c(nPanels,1), mar = c(.1,1,.1,1), oma = c(3,4,1,1) )
+  for( p in pIdx )
   {
     plot( x = c(0,maxE), y = c(0, max(Rent_pe[p,],Rev_pe[p,],na.rm = T) ),
           type = "n", xlab = "", ylab = "", axes = F, xaxs="i" )
@@ -644,50 +649,51 @@ plotCWeconYield <- function(  obj,
                 legend = c( paste(speciesNames," Revenue",sep = ""),
                             "Complex Revenue",
                             "Variable Costs",
-                            "Total Profits") )
+                            "Total Rent") )
 
   }
+  if(plotCW)
+  {
+    plot( x = c(0,maxE), y = c(0, max(Rent_e,Rev_e,na.rm = T) ),
+            type = "n", xlab = "", ylab = "", axes = F, xaxs="i" )
+        axis(side = 2, las = 1)
+        box()
+        grid()
 
-  plot( x = c(0,maxE), y = c(0, max(Rent_e,Rev_e,na.rm = T) ),
-          type = "n", xlab = "", ylab = "", axes = F, xaxs="i" )
-      axis(side = 2, las = 1)
-      box()
-      grid()
+        for( s in 1:nS )
+        {
+          lines( x = Eff, y = Rev_se[s,],
+                 col = specCols[s], lty = 1, lwd = 2 )
+        }
 
-      for( s in 1:nS )
-      {
-        lines( x = Eff, y = Rev_se[s,],
-               col = specCols[s], lty = 1, lwd = 2 )
-      }
+        mfg <- par("mfg")
+        if( mfg[1] == mfg[3])
+          axis(side = 1)
 
-      mfg <- par("mfg")
-      if( mfg[1] == mfg[3])
-        axis(side = 1)
+        rmtext( txt = "Coast-wide", line = 0.02,
+                font = 2, cex = 1.5, outer = TRUE )
 
-      rmtext( txt = "Coast-wide", line = 0.02,
-              font = 2, cex = 1.5, outer = TRUE )
+        if( plotCplx )
+        {
+          lines(  x = Eff, y = Rev_e,
+                  col = "black", lty = 1, lwd = 3 )
 
-      if( plotCplx )
-      {
-        lines(  x = Eff, y = Rev_e,
-                col = "black", lty = 1, lwd = 3 )
+          lines(  x = Eff, y = Rent_e,
+                  col = "black", lty = 2, lwd = 3 )
+        
 
-        lines(  x = Eff, y = Rent_e,
-                col = "black", lty = 2, lwd = 3 )
-      
+          lines( x = Eff, y = effCost_e, col = "red",
+                  lwd = 2 )
 
-        lines( x = Eff, y = effCost_e, col = "red",
-                lwd = 2 )
-
-        abline( v = sum(Emey_p), lty = 2, col = "steelblue")
-        abline( v = sum(EmsyMS_p), lty = 2, col = "grey40")
-      }
-      
+          abline( v = sum(Emey_p), lty = 2, col = "steelblue")
+          abline( v = sum(EmsyMS_p), lty = 2, col = "grey40")
+        }
+  }         
 
 
 
   mtext( outer = TRUE, side = 1, text = "Commercial Trawl Effort (1000 hrs)", line = 2 )
-  mtext( outer = TRUE, side = 2, text = "Cost, Revenue, and Profit ($ x 1e6)", line = 2 )
+  mtext( outer = TRUE, side = 2, text = "Cost, Revenue, and Rent ($ x 1e6)", line = 2 )
 
 
 
@@ -3941,6 +3947,18 @@ plotAMschematic <- function(  species = c("Dover","English","Rock"),
       mar = c(2,3,2,1),
       oma = c(4,4,3,3) )
 
+  # Single Stock
+  plotSpecStockBoxes(species,stock)
+    mtext( side = 3, text = "Single stock")
+    abline( v = 1:nP + 0.5, lwd = 3)
+    abline( h = 1:nS + 0.5, lwd = 3)
+
+  # Hierarchical Multi-stock
+  plotSpecStockBoxes(species,stock)
+    mtext( side = 3, text = "Hierarchical Multi-stock")
+    abline( h = 1:nS + 0.5, lty = 2, lwd = 3)
+    abline( v = 1:nP + 0.5, lty = 2, lwd = 3)
+
   # Total Pooling
   plotSpecStockBoxes(species,stock)
     mtext( side = 3, text = "Total Pooling")
@@ -3958,17 +3976,9 @@ plotAMschematic <- function(  species = c("Dover","English","Rock"),
     mtext( side = 3, text = "Species Pooling")
     abline( v = 1:nP + 0.5, lwd = 3)
 
-  # Hierarchical Multi-stock
-  plotSpecStockBoxes(species,stock)
-    mtext( side = 3, text = "Hierarchical Multi-stock")
-    abline( h = 1:nS + 0.5, lty = 2, lwd = 3)
-    abline( v = 1:nP + 0.5, lty = 2, lwd = 3)
+  
 
-  # Single Stock
-  plotSpecStockBoxes(species,stock)
-    mtext( side = 3, text = "Single stock")
-    abline( v = 1:nP + 0.5, lwd = 3)
-    abline( h = 1:nS + 0.5, lwd = 3)
+  
 
   mtext( outer = TRUE, side = 1, line = 2, text = "Species")
   mtext( outer = TRUE, side = 2, line = 2, text = "Stock Area")
