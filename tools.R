@@ -25,6 +25,95 @@ pullHistDataLikelihood <- function( histFolder = "fit_parBatHGherringMCMC1")
 } # END pullHistDataLikelihood
 
 
+# approxCtsF()
+# Derives cts F values from discrete harvest
+# rates calculated using Pope's approximation.
+# Some numerical variation depending on the age
+# class used, so these are not fantastic. Works on 
+# SISCA model report object
+approxCtsF <- function( repList = reports )
+{
+  repObj  <- repList$repOpt
+  nT      <- repObj$nT
+  nP      <- repObj$nP
+  nA      <- repObj$nA
+  nG      <- repObj$nG
+
+  # Get states
+  N_apt <- repObj$N_apt
+  M_apt <- repObj$M_apt
+  Z_apt <- repObj$Z_apt
+  W_apt <- repObj$W_apt
+
+  minAge_g <- repList$data$minAge_g
+
+  # Get catch, vuln biomass, and sel
+  catAge_apgt <- repObj$catAge_apgt
+  totC_pgt    <- repObj$totC_pgt
+  vulnB_apgt  <- repObj$vulnB_apgt
+  sel_apgt    <- repObj$sel_apgt
+
+  # Post-ponding M for kelp fisheries
+  postPondM_g <- repObj$postPondM_g
+
+  fleetType_g <- repObj$fleetType_g
+
+  # Set minimum catch to 1E-3
+  catAge_apgt[catAge_apgt<1E-6] <- 0
+  vulnB_apgt[vulnB_apgt<1E-3]   <- 1E-3
+
+  # Now we need to estimate the apical F
+  # for each fleet
+  apF_apgt  <- array(0,dim = c(nA,nP,nG,nT))
+  F_apgt    <- array(0,dim = c(nA,nP,nG,nT))
+  apF_pgt   <- array(0,dim = c(nP,nG,nT))
+  U_apgt    <- array(0,dim = c(nA,nP,nG,nT))
+
+  # approxZ
+  appZ_apt  <- M_apt
+
+
+  for( p in 1:nP )
+    for( g in 1:nG )
+    {
+      aIdx <- minAge_g[g]:nA
+      
+      if( sum(totC_pgt[p,g,]) == 0 )
+        next
+      
+      for( t in 1:nT )
+      {
+        if( totC_pgt[p,g,t] != 0 )
+        {
+          C_a <- catAge_apgt[aIdx,p,g,t] * W_apt[aIdx,p,t]
+
+          if(fleetType_g[g] %in% c(2,3) )
+            C_a <- C_a * (1 - exp(-postPondM_g[g]))
+
+          U_apgt[aIdx,p,g,t] <- C_a / vulnB_apgt[aIdx,p,g,t]  
+
+          
+        }
+        
+        apF_apgt[aIdx,p,g,t] <- U_apgt[aIdx,p,g,t] * Z_apt[aIdx,p,t] / (1 - exp(-Z_apt[aIdx,p,t]))
+       
+        apF_pgt[p,g,t] <- mean(apF_apgt[aIdx,p,g,t]) 
+        F_apgt[,p,g,t] <- sel_apgt[,p,g,t] * apF_pgt[p,g,t]
+
+        appZ_apt[,p,t] <- appZ_apt[,p,t] + F_apgt[,p,g,t]
+      }
+    }
+
+
+  
+  outList <- list(  F_apgt = F_apgt,
+                    apF_pgt = apF_pgt,
+                    appZ_apt = appZ_apt )
+
+  outList
+} # END approxCtsF()
+
+
 
 
 # .saveBlob()

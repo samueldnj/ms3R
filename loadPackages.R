@@ -24,7 +24,7 @@ cranPackages <- c("coda",
 
 for( pkg in cranPackages )
   while(!require(pkg, character.only = TRUE) )
-    install.packages( pkg, repos = "http://cran.stat.sfu.ca" )
+    install.packages( pkg, repos = "https://cloud.r-project.org/" )
 
 
 # githubPackages <- c(ggsidekick = "seananderson/ggsidekick",

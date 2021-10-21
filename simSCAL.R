@@ -31,6 +31,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
 
   # Load history
   repList                   <- .loadFit( ctlList$opMod$histFile )
+  repList$repOpt$apF_pgt    <- approxCtsF(repList)$apF_pgt
   ctlList$opMod$histRpt     <- c( repList$data, repList$repOpt, repList$pars ) 
   ctlList$opMod$posts       <- repList$posts
   ctlList$opMod$fYear       <- repList$fYear
@@ -1254,13 +1255,15 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
 
   }
 
+  # Now compute vuln biomass
+  for( f in 1:nF )
+    vB_axspft[,,,,f,t] <- sel_axspft[,,,,f,t] * B_axspt[,,,,t]
+
 
   # Now calculate effort for each area (for closed loop sim)
   if( ctlList$opMod$Ftype == "cts" )
   {
-    # Now compute vuln biomass
-    for( f in 1:nF )
-      vB_axspft[,,,,f,t] <- sel_axspft[,,,,f,t] * B_axspt[,,,,t]
+    
 
     vB_spft[,,,t] <- apply( X = vB_axspft[,,,,,t,drop = FALSE], FUN = sum, MARGIN = 3:5, na.rm = T )
     
@@ -1474,10 +1477,36 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
 
       }
     }
-    
+      
+    # Now we need to calculate the catch for each predator fleet
+    if(length(ctlList$opMod$predGears) & t >= tMP )
+    {
+      predGears <- ctlList$opMod$predGears
+      tmpZ_axsp <- array(0, dim = c(nA,nX,nS,nP))
+      # Loop over predGears and calculate catch
+      for(s in 1:nS )
+        for( p in 1:nP )
+        {
+          tmpZ_axsp[,,s,p] <- M_xsp[,s,p]
+          # Calculate F
+          for( f in predGears )
+          {
+            F_spft[s,p,predGears,t] <- qF_spft[s,p,predGears,t] * E_pft[p,predGears,t]
 
-    if( any(is.na(TAC_spft[,,,t]) ) )
-      browser()
+            tmpZ_axsp[,,s,p] <- tmpZ_axsp[,,s,p] + sel_axspft[,,s,p,f,t] * F_spft[s,p,f,t]
+          }
+          
+          # Now calc catch
+          for(a in 1:nA )
+            for( x in 1:nX )
+              for( f in predGears )
+                Cw_axspft[a,x,s,p,f,t] <- (1 - exp( - tmpZ_axsp[a,x,s,p])) * vB_axspft[a,x,s,p,f,t] * F_spft[s,p,f,t] / tmpZ_axsp[a,x,s,p]
+          
+          # Use Baranov to calculate removals, assuming no comm
+          # removals and cts fishing (needs work)
+          TAC_spft[s,p,predGears,t] <- apply(X = Cw_axspft[,,s,p,predGears,t,drop = FALSE], FUN = sum, MARGIN = 5)
+        }
+    }
 
     # Now apply discrete fisheries 
     repObj <<- repObj
@@ -3213,6 +3242,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   histdx <- 1:(tMP - 1)
   histF  <- 1:repObj$nG # number of fleets in historical time series
   projdx <- tMP:nT
+
   obj$om$F_spft[1,,histF,histdx]        <- repObj$F_pgt
   obj$om$C_spft[1,,histF,histdx]        <- repObj$totC_pgt
 
@@ -3221,9 +3251,28 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     predGears <- ctlList$opMod$predGears
     projPred  <- readRDS("history/MMpredMod_postProj.rds")
     postDraw  <- sample(1:1000, 1)
-    browser()
-    obj$om$C_spft[1:nS,1:nP,predGears,projdx] <- t(projPred$C_itp[postDraw,projdx,c(4,3,1:2)])/1e3
-    obj$mp$hcr$TAC_spft[1:nS,1:nP,predGears,projdx] <- obj$om$C_spft[1:nS,1:nP,predGears,projdx]
+
+    Npred_ift <- aperm(projPred$N_itp[,,c(4,3,1:2)],perm = c(1,3,2))
+
+    meanNpred_ft <- apply(X = Npred_ift, FUN = mean, MARGIN = 2:3)
+
+    # First calculate predator qs
+    obj$om$F_spft[1,1:nP,predGears,histdx] <- repObj$apF_pgt[1:nP,predGears,histdx]
+    obj$om$E_pft[1:nP,predGears,histdx]    <- meanNpred_ft[,histdx]/1e3
+
+
+    for(s in 1:nS )
+      for(p in 1:nP )
+      {
+        qSeries_ft <- obj$om$F_spft[s,p,predGears,histdx] / (Npred_ift[postDraw,,histdx]/1e3)
+        qbar_f     <- exp(apply(X = log(qSeries_ft), FUN = mean, MARGIN = 1))
+        # obj$om$qF_spf[s,p,predGears] <- qbar_f
+        for( t in tMP:nT)
+          obj$om$qF_spft[s,p,predGears,t] <- qbar_f
+      }
+
+    obj$om$E_pft[1:nP,predGears,projdx] <- Npred_ift[postDraw,,projdx]/1e3
+
   }
 
   # Set all SOK catch and F to zero as ponded fish mortality is calculated in applyDiscreteFisheries()
