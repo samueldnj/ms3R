@@ -3165,7 +3165,9 @@ plotTulipBt <- function(  obj = blob, nTrace = 3,
   BmsySS_sp <- array(NA, dim = c(nS,nP))
   BmsyMS_sp <- array(NA, dim = c(nS,nP))
 
-  B0_sp[1:nS,]     <- obj$ctlList$opMod$histRpt$B0_p
+  tInit_sp  <- obj$om$tInit_sp
+
+  B0_sp[1:nS,]     <- obj$rp[[1]]$B0_sp
   BmsySS_sp[1:nS,] <- obj$rp[[1]]$FmsyRefPts$BeqFmsy_sp
 
   speciesNames  <- obj$om$speciesNames
@@ -3242,7 +3244,6 @@ plotTulipBt <- function(  obj = blob, nTrace = 3,
   {
       t1 <- tMP + 50
       t2 <- tMP+pT - 1
-      browser()
       simB0_sp <- apply( X = SB_ispt[,,,t1:t2,drop=F], FUN = mean,
                         MARGIN = c(2,3), na.rm = T )
   }  
@@ -3274,23 +3275,24 @@ plotTulipBt <- function(  obj = blob, nTrace = 3,
       if( mfg[1] == 1 )
         mtext( side = 3, text = speciesNames[s], font = 2, line = 0 )
       axis( side = 2, las = 1 )
-      if( mfg[2] == mfg[4] )
-        rmtext( outer = TRUE, cex = 1.5, txt = stockNames[p],
-                font = 2, line = 0.5)
+      # if( mfg[2] == mfg[4] )
+      #   rmtext( outer = TRUE, cex = 1.5, txt = stockNames[p],
+      #           font = 2, line = 10)
       box()
       grid()
-      polygon(  x = c(yrs, rev(yrs)),
-                y = c(SB_qspt[1,s,p,], rev(SB_qspt[3,s,p,])),
+      tPlotIdx <- tInit_sp[s,p]:nT
+      polygon(  x = c(yrs[tPlotIdx], rev(yrs[tPlotIdx])),
+                y = c(SB_qspt[1,s,p,tPlotIdx], rev(SB_qspt[3,s,p,tPlotIdx])),
                 col = "grey65", border = NA )
-      lines( x = yrs, y = SB_qspt[2,s,p,], lwd = 3 )
+      lines( x = yrs[tPlotIdx], y = SB_qspt[2,s,p,tPlotIdx], lwd = 3 )
 
       for( tIdx in traces )
-        lines( x = yrs, y = SB_ispt[tIdx,s,p,], lwd = .8 )
+        lines( x = yrs[tPlotIdx], y = SB_ispt[tIdx,s,p,tPlotIdx], lwd = .8 )
 
       if( Ct )
       {
-        rect( xleft = yrs - .3, xright = yrs + .3,
-              ybottom = 0, ytop = C_qspt[2,s,p,], col = "grey65",
+        rect( xleft = yrs[tPlotIdx] - .3, xright = yrs[tPlotIdx] + .3,
+              ybottom = 0, ytop = C_qspt[2,s,p,tPlotIdx], col = "grey65",
               border = NA )
         segments( x0 = yrs[tMP:nT], x1 = yrs[tMP:nT],
                   y0 = C_qspt[1,s,p,tMP:nT], y1 = C_qspt[3,s,p,tMP:nT],
@@ -3298,8 +3300,8 @@ plotTulipBt <- function(  obj = blob, nTrace = 3,
       }
 
       abline( v = yrs[tMP], col = "grey30", lty = 3 )
-      abline( h = B0_sp[s,p], lty = 3, col = "grey50", lwd = 2  )
-      abline( h = 0.3*B0_sp[s,p], lty = 2, col = "red", lwd = 3)
+      # abline( h = B0_sp[s,p], lty = 3, col = "grey50", lwd = 2  )
+      # abline( h = 0.3*B0_sp[s,p], lty = 2, col = "red", lwd = 3)
       # abline( h = LCP_p[p], lty = 2, col = "salmon", lwd = 3)
       # abline( h = BmsySS_sp[s,p], lty = 3, col = "darkgreen", lwd = 2)
 
@@ -3307,16 +3309,16 @@ plotTulipBt <- function(  obj = blob, nTrace = 3,
         legend( x = "topright", bty = "n",
                 legend = c( "Median Spawning Biomass", 
                             "Central 95%",
-                            "Replicate Traces",
-                            "Unfished Biomass",
-                            expression(paste("LRP = 0.3",B[0]))),
+                            "Replicate Traces"),
+                            # "Unfished Biomass",
+                            # expression(paste("LRP = 0.3",B[0]))),
                             # "Median Projection SB" ),
                             # expression(B[MSY,MS])),
                 col = c(  "black", "grey65", "black",
                           "grey50", "red","salmon" ),
-                pch = c(NA,15, NA, NA, NA,NA,NA),
-                lty = c(1, NA, 1, 3, 2, 2),
-                lwd = c(3, NA, .8, 2, 3, 3 ) )
+                pch = c(NA,15, NA ),# NA, NA,NA,NA),
+                lty = c(1, NA, 1), # 3, 2, 2),
+                lwd = c(3, NA, .8) )#, 2, 3, 3 ) )
 
 
       if(nT>100)

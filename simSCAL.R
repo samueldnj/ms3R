@@ -32,6 +32,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   # Load history
   repList                   <- .loadFit( ctlList$opMod$histFile )
   repList$repOpt$apF_pgt    <- approxCtsF(repList)$apF_pgt
+  repList$repOpt$fYear      <- repList$fYear
   ctlList$opMod$histRpt     <- c( repList$data, repList$repOpt, repList$pars ) 
   ctlList$opMod$posts       <- repList$posts
   ctlList$opMod$fYear       <- repList$fYear
@@ -638,6 +639,9 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
 
   blob$nSims <- i
 
+  # save initial model times for plotting
+  blob$om$tInit_sp <- simObj$om$tInit_sp
+
   # Name the blob array dimensions...
   tMP   -> blob$om$tMP
   nT    -> blob$om$nT
@@ -716,6 +720,36 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
 
     om$lenBinWidth <- 2
     om$lenBinMids_l <- 1
+  }
+
+  # Bad prototype MICE structure
+  nMICE <- 0
+  isMICE  <- FALSE
+  if(ctlList$opMod$MICE > 0)
+  {
+    isMICE  <- TRUE
+    nMICE   <- ctlList$opMod$MICE
+    nSpec   <- nS
+    nS      <- nS + nMICE
+    
+
+    MICEspecies <- names(ctlList$opMod$MICEpars)
+
+    MICE_lhPars <- lapply(X = ctlList$opMod$MICEpars, FUN = readRDS)
+    names(MICE_lhPars) <- MICEspecies
+
+    om$MICEpars <- MICE_lhPars
+
+    for( mIdx in 1:nMICE )
+    {
+      sIdx <- nSpec + mIdx
+      MICEpars <- om$MICEpars[[mIdx]]
+      
+      # Age classes
+      om$A_s[nSpec + mIdx]        <- MICEpars$nA
+
+    }
+    nA <- max(om$A_s)
   }
 
   
@@ -881,10 +915,11 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
 
   if( ctlList$opMod$condModel == "SISCA" )
   {
+    A <- om$A_s[1]
     # Variance parameters
-    om$tauObs_spf[1:nS,,1:repObj$nG] <- repObj$tauObs_pg
-    om$tauAge_spf[1:nS,,1:repObj$nG] <- sqrt(repObj$tau2Age_pg)
-    om$sigmaR_sp[1:nS,]              <- repObj$sigmaR
+    om$tauObs_spf[1,,1:repObj$nG] <- repObj$tauObs_pg
+    om$tauAge_spf[1,,1:repObj$nG] <- sqrt(repObj$tau2Age_pg)
+    om$sigmaR_sp[1,]              <- repObj$sigmaR
 
     # SOK pars
     om$gamma_f[1:repObj$nG]     <- repObj$gamma_g[1:repObj$nG]
@@ -906,7 +941,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
 
 
     # Time-varying, age-structured natural mortality
-    om$M_axspt[,1,1,,1:(tMP-1)] <- repObj$M_apt[,,1:(tMP-1)]
+    om$M_axspt[1:A,1,1,,1:(tMP-1)] <- repObj$M_apt[1:A,,1:(tMP-1)]
 
     # Growth model pars
     om$L1_s       <- NA
@@ -919,37 +954,39 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
 
     # Later: write calcSchedules function
     for( p in 1:nP)
-      om$matAge_asp[,1,p]         <- repObj$mat_a
+      om$matAge_asp[1:A,1,p]         <- repObj$mat_a
 
     # Population weight at age etc
-    om$W_axspt[,1,1,,1:(tMP-1)]   <- repObj$W_apt[,,1:(tMP-1)]
-    om$W_axspt[,1,1,,tMP:nT]      <- repObj$meanWt_ap
+    om$W_axspt[1:A,1,1,,1:(tMP-1)]   <- repObj$W_apt[,,1:(tMP-1)]
+    om$W_axspt[1:A,1,1,,tMP:nT]      <- repObj$meanWt_ap
 
     # Fleet weight-at-age etc.
-    om$W_axspft[,1,1,,1:repObj$nG,1:(tMP-1)] <- repObj$W_apgt[,,,1:(tMP-1)]
-    om$W_axspft[,1,1,,1:repObj$nG,tMP:nT]    <- aperm(repObj$meanWt_agp,c(1,3,2))
+    om$W_axspft[1:A,1,1,,1:repObj$nG,1:(tMP-1)] <- repObj$W_apgt[,,,1:(tMP-1)]
+    om$W_axspft[1:A,1,1,,1:repObj$nG,tMP:nT]    <- aperm(repObj$meanWt_agp,c(1,3,2))
 
     # Fleet selectivity
-    om$sel_axspft[,1,1,,1:repObj$nG,1:(tMP-1)] <- repObj$sel_apgt[,,,1:(tMP-1)]
+    om$sel_axspft[1:A,1,1,,1:repObj$nG,1:(tMP-1)] <- repObj$sel_apgt[,,,1:(tMP-1)]
     for(t in tMP:nT)
-      om$sel_axspft[,1,1,,1:repObj$nG,t] <- om$sel_axspft[,1,1,,1:repObj$nG,tMP-1]
+    {
+      om$sel_axspft[1:A,1,1,,1:repObj$nG,t] <- om$sel_axspft[1:A,1,1,,1:repObj$nG,tMP-1]
+    }
 
     if(opMod$forceMeanWtAge)
     {
       for( t in 1:(tMP-1))
       {
-        om$W_axspt[,1,1,,t]               <- repObj$meanWt_ap      
-        om$W_axspft[,1,1,,1:repObj$nG,t]  <- aperm(repObj$meanWt_agp,c(1,3,2))
+        om$W_axspt[1:A,1,1,,t]               <- repObj$meanWt_ap      
+        om$W_axspft[1:A,1,1,,1:repObj$nG,t]  <- aperm(repObj$meanWt_agp,c(1,3,2))
       }
     }
 
     if( nF > repObj$nG)
     {
-      om$W_axspft[,1,1,,repObj$nG+1,1:(tMP-1)]   <- om$W_axspft[,1,1,,repObj$nG,1:(tMP-1)]
-      om$W_axspft[,1,1,,repObj$nG+1,tMP:nT]      <- om$W_axspft[,1,1,,repObj$nG,tMP:nT]
+      om$W_axspft[1:A,1,1,,repObj$nG+1,1:(tMP-1)]   <- om$W_axspft[,1,1,,repObj$nG,1:(tMP-1)]
+      om$W_axspft[1:A,1,1,,repObj$nG+1,tMP:nT]      <- om$W_axspft[,1,1,,repObj$nG,tMP:nT]
     }
     # Get mean weight-at-age for reference point calcs
-    om$meanWtAge_axsp[,1,1,]      <- repObj$meanWt_ap
+    om$meanWtAge_axsp[1:A,1,1,]      <- repObj$meanWt_ap
 
     # Get spawn timing and fleet timing
     om$spawnTiming                <- repObj$spawnTiming
@@ -971,6 +1008,61 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     om$I_spft[1,1:nP,,1:(tMP-1)]      <- repObj$I_pgt[1:nP,,1:tMP-1]
   }
 
+  # Now fill in MICE model species 
+  if( isMICE )
+  {
+
+    # Loop over MICE model species
+    for( mIdx in 1:nMICE )
+    {
+      sIdx <- nSpec + mIdx
+      A <- om$A_s[sIdx]
+      MICEpars <- om$MICEpars[[mIdx]]
+  
+      # Rec proc error
+      om$sigmaR_sp[sIdx,]         <- MICEpars$sigmaR
+
+      # Leading bio pars
+      om$B0_sp[sIdx,]             <- MICEpars$B0
+      om$Rinit_sp[sIdx,]          <- MICEpars$R0
+      om$M_xsp[,sIdx,]            <- MICEpars$M
+      om$m1_sp[sIdx,]             <- 0
+      om$h_sp[sIdx,]              <- MICEpars$h
+      om$Rbar_sp[sIdx,]           <- mean(MICEpars$N_at[1,])
+
+      # Mortality
+      om$M_axspt[,1,sIdx,,1:nT]   <- MICEpars$M 
+
+      om$initSurv_axsp[1:A,1,sIdx,]  <- MICEpars$N_at[1:A,1]/MICEpars$R0
+
+      for( p in 1:nP)
+        om$matAge_asp[1:A,sIdx,p]         <- MICEpars$mat_a
+
+      # Population weight at age etc
+      wt_at     <- MICEpars$B_at/MICEpars$N_at
+      wt_at     <- wt_at[,-ncol(wt_at)]
+      meanWt_a  <- apply(X = wt_at, FUN = mean, MARGIN = 1)
+
+      fYearPred <- MICEpars$tInitModel
+      tInit     <- fYearPred - repObj$fYear + 1
+      
+      # HACK - fix hard-coded idx (t=7) later
+      om$W_axspt[1:A,1,sIdx,1,tInit:(tMP-1)]  <- wt_at
+      for(t in 1:(tInit-1))
+        om$W_axspt[1:A,1,sIdx,1,t] <- meanWt_a
+  
+      # project forward with mean wt
+      for( t in tMP:nT)
+        om$W_axspt[1:A,1,sIdx,1,t]        <- meanWt_a
+      # Copy wt-age to fleets
+      for(f in 1:nF)
+        om$W_axspft[,,sIdx,1,f,] <- om$W_axspt[,,sIdx,1,]
+
+      # ref pt calcs
+      om$meanWtAge_axsp[1:A,1,sIdx,1]      <- meanWt_a
+    }
+  }
+
   # Save model dims
   om$tMP   <- tMP
   om$nT    <- nT
@@ -980,6 +1072,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   om$nS    <- nS
   om$nP    <- nP
   om$nL    <- nL
+  om$nMICE <- nMICE
 
   # Return initialised object
   obj <- list(  om = om, 
@@ -1016,10 +1109,14 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   nF                <- om$nF
   nA                <- om$nA
   nS                <- om$nS
+  nMICE             <- om$nMICE
   nP                <- om$nP
   nL                <- om$nL
   A_s               <- om$A_s
   L_s               <- om$L_s
+
+  nSpec             <- nS - nMICE
+  MICEpars          <- om$MICEpars
 
   # Length bin info
   lenBinWidth       <- om$lenBinWidth
@@ -1119,110 +1216,118 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   # spawnN_aspx (for better array dim matching later)
   spawnN_axsp       <- array(0, dim = c(nA,nX,nS,nP) )
 
+  # Add an initial time parameter for each SPECIES, not just 
+  # stock
+  tInit_sp <- om$tInit_sp
+
+
 
   # loop over stocks to calculate numbers for historical period
-  tInit_p <- om$tInit_p + 1
   for(p in 1:nP)
   {
-
-    # Initialise population
-    if( tInit_p[p] == t )
+    for( s in 1:nS )
     {
+    # Initialise population
+      if( tInit_sp[s,p] == t )
+      {
       # Pull initial N multiplier in case of non-eq init
-      for( s in 1:nS )
-      { 
         if( !opMod$initUnfished)
           for( x in 1:nX )
-            N_axspt[,x,s,p,t] <- obj$om$initSurv_axsp[,x,s,p] * Rinit_sp[s,p] * exp(om$sigmaR_sp[s,p] * err$omegaRinit_asp[,s,p])
+          {
+            N_axspt[1:A_s[s],x,s,p,t] <- obj$om$initSurv_axsp[1:A_s[s],x,s,p] * Rinit_sp[s,p] * exp(om$sigmaR_sp[s,p] * err$omegaRinit_asp[1:A_s[s],s,p])
+          }
         
         if( opMod$initUnfished )
           for( x in 1:nX )
-            N_axspt[,x,s,p,t] <- obj$om$initSurv_axsp[,x,s,p] * R0_sp[s,p]
+            N_axspt[1:A_s[s],x,s,p,t] <- obj$om$initSurv_axsp[1:A_s[s],x,s,p] * R0_sp[s,p]
 
         R_spt[s,p,t] <- N_axspt[1,1,s,p,t]
 
       }  
 
-    }
-
-    # Otherwise update using total mortality
-    if( t > tInit_p[p] )
-    {
+      # Otherwise update using total mortality
+      if( t > tInit_sp[s,p] )
+      {
       # Loop over species/pops
-      for( s in 1:nS )
-          for( a in 1:A_s[s] )
+        for( a in 1:A_s[s] )
+        {
+          # Recruitment
+          if( a == 1 )
           {
-            # Recruitment
-            if( a == 1 )
+
+            # Fix Rt at historical values from rep file or posterior draws
+            if(repObj$avgRcode_p[p]==1)
+              lastIdx <- max(which(repObj$omegaR_pt[p,] != 0) )
+            if(repObj$avgRcode_p[p]==0)
+              lastIdx <- max(which(repObj$SRdevs_pt[p,] != 0) )
+
+            if(!is.null(opMod$lastIdxOverwrite))
+              lastIdx <- opMod$lastIdxOverwrite
+
+            if(t<=lastIdx & opMod$fixCondRecruits )
             {
 
               # Fix Rt at historical values from rep file or posterior draws
-              if(repObj$avgRcode_p[p]==1)
-                lastIdx <- max(which(repObj$omegaR_pt[p,] != 0) )
-              if(repObj$avgRcode_p[p]==0)
-                lastIdx <- max(which(repObj$SRdevs_pt[p,] != 0) )
-
-              if(!is.null(opMod$lastIdxOverwrite))
-                lastIdx <- opMod$lastIdxOverwrite
-
-              if(t<=lastIdx & opMod$fixCondRecruits )
+              if( s <= nSpec )
               {
-
-                # Fix Rt at historical values from rep file or posterior draws
                 if(!ctlList$opMod$posteriorSamples)
                   R_spt[s,p,t] <-  repObj$R_pt[p,t]
 
                 if(ctlList$opMod$posteriorSamples)
                   R_spt[s,p,t] <-  mcmcPar$R_ipt[postDrawIdx,p,t]
+              }
+
+              if( s > nSpec )
+              {
+                mIdx <- s - nSpec              
+                R_spt[s,p,t] <- MICEpars[[mIdx]]$N_at[1,t - tInit_sp[s,p] + 1]
+              }
+
+            }  
+
+            # Simulate Beverton-Holt Recruitments for years where not estimated
+            if(t>lastIdx | !opMod$fixCondRecruits)
+            {  
+              if(obj$ctlList$opMod$recType =='bevHolt')
+              {
+                R_spt[s,p,t] <- reca_sp[s,p] * SB_spt[s,p,t-1] / (1 + recb_sp[s,p] * SB_spt[s,p,t-1])
+
+                if( !obj$ctlList$ctl$noProcErr)
+                {
+                  R_spt[s,p,t] <- R_spt[s,p,t] * exp( om$sigmaR_sp[s,p] * err$omegaR_spt[s,p,t] - 0.5*om$sigmaR_sp[s,p]^2)
+                }
 
               }  
 
-              # Simulate Beverton-Holt Recruitments for years where not estimated
-              if(t>lastIdx | !opMod$fixCondRecruits)
-              {  
-                if(obj$ctlList$opMod$recType =='bevHolt')
-                {
-                  R_spt[s,p,t] <- reca_sp[s,p] * SB_spt[s,p,t-1] / (1 + recb_sp[s,p] * SB_spt[s,p,t-1])
+              # Average Recruitments
+              if( !obj$ctlList$ctl$noProcErr & obj$ctlList$opMod$recType =='avgR')
+              {
+                  R_spt[s,p,t] <- Rbar_sp[s,p]
 
-                  if( !obj$ctlList$ctl$noProcErr)
-                  {
-                    R_spt[s,p,t] <- R_spt[s,p,t] * exp( om$sigmaR_sp[s,p] * err$omegaR_spt[s,p,t] - 0.5*om$sigmaR_sp[s,p]^2)
-                  }
-
-                }  
-
-                # Average Recruitments
-                if( !obj$ctlList$ctl$noProcErr & obj$ctlList$opMod$recType =='avgR')
-                {
-                    R_spt[s,p,t] <- Rbar_sp[s,p]
-
-                  if( !obj$ctlList$ctl$noProcErr)
-                    R_spt[s,p,t] <- Rbar_sp[s,p] * exp( err$omegaR_spt[s,p,t]) 
+                if( !obj$ctlList$ctl$noProcErr)
+                  R_spt[s,p,t] <- Rbar_sp[s,p] * exp( om$sigmaR_sp[s,p] * err$omegaR_spt[s,p,t] - 0.5*om$sigmaR_sp[s,p]^2) 
 
 
-                }  
-              }                      
+              }  
+            }                      
 
-              N_axspt[a,,s,p,t] <- R_spt[s,p,t]
-            }
-            # Apply mortality           
-            if( a > 1 )
-            {
-              N_axspt[a,,s,p,t] <- endN_axspt[a-1,,s,p,t-1]
-            }
-            # Plus group
-            if( a == A_s[s] )
-            {
-              N_axspt[a,,s,p,t] <- N_axspt[a,,s,p,t] + endN_axspt[a,,s,p,t-1]
-            }
-
+            N_axspt[a,,s,p,t] <- R_spt[s,p,t] * 1/nX
           }
-    }
+          # Apply mortality           
+          if( a > 1 )
+          {
+            N_axspt[a,,s,p,t] <- endN_axspt[a-1,,s,p,t-1]
+          }
+          # Plus group
+          if( a == A_s[s] )
+          {
+            N_axspt[a,,s,p,t] <- N_axspt[a,,s,p,t] + endN_axspt[a,,s,p,t-1]
+          }
 
-
-
-  }  
-
+        } # END a loop
+      } 
+    } # END s loop
+  } # END p loop
 
 
   # Now convert into biomass at the beginning of the time step
@@ -1419,7 +1524,6 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     tmpW_axspf    <- array(NA, dim = c(nA,nX,nS,nP,nF))
     tmpP_spf      <- array(NA, dim = c(nS,nP,nF))
 
-
     tmpM_axsp[1:nA,,,]      <- M_axspt[,,,,t]
     tmpW_axspf[1:nA,,,,]    <- W_axspft[,,,,,t]
     tmpN_axsp[1:nA,,,]      <- N_axspt[,,,,t]
@@ -1427,7 +1531,6 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     tmpP_spf[1:nS,,]        <- P_spft[,,,t]
 
     sokFleets <- which(fleetType_f == 2)
-
 
 
     if( t >= tMP & length(sokFleets) > 0 )
@@ -1482,12 +1585,13 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     if(length(ctlList$opMod$predGears) & t >= tMP )
     {
       predGears <- ctlList$opMod$predGears
-      tmpZ_axsp <- array(0, dim = c(nA,nX,nS,nP))
+
+      tmpZ_axsp <- array(0, dim = c(nA,nX,nSpec,nP))
       # Loop over predGears and calculate catch
-      for(s in 1:nS )
+      for(s in 1:nSpec )
         for( p in 1:nP )
         {
-          tmpZ_axsp[,,s,p] <- M_xsp[,s,p]
+          tmpZ_axsp[1:A_s[s],,s,p] <- M_xsp[,s,p]
           # Calculate F
           for( f in predGears )
           {
@@ -1497,14 +1601,15 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
           }
           
           # Now calc catch
-          for(a in 1:nA )
+          for(a in 1:A_s[s] )
             for( x in 1:nX )
               for( f in predGears )
                 Cw_axspft[a,x,s,p,f,t] <- (1 - exp( - tmpZ_axsp[a,x,s,p])) * vB_axspft[a,x,s,p,f,t] * F_spft[s,p,f,t] / tmpZ_axsp[a,x,s,p]
           
+
           # Use Baranov to calculate removals, assuming no comm
           # removals and cts fishing (needs work)
-          TAC_spft[s,p,predGears,t] <- apply(X = Cw_axspft[,,s,p,predGears,t,drop = FALSE], FUN = sum, MARGIN = 5)
+          TAC_spft[s,p,predGears,t] <- apply(X = Cw_axspft[,,s,p,predGears,t,drop = FALSE], FUN = sum, MARGIN = 5,na.rm = T)
         }
     }
 
@@ -1515,7 +1620,6 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     # {
     #   debugFlag <<- TRUE
     # }
-
     discRemList <- applyDiscreteFisheries(  N_axsp          = tmpN_axsp,
                                             sel_axspf       = sel_axspft[,,,,,t],
                                             W_axspf         = tmpW_axspf,
@@ -1542,7 +1646,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
 
     # Compute vulnerable biomass from what's returned and calculate exploitation rate
     vB_spft[,,,t] <- apply( X = vB_axspft[,,,,,t,drop = FALSE], FUN = sum, MARGIN = 3:5, na.rm = T )
-    F_spft[,,,t]  <- TAC_spft[,,,t] / vB_spft[,,,t]
+    F_spft[,,,t]  <- TAC_spft[,,,t] / (vB_spft[,,,t] + 1e-9)
 
     for( fIdx in sokFleets)
       F_spft[,,fIdx,t] <- tmpP_spf[,,fIdx] * (1 - exp(-pondM_ft[fIdx,t])) / vB_spft[,,fIdx,t]
@@ -1583,9 +1687,18 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   C_spft[,,,t] <- apply( X = Cw_axspft[,,,,,t,drop = FALSE], FUN = sum, MARGIN = c(3,4,5), na.rm = T )
   C_spt[,,t]   <- apply( X = C_spft[,,,t,drop = FALSE], FUN = sum, MARGIN = c(1,2), na.rm = T )
 
+  # browser()
+
+
   # Now generate indices - if we are in the projection
   # or if historical data is generated by  OM
+  tauObs_spf <- array(NA, dim=c(nS,nP,nF))
+  
+  for(s in 1:nS)
+    for(p in 1:nP)
+      tauObs_spf[s,p,]  <- om$tauObs_spf[s,p,1:nF] * err$obsErrMult_spft[s,p,1:nF,t]
 
+  idxOn_spf   <- obj$mp$data$idxOn_spft[,,,t]
   if( t >= tMP | ctlList$mp$data$source == "OM" | ctlList$opMod$histType == "sim" )
   {
 
@@ -1658,17 +1771,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     }
   }
 
-
-  # Now make aggregates
-  tauObs_spf <- array(NA, dim=c(nS,nP,nF))
-  
-  for(s in 1:nS)
-    for(p in 1:nP)
-      tauObs_spf[s,p,]  <- om$tauObs_spf[s,p,1:nF] * err$obsErrMult_spft[s,p,1:nF,t]
-
-  idxOn_spf   <- obj$mp$data$idxOn_spft[,,,t]
-
-
+  # Now make pooled data
   # Species Pooling
   if( ctlList$mp$data$speciesPooling & !ctlList$mp$data$spatialPooling  )
   {
@@ -3224,14 +3327,20 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     message(" (.condMS3pop_SISCA) Conditioning ms3R from SISCA report\n")
 
   # Get model historical period report object
-  repObj <- ctlList$opMod$histRpt
+  repObj    <- ctlList$opMod$histRpt
+  MICEpars  <- obj$om$MICEpars
+
 
   # Get model dims
-  nS  <- obj$om$nS
-  nP  <- obj$om$nP
-  nT  <- obj$om$nT
-  nF  <- obj$om$nF
-  nA  <- obj$om$nA
+  nS      <- obj$om$nS
+  nP      <- obj$om$nP
+  nT      <- obj$om$nT
+  nF      <- obj$om$nF
+  nA      <- obj$om$nA
+
+  nMICE   <- obj$om$nMICE
+  nSpec   <- nS - nMICE
+
   A_s <- obj$om$A_s
 
   nX  <- obj$om$nX
@@ -3245,6 +3354,13 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
 
   obj$om$F_spft[1,,histF,histdx]        <- repObj$F_pgt
   obj$om$C_spft[1,,histF,histdx]        <- repObj$totC_pgt
+
+  # Identify time step for initializing each population
+  obj$om$tInit_sp <- array(1,dim = c(nS,nP))
+  # TMB models have 0 indexing
+  obj$om$tInit_sp[1,]  <- repObj$tInitModel_p + 1
+
+
 
   if(!is.null(ctlList$opMod$predGears))
   {
@@ -3282,14 +3398,40 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   obj$om$C_spft[1,,sokIdx,histdx] <- 0
   
   obj$om$C_spt[1,,histdx]               <- apply( X = repObj$totC_pgt, FUN = sum, MARGIN = c(1,3) )
-  obj$om$sel_axspft[,1,1,,histF,histdx] <- repObj$sel_apgt
+  # Fill selectivity for first species (target)
+  for( t in histdx)
+    obj$om$sel_axspft[1:A_s[1],1,1,1:nP,histF,t] <- repObj$sel_apgt[1:A_s[1],1:nP,histF,t]
+
   # HACK: put a control file par in for this, too path specific
-  if(nF > repObj$nG)
-    obj$om$sel_axspft[,1,1,,7,histdx]     <- obj$om$sel_axspft[,1,1,,6,histdx]
+  # if(nF > repObj$nG)
+  #   obj$om$sel_axspft[,1,1,,7,histdx]     <- obj$om$sel_axspft[,1,1,,6,histdx]
 
+  # Update selectivity for MICE species
+  if(nMICE > 0)
+    for( mIdx in 1:nMICE)
+    {
+      # Read in catch selectivity
+      sIdx <- nSpec + mIdx
+      for( a in 1:A_s[sIdx] )
+        obj$om$sel_axspft[a,1,sIdx,1,2,] <- MICEpars[[mIdx]]$sel_a[a]
 
-  obj$mp$hcr$TAC_spft[,,histF,histdx] <- obj$om$C_spft[,,histF,histdx]
-  obj$mp$hcr$TAC_spft[1:nS,,sokIdx,histdx] <- repObj$totC_pgt[,sokIdx,]
+      initYear <- MICEpars[[mIdx]]$tInitModel
+      initT    <- initYear - 1951 + 1
+
+      # Initial time-step
+      obj$om$tInit_sp[nSpec + mIdx,] <- initT
+
+      nYrs <- length(initT:(tMP-1))
+
+      obj$om$C_spft[sIdx,,,]  <- 0
+      obj$om$C_spt[sIdx,,]    <- 0
+      obj$om$C_spft[sIdx,1,2,initT:(tMP-1)] <- MICEpars[[mIdx]]$C_t[1:nYrs]/2
+      obj$om$C_spt[sIdx,1,initT:(tMP-1)] <- MICEpars[[mIdx]]$C_t[1:nYrs]/2
+
+    }
+
+  obj$mp$hcr$TAC_spft[,,histF,histdx]   <- obj$om$C_spft[,,histF,histdx]
+  obj$mp$hcr$TAC_spft[1,,sokIdx,histdx] <- repObj$totC_pgt[,sokIdx,]
 
 
 
@@ -3300,7 +3442,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   if(!ctlList$opMod$posteriorSamples)
   {  
     # selectivity
-    obj$om$sel_axspft[,1,1,,histF,tMP:nT]  <- repObj$sel_apgt[,,,tMP-1]
+    obj$om$sel_axspft[,1,1,,histF,tMP:nT]  <- obj$om$sel_axspft[,1,1,,histF,tMP-1]
     if(nF > repObj$nG)
       obj$om$sel_axspft[,1,1,,7,tMP:nT]      <- obj$om$sel_axspft[,1,1,,6,tMP:nT]
 
@@ -3335,11 +3477,6 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     obj$om$q_spft[1,,histF,]  <- mcmcPar$q_ipg[postDrawIdx,,]
 
   }  
-
-
-  # Identify time step for initializing each population
-  obj$om$tInit_p <- repObj$tInitModel_p
-
 
 
   # Now we have enough info to calculate reference points
@@ -3562,22 +3699,25 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
       obj$errors$ageObsErr_axspft[1:A_s[s],,s,p,,tMP:nT] <- rnorm(A_s[s] * nX * nF * (nT - tMP + 1))
       # Then loop and apply correlation mtx for resids
       Corr_gaa <- repObj$Corr_gaa
-      for( fIdx in 1:repObj$nG )
-      {
-        cholesky_aa <- chol(as.matrix(Corr_gaa[fIdx,1:A_s[s],1:A_s[s]]))
 
-        # Check correlation
-        if(all(cholesky_aa %in% c(0,1)))
-          next
-        
-        # Loop and correlate
-        for( t in tMP:nT )
-          for( x in 1:nX )
-          {
-            errVec <- array(obj$errors$ageObsErr_axspft[1:A_s[s],x,s,p,f,t],dim = c(A_s[s],1))
-            obj$errors$ageObsErr_axspft[1:A_s[s],x,s,p,f,t] <- t(cholesky_aa) %*% errVec
-          }
-      }
+      if(s <= nSpec)
+        for( fIdx in 1:repObj$nG )
+        {
+          
+          cholesky_aa <- chol(as.matrix(Corr_gaa[fIdx,1:A_s[s],1:A_s[s]]))
+
+          # Check correlation
+          if(all(cholesky_aa %in% c(0,1)))
+            next
+          
+          # Loop and correlate
+          for( t in tMP:nT )
+            for( x in 1:nX )
+            {
+              errVec <- array(obj$errors$ageObsErr_axspft[1:A_s[s],x,s,p,f,t],dim = c(A_s[s],1))
+              obj$errors$ageObsErr_axspft[1:A_s[s],x,s,p,f,t] <- t(cholesky_aa) %*% errVec
+            }
+        }
 
     }
 
@@ -5055,7 +5195,7 @@ applyDiscreteFisheries <- function( N_axsp,
       for( s in 1:nS )
         for( p in 1:nP)
         {
-          pvB_axspf[,,s,p,fIdx] <- vB_axspf[,,s,p,fIdx] / sum(vB_axspf[,,s,p,fIdx],na.rm = T)
+          pvB_axspf[,,s,p,fIdx] <- vB_axspf[,,s,p,fIdx] / (sum(vB_axspf[,,s,p,fIdx],na.rm = T) + 1e-9)
           Cw_axspf[,,s,p,fIdx]  <- C_spf[s,p,fIdx] * pvB_axspf[,,s,p,fIdx]
         }
 
@@ -5138,7 +5278,6 @@ calcDiscSpawnN <- function(   lastFleetTime,
                               M_axsp )
 {
   fracM <- spawnTiming - lastFleetTime
-
   spawnN_axsp <- currN_axsp * exp(-fracM * M_axsp)
   
   return(spawnN_axsp)

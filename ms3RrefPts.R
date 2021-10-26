@@ -23,17 +23,25 @@ calcRefPts <- function( obj )
   nS <- obj$om$nS
   nP <- obj$om$nP
 
+  isMICE  <- obj$om$nMICE > 0
+  nMICE   <- obj$om$nMICE
+
+  nSpec   <- nS - nMICE
+
   # Calculate R0_sp
   h_sp      <- obj$om$h_sp
   B0_sp     <- obj$om$B0_sp
 
+  obj$R0_sp     <- array(0,dim = c(nS,nP))
+  obj$totB0_sp  <- array(0,dim = c(nS,nP))
 
   # temporarily use calcPerRecruit to recalc R0
-  tmp           <- .calcPerRecruit( f = 0, obj = obj )
-  yprList       <- tmp$yprList
-  obj$R0_sp     <- B0_sp / yprList$ssbpr_sp
-  obj$totB0_sp  <- obj$R0_sp * yprList$totbpr_sp
+  tmp        <- .calcPerRecruit( f = 0, obj = obj, fleetIdx = 2 )
+  yprList    <- tmp$yprList
 
+  obj$R0_sp       <- B0_sp / yprList$ssbpr_sp
+  obj$totB0_sp    <- obj$R0_sp * yprList$totbpr_sp
+  
   R0_sp <- obj$R0_sp
 
   # Beverton-Holt a/b parameters
@@ -44,9 +52,8 @@ calcRefPts <- function( obj )
   obj$genTime_sp <- .calcGenTime(obj)
 
   # Calculate reference curves
-  refCurves <- .calcRefCurves( obj )
+  refCurves <- .calcRefCurves( obj, fleetIdx = 2 )
   
-
   # First, let's just do Fmsy reference points
   FmsyRefPts <- .getFmsy_sp(  obj = obj, 
                               refCurves = refCurves )
@@ -139,7 +146,7 @@ calcJABBASelPars <- function( obj )
   nP <- obj$nP
 
   # Max F to be calculated for
-  maxF <- max( 10*obj$M_xsp )
+  maxF <- max( 20*obj$M_xsp )
   Fseq <- seq( from = 0, to = maxF, length.out = 100 )
 
 
@@ -390,11 +397,11 @@ calcJABBASelPars <- function( obj )
 # yield and recruitment as a function of input fishing mortality rates
 # inputs:   obj = list of biological parameters
 # ouputs:   refCurves = list() of reference curves (vectors)
-.calcRefCurves <- function( obj, nFs = 1000, fleetIdx = 3 )
+.calcRefCurves <- function( obj, nFs = 100, fleetIdx = 2 )
 {
   # First, compute max F (tolerance of 1e-5)
   nT   <- dim(obj$om$qF_spft)[4]
-  maxF <- max( 8*obj$om$M_xsp )
+  maxF <- max( 10*obj$om$M_xsp )
 
   if( obj$condModel == "hierSCAL")
     maxE <- max( maxF / obj$om$qF_spft[,,2,nT])
@@ -406,19 +413,20 @@ calcJABBASelPars <- function( obj )
   nA          <- obj$om$nA
   nX          <- obj$om$nX
 
-  specNames   <- "Herring"
-  stockNames  <- dimnames(obj$M_apt)[[2]]
-  
+  specNames   <- c("Herring","Hake")[1:nS]
+  stockNames  <- dimnames(obj$M_apt)[[2]]  
 
   f <- seq( from = 0.0, to = maxF, length = nFs )
 
   if( obj$condModel == "hierSCAL")
     e <- seq( from = 0.0, to = maxE, length = nFs )
 
+
+
   # Create matrices to hold Recruitment reference curve, name rows and copy
   # for each of Beq, Neq and Yeq
   Req_spf      <- array( NA,  dim = c(nS, nP, nFs),
-                              dimnames = list(  species = "Herring",
+                              dimnames = list(  species = specNames,
                                                 stock = stockNames,
                                                 F = f ) )
 
@@ -519,17 +527,19 @@ calcJABBASelPars <- function( obj )
 .calcEquil <- function( f = 0, obj, type = "fmort", 
                         fleetIdx = 2 )
 {
-  nS  <- obj$om$nS
-  nP  <- obj$om$nP
-  A_s <- obj$om$A_s
+  nS    <- obj$om$nS
+  nMICE <- obj$om$nMICE
+  nP    <- obj$om$nP
+  A_s   <- obj$om$A_s
 
 
   # Now calculate eqbm recruitment at given f value
   tmp <- .calcPerRecruit( f = f, obj = obj, type = type, fleetIdx = fleetIdx )
   yprList <- tmp$yprList
 
+
   recruits_sp <- ( obj$rec.a_sp * yprList$ssbpr_sp - 1) / (obj$rec.b_sp * yprList$ssbpr_sp)
-  
+
 
   equil <- list()
     equil$Req_sp     <- recruits_sp
@@ -607,6 +617,7 @@ calcJABBASelPars <- function( obj )
   # Compute eqbm spawning biomass per recruit for
   # given f and species/stock pars
   nS      <- obj$om$nS
+  nMICE   <- obj$om$nMICE
   nP      <- obj$om$nP
   A_s     <- obj$om$A_s
   nA      <- obj$om$nA
@@ -614,11 +625,11 @@ calcJABBASelPars <- function( obj )
   nX      <- obj$om$nX
   M_xsp   <- obj$om$M_xsp
   nT      <- obj$om$nT
+  tMP     <- obj$om$tMP
   qF_sp   <- obj$om$qF_spft[,,fleetIdx,nT]
 
+  nSpec   <- nS - nMICE
 
-  
-  # M_xsp[1,1,] <- obj
 
   # Life history schedules
   matAge_asp        <- obj$om$matAge_asp
@@ -637,7 +648,8 @@ calcJABBASelPars <- function( obj )
   
   # Selectivity
   selAge_axsp           <- array(NA, dim = c(nA,nX,nS,nP))
-  selAge_axsp[1:nA,,,]  <- obj$om$sel_axspft[1:nA,,,,fleetIdx,nT]
+  for( s in 1:nS )
+    selAge_axsp[1:A_s[s],1:nX,s,1:nP]  <- obj$om$sel_axspft[1:A_s[s],1:nX,s,1:nP,fleetIdx,tMP-1]
 
   # Fishing mortality
   fmort <- array(f, dim =c(nS,nP) )
@@ -659,16 +671,12 @@ calcJABBASelPars <- function( obj )
   juveMage <- obj$juveMage + 1  
 
 
-  # if( obj$om$densityDepM == 1 )
-  # {
-
-  # }
-
-
   # Compute Z_asp
   Z_axsp    <- array( NA, dim = c(nA,nX,nS,nP))
   Surv_axsp <- array( NA, dim = c(nA,nX,nS,nP))
-  Surv_axsp[1,,,] <- 1
+  Surv_axsp[1,,,] <- 1/nX
+
+  
   for( x in 1:nX )
     for( s in 1:nS )
       for( p in 1:nP )
@@ -680,15 +688,19 @@ calcJABBASelPars <- function( obj )
           Z_axsp[1:(juveMage-1),x,s,p] <- obj$Mjuve_p[p]
 
         Z_axsp[(juveMage):A_s[s],x,s,p] <- M_xsp[x,s,p]
+        
         for( a in 1:A_s[s])
         {
-          Z_axsp[a,x,s,p] <- Z_axsp[a,x,s,p] + selAge_axsp[a,x,s,p] * fmort[s,p]
+          if(f > 0)
+            Z_axsp[a,x,s,p] <- Z_axsp[a,x,s,p] + selAge_axsp[a,x,s,p] * fmort[s,p]
+          
           if( a > 1 )
             Surv_axsp[a,x,s,p] <- Surv_axsp[a-1,x,s,p] * exp( -Z_axsp[a-1,x,s,p])
           if( a == A_s[s])
             Surv_axsp[a,x,s,p] <- Surv_axsp[a,x,s,p] / (1 - exp(-Z_axsp[a,x,s,p]))
         }
       }
+
 
   # Calculate yield-per-recruit, ssb per recruit, and exp biomass per recruit
   # by using survival array
@@ -697,11 +709,17 @@ calcJABBASelPars <- function( obj )
   totbpr_axsp <- array( NA, dim = c(nA,nX,nS,nP) )
   C_axsp      <- array(0,   dim = dim(Surv_axsp))
 
+
   for( s in 1:nS )
     for( p in 1:nP)
     {
-      ssbpr_asp[,s,p]  <- Surv_axsp[,nX,s,p] * exp(-spawnTiming * Z_axsp[,nX,s,p]) * 
-                          wtAge_axsp[,nX,s,p] * matAge_asp[,s,p]
+      ssbpr_asp[,s,p]  <- Surv_axsp[,nX,s,p] * 
+                          wtAge_axsp[,nX,s,p] * 
+                          matAge_asp[,s,p]
+
+      if(s <= nSpec )
+        ssbpr_asp[,s,p] <- ssbpr_asp[,s,p] * exp(-spawnTiming * Z_axsp[,nX,s,p])
+
       for( x in 1:nX )
       {
         C_axsp[,x,s,p]    <- Surv_axsp[,x,s,p] * wtAge_axsp[,x,s,p] * 
@@ -727,7 +745,7 @@ calcJABBASelPars <- function( obj )
 
 
   # if(any(expbpr_sp - ypr_sp < 0))
-  #   browser()
+  
 
   # compile output list
   yprList <- list(  ssbpr_sp  = ssbpr_sp,
@@ -976,6 +994,7 @@ solveForMeq <- function( lnB_p = log(totB0_p), obj, f, fit = TRUE )
   Fseq  <- refCurves$F
   nS    <- obj$om$nS
   nP    <- obj$om$nP
+  nMICE <- obj$om$nMICE
 
   .getFmsy <- function( yieldCurve, F = Fseq )
   {
@@ -990,10 +1009,11 @@ solveForMeq <- function( lnB_p = log(totB0_p), obj, f, fit = TRUE )
     }
 
     fySplineFun <- splinefun( x=F, y=yieldCurve )  
-
     # Find stat point for Fmsy
     Fmsy <- try( uniroot( f = fySplineFun, interval = c(minF, maxF),
                           deriv = 1 )$root )
+
+    
     if(class(Fmsy) == "try-error")
     {
       browser(cat("uniroot failed\n\n"))
