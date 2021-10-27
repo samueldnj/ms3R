@@ -3242,7 +3242,6 @@ plotTulipBt <- function(  obj = blob, nTrace = 3,
   {
       t1 <- tMP + 50
       t2 <- tMP+pT - 1
-      browser()
       simB0_sp <- apply( X = SB_ispt[,,,t1:t2,drop=F], FUN = mean,
                         MARGIN = c(2,3), na.rm = T )
   }  
@@ -3274,9 +3273,9 @@ plotTulipBt <- function(  obj = blob, nTrace = 3,
       if( mfg[1] == 1 )
         mtext( side = 3, text = speciesNames[s], font = 2, line = 0 )
       axis( side = 2, las = 1 )
-      if( mfg[2] == mfg[4] )
-        rmtext( outer = TRUE, cex = 1.5, txt = stockNames[p],
-                font = 2, line = 0.5)
+      # if( mfg[2] == mfg[4] )
+      #   rmtext( outer = TRUE, cex = 1.5, txt = stockNames[p],
+      #           font = 2, line = 0.5)
       box()
       grid()
       polygon(  x = c(yrs, rev(yrs)),
@@ -3298,8 +3297,8 @@ plotTulipBt <- function(  obj = blob, nTrace = 3,
       }
 
       abline( v = yrs[tMP], col = "grey30", lty = 3 )
-      abline( h = B0_sp[s,p], lty = 3, col = "grey50", lwd = 2  )
-      abline( h = 0.3*B0_sp[s,p], lty = 2, col = "red", lwd = 3)
+      # abline( h = B0_sp[s,p], lty = 3, col = "grey50", lwd = 2  )
+      # abline( h = 0.3*B0_sp[s,p], lty = 2, col = "red", lwd = 3)
       # abline( h = LCP_p[p], lty = 2, col = "salmon", lwd = 3)
       # abline( h = BmsySS_sp[s,p], lty = 3, col = "darkgreen", lwd = 2)
 
@@ -3307,9 +3306,9 @@ plotTulipBt <- function(  obj = blob, nTrace = 3,
         legend( x = "topright", bty = "n",
                 legend = c( "Median Spawning Biomass", 
                             "Central 95%",
-                            "Replicate Traces",
-                            "Unfished Biomass",
-                            expression(paste("LRP = 0.3",B[0]))),
+                            "Replicate Traces" ),
+                            # "Unfished Biomass",
+                            # expression(paste("LRP = 0.3",B[0]))),
                             # "Median Projection SB" ),
                             # expression(B[MSY,MS])),
                 col = c(  "black", "grey65", "black",
