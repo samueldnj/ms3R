@@ -196,11 +196,13 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   om <- obj$om      # operating model
   mp <- obj$mp      # management procedure
 
-  nT  <- om$nT
-  tMP <- om$tMP
-  nS  <- om$nS
-  nP  <- om$nP
-  nF  <- om$nF
+  nT      <- om$nT
+  tMP     <- om$tMP
+  nS      <- om$nS
+  nP      <- om$nP
+  nF      <- om$nF
+  nMICE   <- om$nMICE
+  nSpec   <- nS - nMICE
 
   commGears <- ctlList$opMod$commGears
 
@@ -209,7 +211,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
 
   # 3. Determine stock status and apply HCR to set catch limit
   if(ctlList$ctl$mpName=='NoFish')
-    obj$mp$hcr$TAC_spft[,,commGears,t] <- 0
+    obj$mp$hcr$TAC_spft[1:nSpec,,commGears,t] <- 0
   else 
   {  
     if( ctlList$mp$hcr$type == "ramped")
@@ -231,8 +233,10 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     # Need to unift the allocation for SOK/HG and SOG. Right now
     if( !ctlList$mp$hcr$type == "hgRule" )
       for( s in 1:nS )
-        for( p in 1:nP )    
-          obj$mp$hcr$TAC_spft[s,p,,t]    <- obj$mp$hcr$xspt[s,p,t] * obj$om$alloc_spf[s,p,]
+        for( p in 1:nP )
+        {
+          obj$mp$hcr$TAC_spft[s,p,,t]    <- obj$mp$hcr$TAC_spt[s,p,t] * obj$om$alloc_spf[s,p,]
+        }
 
     # SOK product per license is 16,000 lbs (7.2575 t or 0.0072575 kt) per pond ()
     sokPerLic_kt <- 0.0072575
@@ -311,7 +315,8 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
               Rev_ispft   = array( NA, dim = c(nReps, nS, nP, nF, nT ) ),     # Revenue 
               psi_ispft   = array( NA, dim = c(nReps, nS, nP, nF, nT) ),      # SOK conversion rate 
               pondM_ift   = array( NA, dim = c(nReps, nF, nT) ),              # post ponding mortality 
-              M_iaxspt    = array( NA, dim = c(nReps, nA, nX, nS, nP, nT))    # Natural mortality             
+              M_iaxspt    = array( NA, dim = c(nReps, nA, nX, nS, nP, nT)),    # Natural mortality             
+              N_iaxspt    = array( NA, dim = c(nReps, nA, nX, nS, nP, nT))    # Numbers-at-age
 
             )
 
@@ -548,6 +553,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     blob$om$psi_ispft[i,,,,]    <- simObj$om$psi_spft
     blob$om$pondM_ift[i,,]      <- simObj$om$pondM_ft
     blob$om$M_iaxspt[i,,,,,]    <- simObj$om$M_axspt
+    blob$om$N_iaxspt[i,,,,,]    <- simObj$om$N_axspt
 
     # Errors - maybe update simObj structure to match blob here
     blob$om$errors$omegaR_ispt[i,,,]  <- simObj$errors$omegaR_spt
@@ -989,7 +995,8 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     om$meanWtAge_axsp[1:A,1,1,]      <- repObj$meanWt_ap
 
     # Get spawn timing and fleet timing
-    om$spawnTiming                <- repObj$spawnTiming
+    om$spawnTiming_s              <- ctlList$opMod$spawnTiming_s
+    om$spawnTiming_s[1]           <- repObj$spawnTiming
     om$fleetTiming_f              <- c(repObj$fleetTiming_g)
     om$fleetType_f                <- c(repObj$fleetType_g)
 
@@ -1201,7 +1208,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   # Fleet and spawn timing
   fleetTiming_f     <- om$fleetTiming_f
   fleetType_f       <- om$fleetType_f
-  spawnTiming       <- om$spawnTiming
+  spawnTiming_s     <- om$spawnTiming_s
 
   # SOK stuff
   P_spft            <- om$P_spft
@@ -1231,10 +1238,10 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
       if( tInit_sp[s,p] == t )
       {
       # Pull initial N multiplier in case of non-eq init
-        if( !opMod$initUnfished)
+        if( !opMod$initUnfished )
           for( x in 1:nX )
           {
-            N_axspt[1:A_s[s],x,s,p,t] <- obj$om$initSurv_axsp[1:A_s[s],x,s,p] * Rinit_sp[s,p] * exp(om$sigmaR_sp[s,p] * err$omegaRinit_asp[1:A_s[s],s,p])
+            N_axspt[1:A_s[s],x,s,p,t] <- obj$om$initSurv_axsp[1:A_s[s],x,s,p] * Rinit_sp[s,p] * exp(err$omegaRinit_asp[1:A_s[s],s,p])
           }
         
         if( opMod$initUnfished )
@@ -1254,7 +1261,6 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
           # Recruitment
           if( a == 1 )
           {
-
             # Fix Rt at historical values from rep file or posterior draws
             if(repObj$avgRcode_p[p]==1)
               lastIdx <- max(which(repObj$omegaR_pt[p,] != 0) )
@@ -1279,8 +1285,8 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
 
               if( s > nSpec )
               {
-                mIdx <- s - nSpec              
-                R_spt[s,p,t] <- MICEpars[[mIdx]]$N_at[1,t - tInit_sp[s,p] + 1]
+                mIdx          <- s - nSpec              
+                R_spt[s,p,t]  <- MICEpars[[mIdx]]$N_at[1,t - tInit_sp[s,p] + 1]
               }
 
             }  
@@ -1336,6 +1342,38 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   # Compute total age2+ biomass at beginning of time step - updated to use juveMage, currently path specific
   B_spt[,,t]    <- apply( X = B_axspt[2:nA,,,,t,drop = FALSE], FUN = sum, MARGIN = 3:4, na.rm = T )
 
+
+  # From here, we have enough info to start generating fishing effort
+  # for the MICE model predators (i.e., Hake)
+  if(t >= tMP )
+  {
+    predGears <- ctlList$opMod$predGears
+    predType  <- ctlList$opMod$predType
+
+    predGears <- predGears[predType == 2]
+
+    for( mIdx in 1:nMICE )
+    {
+      sIdx <- nSpec + mIdx
+      # Pull which fleets we are using (some redundancy here)
+      predFleets <- MICEpars[[mIdx]]$predGearIdx
+
+      # Now get bioenergetic model
+      bioEnerModel <- MICEpars[[mIdx]]$bioEnergeticModel
+
+      modelB_at <- array(0,dim = c(A_s[sIdx],1))
+      modelB_at[,1] <- B_axspt[1:A_s[sIdx],1,sIdx,1,t]
+
+      predList <- convertHakeBioToEffort( modelB_at = modelB_at,
+                                          bioModel = bioEnerModel )
+
+      E_pft[1:nP,predGears,t] <- predList$predEffort_lt[,1]
+
+      # TODO: Here we need to update selectivity model with mean 
+      # length
+    }
+  }
+
   # Density dependent M
   if( om$densityDepM == 1 )
   {
@@ -1364,6 +1402,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   for( f in 1:nF )
     vB_axspft[,,,,f,t] <- sel_axspft[,,,,f,t] * B_axspt[,,,,t]
 
+  vB_spft <- apply(X = vB_axspft, FUN = sum, MARGIN = c(3:6))
 
   # Now calculate effort for each area (for closed loop sim)
   if( ctlList$opMod$Ftype == "cts" )
@@ -1506,7 +1545,8 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     endN_axspt[,,,,t] <- N_axspt[,,,,t] * exp( - Z_axspt[,,,,t] )
 
     # Calculate numbers-at-age for spawning time
-    spawnN_axsp[1:nA,,,]  <- N_axspt[,,,,t] * exp( - spawnTiming * Z_axspt[,,,,t] )
+    for( s in 1:nS)
+      spawnN_axsp[1:nA,,s,]  <- N_axspt[,,s,,t] * exp( - spawnTiming_s[s] * Z_axspt[,,s,,t] )
 
   }
 
@@ -1530,7 +1570,50 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     tmpsel_axspf[1:nA,,,,]  <- sel_axspft[,,,,,t]
     tmpP_spf[1:nS,,]        <- P_spft[,,,t]
 
-    sokFleets <- which(fleetType_f == 2)
+    sokFleets <- which(fleetType_f >= 2)
+
+
+    # Now we need to calculate the catch for each predator fleet
+    if(length(ctlList$opMod$predGears) & t >= tMP )
+    {
+      predGears <- ctlList$opMod$predGears
+      predType  <- ctlList$opMod$predType
+
+      tmpZ_axsp <- array(0, dim = c(nA,nX,nSpec,nP))
+
+      # effortPred
+      effortPredGears <- predGears[predType > 0]
+      # Loop over predGears and calculate catch
+      for(s in 1:nSpec )
+        for( p in 1:nP )
+        {
+          tmpZ_axsp[1:A_s[s],,s,p] <- M_xsp[,s,p]
+          # Calculate F
+          for( f in effortPredGears )
+          {
+            F_spft[s,p,f,t] <- qF_spft[s,p,f,t] * E_pft[p,f,t]
+
+            tmpZ_axsp[,,s,p] <- tmpZ_axsp[,,s,p] + sel_axspft[,,s,p,f,t] * F_spft[s,p,f,t]
+          }
+          
+          # Now calc catch
+          for(a in 1:A_s[s] )
+            for( x in 1:nX )
+              for( f in effortPredGears )
+                Cw_axspft[a,x,s,p,f,t] <- (1 - exp( - tmpZ_axsp[a,x,s,p])) * vB_axspft[a,x,s,p,f,t] * F_spft[s,p,f,t] / tmpZ_axsp[a,x,s,p]
+          
+
+          # Use Baranov to calculate removals, assuming no comm
+          # removals and cts fishing (needs work)
+          TAC_spft[s,p,effortPredGears,t] <- apply(X = Cw_axspft[,,s,p,effortPredGears,t,drop = FALSE], FUN = sum, MARGIN = 5,na.rm = T)
+
+          # Now calculat GWs TAC in spawn
+          gwPredGears <- predGears[predType==0]
+          TAC_spft[1,1,gwPredGears,t] <- E_pft[p,gwPredGears,t] * 0.00043 * exp(-3)
+        }
+
+
+    }
 
 
     if( t >= tMP & length(sokFleets) > 0 )
@@ -1560,13 +1643,16 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
                                     pEff = om$pEff_t[t],
                                     gamma = om$gamma_f[fIdx],
                                     W_axsp = tmpW_axsp,
+                                    A_s = A_s,
                                     nA = nA,
                                     nX = nX,
                                     nS = nS,
                                     nP = nP  )
       
         psi_sp     <- SOKconvList$psi_sp
+        psi_sp[!is.finite(psi_sp)] <- 1
         propMat_sp <- SOKconvList$propMat_sp
+        propMat_sp[!is.finite(propMat_sp)] <- 0
 
 
         # Convert SOK product that is set in TAC to total ponded fish (some of which will survive)
@@ -1581,51 +1667,36 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
       }
     }
       
-    # Now we need to calculate the catch for each predator fleet
-    if(length(ctlList$opMod$predGears) & t >= tMP )
+    
+
+    if(t >= tMP & nMICE > 0 )
     {
-      predGears <- ctlList$opMod$predGears
-
-      tmpZ_axsp <- array(0, dim = c(nA,nX,nSpec,nP))
-      # Loop over predGears and calculate catch
-      for(s in 1:nSpec )
+      # Need to harvest some predators
+      for(mIdx in 1:nMICE )
+      {
+        sIdx <- nSpec + mIdx
         for( p in 1:nP )
-        {
-          tmpZ_axsp[1:A_s[s],,s,p] <- M_xsp[,s,p]
-          # Calculate F
-          for( f in predGears )
-          {
-            F_spft[s,p,predGears,t] <- qF_spft[s,p,predGears,t] * E_pft[p,predGears,t]
+          TAC_spft[sIdx,p,2,t] <- vB_spft[sIdx,p,2,t] * .22
 
-            tmpZ_axsp[,,s,p] <- tmpZ_axsp[,,s,p] + sel_axspft[,,s,p,f,t] * F_spft[s,p,f,t]
-          }
-          
-          # Now calc catch
-          for(a in 1:A_s[s] )
-            for( x in 1:nX )
-              for( f in predGears )
-                Cw_axspft[a,x,s,p,f,t] <- (1 - exp( - tmpZ_axsp[a,x,s,p])) * vB_axspft[a,x,s,p,f,t] * F_spft[s,p,f,t] / tmpZ_axsp[a,x,s,p]
-          
-
-          # Use Baranov to calculate removals, assuming no comm
-          # removals and cts fishing (needs work)
-          TAC_spft[s,p,predGears,t] <- apply(X = Cw_axspft[,,s,p,predGears,t,drop = FALSE], FUN = sum, MARGIN = 5,na.rm = T)
-        }
+      }
     }
 
+
+
     # Now apply discrete fisheries 
-    repObj <<- repObj
-    # cat("t = ",t,"\n")
+    # repObj <<- repObj
+    
     # if(t == tMP)
     # {
     #   debugFlag <<- TRUE
+    #   browser()
     # }
     discRemList <- applyDiscreteFisheries(  N_axsp          = tmpN_axsp,
                                             sel_axspf       = sel_axspft[,,,,,t],
                                             W_axspf         = tmpW_axspf,
                                             fleetTiming_f   = fleetTiming_f,
                                             fleetType_f     = fleetType_f,
-                                            spawnTiming     = spawnTiming,
+                                            spawnTiming_s   = spawnTiming_s,
                                             M_axsp          = tmpM_axsp,
                                             TAC_spf         = TAC_spft[,,,t],
                                             P_spf           = tmpP_spf,
@@ -1648,6 +1719,9 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     vB_spft[,,,t] <- apply( X = vB_axspft[,,,,,t,drop = FALSE], FUN = sum, MARGIN = 3:5, na.rm = T )
     F_spft[,,,t]  <- TAC_spft[,,,t] / (vB_spft[,,,t] + 1e-9)
 
+    # if(debugFlag)
+    #   browser()
+
     for( fIdx in sokFleets)
       F_spft[,,fIdx,t] <- tmpP_spf[,,fIdx] * (1 - exp(-pondM_ft[fIdx,t])) / vB_spft[,,fIdx,t]
     
@@ -1661,6 +1735,8 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     Cw_axspft[,,,,,t] <- discRemList$Cw_axspf
     C_axspft[,,,,,t]  <- discRemList$C_axspf
 
+    # if( t >= tMP )
+    #   browser()
 
   }
 
@@ -1770,6 +1846,11 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
         } 
     }
   }
+
+  # message("t = ",t,"\n")
+  # message("hake SB = ", SB_spt[2,1,t], "\n")
+  # message("hake vB = ", vB_spft[2,1,2,t], "\n")
+  # message("hake Catch = ", C_spft[2,1,2,t], "\n")
 
   # Now make pooled data
   # Species Pooling
@@ -1898,9 +1979,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     if(any(is.nan(Iperf_spft)))
       browser()
   }
-  # if(t >= tMP )
-  #   browser()
-
+  
   Iperf_spft[Iperf_spft == 0] <- NA
   Ierr_spft[Ierr_spft == 0] <- NA
 
@@ -1924,6 +2003,8 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   C_spt             -> obj$om$C_spt
   E_pft             -> obj$om$E_pft
   Rev_spft          -> obj$om$Rev_spft
+  TAC_spft          -> obj$mp$hcr$TAC_spft
+  TAC_spt           -> obj$mp$hcr$TAC_spt
   
   # Vuln bio
   vB_axspft         -> obj$om$vB_axspft
@@ -2598,7 +2679,6 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   # Get HCR quantities
   Fref_sp <- hcr$Fref_spt[,,t]
 
-
   # Model dims
   nS  <- obj$om$nS
   nP  <- obj$om$nP
@@ -3037,17 +3117,26 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   ctlList <- obj$ctlList
 
   # Get complex dims
-  nS  <- obj$om$nS
-  nP  <- obj$om$nP
-  nF  <- obj$om$nF
-  tMP <- obj$om$tMP
+  nS      <- obj$om$nS
+  nP      <- obj$om$nP
+  nF      <- obj$om$nF
+  tMP     <- obj$om$tMP
+  nMICE   <- obj$om$nMICE
+  nSpec   <- nS - nMICE
 
   # Calculate projection year
-  pt <- t - tMP + 1
-  pT <- ctlList$opMod$pT
+  pt      <- t - tMP + 1
+  pT      <- ctlList$opMod$pT
 
-  obj$mp$hcr$TAC_spt[,,t] <- 0
+  # Get commGears
+  commGears <- ctlList$opMod$commGears
+
+
+  obj$mp$hcr$TAC_spt[1:nSpec,,t] <- 0
+  obj$mp$hcr$TAC_spft[1:nSpec,,,t] <- 0
+
   tmpObj <- .ageSexOpMod( obj, t )
+
 
   for( s in 1:nS )
     for( p in 1:nP )
@@ -3055,7 +3144,15 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
       obj$mp$assess$retroSB_tspt[pt:pT,s,p,t]     <- tmpObj$om$SB_spt[s,p,t]
       obj$mp$assess$retroVB_tspft[pt:pT,s,p,,t]   <- tmpObj$om$vB_spft[s,p,,t] 
       
+
     }
+
+  if(nMICE > 0)
+  {
+
+    obj$mp$hcr$TAC_spt[nSpec + 1:nMICE,,]   <- tmpObj$mp$hcr$TAC_spt[nSpec + 1:nMICE,,]
+    obj$mp$hcr$TAC_spft[nSpec + 1:nMICE,,,] <- tmpObj$mp$hcr$TAC_spft[nSpec + 1:nMICE,,,]
+  }
 
   if( ctlList$mp$hcr$Fref == "Umsy" )
     obj$mp$hcr$Fref_spt[,,t]      <- obj$rp$FmsyRefPts$Umsy_sp
@@ -3240,6 +3337,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
 
       if(lastDevIdx > 0)
       {
+
         obj$errors$omegaR_spt[s,p,histdx[1:lastDevIdx]]   <- repObj$omegaR_spt[s,p,1:lastDevIdx] 
       
         if( !ctlList$ctl$noProcErr )
@@ -3252,8 +3350,8 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
       # First, fill with uncorrelated errors
       obj$errors$ageObsErr_axspft[,,s,p,,] <- rnorm(nA*nX*nF*nT)
 
-      # Then check if age observation errors are correlated
-      browser(cat('line4148'))
+      # # Then check if age observation errors are correlated
+      # browser(cat('line4148'))
 
     }
 
@@ -3361,12 +3459,17 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
   obj$om$tInit_sp[1,]  <- repObj$tInitModel_p + 1
 
 
-
+  # Load predators  with predType == 1
   if(!is.null(ctlList$opMod$predGears))
   {
     predGears <- ctlList$opMod$predGears
+    predType  <- ctlList$opMod$predType
+
     projPred  <- readRDS("history/MMpredMod_postProj.rds")
     postDraw  <- sample(1:1000, 1)
+
+    # First, do predType == 1
+    predGears <- predGears[predType == 1]
 
     Npred_ift <- aperm(projPred$N_itp[,,c(4,3,1:2)],perm = c(1,3,2))
 
@@ -3376,12 +3479,11 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     obj$om$F_spft[1,1:nP,predGears,histdx] <- repObj$apF_pgt[1:nP,predGears,histdx]
     obj$om$E_pft[1:nP,predGears,histdx]    <- meanNpred_ft[,histdx]/1e3
 
-
-    for(s in 1:nS )
+    for(s in 1:nSpec )
       for(p in 1:nP )
       {
         qSeries_ft <- obj$om$F_spft[s,p,predGears,histdx] / (Npred_ift[postDraw,,histdx]/1e3)
-        qbar_f     <- exp(apply(X = log(qSeries_ft), FUN = mean, MARGIN = 1))
+        qbar_f     <- exp(apply(X = log(qSeries_ft), FUN = quantile, MARGIN = 1, probs = .5))
         # obj$om$qF_spf[s,p,predGears] <- qbar_f
         for( t in tMP:nT)
           obj$om$qF_spft[s,p,predGears,t] <- qbar_f
@@ -3389,15 +3491,129 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
 
     obj$om$E_pft[1:nP,predGears,projdx] <- Npred_ift[postDraw,,projdx]/1e3
 
+
+    # predType == 2 indicates that the predator is a simulated
+    # species in the MICE model, so consumption will be generated 
+    # in closed loop sims year by year. However, we can calculate the
+    # predator q from historical data
+
+    # These two lines mean nothing, might use them as a safety check later
+    # so we can turn predation on and off.
+    predGears <- ctlList$opMod$predGears
+    predGears <- predGears[predType == 2]
+
+    # Now loop over MICE inputs and generate predator qs
+    for( mIdx in 1:nMICE )
+    {
+      # Get gear indices
+      gearIdx <- MICEpars[[mIdx]]$predGearIdx
+      # Get historical period biomass for predators
+      histEffort_lt <- MICEpars[[mIdx]]$bioEnergeticModel$piscB_lt
+      # Pad historical effort by copying first element
+      tInitModel <- MICEpars[[mIdx]]$tInitModel - 1951 + 1
+
+      obj$om$E_pft[1:nP,gearIdx,tInitModel:(tMP-1)] <- histEffort_lt
+      for(t in 1:(tInitModel-1))
+        obj$om$E_pft[1:nP,gearIdx,t] <- histEffort_lt[,1]
+
+      obj$om$F_spft[1,1:nP,gearIdx,histdx] <- repObj$apF_pgt[1:nP,predGears,histdx]
+
+      for(s in 1:nSpec )
+        for(p in 1:nP )
+        {
+          qSeries_ft <- obj$om$F_spft[s,p,gearIdx,histdx] / obj$om$E_pft[p,gearIdx,histdx]
+          qbar_f     <- exp(apply(X = log(qSeries_ft), FUN = quantile, MARGIN = 1, probs = 0.5))
+          # obj$om$qF_spf[s,p,predGears] <- qbar_f
+          for( t in tMP:nT)
+            obj$om$qF_spft[s,p,gearIdx,t] <- qbar_f
+        }
+
+    }
+
+    # predType == 0 is for Gray Whales right now. There has to 
+    # be a better way...
+    predGears <- ctlList$opMod$predGears
+    predGears <- predGears[predType == 0]
+
+    # Load GW projection model
+    gwList    <- readRDS("history/GrayWhales/GW_proj.rds")
+    gwN_it    <- gwList$projN_it
+    nTrials   <- dim(gwN_it)[1]
+    nGWprojT  <- dim(gwN_it)[2]
+
+    if(nGWprojT - 5 < ctlList$opMod$pT )
+    {
+      cat("Error: projection longer than provided GW abundance series")
+    }
+    drawIdx  <- sample(1:nTrials, 1)
+    # Gray whale "effort" should be included in report
+    # object...
+    
+    # Initial GW projection year is 2015
+    projTdx <- seq(from = 6, by = 1, length.out = ctlList$opMod$pT)
+    # Abundance is effort
+    obj$om$E_pft[1:nP,13,(tMP):nT] <- gwN_it[drawIdx,projTdx]
+
+    obj$om$E_pft[1:nP,13,17:(tMP-6)] <- gwList$histN
+    obj$om$E_pft[1:nP,13,1:16] <- mean(obj$om$E_pft[1:nP,13,17:19])
+    obj$om$E_pft[1:nP,13,(tMP-5):(tMP-1)] <- apply(X = gwN_it[,1:5], FUN = mean, MARGIN = 2)
+
+    obj$om$qF_spft[1,1:nP,13,] <- repObj$qF_g[13]
+
+    # Scale the effort by egg weight consumed by predator, and the 
+    # repObj q value to give the total consumption, skipping a relative 
+    # F - can we respec the model to make it a relative F in the history??
+    obj$mp$hcr$TAC_spft[1,1:nP,13,1:nT] <- obj$om$E_pft[1:nP,13,1:nT] * obj$om$qF_spft[1,1:nP,13,(1:nT)] * 4.3e-4 
+    obj$om$C_spft[1,1:nP,13,1:nT] <- obj$om$E_pft[1:nP,13,1:nT] * obj$om$qF_spft[1,1:nP,13,(1:nT)] * 4.3e-4 
+    
   }
 
-  # Set all SOK catch and F to zero as ponded fish mortality is calculated in applyDiscreteFisheries()
-  sokIdx <- which(repObj$fleetType_g == 2)
+  # We should do ALL of the sok/GW history stuff in ONE place.
+  sokIdx <- which(repObj$fleetType_g %in% 2:3)
+
+  # For the historical period, we need ponded biomass equivalent for the 
+  # applyDiscreteFisheries() function
+  obj$om$P_spft[1,1:nP,sokIdx,1:(tMP-1)] <- repObj$pondC_pgt[1:nP,sokIdx,1:(tMP-1)]
+  obj$om$C_spft[1,1:nP,sokIdx,1:(tMP-1)] <- repObj$C_pgt[1:nP,sokIdx,1:(tMP-1)]
+
+  # TODO: ADD IN GW CATCH FROM MIXED CATCH
+  obj$om$C_spft[1,1,13,1:(tMP-1)] <- obj$om$C_spft[1,1:nP,13,1:(tMP-1)] + repObj$mC_gt[13,1:(tMP-1)]
+
+  # Simulate future post-ponding mortality
+  for( f in sokIdx )
+  {
+    # Post pond M
+    obj$om$pondM_ft[f,1:(tMP-1)] <- repObj$postPondM_g[f]
+    
+    # projections
+    if(obj$om$fleetType_f[f] == 3)
+      obj$om$pondM_ft[f,tMP:nT] <- 0
+
+    # Draw M in projections from log-normal distribution
+    if( obj$om$fleetType_f[f] == 2 )
+    {
+      pondM <- obj$ctlList$opMod$pondMmu_f[f]
+      logSD <- obj$ctlList$opMod$pondMlogSD_f[f]
+
+      obj$om$pondM_ft[f,tMP:nT] <- exp(rnorm(pT, log(pondM), logSD))
+    }
+
+    for( p in 1:nP)
+    {
+      obj$om$P_spft[1,p,f,histdx]   <- repObj$pondC_pgt[p,f,histdx]
+      
+      if(any(repObj$psi_pgt[p,f,histdx] != 0))
+        obj$om$psi_spft[1,p,f,histdx] <- repObj$psi_pgt[p,f,histdx]
+
+      if(all(repObj$psi_pgt[p,f,histdx] == 0))
+        obj$om$psi_spft[1,p,f,histdx] <- repObj$psi_gt[f,histdx]
+    }
+  }  
+
   
-  obj$om$F_spft[1,,sokIdx,histdx] <- 0
-  obj$om$C_spft[1,,sokIdx,histdx] <- 0
-  
+  # Total catch
   obj$om$C_spt[1,,histdx]               <- apply( X = repObj$totC_pgt, FUN = sum, MARGIN = c(1,3) )
+  
   # Fill selectivity for first species (target)
   for( t in histdx)
     obj$om$sel_axspft[1:A_s[1],1,1,1:nP,histF,t] <- repObj$sel_apgt[1:A_s[1],1:nP,histF,t]
@@ -3412,11 +3628,14 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     {
       # Read in catch selectivity
       sIdx <- nSpec + mIdx
-      for( a in 1:A_s[sIdx] )
-        obj$om$sel_axspft[a,1,sIdx,1,2,] <- MICEpars[[mIdx]]$sel_a[a]
-
       initYear <- MICEpars[[mIdx]]$tInitModel
       initT    <- initYear - 1951 + 1
+      # Fill selectivity
+      for( t in initT:tMP )
+        obj$om$sel_axspft[,1,sIdx,1,2,t] <- MICEpars[[mIdx]]$sel_at[,t - initT + 1]
+      
+      for( t in tMP:nT )
+        obj$om$sel_axspft[,1,sIdx,1,2,t] <- obj$om$sel_axspft[,1,sIdx,1,2,tMP]
 
       # Initial time-step
       obj$om$tInit_sp[nSpec + mIdx,] <- initT
@@ -3425,17 +3644,20 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
 
       obj$om$C_spft[sIdx,,,]  <- 0
       obj$om$C_spt[sIdx,,]    <- 0
-      obj$om$C_spft[sIdx,1,2,initT:(tMP-1)] <- MICEpars[[mIdx]]$C_t[1:nYrs]/2
-      obj$om$C_spt[sIdx,1,initT:(tMP-1)] <- MICEpars[[mIdx]]$C_t[1:nYrs]/2
+      obj$om$C_spft[sIdx,1,2,initT:(tMP-1)] <- MICEpars[[mIdx]]$C_t[1:nYrs]
+      obj$om$C_spt[sIdx,1,initT:(tMP-1)] <- MICEpars[[mIdx]]$C_t[1:nYrs]
 
     }
 
   obj$mp$hcr$TAC_spft[,,histF,histdx]   <- obj$om$C_spft[,,histF,histdx]
-  obj$mp$hcr$TAC_spft[1,,sokIdx,histdx] <- repObj$totC_pgt[,sokIdx,]
+
+  obj$mp$hcr$TAC_spt[,,histdx]          <- obj$om$C_spt[,,histdx]
+  
+  # Put spawn removals into TAC object
+  obj$mp$hcr$TAC_spft[1,,sokIdx,histdx] <- repObj$C_pgt[,sokIdx,]
 
 
-
-  obj$mp$hcr$TAC_spt[,,histdx]        <- obj$om$C_spt[,,histdx]
+  
 
   
   # Now fill in future sel
@@ -3452,6 +3674,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     
 
   }
+  
   if(ctlList$opMod$posteriorSamples)
   {
     postDrawIdx <- obj$ctlList$opMod$postDrawIdx
@@ -3637,8 +3860,29 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
       if(ctlList$opMod$recType == 'bevHolt')
       {
 
+      
         if(!ctlList$opMod$posteriorSamples & lastIdx > 0 )
-          obj$errors$omegaR_spt[s,p,histdx[1:lastIdx]] <- repObj$SRdevs_pt[p,1:lastIdx]
+        {
+
+          if(s <= nSpec)
+          {
+            histRdevs <- repObj$SRdevs_pt[p,1:lastIdx] * obj$om$sigmaR_sp[s,p]
+            obj$om$sigmaR_sp[s,p] <- sd( histRdevs )
+            # Standardize
+            histRdevs <- histRdevs/sd(histRdevs)  
+          }
+
+          if( s > nSpec)
+          {
+            mIdx <- s - nSpec
+            histRdevs <- MICEpars[[mIdx]]$resid_t
+            obj$om$sigmaR_sp[s,p] <- sd( histRdevs )
+            # pad with 0s and standardize
+            histRdevs <- c(rep(0,15),histRdevs)/sd(histRdevs)
+          }
+          
+          obj$errors$omegaR_spt[s,p,histdx[1:lastIdx]] <- histRdevs[1:lastIdx]
+        }
 
         if(ctlList$opMod$posteriorSamples)
         {
@@ -3692,7 +3936,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
         
 
       if( !ctlList$ctl$noProcErr & lastIdx > 0 )
-        obj$errors$omegaR_spt[s,p,histdx[1:lastIdx]] <- obj$errors$omegaR_spt[s,p,histdx[1:lastIdx]] + 0.5*repObj$sigmaR  # rec devs    
+        obj$errors$omegaR_spt[s,p,histdx[1:lastIdx]] <- obj$errors$omegaR_spt[s,p,histdx[1:lastIdx]] + 0.5*obj$om$sigmaR_sp[s,p]  # rec devs    
 
 
       # Start by generating uncorrelated errors
@@ -3722,13 +3966,16 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     }
 
 
+
+
   # Replace NaNs with 0s when the recent history has no catch
   obj$om$alloc_spf[is.nan(obj$om$alloc_spf)] <- 0
 
   # Save historical errors
   obj$errors$delta_spft[1,1:nP,histF,histdx]   <- repObj$z_pgt[1:nP,,histdx,drop = FALSE] # obs errors
+  # Get initialization errors
   for( p in 1:nP)
-    obj$errors$omegaRinit_asp[,1,p]  <- repObj$fDevs_ap[,p] # Initialisation errors
+    obj$errors$omegaRinit_asp[1:A_s[1],1,p]  <- repObj$fDevs_ap[1:A_s[1],p] * repObj$sigmaR # Initialisation errors
 
   if(!is.null(ctlList$opMod$initDevsMult))
     obj$errors$omegaRinit_asp <- obj$errors$omegaRinit_asp * ctlList$opMod$initDevsMult
@@ -3842,28 +4089,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     for( t in tMP:nT )
       obj$om$M_axspt[,,,,t] <- obj$om$M_axspt[,,,,tMP-1]
 
-  # Post ponding M for open and closed ponding
-  sokIdx <- which(obj$om$fleetType_f %in% 2:3)
-  for( f in sokIdx )
-  {
-    # Closed pond fleets
-    # assign repObj postPondM to SOK closed pond fleet
-    if(f==6)
-      obj$om$pondM_ft[f,1:(tMP-1)] <- repObj$postPondM_g[f]
-    
-    # HACK: path specific
-    # assign input value for postPondM if fleets are new
-    if(obj$om$fleetType_f[f] == 3)
-      obj$om$pondM_ft[f,1:(tMP-1)] <- 0
-
-    # Draw M in projections from log-normal distribution
-    pondM <- obj$ctlList$opMod$pondMmu_f[f]
-    logSD <- obj$ctlList$opMod$pondMlogSD_f[f]
-
-    obj$om$pondM_ft[f,tMP:nT] <- exp(rnorm(pT, log(pondM), logSD))
   
-
-  }  
 
   # Adjust obs error multiplier if 
   # projObsErrMult != 1
@@ -3880,14 +4106,6 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     }
     obj$errors$obsErrMult_spft[,,,(tMP+nPhaseIn):nT] <- projObsErrMult
   }
-
-  # Add ponded fish and SOK conversion factor for closed ponds
-  if(length(sokIdx) > 0)
-    for( p in 1:nP)
-    {
-      obj$om$P_spft[,p,sokIdx,histdx]   <- repObj$pondC_pgt[p,sokIdx,histdx]
-      obj$om$psi_spft[,p,sokIdx,histdx] <- repObj$psi_pt[p,histdx]
-    }
 
   message(" (.condMS3pop_SISCA) Running OM for historical period.\n")
 
@@ -3998,7 +4216,7 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
 
   # The random walk...
   for ( t in 2:length(deltat) )
-    omegat[t] <- omegat[t-1] * gamma + sigma*deltat[t]
+    omegat[t] <- omegat[t-1] * gamma + sigma*deltat[t]*(1 - gamma)
   
   # note these are now multpliers > 0
   omegat <- exp( omegat - sig2Unc/2.0)
@@ -5090,7 +5308,7 @@ applyDiscreteFisheries <- function( N_axsp,
                                     W_axspf,
                                     fleetTiming_f,
                                     fleetType_f,
-                                    spawnTiming,
+                                    spawnTiming_s,
                                     M_axsp,
                                     TAC_spf,
                                     P_spf,
@@ -5100,8 +5318,6 @@ applyDiscreteFisheries <- function( N_axsp,
   # First, order fleetTiming
   fleetOrder <- order(fleetTiming_f)
 
-  # Initialise lastFleetTime at 0
-  lastFleetTime <- 0
 
   tmpN_axsp <- array(0, dim = c(nA,nX,nS,nP) )
   s_axspf   <- array(0, dim = c(nA,nX,nS,nP,nF) )
@@ -5127,129 +5343,136 @@ applyDiscreteFisheries <- function( N_axsp,
   # Overwrite TAC with ponded fish for SOK fleets
   C_spf[1:nS,,fleetType_f %in% 2:3] <- P_spf[,,fleetType_f %in% 2:3]
 
-  # if(sum(P_spf) > 0)
+  # if(debugFlag)
   #   browser()
-
-  # First, check if spawn timing goes first
-  if( spawnTiming <= fleetTiming_f[fleetOrder[1]] )
+  # Loop over species to avoid spawn timing issues
+  for( s in 1:nS )
   {
-    spawnN_axsp <- calcDiscSpawnN(  lastFleetTime = lastFleetTime,
-                                    spawnTiming = spawnTiming,
-                                    currN_axsp = tmpN_axsp,
-                                    M_axsp = M_axsp )
+    # Initialise lastFleetTime at 0
+    lastFleetTime <- 0
 
-    lastFleetTime <- spawnTiming
-    tmpN_axsp   <- spawnN_axsp
-  }
-
-  # if(all(C_spf == 0))
-  #     browser()
-
-  # Then loop over fleets, check on spawn timing
-  # in each loop
-  for( oIdx in 1:length(fleetOrder) )
-  {
-    fIdx <- fleetOrder[oIdx]
-    nextFleetTime <- fleetTiming_f[fIdx]
-
-    # if(debugFlag)
-    #   browser()
-
-    # Calculate spawning numbers
-    if( spawnTiming > lastFleetTime & spawnTiming <= nextFleetTime )
+    # First, check if spawn timing goes first
+    if( spawnTiming_s[s] <= fleetTiming_f[fleetOrder[1]] )
     {
-      spawnN_axsp <- calcDiscSpawnN(  lastFleetTime = lastFleetTime,
-                                      spawnTiming = spawnTiming,
-                                      currN_axsp = tmpN_axsp,
-                                      M_axsp = M_axsp )
+      spawnN_axsp[,,s,] <- calcDiscSpawnN(  lastFleetTime = lastFleetTime,
+                                            spawnTiming = spawnTiming_s[s],
+                                            currN_axsp = tmpN_axsp[,,s,,drop = FALSE],
+                                            M_axsp = M_axsp[,,s,,drop = FALSE] )
 
-      lastFleetTime <- spawnTiming
-      tmpN_axsp   <- spawnN_axsp
+      lastFleetTime <- spawnTiming_s[s]
+      tmpN_axsp[,,s,]   <- spawnN_axsp[,,s,]
     }
 
-    # Now calculate fishery numbers
-    fracM <- nextFleetTime - lastFleetTime
-    # Deplete by natural mortality
-    tmpN_axsp <- tmpN_axsp * exp(-fracM * M_axsp)
+    # if(all(C_spf == 0))
+    #     browser()
 
-    # Calculate vulnerable numbers at age
-    vN_axspf[,,,,fIdx] <- tmpN_axsp[1:nA,1:nX,1:nS,1:nP] * s_axspf[1:nA,1:nX,1:nS,1:nP,fIdx]
-
-    # Calculate vulnerable biomass at age
-    vB_axspf[,,,,fIdx] <- vN_axspf[,,,,fIdx] * W_axspf[,,,,fIdx]
-
-    if(fIdx > nF | any(!is.finite(C_spf)))
+    # Then loop over fleets, check on spawn timing
+    # in each loop
+    for( oIdx in 1:length(fleetOrder) )
     {
-      cat("Bad catch \n")
-      browser()
-    }
+      fIdx <- fleetOrder[oIdx]
+      nextFleetTime <- fleetTiming_f[fIdx]
 
-    if(is.null(C_spf))
-      browser()
+      # if(debugFlag)
+      #   browser()
 
-    
-    if( any(C_spf[,,fIdx] > 0 ) )
-    { 
-      # Compute proportion of biomass at age
-      # for catch distribution across age classes
-      for( s in 1:nS )
+      # Calculate spawning numbers
+      if( spawnTiming_s[s] > lastFleetTime & spawnTiming_s[s] <= nextFleetTime )
+      {
+        spawnN_axsp[,,s,] <- calcDiscSpawnN(  lastFleetTime = lastFleetTime,
+                                              spawnTiming = spawnTiming_s[s],
+                                              currN_axsp = tmpN_axsp[,,s,],
+                                              M_axsp = M_axsp[,,s,] )
+
+        lastFleetTime <- spawnTiming_s[s]
+        tmpN_axsp[,,s,]   <- spawnN_axsp[,,s,]
+      }
+
+      # Now calculate fishery numbers
+      fracM <- nextFleetTime - lastFleetTime
+      # Deplete by natural mortality
+      tmpN_axsp[,,s,] <- tmpN_axsp[,,s,] * exp(-fracM * M_axsp[,,s,])
+
+      # Calculate vulnerable numbers at age
+      vN_axspf[,,s,,fIdx] <- tmpN_axsp[1:nA,1:nX,s,1:nP] * s_axspf[1:nA,1:nX,s,1:nP,fIdx]
+
+      # Calculate vulnerable biomass at age
+      vB_axspf[,,s,,fIdx] <- vN_axspf[,,s,,fIdx] * W_axspf[,,s,,fIdx]
+
+      if(fIdx > nF | any(!is.finite(C_spf[s,,])))
+      {
+        cat("Bad catch \n")
+        browser()
+      }
+
+      if(is.null(C_spf[s,,]))
+        browser()
+
+      
+      if( any(C_spf[s,,fIdx] > 0 ) )
+      { 
+        # Compute proportion of biomass at age
+        # for catch distribution across age classes
         for( p in 1:nP)
         {
           pvB_axspf[,,s,p,fIdx] <- vB_axspf[,,s,p,fIdx] / (sum(vB_axspf[,,s,p,fIdx],na.rm = T) + 1e-9)
           Cw_axspf[,,s,p,fIdx]  <- C_spf[s,p,fIdx] * pvB_axspf[,,s,p,fIdx]
         }
 
-      # Compute catch-at-age in numbers
-      C_axspf[,,,,fIdx] <- Cw_axspf[,,,,fIdx] / W_axspf[,,,,fIdx]
+        # Compute catch-at-age in numbers
+        C_axspf[,,s,,fIdx] <- Cw_axspf[,,s,,fIdx] / W_axspf[,,s,,fIdx]
+        
+        # Remove from general population, update lastFleetTime
+        tmpN_axsp[1:nA,,s,] <- tmpN_axsp[1:nA,,s,] - C_axspf[,,s,,fIdx]
+      }
       
-      # Remove from general population, update lastFleetTime
-      tmpN_axsp[1:nA,,,] <- tmpN_axsp[1:nA,,,] - C_axspf[,,,,fIdx]
+      lastFleetTime <- fleetTiming_f[fIdx]
+
+      # Try to mimic the posfun here
+      eps <- 1e-3
+
+      # Overwrite NAs which stem from staggered initTs
+      ltepsIdx <- tmpN_axsp[,,s,] < eps
+      ltepsIdx[is.na(ltepsIdx)] <- FALSE
+
+      # Apply posfun
+      tmpN_axsp[,,s,][ltepsIdx] <- eps/(2-tmpN_axsp[,,s,][ltepsIdx]/eps)
     }
-    
-    lastFleetTime <- fleetTiming_f[fIdx]
 
-    # Try to mimic the posfun here
-    eps <- 1e-3
+    if( spawnTiming_s[s] > lastFleetTime )
+    {
+      spawnN_axsp[,,s,] <- calcDiscSpawnN(  lastFleetTime = lastFleetTime,
+                                            spawnTiming = spawnTiming_s[s],
+                                            currN_axsp = tmpN_axsp[,,s,],
+                                            M_axsp = M_axsp[,,s,] )
 
-    # Overwrite NAs which stem from staggered initTs
-    ltepsIdx <- tmpN_axsp < eps
-    ltepsIdx[is.na(ltepsIdx)] <- FALSE
+      lastFleetTime <- spawnTiming_s[s]
+      tmpN_axsp[,,s,]   <- spawnN_axsp[,,s,] 
+    }
+
+    # Then compute endN by applying last bit of M
+    fracM     <- 1 - lastFleetTime
+    endN_axsp[,,s,] <- tmpN_axsp[,,s,] * exp(-fracM*M_axsp[,,s,])
+
+    # Add ponded fish at age reduced by post-ponding M
+    sokFleets <- which(fleetType_f %in% c(2,3))
+    for( fIdx in sokFleets )
+    {  
       
+      # calculate remaining natural mortality and apply to 
+      fracM     <- 1 - fleetTiming_f[fIdx]
 
-    tmpN_axsp[ltepsIdx] <- eps/(2-tmpN_axsp[ltepsIdx]/eps)
+      endN_axsp[1:nA,,s,] <- endN_axsp[1:nA,,s,] + C_axspf[1:nA,,s,,fIdx] * exp(-fracM*M_axsp[1:nA,,s,] - pondM_f[fIdx] )
+
+      #Apply post-ponding mortality so catch for SOK fleets represents dead fish
+      Cw_axspf[1:nA,,s,,fIdx] <- Cw_axspf[1:nA,,s,,fIdx] * (1-exp(-pondM_f[fIdx]))
+      C_axspf[1:nA,,s,,fIdx]  <- C_axspf[1:nA,,s,,fIdx] * (1-exp(-pondM_f[fIdx]))
+
+    }  
+
   }
-
-  if( spawnTiming > lastFleetTime )
-  {
-    spawnN_axsp <- calcDiscSpawnN(  lastFleetTime = lastFleetTime,
-                                    spawnTiming = spawnTiming,
-                                    currN_axsp = tmpN_axsp,
-                                    M_axsp = M_axsp )
-
-    lastFleetTime <- spawnTiming
-    tmpN_axsp   <- spawnN_axsp 
-  }
-
-  # Then compute endN by applying last bit of M
-  fracM     <- 1 - lastFleetTime
-  endN_axsp <- tmpN_axsp * exp(-fracM*M_axsp)
-
-  # Add ponded fish at age reduced by post-ponding M
-  sokFleets <- which(fleetType_f %in% c(2,3))
-  for( fIdx in sokFleets )
-  {  
-    
-    # calculate remaining natural mortality and apply to 
-    fracM     <- 1 - fleetTiming_f[fIdx]
-
-    endN_axsp[1:nA,,,] <- endN_axsp[1:nA,,,] + C_axspf[1:nA,,,,fIdx] * exp(-fracM*M_axsp[1:nA,,,] - pondM_f[fIdx] )
-
-    #Apply post-ponding mortality so catch for SOK fleets represents dead fish
-    Cw_axspf[1:nA,,,,fIdx] <- Cw_axspf[1:nA,,,,fIdx] * (1-exp(-pondM_f[fIdx]))
-    C_axspf[1:nA,,,,fIdx]  <- C_axspf[1:nA,,,,fIdx] * (1-exp(-pondM_f[fIdx]))
-
-  }  
-
+  # if(debugFlag)
+  #   browser()
 
   if(sum(endN_axsp,na.rm = T) == 0 )
   {
@@ -5398,6 +5621,7 @@ calcSOKpsi <- function( N_axsp,
                         pEff = .5,
                         gamma = 0.0024,
                         W_axsp,
+                        A_s,
                         nA,nX,nS,nP  )
 {
   # First, we need to estimate proportion
@@ -5415,12 +5639,13 @@ calcSOKpsi <- function( N_axsp,
   pondC_axsp[,,,1:nP] <- (1 - exp(-Z_axsp[,,,1:nP])) * N_axsp[,,,1:nP] * sel_axsp[,,,1:nP] * initF/Z_axsp[,,,1:nP]
 
 
-  for( a in 1:nA )
-    for( x in 1:nX)
-    {
-      tmpBmat_axsp[a,,,]  <- pondC_axsp[a,,,] * mat_asp[a,,] * W_axsp[a,,,]
-      tmpB_axsp[a,,,]     <- pondC_axsp[a,,,] * W_axsp[a,,,]
-    }
+  for( s in 1:nS)
+    for( a in 1:A_s[s] )
+      for( x in 1:nX)
+      {
+        tmpBmat_axsp[a,,s,]  <- pondC_axsp[a,,s,] * mat_asp[a,s,] * W_axsp[a,,s,]
+        tmpB_axsp[a,,s,]     <- pondC_axsp[a,,s,] * W_axsp[a,,s,]
+      }
 
   tmpBmat_sp <- apply( X = tmpBmat_axsp[,nX,,,drop = FALSE], FUN = sum, MARGIN = c(3,4), na.rm=T)
   tmpB_sp    <- apply( X = tmpB_axsp[,,,,drop =FALSE], FUN = sum, MARGIN = c(3,4), na.rm=T)

@@ -636,7 +636,7 @@ calcJABBASelPars <- function( obj )
   wtAge_axsp        <- obj$om$meanWtAge_axsp
 
   # Spawn timing
-  spawnTiming       <- obj$om$spawnTiming
+  spawnTiming_s     <- obj$om$spawnTiming_s
 
   # Recruitment pars
   if(f > 0)
@@ -717,8 +717,7 @@ calcJABBASelPars <- function( obj )
                           wtAge_axsp[,nX,s,p] * 
                           matAge_asp[,s,p]
 
-      if(s <= nSpec )
-        ssbpr_asp[,s,p] <- ssbpr_asp[,s,p] * exp(-spawnTiming * Z_axsp[,nX,s,p])
+      ssbpr_asp[,s,p] <- ssbpr_asp[,s,p] * exp(-spawnTiming_s[s] * Z_axsp[,nX,s,p])        
 
       for( x in 1:nX )
       {

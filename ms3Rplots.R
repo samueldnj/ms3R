@@ -3150,9 +3150,7 @@ plotTulipBt <- function(  obj = blob, nTrace = 3,
 
   SB_ispt[SB_ispt == 0] <- NA
 
-  LCP_p <- obj$ctlList$mp$hcr$LCP * obj$ctlList$mp$hcr$B0Wtd_p
-
-
+  
   tMP     <- obj$om$tMP
   nS      <- obj$om$nS
   nP      <- obj$om$nP 
@@ -3195,10 +3193,9 @@ plotTulipBt <- function(  obj = blob, nTrace = 3,
           C_ispt[,s,p,]  <- C_ispt[,s,p,] / B0_sp[s,p]
 
         }
-      LCP_p     <- LCP_p / B0_sp[1,]
+      # LCP_p     <- LCP_p / B0_sp
       BmsySS_sp <- BmsySS_sp / B0_sp
       B0_sp     <- B0_sp / B0_sp
-      
 
     }
 
@@ -3211,7 +3208,7 @@ plotTulipBt <- function(  obj = blob, nTrace = 3,
           C_ispt[,s,p,]  <- C_ispt[,s,p,] / Bmsy_sp[s,p]
         }
 
-      LCP_p     <- LCP_p / Bmsy_sp[1,]
+      # LCP_p     <- LCP_p / Bmsy_sp[1,]
       B0_sp     <- B0_sp / Bmsy_sp
       BmsySS_sp <- BmsySS_sp / Bmsy_sp
       
@@ -3323,7 +3320,7 @@ plotTulipBt <- function(  obj = blob, nTrace = 3,
 
       if(nT>100)
       {
-        abline( h = simB0_sp, col = "blue", lty = 3, lwd=1.5 )
+        abline( h = simB0_sp[s,p], col = "blue", lty = 3, lwd=1.5 )
         legend( x = "topleft", bty = "n",
                 legend = c( "B0 simulation estimate"),
                 col = "blue",lty = 3, lwd=1.5 )
@@ -3568,12 +3565,15 @@ plotTulipMt <- function(  obj = blob, nTrace = 3,
 
 # plotTulipEffort_p()
 # Effort over time gridded
-# by stock area - envelopes
-plotTulipEffort_p <- function( obj = blob, nTrace = 3 )
+# by stock area and fleet (right now predators) - envelopes
+plotTulipEffort_p <- function(  obj = blob, 
+                                nTrace = 3,
+                                pIdx = 1,
+                                fIdx = 7:13 )
 {
   goodReps <- obj$goodReps
 
-  E_ipft <- obj$om$E_ipft[goodReps,,,,drop = FALSE ]
+  E_ipft <- obj$om$E_ipft[goodReps,pIdx,,,drop = FALSE ]
 
   E_ipft[E_ipft == 0] <- NA
 
@@ -3592,6 +3592,90 @@ plotTulipEffort_p <- function( obj = blob, nTrace = 3 )
 
   traces <- sample( 1:nReps, size = min(nTrace,nReps)  )
 
+  speciesNames  <- obj$om$speciesNames
+  stockNames    <- obj$om$stockNames
+  fleetNames    <- obj$om$fleetNames
+  fYear         <- obj$ctlList$opMod$fYear
+
+  yrs <- seq( from = fYear, by = 1, length.out = nT)
+
+  fleetCols <- RColorBrewer::brewer.pal( length(fIdx), "Dark2" )
+
+  par(  mfcol = c(length(fIdx),nP), 
+        mar = c(1,1.5,1,1.5),
+        oma = c(3,4,3,3) )
+
+  for(p in pIdx)
+    for( i in 1:length(fIdx) )
+    {
+      f <- fIdx[i]
+      plot( x = range(yrs),
+            y = c(0,max(E_qpft[,,f,],na.rm = T) ),
+            type = "n", axes = F )
+        mfg <- par("mfg")
+        # Plot axes and facet labels
+        if( mfg[1] == mfg[3] )
+          axis( side = 1 )
+        axis( side = 2, las = 1 )
+        if( mfg[2] == mfg[4] )
+        {
+          corners <- par("usr") #Gets the four corners of plot area (x1, x2, y1, y2)
+          par(xpd = TRUE) #Draw outside plot area
+          text(x = corners[2]+2, y = mean(corners[3:4]), stockNames[p], srt = 270,
+                font = 2, cex = 1.5 )
+          par(xpd = FALSE)
+        }
+        box()
+        grid()
+
+        polygon(  x = c(yrs,rev(yrs)), y = c(E_qpft[1,p,f,],rev(E_qpft[3,p,f,])), 
+                  col = scales::alpha(fleetCols[i], alpha = .3), border = NA )
+        
+        for( tIdx in traces )
+          lines( x = yrs, y = E_ipft[tIdx,p,f,], col = fleetCols[i], lwd = .8 )
+        
+        lines( x = yrs, y = E_qpft[2,p,f,], col = fleetCols[i], lwd = 3)
+        abline( v = yrs[tMP] - 0.5, lty = 2, lwd = 0.5 )
+    }
+  mtext( side = 2, outer = TRUE, text = "Trawl Effort (fishing hours?)",
+          line = 2, font = 2)
+} # END plotTulipEffort_p()
+
+
+# plotTulipCatch_pft()
+# Catch over time gridded
+# by stock area and fleet (right now predators) - envelopes
+plotTulipCatch_pft <- function( obj = blob, 
+                                nTrace = 3,
+                                pIdx = 1,
+                                fIdx = 7:13 )
+{
+  goodReps <- obj$goodReps
+
+  tMP     <- obj$om$tMP
+  nS      <- obj$om$nS
+  nP      <- obj$om$nP 
+  nT      <- obj$om$nT
+  nF      <- obj$om$nF
+  nReps   <- dim(obj$om$C_ispft)[1]
+
+
+  C_ipft <- array(0,dim = c(length(goodReps),nP,nF,nT) )
+
+  C_ipft[,pIdx,fIdx,] <- obj$om$C_ispft[goodReps,1,pIdx,fIdx,]
+  
+
+  C_ipft[C_ipft == 0] <- NA
+
+  
+
+  C_qpft <- apply(  X = C_ipft, FUN = quantile,
+                    MARGIN = c(2,3,4), probs = c(0.025, 0.5, 0.975),
+                    na.rm = T )
+
+  C_qpft[C_qpft == 0] <- NA
+
+  traces <- sample( 1:nReps, size = min(nTrace,nReps)  )
 
   speciesNames  <- obj$om$speciesNames
   stockNames    <- obj$om$stockNames
@@ -3600,49 +3684,135 @@ plotTulipEffort_p <- function( obj = blob, nTrace = 3 )
 
   yrs <- seq( from = fYear, by = 1, length.out = nT)
 
-  fleetCols <- RColorBrewer::brewer.pal( nF, "Dark2" )
+  fleetCols <- RColorBrewer::brewer.pal( length(fIdx), "Dark2" )
 
-  par(  mfcol = c(nP,1), 
+  par(  mfcol = c(length(fIdx),nP), 
         mar = c(1,1.5,1,1.5),
         oma = c(3,4,3,3) )
 
-  for( p in 1:nP )
-  {
-    plot( x = range(yrs),
-          y = c(0,max(E_qpft[,p,,],na.rm = T) ),
-          type = "n", axes = F )
-      mfg <- par("mfg")
-      # Plot axes and facet labels
-      if( mfg[1] == mfg[3] )
-        axis( side = 1 )
-      axis( side = 2, las = 1 )
-      if( mfg[2] == mfg[4] )
-      {
-        corners <- par("usr") #Gets the four corners of plot area (x1, x2, y1, y2)
-        par(xpd = TRUE) #Draw outside plot area
-        text(x = corners[2]+2, y = mean(corners[3:4]), stockNames[p], srt = 270,
-              font = 2, cex = 1.5 )
-        par(xpd = FALSE)
-      }
-      box()
-      grid()
-      for( f in 1:nF )
-      {
-        if(f == 2 )
+  for(p in pIdx)
+    for( i in 1:length(fIdx) )
+    {
+      f <- fIdx[i]
+      plot( x = range(yrs),
+            y = c(0,max(C_qpft[,,f,],na.rm = T) ),
+            type = "n", axes = F )
+        mfg <- par("mfg")
+        # Plot axes and facet labels
+        if( mfg[1] == mfg[3] )
+          axis( side = 1 )
+        axis( side = 2, las = 1 )
+        if( mfg[2] == mfg[4] )
         {
-          polygon( x = c(yrs,rev(yrs)), y = c(E_qpft[1,p,f,],rev(E_qpft[3,p,f,])), 
-                  col = scales::alpha(fleetCols[f], alpha = .3), border = NA )
-          for( tIdx in traces )
-            lines( x = yrs, y = E_ipft[tIdx,p,f,], col = fleetCols[f], lwd = .8 )
+          corners <- par("usr") #Gets the four corners of plot area (x1, x2, y1, y2)
+          par(xpd = TRUE) #Draw outside plot area
+          text(x = corners[2]+2, y = mean(corners[3:4]), stockNames[p], srt = 270,
+                font = 2, cex = 1.5 )
+          par(xpd = FALSE)
         }
-        lines( x = yrs, y = E_qpft[2,p,f,], col = fleetCols[f], lwd = 3)
+        box()
+        grid()
+
+        polygon(  x = c(yrs,rev(yrs)), y = c(C_qpft[1,p,f,],rev(C_qpft[3,p,f,])), 
+                  col = scales::alpha(fleetCols[i], alpha = .3), border = NA )
         
-      }
-      abline( v = yrs[tMP] - 0.5, lty = 2, lwd = 0.5 )
-  }
+        for( tIdx in traces )
+          lines( x = yrs, y = C_ipft[tIdx,p,f,], col = fleetCols[i], lwd = .8 )
+        
+        lines( x = yrs, y = C_qpft[2,p,f,], col = fleetCols[i], lwd = 3)
+        abline( v = yrs[tMP] - 0.5, lty = 2, lwd = 0.5 )
+    }
   mtext( side = 2, outer = TRUE, text = "Trawl Effort (fishing hours?)",
           line = 2, font = 2)
-} # END plotTulipEffort_p()
+} # END plotTulipCatch_pft()
+
+# plotTulipPondedBio_pft()
+# Catch over time gridded
+# by stock area and fleet (right now predators) - envelopes
+plotTulipPondedBio_pft <- function( obj = blob, 
+                                    nTrace = 3,
+                                    pIdx = 1 )
+{
+  goodReps <- obj$goodReps
+
+  tMP     <- obj$om$tMP
+  nS      <- obj$om$nS
+  nP      <- obj$om$nP 
+  nT      <- obj$om$nT
+  nF      <- obj$om$nF
+  nReps   <- dim(obj$om$C_ispft)[1]
+
+  # Get SOK fleets
+  browser()
+  sokFleets <- c(6,13)
+
+  P_ipft <- array(0,dim = c(length(goodReps),nP,nF,nT) )
+
+  P_ipft[,pIdx,sokFleets,] <- obj$om$P_ispft[goodReps,1,pIdx,sokFleets,]
+  
+
+  P_ipft[P_ipft == 0] <- NA
+
+  
+
+  P_qpft <- apply(  X = P_ipft, FUN = quantile,
+                    MARGIN = c(2,3,4), probs = c(0.025, 0.5, 0.975),
+                    na.rm = T )
+
+  P_qpft[P_qpft == 0] <- NA
+
+  traces <- sample( 1:nReps, size = min(nTrace,nReps)  )
+
+  speciesNames  <- obj$om$speciesNames
+  stockNames    <- obj$om$stockNames
+  fleetNames    <- obj$om$fleetNames
+  fYear         <- obj$ctlList$opMod$fYear
+
+  yrs <- seq( from = fYear, by = 1, length.out = nT)
+
+  fleetCols <- RColorBrewer::brewer.pal( length(sokFleets), "Dark2" )
+
+  par(  mfcol = c(length(sokFleets),nP), 
+        mar = c(1,1.5,1,1.5),
+        oma = c(3,4,3,3) )
+
+  for(p in pIdx)
+    for( i in 1:length(sokFleets) )
+    {
+      f <- sokFleets[i]
+      plot( x = range(yrs),
+            y = c(0,max(P_qpft[,,f,],na.rm = T) ),
+            type = "n", axes = F )
+        mfg <- par("mfg")
+        # Plot axes and facet labels
+        if( mfg[1] == mfg[3] )
+          axis( side = 1 )
+        axis( side = 2, las = 1 )
+        if( mfg[2] == mfg[4] )
+        {
+          corners <- par("usr") #Gets the four corners of plot area (x1, x2, y1, y2)
+          par(xpd = TRUE) #Draw outside plot area
+          text(x = corners[2]+2, y = mean(corners[3:4]), stockNames[p], srt = 270,
+                font = 2, cex = 1.5 )
+          par(xpd = FALSE)
+        }
+        box()
+        grid()
+
+        polygon(  x = c(yrs,rev(yrs)), y = c(P_qpft[1,p,f,],rev(P_qpft[3,p,f,])), 
+                  col = scales::alpha(fleetCols[i], alpha = .3), border = NA )
+        
+        for( tIdx in traces )
+          lines( x = yrs, y = P_ipft[tIdx,p,f,], col = fleetCols[i], lwd = .8 )
+        
+        lines( x = yrs, y = P_qpft[2,p,f,], col = fleetCols[i], lwd = 3)
+        abline( v = yrs[tMP] - 0.5, lty = 2, lwd = 0.5 )
+    }
+  mtext( side = 2, outer = TRUE, text = "Trawl Effort (fishing hours?)",
+          line = 2, font = 2)
+} # END plotTulipPondedBio_pft()
+
+
 
 # plotTulipSOKEffort_p()
 # Effort over time gridded
@@ -3900,6 +4070,8 @@ plotCtTACt_sp <- function(  obj = blob,
 } # END plotCtTACt_sp()
 
 
+
+
 # plotBtCtRt_p()
 # Biomass and catch plots
 # by stock for the historical
@@ -3983,6 +4155,7 @@ plotBtCtRtMt_p <- function( obj = blob, iRep = 1, sIdx=1)
   SB_ispt  <- obj$om$endSB_ispt
   B_ispt   <- obj$om$B_ispt
   C_ispt   <- obj$om$C_ispt
+  C_ispft  <- obj$om$C_ispft
   R_ispt   <- obj$om$R_ispt
   M_iaxspt <- obj$om$M_iaxspt
 
@@ -3992,8 +4165,19 @@ plotBtCtRtMt_p <- function( obj = blob, iRep = 1, sIdx=1)
   nT      <- obj$om$nT
 
   # replace zeros with NAs for Mortality object
-  M_iaxspt[M_iaxspt==0]
+  M_iaxspt[M_iaxspt==0] <- NA
 
+  # Get predator fleets
+  predGears <- obj$ctlList$opMod$predGears
+  predC_ispt <- array(NA,dim = dim(C_ispt))
+
+  if(length(predGears) > 0 )
+  {
+    C_ispt <- apply( X = C_ispft[,,,-predGears,,drop = FALSE], 
+                     FUN = sum, MARGIN = c(1:3,5), na.rm = T )
+    predC_ispt <- apply(  X = C_ispft[,,,predGears,,drop = FALSE], 
+                          FUN = sum, MARGIN = c(1:3,5), na.rm = T )
+  }
 
   # stockNames    <- obj$om$stockNames
   stockNames    <- dimnames(obj$ctlList$opMod$histRpt$I_pgt)[[1]]
@@ -4012,39 +4196,39 @@ plotBtCtRtMt_p <- function( obj = blob, iRep = 1, sIdx=1)
       plot( x = range(yrs),
             y = c(0,max(SB_ispt[iRep,sIdx,p,]) ),
             type = "n", axes = T, las=1, xlab='', ylab='' )
+        mfg <- par("mfg")
+        if( mfg[1] == mfg[3] )
+          axis( side = 1 )
+        if( mfg[1] == 1 )
+          mtext( side = 3, text = stockNames[p], font = 2, line = 0 )
+        # axis( side = 2, las = 1 )
+        if(p==1)
+          mtext( side = 2, text = 'Spawning Biomass (kt)', line=2.5, cex=0.8 )
 
-      mfg <- par("mfg")
-      if( mfg[1] == mfg[3] )
-        axis( side = 1 )
-      if( mfg[1] == 1 )
-        mtext( side = 3, text = stockNames[p], font = 2, line = 0 )
-      # axis( side = 2, las = 1 )
-      if(p==1)
-        mtext( side = 2, text = 'Spawning Biomass (kt)', line=2.5, cex=0.8 )
-
-      box()
-      grid()
-      lines( x = yrs, y = SB_ispt[iRep,sIdx,p,], col = "red", lwd = 1 )
-      abline( v = yrs[tMP] - 0.5, lty = 2, lwd = 1 )
+        box()
+        grid()
+        lines( x = yrs, y = SB_ispt[iRep,sIdx,p,], col = "red", lwd = 2 )
+        abline( v = yrs[tMP] - 0.5, lty = 2, lwd = 1 )
       # legend('topright',bty='n', cex=0.8,
       #        legend='SBt',lty=1, col='red')
 
       # catch plots
       plot( x = range(yrs),
-            y = c(0,max(C_ispt[iRep,sIdx,p,],na.rm=T) ),
+            y = c(0,max(C_ispt[iRep,sIdx,p,],
+                        predC_ispt[iRep,sIdx,p,],na.rm=T) ),
             type = "n", axes = T, las=1, xlab='', ylab='' )  
       # axis( side = 2, las = 1 )
-      if(p==1)
-        mtext( side = 2, text = 'Catch (kt)', line=2.5, cex=0.8 )
-
-      box()
-      grid()
-      lines( x = yrs, y = C_ispt[iRep,sIdx,p,], col = "black", lwd = 1 )
-      abline( v = yrs[tMP] - 0.5, lty = 2, lwd = 1 )
+        if(p==1)
+          mtext( side = 2, text = 'Catch (kt)', line=2.5, cex=0.8 )
+        box()
+        grid()
+        lines( x = yrs, y = C_ispt[iRep,sIdx,p,], col = "black", lwd = 1 )
+        abline( v = yrs[tMP] - 0.5, lty = 2, lwd = 1 )
+        if(length(predGears) > 0)
+          lines(  x = yrs[tMP:nT], 
+                  y = predC_ispt[iRep,sIdx,p,tMP:nT], col = "salmon", lwd = 2)
       # legend('topright',bty='n', cex=0.8,
       #        legend='Ct',lty=1, col='black')
-
-
 
       # recruitment plots
       plot( x = range(yrs),
@@ -5250,7 +5434,7 @@ plotRE_spft <- function(  repObj, omObj,
   nF <- repObj$nG
 
   fleetType_f <- omObj$fleetType_f
-  sokFleets <- which(fleetType_f == 2)
+  sokFleets <- which(fleetType_f >= 2)
 
   true_spft  <- array(NA, dim = c(nS,nP,nF,nT))
   est_spft   <- array(NA, dim = c(nS,nP,nF,nT))
@@ -5265,9 +5449,17 @@ plotRE_spft <- function(  repObj, omObj,
   # convert SOK product which is what is reported in AMseries
   if( OMseries == "C_ispft" & length(sokFleets) > 0 )
   {
-    psi_pt <- repObj$psi_pt
+    psi_pgt <- repObj$psi_pgt
+    psi_gt  <- repObj$psi_gt
     for (p in 1:nP)
-      true_spft[1:nS,p,6,] <- true_spft[1:nS,p,6,]/psi_pt[p,]
+      for( f in sokFleets)
+      {
+        if(any(psi_pgt[p,f,] != 0))
+          true_spft[1:nS,p,f,] <- true_spft[1:nS,p,f,]/psi_pgt[p,f,]
+
+        if(any(psi_gt[f,] != 0))
+          true_spft[1:nS,p,f,] <- true_spft[1:nS,p,f,]/psi_gt[f,]
+      }
   }
 
   re_qspt  <- calcREdist( true = true_spft,

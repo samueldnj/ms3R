@@ -99,6 +99,7 @@ nS      <- blob$om$nS
 nP      <- blob$om$nP
 nT      <- blob$om$nT
 tMP     <- blob$om$tMP
+pT      <- blob$ctlList$opMod$pT
 
 species <- blob$om$speciesNames
 stock   <- blob$om$stockNames
@@ -182,11 +183,11 @@ BtCtRtMtCap <- "Spawning Biomass, total catch, age-1 recruitment, and mortality 
 ## Spawning Biomass
 
 ```{r, plotTulipBtCt, echo = FALSE, message = FALSE, fig.cap = SBsptCaption }
-plotTulipBt( obj = blob, var='endSB_ispt', dep = TRUE, Ct = TRUE )
+plotTulipBt( obj = blob, var='SB_ispt', dep = TRUE, Ct = TRUE )
 ```
 
 ```{r, plotTulipBtCtProj, echo = FALSE, message = FALSE, fig.cap = SBsptCaption }
-plotTulipBt( obj = blob, var='endSB_ispt', dep = TRUE, Ct = FALSE, tMin=60 )
+plotTulipBt( obj = blob, var='SB_ispt', dep = TRUE, Ct = FALSE, tMin=60 )
 ```
 
 
@@ -248,7 +249,7 @@ if( !is.null(blob$ctlList$mp$assess$spSkewYieldCurves) )
 
 ## Stats table
 
-```{r, phaseTable, echo = FALSE }
+```{r, phaseTable, echo = FALSE, eval = pT > 15 }
 
 statTable <- .simPerfStats( obj = blob, inclAgg=TRUE, exclNoTAC=TRUE ) %>% 
             dplyr::select(stock, pBtGt.3B0, nYrsSOK:catchAAV)
@@ -263,7 +264,7 @@ kable(  statTable, escape = FALSE,
 
 ```
 
-```{r, bridgingTable, echo = FALSE }
+```{r, bridgingTable, echo = FALSE, eval = pT > 15 }
 
 bridgeTable <- .simPerfStats( obj = blob, inclAgg=TRUE, exclNoTAC=FALSE ) %>%
               dplyr::select(stock, pBtGt.3B0, pBtGt.6B0, catchAAV, avgCatch_t, pCtGt650t)
