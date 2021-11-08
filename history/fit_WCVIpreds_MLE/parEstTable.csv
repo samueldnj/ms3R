@@ -1,0 +1,2 @@
+"","dataScenario","modelHyp","Stock","$B_0$","$R_0$","$R_{init}$","$F_{init}$","$M_0$","$\overline{M}$","$q_s$","$q_d$","pdHess"
+"1","WCVI_agg","baseAggModel","WCVI",102.406,1922.023,649.788,0,0.555,0.555,0.379,0.996,FALSE
