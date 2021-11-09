@@ -321,6 +321,7 @@ readBatchInfo <- function(batchDir = here("Outputs") )
   infoList$mp       <- obj$ctlList$ctl$mpName
   infoList$path     <- obj$path
   infoList$simLabel <- obj$simLabel
+  infoList$time     <- obj$time
 
   outFile <- file.path(obj$path, "infoFile.txt")
 

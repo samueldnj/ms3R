@@ -9,6 +9,7 @@
 
 cranPackages <- c("coda",
                   "tidyverse",
+                  "tictoc",
                   "TMB",
                   "RColorBrewer",
                   "parallel",
@@ -24,7 +25,7 @@ cranPackages <- c("coda",
 
 for( pkg in cranPackages )
   while(!require(pkg, character.only = TRUE) )
-    install.packages( pkg, repos = "https://mirror.its.sfu.ca/mirror/CRAN/" )
+    install.packages( pkg, repos = "https://cloud.r-project.org/" )
 
 
 githubPackages <- c(ggsidekick = "seananderson/ggsidekick",

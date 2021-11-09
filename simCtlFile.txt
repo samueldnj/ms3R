@@ -13,9 +13,9 @@ ctl$nGoodReps 3
 ctl$omni FALSE
 ctl$perfConF FALSE
 ctl$noProcErr FALSE
-ctl$nCores NULL
+ctl$nCores 2
 mp$assess$assInt 1
-mp$assess$method "simAssErrors"
+mp$assess$method "hierProd"
 mp$assess$idxPoints 3
 mp$assess$idxScalar 1
 mp$assess$idxFleets 4
@@ -69,12 +69,12 @@ mp$data$idxType c(2,2,1,1)
 mp$data$source "OM"
 mp$data$tvq FALSE
 mp$hcr$refPtType "MS"
-mp$hcr$Fsource "inputFile"
+mp$hcr$Fsource "om"
 mp$hcr$type "conF"
 mp$hcr$inputHRfile "Outputs/omniRuns_noCorr_Apr26/dynEqHR.csv"
 mp$hcr$fileColName 'Xmsy'
 mp$hcr$Bref "Bmsy"
-mp$hcr$Fref "inputF"
+mp$hcr$Fref "Fmsy"
 mp$hcr$LCP .4
 mp$hcr$UCP .6
 mp$hcr$maxDeltaTACup .2
@@ -129,7 +129,7 @@ opMod$GDPgrowth 0.039
 opMod$ut_50 .85
 opMod$ut_95 .75
 opMod$effortMod "Max"
-opMod$pT 80
+opMod$pT 25
 opMod$histFile "fit_base_MCMC"
 opMod$price_s c(Dover=0.62,English=1.21,Rock=0.66,Petrale=2.590,Arrowtooth=0.990)
 opMod$varCostPerKt 0.194

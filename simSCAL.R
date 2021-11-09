@@ -16,6 +16,7 @@
 runMS3 <- function( ctlFile = "./simCtlFile.txt",
                     outFolder = NULL )
 {
+  tic("modelTimer")
   # Load control list
   ctlTable <- .readParFile ( ctlFile )
   # Create control list
@@ -35,6 +36,10 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
 
   # Run mgmtProc
   blob <- .mgmtProc( simObj )
+
+  x <- toc(quiet = TRUE)
+
+  blob$time <- x$toc - x$tic
 
   # Save output
   .saveBlob(blob = blob, ctlTable, outFolder)
@@ -1908,6 +1913,7 @@ solvePTm <- function( Bmsy, B0 )
                             barInitEffDiff_i    = array( NA, dim = c(nReps)) )
 
 
+
   ##########################################################
   ######### ------- CLOSED LOOP SIMULATION ------- #########
   ##########################################################
@@ -1933,6 +1939,14 @@ solvePTm <- function( Bmsy, B0 )
   if(!is.null(ctlList$ctl$nCores) )
   {
     nCores <- ctlList$ctl$nCores
+  
+
+    if(!is.numeric(nCores))
+    {
+      message("(ERROR!) nCores is not an integer, aborting.\n")
+      break
+    }
+
     nRepChunks  <- ceiling( nReps / nCores )
     repChunks   <- vector( mode = "list", length = nRepChunks )
 
@@ -4088,7 +4102,6 @@ combBarrierPen <- function( x, eps,
     
       mu_SP <- -0.5 * sd_SP^2  * (1 - AC_SP)/sqrt(1 - AC_SP^2)
 
-      browser()
 
       # Pull correlation in the jumps
       corr_SP <- ACobj$acf[1,,]
