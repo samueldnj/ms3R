@@ -3597,6 +3597,8 @@ plotTulipEffort_p <- function(  obj = blob,
   fleetNames    <- obj$om$fleetNames
   fYear         <- obj$ctlList$opMod$fYear
 
+  browser()
+
   yrs <- seq( from = fYear, by = 1, length.out = nT)
 
   fleetCols <- RColorBrewer::brewer.pal( length(fIdx), "Dark2" )
@@ -3617,14 +3619,11 @@ plotTulipEffort_p <- function(  obj = blob,
         if( mfg[1] == mfg[3] )
           axis( side = 1 )
         axis( side = 2, las = 1 )
-        if( mfg[2] == mfg[4] )
-        {
-          corners <- par("usr") #Gets the four corners of plot area (x1, x2, y1, y2)
-          par(xpd = TRUE) #Draw outside plot area
-          text(x = corners[2]+2, y = mean(corners[3:4]), stockNames[p], srt = 270,
-                font = 2, cex = 1.5 )
-          par(xpd = FALSE)
-        }
+        
+        legend( x = "topleft",
+                bty ="n",
+                legend = fleetNames[f] )
+        
         box()
         grid()
 
@@ -3637,7 +3636,7 @@ plotTulipEffort_p <- function(  obj = blob,
         lines( x = yrs, y = E_qpft[2,p,f,], col = fleetCols[i], lwd = 3)
         abline( v = yrs[tMP] - 0.5, lty = 2, lwd = 0.5 )
     }
-  mtext( side = 2, outer = TRUE, text = "Trawl Effort (fishing hours?)",
+  mtext( side = 2, outer = TRUE, text = "Predator Effort (biomass or abundance)",
           line = 2, font = 2)
 } # END plotTulipEffort_p()
 

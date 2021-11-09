@@ -660,9 +660,9 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
 
   blob$om$fleetType_f <- simObj$om$fleetType_f
 
-  blob$om$speciesNames  <- dimnames(ctlList$opMod$histRpt$SB_spt)[[1]]
-  blob$om$stockNames    <- dimnames(ctlList$opMod$histRpt$SB_spt)[[2]]
-  blob$om$fleetNames    <- dimnames(ctlList$opMod$histRpt$vB_spft)[[3]]
+  blob$om$speciesNames  <- simObj$om$speciesNames
+  blob$om$stockNames    <- simObj$om$stockNames
+  blob$om$fleetNames    <- simObj$om$fleetNames
 
 
 
@@ -3399,6 +3399,8 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     obj <- .ageSexOpMod( obj, t )
   }
 
+  browser()
+
   obj$om$speciesNames   <- dimnames(ctlList$opMod$histRpt$SB_spt)[[1]]
   obj$om$stockNames     <- dimnames(ctlList$opMod$histRpt$SB_spt)[[2]]
   obj$om$fleetNames     <- dimnames(ctlList$opMod$histRpt$vB_spft)[[3]]
@@ -4122,16 +4124,13 @@ runMS3 <- function( ctlFile = "./simCtlFile.txt",
     obj <- .ageSexOpMod( obj, t )
   }
 
-  obj$om$speciesNames   <- dimnames(ctlList$opMod$histRpt$SB_spt)[[1]]
-  obj$om$stockNames     <- dimnames(ctlList$opMod$histRpt$SB_spt)[[2]]
-  obj$om$fleetNames     <- dimnames(ctlList$opMod$histRpt$vB_spft)[[3]]
-
+  obj$om$speciesNames   <- "Herring"
+  obj$om$stockNames     <- dimnames(ctlList$opMod$histRpt$SB_pt)[[1]]
+  obj$om$fleetNames     <- dimnames(ctlList$opMod$histRpt$C_pgt)[[2]]
   
-
-  obj$om$price_s        <- ctlList$opMod$price_s[obj$om$speciesNames]
-  obj$om$alphaU         <- ctlList$opMod$alphaU
-  obj$om$ut_50          <- ctlList$opMod$ut_50
-  obj$om$ut_95          <- ctlList$opMod$ut_95
+  # obj$om$alphaU         <- ctlList$opMod$alphaU
+  # obj$om$ut_50          <- ctlList$opMod$ut_50
+  # obj$om$ut_95          <- ctlList$opMod$ut_95
 
   return(obj)
 
