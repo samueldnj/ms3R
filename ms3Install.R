@@ -19,9 +19,6 @@ message("Compiling assessment models\n\n")
 compile("hierProd.cpp", flags = "")
 message("\n\n Hierarchical Surplus Production model compiled \n\n")
 
-compile("hierDelay.cpp", flags = "")
-message("\n\n Hierarchical Delay Difference model compiled \n\n")
-
 
 message("\n\n Installation complete \n\n")
 beepr::beep()
