@@ -15,7 +15,7 @@ outcomes in multi-species fisheries [@ono2017management].
 
 Reference points based on $MSY$ aim to maximize equilibrium biological
 yield from a fish stock [@mace2001new], while $MEY$ reference points seek 
-to maximize resource rent (i.e., profit) from a fishery 
+to maximize resource rent from a fishery 
 [@dichmont2010implementing; @hoshino2018estimating]. The main difference 
 between $MSY$ and $MEY$ is that the latter aims for higher catch per unit
 of effort (catch rates) via higher target biomass and lower harvest rates 
@@ -107,7 +107,7 @@ the coast of British Columbia (BC), Canada. Simulated fishing effort in
 each area has realistic constraints caused by technical interactions among the 
 three species [@baudron2015adverse; @pascoe2015setting]. Those same technical 
 interactions are incorporated into multi-species $MSY$ and $MEY$ 
-reference points, which, aong with single species $MSY$ reference points,
+reference points, which, along with single species $MSY$ reference points,
 are estimated analytically via a yield-per-recruit analysis 
 [@beverton1957dynamics; @murawski1984mixed; @pikitch1987use; 
 @hoshino2018estimating]. Multi-species $MSY$ and $MEY$ reference points are
