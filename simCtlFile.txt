@@ -8,12 +8,12 @@ ctl$optimOutput FALSE
 ctl$maxEval 1e4
 ctl$maxIter 1e4
 ctl$rSeed 123
-ctl$totReps 3
-ctl$nGoodReps 10
+ctl$totReps 10
+ctl$nGoodReps 3
 ctl$omni FALSE
 ctl$perfConF FALSE
 ctl$noProcErr FALSE
-ctl$nCores 1
+ctl$nCores NULL
 mp$assess$assInt 1
 mp$assess$method "hierProd"
 mp$assess$idxPoints 3
@@ -21,7 +21,7 @@ mp$assess$idxScalar 1
 mp$assess$idxFleets 4
 mp$assess$simErrFile "assErrDists.RData"
 mp$assess$simErrType "random"
-mp$assess$spSingleStock FALSE
+mp$assess$spSingleStock TRUE
 mp$assess$spPosPenFactor 1e3
 mp$assess$sptauq .4
 mp$assess$spsigU .2
@@ -129,7 +129,7 @@ opMod$GDPgrowth 0.039
 opMod$ut_50 .85
 opMod$ut_95 .75
 opMod$effortMod "Max"
-opMod$pT 25
+opMod$pT 10
 opMod$histFile "fit_base_MCMC"
 opMod$price_s c(Dover=0.62,English=1.21,Rock=0.66,Petrale=2.590,Arrowtooth=0.990)
 opMod$varCostPerKt 0.194

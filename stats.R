@@ -2658,7 +2658,6 @@ makeStatTable <- function(  sim = 1, folder = "",
                                   nS = 3,
                                   nP = 3 )
 {
-
   # Reduce to time period
   TS_ispt <- TS_ispt[,,,tdx]
 
